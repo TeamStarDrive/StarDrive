@@ -200,7 +200,7 @@ namespace Ship_Game.AI
                 UpdatePin(ship, pin.InBorders, insensor);            
             }
         }
-        public float PingRadarStr(Vector2 position, float radius, Empire us, bool factionOnly)
+        public float PingRadarStr(Vector2 position, float radius, Empire us, bool factionOnly, bool any = false)
         {
             float str = 0f;
             foreach (var kv in Pins)            
@@ -210,10 +210,12 @@ namespace Ship_Game.AI
                 if (us == pinEmpire || position.OutsideRadius(kv.Value.Position, radius) || !us.IsEmpireAttackable(pinEmpire))
                     continue;                      
                 str += kv.Value.Strength;
+                if (any) break;
             }
             return str;
         }
-        public float PingRadarStr(Vector2 position, float radius, Empire us) => PingRadarStr(position, radius, us, false);        
+        public float PingRadarStr(Vector2 position, float radius, Empire us) => PingRadarStr(position, radius, us, false);
+        public float PingRadarAny(Vector2 position, float radius, Empire us) => PingRadarStr(position, radius, us, false, true);
 
         public void UpdatePin(Ship ship)
         {
