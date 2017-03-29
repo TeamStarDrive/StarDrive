@@ -292,6 +292,9 @@ namespace Ship_Game
         {
             var usData = SavedGame.DeserializeFromCompressedSave((FileInfo)e.Argument);
 
+            if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
+                Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);
+
             GlobalStats.RemnantKills                  = usData.RemnantKills;
             GlobalStats.RemnantActivation             = usData.RemnantActivation;
             GlobalStats.RemnantArmageddon             = usData.RemnantArmageddon;
@@ -413,7 +416,7 @@ namespace Ship_Game
 
         private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
         {
-            ResourceManager.LoadShips();
+            ResourceManager.LoadShipTemplates();
             base.ScreenManager.inter.ObjectManager.Clear();
             this.data = new UniverseData();
             RandomEventManager.ActiveEvent = this.savedData.RandomEvent;
@@ -489,7 +492,7 @@ namespace Ship_Game
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                 {
-                    Ship ship = Ship.CreateShipFromShipData(shipData.data);
+                    Ship ship = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
                     ship.guid = shipData.guid;
                     ship.Name = shipData.Name;
                     if (shipData.Name != shipData.VanityName)//  !string.IsNullOrEmpty(shipData.VanityName))
@@ -517,7 +520,7 @@ namespace Ship_Game
                     if (!ResourceManager.ShipsDict.ContainsKey(shipData.Name))
                     {
                         shipData.data.Hull = shipData.Hull;
-                        Ship newShip = Ship.CreateShipFromShipData(shipData.data);
+                        Ship newShip = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
                         newShip.SetShipData(shipData.data);
                         if (!newShip.InitializeStatus(fromSave: false))
                             continue;

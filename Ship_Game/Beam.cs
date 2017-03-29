@@ -307,7 +307,7 @@ namespace Ship_Game
                 Duration = 0f;
                 return;
             }
-            Ship ship = Target as Ship;
+            var ship = Target as Ship;
             if (owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp )
             {
                 Die(null, false);

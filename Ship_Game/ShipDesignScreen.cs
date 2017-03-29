@@ -5952,7 +5952,7 @@ namespace Ship_Game
             WriteFileStream.Close();
             ShipSaved = true;
 
-            Ship newShip = Ship.CreateShipFromShipData(toSave);
+            Ship newShip = Ship.CreateShipFromShipData(toSave, fromSave: false);
             newShip.SetShipData(toSave);
             newShip.InitializeStatus(fromSave: false);
             newShip.IsPlayerDesign = true;
