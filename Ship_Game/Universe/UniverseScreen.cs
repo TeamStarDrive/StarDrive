@@ -5927,6 +5927,8 @@ namespace Ship_Game
                         Color color = slot.GetHealthStatusColor();
                         DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, color);
                     }
+
+                    DrawStringProjected(slotCenter, ship.Rotation, 350f / camHeight, Color.Red, $"[{slot.XMLPosition.X},{slot.XMLPosition.Y}]");
                 }
             }
         }
@@ -7233,6 +7235,13 @@ namespace Ship_Game
         public void DrawTextureToScreen(Texture2D texture, Vector2 screenPos, float scale, float rotation, Color textureColor)
         {
             ScreenManager.SpriteBatch.Draw(texture, screenPos, null, textureColor, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
+        }
+
+        public void DrawStringProjected(Vector2 worldPos, float rotation, float scale, Color textColor, string text)
+        {
+            Vector2 screenPos = ProjectToScreenPosition(worldPos);
+            Vector2 size = Fonts.Arial11Bold.MeasureString(text);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, scale, SpriteEffects.None, 1f);
         }
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
