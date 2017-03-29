@@ -5817,23 +5817,7 @@ namespace Ship_Game
                     //else if (moduleSlot.State == ShipDesignScreen.ActiveModuleState.Right) slotOrientation = 1.570796f; // 90
                     //else if (moduleSlot.State == ShipDesignScreen.ActiveModuleState.Rear)  slotOrientation = 3.141593f; // 180
 
-                    Vector2 realModuleCenter; // center of a large 4x4 module
-                    if (xsize == 1 && ysize == 3)
-                    {
-                        realModuleCenter = new Vector2(slotCenter.X - 50f + 16f * xsize / 2,
-                            slotCenter.Y - 8f + 16f * ysize / 2);
-                    }
-                    else if (xsize == 2 && ysize == 5)
-                    {
-                        realModuleCenter = new Vector2(slotCenter.X - 80f + 16f * xsize / 2,
-                            slotCenter.Y - 8f + 16f * ysize / 2);
-                    }
-                    else
-                    {
-                        realModuleCenter = new Vector2(slotCenter.X - 8f + 16f * xsize / 2,
-                            slotCenter.Y - 8f + 16f * ysize / 2);
-                    }
-
+                    Vector2 realModuleCenter = slot.Center;
                     Vector2 target = new Vector2(slotCenter.X - 8f, slotCenter.Y - 8f);
 
                     float angleToTarget = realModuleCenter.AngleToTargetSigned(target);
