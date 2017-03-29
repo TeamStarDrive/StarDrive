@@ -179,12 +179,12 @@ namespace Ship_Game.Gameplay
                                 || ModuleType == ShipModuleType.Drone 
                                 || ModuleType == ShipModuleType.Bomb;
 
-        public ShipModule()     //Constructor
+        private ShipModule()     //Constructor
         {
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        public ShipModule(ShipModule_Deserialize s)
+        private ShipModule(ShipModule_Deserialize s)
         {
             Flyweight = new ShipModuleFlyweight(s);
             XSIZE                = s.XSIZE;
@@ -213,12 +213,68 @@ namespace Ship_Game.Gameplay
             TargetValue          = s.TargetValue;
         }
 
-        public static ShipModule CreateShipModule(string uid, Ship parent, Vector2 xmlPos, float facing)
+        public static bool CanCreate(string uid)
         {
-            ShipModule module = ResourceManager.CreateModuleFromUid(uid);
+            return uid != "Dummy" // dummy modules are deprecated, so disallow creation
+                && ResourceManager.ShipModules.ContainsKey(uid);
+        }
+
+        public static ShipModule CreateTemplate(ShipModule_Deserialize template)
+        {
+            return new ShipModule(template);
+        }
+
+        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing)
+        {
+            ShipModule module = CreateNoParent(uid);
             module.SetParent(parent);
             module.Facing = facing;
             module.Initialize(xmlPos);
+            return module;
+        }
+
+        public static ShipModule CreateNoParent(string uid)
+        {
+            ShipModule template = ResourceManager.GetModuleTemplate(uid);
+            var module = new ShipModule
+            {
+                // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
+                Flyweight            = template.Flyweight,
+                DescriptionIndex     = template.DescriptionIndex,
+                FieldOfFire          = template.FieldOfFire,
+                hangarShipUID        = template.hangarShipUID,
+                hangarTimer          = template.hangarTimer,
+                Health               = template.HealthMax,
+                HealthMax            = template.HealthMax,
+                isWeapon             = template.isWeapon,
+                Mass                 = template.Mass,
+                ModuleType           = template.ModuleType,
+                NameIndex            = template.NameIndex,
+                OrdinanceCapacity    = template.OrdinanceCapacity,
+                ShieldPower          = template.shield_power_max, //Hmmm... This one is strange -Gretman
+                XSIZE                = template.XSIZE,
+                YSIZE                = template.YSIZE
+            };
+            // @todo This might need to be updated with latest ModuleType logic?
+            module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Bomb            ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Command         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure  ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Drone           ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Engine          ? 2 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell        ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Hangar          ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MainGun         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance        ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant      ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Sensors         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Shield          ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb       ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Special         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Turret          ? 1 : 0;
+            module.TargetValue += module.explodes ? 2 : 0;
+            module.TargetValue += module.isWeapon ? 1 : 0;
             return module;
         }
 
@@ -797,7 +853,7 @@ namespace Ship_Game.Gameplay
         {
             InstalledWeapon = ResourceManager.CreateWeapon(ResourceManager.GetModuleTemplate(UID).WeaponType);
             InstalledWeapon.moduleAttachedTo = this;
-            InstalledWeapon.Owner = Parent;
+            InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
             isWeapon = true;
             if (addToParent)
