@@ -223,16 +223,18 @@ namespace Ship_Game.AI
         public void CalculateShipneeds()
         {
             float predicted = Us.GetGSAI().ThreatMatrix.PingRadarStr(System.Position, 300000, Us);
-            int min = (int)ValueToUs; //(Math.Pow(ValueToUs, 3)
+            int min = (int)ValueToUs; 
+            AO closestAO = Us.GetGSAI().AreasOfOperations.FindMin(ao => ao.Position.SqDist(System.Position));
+            float pool = closestAO?.GetOffensiveForcePool().Sum(ship => ship.GetStrength()) * .10f ?? 1000f;            
             foreach (var system in System.FiveClosestSystems)
             {
                 if (!Us.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(system, out SystemCommander syscom)
-                    || syscom == null)
+                    || syscom == null && Us.GetGSAI().ThreatMatrix.PingRadarAny(System.Position, 100000, Us) > 0)
                 {
-                    predicted += (int)Us.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000, Us);
+                    predicted += pool;
                     continue;
                 }
-                min += 50 + (int)(syscom.ValueToUs * syscom.RankImportance);
+                min += Us.data.DiplomaticPersonality.Territorialism;
             }
 
             IdealShipStrength = (int)(predicted * (10f / RankImportance)) +min;
