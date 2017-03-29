@@ -4017,25 +4017,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public float GetStrengthORIG()
-        {
-            float num1 = 0.0f;
-            foreach (Weapon weapon in Weapons)
-            {
-                if (weapon.explodes)
-                    num1 += (float)(weapon.DamageAmount * (1.0 / weapon.fireDelay) * 0.75);
-                else if (weapon.isBeam)
-                    num1 += weapon.DamageAmount * 180f;
-                else
-                    num1 += weapon.DamageAmount * (1f / weapon.fireDelay);
-            }
-            if (num1 <= 0.0f)
-                return 0.0f;
-            float num2 = (num1 + shield_power / 20f + Health) / (float)Size;
-            if (shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station)
-                num2 /= 5f;
-            return num2;
-        }
+
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
         {            
