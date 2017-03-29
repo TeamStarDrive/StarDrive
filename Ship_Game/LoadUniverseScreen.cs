@@ -292,6 +292,9 @@ namespace Ship_Game
         {
             var usData = SavedGame.DeserializeFromCompressedSave((FileInfo)e.Argument);
 
+            if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
+                Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);
+
             GlobalStats.RemnantKills                  = usData.RemnantKills;
             GlobalStats.RemnantActivation             = usData.RemnantActivation;
             GlobalStats.RemnantArmageddon             = usData.RemnantArmageddon;
@@ -413,7 +416,7 @@ namespace Ship_Game
 
         private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
         {
-            ResourceManager.LoadShips();
+            ResourceManager.LoadShipTemplates();
             base.ScreenManager.inter.ObjectManager.Clear();
             this.data = new UniverseData();
             RandomEventManager.ActiveEvent = this.savedData.RandomEvent;
@@ -489,7 +492,7 @@ namespace Ship_Game
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                 {
-                    Ship ship = Ship.CreateShipFromShipData(shipData.data);
+                    Ship ship = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
                     ship.guid = shipData.guid;
                     ship.Name = shipData.Name;
                     if (shipData.Name != shipData.VanityName)//  !string.IsNullOrEmpty(shipData.VanityName))
@@ -517,13 +520,10 @@ namespace Ship_Game
                     if (!ResourceManager.ShipsDict.ContainsKey(shipData.Name))
                     {
                         shipData.data.Hull = shipData.Hull;
-                        Ship newShip = Ship.CreateShipFromShipData(shipData.data);
+                        Ship newShip = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
                         newShip.SetShipData(shipData.data);
-                        if (!newShip.Init(fromSave: false))
-                        {
+                        if (!newShip.InitializeStatus(fromSave: false))
                             continue;
-                        }
-                        newShip.InitializeStatus();
                         newShip.IsPlayerDesign = false;
                         newShip.FromSave = true;
                         ResourceManager.ShipsDict.Add(shipData.Name, newShip);
@@ -535,13 +535,12 @@ namespace Ship_Game
                     }
                     ship.BaseStrength = ResourceManager.CalculateBaseStrength(ship);
 
-                    foreach (ModuleSlot slot in shipData.data.ModuleSlotList)
+                    foreach (ModuleSlotData slot in shipData.data.ModuleSlots)
                     {
                         if (ResourceManager.ModuleExists(slot.InstalledModuleUID))
                             continue;
-                        Log.Info("mismatch = {0}", slot.InstalledModuleUID);
+                        Log.Warning("Invalid Module: {0}", slot.InstalledModuleUID);
                     }
-
 
                     ship.PowerCurrent = shipData.Power;
                     ship.yRotation = shipData.yRotation;
@@ -958,10 +957,10 @@ namespace Ship_Game
                             qi.sData = shipTemplate.GetShipData();
                             qi.DisplayName = qisave.DisplayName;
                             qi.Cost = 0f;
-                            foreach (ModuleSlot slot in shipTemplate.ModuleSlotList)
+                            foreach (ShipModule slot in shipTemplate.ModuleSlotList)
                             {
-                                if (slot.InstalledModuleUID != null)
-                                    qi.Cost += ResourceManager.GetModuleCost(slot.InstalledModuleUID) * savedData.GamePacing;
+                                if (slot.UID != null)
+                                    qi.Cost += ResourceManager.GetModuleCost(slot.UID) * savedData.GamePacing;
                             }
                             QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
@@ -1105,16 +1104,16 @@ namespace Ship_Game
                         {
                             foreach (Ship othership in ship.loyalty.GetShips())
                             {
-                                if (hangar.installedSlot.HangarshipGuid != othership.guid)
+                                if (hangar.HangarShipGuid != othership.guid)
                                     continue;
                                 hangar.SetHangarShip(othership);
                                 othership.Mothership = ship;
                             }
                         }
                     }
-                    Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
                     foreach (SolarSystem s in this.data.SolarSystemsList)
                     {
+                        Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
                         foreach (Planet p in s.PlanetList)
                         {
                             Array<Ship> toadd = new Array<Ship>();
@@ -1131,7 +1130,7 @@ namespace Ship_Game
                                 p.Shipyards[add.guid] = add;
                                 add.TetherToPlanet(p);
                             }
-                            if (p.guid != ship.AI.OrbitTargetGuid)
+                            if (p.guid != orbitTargetGuid)
                             {
                                 continue;
                             }
@@ -1143,12 +1142,12 @@ namespace Ship_Game
                             ship.AI.OrderToOrbit(p, true);
                         }
                     }
-                    Guid systemToDefendGuid = ship.AI.SystemToDefendGuid;
                     if (ship.AI.State == AIState.SystemDefender)
                     {
+                        Guid systemToDefendGuid = ship.AI.SystemToDefendGuid;
                         foreach (SolarSystem s in this.data.SolarSystemsList)
                         {
-                            if (s.guid != ship.AI.SystemToDefendGuid)
+                            if (s.guid != systemToDefendGuid)
                             {
                                 continue;
                             }
@@ -1161,7 +1160,7 @@ namespace Ship_Game
                     Guid escortTargetGuid = ship.AI.EscortTargetGuid;
                     foreach (Ship s in this.data.MasterShipList)
                     {
-                        if (s.guid == ship.AI.EscortTargetGuid)
+                        if (s.guid == escortTargetGuid)
                         {
                             ship.AI.EscortTarget = s;
                         }

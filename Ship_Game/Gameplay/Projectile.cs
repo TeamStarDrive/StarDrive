@@ -373,7 +373,7 @@ namespace Ship_Game.Gameplay
             if (this.moduleAttachedTo != null)
             {
                 this.Center = this.moduleAttachedTo.Center;
-                if (moduleAttachedTo.facing == 0f)
+                if (moduleAttachedTo.Facing == 0f)
                 {
                     Rotation = Owner?.Rotation ?? 0f;
                 }
