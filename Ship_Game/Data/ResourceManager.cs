@@ -752,57 +752,10 @@ namespace Ship_Game
             return null;
         }
 
-
-
         public static float GetModuleCost(string uid)
         {
             ShipModule template = ShipModulesDict[uid];
             return template.Cost;
-        }
-
-        public static ShipModule CreateModuleFromUid(string uid)
-        {
-            ShipModule template = ShipModulesDict[uid];
-            ShipModule module = new ShipModule
-            {
-                // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
-                Flyweight            = template.Flyweight,
-                DescriptionIndex     = template.DescriptionIndex,
-                FieldOfFire          = template.FieldOfFire,
-                hangarShipUID        = template.hangarShipUID,
-                hangarTimer          = template.hangarTimer,
-                Health               = template.HealthMax,
-                HealthMax            = template.HealthMax,
-                isWeapon             = template.isWeapon,
-                Mass                 = template.Mass,
-                ModuleType           = template.ModuleType,
-                NameIndex            = template.NameIndex,
-                OrdinanceCapacity    = template.OrdinanceCapacity,
-                ShieldPower         = template.shield_power_max, //Hmmm... This one is strange -Gretman
-                XSIZE                = template.XSIZE,
-                YSIZE                = template.YSIZE
-            };
-            // @todo This might need to be updated with latest ModuleType logic?
-            module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Bomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Command ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Drone ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Engine ? 2 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Hangar ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MainGun ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Sensors ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Shield ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Special ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
-            module.TargetValue += module.explodes ? 2 : 0;
-            module.TargetValue += module.isWeapon ? 1 : 0;
-            return module;
         }
 
         public static ShipModule GetModuleTemplate(string uid)
@@ -1162,7 +1115,7 @@ namespace Ship_Game
                 if (ShipModulesDict.ContainsKey(data.UID))
                     Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
             #endif
-                ShipModulesDict[data.UID] = data.ConvertToShipModule();
+                ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
             }
 
             Log.Info("Num ShipModule_Advanced: {0}", ShipModuleFlyweight.TotalNumModules);

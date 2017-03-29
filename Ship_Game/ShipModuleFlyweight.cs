@@ -373,7 +373,5 @@ namespace Ship_Game.Gameplay
         public int quadrant = -1;
         public int TargetTracking;
         public int FixedTracking;
-
-        public ShipModule ConvertToShipModule() => new ShipModule(this);
     }
 }
