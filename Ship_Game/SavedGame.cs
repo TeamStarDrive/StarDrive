@@ -13,21 +13,33 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-    public class SerializeAttribute : Attribute
+    public sealed class SerializeAttribute : Attribute
     {
         public int Id { get; set; } = -1;
+        public SerializeAttribute() { }
+        public SerializeAttribute(int id) { Id = id; }
+    }
 
-        public SerializeAttribute()
-        {
-        }
-        public SerializeAttribute(int id)
-        {
-            Id = id;
-        }
+    public sealed class HeaderData
+    {
+        public int SaveGameVersion;
+        public string SaveName;
+        public string StarDate;
+        public DateTime Time;
+        public string PlayerName;
+        public string RealDate;
+        public string ModName = "";
+        public string ModPath = "";
+        public int Version;
+
+        [XmlIgnore][JsonIgnore]public FileInfo FI;
     }
 
     public sealed class SavedGame
     {
+        // Every time the savegame layout changes significantly, this version needs to be bumped to avoid loading crashes
+        public const int SaveGameVersion = 1;
+
         public static bool NewFormat = true; // use new save format ?
         public const string NewExt = ".sav";
         public const string OldExt = ".xml";
@@ -42,6 +54,7 @@ namespace Ship_Game
 
         public SavedGame(UniverseScreen screenToSave, string saveAs)
         {
+            SaveData.SaveGameVersion     = SaveGameVersion;
             SaveData.RemnantKills        = GlobalStats.RemnantKills;
             SaveData.RemnantActivation   = GlobalStats.RemnantActivation;
             SaveData.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
@@ -554,14 +567,14 @@ namespace Ship_Game
 
         private static void SaveUniverseDataAsync(object universeSaveData)
         {
-            UniverseSaveData data = (UniverseSaveData)universeSaveData;
+            var data = (UniverseSaveData)universeSaveData;
             try
             {
                 string ext = NewFormat ? NewExt : OldExt;
-                FileInfo info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ext);
+                var info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ext);
                 using (FileStream writeStream = info.OpenWrite())
                 {
-                    var t = PerfTimer.StartNew();
+                    PerfTimer t = PerfTimer.StartNew();
                     if (NewFormat)
                     {
                         using (var textWriter = new StreamWriter(writeStream))
@@ -590,8 +603,9 @@ namespace Ship_Game
             }
 
             DateTime now = DateTime.Now;
-            HeaderData header = new HeaderData
+            var header = new HeaderData
             {
+                SaveGameVersion = SaveGameVersion,
                 PlayerName = data.PlayerLoyalty,
                 StarDate   = data.StarDate.ToString("#.0"),
                 Time       = now,
@@ -610,9 +624,9 @@ namespace Ship_Game
         public static UniverseSaveData DeserializeFromCompressedSave(FileInfo compressedSave)
         {
             UniverseSaveData usData;
-            FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
+            var decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
 
-            var t = PerfTimer.StartNew();
+            PerfTimer t = PerfTimer.StartNew();
             if (decompressed.Extension == NewExt) // new save format
             {
                 using (FileStream stream = decompressed.OpenRead())
@@ -898,36 +912,35 @@ namespace Ship_Game
 
         public class UniverseSaveData
         {
-            [Serialize(0)] public string path;
-            [Serialize(1)] public string SaveAs;
-            [Serialize(2)] public string FileName;
-            [Serialize(3)] public string FogMapName;
-            [Serialize(4)] public string PlayerLoyalty;
-            [Serialize(5)] public Vector2 campos;
-            [Serialize(6)] public float camheight;
-            [Serialize(7)] public Vector2 Size;
-            [Serialize(8)] public float StarDate;
-            [Serialize(9)] public float GameScale;
-            [Serialize(10)] public float GamePacing;
-            [Serialize(11)] public Array<SolarSystemSaveData> SolarSystemDataList;
-            [Serialize(12)] public Array<EmpireSaveData> EmpireDataList;
-            [Serialize(13)] public UniverseData.GameDifficulty gameDifficulty;
-            [Serialize(14)] public bool AutoExplore;
-            [Serialize(15)] public bool AutoColonize;
-            [Serialize(16)] public bool AutoFreighters;
-            [Serialize(17)] public bool AutoProjectors;
-            [Serialize(18)] public int RemnantKills;
-            [Serialize(19)] public int RemnantActivation;
-            [Serialize(20)] public bool RemnantArmageddon;
-            [Serialize(21)] public float FTLModifier = 1.0f;
-            [Serialize(22)] public float EnemyFTLModifier = 1.0f;
-            [Serialize(23)] public bool GravityWells;
-            [Serialize(24)] public RandomEvent RandomEvent;
-            [Serialize(25)] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
-            [Serialize(26)] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            [Serialize(27)] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
-            // removed save field 28
-            // @todo Change version tag for savegames so we can remove deleted field ID-s
+            [Serialize(0)] public int SaveGameVersion;
+            [Serialize(1)] public string path;
+            [Serialize(2)] public string SaveAs;
+            [Serialize(3)] public string FileName;
+            [Serialize(4)] public string FogMapName;
+            [Serialize(5)] public string PlayerLoyalty;
+            [Serialize(6)] public Vector2 campos;
+            [Serialize(7)] public float camheight;
+            [Serialize(8)] public Vector2 Size;
+            [Serialize(9)] public float StarDate;
+            [Serialize(10)] public float GameScale;
+            [Serialize(11)] public float GamePacing;
+            [Serialize(12)] public Array<SolarSystemSaveData> SolarSystemDataList;
+            [Serialize(13)] public Array<EmpireSaveData> EmpireDataList;
+            [Serialize(14)] public UniverseData.GameDifficulty gameDifficulty;
+            [Serialize(15)] public bool AutoExplore;
+            [Serialize(16)] public bool AutoColonize;
+            [Serialize(17)] public bool AutoFreighters;
+            [Serialize(18)] public bool AutoProjectors;
+            [Serialize(19)] public int RemnantKills;
+            [Serialize(20)] public int RemnantActivation;
+            [Serialize(21)] public bool RemnantArmageddon;
+            [Serialize(22)] public float FTLModifier = 1.0f;
+            [Serialize(23)] public float EnemyFTLModifier = 1.0f;
+            [Serialize(24)] public bool GravityWells;
+            [Serialize(25)] public RandomEvent RandomEvent;
+            [Serialize(26)] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
+            [Serialize(27)] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
+            [Serialize(28)] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
             [Serialize(29)] public int IconSize;
             [Serialize(30)] public byte TurnTimer;
             [Serialize(31)] public bool preventFederations;
