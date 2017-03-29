@@ -1659,21 +1659,21 @@ namespace Ship_Game
 
                 int bombcount = 0;
                 int hangarcount = 0;
-                foreach (ModuleSlot slot in ship.ModuleSlotList)
+                foreach (ShipModule slot in ship.ModuleSlotList)
                 {
-                    if (slot.Module.ModuleType == ShipModuleType.Bomb)
+                    if (slot.ModuleType == ShipModuleType.Bomb)
                     {
-                        bombcount += slot.Module.XSIZE * slot.Module.YSIZE;
+                        bombcount += slot.XSIZE * slot.YSIZE;
                         if (bombcount > ship.Size * .2)
                             canBuildBombers = true;
                     }
-                    if (slot.Module.MaximumHangarShipSize > 0)
+                    if (slot.MaximumHangarShipSize > 0)
                     {
-                        hangarcount += slot.Module.YSIZE * slot.Module.XSIZE;
+                        hangarcount += slot.YSIZE * slot.XSIZE;
                         if (hangarcount > ship.Size * .2)
                             canBuildCarriers = true;
                     }
-                    if (slot.Module.IsTroopBay || slot.Module.TransporterRange > 0)
+                    if (slot.IsTroopBay || slot.TransporterRange > 0)
                         canBuildTroopShips = true;
                 }
 
@@ -1734,9 +1734,9 @@ namespace Ship_Game
             }
 
             // check if all modules in the ship are unlocked
-            foreach (ModuleSlot moduleSlotData in shipData.ModuleSlotList)
+            foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
             {
-                if (string.IsNullOrEmpty(moduleSlotData.InstalledModuleUID) ||
+                if (moduleSlotData.InstalledModuleUID.IsEmpty() ||
                     moduleSlotData.InstalledModuleUID == "Dummy" ||
                     UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
                     continue;
@@ -1760,9 +1760,9 @@ namespace Ship_Game
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
                 {
-                    foreach (ModuleSlot module in ship.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData moduleSlotData in ship.shipData.ModuleSlots)
                     {
-                        if (entry.ModuleUID == module.InstalledModuleUID)
+                        if (entry.ModuleUID == moduleSlotData.InstalledModuleUID)
                             return true;
                     }
                 }
@@ -1775,39 +1775,27 @@ namespace Ship_Game
 
         public bool WeCanUseThisNow(Technology tech)
         {
-            bool flag = false;
-            HashSet<string> unlocklist = new HashSet<string>();
+            var unlocklist = new HashSet<string>();
             foreach(Technology.UnlockedMod unlocked in tech.ModulesUnlocked)
             {
                 unlocklist.Add(unlocked.ModuleUID);
             }
             
-            //Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
-            ShipData shipData;
-            foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict )
+            foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
             {
-
-                shipData = ship.Value.shipData;
-                if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
+                ShipData shipData = ship.Value.shipData;
+                if (shipData.ShipStyle == null || shipData.ShipStyle == data.Traits.ShipType)
                 {
-                    if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
+                    if (shipData == null || (!UnlockedHullsDict.ContainsKey(shipData.Hull) || !UnlockedHullsDict[shipData.Hull]))
                         continue;
-                    foreach (ModuleSlot module in ship.Value.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData moduleSlotData in ship.Value.shipData.ModuleSlots)
                     {
-                        //if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
-                        if(unlocklist.Contains(module.InstalledModuleUID))
-                        {
-                            flag = true;
-                            break;
-                            //status.Stop();
-                            //continue;
-                        }
+                        if (unlocklist.Contains(moduleSlotData.InstalledModuleUID))
+                            return true;
                     }
-                    //if (status.IsStopped)
-                    //    return;
                 }
-            }//);
-            return flag;
+            }
+            return false;
         }
        
         public float GetTotalPop()

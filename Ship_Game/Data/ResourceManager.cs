@@ -145,7 +145,7 @@ namespace Ship_Game
                 if (shipData.hullUnlockable)
                 {
                     shipData.allModulesUnlocakable = true;
-                    foreach (ModuleSlot module in kv.Value.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
                     {
                         if (module.InstalledModuleUID == "Dummy")
                             continue;
@@ -210,7 +210,7 @@ namespace Ship_Game
             LoadWeapons();
             LoadShipModules();
             LoadGoods();
-            LoadShips();
+            LoadShipTemplates();
             LoadJunk();
             LoadAsteroids();
             LoadProjTexts();
@@ -464,7 +464,7 @@ namespace Ship_Game
             foreach (Thruster t in template.GetTList())
                 ship.AddThruster(t);
 
-            ship.LoadModuleSlotsAsCopy(template.ModuleSlotList);
+            ship.CreateModuleSlotsFromData(template.GetShipData().ModuleSlots, fromSave: false);
 
             // Added by McShooterz: add automatic ship naming
             if (GlobalStats.HasMod)
@@ -752,58 +752,10 @@ namespace Ship_Game
             return null;
         }
 
-
-
         public static float GetModuleCost(string uid)
         {
             ShipModule template = ShipModulesDict[uid];
             return template.Cost;
-        }
-
-        public static ShipModule CreateModuleFromUid(string uid)
-        {
-            ShipModule template = ShipModulesDict[uid];
-            ShipModule module = new ShipModule
-            {
-                // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
-                Flyweight            = template.Flyweight,
-                DescriptionIndex     = template.DescriptionIndex,
-                FieldOfFire          = template.FieldOfFire,
-                hangarShipUID        = template.hangarShipUID,
-                hangarTimer          = template.hangarTimer,
-                Health               = template.HealthMax,
-                HealthMax            = template.HealthMax,
-                isWeapon             = template.isWeapon,
-                Mass                 = template.Mass,
-                ModuleType           = template.ModuleType,
-                NameIndex            = template.NameIndex,
-                OrdinanceCapacity    = template.OrdinanceCapacity,
-                shield_power         = template.shield_power_max, //Hmmm... This one is strange -Gretman
-                XSIZE                = template.XSIZE,
-                YSIZE                = template.YSIZE,
-                shieldsOff           = template.shieldsOff
-            };
-            // @todo This might need to be updated with latest ModuleType logic?
-            module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Bomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Command ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Drone ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Engine ? 2 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Hangar ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MainGun ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Sensors ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Shield ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Special ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
-            module.TargetValue += module.explodes ? 2 : 0;
-            module.TargetValue += module.isWeapon ? 1 : 0;
-            return module;
         }
 
         public static ShipModule GetModuleTemplate(string uid)
@@ -1163,7 +1115,7 @@ namespace Ship_Game
                 if (ShipModulesDict.ContainsKey(data.UID))
                     Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
             #endif
-                ShipModulesDict[data.UID] = data.ConvertToShipModule();
+                ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
             }
 
             Log.Info("Num ShipModule_Advanced: {0}", ShipModuleFlyweight.TotalNumModules);
@@ -1172,7 +1124,7 @@ namespace Ship_Game
                 entry.Value.SetAttributesNoParent();
         }
 
-        private static Array<Ship> LoadShips(FileInfo[] shipDescriptors)
+        private static Array<Ship> LoadShipTemplates(FileInfo[] shipDescriptors)
         {
             var ships = new Array<Ship>();
 
@@ -1190,12 +1142,10 @@ namespace Ship_Game
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
 
-                        Ship newShip = Ship.CreateShipFromShipData(shipData);
+                        Ship newShip = Ship.CreateShipFromShipData(shipData, fromSave: false);
                         newShip.SetShipData(shipData);
-                        if (!newShip.Init(fromSave: false))
+                        if (!newShip.InitializeStatus(fromSave: false))
                             continue;
-
-                        newShip.InitializeStatus();
 
                         lock (ships)
                         {
@@ -1216,20 +1166,20 @@ namespace Ship_Game
 
         // Refactored by RedFox
         // This is a hotpath during loading and ~50% of time is spent here
-        public static void LoadShips()
+        public static void LoadShipTemplates()
         {
             ShipsDict.Clear();
 
-            foreach (Ship ship in LoadShips(GatherFilesModOrVanilla("StarterShips", "xml")))
+            foreach (Ship ship in LoadShipTemplates(GatherFilesModOrVanilla("StarterShips", "xml")))
                 ship.reserved = true;
 
-            foreach (Ship ship in LoadShips(GatherFilesUnified("SavedDesigns", "xml")))
+            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("SavedDesigns", "xml")))
                 ship.reserved = true;
 
-            foreach (Ship ship in LoadShips(Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml")))
+            foreach (Ship ship in LoadShipTemplates(Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml")))
                 ship.IsPlayerDesign = true;
 
-            foreach (Ship ship in LoadShips(GatherFilesUnified("ShipDesigns", "xml")))
+            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("ShipDesigns", "xml")))
             {
                 ship.reserved = true;
                 ship.IsPlayerDesign = true;
@@ -1249,20 +1199,16 @@ namespace Ship_Game
             bool fighters = false;
             bool weapons = false;
 
-
-            foreach (ModuleSlot slot in ship.ModuleSlotList)
+            foreach (ShipModule slot in ship.ModuleSlotList)
             {
-                if (slot.InstalledModuleUID == "Dummy")
-                    continue; // Ignore dummy modules -- they are deprecated
+                //ShipModule template = GetModuleTemplate(slot.UID);
+                weapons  |= slot.InstalledWeapon != null;
+                fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
 
-                ShipModule module = GetModuleTemplate(slot.InstalledModuleUID);
-                weapons  |=  module.InstalledWeapon != null;
-                fighters |=  module.hangarShipUID   != null && !module.IsSupplyBay && !module.IsTroopBay;
+                offense += CalculateModuleOffense(slot);
+                defense += CalculateModuleDefense(slot, ship.Size);
 
-                offense += CalculateModuleOffense(module);
-                defense += CalculateModuleDefense(module, ship.Size);
-
-                if (ShipModulesDict[module.UID].WarpThrust > 0)
+                if (ShipModulesDict[slot.UID].WarpThrust > 0)
                     ship.BaseCanWarp = true;
             }
 
@@ -1439,7 +1385,7 @@ namespace Ship_Game
                         if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
                             || module.ModuleType == ShipModuleType.Hangar)
                             tech.TechnologyType = TechnologyType.ShipWeapons;
-                        else if (module.shield_power > 0 
+                        else if (module.ShieldPower > 0 
                                  || module.ModuleType == ShipModuleType.Armor
                                  || module.ModuleType == ShipModuleType.Countermeasure
                                  || module.ModuleType == ShipModuleType.Shield)
