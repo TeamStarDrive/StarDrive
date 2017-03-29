@@ -1006,26 +1006,25 @@ namespace Ship_Game.AI
         {            
             if (Owner.velocityMaximum < 1)
                 return;
-
-            if (Owner.GetShipData().ShipCategory == ShipData.Category.Civilian && orbitTarget.Position.InRadius(Owner.Center , Empire.ProjectorRadius * 2))
+            float distance = orbitTarget.Position.Distance(Owner.Center);
+            if(Owner.shipData.ShipCategory == ShipData.Category.Civilian && distance < Empire.ProjectorRadius * 2)
             {
-                OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, this.OrbitTarget);                
+                OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, OrbitTarget);
                 OrbitPos = orbitTarget.Position;
                 return;
             }
 
-            if (orbitTarget.Position.OutsideRadius ( Owner.Center, 15000f))
+            if (distance > 15000f)
             {
                 ThrustTowardsPosition(orbitTarget.Position, elapsedTime, Owner.speed);
                 OrbitPos = orbitTarget.Position;
                 return;
             }
-
-            float radius = orbitTarget.ObjectRadius + Owner.Radius +1200f;
-            float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
-            
+            findNewPosTimer -= elapsedTime;
             if (findNewPosTimer <= 0f)
             {
+                float radius = orbitTarget.ObjectRadius + Owner.Radius + 1200f;
+                float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
                 if (distanceToOrbitSpot <= radius || Owner.speed < 1f)
                 {                    
                     OrbitalAngle += ((float)Math.Asin(Owner.yBankAmount * 10f)).ToDegrees();
@@ -1034,20 +1033,16 @@ namespace Ship_Game.AI
                 }
                 findNewPosTimer =  elapsedTime * 10f;
                 OrbitPos = orbitTarget.Position.PointOnCircle(OrbitalAngle, radius);
-            }
-            else
-            {
-                findNewPosTimer -= elapsedTime;
-            }
+            }            
 
-            if (distanceToOrbitSpot < 7500f)
+            if (distance < 7500f)
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;
             }
-            if (distanceToOrbitSpot < 500f)
+            if (distance < 1500f + orbitTarget.ObjectRadius)
                 ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.speed > 300f ? 300f : Owner.speed);
             else
                 ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.speed);
