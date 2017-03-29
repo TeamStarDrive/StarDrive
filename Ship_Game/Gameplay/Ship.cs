@@ -1874,7 +1874,7 @@ namespace Ship_Game.Gameplay
 
             if (shipData.Role == ShipData.RoleName.platform)
                 IsPlatform = true;
-            Weapons.Clear();
+            //Weapons.Clear();
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             Init(fromSave: true);
             if (ResourceManager.ShipsDict.ContainsKey(Name) && ResourceManager.ShipsDict[Name].IsPlayerDesign)
@@ -1931,7 +1931,7 @@ namespace Ship_Game.Gameplay
             if (shipData.Role == ShipData.RoleName.platform)
                 IsPlatform = true;
             SetShipData(GetShipData());
-            Weapons.Clear();
+            //Weapons.Clear();
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             lock (GlobalStats.AddShipLocker)
             {
@@ -2684,13 +2684,13 @@ namespace Ship_Game.Gameplay
 
         public void InitializeModules()
         {
-            Weapons.Clear();
+            //Weapons.Clear();
         }
 
         public bool Init(bool fromSave = false)
         {
             if (fromSave) SetShipData(GetShipData());
-            Weapons.Clear();
+            //Weapons.Clear();
             RecalculatePower();
             return true;
         }
@@ -3142,20 +3142,6 @@ namespace Ship_Game.Gameplay
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-<<<<<<< local
-                ModuleSlot slot = ModuleSlotList[i];
-                ShipModule module = slot.Module;
-                if (!module.Active || (module.PowerRadius < 1 && module.ModuleType != ShipModuleType.PowerConduit) || module.Powered) continue;
-
-                float cx = slot.Module.XSIZE * 8;
-                      cx = cx <= 8 ? slot.Position.X : slot.Position.X + cx;
-                float cy = slot.Module.YSIZE * 8;
-                      cy = cy <= 8 ? slot.Position.Y : slot.Position.Y + cy;
-
-                int powerRadius = (int)module.PowerRadius + 8; //+8 to make power radius not lose .5 of an int.
-
-                foreach (ModuleSlot slot2 in ModuleSlotList)
-=======
                 ShipModule module = ModuleSlotList[i];
                 if (!module.Active || (module.PowerRadius < 1 && module.ModuleType != ShipModuleType.PowerConduit) || module.Powered)
                     continue;
@@ -3168,7 +3154,7 @@ namespace Ship_Game.Gameplay
                 int powerRadius = module.PowerRadius * 16 + 8;
 
                 foreach (ShipModule slot2 in ModuleSlotList)
->>>>>>> other
+
                 {
                     if (!slot2.Active || slot2.PowerDraw < 1)
                         continue;
