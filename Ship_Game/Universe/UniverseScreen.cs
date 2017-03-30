@@ -6944,8 +6944,9 @@ namespace Ship_Game
             this.DrawBombs();
             lock (GlobalStats.ObjectManagerLocker)
                 this.ScreenManager.inter.RenderManager.Render();
-
-            using (player.KnownShips.AcquireReadLock())
+            if (viewState < UnivScreenState.SectorView)
+            {
+                using (player.KnownShips.AcquireReadLock())
                 for (int index = 0; index < player.KnownShips.Count; index++)
                 {
                     Ship ship = player.KnownShips[index];
@@ -6958,7 +6959,7 @@ namespace Ship_Game
                                 projectile.GetDroneAI().Beams[j].Draw(this.ScreenManager);
                         }
                     }
-                    if (viewState < UnivScreenState.SectorView)
+                    
                     {
                         for (int i = 0; i < ship.Beams.Count; ++i) // regular FOR to mitigate multi-threading issues
                         {
@@ -6970,6 +6971,7 @@ namespace Ship_Game
                         }
                     }
                 }
+            }
 
             var renderState = ScreenManager.GraphicsDevice.RenderState;
 
@@ -6978,9 +6980,10 @@ namespace Ship_Game
             renderState.DestinationBlend = Blend.One;
             foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
                 anomaly.Draw();
+            if (viewState < UnivScreenState.SectorView)
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                if (solarSystem.ExploredDict[player] && solarSystem.isVisible && camHeight < 150000.0f)
+                if (solarSystem.ExploredDict[player] )
                 {
                     foreach (Planet p in solarSystem.PlanetList)
                     {
@@ -7002,31 +7005,34 @@ namespace Ship_Game
             renderState.DestinationBlend = Blend.One;
             renderState.DepthBufferWriteEnable = false;
             renderState.CullMode = CullMode.None;
-            this.RenderThrusters();
-            this.RenderParticles();
-
-            FTLManager.DrawFTLModels(this);
-            lock (GlobalStats.ExplosionLocker)
+            if (viewState < UnivScreenState.SectorView)
             {
-                foreach (MuzzleFlash item_4 in MuzzleFlashManager.FlashList)
-                    this.DrawTransparentModel(MuzzleFlashManager.flashModel, item_4.WorldMatrix, this.view, this.projection, MuzzleFlashManager.FlashTexture, item_4.scale);
-                MuzzleFlashManager.FlashList.ApplyPendingRemovals();
+                this.RenderThrusters();
+                this.RenderParticles();
+
+                FTLManager.DrawFTLModels(this);
+                lock (GlobalStats.ExplosionLocker)
+                {
+                    foreach (MuzzleFlash item_4 in MuzzleFlashManager.FlashList)
+                        this.DrawTransparentModel(MuzzleFlashManager.flashModel, item_4.WorldMatrix, this.view, this.projection, MuzzleFlashManager.FlashTexture, item_4.scale);
+                    MuzzleFlashManager.FlashList.ApplyPendingRemovals();
+                }
+                this.beamflashes.Draw(gameTime);
+                this.explosionParticles.Draw(gameTime);
+                this.photonExplosionParticles.Draw(gameTime);
+                this.explosionSmokeParticles.Draw(gameTime);
+                this.projectileTrailParticles.Draw(gameTime);
+                this.fireTrailParticles.Draw(gameTime);
+                this.smokePlumeParticles.Draw(gameTime);
+                this.fireParticles.Draw(gameTime);
+                this.engineTrailParticles.Draw(gameTime);
+                this.star_particles.Draw(gameTime);
+                this.neb_particles.Draw(gameTime);
+                this.flameParticles.Draw(gameTime);
+                this.sparks.Draw(gameTime);
+                this.lightning.Draw(gameTime);
+                this.flash.Draw(gameTime);
             }
-            this.beamflashes.Draw(gameTime);
-            this.explosionParticles.Draw(gameTime);
-            this.photonExplosionParticles.Draw(gameTime);
-            this.explosionSmokeParticles.Draw(gameTime);
-            this.projectileTrailParticles.Draw(gameTime);
-            this.fireTrailParticles.Draw(gameTime);
-            this.smokePlumeParticles.Draw(gameTime);
-            this.fireParticles.Draw(gameTime);
-            this.engineTrailParticles.Draw(gameTime);
-            this.star_particles.Draw(gameTime);
-            this.neb_particles.Draw(gameTime);
-            this.flameParticles.Draw(gameTime);
-            this.sparks.Draw(gameTime);
-            this.lightning.Draw(gameTime);
-            this.flash.Draw(gameTime);
             if (!Paused)
             {
                 this.beamflashes.Update(gameTime);
@@ -7051,12 +7057,13 @@ namespace Ship_Game
                 this.ScreenManager.editor.EndFrameRendering();
                 this.ScreenManager.sceneState.EndFrameRendering();
             }
-            this.DrawShields();
+            if (viewState < UnivScreenState.SectorView)
+                this.DrawShields();
             renderState.DepthBufferWriteEnable = true;
         }
 
         protected void DrawShields()
-        {
+        {            
             var renderState = ScreenManager.GraphicsDevice.RenderState;
             renderState.AlphaBlendEnable = true;
             renderState.AlphaBlendOperation = BlendFunction.Add;
