@@ -3255,6 +3255,8 @@ namespace Ship_Game.Gameplay
 
                 if (module.ModuleType == ShipModuleType.Hangar)
                     data.SlotOptions = module.hangarShipUID;
+
+                slots[i] = data;
             }
             return slots;
         }
