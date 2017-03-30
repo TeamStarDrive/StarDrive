@@ -51,6 +51,11 @@ namespace Ship_Game
             Active = false;
         }
 
+        // Draw self to UniverseScreen.
+        public virtual void Draw(UniverseScreen screen)
+        {
+        }
+
         public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color)
         {
             if (sprite != null)

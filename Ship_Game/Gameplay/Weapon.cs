@@ -33,7 +33,7 @@ namespace Ship_Game.Gameplay
         Tractor   = (1 << 20),
     }
 
-    public class Weapon : IDisposable
+    public sealed class Weapon : IDisposable
     {
         private int TagBits;
         public bool this[WeaponTag tag]
@@ -98,7 +98,7 @@ namespace Ship_Game.Gameplay
         public string ExpColor;
         public string dieCue;
         [XmlIgnore][JsonIgnore]
-        protected Cue fireCue;
+        private Cue fireCue;
         public string ToggleSoundName = "";
         private bool ToggleSoundOn;
         [XmlIgnore][JsonIgnore]
@@ -212,28 +212,29 @@ namespace Ship_Game.Gameplay
             return wep;
         }
 
-        protected virtual void CreateDrone(Vector2 direction)
+        private void CreateDrone(Vector2 direction)
         {
             var projectile = new Projectile(Owner, direction, moduleAttachedTo)
             {
-                range = Range,
-                weapon = this,
-                explodes = explodes,
+                range        = Range,
+                weapon       = this,
+                explodes     = explodes,
                 damageAmount = DamageAmount
             };
-            projectile.explodes = explodes;
-            projectile.damageRadius = DamageRadius;
-            projectile.explosionradiusmod = ExplosionRadiusVisual;
-            projectile.speed = ProjectileSpeed;
-            projectile.Health = HitPoints;
-            projectile.WeaponEffectType = WeaponEffectType;
-            projectile.WeaponType = WeaponType;
-            projectile.LoadContent(ProjectileTexturePath, ModelPath);
+            projectile.explodes              = explodes;
+            projectile.damageRadius          = DamageRadius;
+            projectile.explosionradiusmod    = ExplosionRadiusVisual;
+            projectile.speed                 = ProjectileSpeed;
+            projectile.Health                = HitPoints;
+            projectile.WeaponEffectType      = WeaponEffectType;
+            projectile.WeaponType            = WeaponType;
             projectile.RotationRadsPerSecond = RotationRadsPerSecond;
+            projectile.LoadContent(ProjectileTexturePath, ModelPath);
             ModifyProjectile(projectile);
             projectile.InitializeDrone(projectile.speed, direction);
             projectile.Radius = ProjectileRadius;
             Owner.AddProjectile(projectile);
+
             if (Owner.InFrustum)
             {
                 projectile.DieSound = true;
@@ -265,7 +266,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        protected virtual void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
+        private void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
         {
             if (source == null)
                 return;
@@ -301,7 +302,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        protected virtual void CreateTargetedBeam(GameplayObject target)
+        private void CreateTargetedBeam(GameplayObject target)
         {
             var beam = new Beam(moduleAttachedTo.Center, BeamThickness, moduleAttachedTo.GetParent(), target)
             {
@@ -349,7 +350,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        protected virtual void CreateMouseBeam(Vector2 destination)
+        private void CreateMouseBeam(Vector2 destination)
         {
             var beam = new Beam(moduleAttachedTo.Center, destination, BeamThickness, moduleAttachedTo.GetParent())
             {
@@ -449,7 +450,7 @@ namespace Ship_Game.Gameplay
             return projectile;
         }
 
-        protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
+        private void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
         {
             if (SecondaryFire != null && AltFireTriggerFighter && AltFireMode &&
                 target is ShipModule shipModule && shipModule.GetParent().shipData.Role == ShipData.RoleName.fighter)
@@ -480,7 +481,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
+        private void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
         {
             var projectile = new Projectile(p, direction)
             {
@@ -544,7 +545,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public virtual void Fire(Vector2 direction, GameplayObject target)
+        public void Fire(Vector2 direction, GameplayObject target)
         {
             if (Owner.engineState == Ship.MoveState.Warp || timeToNextFire > 0f || !Owner.CheckRangeToTarget(this, target))
                 return;
@@ -577,7 +578,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public virtual void FireDrone(Vector2 direction)
+        public void FireDrone(Vector2 direction)
         {
             if (timeToNextFire > 0f)
             {
@@ -593,7 +594,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public virtual void FireDroneBeam(Vector2 direction, GameplayObject target, DroneAI source)
+        public void FireDroneBeam(Vector2 direction, GameplayObject target, DroneAI source)
         {
             drowner = source.Owner;
             if (timeToNextFire > 0f)
@@ -604,7 +605,7 @@ namespace Ship_Game.Gameplay
             CreateDroneBeam(direction, target, source);
         }
 
-        public virtual void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
+        public void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
         {
             if (target is ShipModule shipModule)
                 shipModule.GetParent().InCombatTimer = 15f;
@@ -629,7 +630,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public virtual void FireSalvo(Vector2 direction, GameplayObject target)
+        public void FireSalvo(Vector2 direction, GameplayObject target)
         {
             if (Owner.engineState == Ship.MoveState.Warp)
                 return;
@@ -651,7 +652,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public virtual void FireTargetedBeam(GameplayObject target)
+        public void FireTargetedBeam(GameplayObject target)
         {
             if (timeToNextFire > 0f )
                 return;
@@ -665,7 +666,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public virtual void FireMouseBeam(Vector2 direction)
+        public void FireMouseBeam(Vector2 direction)
         {
             if (timeToNextFire > 0f)
                 return;
@@ -699,7 +700,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public virtual void FireMouse(Vector2 direction)
+        public void FireMouse(Vector2 direction)
         {
             if (Owner.engineState == Ship.MoveState.Warp || timeToNextFire > 0f)
                 return;
@@ -828,7 +829,7 @@ namespace Ship_Game.Gameplay
             ToggleSoundOn = false;
         }
 
-        public virtual void Update(float elapsedTime)
+        public void Update(float elapsedTime)
         {
             if (timeToNextFire > 0f)
             {
@@ -911,9 +912,11 @@ namespace Ship_Game.Gameplay
 
         ~Weapon() { Destroy(); }
 
-        protected virtual void Destroy()
+        private void Destroy()
         {
         }
+
+        public override string ToString() => $"Weapon {WeaponType} {WeaponEffectType} {Name}";
     }
 
     public sealed class ProjectileTracker
