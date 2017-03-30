@@ -1454,6 +1454,8 @@ namespace Ship_Game
                                 break; // No need to keep looping through all other systems if one is found -Gretman
                             }
                         }
+                        if(ship.System == null)
+                            ship.SetSystem(null); //Add ships to deepspacemanageer if system is null. Ships are not getting added to the deepspace manager from here. 
                     }
                 }//);
             }
