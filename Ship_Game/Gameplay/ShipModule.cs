@@ -1097,5 +1097,10 @@ namespace Ship_Game.Gameplay
             if (healthPercent >  0.00f) return Color.Red;
             return Color.Black;
         }
+
+        public override void Draw(UniverseScreen screen)
+        {
+
+        }
     }
 }

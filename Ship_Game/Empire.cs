@@ -119,7 +119,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
 
-        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints;
+        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
        
 
         public string Name => data.Traits.Name;
