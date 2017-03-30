@@ -598,8 +598,10 @@ namespace Ship_Game
                 HelperFunctions.Compress(info);
                 info.Delete();
             }
-            catch
+            catch (Exception e)
             {
+                Log.Error(e, "SaveUniverseData failed");
+                return;
             }
 
             DateTime now = DateTime.Now;

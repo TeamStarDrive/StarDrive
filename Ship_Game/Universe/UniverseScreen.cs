@@ -1,8 +1,3 @@
-// Type:+836Ship_Game.UniverseScreen
-// Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
-// MVID: C34284EE-F947-460F-BF1D-3C6685B19387
-// Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -701,6 +696,12 @@ namespace Ship_Game
             transitionElapsedTime = 0.0f;
         }
 
+        private void CreateProjectionMatrix()
+        {
+            float aspect = (float)ScreenManager.GraphicsDevice.Viewport.Width / ScreenManager.GraphicsDevice.Viewport.Height;
+            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f);
+        }
+
         public override void LoadContent()
         {
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
@@ -730,7 +731,8 @@ namespace Ship_Game
             GameplayObject.audioListener = listener;
             Weapon.audioListener         = listener;
             GameplayObject.audioListener = listener;
-            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, (float)ScreenManager.GraphicsDevice.Viewport.Width / (float)ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
+
+            CreateProjectionMatrix();
             SetLighting(UseRealLights);
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
@@ -921,7 +923,7 @@ namespace Ship_Game
             ArtificialIntelligence.universeScreen = this;
             FleetDesignScreen.screen              = this;
 
-            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, device.Viewport.Width / (float)device.Viewport.Height, 1000f, 3E+07f);
+            CreateProjectionMatrix();
             Frustum            = new BoundingFrustum(view * projection);
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
@@ -5341,7 +5343,7 @@ namespace Ship_Game
                 lines.Add("Total Time:       " + perfavg5);
 
                 Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 250f, 44f);
-                DrawLines(pos, lines);
+                DrawLinesToScreen(pos, lines);
             }
             if (IsActive)
                 ToolTip.Draw(ScreenManager);
@@ -5732,6 +5734,7 @@ namespace Ship_Game
         {
             if (LookingAtPlanet || viewState > UnivScreenState.SystemView || (!ShowShipNames || ship.dying) || !ship.InFrustum)
                 return;
+
             var symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
             var concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             var arc90         = ResourceManager.Texture("Arcs/Arc90");
@@ -5760,7 +5763,7 @@ namespace Ship_Game
                     Vector2 projSlotCenter = ProjectToScreenPosition(slotCenter);
 
                     float scale = 500f / camHeight;
-                    DrawTextureToScreen(symbolFighter, projSlotCenter, scale, ship.Rotation, slot.GetHealthStatusColor());
+                    DrawTexture(symbolFighter, projSlotCenter, scale, ship.Rotation, slot.GetHealthStatusColor());
                     //DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, slot.GetHealthStatusColor());
 
                     if (ship.isPlayerShip() && slot.FieldOfFire != 0.0f && slot.InstalledWeapon != null)
@@ -5814,104 +5817,77 @@ namespace Ship_Game
                 {
                     int xsize = slot.XSIZE;
                     int ysize = slot.YSIZE;
-                    float slotOrientation = slot.Facing.ToRadians();
-                    //if (moduleSlot.State == ShipDesignScreen.ActiveModuleState.Left)       slotOrientation = 4.712389f; // 270 degs
-                    //else if (moduleSlot.State == ShipDesignScreen.ActiveModuleState.Right) slotOrientation = 1.570796f; // 90
-                    //else if (moduleSlot.State == ShipDesignScreen.ActiveModuleState.Rear)  slotOrientation = 3.141593f; // 180
+                    float slotRotation = ship.Rotation + slot.Facing.ToRadians();
 
-                    Vector2 realModuleCenter = slot.Center;
-                    Vector2 target = new Vector2(slotCenter.X - 8f, slotCenter.Y - 8f);
-
-                    float angleToTarget = realModuleCenter.AngleToTargetSigned(target);
-                    Vector2 angleAndDistance1 = slotCenter.PointFromAngle(
-                        MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
-
-                    float num4 = (float)((int)xsize * 16 / 2);
-                    float num5 = (float)((int)ysize * 16 / 2);
-                    float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num4, 2.0) + (float)Math.Pow((double)num5, 2.0)));
-                    float radians = 3.141593f - (float)Math.Asin((double)num4 / (double)distance) + ship.Rotation;
-                    realModuleCenter = MathExt.PointFromAngle(angleAndDistance1, MathHelper.ToDegrees(radians), distance);
-
-                    Vector2 moduleScreenCenter = ProjectToScreenPosition(realModuleCenter);
+                    Vector2 projectedCenter = ProjectToScreenPosition(slot.Center);
 
                     ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(slot.UID);
                     var moduleTex = ResourceManager.Texture(moduleTemplate.IconTexturePath);
 
                     float num6 = slot.Health / slot.HealthMax;
-                    string index1 = moduleTemplate.IconTexturePath;
+
+                    float moduleSize = moduleTex.Width / (moduleTemplate.XSIZE * 16);
+                    float scale = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight / moduleSize;
+
+                    DrawTexture(moduleTex, projectedCenter, scale, slotRotation, slot.GetHealthStatusColorWhite());
+                    if (enableModuleDebug)
+                    {
+                        DrawCircleProjected(slot.Center, slot.ApproxRadius, 16, Color.Red, 2f);
+                    }
+
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
                     {
-                        float moduleSize = moduleTex.Width / 16;
-                        float scale = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight / moduleSize;
-                        DrawTextureToScreen(moduleTex, moduleScreenCenter, scale, ship.Rotation, Color.White);
-
                         if (slot.Powered)
                         {
                             var poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
-                            DrawTextureToScreen(moduleTex, moduleScreenCenter, scale, ship.Rotation, Color.White);
+                            DrawTexture(moduleTex, projectedCenter, scale, slotRotation, Color.White);
                         }
                     }
-                    else
+                    else if (!slot.Powered && slot.PowerDraw > 0.0f)
                     {
-                        float moduleSize = moduleTex.Width / (moduleTemplate.XSIZE * 16);
-                        float scale = (0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight) / moduleSize;
-
-                        DrawTextureToScreen(moduleTex, moduleScreenCenter, scale, ship.Rotation + slotOrientation, slot.GetHealthStatusColorWhite());
-
-                        if (enableModuleDebug)
-                        {
-                            DrawCircleProjected(realModuleCenter, slot.ApproxRadius, 16, Color.Red, 2f);
-                        }
-                    }
-                    if (ship.isPlayerShip() && slot.FieldOfFire != 0.0f && slot.InstalledWeapon != null)
-                    {
-                        float num7 = slot.FieldOfFire / 2f;
-                        Vector2 angleAndDistance2 = realModuleCenter.PointFromAngle((float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)slot.Facing + -(double)num7), slot.InstalledWeapon.Range);
-                        Vector2 angleAndDistance3 = realModuleCenter.PointFromAngle(MathHelper.ToDegrees(ship.Rotation) + slot.Facing + num7, slot.InstalledWeapon.Range);
-                        viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                        Vector3 vector3_2 = viewport.Project(new Vector3(angleAndDistance2, 0.0f), this.projection, this.view, Matrix.Identity);
-                        viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                        Vector3 vector3_3 = viewport.Project(new Vector3(angleAndDistance3, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 point2_1 = new Vector2(vector3_2.X, vector3_2.Y);
-                        Vector2 point2_2 = new Vector2(vector3_3.X, vector3_3.Y);
-                        float num8 = Vector2.Distance(moduleScreenCenter, point2_1);
-                        Color color1 = new Color(255, 165, 0, 100);
-                        Vector2 origin2 = new Vector2(250f, 250f);
-                        if (slot.InstalledWeapon.WeaponType == "Flak" || slot.InstalledWeapon.WeaponType == "Vulcan")
-                        {
-                            Color color2 = new Color(255, 255, 0, 255);
-                            var rect = new Rectangle((int)moduleScreenCenter.X, (int)moduleScreenCenter.Y, (int)num8 * 2, (int)num8 * 2);
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], rect, null, color2, slot.Facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)slot.InstalledWeapon.Range / 99999.0));
-                        }
-                        else if (slot.InstalledWeapon.WeaponType == "Laser" || slot.InstalledWeapon.WeaponType == "HeavyLaser")
-                        {
-                            Color color2 = new Color(255, (byte)0, (byte)0, byte.MaxValue);
-                            var rect = new Rectangle((int)moduleScreenCenter.X, (int)moduleScreenCenter.Y, (int)num8 * 2, (int)num8 * 2);
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], rect, null, color2, slot.Facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)slot.InstalledWeapon.Range / 99999.0));
-                        }
-                        else if (slot.InstalledWeapon.WeaponType == "PhotonCannon")
-                        {
-                            Color color2 = new Color((byte)0, (byte)0, byte.MaxValue, byte.MaxValue);
-                            var rect = new Rectangle((int)moduleScreenCenter.X, (int)moduleScreenCenter.Y, (int)num8 * 2, (int)num8 * 2);
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], rect, null, color2, slot.Facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)slot.InstalledWeapon.Range / 99999.0));
-                        }
-                        else
-                        {
-                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, moduleScreenCenter, point2_1, new Color(255, 0, 0, 75), 1f);
-                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, moduleScreenCenter, point2_2, new Color(255, 0, 0, 75), 1f);
-                        }
-                    }
-                    if (!slot.Powered && slot.PowerDraw > 0.0f && slot.ModuleType != ShipModuleType.PowerConduit)
-                    {
-                        float scale = 1250f / camHeight;
-                        ScreenManager.SpriteBatch.Draw(lightningBolt, moduleScreenCenter, null, Color.White, 0.0f, lightningBolt.Center(), scale, SpriteEffects.None, 1f);
+                        //float scale = 1250f / camHeight;
+                        DrawTexture(lightningBolt, projectedCenter, scale, slotRotation, Color.White);
                     }
 
                     if (Debug && slot.isExternal && slot.Active)
                     {
-                        float scale = 500f / camHeight;
-                        Color color = slot.GetHealthStatusColor();
-                        DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, color);
+                        //float scale = 500f / camHeight;
+                        DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, slot.GetHealthStatusColor());
+                    }
+
+                    // finally, draw firing arcs for the player ship
+                    if (ship.isPlayerShip() && slot.FieldOfFire != 0.0f && slot.InstalledWeapon != null)
+                    {
+                        float halfArc = (slot.FieldOfFire / 2f).ToRadians();
+                        Vector2 angleAndDistance2 = slot.Center.PointFromRadians(slotRotation - halfArc, slot.InstalledWeapon.Range);
+                        Vector2 angleAndDistance3 = slot.Center.PointFromRadians(slotRotation + halfArc, slot.InstalledWeapon.Range);
+                        Vector2 arcLeft  = ProjectToScreenPosition(angleAndDistance2);
+                        Vector2 arcRight = ProjectToScreenPosition(angleAndDistance3);
+                        float arcLength  = projectedCenter.Distance(arcLeft);
+                        Color color1 = new Color(255, 165, 0, 100);
+                        Vector2 origin2 = new Vector2(250f, 250f);
+
+                        float layerDepth = 1.0f - slot.InstalledWeapon.Range / 99999.0f;
+                        var rect = new Rectangle((int)projectedCenter.X, (int)projectedCenter.Y, (int)arcLength * 2, (int)arcLength * 2);
+
+                        if (slot.InstalledWeapon.WeaponType == "Flak" || slot.InstalledWeapon.WeaponType == "Vulcan")
+                        {
+                            ScreenManager.SpriteBatch.Draw(arc90, rect, null, Color.Yellow, slotRotation, origin2, SpriteEffects.None, layerDepth);
+                        }
+                        else if (slot.InstalledWeapon.WeaponType == "Laser" || slot.InstalledWeapon.WeaponType == "HeavyLaser")
+                        {
+                            ScreenManager.SpriteBatch.Draw(arc90, rect, null, Color.Red, slotRotation, origin2, SpriteEffects.None, layerDepth);
+                        }
+                        else if (slot.InstalledWeapon.WeaponType == "PhotonCannon")
+                        {
+                            DrawTexture(arc90, projectedCenter, scale*arcLength, slotRotation, Color.Blue);
+                            ScreenManager.SpriteBatch.Draw(arc90, rect, null, Color.Blue, slotRotation, origin2, SpriteEffects.None, layerDepth);
+                        }
+                        else
+                        {
+                            DrawLine(projectedCenter, arcLeft, new Color(255, 0, 0, 75), 1f);
+                            DrawLine(projectedCenter, arcRight, new Color(255, 0, 0, 75), 1f);
+                        }
                     }
 
                     DrawStringProjected(slotCenter, ship.Rotation, 350f / camHeight, Color.Red, $"[{slot.XMLPosition.X},{slot.XMLPosition.Y}]");
@@ -5943,7 +5919,7 @@ namespace Ship_Game
                 float scale = num2 / (float)(45 - GlobalStats.IconSize);
                 Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 bool flag = true;
-                foreach (UniverseScreen.ClickableFleet clickableFleet in this.ClickableFleetsList)
+                foreach (ClickableFleet clickableFleet in this.ClickableFleetsList)
                 {
                     if (clickableFleet.fleet == ship.fleet && (double)Vector2.Distance(position, clickableFleet.ScreenPos) < 20.0)
                     {
@@ -5955,7 +5931,7 @@ namespace Ship_Game
                     return;
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
-            else if ((this.ShowTacticalCloseup || this.viewState > UniverseScreen.UnivScreenState.ShipView) && !this.LookingAtPlanet)
+            else if ((this.ShowTacticalCloseup || this.viewState > UnivScreenState.ShipView) && !this.LookingAtPlanet)
             {
                 float num1 = ship.GetSO().WorldBoundingSphere.Radius;
                 Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -5967,7 +5943,7 @@ namespace Ship_Game
                 float scale = num2 / (float)(45- GlobalStats.IconSize); //45
                 Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 bool flag = true;
-                foreach (UniverseScreen.ClickableFleet clickableFleet in this.ClickableFleetsList)
+                foreach (ClickableFleet clickableFleet in this.ClickableFleetsList)
                 {
                     if (clickableFleet.fleet == ship.fleet && (double)Vector2.Distance(position, clickableFleet.ScreenPos) < (double)num2 + 3.0)
                     {
@@ -6097,15 +6073,13 @@ namespace Ship_Game
             if (viewState > UnivScreenState.SystemView)
                 return;
 
-
-            for (int index = 0; index < ship.Projectiles.Count; index++)
+            for (int i = 0; i < ship.Projectiles.Count; i++)
             {
-                Projectile projectile = ship.Projectiles[index];
-                if (Frustum.Contains(projectile.Center.ToVec3()) != ContainmentType.Disjoint
-                    && projectile.WeaponType != "Missile"
-                    && projectile.WeaponType != "Rocket"
-                    && projectile.WeaponType != "Drone")
-
+                Projectile projectile = ship.Projectiles[i];
+                if (projectile.WeaponType != "Missile" && 
+                    projectile.WeaponType != "Rocket"  && 
+                    projectile.WeaponType != "Drone"   && 
+                    Frustum.Contains(projectile.Center, projectile.Radius))
                 {
                     DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
                         projectile.GetWorld(), this.view, this.projection,
@@ -7170,13 +7144,15 @@ namespace Ship_Game
             return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(position.ToVec3(zAxis), ref projection, ref view);
         }
 
+
         // projects the line from World positions into Screen positions, then draws the line
         public void DrawLineProjected(Vector2 worldPosStart, Vector2 worldPosEnd, Color color, float zAxis = 0f)
         {
             DrawLine(ProjectToScreenPosition(worldPosStart, zAxis), ProjectToScreenPosition(worldPosEnd, zAxis), color);
         }
 
-        private void DrawLines(Vector2 position, Array<string> lines)
+        // non-projected draw to screen
+        public void DrawLinesToScreen(Vector2 position, Array<string> lines)
         {
             foreach (string line in lines)
             {
@@ -7186,6 +7162,7 @@ namespace Ship_Game
                 position.Y += Fonts.Arial12Bold.LineSpacing + 2;
             }
         }
+
 
         public void DrawCircleProjected(Vector2 worldPos, float radius, int sides, Color color, float thickness = 1f)
         {
@@ -7214,21 +7191,18 @@ namespace Ship_Game
             DrawCircle(circleCenter, circleRadius, sides, color, thickness);
         }
 
-        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, Color textureColor)
+
+        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, Color color)
+            => DrawTexture(texture, ProjectToScreenPosition(worldPos), scale, 0.0f, color);
+
+        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, float rotation, Color color)
+            => DrawTexture(texture, ProjectToScreenPosition(worldPos), scale, rotation, color);
+
+        public void DrawTexture(Texture2D texture, Vector2 screenPos)
         {
-            DrawTextureProjected(texture, worldPos, scale, 0.0f, textureColor);
+            //ScreenManager.SpriteBatch.Draw(texture, screenPos, null, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
         }
 
-        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, float rotation, Color textureColor)
-        {
-            Vector2 screenPos = ProjectToScreenPosition(worldPos);
-            ScreenManager.SpriteBatch.Draw(texture, screenPos, null, textureColor, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
-        }
-
-        public void DrawTextureToScreen(Texture2D texture, Vector2 screenPos, float scale, float rotation, Color textureColor)
-        {
-            ScreenManager.SpriteBatch.Draw(texture, screenPos, null, textureColor, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
-        }
 
         public void DrawStringProjected(Vector2 worldPos, float rotation, float scale, Color textColor, string text)
         {
@@ -7236,6 +7210,8 @@ namespace Ship_Game
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, scale, SpriteEffects.None, 1f);
         }
+
+
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
         {
