@@ -142,37 +142,40 @@ namespace Ship_Game
 
 		public static void Update()
 		{
-			foreach (Shield shield in PlanetaryShieldList)
-			{
-				shield.pointLight.Intensity -= 2.45f;
-				if (shield.pointLight.Intensity <= 0f)
-					shield.pointLight.Enabled = false;
-				if (shield.texscale <= 0f)
-					continue;
+            if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SectorView)
+            {
+                for (int index = 0; index < PlanetaryShieldList.Count; index++)
+                {
+                    Shield shield = PlanetaryShieldList[index];
+                    shield.pointLight.Intensity -= 2.45f;
+                    if (shield.pointLight.Intensity <= 0f)
+                        shield.pointLight.Enabled = false;
+                    if (shield.texscale <= 0f)
+                        continue;
 
-				shield.World = ((Matrix.Identity 
-                    * Matrix.CreateScale(shield.Radius / 100f)) 
-                    * Matrix.CreateRotationZ(shield.Rotation)) 
-                    * Matrix.CreateTranslation(shield.Center.X, shield.Center.Y, 2500f);
+                    shield.World = ((Matrix.Identity
+                                     * Matrix.CreateScale(shield.Radius / 100f))
+                                    * Matrix.CreateRotationZ(shield.Rotation))
+                                   * Matrix.CreateTranslation(shield.Center.X, shield.Center.Y, 2500f);
 
-				shield.displacement += 0.085f;
-				shield.texscale     -= 0.185f;
-			}
-		    for (int index = 0; index < ShieldList.Count; index++)
-		    {
-		        Shield shield = ShieldList[index];
-                shield.pointLight.Intensity -= 2.45f;
-		        if (shield.pointLight.Intensity <= 0f)
-		        {
-                    shield.pointLight.Enabled = false;
-		        }
-		        if (shield.texscale > 0f)
-		        {
                     shield.displacement += 0.085f;
                     shield.texscale -= 0.185f;
-		        }
-		    }
-
+                }
+                for (int index = 0; index < ShieldList.Count; index++)
+                {
+                    Shield shield = ShieldList[index];
+                    shield.pointLight.Intensity -= 2.45f;
+                    if (shield.pointLight.Intensity <= 0f)
+                    {
+                        shield.pointLight.Enabled = false;
+                    }
+                    if (shield.texscale > 0f)
+                    {
+                        shield.displacement += 0.085f;
+                        shield.texscale -= 0.185f;
+                    }
+                }
+            }
 		    lock (GlobalStats.ShieldLocker)
             {
                 for (int i = ShieldList.Count - 1; i >= 0; --i)
