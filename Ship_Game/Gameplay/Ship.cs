@@ -3415,6 +3415,8 @@ namespace Ship_Game.Gameplay
             {
                 if ((InCombat && !disabled && hasCommand || PlayerShip) && Weapons.Count > 0)
                 {
+                    
+                    AI.CombatAI.UpdateCombatAI(this);
                     IOrderedEnumerable<Weapon> orderedEnumerable;
                     if (AI.CombatState == CombatState.ShortRange)
                         orderedEnumerable = Enumerable.OrderBy<Weapon, float>((IEnumerable<Weapon>)Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));

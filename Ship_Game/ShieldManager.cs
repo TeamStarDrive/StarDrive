@@ -1,20 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Lights;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using System.Linq;
-using Microsoft.Xna.Framework.Content;
 
 namespace Ship_Game
 {
 	public sealed class ShieldManager
 	{
-		private static readonly BatchRemovalCollection<Shield> ShieldList = new BatchRemovalCollection<Shield>();
-		private static readonly BatchRemovalCollection<Shield> PlanetaryShieldList = new BatchRemovalCollection<Shield>();
+		private static readonly Array<Shield> ShieldList = new Array<Shield>();
+		private static readonly Array<Shield> PlanetaryShieldList = new Array<Shield>();
 
 		private static Model     ShieldModel;
 		private static Texture2D ShieldTexture;
@@ -36,34 +28,36 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.ShieldLocker)
 			{
-				foreach (Shield shield in ShieldList)
-				{
-					Vector3 shieldcenter = new Vector3(shield.Owner.Center, 0f);
-					if (Empire.Universe.Frustum.Contains(shieldcenter) == ContainmentType.Disjoint)
-						continue;
-					if (shield.pointLight.Intensity <= 0f)
-						shield.pointLight.Enabled = false;
-					if (shield.texscale <= 0f)
-						continue;
+			    for (int index = 0; index < ShieldList.Count; index++)
+			    {
+			        Shield shield = ShieldList[index];
+			        Vector3 shieldcenter = new Vector3(shield.Owner.Center, 0f);
+			        if (Empire.Universe.Frustum.Contains(shieldcenter) == ContainmentType.Disjoint)
+			            continue;
+			        if (shield.pointLight.Intensity <= 0f)
+			            shield.pointLight.Enabled = false;
+			        if (shield.texscale <= 0f)
+			            continue;
 
-					Matrix w = ((Matrix.Identity * Matrix.CreateScale(shield.Radius / 100f)) * Matrix.CreateRotationZ(shield.Rotation)) * Matrix.CreateTranslation(shield.Owner.Center.X, shield.Owner.Center.Y, 0f);
-					shield.World = w;
-					DrawShield(shield, view, projection);
-				}
-				foreach (Shield shield in PlanetaryShieldList)
-				{
-					if (shield.pointLight.Intensity <= 0f)
-					{
-						shield.pointLight.Enabled = false;
-					}
-					if (shield.texscale <= 0f)
-					{
-						continue;
-					}
-					DrawShield(shield, view, projection);
-				}
-				ShieldList.ApplyPendingRemovals();
-				PlanetaryShieldList.ApplyPendingRemovals();
+			        Matrix w = ((Matrix.Identity * Matrix.CreateScale(shield.Radius / 100f)) *
+			                    Matrix.CreateRotationZ(shield.Rotation)) *
+			                   Matrix.CreateTranslation(shield.Owner.Center.X, shield.Owner.Center.Y, 0f);
+			        shield.World = w;
+			        DrawShield(shield, view, projection);
+			    }
+			    for (int index = 0; index < PlanetaryShieldList.Count; index++)
+			    {
+			        Shield shield = PlanetaryShieldList[index];
+			        if (shield.pointLight.Intensity <= 0f)
+			        {
+			            shield.pointLight.Enabled = false;
+			        }
+			        if (shield.texscale <= 0f)
+			        {
+			            continue;
+			        }
+			        DrawShield(shield, view, projection);
+			    }
 			}
 		}
 
@@ -164,39 +158,34 @@ namespace Ship_Game
 				shield.displacement += 0.085f;
 				shield.texscale     -= 0.185f;
 			}
-            //handle each weapon group in parallel
-            Parallel.For(0, ShieldList.Count, (start, end) =>
-            {
-                for (int i = start; i < end; i++)
-                {
-                    ShieldList[i].pointLight.Intensity -= 2.45f;
-                    if (ShieldList[i].pointLight.Intensity <= 0f)
-                    {
-                        ShieldList[i].pointLight.Enabled = false;
-                    }
-                    if (ShieldList[i].texscale > 0f)
-                    {
-                        ShieldList[i].displacement += 0.085f;
-                        ShieldList[i].texscale -= 0.185f;
-                    }
-                }
-            });
+		    for (int index = 0; index < ShieldList.Count; index++)
+		    {
+		        Shield shield = ShieldList[index];
+                shield.pointLight.Intensity -= 2.45f;
+		        if (shield.pointLight.Intensity <= 0f)
+		        {
+                    shield.pointLight.Enabled = false;
+		        }
+		        if (shield.texscale > 0f)
+		        {
+                    shield.displacement += 0.085f;
+                    shield.texscale -= 0.185f;
+		        }
+		    }
 
-            lock (GlobalStats.ShieldLocker)
+		    lock (GlobalStats.ShieldLocker)
             {
-                for (int i = 0; i < ShieldList.Count; ++i)
+                for (int i = ShieldList.Count - 1; i >= 0; --i)
                 {
                     Shield shield = ShieldList[i];
                     if (shield.Owner == null || shield.Owner.Active)
                         continue;
-
-                    ShieldList.QueuePendingRemoval(shield);
+                    ShieldList.RemoveAtSwapLast(i);                    
                     lock (GlobalStats.ObjectManagerLocker)
                     {
                         Empire.Universe.ScreenManager.inter.LightManager.Remove(shield.pointLight);
                     }
                 }
-                ShieldList.ApplyPendingRemovals();
             }
         }
 	}
