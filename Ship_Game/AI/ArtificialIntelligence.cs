@@ -5558,8 +5558,7 @@ namespace Ship_Game.AI
         //added by gremlin Devekmod AuUpdate(fixed)
         public void Update(float elapsedTime)
         {
-            if (BadGuysNear)
-                CombatAI.UpdateCombatAI(Owner);
+
             ShipGoal toEvaluate;
             if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate)
                 State = AIState.Exterminate;
