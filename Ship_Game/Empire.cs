@@ -2773,7 +2773,7 @@ namespace Ship_Game
             while (unusedFreighters.Count - skipped > minFreightCount)
             {
                 Ship ship = unusedFreighters[0 + skipped];                
-                if ( ship.TradeTimer < 1 && ship.CargoSpace_Used ==0)
+                if ( ship.TradeTimer < 1 && ship.CargoSpaceUsed ==0)
                 {
                     ship.AI.OrderScrapShip();
                     unusedFreighters.Remove(ship);

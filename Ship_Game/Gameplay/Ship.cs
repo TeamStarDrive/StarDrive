@@ -16,22 +16,19 @@ using Ship_Game.Debug;
 
 namespace Ship_Game.Gameplay
 {
-    public sealed class Ship : GameplayObject, IDisposable
+    public sealed partial class Ship : GameplayObject, IDisposable
     {
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Troop> TroopList = new Array<Troop>();
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public bool RecallFightersBeforeFTL = true;
-        private Map<Vector2, ShipModule> ModulesDictionary = new Map<Vector2, ShipModule>();
-        public ShipModule[] ModuleSlotList;
+
         //public float DefaultFTLSpeed = 1000f;    //Not referenced in code, removing to save memory
         public float RepairRate = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float maxBank = 0.5235988f;
-        private Map<string, float> CargoDict = new Map<string, float>();
-        private Map<string, float> MaxGoodStorageDict = new Map<string, float>();
-        private Map<string, float> ResourceDrawDict = new Map<string, float>();
+
         public Vector2 projectedPosition;
         private Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
@@ -78,7 +75,7 @@ namespace Ship_Game.Gameplay
         public float RotationalVelocity;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
-        public float ECMValue = 0f;
+        public float ECMValue;
         public ShipData shipData;
         public int kills;
         public float experience;
@@ -149,7 +146,7 @@ namespace Ship_Game.Gameplay
         private Vector3 pointat;
         private Vector3 scalefactors;
         public float xRotation;
-        public Ship.MoveState engineState;
+        public MoveState engineState;
         public float ScreenRadius;
         //public float ScreenSensorRadius;    //Not referenced in code, removing to save memory
         public bool InFrustum;
@@ -190,7 +187,6 @@ namespace Ship_Game.Gameplay
         public bool hasAssaultTransporter;
         public bool hasRepairBeam;
         public bool hasCommand;
-        private float FTLmodifier = 1f;
 
         public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
@@ -208,14 +204,19 @@ namespace Ship_Game.Gameplay
 
         public Array<Empire> BorderCheck = new Array<Empire>();
 
+        public float FTLModifier { get; private set; } = 1f;
+
         public bool IsInNeutralSpace
         {
             get
-            {                
-                foreach (Empire e in BorderCheck)
+            {
+                for (int i = 0; i < BorderCheck.Count; ++i)
                 {
+                    Empire e = BorderCheck[i];
+                    if (e == loyalty)
+                        return false;
                     Relationship rel = loyalty.GetRelations(e);
-                    if (rel.AtWar || rel.Treaty_Alliance || e == loyalty)
+                    if (rel.AtWar || rel.Treaty_Alliance)
                         return false;
                 }
                 return true; 
@@ -225,17 +226,12 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                foreach (Empire e in BorderCheck)
+                for (int i = 0; i < BorderCheck.Count; ++i)
                 {
-                    if (e == loyalty)
+                    Empire e = BorderCheck[i];
+                    if (e == loyalty || loyalty.GetRelations(e).Treaty_Alliance)
                         return true;
-                    Relationship rel = loyalty.GetRelations(e);
-                    if (rel.Treaty_Alliance )
-                    {
-                        return true;
-                    }
                 }
-
                 return false;
             }
         }
@@ -244,59 +240,24 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                foreach(Empire e in BorderCheck)
-                {
-                    Relationship rel = loyalty.GetRelations(e);
-                    if (rel.AtWar )
-                    {
+                for (int i = 0; i < BorderCheck.Count; ++i)
+                    if (loyalty.GetRelations(BorderCheck[i]).AtWar)
                         return true;
-                    }
-                }
-
                 return false;
             }            
-        }
-
-
-        public float CargoSpace_Used
-        {
-            get
-            {
-                float num = 0.0f;
-                if (CargoDict.ContainsKey("Food"))
-                    num += CargoDict["Food"];
-                if (CargoDict.ContainsKey("Production"))
-                    num += CargoDict["Production"];
-                if (CargoDict.ContainsKey("Colonists_1000"))
-                    num += CargoDict["Colonists_1000"];
-                return num;
-            }
-            set
-            {
-            }
-        }
-        public void CargoClear()
-        {
-            Array<string> keys = new Array<string>(CargoDict.Keys);
-            foreach (string cargo in keys)
-            {
-                CargoDict[cargo] = 0;
-            }
-
         }
 
         private int Calculatesize()
         {
             int size = 0;
-            foreach (ShipModule module in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
+                ShipModule module = ModuleSlotList[i];
                 size += module.XSIZE * module.YSIZE;
             }
-
             return size;
         }
 
-        public float GetFTLmodifier => FTLmodifier;
 
         public IReadOnlyList<Projectile> Projectiles => projectiles;
         public IReadOnlyList<Beam> Beams => beams;
@@ -706,7 +667,7 @@ namespace Ship_Game.Gameplay
         {
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
             {
-                AddGood(keyValuePair.Key, 0);
+                AddCargo(keyValuePair.Key, 0);
                 if (!keyValuePair.Value.IsCargo)
                 {
                     MaxGoodStorageDict.Add(keyValuePair.Key, 0.0f);
@@ -799,11 +760,11 @@ namespace Ship_Game.Gameplay
 
                 }
             }
-            FTLmodifier = 1;
+            FTLModifier = 1;
             if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
-                FTLmodifier += loyalty.data.Traits.InBordersSpeedBonus;
-            FTLmodifier *= ftlmodtemp;
-            maxFTLSpeed = (WarpThrust / base.Mass + WarpThrust / base.Mass * loyalty.data.FTLModifier) * FTLmodifier;
+                FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
+            FTLModifier *= ftlmodtemp;
+            maxFTLSpeed = (WarpThrust / base.Mass + WarpThrust / base.Mass * loyalty.data.FTLModifier) * FTLModifier;
 
 
         }
@@ -851,21 +812,26 @@ namespace Ship_Game.Gameplay
             return (Ship)MemberwiseClone();
         }
 
-        public float GetCost(Empire e)
+        public float GetCost(Empire empire)
         {
             if (shipData.HasFixedCost)
                 return shipData.FixedCost;
-            float num = 0.0f;
-            foreach (ShipModule module in ModuleSlotList)
-                num += module.Cost * UniverseScreen.GamePaceStatic;
-            if (e != null)
+
+            float cost = 0.0f;
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                cost += ModuleSlotList[i].Cost * UniverseScreen.GamePaceStatic;
+
+            if (empire != null)
             {
-                //Added by McShooterz: hull bonus starting cost
-                num += (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(shipData.Hull) ? ResourceManager.HullBonuses[shipData.Hull].StartingCost : 0);
-                num += num * e.data.Traits.ShipCostMod;
-                return (int)(num * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(shipData.Hull) ? 1f - ResourceManager.HullBonuses[shipData.Hull].CostBonus : 1));
+                HullBonus bonus = null;
+                bool hasBonus = GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses
+                    && ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out bonus);
+
+                if (hasBonus) cost += bonus.StartingCost;
+                cost += cost * empire.data.Traits.ShipCostMod;
+                if (hasBonus) cost *= 1f - bonus.CostBonus;
             }
-            return (int)num;
+            return (int)cost;
         }
 
         public ShipData GetShipData()
@@ -893,11 +859,6 @@ namespace Ship_Game.Gameplay
             InCombatTimer        = 15f;
         }
 
-        public Map<string, float> GetCargo()
-        {
-            return CargoDict;
-        }
-
         public Map<string, float> GetResDrawDict()
         {
             return ResourceDrawDict;
@@ -908,14 +869,6 @@ namespace Ship_Game.Gameplay
             return MaxGoodStorageDict;
         }
 
-        public void AddGood(string UID, int Amount)
-        {
-            //Log.Info("AddGood {0}: {1}", UID, Amount);
-            if (CargoDict.ContainsKey(UID))
-                CargoDict[UID] = CargoDict[UID] + Amount;
-            else
-                CargoDict.Add(UID, Amount);
-        }
 
         public void ProcessInput(float elapsedTime)
         {
@@ -1051,22 +1004,23 @@ namespace Ship_Game.Gameplay
                     MouseState state = Mouse.GetState();
                     if (state.RightButton == ButtonState.Pressed)
                     {
-                        Vector3 position = Empire.Universe.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)state.X, (float)state.Y, 0.0f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity);
-                        Vector3 direction = Empire.Universe.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)state.X, (float)state.Y, 1f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity) - position;
+                        Vector3 position = Empire.Universe.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(state.X, state.Y, 0.0f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity);
+                        Vector3 direction = Empire.Universe.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(state.X, state.Y, 1f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity) - position;
                         direction.Normalize();
-                        Ray ray = new Ray(position, direction);
+                        var ray = new Ray(position, direction);
                         float num = -ray.Position.Z / ray.Direction.Z;
-                        Vector3 PickedPos = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
+                        var pickedPos3D = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
+                        Vector2 pickedPos = pickedPos3D.ToVec2();
                         foreach (Weapon w in Weapons)
                         {
                             if (w.timeToNextFire <= 0.0 && w.moduleAttachedTo.Powered)
                             {
-                                if (CheckIfInsideFireArc(w, PickedPos))
+                                if (CheckIfInsideFireArc(w, pickedPos3D))
                                 {
-                                    if (!w.isBeam)
-                                        w.FireMouse(Vector2.Normalize(findVectorToTarget(new Vector2(w.Center.X, w.Center.Y), new Vector2(PickedPos.X, PickedPos.Y))));
-                                    else if (w.isBeam)
-                                        w.FireMouseBeam(new Vector2(PickedPos.X, PickedPos.Y));
+                                    if (w.isBeam)
+                                        w.FireMouseBeam(pickedPos.Normalized());
+                                    else 
+                                        w.FireMouse((pickedPos - w.Center).Normalized());
                                 }
                             }
                         }
@@ -1382,15 +1336,6 @@ namespace Ship_Game.Gameplay
             ThrusterList = list;
         }
 
-        private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
-        {
-            return new Vector2(0.0f, 0.0f)
-            {
-                X = (float)-(OwnerPos.X - TargetPos.X),
-                Y = (float)-(OwnerPos.Y - TargetPos.Y)
-            };
-        }
-
         public void SetSO(SceneObject so)
         {
             ShipSO = so;
@@ -1418,251 +1363,148 @@ namespace Ship_Game.Gameplay
 
         // ModInfo activation option for Maintenance Costs:
 
-        public float GetMaintCostRealism()
+        private bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire)
+        {
+            return shipData.ShipStyle == "Remnant"
+                || empire?.data == null
+                || loyalty.data.PrototypeShip == Name
+                || (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
+        }
+
+        // Calculate maintenance by proportion of ship cost
+        private static float GetModMaintenanceModifier(ShipData.RoleName role)
+        {
+            ModInformation mod = GlobalStats.ActiveModInfo;
+            if (role == ShipData.RoleName.fighter  || role == ShipData.RoleName.scout)     return mod.UpkeepFighter;
+            if (role == ShipData.RoleName.corvette || role == ShipData.RoleName.gunboat)   return mod.UpkeepCorvette;
+            if (role == ShipData.RoleName.frigate  || role == ShipData.RoleName.destroyer) return mod.UpkeepFrigate;
+            if (role == ShipData.RoleName.cruiser)   return mod.UpkeepCruiser;
+            if (role == ShipData.RoleName.carrier)   return mod.UpkeepCarrier;
+            if (role == ShipData.RoleName.capital)   return mod.UpkeepCapital;
+            if (role == ShipData.RoleName.freighter) return mod.UpkeepFreighter;
+            if (role == ShipData.RoleName.platform)  return mod.UpkeepPlatform;
+            if (role == ShipData.RoleName.station)   return mod.UpkeepStation;
+            if (role == ShipData.RoleName.drone && mod.useDrones) return mod.UpkeepDrone;
+            return mod.UpkeepBaseline;
+        }
+
+        public float GetMaintCostRealism() => GetMaintCostRealism(loyalty);
+
+        public float GetMaintCostRealism(Empire empire)
         {
             ShipData.RoleName role = shipData.Role;
-            
-            // Free upkeep ships
-            if (GetShipData().ShipStyle == "Remnant" || loyalty?.data == null || loyalty.data.PrototypeShip == Name ||
-                Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate)
-            {
+            if (IsFreeUpkeepShip(role, loyalty))
                 return 0f;
+
+            float maint = GetCost(empire) * GetModMaintenanceModifier(role);
+
+            if (maint <= 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0f)
+            {
+                maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
             }
-
-            float maint = GetCost(loyalty);
-
-            // Calculate maintenance by proportion of ship cost, Duh.
-            if (role == ShipData.RoleName.fighter 
-                || role == ShipData.RoleName.scout)       maint *= GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (role == ShipData.RoleName.corvette 
-                || role == ShipData.RoleName.gunboat)     maint *= GlobalStats.ActiveModInfo.UpkeepCorvette;
-            else if (role == ShipData.RoleName.frigate 
-                || role == ShipData.RoleName.destroyer)   maint *= GlobalStats.ActiveModInfo.UpkeepFrigate;
-            else if (role == ShipData.RoleName.cruiser)   maint *= GlobalStats.ActiveModInfo.UpkeepCruiser;
-            else if (role == ShipData.RoleName.carrier)   maint *= GlobalStats.ActiveModInfo.UpkeepCarrier;
-            else if (role == ShipData.RoleName.capital)   maint *= GlobalStats.ActiveModInfo.UpkeepCapital;
-            else if (role == ShipData.RoleName.freighter) maint *= GlobalStats.ActiveModInfo.UpkeepFreighter;
-            else if (role == ShipData.RoleName.platform)  maint *= GlobalStats.ActiveModInfo.UpkeepPlatform;
-            else if (role == ShipData.RoleName.station)   maint *= GlobalStats.ActiveModInfo.UpkeepStation;
-            else if (role == ShipData.RoleName.drone
-                && GlobalStats.ActiveModInfo.useDrones)   maint *= GlobalStats.ActiveModInfo.UpkeepDrone;
-            else                                          maint *= GlobalStats.ActiveModInfo.UpkeepBaseline;
-
-            if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
-                maint = GetCost(loyalty) * GlobalStats.ActiveModInfo.UpkeepBaseline;
-            else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
-                maint = GetCost(loyalty) * 0.004f;
 
             // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
-
-            if (shipData.HasFixedUpkeep && loyalty != null)
+            if (empire != null && shipData.HasFixedUpkeep)
             {
                 maint = shipData.FixedUpkeep;
-            }      
-
-            // Modifiers below here   
-
-
-            //Doctor: Configurable civilian maintenance modifier.
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && loyalty != null && !loyalty.isFaction && loyalty.data.CivMaintMod != 1)
-            {
-                maint *= loyalty.data.CivMaintMod;
             }
 
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && loyalty != null && !loyalty.isFaction && loyalty.data.Privatization)
+            // Doctor: Configurable civilian maintenance modifier.
+            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire?.isFaction == false)
             {
-                maint *= 0.5f;
+                maint *= empire.data.CivMaintMod;
+                if (!empire.data.Privatization)
+                    maint *= 0.5f;
             }
 
             if (GlobalStats.ShipMaintenanceMulti > 1)
             {
                 maint *= GlobalStats.ShipMaintenanceMulti;
             }
+
+            if (empire != null)
+            {
+                maint += maint * empire.data.Traits.MaintMod;
+            }
             return maint;
 
         }
 
-        public float GetMaintCostRealism(Empire empire)
+        private float GetFreighterSizeCostMultiplier()
         {
-            float maint = 0f;
-            float maintModReduction = 1;
+            switch (Size / 50)
+            {
+                default: return (int)(Size / 50);
+                case 0: return 1.0f;
+                case 1: return 1.5f;
+                case 2: case 3: case 4: return 2f;
+            }
+        }
+
+        private static float GetShipRoleMaintenance(ShipRole role, Empire empire)
+        {
+            for (int i = 0; i < role.RaceList.Count; ++i)
+                if (role.RaceList[i].ShipType == empire.data.Traits.ShipType)
+                    return role.RaceList[i].Upkeep;
+            return role.Upkeep;
+        }
+
+        public float GetMaintCost() => GetMaintCost(loyalty);
+
+        public float GetMaintCost(Empire empire)
+        {
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                return GetMaintCostRealism(empire);
+
             ShipData.RoleName role = shipData.Role;
 
-            // Calculate maintenance by proportion of ship cost, Duh.
-            if (role == ShipData.RoleName.fighter || role == ShipData.RoleName.scout)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (role == ShipData.RoleName.corvette || role == ShipData.RoleName.gunboat)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCorvette;
-                else if (role == ShipData.RoleName.frigate || role == ShipData.RoleName.destroyer)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFrigate;
-                else if (role == ShipData.RoleName.cruiser)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCruiser;
-                else if (role == ShipData.RoleName.carrier)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCarrier;
-                else if (role == ShipData.RoleName.capital)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCapital;
-                else if (role == ShipData.RoleName.freighter)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFreighter;
-                else if (role == ShipData.RoleName.platform)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepPlatform;
-                else if (role == ShipData.RoleName.station)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepStation;
-                else if (role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepDrone;
-                else
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
-
-                if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
-                    maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
-                else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
-                    maint = GetCost(empire) * 0.004f;
-
-
-            // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
-
-            if (shipData.HasFixedUpkeep && empire != null)
+            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
             {
-                maint = shipData.FixedUpkeep;
+                Log.Error("ShipRole {0} not found!", role);
+                return 0f;
             }
 
-            // Modifiers below here   
+            // Free upkeep ships
+            if (shipData.ShipStyle == "Remnant" || empire?.data == null || 
+                (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate))
+                return 0f;
 
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1)
+            float maint = GetShipRoleMaintenance(shipRole, empire);
+            if (role == ShipData.RoleName.freighter)
+                maint *= GetFreighterSizeCostMultiplier();
+
+            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
             {
                 maint *= empire.data.CivMaintMod;
+                if (empire.data.Privatization)
+                    maint *= 0.5f;
             }
 
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.Privatization)
-            {
-                maint *= 0.5f;
-            }
-
-            if (GlobalStats.ShipMaintenanceMulti > 1)
-            {
-                maintModReduction = GlobalStats.ShipMaintenanceMulti;
-                maint *= (float)maintModReduction;
-            }
-            maint += maint * empire.data.Traits.MaintMod;
-            return maint;
-
-        }
-            
-
-        public float GetMaintCost()
-        {
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-            {
-                if(loyalty == null)
-                return GetMaintCostRealism();
-                else
-                    return GetMaintCostRealism(loyalty);
-            }
-            float maint = 0f;
-            ShipData.RoleName role = shipData.Role;
-            //string role = role;
-            //string str = role;
-            //bool nonCombat = false;
-            //added by gremlin: Maintenance changes
-            float maintModReduction = 1;
-
-            //Ships without upkeep
-            if (shipData.ShipStyle == "Remnant" || loyalty?.data == null || (Mothership != null && (role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate)))
-            {
-                return 0f;
-            }
-
-            //Get Maintanence of ship role
-            bool foundMaint = false;
-            if (ResourceManager.ShipRoles.ContainsKey(role))
-            {
-                for (int i = 0; i < ResourceManager.ShipRoles[role].RaceList.Count(); i++)
-                {
-                    if (ResourceManager.ShipRoles[role].RaceList[i].ShipType == loyalty.data.Traits.ShipType)
-                    {
-                        maint = ResourceManager.ShipRoles[role].RaceList[i].Upkeep;
-                        foundMaint = true;
-                        break;
-                    }
-                }
-                if (!foundMaint)
-                    maint = ResourceManager.ShipRoles[role].Upkeep;
-            }
-            else
-                return 0f;
-
-            //Modify Maintanence by freighter size
-            if(role == ShipData.RoleName.freighter)
-            {
-                switch (Size / 50)
-                {
-                    case 0:
-                        {
-                            break;
-                        }
-
-                    case 1:
-                        {
-                            maint *= 1.5f;
-                            break;
-                        }
-
-                    case 2:
-                    case 3:
-                    case 4:
-                        {
-                            maint *= 2f;
-                            break;
-                        }
-                    default:
-                        {
-                            maint *= Size / 50;
-                            break;
-                        }
-                }
-            }
-
-
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && loyalty != null && !loyalty.isFaction && loyalty.data.CivMaintMod != 1.0)
-            {
-                maint *= loyalty.data.CivMaintMod;
-            }
-
-            //Apply Privatization
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && loyalty != null && !loyalty.isFaction && loyalty.data.Privatization)
-            {
-                maint *= 0.5f;
-            }
-
-            //Subspace Projectors do not get any more modifiers
+            // Subspace Projectors do not get any more modifiers
             if (Name == "Subspace Projector")
-            {
                 return maint;
-            }
 
             //added by gremlin shipyard exploit fix
             if (IsTethered())
             {
                 if (role == ShipData.RoleName.platform)
-                    return maint *= 0.5f;
-                if (shipData.IsShipyard && GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) > 3)
-                    maint *= GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) - 3;
+                    return maint * 0.5f;
+                if (shipData.IsShipyard)
+                {
+                    int numShipYards = GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard);
+                    if (numShipYards > 3)
+                        maint *= numShipYards - 3;
+                }
             }
 
-            //Maintenance fluctuator
-            //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
-            float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            if (OptionIncreaseShipMaintenance > 1)
+            // Maintenance fluctuator
+            float maintModReduction = GlobalStats.ShipMaintenanceMulti;
+            if (maintModReduction > 1)
             {
-                maintModReduction = OptionIncreaseShipMaintenance;
-
-                if (IsInFriendlySpace || inborders)// && Properties.Settings.Default.OptionIncreaseShipMaintenance >1)
+                if (IsInFriendlySpace || inborders)
                 {
                     maintModReduction *= .25f;
                     if (inborders) maintModReduction *= .75f;
-                    //if (this.GetAI().inOrbit)
-                    //{
-                    //    maintModReduction *= .25f;
-                    //}
                 }
                 if (IsInNeutralSpace && !IsInFriendlySpace)
                 {
@@ -1682,100 +1524,6 @@ namespace Ship_Game.Gameplay
 
                 }
                 if (maintModReduction < 1) maintModReduction = 1;
-                maint *= maintModReduction;
-            }
-            return maint;
-        }
-
-        // The Doctor - This function is an overload which is used for the Ship Build menu.
-        // It will calculate the maintenance cost in exactly the same way as the normal function, except as the ship build list elements have no loyalty data, this variable is called by the function
-        //CG modified so that the original function will call the mod only function if a mod is present and such.
-        public float GetMaintCost(Empire empire)
-        {
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-            {
-                return GetMaintCostRealism(empire);
-            }
-            float maint = 0f;
-            //shipData.Role role = this.shipData.Role;
-            //string str = role;
-            //bool nonCombat = false;
-            //added by gremlin: Maintenance changes
-            float maintModReduction = 1;
-
-            //Get Maintanence of ship role
-            bool foundMaint = false;
-            if (ResourceManager.ShipRoles.ContainsKey(shipData.Role))
-            {
-                for (int i = 0; i < ResourceManager.ShipRoles[shipData.Role].RaceList.Count(); i++)
-                {
-                    if (ResourceManager.ShipRoles[shipData.Role].RaceList[i].ShipType == empire.data.Traits.ShipType)
-                    {
-                        maint = ResourceManager.ShipRoles[shipData.Role].RaceList[i].Upkeep;
-                        foundMaint = true;
-                        break;
-                    }
-                }
-                if (!foundMaint)
-                    maint = ResourceManager.ShipRoles[shipData.Role].Upkeep;
-            }
-            else
-                return 0f;
-
-            //Modify Maintanence by freighter size
-            if (shipData.Role == ShipData.RoleName.freighter)
-            {
-                switch ((int)Size / 50)
-                {
-                    case 0:
-                        {
-                            break;
-                        }
-
-                    case 1:
-                        {
-                            maint *= 1.5f;
-                            break;
-                        }
-
-                    case 2:
-                    case 3:
-                    case 4:
-                        {
-                            maint *= 2f;
-                            break;
-                        }
-                    default:
-                        {
-                            maint *= (int)Size / 50;
-                            break;
-                        }
-                }
-            }
-
-            if ((shipData.Role == ShipData.RoleName.freighter || shipData.Role == ShipData.RoleName.platform) && empire.data.CivMaintMod != 1.0)
-            {
-                maint *= empire.data.CivMaintMod;
-            }
-
-            //Apply Privatization
-            if ((shipData.Role == ShipData.RoleName.freighter || shipData.Role == ShipData.RoleName.platform) && empire.data.Privatization)
-            {
-                maint *= 0.5f;
-            }
-
-            //Subspace Projectors do not get any more modifiers
-            if (Name == "Subspace Projector")
-            {
-                return maint;
-            }
-
-            //Maintenance fluctuator
-            //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
-            float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            if (OptionIncreaseShipMaintenance > 1)
-            {
-                maintModReduction = OptionIncreaseShipMaintenance;
                 maint *= maintModReduction;
             }
             return maint;
@@ -1859,13 +1607,13 @@ namespace Ship_Game.Gameplay
 
         public void LoadFromSave()
         {
-            foreach (KeyValuePair<string, ShipData> keyValuePair in Ship_Game.ResourceManager.HullsDict)
+            foreach (KeyValuePair<string, ShipData> keyValuePair in ResourceManager.HullsDict)
             {
                 if (keyValuePair.Value.ModelPath == ModelPath)
                 {
                     if (keyValuePair.Value.Animated)
                     {
-                        SkinnedModel skinnedModel = Ship_Game.ResourceManager.GetSkinnedModel(ModelPath);
+                        SkinnedModel skinnedModel = ResourceManager.GetSkinnedModel(ModelPath);
                         ShipSO = new SceneObject(skinnedModel.Model);
                         animationController = new AnimationController(skinnedModel.SkeletonBones);
                         animationController.StartClip(skinnedModel.AnimationClips["Take 001"]);
@@ -1949,7 +1697,6 @@ namespace Ship_Game.Gameplay
             {
                 Empire.Universe?.ShipsToAdd.Add(this);
             }
-            InitializeModules();
 
             Ship template = ResourceManager.ShipsDict[Name];
             IsPlayerDesign = template.IsPlayerDesign;
@@ -1983,171 +1730,6 @@ namespace Ship_Game.Gameplay
             ShipStatusChange();
             shipInitialized = true;
         }
-
-        private void CheckIfExternalModule(Vector2 pos, ShipModule module)
-        {
-            if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y - 16f), out ShipModule q1) || !q1.Active)
-            {
-                module.isExternal = true;
-                module.quadrant   = 1;
-            }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X + 16f, pos.Y), out ShipModule q4) || !q4.Active)
-            {
-                module.isExternal = true;
-                module.quadrant = 2;
-            }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y + 16f), out ShipModule q2) || !q2.Active)
-            {
-                module.isExternal = true;
-                module.quadrant   = 3;
-            }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X - 16f, pos.Y), out ShipModule q3) || !q3.Active)
-            {
-                module.isExternal = true;
-                module.quadrant   = 4;
-            }
-        }
-
-        private void FillExternalSlots()
-        {
-            ExternalSlots.Clear();
-            ModulesDictionary.Clear();
-            foreach (ShipModule slot in ModuleSlotList)
-                ModulesDictionary.Add(slot.XMLPosition, slot);
-
-            foreach (KeyValuePair<Vector2, ShipModule> kv in ModulesDictionary)
-            {
-                ShipModule module = kv.Value;
-                if (module.Active)
-                    CheckIfExternalModule(kv.Key, module);
-                if (module.isExternal)
-                    ExternalSlots.Add(module);
-            }
-        }
-
-        // @note ExternalSlots are always Alive (Active). This is because ExternalSlots get
-        //       updated every time a module dies. The code for that is in ShipModule.cs
-        public ShipModule FindClosestExternalModule(Vector2 point)
-        {
-            return ExternalSlots.FindMin(module => point.SqDist(module.Center));
-        }
-
-        public Array<ShipModule> FindExternalModules(int quadrant)
-        {
-            var modules = new Array<ShipModule>();
-            int count = ExternalSlots.Count;
-            var slots = ExternalSlots.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-            {
-                ShipModule module = slots[i];
-                if (module.quadrant == quadrant && module.Health > 0f)
-                    modules.Add(module);
-            }
-            return modules;
-        }
-
-        public ShipModule FindUnshieldedExternalModule(int quadrant)
-        {
-            int count = ExternalSlots.Count;
-            var slots = ExternalSlots.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-            {
-                ShipModule module = slots[i];
-                if (module.quadrant == quadrant && module.Health > 0f && module.ShieldPower <= 0f)
-                    return module;
-            }
-            return null; // aargghh ;(
-        }
-
-        public ShipModule RayHitTestExternalModules(
-            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields = false)
-        {
-            return RayHitTestExternalModules(startPos, startPos + direction * distance, rayRadius, ignoreShields);
-        }
-
-        // @todo This needs optimization
-        public ShipModule RayHitTestExternalModules(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
-        {
-            int count = ExternalSlots.Count;
-            var slots = ExternalSlots.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-            {
-                ShipModule module = slots[i];
-                if (!module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                Vector2 point = module.Center.FindClosestPointOnLine(startPos, endPos);
-                if (module.HitTest(point, rayRadius, ignoreShields))
-                    return module;
-            }
-            return null;
-        }
-
-        public ShipModule HitTestExternalModules(Vector2 hitPos, float hitRadius, bool ignoreShields = false)
-        {
-            int count = ExternalSlots.Count;
-            var slots = ExternalSlots.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-            {
-                ShipModule module = slots[i];
-                if (!module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                if (module.HitTest(hitPos, hitRadius, ignoreShields))
-                    return module;
-            }
-            return null;
-        }
-
-        // find ShipModules that collide with a this wide RAY
-        // direction must be normalized!!
-        // results are sorted by distance
-        public Array<ShipModule> RayHitTestModules(
-            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields = false)
-        {
-            Vector2 endPos = startPos + direction * distance;
-
-            var modules = new Array<ShipModule>();
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (!module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                Vector2 point = module.Position.FindClosestPointOnLine(startPos, endPos);
-                if (module.HitTest(point, rayRadius, ignoreShields))
-                    modules.Add(module);
-            }
-            modules.Sort(module => startPos.SqDist(module.Position));
-            return modules;
-        }
-
-        // find ShipModules that fall into hit radius (eg an explosion)
-        // results are sorted by distance
-        public Array<ShipModule> HitTestModules(Vector2 hitPos, float hitRadius, bool ignoreShields = false)
-        {
-            var modules = new Array<ShipModule>();
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (!module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                if (module.HitTest(hitPos, hitRadius, ignoreShields))
-                    modules.Add(module);
-            }
-            modules.Sort(module => hitPos.SqDist(module.Position));
-            return modules;
-        }
-
 
         public void ResetJumpTimer()
         {
@@ -2282,8 +1864,7 @@ namespace Ship_Game.Gameplay
         ///added by gremlin Initialize status from deveks mod. 
         public bool InitializeStatus(bool fromSave)
         {
-            if (!Init(fromSave))
-                return false;
+            Init(fromSave);
             base.Mass = 0f;
             Mass += (float)Size;
             Thrust                    = 0f;
@@ -2642,62 +2223,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave)
-        {
-            int count = 0;
-            for (int i = 0; i < templateSlots.Length; ++i)
-                if (ShipModule.CanCreate(templateSlots[i].InstalledModuleUID))
-                    ++count; // @note Backwards savegame compatibility, dummy modules are deprecated
 
-            ModuleSlotList = new ShipModule[count];
-
-            count = 0;
-            for (int i = 0; i < templateSlots.Length; ++i)
-            {
-                ModuleSlotData slotData = templateSlots[i];
-                if (!ShipModule.CanCreate(slotData.InstalledModuleUID))
-                    continue;
-
-                ShipModule module = ShipModule.Create(slotData.InstalledModuleUID, this, slotData.Position, slotData.Facing);
-                if (fromSave)
-                {
-                    module.Health      = slotData.Health;
-                    module.ShieldPower = slotData.ShieldPower;
-                }
-                module.HangarShipGuid = slotData.HangarshipGuid;
-                module.hangarShipUID  = slotData.SlotOptions;
-                ModuleSlotList[count++] = module;
-            }
-        }
-
-        public static Ship CreateShipFromShipData(ShipData data, bool fromSave)
-        {
-            var ship = new Ship
-            {
-                Position       = new Vector2(200f, 200f),
-                Name           = data.Name,
-                Level          = data.Level,
-                experience     = data.experience,
-                shipData       = data,
-                ModelPath      = data.ModelPath
-            };
-
-            ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave);
-
-            foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
-                ship.ThrusterList.Add(new Thruster
-                {
-                    tscale = thrusterZone.Scale,
-                    XMLPos = thrusterZone.Position,
-                    Parent = ship
-                });
-            return ship;
-        }
-
-        public void InitializeModules()
-        {
-            //Weapons.Clear();
-        }
 
         public bool Init(bool fromSave = false)
         {
