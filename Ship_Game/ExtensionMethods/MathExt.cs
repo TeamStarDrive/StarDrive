@@ -15,6 +15,28 @@ namespace Ship_Game
             return Max(min, Min(value, max));
         }
 
+        // Basic Linear Interpolation
+        public static float LerpTo(this float minValue, float maxValue, float amount)
+        {
+            return minValue + (maxValue - minValue) * amount;
+        }
+
+        // This will smoothstep "fromValue" towards "targetValue"
+        // @warning "fromValue" WILL CHANGE
+        // @return The new "fromValue"
+        public static float SmoothStep(this float fromValue, float targetValue, float amount)
+        {
+            float clamped = amount.Clamp(0f, 1f);
+            return fromValue.LerpTo(targetValue, clamped*clamped * (3f - 2f * clamped));
+        }
+
+        public static float SmoothStep(ref float fromValue, float targetValue, float amount)
+        {
+            float clamped = amount.Clamp(0f, 1f);
+            fromValue = fromValue.LerpTo(targetValue, clamped * clamped * (3f - 2f * clamped));
+            return fromValue;
+        }
+
         // Gets the Squared distance from source point a to destination b
         // This is faster than Vector2.Distance()
         public static float SqDist(this Vector2 a, Vector2 b)
@@ -43,6 +65,12 @@ namespace Ship_Game
             return (float)Sqrt(dx*dx + dy*dy);
         }
 
+        public static float Distance(this Vector2 a, ref Vector2 b)
+        {
+            float dx = a.X - b.X;
+            float dy = a.Y - b.Y;
+            return (float)Sqrt(dx * dx + dy * dy);
+        }
 
         // Gets the accurate distance from source point a to destination b
         // This is slower than Vector3.SqDist()

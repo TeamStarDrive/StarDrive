@@ -814,8 +814,11 @@ namespace Ship_Game
                     }
 
 
+                    // @todo Use this to fix the 'original' code below :)))
+                    var arcTexture = Empire.Universe.GetArcTexture(slot.module.FieldOfFire);
+
                     //Original by The Doctor, modified by McShooterz
-                    if (slot.module.FieldOfFire == 90f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc90"))
+                    if (slot.module.FieldOfFire == 90f)
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -824,7 +827,7 @@ namespace Ship_Game
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(arcTexture, toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
                         {
@@ -1192,7 +1195,7 @@ namespace Ship_Game
                     modRect.X = mb.moduleRect.X + 64 - modRect.Width / 2;
                     modRect.Y = mb.moduleRect.Y + 64 - modRect.Height / 2;
                 //};
-                base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[moduleTemplate.IconTexturePath], modRect, Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(moduleTemplate.IconTexturePath), modRect, Color.White);
                 float nWidth = Fonts.Arial12.MeasureString(Localizer.Token(moduleTemplate.NameIndex)).X;
                 Vector2 nameCursor = new Vector2((float)(mb.moduleRect.X + 64) - nWidth / 2f, (float)(mb.moduleRect.Y + 128 - Fonts.Arial12.LineSpacing - 2));
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Localizer.Token(moduleTemplate.NameIndex), nameCursor, Color.White);

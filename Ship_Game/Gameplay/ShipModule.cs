@@ -253,7 +253,8 @@ namespace Ship_Game.Gameplay
                 OrdinanceCapacity    = template.OrdinanceCapacity,
                 ShieldPower          = template.shield_power_max, //Hmmm... This one is strange -Gretman
                 XSIZE                = template.XSIZE,
-                YSIZE                = template.YSIZE
+                YSIZE                = template.YSIZE,
+                IconTexturePath      = template.IconTexturePath,
             };
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;

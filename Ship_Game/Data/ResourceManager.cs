@@ -421,6 +421,11 @@ namespace Ship_Game
             return ShipsDict[shipName];
         }
 
+        public static bool GetShipTemplate(string shipName, out Ship template)
+        {
+            return ShipsDict.TryGetValue(shipName, out template);
+        }
+
         public static string GetShipHull(string shipName)
         {
             return ShipsDict[shipName].GetShipData().Hull;
