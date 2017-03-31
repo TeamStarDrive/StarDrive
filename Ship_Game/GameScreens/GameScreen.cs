@@ -135,18 +135,26 @@ namespace Ship_Game
 
         // just draws a line, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawLine(Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
-            => Primitives2D.DrawLine(ScreenManager.SpriteBatch, point1, point2, color, thickness);
+        public void DrawLine(Vector2 screenPoint1, Vector2 screenPoint2, Color color, float thickness = 1f)
+            => Primitives2D.DrawLine(ScreenManager.SpriteBatch, screenPoint1, screenPoint2, color, thickness);
 
         // just draws a circle, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawCircle(Vector2 center, float radius, int sides, Color color, float thickness = 1f)
-            => Primitives2D.DrawCircle(ScreenManager.SpriteBatch, center, radius, sides, color, thickness);
+        public void DrawCircle(Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
+            => Primitives2D.DrawCircle(ScreenManager.SpriteBatch, posOnScreen, radius, sides, color, thickness);
 
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawTexture(Texture2D texture, Vector2 screenPos, float scale, float rotation, Color color)
-            => ScreenManager.SpriteBatch.Draw(texture, screenPos, null, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
+        public void DrawTexture(Texture2D texture, Vector2 posOnScreen, float scale, float rotation, Color color)
+            => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, null, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
+
+        // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawTextureSized(Texture2D texture, Vector2 posOnScreen, float rotation, float width, float height, Color color)
+        {
+            var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
+            ScreenManager.SpriteBatch.Draw(texture, rect, null, color, rotation, texture.Center(), SpriteEffects.None, 1f);
+        }
 
         ~GameScreen() { Dispose(false); }
 
