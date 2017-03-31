@@ -46,16 +46,16 @@ namespace Ship_Game
             Pixel.SetData(new []{ Color.White });
         }
 
-        public static void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, int sides, Color color, float thickness = 1f)
+        public static void DrawCircle(SpriteBatch spriteBatch, Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
         {
             float step = 6.28318530717959f / sides;
 
-            var start = new Vector2(center.X + radius, center.Y); // 0 angle is horizontal right
+            var start = new Vector2(posOnScreen.X + radius, posOnScreen.Y); // 0 angle is horizontal right
             Vector2 previous = start;
 
             for (float theta = step; theta < 6.28318530717959f; theta += step)
             {
-                var current = new Vector2(center.X + radius * (float)Math.Cos(theta), center.Y + radius * (float)Math.Sin(theta));
+                var current = new Vector2(posOnScreen.X + radius * (float)Math.Cos(theta), posOnScreen.Y + radius * (float)Math.Sin(theta));
 
                 DrawLine(spriteBatch, previous, current, color, thickness);
                 previous = current;

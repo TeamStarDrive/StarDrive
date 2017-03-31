@@ -1904,7 +1904,7 @@ namespace Ship_Game.Gameplay
             foreach (ShipModule m in ModuleSlotList)
             {
                 if (m.ModuleType == ShipModuleType.PowerConduit)
-                    m.IconTexturePath = GetConduitGraphic(m, this);
+                    m.IconTexturePath = GetConduitGraphic(m);
                 if (m.ModuleType == ShipModuleType.Hangar)
                 {
                     Hangars.Add(m);
@@ -1966,7 +1966,7 @@ namespace Ship_Game.Gameplay
                 if (module.UID == "Dummy")
                     continue;
                 if (module.ModuleType == ShipModuleType.PowerConduit)
-                    module.IconTexturePath = GetConduitGraphic(module, this);
+                    module.IconTexturePath = GetConduitGraphic(module);
 
                 HasRepairModule |= module.IsRepairModule;
                 isColonyShip    |= module.ModuleType == ShipModuleType.Colony;
@@ -2225,7 +2225,7 @@ namespace Ship_Game.Gameplay
             }
             if (velocityMaximum > GetmaxFTLSpeed)
                 return;
-            if (engineState == Ship.MoveState.Sublight && !isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) > 0.1f)
+            if (engineState == MoveState.Sublight && !isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) > 0.1f)
             {
                 isSpooling = true;
                 ResetJumpTimer();
@@ -3266,14 +3266,14 @@ namespace Ship_Game.Gameplay
             return 200000f;
         }
 
-        private string GetConduitGraphic(ShipModule forModule, Ship ship)
+        private string GetConduitGraphic(ShipModule forModule)
         {
             bool right = false;
             bool left  = false;
             bool down  = false;
             bool up    = false;
             int sides  = 0;
-            foreach (ShipModule module in ship.ModuleSlotList)
+            foreach (ShipModule module in ModuleSlotList)
             {
                 if (module != forModule && module.ModuleType == ShipModuleType.PowerConduit)
                 {
