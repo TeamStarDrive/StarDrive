@@ -530,7 +530,7 @@ namespace Ship_Game.Gameplay
                 ship.MoveModulesTimer = 2f;
 
                 Vector2 hitPos;
-                float hitDistance = hit.Center.RayCircleIntersect(hit.ApproxRadius, beamStart, beamEnd);
+                float hitDistance = hit.Center.RayCircleIntersect(hit.Radius, beamStart, beamEnd);
                 if (hitDistance > 0f)
                     hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
                 else // the beam probably glanced the module from side, so just get the closest point:
