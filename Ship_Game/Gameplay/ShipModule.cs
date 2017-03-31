@@ -645,6 +645,8 @@ namespace Ship_Game.Gameplay
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
 
+        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+
         private void Initialize(Vector2 pos)
         {
             ++DebugInfoScreen.ModulesCreated;
@@ -679,7 +681,6 @@ namespace Ship_Game.Gameplay
                     if (OrdinanceCapacity < 50)
                         OrdinanceCapacity = 50;
                 }     
-
             }
             if (Parent == null)
                 Log.Error("module parent is null");

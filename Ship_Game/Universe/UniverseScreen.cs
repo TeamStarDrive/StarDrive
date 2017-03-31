@@ -4821,36 +4821,21 @@ namespace Ship_Game
 
         protected void DrawShieldBubble(Ship ship)
         {
-            if (this.LookingAtPlanet)
-                return;
-            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            Vector2 vector2_1 = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
+            var uiNode = ResourceManager.Texture("UI/node");
+
+            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             foreach (ShipModule slot in ship.ModuleSlotList)
             {
-                //Added by McShooterz: Changed it so when shields are turned off manually, do not draw bubble
-                if (slot.ModuleType == ShipModuleType.Shield && slot.Active && slot.ShieldPower > 0)
+                if (slot.Active && slot.ModuleType == ShipModuleType.Shield && slot.ShieldPower > 0)
                 {
-                    Vector2 origin1 = (int)slot.XSIZE != 1 || (int)slot.YSIZE != 3 ? ((int)slot.XSIZE != 2 || (int)slot.YSIZE != 5 ? new Vector2(slot.Center.X - 8f + (float)(16 * (int)slot.XSIZE / 2), slot.Center.Y - 8f + (float)(16 * (int)slot.YSIZE / 2)) : new Vector2(slot.Center.X - 80f + (float)(16 * (int)slot.XSIZE / 2), slot.Center.Y - 8f + (float)(16 * (int)slot.YSIZE / 2))) : new Vector2(slot.Center.X - 50f + (float)(16 * (int)slot.XSIZE / 2), slot.Center.Y - 8f + (float)(16 * (int)slot.YSIZE / 2));
-                    Vector2 target = new Vector2(slot.Center.X - 8f, slot.Center.Y - 8f);
-                    float angleToTarget = origin1.AngleToTarget(target);
-                    Vector2 angleAndDistance = slot.Center.PointFromAngle(
-                        MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
-                    float num1 = (float)((int)slot.XSIZE * 16 / 2);
-                    float num2 = (float)((int)slot.YSIZE * 16 / 2);
-                    float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num1, 2.0) + (float)Math.Pow((double)num2, 2.0)));
-                    float radians = 3.141593f - (float)Math.Asin((double)num1 / (double)distance) + ship.Rotation;
-                    origin1 = angleAndDistance.PointFromAngle(MathHelper.ToDegrees(radians), distance);
-                    Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(origin1, 0.0f), this.projection, this.view, Matrix.Identity);
-                    Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(slot.Center.PointOnCircle(90f, slot.shield_radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
-                    float num3 = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X);
-                    Rectangle destinationRectangle = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)num3 * 2, (int)num3 * 2);
-                    Vector2 origin2 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                    float num4 = slot.ShieldPower / (slot.shield_power_max + (ship.loyalty != null ? ship.loyalty.data.ShieldPowerMod * slot.shield_power_max : 0));
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color(Color.Green.R, Color.Green.G, Color.Green.B, (byte)((double)byte.MaxValue * (double)num4)), 0.0f, origin2, SpriteEffects.None, 1f);
+                    ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, out Vector2 posOnScreen, out float radiusOnScreen);
+
+                    float shieldRate = slot.ShieldPower / (slot.shield_power_max + (ship.loyalty?.data.ShieldPowerMod*slot.shield_power_max ?? 0));
+
+                    DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, new Color(0f, 1f, 0f, shieldRate*0.8f));
                 }
             }
-            this.ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.End();
         }
         
         protected void DrawFogNodes()
@@ -4953,14 +4938,15 @@ namespace Ship_Game
 
         protected void DrawMain(GameTime gameTime)
         {
-            this.Render(gameTime);
+            Render(gameTime);
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             ExplosionManager.DrawExplosions(ScreenManager, view, projection);
             ScreenManager.SpriteBatch.End();
-            if (!this.ShowShipNames)
+            if (!ShowShipNames || LookingAtPlanet)
                 return;
-            foreach (UniverseScreen.ClickableShip clickableShip in this.ClickableShipsList)
-                this.DrawShieldBubble(clickableShip.shipToClick);
+            foreach (ClickableShip clickableShip in ClickableShipsList)
+                if (clickableShip.shipToClick.InFrustum)
+                    DrawShieldBubble(clickableShip.shipToClick);
         }
 
         protected virtual void DrawLights(GameTime gameTime)
@@ -5834,7 +5820,7 @@ namespace Ship_Game
                     if (Debug && slot.isExternal && slot.Active)
                         DrawTextureProjected(symbolFighter, slotCenter, scale * 0.6f, ship.Rotation, new Color(0, 0, 255, 120));
 
-                    DrawStringProjected(slotCenter, ship.Rotation, 350f / camHeight, Color.Red, $"[{slot.XMLPosition.X},{slot.XMLPosition.Y}]");
+                    DrawStringProjected(slotCenter, ship.Rotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
                 }
 
                 // finally, draw firing arcs for the player ship
@@ -7084,59 +7070,58 @@ namespace Ship_Game
         }
 
         // this does some magic to convert a game position/coordinate to a drawable screen position
-        private Vector2 ProjectToScreenPosition(Vector2 position, float zAxis = 0f)
+        private Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
             //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
-            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(position.ToVec3(zAxis), ref projection, ref view);
+            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
         }
 
-        private void ProjectToScreenCoords(Vector2 worldPos, float worldRadius, out Vector2 screenPos, out float screenRadius)
+        private void ProjectToScreenCoords(Vector2 posInWorld, float radiusInWorld, out Vector2 posOnScreen, out float radiusOnScreen)
         {
-            screenPos    = ProjectToScreenPosition(worldPos);
-            screenRadius = ProjectToScreenPosition(new Vector2(worldPos.X + worldRadius, worldPos.Y)).Distance(ref screenPos);
+            posOnScreen    = ProjectToScreenPosition(posInWorld);
+            radiusOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + radiusInWorld, posInWorld.Y)).Distance(ref posOnScreen);
         }
 
-        private float ProjectToScreenSize(float worldSize)
+        private float ProjectToScreenSize(float sizeInWorld)
         {
             Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
-            return zero.Distance(ProjectToScreenPosition(new Vector2(worldSize, 0f)));
+            return zero.Distance(ProjectToScreenPosition(new Vector2(sizeInWorld, 0f)));
         }
 
         // projects the line from World positions into Screen positions, then draws the line
-        public void DrawLineProjected(Vector2 worldPosStart, Vector2 worldPosEnd, Color color, float zAxis = 0f)
+        public void DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, float zAxis = 0f)
         {
-            DrawLine(ProjectToScreenPosition(worldPosStart, zAxis), ProjectToScreenPosition(worldPosEnd, zAxis), color);
+            DrawLine(ProjectToScreenPosition(startInWorld, zAxis), ProjectToScreenPosition(endInWorld, zAxis), color);
         }
 
         // non-projected draw to screen
-        public void DrawLinesToScreen(Vector2 position, Array<string> lines)
+        public void DrawLinesToScreen(Vector2 posOnScreen, Array<string> lines)
         {
             foreach (string line in lines)
             {
                 if (line.Length != 0)
-                    ScreenManager.SpriteBatch.DrawString(
-                        Fonts.Arial12Bold, line, position, Color.White);
-                position.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, line, posOnScreen, Color.White);
+                posOnScreen.Y += Fonts.Arial12Bold.LineSpacing + 2;
             }
         }
 
 
-        public void DrawCircleProjected(Vector2 worldPos, float worldRadius, int sides, Color color, float thickness = 1f)
+        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
-            ProjectToScreenCoords(worldPos, worldRadius, out Vector2 screenPos, out float screenRadius);
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             DrawCircle(screenPos, screenRadius, sides, color, thickness);
         }
 
-        public void DrawCircleProjectedZ(Vector2 worldPos, float worldRadius, Color color, int sides = 16, float zAxis = 0f)
+        public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, int sides = 16, float zAxis = 0f)
         {
-            ProjectToScreenCoords(worldPos, worldRadius, out Vector2 screenPos, out float screenRadius);
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             DrawCircle(screenPos, screenRadius, sides, color);
         }
 
         // draws a projected circle, with an additional overlay texture
-        public void DrawCircleProjected(Vector2 worldPos, float worldRadius, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor)
+        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor)
         {
-            ProjectToScreenCoords(worldPos, worldRadius, out Vector2 screenPos, out float screenRadius);
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
 
             //var rect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)screenRadius * 2, (int)screenRadius * 2);
             //ScreenManager.SpriteBatch.Draw(overlay, rect, null, overlayColor, 0.0f, overlay.Center(), SpriteEffects.None, 1f);
@@ -7147,23 +7132,17 @@ namespace Ship_Game
         }
 
 
-        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, Color color)
-            => DrawTexture(texture, ProjectToScreenPosition(worldPos), scale, 0.0f, color);
+        public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, Color color)
+            => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, 0.0f, color);
 
-        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, float rotation, Color color)
-            => DrawTexture(texture, ProjectToScreenPosition(worldPos), scale, rotation, color);
+        public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
+            => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
 
-        public void DrawTexture(Texture2D texture, Vector2 screenPos)
+        public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
-            //ScreenManager.SpriteBatch.Draw(texture, screenPos, null, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
-        }
-
-
-        public void DrawStringProjected(Vector2 worldPos, float rotation, float scale, Color textColor, string text)
-        {
-            Vector2 screenPos = ProjectToScreenPosition(worldPos);
+            Vector2 screenPos = ProjectToScreenPosition(posInWorld);
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, scale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
         }
 
 
