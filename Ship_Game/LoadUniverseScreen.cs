@@ -521,8 +521,7 @@ namespace Ship_Game
                     {
                         shipData.data.Hull = shipData.Hull;
                         Ship newShip = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
-                        newShip.SetShipData(shipData.data);
-                        if (!newShip.InitializeStatus(fromSave: false))
+                        if (!newShip.InitializeStatus(true))
                             continue;
                         newShip.IsPlayerDesign = false;
                         newShip.FromSave = true;
@@ -584,19 +583,19 @@ namespace Ship_Game
                     bool hasCargo = false;
                     if (shipData.FoodCount > 0f)
                     {
-                        ship.AddGood("Food", (int)shipData.FoodCount);
+                        ship.AddCargo("Food", (int)shipData.FoodCount);
                         ship.AI.FoodOrProd = "Food";
                         hasCargo = true;
                     }
                     if (shipData.ProdCount > 0f)
                     {
-                        ship.AddGood("Production", (int)shipData.ProdCount);
+                        ship.AddCargo("Production", (int)shipData.ProdCount);
                         ship.AI.FoodOrProd = "Prod";
                         hasCargo = true;
                     }
                     if (shipData.PopCount > 0f)
                     {
-                        ship.AddGood("Colonists_1000", (int)shipData.PopCount);
+                        ship.AddCargo("Colonists_1000", (int)shipData.PopCount);
                         ship.AI.FoodOrProd = "Pass";
                     }
                     AIState state = ship.AI.State;

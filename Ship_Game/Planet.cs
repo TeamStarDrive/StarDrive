@@ -5744,7 +5744,7 @@ output = maxp * take10 = 5
                         if (ResourcesDict[current] > 0.0f &&  shipAt.GetCargo()[current] <  shipAt.GetMaxGoods()[current])
                         {
                             ResourcesDict[current] = ResourcesDict[current] - 1f;
-                            shipAt.AddGood(current, 1);
+                            shipAt.AddCargo(current, 1);
                         }
                         else break;
                     }

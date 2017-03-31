@@ -192,6 +192,9 @@
     <Compile Include="Ship_Game\FGPathing\PathFinder.cs" />
     <Compile Include="Ship_Game\FGPathing\PathFinderFast.cs" />
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
+    <Compile Include="Ship_Game\Gameplay\Ship_Cargo.cs" />
+    <Compile Include="Ship_Game\Gameplay\Ship_Initialize.cs" />
+    <Compile Include="Ship_Game\Gameplay\Ship_ModuleGrid.cs" />
     <Compile Include="Ship_Game\GameScreens\DrawRoutines.cs" />
     <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreen.cs" />
