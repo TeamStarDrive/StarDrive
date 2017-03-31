@@ -23,8 +23,6 @@ namespace Ship_Game.Gameplay
         public int XSIZE = 1;
         public int YSIZE = 1;
         public bool Powered;
-        private float distanceToParentCenter;
-        private float offsetAngle;
         public float FieldOfFire;
         public float Facing;
         public Vector2 XMLPosition; // module slot location in the ship design
@@ -48,8 +46,6 @@ namespace Ship_Game.Gameplay
         private Vector3 Center3D;
         public float BombTimer;
         public ShipModuleType ModuleType;
-        public Vector2 moduleCenter;
-        public Vector2 ModuleCenter;
         public string IconTexturePath;
 
         public string UID => Flyweight.UID;
@@ -206,8 +202,6 @@ namespace Ship_Game.Gameplay
             OrdinanceCapacity    = s.OrdinanceCapacity;
             BombTimer            = s.BombTimer;
             ModuleType           = s.ModuleType;
-            moduleCenter         = s.moduleCenter;
-            ModuleCenter         = s.ModuleCenter;
             IconTexturePath      = s.IconTexturePath;
             isExternal           = s.isExternal;
             TargetValue          = s.TargetValue;
@@ -324,29 +318,23 @@ namespace Ship_Game.Gameplay
         // HitTest uses the World scene POSITION. Not module XML location
         public bool HitTest(Vector2 point, float radius, bool ignoreShields = false)
         {
-            int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
-
-            float r2 = radius + larger * 8.0f * 1.125f; // approximated, slightly bigger radius
+            float r2 = radius + Radius;
             float dx = Center.X - point.X;
             float dy = Center.Y - point.Y;
-
-            if (!ignoreShields && ShieldPower > 0.0f) // if module is shielded, then radius check is always circular
-            {
-                r2 += Radius; // Radius is the Exact shield radius, no extra scaling
-                return dx * dx + dy * dy <= r2 * r2;
-            }
-
             if (dx * dx + dy * dy > r2 * r2)
                 return false; // definitely out of radius for SQUARE and non-square modules
 
             // we are a Square module? since we're already inside radius, collision happened
-            int smaller = XSIZE < YSIZE ? XSIZE : YSIZE;
-            if (larger == smaller)
-                return true;
+            // OR if module is shielded, then radius check is always circular
+            if (XSIZE == YSIZE || !ignoreShields && ShieldPower > 0.0f)
+                return true; 
+
+            int smaller = XSIZE <  YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
+            int larger  = XSIZE >= YSIZE ? XSIZE : YSIZE;
 
             // now for more expensive and accurate capsule-line collision testing
             // since we can have 4x1 modules etc, so we need to construct a line+radius
-            float diameter   = ((float)smaller / larger) * smaller * 16.0f;
+            float diameter = ((float)smaller / larger) * smaller * 16.0f;
 
             // if high module, use forward vector, if wide module, use right vector
             Vector2 dir = Rotation.AngleToDirection();
@@ -358,9 +346,6 @@ namespace Ship_Game.Gameplay
             float rayWidth = diameter * 1.125f; // approx 18.0x instead of 16.0x
             return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
-
-        // gives the approximate radius of the module, depending on module XSIZE & YSIZE
-        public float ApproxRadius => 8.0f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
 
         public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
@@ -604,7 +589,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            Radius = ShieldPower > 0f ? shield_radius : 8f;
+            UpdateModuleRadius();
             return true;
         }
 
@@ -665,16 +650,17 @@ namespace Ship_Game.Gameplay
             ++DebugInfoScreen.ModulesCreated;
 
             XMLPosition = pos;
-            Radius = 8f;
-            Position = pos;
-            Dimensions = new Vector2(16f, 16f);
-            var relativeShipCenter = new Vector2(512f, 512f);
-            moduleCenter.X = pos.X + 256f;
-            moduleCenter.Y = pos.Y + 256f;
+            // center of the top left 1x1 slot of this module 
+            //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
 
-            distanceToParentCenter = relativeShipCenter.Distance(moduleCenter);
-            offsetAngle = relativeShipCenter.AngleToTarget(moduleCenter);
-            SetInitialPosition();
+            // top left position of this module
+            Position = new Vector2(pos.X - 264f, pos.Y - 264f);
+
+            // center of this module
+            Center.X = Position.X + XSIZE * 8f;
+            Center.Y = Position.Y + YSIZE * 8f;
+
+            UpdateModuleRadius();
             SetAttributesByType();
 
             if (Parent?.loyalty != null)
@@ -698,6 +684,45 @@ namespace Ship_Game.Gameplay
             if (Parent == null)
                 Log.Error("module parent is null");
         }
+
+        // so, when the shields are online, the module radius is much larger
+        private void UpdateModuleRadius()
+        {
+            if (ShieldPower <= 0f)
+                // slightly bigger radius for better collision detection
+                Radius = 8f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+            else
+                Radius = shield_radius;
+        }
+
+        // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
+        public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
+        {
+            // Move the module, this part is optimized according to profiler data
+            ++GlobalStats.ModulesMoved;
+
+            Vector2 offset = XMLPosition; // huge cache miss here
+            offset.X += XSIZE*8f - 264f;
+            offset.Y += YSIZE*8f - 264f;
+
+            Vector2 parentCenter = Parent.Center;
+            float cx = offset.X * cos - offset.Y * sin;
+            float cy = offset.X * sin + offset.Y * cos;
+            cx += parentCenter.X;
+            cy += parentCenter.Y;
+            Center.X = cx;
+            Center.Y = cy;
+            Center3D.X = cx;
+            Center3D.Y = cy;
+            Center3D.Z = tan * (256f - XMLPosition.X);
+
+            // this can only happen if onFire is already true
+            reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
+
+            HandleDamageFireTrail(elapsedTime);
+            Rotation = Parent.Rotation;
+        }
+
 
         //added by gremlin boarding parties
         public void LaunchBoardingParty(Troop troop)
@@ -869,16 +894,6 @@ namespace Ship_Game.Gameplay
                 HangarShipGuid = ship.guid;  //fbedard: save mothership
         }
 
-        public void SetInitialPosition()
-        {
-            float angle = offsetAngle + Parent.Rotation.ToDegrees();
-
-            ModuleCenter = Parent.Center.PointFromAngle(angle, distanceToParentCenter);
-
-            Position = new Vector2(ModuleCenter.X - 8f, ModuleCenter.Y - 8f);
-            Center = ModuleCenter;
-        }
-
         private void AddExternalModule(ShipModule module, int moduleQuadrant)
         {
             module.isExternal = true;
@@ -938,13 +953,8 @@ namespace Ship_Game.Gameplay
             }
 
             BombTimer -= elapsedTime;
-            //Added by McShooterz: shields keep charge when manually turned off
-            if (ShieldPower <= 0f)
-            {
-                Radius = 8f;
-            }
-            else
-                Radius = shield_radius;
+            UpdateModuleRadius();
+
             if (ModuleType == ShipModuleType.Hangar && Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;
             //Shield Recharge
@@ -966,32 +976,6 @@ namespace Ship_Game.Gameplay
                 TransporterTimer -= elapsedTime;
 
             base.Update(elapsedTime);
-        }
-
-        // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
-        public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
-        {
-            // Move the module, this part is optimized according to profiler data
-            GlobalStats.ModulesMoved += 1;
-            Vector2 actualVector = XMLPosition; // huge cache miss here
-            actualVector.X -= 256f;
-            actualVector.Y -= 256f;
-            float cx = actualVector.X * cos - actualVector.Y * sin;
-            float cy = actualVector.X * sin + actualVector.Y * cos;
-            Vector2 parentCenter = Parent.Center;
-            cx += parentCenter.X;
-            cy += parentCenter.Y;
-            Center.X = cx;
-            Center.Y = cy;
-            Center3D.X = cx;
-            Center3D.Y = cy;
-            Center3D.Z = tan * (256f - XMLPosition.X);
-
-            // this can only happen if onFire is already true
-            reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
-
-            HandleDamageFireTrail(elapsedTime);
-            Rotation = Parent.Rotation;
         }
 
         private void HandleDamageFireTrail(float elapsedTime)

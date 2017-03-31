@@ -5815,7 +5815,7 @@ namespace Ship_Game
                     DrawTexture(moduleTex, centerOnScreen, scale, slotRotation, slot.GetHealthStatusColorWhite());
                     if (enableModuleDebug)
                     {
-                        DrawCircleProjected(slot.Center, slot.ApproxRadius, 16, Color.Red, 2f);
+                        DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
                     }
 
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
