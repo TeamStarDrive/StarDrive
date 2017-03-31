@@ -14,5 +14,7 @@ namespace Ship_Game.Gameplay
         public float Facing;
         public Restrictions Restrictions;
         public string SlotOptions;
+
+        public override string ToString() => $"{InstalledModuleUID} {Position} {Facing} {Restrictions}";
     }
 }
