@@ -980,7 +980,7 @@ namespace Ship_Game
                     case "Resistance is Futile":
                     case "Allow Assimilation":      data.Traits.Assimilators = true; break;
                     case "Cryogenic Suspension":
-                    case "Passenger Modifier":      data.Traits.PassengerModifier += (int)unlockedBonus.Bonus; break;
+                    case "Passenger Modifier":      data.Traits.PassengerModifier += unlockedBonus.Bonus; break;
                     case "ECM Bonus":
                     case "Missile Dodge Change Bonus": data.MissileDodgeChance   += unlockedBonus.Bonus; break;
                     case "Set FTL Drain Modifier":     data.FTLPowerDrainModifier = unlockedBonus.Bonus; break;
@@ -2727,7 +2727,7 @@ namespace Ship_Game
                     continue;
                 //fbedard: civilian can be freighter too!
                 //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.AI == null || ship.isConstructor
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpaceMax == 0 || ship.AI == null || ship.isConstructor
                     || ship.AI.State == AIState.Refit || ship.AI.State == AIState.Scrap
                     )
                 {

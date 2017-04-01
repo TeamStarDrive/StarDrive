@@ -94,7 +94,6 @@ namespace Ship_Game.Gameplay
         public Ship Mothership;
         public string ModelPath;
         public bool isThrusting;
-        public float CargoSpace_Max;
         public float WarpDraw;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float DamageModifier;
@@ -665,15 +664,6 @@ namespace Ship_Game.Gameplay
 
         public Ship()
         {
-            foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
-            {
-                AddCargo(keyValuePair.Key, 0);
-                if (!keyValuePair.Value.IsCargo)
-                {
-                    MaxGoodStorageDict.Add(keyValuePair.Key, 0.0f);
-                    ResourceDrawDict.Add(keyValuePair.Key, 0.0f);
-                }
-            }
         }
         public void ShipRecreate()
         {
@@ -857,16 +847,6 @@ namespace Ship_Game.Gameplay
             AI.HasPriorityOrder  = false;
             AI.hasPriorityTarget = true;
             InCombatTimer        = 15f;
-        }
-
-        public Map<string, float> GetResDrawDict()
-        {
-            return ResourceDrawDict;
-        }
-
-        public Map<string, float> GetMaxGoods()
-        {
-            return MaxGoodStorageDict;
         }
 
 
@@ -1927,11 +1907,10 @@ namespace Ship_Game.Gameplay
                     shipData.Role = ShipData.RoleName.construction;
                 }
                 
-                if (module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(module.ResourceStored) && !ResourceManager.GoodsDict[module.ResourceStored].IsCargo)
-                {
-                    string resourceStored = module.ResourceStored;
-                    MaxGoodStorageDict[resourceStored] += module.ResourceStorageAmount;
-                }
+                //if (module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.TryGetValue(module.ResourceStored, out Good good) && !good.IsCargo)
+                //{
+                //    MaxGoodStorageDict[module.ResourceStored] += module.ResourceStorageAmount;
+                //}
 
                 for (int i = 0; i < module.TroopsSupplied; i++) // TroopLoad (?)
                 {
@@ -2001,7 +1980,7 @@ namespace Ship_Game.Gameplay
                     armor_max += module.HealthMax;
                 }
                 
-                CargoSpace_Max += module.Cargo_Capacity;
+                CargoSpaceMax += module.Cargo_Capacity;
                 OrdinanceMax += module.OrdinanceCapacity;
                 Ordinance += module.OrdinanceCapacity;
                 if(module.ModuleType != ShipModuleType.Shield)
@@ -2096,7 +2075,7 @@ namespace Ship_Game.Gameplay
                 shield_power += module.ShieldPower;
                 if (module.ModuleType == ShipModuleType.Armor)
                     armor_max += module.HealthMax;                
-                CargoSpace_Max += module.Cargo_Capacity;
+                CargoSpaceMax += module.Cargo_Capacity;
                 OrdinanceMax += (float)module.OrdinanceCapacity;
                 if (module.ModuleType != ShipModuleType.Shield)
                     ModulePowerDraw += module.PowerDraw;
@@ -3389,7 +3368,7 @@ namespace Ship_Game.Gameplay
             ModulePowerDraw             = 0.0f;
             ShieldPowerDraw             = 0f;
             RepairRate                  = 0f;
-            CargoSpace_Max              = 0f;
+            CargoSpaceMax              = 0f;
             SensorRange                 = 0f;
             HasTroopBay                 = false;
             WarpThrust                  = 0f;
@@ -3451,7 +3430,7 @@ namespace Ship_Game.Gameplay
                         if (slot.TargetTracking > 0)
                             TrackingPower += slot.TargetTracking;
                         OrdinanceMax += (float)slot.OrdinanceCapacity;
-                        CargoSpace_Max += slot.Cargo_Capacity;
+                        CargoSpaceMax += slot.Cargo_Capacity;
                         InhibitionRadius += slot.InhibitionRadius;
                         BonusEMP_Protection += slot.EMP_Protection;
                         if (slot.SensorRange > SensorRange)
@@ -3524,7 +3503,7 @@ namespace Ship_Game.Gameplay
                     ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
                 {
                     RepairRate     += RepairRate * mod.RepairBonus;
-                    CargoSpace_Max += CargoSpace_Max * mod.CargoBonus;
+                    CargoSpaceMax += CargoSpaceMax * mod.CargoBonus;
                     SensorRange    += SensorRange * mod.SensorBonus;
                     WarpThrust     += WarpThrust * mod.SpeedBonus;
                     Thrust         += Thrust * mod.SpeedBonus;

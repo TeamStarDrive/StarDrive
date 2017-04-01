@@ -420,7 +420,7 @@ namespace Ship_Game
                     shipMenu.Add(new PieMenuNode(Localizer.Token(1412), ResourceManager.TextureDict["UI/viewPlanetIcon"], ViewShip));
                 PieMenuNode newChild1 = new PieMenuNode(Localizer.Token(1413), ResourceManager.TextureDict["UI/OrdersIcon"], null);
                 shipMenu.Add(newChild1);
-                if (SelectedShip != null && SelectedShip.CargoSpace_Max > 0.0)
+                if (SelectedShip != null && SelectedShip.CargoSpaceMax > 0.0)
                 {
                     newChild1.Add(new PieMenuNode(Localizer.Token(1414), ResourceManager.TextureDict["UI/PatrolIcon"], DoTransport));
                     newChild1.Add(new PieMenuNode(Localizer.Token(1415), ResourceManager.TextureDict["UI/marketIcon"], DoTransportGoods));
