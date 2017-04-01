@@ -155,7 +155,49 @@ namespace Ship_Game
             var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
             ScreenManager.SpriteBatch.Draw(texture, rect, null, color, rotation, texture.Center(), SpriteEffects.None, 1f);
         }
+        // just draws a texture to screen, no fancy reprojections, where screenPos is the texture top left.
+        public void DrawTextureRect(Texture2D texture, Vector2 position, Color color, float rotation = 0)
+        {
+            ScreenManager.SpriteBatch.Draw(texture, position, new Rectangle?(), color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
+        }
+        // just draws a texture to screen, no fancy reprojections, where screenPos is the rectangle top left and texture exists in it
+        public void DrawTextureRect(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, Vector2 origin, float rotation = 0f, float scale = 0, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
+        {
+            ScreenManager.SpriteBatch.Draw(texture,  position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
+        }
 
+        public void CheckToolTip(int toolTipID1, Rectangle rectangle, Vector2 mousePos)
+        {
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(toolTipID1, ScreenManager);                
+            }
+        }
+        public void CheckToolTip(string text, Rectangle rectangle, Vector2 mousePos)
+        {
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(text, ScreenManager);
+            }
+        }
+        public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool LightingEnabled = false)
+        {
+            foreach (ModelMesh modelMesh in model.Meshes)
+            {
+                foreach (BasicEffect basicEffect in modelMesh.Effects)
+                {
+                    basicEffect.World = Matrix.CreateScale(50f) * world;
+                    basicEffect.View = view;
+                    basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
+                    basicEffect.Texture = projTex;
+                    basicEffect.Alpha = alpha > 0 ? alpha : basicEffect.Alpha;                    
+                    basicEffect.TextureEnabled = true;
+                    basicEffect.Projection = projection;
+                    basicEffect.LightingEnabled = false;
+                }
+                modelMesh.Draw();
+            }
+        }
         ~GameScreen() { Dispose(false); }
 
         public void Dispose()
