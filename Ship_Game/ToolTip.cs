@@ -22,8 +22,8 @@ namespace Ship_Game
 		static ToolTip()
 		{
 			Hotkey = "";
-			TipTimer = 0;
-			LastWhich = -1;
+			TipTimer = 0; //Changed to 0 from 50. tooltips were taking a long time to come up.
+            LastWhich = -1;
 		}
 
 		public ToolTip()
@@ -74,7 +74,7 @@ namespace Ship_Game
 
 			if (TextLast != Text)
 			{
-				TipTimer = 5;
+				TipTimer = 5; //Changed to 5 from 50. tooltips were taking a long time to come up.
 				TextLast = Text;
 			}
 			Rect = tipRect;
