@@ -1737,9 +1737,9 @@ namespace Ship_Game
                     }
                     if (system.ExploredDict[this.player] && viewing)
                     {
-                        system.isVisible = this.camHeight < 250000.0;
+                        system.isVisible = viewState < UnivScreenState.GalaxyView;//this.camHeight < 250000.0;
                     }
-                    if (system.isVisible && this.camHeight < 150000.0)
+                    if (system.isVisible && viewState < UnivScreenState.SectorView)
                     {
                         foreach (Asteroid asteroid in system.AsteroidsList)
                         {
@@ -2011,18 +2011,16 @@ namespace Ship_Game
                 this.camHeight = this.MaxCamHeight * this.GameScale;
             else if (camHeight < minCamHeight)
                 camHeight = minCamHeight;
-            if ((double)this.camHeight > 30000.0)
+            foreach(UnivScreenState screenHeight in Enum.GetValues(typeof(UnivScreenState)))
             {
-                this.viewState = UniverseScreen.UnivScreenState.SystemView;
-                if ((double)this.camHeight <= 250000.0)
-                    return;
-                this.viewState = UniverseScreen.UnivScreenState.SectorView;
-                if ((double)this.camHeight <= 1775000.0)
-                    return;
-                this.viewState = UniverseScreen.UnivScreenState.GalaxyView;
+                if (camHeight <= GetZfromScreenState(screenHeight))
+                {
+                    viewState = screenHeight;
+                    break;
+                }
+                
             }
-            else
-                this.viewState = UniverseScreen.UnivScreenState.ShipView;
+
         }
 
         public void PlayNegativeSound()
@@ -5861,7 +5859,7 @@ namespace Ship_Game
                 if (!flag)
                     return;
                 Texture2D tex = ResourceManager.Texture(ship.StrategicIconPath);
-                if (tex != null) DrawTexture(tex, screenPos, scale, ship.Rotation, Color.White);
+                if (tex != null) DrawTexture(tex, screenPos, scale, ship.Rotation, ship.loyalty?.EmpireColor ?? Color.White);
             }
             else if ((this.ShowTacticalCloseup || this.viewState > UnivScreenState.ShipView) && !this.LookingAtPlanet)
             {
@@ -6706,41 +6704,47 @@ namespace Ship_Game
                             }
                             if (ship.AI.State == AIState.Explore && ship.AI.ExplorationTarget != null)
                             {
-                                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ExplorationTarget.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
+                                //Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                                //Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ExplorationTarget.Position, 0.0f), this.projection, this.view, Matrix.Identity);
+                                //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
+                                DrawLineProjected(ship.Center, ship.AI.ExplorationTarget.Position, new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num)); 
                                 flag = true;
                             }
                             if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
                             {
-                                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
+                                //Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                                //Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
+                                //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
+                                DrawLineProjected(ship.Center, ship.AI.OrbitTarget.Position, new Color((byte)0, byte.MaxValue, byte.MaxValue, 2500f));
                                 flag = true;
                             }
                           
                         }
                         if (!ship.AI.HasPriorityOrder && (ship.AI.State == AIState.AttackTarget || ship.AI.State == AIState.Combat) && (ship.AI.Target != null && ship.AI.Target is Ship))
                         {
-                            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.Target.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
+                            //Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                            //Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.Target.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                            //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
+                            DrawLineProjected(ship.Center, ship.AI.Target.Center, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
                             if (ship.AI.TargetQueue.Count > 1)
                             {
-                                for (int index2 = 0; index2 < ship.AI.TargetQueue.Count - 1; ++index2)
+                                for (int i = 0; i < ship.AI.TargetQueue.Count - 1; ++i)
                                 {
-                                    vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)ship.AI.TargetQueue, index2).Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Vector3 vector3_3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)ship.AI.TargetQueue, index2 + 1).Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_3.X, vector3_3.Y), new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
+                                    var target = ship.AI.TargetQueue[i];
+                                    //vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)ship.AI.TargetQueue, index2).Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                                    //Vector3 vector3_3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)ship.AI.TargetQueue, index2 + 1).Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                                    //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_3.X, vector3_3.Y), new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
+                                    DrawLineProjected(target.Center, ship.AI.TargetQueue[i +1].Center, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
                                 }
                             }
                             flag = true;
                         }
                         if (ship.AI.State == AIState.Boarding && ship.AI.EscortTarget != null)
                         {
-                            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.EscortTarget.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
+                            //Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                            //Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.EscortTarget.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                            //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
+                            DrawLineProjected(ship.Center, ship.AI.EscortTarget.Center, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
                             flag = true;
                         }
                         if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
@@ -6749,8 +6753,8 @@ namespace Ship_Game
                             if (!planetFullCheck)
                             {
                                 planetFullCheck = true;
-                                int spots = 0;// ship.GetAI().OrbitTarget.GetGroundLandingSpots();
-                                if (Vector2.Distance(ship.AI.OrbitTarget.Position, ship.Center) <= ship.SensorRange)
+                                int spots = 0;
+                                if (ship.AI.OrbitTarget.Position.InRadius(ship.Center, ship.SensorRange))
                                     spots = ship.AI.OrbitTarget.GetGroundLandingSpots();
                                 else spots = -1;
 
@@ -6761,82 +6765,40 @@ namespace Ship_Game
                                 }
                                 else if (spots > 0)
                                     modeSelected = new Color(Color.OrangeRed, (byte)num);
-                               
 
                             }
 
-
-                            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
-                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), modeSelected);
+                            //Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                            //Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
+                            //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), modeSelected);
+                            DrawLineProjected(ship.Center, ship.AI.OrbitTarget.Position, modeSelected, 2500f);
                             flag = true;
 
 
                         }
-
-                        //try to fix troop assault projected position. Too slow right now. just use single target version. its much faster. 
-                        //if (ship.GetAI().State == AIState.AssaultPlanet && ship.GetAI().OrbitTarget != null)
-                        //{
-                        //    //ArtificialIntelligence.ShipGoal goal =null;
-                        //    Vector2 target = ship.GetAI().OrbitTarget.Position;
-                        //    //foreach (ArtificialIntelligence.ShipGoal Goal in this.SelectedShip.GetAI().OrderQueue)
-                        //    //{
-                        //    //    if (Goal.Plan == ArtificialIntelligence.Plan.LandTroop)
-                        //    //        target = Goal.TargetPlanet.Position;
-                        //    //    else continue;
-                        //    //    break;
-                        //    //}
-
-                        //    // goal = this.SelectedShip.GetAI().OrderQueue.LastOrDefault(); //.Value;
-                        //    lock (this.SelectedShip.GetAI().WayPointLocker)
-                        //    {
-                        //        bool waydpoint = false;
-                        //        for (int local_23 = 0; local_23 < this.SelectedShip.GetAI().ActiveWayPoints.Count; ++local_23)
-                        //        {
-                        //            waydpoint = true;
-                        //            if (local_23 == 0)
-                        //            {
-                        //                Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                        //                Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.Peek(), 0.0f), this.projection, this.view, Matrix.Identity);
-                        //                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color(Color.Red, (byte)num));
-                        //            }
-                        //            else if (local_23 < this.SelectedShip.GetAI().ActiveWayPoints.Count - 1)
-                        //            {
-                        //                Vector3 local_26 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.ToArray()[local_23], 0.0f), this.projection, this.view, Matrix.Identity);
-                        //                Vector3 local_27 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.ToArray()[local_23 + 1], 2500f), this.projection, this.view, Matrix.Identity);
-                        //                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_26.X, local_26.Y), new Vector2(local_27.X, local_27.Y), new Color(Color.Red, (byte)num));
-                        //            }
-                        //        }
-                        //        if (!waydpoint && target != Vector2.Zero) //this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position
-                        //        {
-                        //            Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                        //            Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(target, 0.0f), this.projection, this.view, Matrix.Identity);
-                        //            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color(Color.Red, (byte)num));
-                        //        }
-                        //    }
-
-                        //}
-
-
+                        
                         if (!flag)
                         {
                             if (ship.AI.ActiveWayPoints.Count > 0)
                             {
                                 lock (ship.AI.WayPointLocker)
                                 {
-                                    for (int local_56 = 0; local_56 < ship.AI.ActiveWayPoints.Count; ++local_56)
+                                    var waypoints = ship.AI.ActiveWayPoints.ToArray();
+                                    for (int i = 0; i < ship.AI.ActiveWayPoints.Count; ++i)
                                     {
-                                        if (local_56 == 0)
+                                        if (i == 0)
                                         {
-                                            Vector3 local_57 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                            Vector3 local_58 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ActiveWayPoints.Peek(), 0.0f), this.projection, this.view, Matrix.Identity);
-                                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_57.X, local_57.Y), new Vector2(local_58.X, local_58.Y), new Color((byte)0, byte.MaxValue, (byte)0, (byte)num));
+                                            //Vector3 lineStart = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                                            //Vector3 lineEnd = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ActiveWayPoints.Peek(), 0.0f), this.projection, this.view, Matrix.Identity);
+                                            //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(lineStart.X, lineStart.Y), new Vector2(lineEnd.X, lineEnd.Y), new Color((byte)0, byte.MaxValue, (byte)0, (byte)num));
+                                            DrawLineProjected(ship.Center, ship.AI.ActiveWayPoints.Peek(), new Color((byte)0, byte.MaxValue, (byte)0, (byte)num));
                                         }
-                                        if (local_56 < ship.AI.ActiveWayPoints.Count - 1)
+                                        if (i < ship.AI.ActiveWayPoints.Count - 1)
                                         {
-                                            Vector3 local_59 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ActiveWayPoints.ToArray()[local_56], 0.0f), this.projection, this.view, Matrix.Identity);
-                                            Vector3 local_60 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ActiveWayPoints.ToArray()[local_56 + 1], 0.0f), this.projection, this.view, Matrix.Identity);
-                                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_59.X, local_59.Y), new Vector2(local_60.X, local_60.Y), new Color((byte)0, byte.MaxValue, (byte)0, (byte)num));
+                                            //Vector3 lineStart = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ActiveWayPoints.ToArray()[i], 0.0f), this.projection, this.view, Matrix.Identity);
+                                            //Vector3 lineEnd = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.AI.ActiveWayPoints.ToArray()[i + 1], 0.0f), this.projection, this.view, Matrix.Identity);
+                                            //Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(lineStart.X, lineStart.Y), new Vector2(lineEnd.X, lineEnd.Y), new Color((byte)0, byte.MaxValue, (byte)0, (byte)num));
+                                            DrawLineProjected(waypoints[i], waypoints[i+1], new Color((byte)0, byte.MaxValue, (byte)0, (byte)num));
                                         }
                                     }
                                 }
@@ -6855,46 +6817,49 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
             {
                 using (player.KnownShips.AcquireReadLock())
-                for (int index = 0; index < player.KnownShips.Count; index++)
-                {
-                    Ship ship = player.KnownShips[index];
-                    for (int i = 0; i < ship.Projectiles.Count; i++)
+                    for (int index = player.KnownShips.Count - 1; index >= 0; index--)
                     {
-                        Projectile projectile = ship.Projectiles[i];
-                        if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
+                        Ship ship = player.KnownShips[index];
+                        if (!ship.InFrustum) continue;
+
+                        for (int i = ship.Projectiles.Count - 1; i >= 0; i--)
                         {
-                            for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
-                                projectile.GetDroneAI().Beams[j].Draw(this.ScreenManager);
+                            Projectile projectile = ship.Projectiles[i];
+                            if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
+                            {
+                                for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
+                                    projectile.GetDroneAI().Beams[j].Draw(ScreenManager);
+                            }
+                        }
+
+                        {
+                            for (int i = ship.Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
+                            {
+                                Beam beam = ship.Beams[i];
+                                if (beam.Source.InRadius(beam.ActualHitDestination, beam.range + 10.0f))
+                                    beam.Draw(ScreenManager);
+                                else
+                                    beam.Die(null, true);
+                            }
                         }
                     }
-                    
-                    {
-                        for (int i = 0; i < ship.Beams.Count; ++i) // regular FOR to mitigate multi-threading issues
-                        {
-                            Beam beam = ship.Beams[i];
-                            if (beam.Source.InRadius(beam.ActualHitDestination, beam.range + 10.0f))
-                                beam.Draw(ScreenManager);
-                            else
-                                beam.Die(null, true);
-                        }
-                    }
-                }
             }
 
             var renderState = ScreenManager.GraphicsDevice.RenderState;
-
             renderState.DepthBufferWriteEnable = true;
             renderState.SourceBlend = Blend.SourceAlpha;
             renderState.DestinationBlend = Blend.One;
             foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
                 anomaly.Draw();
             if (viewState < UnivScreenState.SectorView)
-            foreach (SolarSystem solarSystem in SolarSystemList)
-            {
-                if (solarSystem.ExploredDict[player] )
+                for (int i = 0; i < SolarSystemList.Count; i++)
                 {
-                    foreach (Planet p in solarSystem.PlanetList)
+                    SolarSystem solarSystem = SolarSystemList[i];
+                    if (!solarSystem.Explored(player)) continue;
+
+                    for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                     {
+                        Planet p = solarSystem.PlanetList[j];
                         if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                         {
                             if (p.hasEarthLikeClouds)
@@ -6907,7 +6872,6 @@ namespace Ship_Game
                         }
                     }
                 }
-            }
             renderState.AlphaBlendEnable = true;
             renderState.SourceBlend = Blend.SourceAlpha;
             renderState.DestinationBlend = Blend.One;
@@ -6915,155 +6879,136 @@ namespace Ship_Game
             renderState.CullMode = CullMode.None;
             if (viewState < UnivScreenState.SectorView)
             {
-                this.RenderThrusters();
-                this.RenderParticles();
+                RenderThrusters();
+                RenderParticles();
 
                 FTLManager.DrawFTLModels(this);
                 lock (GlobalStats.ExplosionLocker)
                 {
-                    foreach (MuzzleFlash item_4 in MuzzleFlashManager.FlashList)
-                        this.DrawTransparentModel(MuzzleFlashManager.flashModel, item_4.WorldMatrix, this.view, this.projection, MuzzleFlashManager.FlashTexture, item_4.scale);
+                    for (int i = 0; i < MuzzleFlashManager.FlashList.Count; i++)
+                    {
+                        MuzzleFlash flash = MuzzleFlashManager.FlashList[i];
+                        DrawTransparentModel(MuzzleFlashManager.flashModel, flash.WorldMatrix, view,
+                            projection, MuzzleFlashManager.FlashTexture, flash.scale);
+                    }
                     MuzzleFlashManager.FlashList.ApplyPendingRemovals();
                 }
-                this.beamflashes.Draw(gameTime);
-                this.explosionParticles.Draw(gameTime);
-                this.photonExplosionParticles.Draw(gameTime);
-                this.explosionSmokeParticles.Draw(gameTime);
-                this.projectileTrailParticles.Draw(gameTime);
-                this.fireTrailParticles.Draw(gameTime);
-                this.smokePlumeParticles.Draw(gameTime);
-                this.fireParticles.Draw(gameTime);
-                this.engineTrailParticles.Draw(gameTime);
-                this.star_particles.Draw(gameTime);
-                this.neb_particles.Draw(gameTime);
-                this.flameParticles.Draw(gameTime);
-                this.sparks.Draw(gameTime);
-                this.lightning.Draw(gameTime);
-                this.flash.Draw(gameTime);
+                beamflashes.Draw(gameTime);
+                explosionParticles.Draw(gameTime);
+                photonExplosionParticles.Draw(gameTime);
+                explosionSmokeParticles.Draw(gameTime);
+                projectileTrailParticles.Draw(gameTime);
+                fireTrailParticles.Draw(gameTime);
+                smokePlumeParticles.Draw(gameTime);
+                fireParticles.Draw(gameTime);
+                engineTrailParticles.Draw(gameTime);
+                star_particles.Draw(gameTime);
+                neb_particles.Draw(gameTime);
+                flameParticles.Draw(gameTime);
+                sparks.Draw(gameTime);
+                lightning.Draw(gameTime);
+                flash.Draw(gameTime);
             }
-            if (!Paused)
+            if (!Paused)  //Are these being done twice?
             {
-                this.beamflashes.Update(gameTime);
-                this.explosionParticles.Update(gameTime);
-                this.photonExplosionParticles.Update(gameTime);
-                this.explosionSmokeParticles.Update(gameTime);
-                this.projectileTrailParticles.Update(gameTime);
-                this.fireTrailParticles.Update(gameTime);
-                this.smokePlumeParticles.Update(gameTime);
-                this.fireParticles.Update(gameTime);
-                this.engineTrailParticles.Update(gameTime);
-                this.star_particles.Update(gameTime);
-                this.neb_particles.Update(gameTime);
-                this.flameParticles.Update(gameTime);
-                this.sparks.Update(gameTime);
-                this.lightning.Update(gameTime);
-                this.flash.Update(gameTime);
+                beamflashes.Update(gameTime);
+                explosionParticles.Update(gameTime);
+                photonExplosionParticles.Update(gameTime);
+                explosionSmokeParticles.Update(gameTime);
+                projectileTrailParticles.Update(gameTime);
+                fireTrailParticles.Update(gameTime);
+                smokePlumeParticles.Update(gameTime);
+                fireParticles.Update(gameTime);
+                engineTrailParticles.Update(gameTime);
+                star_particles.Update(gameTime);
+                neb_particles.Update(gameTime);
+                flameParticles.Update(gameTime);
+                sparks.Update(gameTime);
+                lightning.Update(gameTime);
+                flash.Update(gameTime);
             }
             lock (GlobalStats.ObjectManagerLocker)
             {
-                this.ScreenManager.inter.EndFrameRendering();
-                this.ScreenManager.editor.EndFrameRendering();
-                this.ScreenManager.sceneState.EndFrameRendering();
+                ScreenManager.inter.EndFrameRendering();
+                ScreenManager.editor.EndFrameRendering();
+                ScreenManager.sceneState.EndFrameRendering();
             }
             if (viewState < UnivScreenState.SectorView)
-                this.DrawShields();
+                DrawShields();
             renderState.DepthBufferWriteEnable = true;
         }
 
         protected void DrawShields()
         {            
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.One;
+            var renderState                    = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable       = true;
+            renderState.AlphaBlendOperation    = BlendFunction.Add;
+            renderState.SourceBlend            = Blend.SourceAlpha;
+            renderState.DestinationBlend       = Blend.One;
             renderState.DepthBufferWriteEnable = false;
             ShieldManager.Draw(view, projection);
         }
 
         protected virtual void DrawPlanetInfo()
         {
+            if (LookingAtPlanet || viewState > UnivScreenState.SectorView || viewState < UnivScreenState.ShipView)
+                return;
+            Vector2 mousePos              = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
+            Texture2D planetNamePointer   = null;
+            Texture2D icon_fighting_small = null;
+            Texture2D icon_spy_small      = null;
+            Texture2D icon_anomaly_small  = null;
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                if (viewState <= UnivScreenState.SectorView && solarSystem.isVisible)
+                if (!solarSystem.isVisible)
+                    continue;
+              
+                foreach (Planet planet in solarSystem.PlanetList)
                 {
-                    foreach (Planet planet in solarSystem.PlanetList)
+                    if (!planet.ExploredDict[player]) continue;
+
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
+                    Vector2 posOffSet       = screenPosPlanet;
+                    planetNamePointer       = planetNamePointer ?? ResourceManager.Texture("UI/planetNamePointer");                    
+                    posOffSet.X             += 20f; 
+                    posOffSet.Y             += 37f;
+                    int drawLocationOffset  = 0;
+
+                    DrawTextureRect(planetNamePointer, screenPosPlanet, Color.Green);
+                    HelperFunctions.ClampVectorToInt(ref posOffSet);
+                    Color textColor = planet.Owner?.EmpireColor ?? Color.White;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, planet.Name, posOffSet, textColor);                    
+                                        
+                    posOffSet               = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
+
+                    if (planet.RecentCombat)
                     {
-                        float radius = planet.SO.WorldBoundingSphere.Radius;
-                        Vector3 vector3_1 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), projection, view, Matrix.Identity);
-                        Vector2 vector2_1 = new Vector2(vector3_1.X, vector3_1.Y);
-                        Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position.PointOnCircle(90f, radius), 2500f), projection, view, Matrix.Identity);
-                        float num1 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2_1) + 10f;
-                        Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y - num1);
-                        if (planet.ExploredDict[player])
+                        icon_fighting_small = icon_fighting_small ?? ResourceManager.Texture("UI/icon_fighting_small");
+                        DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+                    if (player.data.MoleList.Count > 0)
+                    {
+                        foreach (Mole mole in (Array<Mole>)player.data.MoleList)
                         {
-                            if (!LookingAtPlanet && viewState < UniverseScreen.UnivScreenState.SectorView && viewState > UniverseScreen.UnivScreenState.ShipView)
+                            if (mole.PlanetGuid == planet.guid)
                             {
-                                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/planetNamePointer"], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.Green, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
-                                Vector2 pos1 = new Vector2(vector3_1.X + 20f, vector3_1.Y + 37f);
-                                HelperFunctions.ClampVectorToInt(ref pos1);
-                                if (planet.Owner == null)
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, planet.Name, pos1, Color.White);
-                                else
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, planet.Name, pos1, planet.Owner.EmpireColor);
-                                Vector2 pos2 = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
-                                int num2 = 0;
-                                Vector2 vector2_3 = new Vector2(vector3_1.X + 10f, vector3_1.Y + 60f);
-                                if (planet.RecentCombat)
-                                {
-                                    Rectangle rectangle = new Rectangle((int)vector2_3.X, (int)vector2_3.Y, 14, 14);
-                                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], rectangle, Color.White);
-                                    if (HelperFunctions.CheckIntersection(rectangle, pos2))
-                                        ToolTip.CreateTooltip(119, ScreenManager);
-                                    ++num2;
-                                }
-                                if (player.data.MoleList.Count > 0)
-                                {
-                                    foreach (Mole mole in (Array<Mole>)player.data.MoleList)
-                                    {
-                                        if (mole.PlanetGuid == planet.guid)
-                                        {
-                                            vector2_3.X = vector2_3.X + (float)(18 * num2);
-                                            Rectangle rectangle = new Rectangle((int)vector2_3.X, (int)vector2_3.Y, 14, 14);
-                                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy_small"], rectangle, Color.White);
-                                            ++num2;
-                                            if (HelperFunctions.CheckIntersection(rectangle, pos2))
-                                            {
-                                                ToolTip.CreateTooltip(120, ScreenManager);
-                                                break;
-                                            }
-                                            else
-                                                break;
-                                        }
-                                    }
-                                }
-                                foreach (Building building in planet.BuildingList)
-                                {
-                                    if (!string.IsNullOrEmpty(building.EventTriggerUID))
-                                    {
-                                        vector2_3.X = vector2_3.X + (float)(18 * num2);
-                                        Rectangle rectangle = new Rectangle((int)vector2_3.X, (int)vector2_3.Y, 14, 14);
-                                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle, Color.White);
-                                        if (HelperFunctions.CheckIntersection(rectangle, pos2))
-                                        {
-                                            ToolTip.CreateTooltip(121, ScreenManager);
-                                            break;
-                                        }
-                                        else
-                                            break;
-                                    }
-                                }
+                                icon_spy_small = icon_spy_small ?? ResourceManager.Texture("UI/icon_spy_small");
+                                posOffSet.X    += (float)(18 * drawLocationOffset);
+                                DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                ++drawLocationOffset;                                
+                                break;
                             }
                         }
-                        else if (camHeight < 50000f)
-                        {
-                            if (planet.Owner != null)
-                                continue;
-                        }
-                        else
-                        {
-                            Empire empire = planet.Owner;
-                        }
+                    }
+                    foreach (Building building in planet.BuildingList)
+                    {
+                        if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
+
+                        icon_anomaly_small = icon_anomaly_small ?? ResourceManager.Texture("UI/icon_anomaly_small");
+                        posOffSet.X        += (float)(18 * drawLocationOffset);                        
+                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);                        
+                        break;
                     }
                 }
             }
@@ -7104,8 +7049,7 @@ namespace Ship_Game
                 posOnScreen.Y += Fonts.Arial12Bold.LineSpacing + 2;
             }
         }
-
-
+        
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
@@ -7138,14 +7082,23 @@ namespace Ship_Game
         public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
 
+        public void DrawTextureWithToolTip(Texture2D texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
+        {
+            Rectangle rectangle = new Rectangle(rectangleX, rectangleY, width, height);
+            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
+            
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(tooltipID, ScreenManager);                
+            }
+        }
+
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 screenPos = ProjectToScreenPosition(posInWorld);
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
         }
-
-
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
         {
@@ -7158,85 +7111,25 @@ namespace Ship_Game
             renderState.DestinationBlend       = Blend.InverseSourceAlpha;
             renderState.CullMode               = CullMode.None;
             renderState.DepthBufferWriteEnable = false;
-            foreach (ModelMesh modelMesh in model.Meshes)
-            {
-                foreach (BasicEffect basicEffect in modelMesh.Effects)
-                {
-                    basicEffect.World           = Matrix.CreateScale(50f) * world;
-                    basicEffect.View            = viewMat;
-                    basicEffect.DiffuseColor    = new Vector3(1f, 1f, 1f);
-                    basicEffect.Texture         = projTex;
-                    basicEffect.TextureEnabled  = true;
-                    basicEffect.Projection      = projMat;
-                    basicEffect.LightingEnabled = false;
-                }
-                modelMesh.Draw();
-            }
+            DrawModelMesh(model, Matrix.CreateScale(50f) * world, viewMat, new Vector3(1f, 1f, 1f), projMat, projTex);
             renderState.DepthBufferWriteEnable = true;
         }
 
         protected void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex, float scale)
-        {
-            foreach (ModelMesh modelMesh in model.Meshes)
-            {
-                foreach (BasicEffect basicEffect in modelMesh.Effects)
-                {
-                    basicEffect.World           = world;
-                    basicEffect.View            = viewMat;
-                    basicEffect.Texture         = projTex;
-                    basicEffect.DiffuseColor    = new Vector3(1f, 1f, 1f);
-                    basicEffect.TextureEnabled  = true;
-                    basicEffect.Projection      = projMat;
-                    basicEffect.LightingEnabled = false;
-                }
-                modelMesh.Draw();
-            }
-        }
+            => DrawModelMesh(model, world, viewMat, new Vector3(1f, 1f, 1f), projMat, projTex);
 
         protected void DrawTransparentModelAdditive(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
-        {
-            foreach (ModelMesh modelMesh in model.Meshes)
-            {
-                foreach (BasicEffect basicEffect in modelMesh.Effects)
-                {
-                    basicEffect.World = world;
-                    basicEffect.View = view;
-                    basicEffect.Texture = projTex;
-                    basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
-                    basicEffect.Alpha = this.camHeight / 3500000f;
-                    basicEffect.TextureEnabled = true;
-                    basicEffect.Projection = projection;
-                    basicEffect.LightingEnabled = false;
-                }
-                modelMesh.Draw();
-            }
-        }
-
+            =>  DrawModelMesh(model, world, view, new Vector3(1f, 1f, 1f), projection, projTex, camHeight / 3500000);            
+        
         protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
         {
-            foreach (ModelMesh modelMesh in model.Meshes)
-            {
-                foreach (BasicEffect basicEffect in modelMesh.Effects)
-                {
-                    basicEffect.World = Matrix.CreateScale(50f) * Matrix.CreateScale(scale) * world;
-                    basicEffect.View = view;
-                    basicEffect.Texture = projTex;
-                    basicEffect.Alpha = 1f;
-                    basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
-                    basicEffect.TextureEnabled = true;
-                    basicEffect.Projection = projection;
-                    basicEffect.LightingEnabled = false;
-                }
-                modelMesh.Draw();
-            }
+            DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);            
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
         }
 
-        public void DrawSunModel(Matrix world, Texture2D texture, float scale)
-        {
-            DrawTransparentModel(SunModel, world, view, projection, texture, scale);
-        }
-
+        public void DrawSunModel(Matrix world, Texture2D texture, float scale)        
+            => DrawTransparentModel(SunModel, world, view, projection, texture, scale);
+        
         protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale, Vector3 Color)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
@@ -7248,20 +7141,8 @@ namespace Ship_Game
             renderState.DestinationBlend = Blend.InverseSourceAlpha;
             renderState.DepthBufferWriteEnable = false;
             renderState.CullMode = CullMode.None;
-            foreach (ModelMesh modelMesh in model.Meshes)
-            {
-                foreach (BasicEffect basicEffect in modelMesh.Effects)
-                {
-                    basicEffect.World = Matrix.CreateScale(50f) * Matrix.CreateScale(scale) * world;
-                    basicEffect.View = view;
-                    basicEffect.DiffuseColor = Color;
-                    basicEffect.Texture = projTex;
-                    basicEffect.TextureEnabled = true;
-                    basicEffect.Projection = projection;
-                    basicEffect.LightingEnabled = false;
-                }
-                modelMesh.Draw();
-            }
+            DrawModelMesh(model, Matrix.CreateScale(50f) * Matrix.CreateScale(scale) * world, view, Color, projection, projTex);
+
             renderState.DepthBufferWriteEnable = true;
         }
 
@@ -7342,10 +7223,11 @@ namespace Ship_Game
 
         public enum UnivScreenState
         {
-            ShipView,
-            SystemView,
-            SectorView,
-            GalaxyView,
+            DetailView = 10000,
+            ShipView = 30000,
+            SystemView = 250000,
+            SectorView = 1775000,
+            GalaxyView  ,
         }
 
         //80000f
@@ -7355,6 +7237,9 @@ namespace Ship_Game
             float returnZ = 0;
             switch (screenState)
             {
+                case UnivScreenState.DetailView:
+                    returnZ = 10000;
+                    break;
                 case UnivScreenState.ShipView:
                     returnZ = 30000f; 
                     break;
