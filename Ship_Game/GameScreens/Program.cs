@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-	internal static class Program
-	{
-		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-		{
+    internal static class Program
+    {
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
             GraphicsDeviceManager graphicsMgr = Game1.Instance?.Graphics;
             if (graphicsMgr != null && graphicsMgr.IsFullScreen)
                 graphicsMgr.ToggleFullScreen();
@@ -18,16 +18,16 @@ namespace Ship_Game
                 Log.Error(ex, "Unhandled Exception");
                 ExceptionViewer.ShowExceptionDialog(ex);
             }
-			finally
-			{
-				Game1.Instance?.Exit();
-			}
-		}
+            finally
+            {
+                Game1.Instance?.Exit();
+            }
+        }
 
-		[STAThread]
-		private static void Main(string[] args)
-		{
-			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        [STAThread]
+        private static void Main(string[] args)
+        {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             try
             {
                 using (var instance = new SingleGlobalInstance())
@@ -53,5 +53,5 @@ namespace Ship_Game
                 Environment.Exit(0);
             }
         }
-	}
+    }
 }

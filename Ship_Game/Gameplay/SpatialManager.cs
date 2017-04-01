@@ -262,65 +262,48 @@ namespace Ship_Game.Gameplay
         // @note All of the code is inlined by hand to maximize performance
         public T[] GetNearby<T>(Vector2 position, float radius) where T : GameplayObject
         {
-            int numIds = 0;
-            int* ids = stackalloc int[4];
-
             float posX   = position.X - UpperLeftBound.X;
             float posY   = position.Y - UpperLeftBound.Y;
             int cellSize = CellSize;
             int width    = Width;
+            int height   = Height;
 
             int minX = (int)((posX - radius) / cellSize);
             int maxX = (int)((posX + radius) / cellSize);
             int minY = (int)((posY - radius) / cellSize);
             int maxY = (int)((posY + radius) / cellSize);
 
-            PoolArrayU16** buckets = Buckets.Items;
-            if (minX == maxX && minY == maxY)
+            // Luckily .NET can successfully inline Min/Max
+            if (minX < 0) minX = 0; else if (minX >= width) minX = width - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width - 1;
+            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+
+            int spanX = maxX - minX + 1;
+            int spanY = maxY - minY + 1;
+            int maxSelection = spanX * spanY;
+
+            int numBuckets = 0;
+            PoolArrayU16** allBuckets = Buckets.Items;
+            PoolArrayU16** buckets = stackalloc PoolArrayU16*[maxSelection];
+
+            for (int y = minY; y <= maxY; ++y)
             {
-                int id = minY * Width + minX;
-                if ((uint)id < Buckets.Count && buckets[id] != null)
-                    ids[numIds++] = id;
-            }
-            else
-            {
-                int spanX = maxX - minX + 1;
-                int spanY = maxY - minY + 1;
-                if (spanX > 2 || spanY > 2)
-                    Log.Warning("GetNearby bucket selection is larger than 2x2 !!");
-
-                int topRowOffs = minY * width;
-                int botRowOffs = maxX * width;
-
-                int size = Buckets.Count;
-                // manual loop unrolling with no bounds checking! yay! :D -- to avoid duplicate Id-s looping
-                // ids[0] != id is rearranged (in a weird way) to provide statistically faster exclusion (most results give numIds=1)
-                int id = topRowOffs + minX;
-                if ((uint)id < size && buckets[id] != null)
-                    ids[numIds++] = id;
-
-                id = topRowOffs + maxX;
-                if (ids[0] != id && (uint)id < size && buckets[id] != null)
-                    ids[numIds++] = id;
-
-                id = botRowOffs + maxX;
-                if (ids[0] != id && (uint)id < size && buckets[id] != null && ids[1] != id)
-                    ids[numIds++] = id;
-
-                id = botRowOffs + maxX;
-                if (ids[0] != id && (uint)id < size && buckets[id] != null && ids[1] != id && ids[2] != id)
-                    ids[numIds++] = id;
+                for (int x = minX; x <= maxX; ++x)
+                {
+                    PoolArrayU16* bucket = allBuckets[y * width + x];
+                    if (bucket != null) // null bucket means 0 objects, so we can exclude this bucket from search
+                        buckets[numBuckets++] = bucket;
+                }
             }
 
-            if (numIds == 0) // all this work for nothing?? pffft.
+            if (numBuckets == 0) // all this work for nothing?? pffft.
                 return Empty<T>.Array;
 
             GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();
-            if (numIds == 1) // fast path
+            if (numBuckets == 1) // fast path
             {
-                PoolArrayU16* bucket = buckets[ids[0]];
-                if (bucket == null) return Empty<T>.Array;
-
+                PoolArrayU16* bucket = buckets[0];
                 int count = bucket->Count;
                 ushort* objectIds = bucket->Items;
                 int numItems = 0; // probe number of valid items first
@@ -344,17 +327,17 @@ namespace Ship_Game.Gameplay
 
             // probe if selected buckets are empty to avoid unnecessary allocations
             int totalObjects = 0;
-            for (int i = 0; i < numIds; ++i)
-                totalObjects += buckets[ids[i]]->Count;
+            for (int i = 0; i < numBuckets; ++i)
+                totalObjects += buckets[i]->Count;
             if (totalObjects == 0) return Empty<T>.Array;
 
             // create a histogram with all the objectId frequencies
             // while filtering objects based on the requested type of T
             int numAllObjects = AllObjects.Count;
             byte* histogram = stackalloc byte[numAllObjects];
-            for (int i = 0; i < numIds; ++i)
+            for (int i = 0; i < numBuckets; ++i)
             {
-                PoolArrayU16* bucket = buckets[ids[i]];
+                PoolArrayU16* bucket = buckets[i];
                 int count = bucket->Count;
                 ushort* objectIds = bucket->Items;
                 for (int j = 0; j < count; ++j)
@@ -379,8 +362,8 @@ namespace Ship_Game.Gameplay
             }
 
             if (unique.Length != numUnique)
-                Log.Warning("SpatialManager bucket modified during GetNearby() !!");
-            if (unique.Length > 512)
+                Log.Warning("SpatialManager allObjects array modified during GetNearby() !!");
+            if (unique.Length > 64)
                 Log.Warning("SpatialManager GetNearby returned {0} items. Seems a bit inefficient.", unique.Length);
             return unique;
         }
@@ -389,61 +372,43 @@ namespace Ship_Game.Gameplay
         {
             // Sorry, this is an almost identicaly copy-paste from the above function "GetNearby"
             // All of this for the sole reason of extreme performance optimization. Forgive us :'(
-            int numIds = 0;
-            int* ids = stackalloc int[4];
-
             float posX   = obj.Position.X - UpperLeftBound.X;
             float posY   = obj.Position.Y - UpperLeftBound.Y;
-            int   width  = Width;
-            float radius = obj.Radius;
             int cellSize = CellSize;
+            int width    = Width;
+            int height   = Height;
+            float radius = obj.Radius;
 
-            int leftColOffs  = (int)((posX - radius) / cellSize);
-            int rightColOffs = (int)((posX + radius) / cellSize);
-            int topRowOffs   = (int)((posY - radius) / cellSize) * width;
-            int botRowOffs   = (int)((posY + radius) / cellSize) * width;
+            int minX = (int)((posX - radius) / cellSize);
+            int maxX = (int)((posX + radius) / cellSize);
+            int minY = (int)((posY - radius) / cellSize) * width;
+            int maxY = (int)((posY + radius) / cellSize) * width;
 
-            if (leftColOffs == rightColOffs && topRowOffs == botRowOffs)
+            // Luckily .NET can successfully inline Min/Max
+            if (minX < 0) minX = 0; else if (minX >= width) minX = width - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= width) maxX = width - 1;
+            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+
+            int numInsertions = 0;
+            PoolArrayU16** allBuckets = Buckets.Items;
+            for (int y = minY; y <= maxY; ++y)
             {
-                int id = topRowOffs + leftColOffs;
-                if ((uint)id < Buckets.Count) ids[numIds++] = id;
+                PoolArrayU16** gridBucketPtr = &allBuckets[y * width];
+                for (int x = minX; x <= maxX; ++x)
+                {
+                    PoolArrayU16** bucketRef = &allBuckets[y * width + x];
+                    MemoryPool.ArrayAdd(bucketRef, (ushort)objId);
+                    ++numInsertions;
+                }
             }
-            else
-            {
-                int size = Buckets.Count;
-                int id = topRowOffs + leftColOffs;
-                if ((uint)id < size)
-                    ids[numIds++] = id;
-
-                id = topRowOffs + rightColOffs;
-                if (ids[0] != id && (uint)id < size)
-                    ids[numIds++] = id;
-
-                id = botRowOffs + rightColOffs;
-                if (ids[0] != id && (uint)id < size && ids[1] != id)
-                    ids[numIds++] = id;
-
-                id = botRowOffs + rightColOffs;
-                if (ids[0] != id && (uint)id < size && ids[1] != id && ids[2] != id)
-                    ids[numIds++] = id;
-            }
-
 
             // this can happen if a ship is performing FTL, so it jumps out of the Solar system
             // best course of action is to just ignore it and not insert into buckets
-            if (numIds == 0)
+            if (numInsertions == 0)
             {
                 if (System != null && System.Position.InRadius(obj.Position, 100000f))
                     Log.Error("SpatialManager logic error: object {0} is outside of system grid {1}", obj, System);
-                return;
-            }
-
-            PoolArrayU16** buckets = Buckets.Items;
-            for (int i = 0; i < numIds; ++i)
-            {
-                int quadrantId = ids[i];
-                PoolArrayU16** bucketRef = &buckets[quadrantId];
-                MemoryPool.ArrayAdd(bucketRef, (ushort)objId);
             }
         }
 
