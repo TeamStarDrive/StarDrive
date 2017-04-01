@@ -180,7 +180,24 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(text, ScreenManager);
             }
         }
-
+        public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool LightingEnabled = false)
+        {
+            foreach (ModelMesh modelMesh in model.Meshes)
+            {
+                foreach (BasicEffect basicEffect in modelMesh.Effects)
+                {
+                    basicEffect.World = Matrix.CreateScale(50f) * world;
+                    basicEffect.View = view;
+                    basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
+                    basicEffect.Texture = projTex;
+                    basicEffect.Alpha = alpha > 0 ? alpha : basicEffect.Alpha;                    
+                    basicEffect.TextureEnabled = true;
+                    basicEffect.Projection = projection;
+                    basicEffect.LightingEnabled = false;
+                }
+                modelMesh.Draw();
+            }
+        }
         ~GameScreen() { Dispose(false); }
 
         public void Dispose()
