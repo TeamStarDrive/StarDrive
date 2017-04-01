@@ -155,6 +155,31 @@ namespace Ship_Game
             var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
             ScreenManager.SpriteBatch.Draw(texture, rect, null, color, rotation, texture.Center(), SpriteEffects.None, 1f);
         }
+        // just draws a texture to screen, no fancy reprojections, where screenPos is the texture top left.
+        public void DrawTextureRect(Texture2D texture, Vector2 position, Color color, float rotation = 0)
+        {
+            ScreenManager.SpriteBatch.Draw(texture, position, new Rectangle?(), color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
+        }
+        // just draws a texture to screen, no fancy reprojections, where screenPos is the rectangle top left and texture exists in it
+        public void DrawTextureRect(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, Vector2 origin, float rotation = 0f, float scale = 0, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
+        {
+            ScreenManager.SpriteBatch.Draw(texture,  position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
+        }
+
+        public void CheckToolTip(int toolTipID1, Rectangle rectangle, Vector2 mousePos)
+        {
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(toolTipID1, ScreenManager);                
+            }
+        }
+        public void CheckToolTip(string text, Rectangle rectangle, Vector2 mousePos)
+        {
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(text, ScreenManager);
+            }
+        }
 
         ~GameScreen() { Dispose(false); }
 

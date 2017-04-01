@@ -22,7 +22,7 @@ namespace Ship_Game
 		static ToolTip()
 		{
 			Hotkey = "";
-			TipTimer = 50;
+			TipTimer = 0;
 			LastWhich = -1;
 		}
 
@@ -74,7 +74,7 @@ namespace Ship_Game
 
 			if (TextLast != Text)
 			{
-				TipTimer = 50;
+				TipTimer = 5;
 				TextLast = Text;
 			}
 			Rect = tipRect;
