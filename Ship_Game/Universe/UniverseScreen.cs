@@ -1737,9 +1737,9 @@ namespace Ship_Game
                     }
                     if (system.ExploredDict[this.player] && viewing)
                     {
-                        system.isVisible = this.camHeight < 250000.0;
+                        system.isVisible = viewState < UnivScreenState.GalaxyView;//this.camHeight < 250000.0;
                     }
-                    if (system.isVisible && this.camHeight < 150000.0)
+                    if (system.isVisible && viewState < UnivScreenState.SectorView)
                     {
                         foreach (Asteroid asteroid in system.AsteroidsList)
                         {
@@ -6983,87 +6983,63 @@ namespace Ship_Game
 
         protected virtual void DrawPlanetInfo()
         {
+            if (LookingAtPlanet || viewState > UnivScreenState.SectorView || viewState < UnivScreenState.ShipView)
+                return;
+            Vector2 mousePos              = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
+            Texture2D planetNamePointer   = null;
+            Texture2D icon_fighting_small = null;
+            Texture2D icon_spy_small      = null;
+            Texture2D icon_anomaly_small  = null;
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                if (viewState <= UnivScreenState.SectorView && solarSystem.isVisible)
+                if (!solarSystem.isVisible)
+                    continue;
+              
+                foreach (Planet planet in solarSystem.PlanetList)
                 {
-                    foreach (Planet planet in solarSystem.PlanetList)
+                    if (!planet.ExploredDict[player]) continue;
+
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
+                    Vector2 posOffSet       = screenPosPlanet;
+                    planetNamePointer       = planetNamePointer ?? ResourceManager.Texture("UI/planetNamePointer");                    
+                    posOffSet.X             += 20f; 
+                    posOffSet.Y             += 37f;
+
+                    DrawTextureRect(planetNamePointer, screenPosPlanet, Color.Green);
+                    HelperFunctions.ClampVectorToInt(ref posOffSet);
+                    Color textColor = planet.Owner?.EmpireColor ?? Color.White;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, planet.Name, posOffSet, textColor);                    
+                    
+                    int drawLocationOffset = 0;
+                    posOffSet              = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
+                    if (planet.RecentCombat)
                     {
-                        float radius = planet.SO.WorldBoundingSphere.Radius;
-                        Vector3 vector3_1 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), projection, view, Matrix.Identity);
-                        Vector2 vector2_1 = new Vector2(vector3_1.X, vector3_1.Y);
-                        Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position.PointOnCircle(90f, radius), 2500f), projection, view, Matrix.Identity);
-                        float num1 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2_1) + 10f;
-                        Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y - num1);
-                        if (planet.ExploredDict[player])
+                        icon_fighting_small = icon_fighting_small ?? ResourceManager.Texture("UI/icon_fighting_small");
+                        DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+                    if (player.data.MoleList.Count > 0)
+                    {
+                        foreach (Mole mole in (Array<Mole>)player.data.MoleList)
                         {
-                            if (!LookingAtPlanet && viewState < UniverseScreen.UnivScreenState.SectorView && viewState > UniverseScreen.UnivScreenState.ShipView)
+                            if (mole.PlanetGuid == planet.guid)
                             {
-                                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/planetNamePointer"], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.Green, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
-                                Vector2 pos1 = new Vector2(vector3_1.X + 20f, vector3_1.Y + 37f);
-                                HelperFunctions.ClampVectorToInt(ref pos1);
-                                if (planet.Owner == null)
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, planet.Name, pos1, Color.White);
-                                else
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, planet.Name, pos1, planet.Owner.EmpireColor);
-                                Vector2 pos2 = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
-                                int num2 = 0;
-                                Vector2 vector2_3 = new Vector2(vector3_1.X + 10f, vector3_1.Y + 60f);
-                                if (planet.RecentCombat)
-                                {
-                                    Rectangle rectangle = new Rectangle((int)vector2_3.X, (int)vector2_3.Y, 14, 14);
-                                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], rectangle, Color.White);
-                                    if (HelperFunctions.CheckIntersection(rectangle, pos2))
-                                        ToolTip.CreateTooltip(119, ScreenManager);
-                                    ++num2;
-                                }
-                                if (player.data.MoleList.Count > 0)
-                                {
-                                    foreach (Mole mole in (Array<Mole>)player.data.MoleList)
-                                    {
-                                        if (mole.PlanetGuid == planet.guid)
-                                        {
-                                            vector2_3.X = vector2_3.X + (float)(18 * num2);
-                                            Rectangle rectangle = new Rectangle((int)vector2_3.X, (int)vector2_3.Y, 14, 14);
-                                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy_small"], rectangle, Color.White);
-                                            ++num2;
-                                            if (HelperFunctions.CheckIntersection(rectangle, pos2))
-                                            {
-                                                ToolTip.CreateTooltip(120, ScreenManager);
-                                                break;
-                                            }
-                                            else
-                                                break;
-                                        }
-                                    }
-                                }
-                                foreach (Building building in planet.BuildingList)
-                                {
-                                    if (!string.IsNullOrEmpty(building.EventTriggerUID))
-                                    {
-                                        vector2_3.X = vector2_3.X + (float)(18 * num2);
-                                        Rectangle rectangle = new Rectangle((int)vector2_3.X, (int)vector2_3.Y, 14, 14);
-                                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle, Color.White);
-                                        if (HelperFunctions.CheckIntersection(rectangle, pos2))
-                                        {
-                                            ToolTip.CreateTooltip(121, ScreenManager);
-                                            break;
-                                        }
-                                        else
-                                            break;
-                                    }
-                                }
+                                icon_spy_small = icon_spy_small ?? ResourceManager.Texture("UI/icon_spy_small");
+                                posOffSet.X    += (float)(18 * drawLocationOffset);
+                                DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                ++drawLocationOffset;                                
+                                break;
                             }
                         }
-                        else if (camHeight < 50000f)
-                        {
-                            if (planet.Owner != null)
-                                continue;
-                        }
-                        else
-                        {
-                            Empire empire = planet.Owner;
-                        }
+                    }
+                    foreach (Building building in planet.BuildingList)
+                    {
+                        if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
+
+                        icon_anomaly_small = icon_anomaly_small ?? ResourceManager.Texture("UI/icon_anomaly_small");
+                        posOffSet.X        += (float)(18 * drawLocationOffset);                        
+                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);                        
+                        break;
                     }
                 }
             }
@@ -7104,8 +7080,7 @@ namespace Ship_Game
                 posOnScreen.Y += Fonts.Arial12Bold.LineSpacing + 2;
             }
         }
-
-
+        
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
@@ -7137,6 +7112,17 @@ namespace Ship_Game
 
         public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
+
+        public void DrawTextureWithToolTip(Texture2D texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
+        {
+            Rectangle rectangle = new Rectangle(rectangleX, rectangleY, width, height);
+            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
+            
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(tooltipID, ScreenManager);                
+            }
+        }
 
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
