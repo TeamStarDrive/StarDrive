@@ -407,18 +407,9 @@ namespace Ship_Game
                     sdata.yRotation     = ship.yRotation;
                     sdata.Rotation      = ship.Rotation;
                     sdata.InCombatTimer = ship.InCombatTimer;
-                    if (ship.GetCargo().ContainsKey("Food"))
-                    {
-                        sdata.FoodCount = ship.GetCargo()["Food"];
-                    }
-                    if (ship.GetCargo().ContainsKey("Production"))
-                    {
-                        sdata.ProdCount = ship.GetCargo()["Production"];
-                    }
-                    if (ship.GetCargo().ContainsKey("Colonists_1000"))
-                    {
-                        sdata.PopCount = ship.GetCargo()["Colonists_1000"];
-                    }
+                    sdata.FoodCount = ship.GetFood();
+                    sdata.ProdCount = ship.GetProduction();
+                    sdata.PopCount  = ship.GetColonists();
                     sdata.TroopList = ship.TroopList;
 
                     sdata.AreaOfOperation = ship.AreaOfOperation;

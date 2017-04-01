@@ -163,7 +163,7 @@ namespace Ship_Game
             foreach (string ship in empire.ShipsWeCanBuild)
             {                
                 if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship automation) 
-                        || automation.isColonyShip || automation.CargoSpace_Max <= 0f || automation.Thrust <= 0f 
+                        || automation.isColonyShip || automation.CargoSpaceMax <= 0f || automation.Thrust <= 0f 
                         || ResourceManager.ShipRoles[automation.shipData.Role].Protected)
                     continue;
                 AutoFreighterDropDown.AddOption(automation.Name, 0);
@@ -218,7 +218,7 @@ namespace Ship_Game
                 else
                 {
                     if ((ship.shipData.Role != ShipData.RoleName.freighter && !ship.isConstructor) 
-                        || ship.CargoSpace_Max <= 0f || ship.Thrust <= 0f || ship.isColonyShip)
+                        || ship.CargoSpaceMax <= 0f || ship.Thrust <= 0f || ship.isColonyShip)
                         continue;
                     ConstructorDropDown.AddOption(ship.Name, 0);
                 }

@@ -2757,46 +2757,36 @@ namespace Ship_Game
                         
                     }
                 }
-                if (ship != null && ship.loyalty == this.Owner && this.HasShipyard && Vector2.Distance(this.Position, ship.Position) <= 5000f)
+                if (ship != null && ship.loyalty == Owner && HasShipyard && ship.Position.InRadius(Position, 5000f))
                 {
                     ship.PowerCurrent = ship.PowerStoreMax;
                     ship.Ordinance = ship.OrdinanceMax;
                     if (GlobalStats.HardcoreRuleset)
                     {
-                        foreach (KeyValuePair<string, float> maxGood in ship.GetMaxGoods())
-                        {
-                            if (ship.GetCargo()[maxGood.Key] >= maxGood.Value)
-                            {
-                                continue;
-                            }
-                            while (this.ResourcesDict[maxGood.Key] > 0f && ship.GetCargo()[maxGood.Key] < maxGood.Value)
-                            {
-                                if (maxGood.Value - ship.GetCargo()[maxGood.Key] < 1f)
-                                {
-                                    Map<string, float> resourcesDict = this.ResourcesDict;
-                                    Map<string, float> strs = resourcesDict;
-                                    string key = maxGood.Key;
-                                    string str = key;
-                                    resourcesDict[key] = strs[str] - (maxGood.Value - ship.GetCargo()[maxGood.Key]);
-                                    Map<string, float> cargo = ship.GetCargo();
-                                    Map<string, float> strs1 = cargo;
-                                    string key1 = maxGood.Key;
-                                    string str1 = key1;
-                                    cargo[key1] = strs1[str1] + (maxGood.Value - ship.GetCargo()[maxGood.Key]);
-                                }
-                                else
-                                {
-                                    Map<string, float> resourcesDict1 = this.ResourcesDict;
-                                    Map<string, float> strs2 = resourcesDict1;
-                                    string key2 = maxGood.Key;
-                                    resourcesDict1[key2] = strs2[key2] - 1f;
-                                    Map<string, float> cargo1 = ship.GetCargo();
-                                    Map<string, float> strs3 = cargo1;
-                                    string str2 = maxGood.Key;
-                                    cargo1[str2] = strs3[str2] + 1f;
-                                }
-                            }
-                        }
+                        //while (ship.CargoSpaceFree > 0f)
+                        //{
+                        //    var resource = ResourcesDict.FirstOrDefault(kv => kv.Value > 0f);
+                        //    if (resource.Value <= 0f) break;
+                        //}
+                        //foreach (KeyValuePair<string, float> maxGood in ship.GetMaxGoods())
+                        //{
+                        //    if (ship.GetCargo(maxGood.Key) >= maxGood.Value)
+                        //        continue;
+                        //    while (ResourcesDict[maxGood.Key] > 0f && ship.GetCargo(maxGood.Key) < maxGood.Value)
+                        //    {
+                        //        float cargoSpace = maxGood.Value - ship.GetCargo(maxGood.Key);
+                        //        if (cargoSpace < 1f)
+                        //        {
+                        //            ResourcesDict[maxGood.Key] -= cargoSpace;
+                        //            ship.AddCargo(maxGood.Key, cargoSpace);
+                        //        }
+                        //        else
+                        //        {
+                        //            ResourcesDict[maxGood.Key] -= 1f;
+                        //            ship.AddCargo(maxGood.Key, 1f);
+                        //        }
+                        //    }
+                        //}
                     }
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                     if (!ship.InCombat && RepairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent <90))
@@ -5739,15 +5729,15 @@ output = maxp * take10 = 5
                         shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
 
-                    foreach (string current in shipAt.GetMaxGoods().Keys)
-                    {
-                        if (ResourcesDict[current] > 0.0f &&  shipAt.GetCargo()[current] <  shipAt.GetMaxGoods()[current])
-                        {
-                            ResourcesDict[current] = ResourcesDict[current] - 1f;
-                            shipAt.AddCargo(current, 1);
-                        }
-                        else break;
-                    }
+                    //foreach (string current in shipAt.GetMaxGoods().Keys)
+                    //{
+                    //    if (ResourcesDict[current] > 0.0f &&  shipAt.GetCargo(current) < shipAt.GetMaxCargo(current))
+                    //    {
+                    //        ResourcesDict[current] -= 1f;
+                    //        shipAt.AddCargo(current, 1);
+                    //    }
+                    //    else break;
+                    //}
 
                     if (queueItem.sData.Role == ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
                     {
