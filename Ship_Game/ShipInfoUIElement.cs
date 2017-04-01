@@ -10,142 +10,142 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class ShipInfoUIElement : UIElement
-	{
-		public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+    public sealed class ShipInfoUIElement : UIElement
+    {
+        public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
-		public Array<OrdersButton> Orders = new Array<OrdersButton>();
+        public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
-		private Array<ShipInfoUIElement.TippedItem> ToolTipItems = new Array<ShipInfoUIElement.TippedItem>();
+        private Array<ShipInfoUIElement.TippedItem> ToolTipItems = new Array<ShipInfoUIElement.TippedItem>();
 
-		private Rectangle SliderRect;
+        private Rectangle SliderRect;
 
-		private UniverseScreen screen;
+        private UniverseScreen screen;
 
-		public Ship ship;
+        public Ship ship;
 
-		private Selector sel;
+        private Selector sel;
 
-		public Rectangle LeftRect;
+        public Rectangle LeftRect;
 
-		public Rectangle RightRect;
+        public Rectangle RightRect;
 
-		public Rectangle Housing;
+        public Rectangle Housing;
 
-		public Rectangle ShipInfoRect;
+        public Rectangle ShipInfoRect;
 
-		public ToggleButton gridbutton;
+        public ToggleButton gridbutton;
 
-		public Rectangle Power;
+        public Rectangle Power;
 
-		public Rectangle Shields;
+        public Rectangle Shields;
 
-		public Rectangle Ordnance;
+        public Rectangle Ordnance;
 
-		private ProgressBar pBar;
+        private ProgressBar pBar;
 
-		private ProgressBar sBar;
+        private ProgressBar sBar;
 
-		private ProgressBar oBar;
+        private ProgressBar oBar;
 
-		public UITextEntry ShipNameArea;
+        public UITextEntry ShipNameArea;
 
-		private SlidingElement sliding_element;
+        private SlidingElement sliding_element;
 
-		private Rectangle DefenseRect;
+        private Rectangle DefenseRect;
 
-		private Rectangle TroopRect;
+        private Rectangle TroopRect;
 
         private Rectangle FlagRect;  //fbedard
 
-		private bool CanRename = true;
+        private bool CanRename = true;
 
-		private bool ShowModules = true;
+        private bool ShowModules = true;
 
-		private string fmt = "0";
+        private string fmt = "0";
         private float DoubleClickTimer = .25f;
 
-		public ShipInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
-		{
-			this.screen = screen;
-			this.ScreenManager = sm;
-			this.ElementRect = r;
+        public ShipInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
+        {
+            this.screen = screen;
+            this.ScreenManager = sm;
+            this.ElementRect = r;
             this.FlagRect = new Rectangle(r.X + 150, r.Y + 50, 40, 40);
-			this.sel = new Selector(this.ScreenManager, r, Color.Black);
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-			this.SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
-			this.sliding_element = new SlidingElement(this.SliderRect);
-			this.Housing = r;
-			this.LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
-			this.RightRect = new Rectangle(this.LeftRect.X + this.LeftRect.Width, this.LeftRect.Y, 220, this.LeftRect.Height);
-			this.ShipNameArea = new UITextEntry()
-			{
-				ClickableArea = new Rectangle(this.Housing.X + 41, this.Housing.Y + 65, 200, Fonts.Arial20Bold.LineSpacing)
-			};
-			int spacing = 2;
-			this.Power = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110, 20, 20);
-			Rectangle pbarrect = new Rectangle(this.Power.X + this.Power.Width + 15, this.Power.Y, 150, 18);
-			this.pBar = new ProgressBar(pbarrect)
-			{
-				color = "green"
-			};
-			ShipInfoUIElement.TippedItem ti = new ShipInfoUIElement.TippedItem()
-			{
-				r = this.Power,
-				TIP_ID = 27
-			};
-			this.ToolTipItems.Add(ti);
-			this.Shields = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110 + 20 + spacing, 20, 20);
-			Rectangle pshieldsrect = new Rectangle(this.Shields.X + this.Shields.Width + 15, this.Shields.Y, 150, 18);
-			this.sBar = new ProgressBar(pshieldsrect)
-			{
-				color = "blue"
-			};
-			ti = new ShipInfoUIElement.TippedItem()
-			{
-				r = this.Shields,
-				TIP_ID = 28
-			};
-			this.ToolTipItems.Add(ti);
-			this.Ordnance = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
-			Rectangle pordrect = new Rectangle(this.Ordnance.X + this.Ordnance.Width + 15, this.Ordnance.Y, 150, 18);
-			this.oBar = new ProgressBar(pordrect);
-			ti = new ShipInfoUIElement.TippedItem()
-			{
-				r = this.Ordnance,
-				TIP_ID = 29
-			};
-			this.ToolTipItems.Add(ti);
-			this.DefenseRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 112, 22, 22);
-			ti = new ShipInfoUIElement.TippedItem()
-			{
-				r = this.DefenseRect,
-				TIP_ID = 30
-			};
-			this.ToolTipItems.Add(ti);
-			this.TroopRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 137, 22, 22);
-			ti = new ShipInfoUIElement.TippedItem()
-			{
-				r = this.TroopRect,
-				TIP_ID = 37
-			};
-			this.ToolTipItems.Add(ti);
-			this.ShipInfoRect = new Rectangle(this.Housing.X + 60, this.Housing.Y + 110, 115, 115);
-			Rectangle gridRect = new Rectangle(this.Housing.X + 16, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45, 34, 24);
-			this.gridbutton = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
-			{
-				Active = true
-			};
-			Vector2 OrdersBarPos = new Vector2((float)(this.Power.X + 15), (float)(this.Ordnance.Y + this.Ordnance.Height + spacing + 3));
+            this.sel = new Selector(this.ScreenManager, r, Color.Black);
+            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            this.SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
+            this.sliding_element = new SlidingElement(this.SliderRect);
+            this.Housing = r;
+            this.LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
+            this.RightRect = new Rectangle(this.LeftRect.X + this.LeftRect.Width, this.LeftRect.Y, 220, this.LeftRect.Height);
+            this.ShipNameArea = new UITextEntry()
+            {
+                ClickableArea = new Rectangle(this.Housing.X + 41, this.Housing.Y + 65, 200, Fonts.Arial20Bold.LineSpacing)
+            };
+            int spacing = 2;
+            this.Power = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110, 20, 20);
+            Rectangle pbarrect = new Rectangle(this.Power.X + this.Power.Width + 15, this.Power.Y, 150, 18);
+            this.pBar = new ProgressBar(pbarrect)
+            {
+                color = "green"
+            };
+            ShipInfoUIElement.TippedItem ti = new ShipInfoUIElement.TippedItem()
+            {
+                r = this.Power,
+                TIP_ID = 27
+            };
+            this.ToolTipItems.Add(ti);
+            this.Shields = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110 + 20 + spacing, 20, 20);
+            Rectangle pshieldsrect = new Rectangle(this.Shields.X + this.Shields.Width + 15, this.Shields.Y, 150, 18);
+            this.sBar = new ProgressBar(pshieldsrect)
+            {
+                color = "blue"
+            };
+            ti = new ShipInfoUIElement.TippedItem()
+            {
+                r = this.Shields,
+                TIP_ID = 28
+            };
+            this.ToolTipItems.Add(ti);
+            this.Ordnance = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
+            Rectangle pordrect = new Rectangle(this.Ordnance.X + this.Ordnance.Width + 15, this.Ordnance.Y, 150, 18);
+            this.oBar = new ProgressBar(pordrect);
+            ti = new ShipInfoUIElement.TippedItem()
+            {
+                r = this.Ordnance,
+                TIP_ID = 29
+            };
+            this.ToolTipItems.Add(ti);
+            this.DefenseRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 112, 22, 22);
+            ti = new ShipInfoUIElement.TippedItem()
+            {
+                r = this.DefenseRect,
+                TIP_ID = 30
+            };
+            this.ToolTipItems.Add(ti);
+            this.TroopRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 137, 22, 22);
+            ti = new ShipInfoUIElement.TippedItem()
+            {
+                r = this.TroopRect,
+                TIP_ID = 37
+            };
+            this.ToolTipItems.Add(ti);
+            this.ShipInfoRect = new Rectangle(this.Housing.X + 60, this.Housing.Y + 110, 115, 115);
+            Rectangle gridRect = new Rectangle(this.Housing.X + 16, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45, 34, 24);
+            this.gridbutton = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
+            {
+                Active = true
+            };
+            Vector2 OrdersBarPos = new Vector2((float)(this.Power.X + 15), (float)(this.Ordnance.Y + this.Ordnance.Height + spacing + 3));
             
             OrdersBarPos.X = pordrect.X - 15;
-			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
-			this.CombatStatusButtons.Add(AttackRuns);
-			AttackRuns.Action = "attack";
-			AttackRuns.HasToolTip = true;
-			AttackRuns.WhichToolTip = 1;
-			
+            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
+            this.CombatStatusButtons.Add(AttackRuns);
+            AttackRuns.Action = "attack";
+            AttackRuns.HasToolTip = true;
+            AttackRuns.WhichToolTip = 1;
+            
             OrdersBarPos.X = OrdersBarPos.X + 25f;
             ToggleButton ShortRange = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_grid");
             this.CombatStatusButtons.Add(ShortRange);
@@ -159,19 +159,19 @@ namespace Ship_Game
             Artillery.Action = "arty";
             Artillery.HasToolTip = true;
             Artillery.WhichToolTip = 2;
-			
+            
             OrdersBarPos.X = OrdersBarPos.X + 25f;
-			ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_x");
-			this.CombatStatusButtons.Add(HoldPos);
-			HoldPos.Action = "hold";
-			HoldPos.HasToolTip = true;
-			HoldPos.WhichToolTip = 65;
-			OrdersBarPos.X = OrdersBarPos.X + 25f;
-			ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_left");
-			this.CombatStatusButtons.Add(OrbitLeft);
-			OrbitLeft.Action = "orbit_left";
-			OrbitLeft.HasToolTip = true;
-			OrbitLeft.WhichToolTip = 3;
+            ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_x");
+            this.CombatStatusButtons.Add(HoldPos);
+            HoldPos.Action = "hold";
+            HoldPos.HasToolTip = true;
+            HoldPos.WhichToolTip = 65;
+            OrdersBarPos.X = OrdersBarPos.X + 25f;
+            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_left");
+            this.CombatStatusButtons.Add(OrbitLeft);
+            OrbitLeft.Action = "orbit_left";
+            OrbitLeft.HasToolTip = true;
+            OrbitLeft.WhichToolTip = 3;
             OrdersBarPos.Y = OrdersBarPos.Y + 25f;
 
             ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bleft");
@@ -182,11 +182,11 @@ namespace Ship_Game
             OrdersBarPos.Y = OrdersBarPos.Y - 25f;
             OrdersBarPos.X = OrdersBarPos.X + 25f;
 
-			ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_right");
-			this.CombatStatusButtons.Add(OrbitRight);
-			OrbitRight.Action = "orbit_right";
-			OrbitRight.HasToolTip = true;
-			OrbitRight.WhichToolTip = 4;
+            ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_right");
+            this.CombatStatusButtons.Add(OrbitRight);
+            OrbitRight.Action = "orbit_right";
+            OrbitRight.HasToolTip = true;
+            OrbitRight.WhichToolTip = 4;
             OrdersBarPos.Y = OrdersBarPos.Y + 25f;
 
             ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bright");
@@ -197,40 +197,40 @@ namespace Ship_Game
             OrdersBarPos.Y = OrdersBarPos.Y - 25f;
             OrdersBarPos.X = OrdersBarPos.X + 25f;
 
-			ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_stop");
-			this.CombatStatusButtons.Add(Evade);
-			Evade.Action = "evade";
-			Evade.HasToolTip = true;
-			Evade.WhichToolTip = 6;
-		}
+            ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_stop");
+            this.CombatStatusButtons.Add(Evade);
+            Evade.Action = "evade";
+            Evade.HasToolTip = true;
+            Evade.WhichToolTip = 6;
+        }
 
-		public override void Draw(GameTime gameTime)
-		{
+        public override void Draw(GameTime gameTime)
+        {
             if (this.screen.SelectedShip == null) return;  //fbedard
 
             string longName;
-			float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-			int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
-			this.sliding_element.Draw(this.ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (this.sliding_element.Open ? 20 - columns : 0));
-			foreach (OrdersButton ob in this.Orders)
-			{
-				Rectangle r = ob.clickRect;
-				r.X = r.X - (int)(transitionOffset * 300f);
-				ob.Draw(this.ScreenManager, r);
-			}
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
-			this.gridbutton.Draw(this.ScreenManager);
-			Vector2 NamePos = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 63));
-			string name = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
-			SpriteFont TitleFont = Fonts.Arial14Bold;
+            float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
+            int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
+            this.sliding_element.Draw(this.ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (this.sliding_element.Open ? 20 - columns : 0));
+            foreach (OrdersButton ob in this.Orders)
+            {
+                Rectangle r = ob.clickRect;
+                r.X = r.X - (int)(transitionOffset * 300f);
+                ob.Draw(this.ScreenManager, r);
+            }
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
+            this.gridbutton.Draw(this.ScreenManager);
+            Vector2 NamePos = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 63));
+            string name = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
+            SpriteFont TitleFont = Fonts.Arial14Bold;
             Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 79));
-			if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
-			{
-				TitleFont = Fonts.Arial12Bold;
+            if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
+            {
+                TitleFont = Fonts.Arial12Bold;
                 NamePos.X = NamePos.X - 8;
-				NamePos.Y = NamePos.Y + 1;
-			}
-			this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
+                NamePos.Y = NamePos.Y + 1;
+            }
+            this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
             //Added by McShooterz:
             //longName = string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty));
             longName = string.Concat(this.ship.Name, " - ", this.ship.shipData.GetRole());
@@ -238,41 +238,41 @@ namespace Ship_Game
                 longName += string.Concat(" - ", this.ship.shipData.GetCategory());
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
-			string text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
-			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
-			text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
-			HelperFunctions.ClampVectorToInt(ref ShipStatus);
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
-			ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
-			this.ship.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/NuclearReactorMedium"], this.Power, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Shield_1KW"], this.Shields, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Ordnance"], this.Ordnance, Color.White);
-			this.pBar.Max = this.ship.PowerStoreMax;
-			this.pBar.Progress = this.ship.PowerCurrent;
-			this.pBar.Draw(this.ScreenManager.SpriteBatch);
-			this.sBar.Max = this.ship.shield_max;
-			this.sBar.Progress = this.ship.shield_power;
-			this.sBar.Draw(this.ScreenManager.SpriteBatch);
-			this.oBar.Max = this.ship.OrdinanceMax;
-			this.oBar.Progress = this.ship.Ordinance;
-			this.oBar.Draw(this.ScreenManager.SpriteBatch);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
-			Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-			SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
-			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			float mechanicalBoardingDefense = this.ship.MechanicalBoardingDefense + this.ship.TroopBoardingDefense;
-			spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop_shipUI"], this.TroopRect, Color.White);
-			Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.ship.TroopList.Count, "/", this.ship.TroopCapacity), troopPos, Color.White);
-			if (this.ship.loyalty == EmpireManager.Player)
-			{
-				foreach (ToggleButton button in this.CombatStatusButtons)
-				{
-					button.Draw(this.ScreenManager);
-				}
-			}
+            string text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
+            Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
+            text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
+            HelperFunctions.ClampVectorToInt(ref ShipStatus);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
+            ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
+            this.ship.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/NuclearReactorMedium"], this.Power, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Shield_1KW"], this.Shields, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Ordnance"], this.Ordnance, Color.White);
+            this.pBar.Max = this.ship.PowerStoreMax;
+            this.pBar.Progress = this.ship.PowerCurrent;
+            this.pBar.Draw(this.ScreenManager.SpriteBatch);
+            this.sBar.Max = this.ship.shield_max;
+            this.sBar.Progress = this.ship.shield_power;
+            this.sBar.Draw(this.ScreenManager.SpriteBatch);
+            this.oBar.Max = this.ship.OrdinanceMax;
+            this.oBar.Progress = this.ship.Ordinance;
+            this.oBar.Draw(this.ScreenManager.SpriteBatch);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
+            Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+            SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
+            SpriteFont arial12Bold = Fonts.Arial12Bold;
+            float mechanicalBoardingDefense = this.ship.MechanicalBoardingDefense + this.ship.TroopBoardingDefense;
+            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop_shipUI"], this.TroopRect, Color.White);
+            Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.ship.TroopList.Count, "/", this.ship.TroopCapacity), troopPos, Color.White);
+            if (this.ship.loyalty == EmpireManager.Player)
+            {
+                foreach (ToggleButton button in this.CombatStatusButtons)
+                {
+                    button.Draw(this.ScreenManager);
+                }
+            }
             else  //fbedard: Display race icon of enemy ship in Ship UI
             {
                 Rectangle FlagShip = new Rectangle(this.FlagRect.X + 190, this.FlagRect.Y + 130, 40, 40);
@@ -281,9 +281,9 @@ namespace Ship_Game
                 spriteBatch1.Draw(keyValuePair.Value, FlagShip, this.ship.loyalty.EmpireColor);
             }
 
-			float x = (float)Mouse.GetState().X;
-			MouseState state = Mouse.GetState();
-			Vector2 MousePos = new Vector2(x, (float)state.Y);
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
             //Added by McShooterz: new experience level display
             Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + 23, 22, 22);
             Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
@@ -298,56 +298,54 @@ namespace Ship_Game
             levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_kills_shipUI"], star, Color.White);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.kills.ToString(), levelPos, Color.White);
-			Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
-			int numStatus = 0;
-			if (this.ship.loyalty.data.Traits.Pack)
-			{
-				Rectangle PackRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_pack"], PackRect, Color.White);
-				Vector2 TextPos = new Vector2((float)(PackRect.X + 26), (float)(PackRect.Y + 15));
-				float damageModifier = this.ship.DamageModifier * 100f;
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), TextPos, Color.White);
-				numStatus++;
-				if (HelperFunctions.CheckIntersection(PackRect, MousePos))
-				{
-					ToolTip.CreateTooltip(Localizer.Token(2245), this.ScreenManager);
-				}
-			}
-			foreach (KeyValuePair<string, float> entry in this.ship.GetCargo())
-			{
-				if (entry.Value <= 0f)
-				{
-					continue;
-				}
-				Rectangle GoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Goods/", entry.Key)], GoodRect, Color.White);
-				Vector2 TextPos = new Vector2((float)(GoodRect.X + 32), (float)(GoodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2));
-				SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
-				SpriteFont arial12 = Fonts.Arial12;
-				float item = this.ship.GetCargo()[entry.Key];
-                if (entry.Key == "Colonists_1000")
+            Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
+            int numStatus = 0;
+            if (this.ship.loyalty.data.Traits.Pack)
+            {
+                Rectangle PackRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_pack"], PackRect, Color.White);
+                Vector2 TextPos = new Vector2((float)(PackRect.X + 26), (float)(PackRect.Y + 15));
+                float damageModifier = this.ship.DamageModifier * 100f;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), TextPos, Color.White);
+                numStatus++;
+                if (HelperFunctions.CheckIntersection(PackRect, MousePos))
                 {
-                    item = this.ship.GetCargo()[entry.Key] * this.ship.loyalty.data.Traits.PassengerModifier;
+                    ToolTip.CreateTooltip(Localizer.Token(2245), this.ScreenManager);
                 }
-				spriteBatch1.DrawString(arial12, item.ToString("0"), TextPos, Color.White);
-				if (HelperFunctions.CheckIntersection(GoodRect, MousePos))
-				{
-					ToolTip.CreateTooltip(string.Concat(ResourceManager.GoodsDict[entry.Key].Name, "\n\n", ResourceManager.GoodsDict[entry.Key].Description), this.ScreenManager);
-				}
-				numStatus++;
-			}
+            }
+
+            if (ship.CargoSpaceUsed > 0f)
+            {
+                foreach (Cargo cargo in ship.EnumLoadedCargo())
+                {
+                    Texture2D texture = ResourceManager.TextureDict["Goods/" + cargo.CargoId];
+                    var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
+                    ScreenManager.SpriteBatch.Draw(texture, goodRect, Color.White);
+
+                    var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
+
+                    if (goodRect.HitTest(MousePos))
+                    {
+                        Good good = ResourceManager.GoodsDict[cargo.CargoId];
+                        ToolTip.CreateTooltip($"{good.Name}\n\n{good.Description}", ScreenManager);
+                    }
+                    numStatus++;
+                }
+            }
+
             if(this.ship.FTLModifier <1 && !this.ship.Inhibited)
             {
                 //if (this.ship.GetSystem() != null)
                 //{
-					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], FoodRect, Color.PaleVioletRed);
-					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
-					{
+                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    {
                         string EState = this.ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), String.Format("{0:P0}", 1f - this.ship.FTLModifier), "\n\nEngine State: ", EState), this.ScreenManager);
-					}
-					numStatus++;
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), $"{1f - ship.FTLModifier:P0}", "\n\nEngine State: ", EState), ScreenManager);
+                    }
+                    numStatus++;
                 //}
 
             }
@@ -355,75 +353,75 @@ namespace Ship_Game
             {
                 //if (this.ship.inborders)
                 //{
-                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], FoodRect, Color.LightGreen);
-                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    var rect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], rect, Color.LightGreen);
+                    if (HelperFunctions.CheckIntersection(rect, MousePos))
                     {
 
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), String.Format("{0:P0}", this.ship.FTLModifier - 1f), "\n\nEngine State: FTL"), this.ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), $"{ship.FTLModifier - 1f:P0}", "\n\nEngine State: FTL"), ScreenManager);
                     }
                     numStatus++;
                 //}
 
             }
 
-			if (this.ship.Inhibited )
-			{
-				bool Planet = false;
-				if (this.screen.GravityWells && this.ship.System!= null)
-				{
-					foreach (Ship_Game.Planet p in this.ship.System.PlanetList)
-					{
+            if (this.ship.Inhibited )
+            {
+                bool Planet = false;
+                if (this.screen.GravityWells && this.ship.System!= null)
+                {
+                    foreach (Ship_Game.Planet p in this.ship.System.PlanetList)
+                    {
                         if (Vector2.Distance(p.Position, this.ship.Position) >= (GlobalStats.GravityWellRange * (1 + ((Math.Log(p.scale)) / 1.5))))
-						{
-							continue;
-						}
-						Planet = true;
-					}
-				}
-				if (Planet)
-				{
-					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_gravwell"], FoodRect, Color.White);
-					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
-					{
-						ToolTip.CreateTooltip(Localizer.Token(2287), this.ScreenManager);
-					}
-					numStatus++;
-				}
+                        {
+                            continue;
+                        }
+                        Planet = true;
+                    }
+                }
+                if (Planet)
+                {
+                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_gravwell"], FoodRect, Color.White);
+                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    {
+                        ToolTip.CreateTooltip(Localizer.Token(2287), this.ScreenManager);
+                    }
+                    numStatus++;
+                }
 
-				else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
-				{
-					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
-					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
-					{
-						ToolTip.CreateTooltip(117, this.ScreenManager);
-					}
-					numStatus++;
-				}
-				else
-				{
-					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_flux"], FoodRect, Color.White);
-					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
-					{
-						ToolTip.CreateTooltip(Localizer.Token(2285), this.ScreenManager);
-					}
-					numStatus++;
-				}
-			}
-			if (this.ship.disabled)
-			{
-				Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_disabled"], FoodRect, Color.White);
-				if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
-				{
-					ToolTip.CreateTooltip(116, this.ScreenManager);
-				}
-				numStatus++;
-			}
-		}
+                else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
+                {
+                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
+                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    {
+                        ToolTip.CreateTooltip(117, this.ScreenManager);
+                    }
+                    numStatus++;
+                }
+                else
+                {
+                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_flux"], FoodRect, Color.White);
+                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    {
+                        ToolTip.CreateTooltip(Localizer.Token(2285), this.ScreenManager);
+                    }
+                    numStatus++;
+                }
+            }
+            if (this.ship.disabled)
+            {
+                Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_disabled"], FoodRect, Color.White);
+                if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                {
+                    ToolTip.CreateTooltip(116, this.ScreenManager);
+                }
+                numStatus++;
+            }
+        }
 
         public override bool HandleInput(InputState input)
         {
@@ -593,38 +591,38 @@ namespace Ship_Game
             }
         }
 
-		public void SetShip(Ship s)
-		{
-			if (s.loyalty == EmpireManager.Player)
-			{
-				this.CanRename = true;
-			}
-			else
-			{
-				this.CanRename = false;
-			}
-			this.ShipNameArea.HandlingInput = false;
-			this.ShipNameArea.Text = s.VanityName;
-			this.Orders.Clear();
-			this.ship = s;
-			if (this.ship.loyalty != EmpireManager.Player)
-			{
-				return;
-			}
-			if (ship.AI.OrderQueue.NotEmpty)
-			{
-				try
-				{
-					if (ship.AI.OrderQueue.PeekLast.Plan == ArtificialIntelligence.Plan.DeployStructure)
-					{
-						return;
-					}
-				}
-				catch
-				{
-					return;
-				}
-			}
+        public void SetShip(Ship s)
+        {
+            if (s.loyalty == EmpireManager.Player)
+            {
+                this.CanRename = true;
+            }
+            else
+            {
+                this.CanRename = false;
+            }
+            this.ShipNameArea.HandlingInput = false;
+            this.ShipNameArea.Text = s.VanityName;
+            this.Orders.Clear();
+            this.ship = s;
+            if (this.ship.loyalty != EmpireManager.Player)
+            {
+                return;
+            }
+            if (ship.AI.OrderQueue.NotEmpty)
+            {
+                try
+                {
+                    if (ship.AI.OrderQueue.PeekLast.Plan == ArtificialIntelligence.Plan.DeployStructure)
+                    {
+                        return;
+                    }
+                }
+                catch
+                {
+                    return;
+                }
+            }
             if (this.ship.shipData.Role > ShipData.RoleName.station)
             {
                 OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
@@ -634,87 +632,87 @@ namespace Ship_Game
                 this.Orders.Add(resupply);
             }
             if (this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
-			{
-				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
-				{
-					ValueToModify = new Ref<bool>(() => this.screen.DefiningAO, (bool x) => {
-						this.screen.DefiningAO = x;
-						this.screen.AORect = new Rectangle(0, 0, 0, 0);
-					})
-				};
+            {
+                OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
+                {
+                    ValueToModify = new Ref<bool>(() => this.screen.DefiningAO, (bool x) => {
+                        this.screen.DefiningAO = x;
+                        this.screen.AORect = new Rectangle(0, 0, 0, 0);
+                    })
+                };
                 this.Orders.Add(ao);
             }
-            if (this.ship.CargoSpace_Max > 0f && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
-			{
-				OrdersButton tf = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeFood, 16)
-				{
-					ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
-					RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingFood, (bool x) => this.ship.TransportingFood = x)
-				};
-				this.Orders.Add(tf);
-				OrdersButton tp = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeProduction, 17)
-				{
-					ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
-					RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingProduction, (bool x) => this.ship.TransportingProduction = x)
-				};
-				this.Orders.Add(tp);
-				OrdersButton tpass = new OrdersButton(this.ship, Vector2.Zero, OrderType.PassTran, 137)
-				{
-					ValueToModify = new Ref<bool>(() => this.ship.DoingPassTransport, (bool x) => this.ship.DoingPassTransport = x)
-				};
-				this.Orders.Add(tpass);
-			}
-			if (this.ship.shield_max > 0f)
-			{
-				OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.ShieldToggle, 18)
-				{
-					ValueToModify = new Ref<bool>(() => this.ship.ShieldsUp, (bool x) => this.ship.ShieldsUp = x)
-				};
-				this.Orders.Add(ob);
-			}
+            if (this.ship.CargoSpaceMax > 0f && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
+            {
+                OrdersButton tf = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeFood, 16)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
+                    RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingFood, (bool x) => this.ship.TransportingFood = x)
+                };
+                this.Orders.Add(tf);
+                OrdersButton tp = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeProduction, 17)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
+                    RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingProduction, (bool x) => this.ship.TransportingProduction = x)
+                };
+                this.Orders.Add(tp);
+                OrdersButton tpass = new OrdersButton(this.ship, Vector2.Zero, OrderType.PassTran, 137)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.DoingPassTransport, (bool x) => this.ship.DoingPassTransport = x)
+                };
+                this.Orders.Add(tpass);
+            }
+            if (this.ship.shield_max > 0f)
+            {
+                OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.ShieldToggle, 18)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.ShieldsUp, (bool x) => this.ship.ShieldsUp = x)
+                };
+                this.Orders.Add(ob);
+            }
             if (this.ship.GetHangars().Count > 0 && ship.Mothership == null)
-			{
-				bool hasTroops = false;
-				bool hasFighters = false;
-				foreach (ShipModule hangar in this.ship.GetHangars())
-				{
-					if (hangar.TroopCapacity != 0 || hangar.IsSupplyBay)
-					{
-						if (!hangar.IsTroopBay)
-						{
-							continue;
-						}
-						hasTroops = true;
-					}
-					else
-					{
-						hasFighters = true;
-					}
-				}
-				if (hasFighters)
-				{
-					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterToggle, 19)
-					{
+            {
+                bool hasTroops = false;
+                bool hasFighters = false;
+                foreach (ShipModule hangar in this.ship.GetHangars())
+                {
+                    if (hangar.TroopCapacity != 0 || hangar.IsSupplyBay)
+                    {
+                        if (!hangar.IsTroopBay)
+                        {
+                            continue;
+                        }
+                        hasTroops = true;
+                    }
+                    else
+                    {
+                        hasFighters = true;
+                    }
+                }
+                if (hasFighters)
+                {
+                    OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterToggle, 19)
+                    {
                         ValueToModify = new Ref<bool>(() => this.ship.FightersOut, (bool x) =>
                         {
-							this.ship.FightersOut = x;
+                            this.ship.FightersOut = x;
                             /// !this.ship.ManualHangarOverride;
-						})
-					};
-					this.Orders.Add(ob);
+                        })
+                    };
+                    this.Orders.Add(ob);
                
-				}
-				if (hasTroops)
-				{
-					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.TroopToggle, 225)
-					{
-						ValueToModify = new Ref<bool>(() => this.ship.TroopsOut, (bool x) => {
-							this.ship.TroopsOut = x;
-							//this.ship.ManualHangarOverride = true;
-						})
-					};
-					this.Orders.Add(ob);
-				}
+                }
+                if (hasTroops)
+                {
+                    OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.TroopToggle, 225)
+                    {
+                        ValueToModify = new Ref<bool>(() => this.ship.TroopsOut, (bool x) => {
+                            this.ship.TroopsOut = x;
+                            //this.ship.ManualHangarOverride = true;
+                        })
+                    };
+                    this.Orders.Add(ob);
+                }
                 //if (this.ship.shipData.Role != ShipData.RoleName.station)
                 {
                     OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
@@ -728,20 +726,20 @@ namespace Ship_Game
                     };
                     this.Orders.Add(ob2);
                 }
-			}
+            }
             if (this.ship.shipData.Role >= ShipData.RoleName.fighter && ship.Mothership == null && this.ship.AI.State != AIState.Colonize && ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
-			    OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
-			    {
-				    ValueToModify = new Ref<bool>(() => this.ship.DoingExplore, (bool x) => this.ship.DoingExplore = x)
-			    };
-			    this.Orders.Add(exp);
-			    OrdersButton SystemDefense = new OrdersButton(this.ship, Vector2.Zero, OrderType.EmpireDefense, 150)
-			    {
-				    ValueToModify = new Ref<bool>(() => this.ship.DoingSystemDefense, (bool x) => this.ship.DoingSystemDefense = x),
-				    Active = false
-			    };
-			    this.Orders.Add(SystemDefense);
+                OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.DoingExplore, (bool x) => this.ship.DoingExplore = x)
+                };
+                this.Orders.Add(exp);
+                OrdersButton SystemDefense = new OrdersButton(this.ship, Vector2.Zero, OrderType.EmpireDefense, 150)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.DoingSystemDefense, (bool x) => this.ship.DoingSystemDefense = x),
+                    Active = false
+                };
+                this.Orders.Add(SystemDefense);
             }
             if (ship.Mothership == null)
             {
@@ -760,27 +758,27 @@ namespace Ship_Game
                 this.Orders.Add(sc);
             }
 
-			int ex = 0;
-			int y = 0;
-			for (int i = 0; i < this.Orders.Count; i++)
-			{
-				OrdersButton ob = this.Orders[i];
-				if (i % 2 == 0 && i > 0)
-				{
-					ex++;
-					y = 0;
-				}
-				ob.clickRect.X = this.ElementRect.X + this.ElementRect.Width + 2 + 52 * ex;
-				ob.clickRect.Y = this.sliding_element.Housing.Y + 15 + y * 52;
-				y++;
-			}
-		}
+            int ex = 0;
+            int y = 0;
+            for (int i = 0; i < this.Orders.Count; i++)
+            {
+                OrdersButton ob = this.Orders[i];
+                if (i % 2 == 0 && i > 0)
+                {
+                    ex++;
+                    y = 0;
+                }
+                ob.clickRect.X = this.ElementRect.X + this.ElementRect.Width + 2 + 52 * ex;
+                ob.clickRect.Y = this.sliding_element.Housing.Y + 15 + y * 52;
+                y++;
+            }
+        }
 
-		private struct TippedItem
-		{
-			public Rectangle r;
+        private struct TippedItem
+        {
+            public Rectangle r;
 
-			public int TIP_ID;
-		}
-	}
+            public int TIP_ID;
+        }
+    }
 }

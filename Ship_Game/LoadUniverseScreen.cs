@@ -583,19 +583,19 @@ namespace Ship_Game
                     bool hasCargo = false;
                     if (shipData.FoodCount > 0f)
                     {
-                        ship.AddCargo("Food", (int)shipData.FoodCount);
+                        ship.LoadFood(shipData.FoodCount);
                         ship.AI.FoodOrProd = "Food";
                         hasCargo = true;
                     }
                     if (shipData.ProdCount > 0f)
                     {
-                        ship.AddCargo("Production", (int)shipData.ProdCount);
+                        ship.LoadProduction(shipData.ProdCount);
                         ship.AI.FoodOrProd = "Prod";
                         hasCargo = true;
                     }
                     if (shipData.PopCount > 0f)
                     {
-                        ship.AddCargo("Colonists_1000", (int)shipData.PopCount);
+                        ship.LoadColonists(shipData.PopCount);
                         ship.AI.FoodOrProd = "Pass";
                     }
                     AIState state = ship.AI.State;

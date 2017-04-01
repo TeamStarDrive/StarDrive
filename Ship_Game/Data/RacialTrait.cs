@@ -53,8 +53,8 @@ namespace Ship_Game
         [Serialize(45)] public float ModHpModifier;
         [Serialize(46)] public int SmallSize;
         [Serialize(47)] public int HugeSize;
-        [Serialize(48)] public int PassengerModifier = 1;
-        [Serialize(49)] public int PassengerBonus;
+        [Serialize(48)] public float PassengerModifier = 1f;
+        [Serialize(49)] public float PassengerBonus;
         [Serialize(50)] public bool Assimilators;
         [Serialize(51)] public float GroundCombatModifier;
         [Serialize(52)] public float RepairMod;

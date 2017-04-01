@@ -592,7 +592,7 @@ namespace Ship_Game.AI
                     for (int index = 0; index < this.empire.GetShips().Count; ++index)
                     {
                         Ship ship = this.empire.GetShips()[index];
-                        if (ship != null && !ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && (ship.shipData.Role == ShipData.RoleName.freighter && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified) 
+                        if (ship != null && !ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax >0 && (ship.shipData.Role == ShipData.RoleName.freighter && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified) 
                             && !ship.isPlayerShip()) 
                             && (ship.AI != null && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
                         {
@@ -663,13 +663,13 @@ namespace Ship_Game.AI
                             foreach (string index in this.empire.ShipsWeCanBuild)
                             {
                                 Ship ship = ResourceManager.ShipsDict[index];
-                                if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0
+                                if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax >0
                                     && (ship.shipData.Role == ShipData.RoleName.freighter 
                                     && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified)))
                                     list2.Add(ship);
                             }
                             Ship toBuild = list2
-                                .OrderByDescending(ship => ship.CargoSpace_Max <= empire.cargoNeed *.5f  ? ship.CargoSpace_Max : 0)
+                                .OrderByDescending(ship => ship.CargoSpaceMax <= empire.cargoNeed *.5f  ? ship.CargoSpaceMax : 0)
                                 .ThenByDescending(ship => (int)(ship.WarpThrust / ship.Mass/1000f))
                                 .ThenByDescending(ship => ship.Thrust / ship.Mass)
                                 .FirstOrDefault();
@@ -799,7 +799,7 @@ namespace Ship_Game.AI
                     bool flag1 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
+                        if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax >0 && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
                         {
                             this.passTran = ship;
                             flag1 = true;
@@ -855,11 +855,11 @@ namespace Ship_Game.AI
                                 if (!ResourceManager.ShipsDict[index].isColonyShip && !ResourceManager.ShipsDict[index].isConstructor && (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.freighter || ResourceManager.ShipsDict[index].shipData.ShipCategory == ShipData.Category.Civilian))
                                     list2.Add(ResourceManager.ShipsDict[index]);
                             }
-                            IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.CargoSpace_Max));
+                            IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.CargoSpaceMax));
                             Array<Ship> list3 = new Array<Ship>();
                             foreach (Ship ship in (IEnumerable<Ship>)orderedEnumerable1)
                             {
-                                if (!ship.isColonyShip && (double)ship.CargoSpace_Max >= (double)Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable1).CargoSpace_Max)
+                                if (!ship.isColonyShip && (double)ship.CargoSpaceMax >= (double)Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable1).CargoSpaceMax)
                                     list3.Add(ship);
                             }
                             IOrderedEnumerable<Ship> orderedEnumerable2 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.WarpThrust / ship.Mass));
