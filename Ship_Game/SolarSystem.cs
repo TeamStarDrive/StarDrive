@@ -56,7 +56,11 @@ namespace Ship_Game
         public SolarSystem()
         {
         }
-
+        public bool Explored(Empire empire)
+        {
+            ExploredDict.TryGetValue(empire, out bool explored);
+            return explored;
+        }
         private static void AddMajorRemnantPresence(Planet newOrbital)
         {
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
