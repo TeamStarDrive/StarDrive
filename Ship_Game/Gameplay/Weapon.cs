@@ -422,7 +422,7 @@ namespace Ship_Game.Gameplay
             if (Animated == 1)
                 projectile.TexturePath = AnimationPath + 0.ToString("00000.##");
 
-            if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
             {
                 projectile.DieSound = true;
                 if (!string.IsNullOrEmpty(ToggleSoundName) && (ToggleCue == null || ToggleCue != null && !ToggleCue.IsPlaying))
