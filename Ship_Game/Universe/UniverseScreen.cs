@@ -5766,64 +5766,65 @@ namespace Ship_Game
             var concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             var lightningBolt = ResourceManager.Texture("UI/lightningBolt");
 
-            foreach (ShipModule slot in ship.ModuleSlotList) // draw the module background tiles
-            {
-                float scale = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight;
-                DrawTextureProjected(concreteGlass, slot.Center, scale, ship.Rotation, Color.White);
-            }
-
-            const bool enableModuleDebug = true;
+            bool enableModuleDebug = false;
             if (enableModuleDebug)
             {
                 foreach (Projectile projectile in ship.Projectiles)
                     DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
             }
 
-            foreach (ShipModule slot in ship.ModuleSlotList)
+            for (int i = 0; i < ship.ModuleSlotList.Length; ++i)
             {
-                Vector2 slotCenter = slot.Center; 
-                Vector2 centerOnScreen = ProjectToScreenPosition(slotCenter);
-                float slotRotation = ship.Rotation + slot.Facing.ToRadians();
+                ShipModule slot = ship.ModuleSlotList[i];
+
+                float slotFacing = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
+                float slotRotation = ship.Rotation + slotFacing.ToRadians();
+                float moduleWidth  = slot.XSIZE * 16.5f; // using 16.5f instead of 16 to reduce pixel error flickering
+                float moduleHeight = slot.YSIZE * 16.5f;
+                ProjectToScreenCoords(slot.Center, moduleWidth, moduleHeight,
+                                      out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen);
+
+                DrawTextureSized(concreteGlass, posOnScreen, ship.Rotation, widthOnScreen, heightOnScreen, Color.White);
 
                 if (camHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
-                    float scale = (400f / camHeight) * (slot.XSIZE + slot.YSIZE) * 0.5f;
-                    DrawTexture(symbolFighter, centerOnScreen, scale, ship.Rotation, slot.GetHealthStatusColor());
+                    DrawTextureSized(symbolFighter, posOnScreen, ship.Rotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColor());
                 }
                 else
                 {
                     var moduleTex = ResourceManager.Texture(slot.IconTexturePath);
-                    float moduleSize = moduleTex.Width / (slot.XSIZE * 16);
+                    float moduleSize = moduleTex.Width / (slot.XSIZE * 16f);
                     float scale = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight / moduleSize;
 
-                    DrawTexture(moduleTex, centerOnScreen, scale, slotRotation, slot.GetHealthStatusColorWhite());
+                    DrawTextureSized(moduleTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColorWhite());
+
                     if (enableModuleDebug)
                     {
                         DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
                     }
-
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
                     {
                         if (slot.Powered)
                         {
                             var poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
-                            DrawTexture(moduleTex, centerOnScreen, scale, slotRotation, Color.White);
+                            DrawTextureSized(poweredTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, Color.White);
                         }
                     }
                     else if (!slot.Powered && slot.PowerDraw > 0.0f)
                     {
-                        DrawTexture(lightningBolt, centerOnScreen, scale*2f, slotRotation, Color.White);
+                        DrawTexture(lightningBolt, posOnScreen, scale * 2f, slotRotation, Color.White);
+                    }
+                    if (Debug && slot.isExternal && slot.Active)
+                    {
+                        DrawTexture(symbolFighter, posOnScreen, scale * 0.6f, ship.Rotation, new Color(0, 0, 255, 120));
                     }
 
-                    if (Debug && slot.isExternal && slot.Active)
-                        DrawTextureProjected(symbolFighter, slotCenter, scale * 0.6f, ship.Rotation, new Color(0, 0, 255, 120));
-
-                    DrawStringProjected(slotCenter, ship.Rotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
+                    DrawString(posOnScreen, ship.Rotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
                 }
 
                 // finally, draw firing arcs for the player ship
                 if (ship.isPlayerShip() && slot.FieldOfFire > 0.0f && slot.InstalledWeapon != null)
-                    DrawWeaponArc(slot, centerOnScreen, slotRotation);
+                    DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
         }
 
@@ -7021,10 +7022,23 @@ namespace Ship_Game
             return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
         }
 
-        private void ProjectToScreenCoords(Vector2 posInWorld, float radiusInWorld, out Vector2 posOnScreen, out float radiusOnScreen)
+        private void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
+        {
+            posOnScreen  = ProjectToScreenPosition(posInWorld);
+            sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y)).Distance(ref posOnScreen);
+        }
+
+        private void ProjectToScreenCoords(Vector2 posInWorld, float widthInWorld, float heightInWorld, 
+                                       out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen)
         {
             posOnScreen    = ProjectToScreenPosition(posInWorld);
-            radiusOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + radiusInWorld, posInWorld.Y)).Distance(ref posOnScreen);
+            widthOnScreen  = ProjectToScreenPosition(new Vector2(posInWorld.X + widthInWorld,  posInWorld.Y)).Distance(ref posOnScreen);
+            heightOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + heightInWorld, posInWorld.Y)).Distance(ref posOnScreen);
+        }
+
+        private Vector2 ProjectToScreenSize(float widthInWorld, float heightInWorld)
+        {
+            return ProjectToScreenPosition(new Vector2(widthInWorld, heightInWorld));
         }
 
         private float ProjectToScreenSize(float sizeInWorld)
