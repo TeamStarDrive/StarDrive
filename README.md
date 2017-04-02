@@ -1,4 +1,4 @@
-![banner_bb.jpg](https://bitbucket.org/repo/4AAMq9/images/218570847-banner_bb.jpg)
+![banner_bb2.jpg](https://bitbucket.org/repo/4AAMq9/images/765859828-banner_bb2.jpg)
 
 Notice: we have the stardrive devs publicly and privately stated approval for modifying the game for educational purposes but this software is still under the steam license restrictions. Do not use this for immoral or personal financial gain, donations requests are ok but can not be demanded or required. Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam. 
 please read the steam EULA and understand that game modding is a common concept. 
