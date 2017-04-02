@@ -5766,7 +5766,7 @@ namespace Ship_Game
             var concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             var lightningBolt = ResourceManager.Texture("UI/lightningBolt");
 
-            bool enableModuleDebug = false;
+            bool enableModuleDebug = Debug && false;
             if (enableModuleDebug)
             {
                 foreach (Projectile projectile in ship.Projectiles)
@@ -5818,8 +5818,10 @@ namespace Ship_Game
                     {
                         DrawTexture(symbolFighter, posOnScreen, scale * 0.6f, ship.Rotation, new Color(0, 0, 255, 120));
                     }
-
-                    DrawString(posOnScreen, ship.Rotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
+                    if (enableModuleDebug)
+                    {
+                        DrawString(posOnScreen, ship.Rotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
+                    }
                 }
 
                 // finally, draw firing arcs for the player ship
