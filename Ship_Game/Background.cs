@@ -119,65 +119,71 @@ namespace Ship_Game
 			this.lastCamPos = camPos;
 		}
 
-		public void Draw(UniverseScreen universe, Starfield starfield)
-		{
-			Vector2 camPos = new Vector2(universe.camPos.X, universe.camPos.Y);
-			Vector2 vector2 = -1f * (camPos - this.lastCamPos);
-			int width = universe.ScreenManager.GraphicsDevice.Viewport.Width;
-			Viewport viewport = universe.ScreenManager.GraphicsDevice.Viewport;
-			Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
-			universe.ScreenManager.SpriteBatch.Begin();
-			Color c = new Color(255, 255, 255, 160);
-			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
-			if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
-			{
-				universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, c);
-			}
-			else
-			{
-				universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
-			}
-			Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
-			float percentX = camPos.X / 500000f;
-			float percentY = camPos.Y / 500000f;
-			float xDiff = (float)blackRect.Width / 10f;
-			float yDiff = (float)blackRect.Height / 10f;
-			float xPerc = percentX * xDiff;
-			this.cam.Pos = new Vector2(xPerc, percentY * yDiff);
-			starfield.Draw(this.cam.Pos, universe.ScreenManager.SpriteBatch);
-			universe.ScreenManager.SpriteBatch.End();
-			Rectangle bgRect = new Rectangle();
-			if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
-			{
-				float x = this.cam.Pos.X;
-				Viewport viewport1 = universe.ScreenManager.GraphicsDevice.Viewport;
-				bgRect = new Rectangle((int)(x - (float)(viewport1.Width / 2) - this.cam.Pos.X / 30f - 200f), (int)(this.cam.Pos.Y - (float)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - this.cam.Pos.Y / 30f) - 200, 2600, 2600);
-			}
-			else
-			{
-				float single = this.cam.Pos.X;
-				Viewport viewport2 = universe.ScreenManager.GraphicsDevice.Viewport;
-				bgRect = new Rectangle((int)(single - (float)(viewport2.Width / 2) - this.cam.Pos.X / 30f - 200f), (int)(this.cam.Pos.Y - (float)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - this.cam.Pos.Y / 30f) - 200, 2048, 2048);
-			}
-			Vector2 vector22 = new Vector2(200f, 50f);
-			universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, this.cam.get_transformation(universe.ScreenManager.GraphicsDevice));
-			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
-			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
-			if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
-			{
-				float x1 = this.cam.Pos.X;
-				Viewport viewport3 = universe.ScreenManager.GraphicsDevice.Viewport;
-				bgRect = new Rectangle((int)(x1 - (float)(viewport3.Width / 2) - this.cam.Pos.X / 15f - 200f), (int)(this.cam.Pos.Y - (float)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - this.cam.Pos.Y / 15f) - 200, 2600, 2600);
-			}
-			else
-			{
-				float single1 = this.cam.Pos.X;
-				Viewport viewport4 = universe.ScreenManager.GraphicsDevice.Viewport;
-				bgRect = new Rectangle((int)(single1 - (float)(viewport4.Width / 2) - this.cam.Pos.X / 15f - 200f), (int)(this.cam.Pos.Y - (float)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - this.cam.Pos.Y / 15f) - 200, 2500, 2500);
-			}
-			universe.ScreenManager.SpriteBatch.End();
-			this.lastCamPos = camPos;
-		}
+	    public void Draw(UniverseScreen universe, Starfield starfield)
+	    {
+	        Vector2 camPos = new Vector2(universe.camPos.X, universe.camPos.Y);
+	        Vector2 vector2 = -1f * (camPos - this.lastCamPos);
+	        int width = universe.ScreenManager.GraphicsDevice.Viewport.Width;
+	        Viewport viewport = universe.ScreenManager.GraphicsDevice.Viewport;
+	        Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
+	        universe.ScreenManager.SpriteBatch.Begin();
+	        Color c = new Color(255, 255, 255, 160);
+	        Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
+	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
+	            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, c);
+	        else
+	            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, blackRect,
+	                c);
+	        Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
+	        float percentX = camPos.X / 500000f;
+	        float percentY = camPos.Y / 500000f;
+	        float xDiff = blackRect.Width / 10f;
+	        float yDiff = blackRect.Height / 10f;
+	        float xPerc = percentX * xDiff;
+	        this.cam.Pos = new Vector2(xPerc, percentY * yDiff);
+	        starfield.Draw(this.cam.Pos, universe.ScreenManager.SpriteBatch);
+	        universe.ScreenManager.SpriteBatch.End();
+	        Rectangle bgRect = new Rectangle();
+	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
+	        {
+	            float x = this.cam.Pos.X;
+	            Viewport viewport1 = universe.ScreenManager.GraphicsDevice.Viewport;
+	            bgRect = new Rectangle((int) (x - viewport1.Width / 2 - this.cam.Pos.X / 30f - 200f),
+	                (int) (this.cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
+	                       2 - this.cam.Pos.Y / 30f) - 200, 2600, 2600);
+	        }
+	        else
+	        {
+	            float single = this.cam.Pos.X;
+	            Viewport viewport2 = universe.ScreenManager.GraphicsDevice.Viewport;
+	            bgRect = new Rectangle((int) (single - viewport2.Width / 2 - this.cam.Pos.X / 30f - 200f),
+	                (int) (this.cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
+	                       2 - this.cam.Pos.Y / 30f) - 200, 2048, 2048);
+	        }
+	        Vector2 vector22 = new Vector2(200f, 50f);
+	        universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
+	            SaveStateMode.None, this.cam.get_transformation(universe.ScreenManager.GraphicsDevice));
+	        universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
+	        universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
+	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
+	        {
+	            float x1 = this.cam.Pos.X;
+	            Viewport viewport3 = universe.ScreenManager.GraphicsDevice.Viewport;
+	            bgRect = new Rectangle((int) (x1 - viewport3.Width / 2 - this.cam.Pos.X / 15f - 200f),
+	                (int) (this.cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
+	                       2 - this.cam.Pos.Y / 15f) - 200, 2600, 2600);
+	        }
+	        else
+	        {
+	            float single1 = this.cam.Pos.X;
+	            Viewport viewport4 = universe.ScreenManager.GraphicsDevice.Viewport;
+	            bgRect = new Rectangle((int) (single1 - viewport4.Width / 2 - this.cam.Pos.X / 15f - 200f),
+	                (int) (this.cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
+	                       2 - this.cam.Pos.Y / 15f) - 200, 2500, 2500);
+	        }
+	        universe.ScreenManager.SpriteBatch.End();
+	        this.lastCamPos = camPos;
+	    }
 
 		public void Draw(GameScreen universe, Starfield starfield)
 		{

@@ -513,7 +513,7 @@ namespace Ship_Game.Gameplay
                     Parent.UpdateShields();
                 }
 
-                if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
                 {
                     if (source != null)
                         shield.Rotation = source.Rotation - 3.14159274f;
@@ -618,7 +618,7 @@ namespace Ship_Game.Gameplay
             int size = XSIZE * YSIZE;
             if (!cleanupOnly)
             {
-                if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView)
+                if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
                 {
                     audioListener.Position = Empire.Universe.camPos;
                     AudioManager.PlayCue("sd_explosion_module_small", audioListener, Parent.emitter);
