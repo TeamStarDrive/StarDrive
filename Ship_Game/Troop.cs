@@ -3,279 +3,220 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
 	public sealed class Troop
 	{
-		public string Name;
+        [Serialize(0)] public string Name;
+        [Serialize(1)] public string RaceType;
+        [Serialize(2)] public int first_frame = 1;
+        [Serialize(3)] public bool animated;
+        [Serialize(4)] public string idle_path;
+        [Serialize(5)] public string Icon;
+        [Serialize(6)] public string MovementCue;
+        [Serialize(7)] public int Level;
+        [Serialize(8)] public int AttackTimerBase = 10;
+        [Serialize(9)] public int MoveTimerBase = 10;
+        [Serialize(10)] public int num_idle_frames;
+        [Serialize(11)] public int num_attack_frames;
+        [Serialize(12)] public int idle_x_offset;
+        [Serialize(13)] public int idle_y_offset;
+        [Serialize(14)] public int attack_width = 128;
+        [Serialize(15)] public string attack_path;
+        [Serialize(16)] public bool facingRight;
+        [Serialize(17)] public string Description;
+        [Serialize(18)] public string OwnerString;
+        [Serialize(19)] public int BoardingStrength;
+        [Serialize(20)] public int MaxStoredActions = 1;
+        [Serialize(21)] public float MoveTimer;
+        [Serialize(22)] public float AttackTimer;
+        [Serialize(23)] public float MovingTimer = 1f;
+        [Serialize(24)] public int AvailableMoveActions = 1;
+        [Serialize(25)] public int AvailableAttackActions = 1;
+        [Serialize(26)] public string TexturePath;
+        [Serialize(27)] public bool Idle = true;
+        [Serialize(28)] public int WhichFrame = 1;
+        [Serialize(29)] public float Strength;
+        [Serialize(30)] public float StrengthMax;
+        [Serialize(31)] public int HardAttack;
+        [Serialize(32)] public int SoftAttack;
+        [Serialize(33)] public string Class;
+        [Serialize(34)] public int Kills;
+        [Serialize(35)] public string TargetType;
+        [Serialize(36)] public int Experience;
+        [Serialize(37)] public float Cost;
+        [Serialize(38)] public string sound_attack;
+        [Serialize(39)] public float Range;
+        [Serialize(40)] public float Launchtimer = 10f;
 
-		public string RaceType;
+        [XmlIgnore][JsonIgnore] private Planet p;
+        [XmlIgnore][JsonIgnore] private Empire Owner;
+        [XmlIgnore][JsonIgnore] private Ship ship;
+        [XmlIgnore][JsonIgnore] private Rectangle fromRect;
+        [XmlIgnore][JsonIgnore] private float updateTimer;
 
-		public int first_frame = 1;
-
-		public bool animated;
-
-		public string idle_path;
-
-		public string Icon;
-
-		public string MovementCue;
-
-		public int Level;
-
-        //public bool Defender;          //Not referenced in code, removing to save memory
-
-        public int AttackTimerBase = 10;
-
-		public int MoveTimerBase = 10;
-
-		public int num_idle_frames;
-
-		public int num_attack_frames;
-
-		public int idle_x_offset;
-
-		public int idle_y_offset;
-
-		public int attack_width = 128;
-
-		private Planet p;
-
-		public string attack_path;
-
-        //public int fps = 10;          //Not referenced in code, removing to save memory
-
-        public bool facingRight;
-
-		public string Description;
-
-		public string OwnerString;
-
-		private Empire Owner;
-
-		public int BoardingStrength;
-
-		private Ship ship;
-
-		public int MaxStoredActions = 1;
-
-		public float MoveTimer;
-
-		public float AttackTimer;
-
-		public float MovingTimer = 1f;
-
-		private Rectangle fromRect;
-
-		public int AvailableMoveActions = 1;
-
-		public int AvailableAttackActions = 1;
-
-		public string TexturePath;
-
-		public bool Idle = true;
-
-		public int WhichFrame = 1;
-
-		private float updateTimer;
-
-		public float Strength;
-
-		public float StrengthMax;
-
-        //public int Movement;          //Not referenced in code, removing to save memory
-
-        //public int Initiative;          //Not referenced in code, removing to save memory
-
-        public int HardAttack;
-
-		public int SoftAttack;
-
-		public string Class;
-
-		public int Kills;
-
-		public string TargetType;
-
-		public int Experience;
-
-        //public int Entrenchment;          //Not referenced in code, removing to save memory
-
-        public float Cost;
-
-		public string sound_attack;
-
-        //public float MaintenanceCost;          //Not referenced in code, removing to save memory
-
-        public float Range;
-
-		private string fmt = "00";
-        public float Launchtimer = 10f;
-
-		public Troop()
-		{
-		}
+        public Troop Clone()
+        {
+            var t = (Troop)MemberwiseClone();
+            t.p     = null;
+            t.Owner = null;
+            t.ship  = null;
+            return t;
+        }
 
 		public void DoAttack()
 		{
-			this.Idle = false;
-			this.WhichFrame = this.first_frame;
+			Idle = false;
+			WhichFrame = first_frame;
 		}
 
-		public void Draw(SpriteBatch spriteBatch, Rectangle drawRect)
+        private string WhichFrameString => WhichFrame.ToString("00");
+	    private Texture2D TextureDefault    => ResourceManager.TextureDict["Troops/"+TexturePath];
+        private Texture2D TextureIdleAnim   => ResourceManager.TextureDict["Troops/"+idle_path+WhichFrameString];
+        private Texture2D TextureAttackAnim => ResourceManager.TextureDict["Troops/"+attack_path+WhichFrameString];
+
+	    public void Draw(SpriteBatch spriteBatch, Rectangle drawRect)
 		{
-			if (!this.facingRight)
+			if (!facingRight)
 			{
-				this.DrawFlip(spriteBatch, drawRect);
+				DrawFlip(spriteBatch, drawRect);
 				return;
 			}
-			if (!this.animated)
+			if (!animated)
 			{
-				spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.TexturePath)], drawRect, Color.White);
+				spriteBatch.Draw(TextureDefault, drawRect, Color.White);
 				return;
 			}
-			if (this.Idle)
+			if (Idle)
 			{
-				Rectangle SourceRect = new Rectangle(this.idle_x_offset, this.idle_y_offset, 128, 128);
-				spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.idle_path, this.WhichFrame.ToString(this.fmt))], drawRect, new Rectangle?(SourceRect), Color.White);
+				Rectangle sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
+				spriteBatch.Draw(TextureIdleAnim, drawRect, sourceRect, Color.White);
 				return;
 			}
-			float scale = (float)drawRect.Width / 128f;
-			drawRect.Width = (int)((float)this.attack_width * scale);
-            //changed sourcerect to sourcerect2 to prevent redefinition
-			Rectangle SourceRect2 = new Rectangle(this.idle_x_offset, this.idle_y_offset, this.attack_width, 128);
-			if (ResourceManager.TextureDict[string.Concat("Troops/", this.attack_path, this.WhichFrame.ToString(this.fmt))].Height <= 128)
+
+			float scale = drawRect.Width / 128f;
+			drawRect.Width = (int)(attack_width * scale);
+			Rectangle sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
+
+            Texture2D attackTexture = TextureAttackAnim;
+			if (attackTexture.Height <= 128)
 			{
-				spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.attack_path, this.WhichFrame.ToString(this.fmt))], drawRect, new Rectangle?(SourceRect2), Color.White);
+				spriteBatch.Draw(attackTexture, drawRect, sourceRect2, Color.White);
 				return;
 			}
-			SourceRect2.Y = SourceRect2.Y - this.idle_y_offset;
-			SourceRect2.Height = SourceRect2.Height + this.idle_y_offset;
+			sourceRect2.Y      -= idle_y_offset;
+			sourceRect2.Height += idle_y_offset;
 			Rectangle r = drawRect;
-			r.Y = r.Y - (int)(scale * (float)this.idle_y_offset);
-			r.Height = r.Height + (int)(scale * (float)this.idle_y_offset);
-			spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.attack_path, this.WhichFrame.ToString(this.fmt))], r, new Rectangle?(SourceRect2), Color.White);
+			r.Y      -= (int)(scale * idle_y_offset);
+			r.Height += (int)(scale * idle_y_offset);
+			spriteBatch.Draw(attackTexture, r, sourceRect2, Color.White);
 		}
 
 		public void DrawFlip(SpriteBatch spriteBatch, Rectangle drawRect)
 		{
-			if (!this.animated)
+			if (!animated)
 			{
-				Rectangle? nullable = null;
-				spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.TexturePath)], drawRect, nullable, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+				spriteBatch.Draw(TextureDefault, drawRect, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
 				return;
 			}
-			if (this.Idle)
+			if (Idle)
 			{
-				Rectangle SourceRect = new Rectangle(this.idle_x_offset, this.idle_y_offset, 128, 128);
-				spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.idle_path, this.WhichFrame.ToString(this.fmt))], drawRect, new Rectangle?(SourceRect), Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+				Rectangle sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
+				spriteBatch.Draw(TextureIdleAnim, drawRect, sourceRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
 				return;
 			}
-			float scale = (float)drawRect.Width / 128f;
-			drawRect.X = drawRect.X - (int)((float)this.attack_width * scale - (float)drawRect.Width);
-			drawRect.Width = (int)((float)this.attack_width * scale);
-            //changed sourcerect to sourcerect2, again
-			Rectangle SourceRect2 = new Rectangle(this.idle_x_offset, this.idle_y_offset, this.attack_width, 128);
-			if (ResourceManager.TextureDict[string.Concat("Troops/", this.attack_path, this.WhichFrame.ToString(this.fmt))].Height <= 128)
+			float scale = drawRect.Width / 128f;
+			drawRect.X = drawRect.X - (int)(attack_width * scale - drawRect.Width);
+			drawRect.Width = (int)(attack_width * scale);
+
+			Rectangle sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
+            var attackTexture = TextureAttackAnim;
+			if (attackTexture.Height <= 128)
 			{
-				spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.attack_path, this.WhichFrame.ToString(this.fmt))], drawRect, new Rectangle?(SourceRect2), Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+				spriteBatch.Draw(attackTexture, drawRect, sourceRect2, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
 				return;
 			}
-			SourceRect2.Y = SourceRect2.Y - this.idle_y_offset;
-			SourceRect2.Height = SourceRect2.Height + this.idle_y_offset;
+			sourceRect2.Y      -= idle_y_offset;
+			sourceRect2.Height += idle_y_offset;
 			Rectangle r = drawRect;
-			r.Height = r.Height + (int)(scale * (float)this.idle_y_offset);
-			r.Y = r.Y - (int)(scale * (float)this.idle_y_offset);
-			spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", this.attack_path, this.WhichFrame.ToString(this.fmt))], r, new Rectangle?(SourceRect2), Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+			r.Height += (int)(scale * idle_y_offset);
+			r.Y      -= (int)(scale * idle_y_offset);
+			spriteBatch.Draw(attackTexture, r, sourceRect2, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
 		}
 
 		public void DrawIcon(SpriteBatch spriteBatch, Rectangle drawRect)
 		{
-			spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("TroopIcons/", this.Icon, "_icon")], drawRect, Color.White);
+            var iconTexture = ResourceManager.TextureDict["TroopIcons/" + Icon + "_icon"];
+			spriteBatch.Draw(iconTexture, drawRect, Color.White);
 		}
 
 		public Rectangle GetFromRect()
 		{
-			return this.fromRect;
+			return fromRect;
 		}
 
 		public int GetHardAttack()
 		{
-			return (int)((float)this.HardAttack + 0.1f * (float)this.Level * (float)this.HardAttack);
+			return (int)(HardAttack + 0.1f * Level * HardAttack);
 		}
 
 		public Empire GetOwner()
 		{
-			if (this.Owner == null)
-			{
-				this.Owner = EmpireManager.GetEmpireByName(this.OwnerString);
-			}
-			return this.Owner;
+		    return Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
 		}
 
 		public Planet GetPlanet()
 		{
-			return this.p;
+			return p;
 		}
 
 		public Ship GetShip()
 		{
-			return this.ship;
+			return ship;
 		}
 
 		public int GetSoftAttack()
 		{
-			return (int)((float)this.SoftAttack + 0.1f * (float)this.Level * (float)this.SoftAttack);
+			return (int)(SoftAttack + 0.1f * Level * SoftAttack);
 		}
 
 		public Ship Launch()
 		{
-            
-            if (this.p == null)
-			{
+            if (p == null)
 				return null;
-			}
-			foreach (PlanetGridSquare pgs in this.p.TilesList)
+
+			foreach (PlanetGridSquare pgs in p.TilesList)
 			{
 				if (!pgs.TroopsHere.Contains(this))
-				{
 					continue;
-				}
+
 				pgs.TroopsHere.Clear();
-                this.p.TroopsHere.Remove(this);
-                //this.p.TroopsHere.QueuePendingRemoval(this);
-                //break;
+                p.TroopsHere.Remove(this);
 			}
-			Ship retShip = ResourceManager.CreateTroopShipAtPoint(this.Owner.data.DefaultTroopShip, this.Owner, this.p.Position, this);
-			
-            this.p = null;
+			Ship retShip = ResourceManager.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, p.Position, this);
+            p = null;
 			return retShip;
 		}
 
 		public void SetFromRect(Rectangle from)
 		{
-			this.fromRect = from;
+			fromRect = from;
 		}
 
 		public void SetOwner(Empire e)
 		{
-			this.Owner = e;
+			Owner = e;
 			if (e != null)
-			{
-				this.OwnerString = e.data.Traits.Name;
-			}
+				OwnerString = e.data.Traits.Name;
 		}
 
-		public void SetPlanet(Planet p)
+		public void SetPlanet(Planet newPlanet)
 		{
-			if (p == null)
-			{
-				p = null;
-				return;
-			}
-			this.p = p;
-			if (!p.TroopsHere.Contains(this))
+			p = newPlanet;
+			if (p != null && !p.TroopsHere.Contains(this))
 			{
 				p.TroopsHere.Add(this);
 			}
@@ -283,68 +224,58 @@ namespace Ship_Game
 
 		public void SetShip(Ship s)
 		{
-			this.ship = s;
+			ship = s;
 		}
 
 		public void Update(float elapsedTime)
 		{
 			Troop troop = this;
-			troop.updateTimer = troop.updateTimer - elapsedTime;
-			if (this.updateTimer <= 0f)
-			{
-				if (!this.Idle)
-				{
-                    //try //added by gremlin hot fix to stop troop crashing.
-                    {
-                        this.updateTimer = 0.75f / (float)this.num_attack_frames;
-                        Troop whichFrame = this;
-                        whichFrame.WhichFrame = whichFrame.WhichFrame + 1;
+			troop.updateTimer -= elapsedTime;
+		    if (updateTimer > 0f)
+                return;
+		    if (!Idle)
+		    {
+		        updateTimer = 0.75f / num_attack_frames;
+                ++WhichFrame;
+		        if (WhichFrame <= num_attack_frames - (first_frame == 1 ? 0 : 1))
+                    return;
 
-                        if (this.WhichFrame > this.num_attack_frames - (this.first_frame == 1 ? 0 : 1))
-                        {
-                            this.WhichFrame = this.first_frame;
-                            this.Idle = true;
-                        }
-                    }
-                   // catch { }
-				}
-				else
-				{
-					this.updateTimer = 1f / (float)this.num_idle_frames;
-					Troop whichFrame1 = this;
-					whichFrame1.WhichFrame = whichFrame1.WhichFrame + 1;
-					if (this.WhichFrame > this.num_idle_frames - (this.first_frame == 1 ? 0 : 1))
-					{
-						this.WhichFrame = this.first_frame;
-						return;
-					}
-				}
-			}
+		        WhichFrame = first_frame;
+		        Idle = true;
+		    }
+		    else
+		    {
+		        updateTimer = 1f / num_idle_frames;
+                ++WhichFrame;
+		        if (WhichFrame <= num_idle_frames - (first_frame == 1 ? 0 : 1))
+                    return;
+
+		        WhichFrame = first_frame;
+		    }
 		}
 
         //Added by McShooterz
         public void AddKill()
         {
-            this.Kills++;
-            this.Experience++;
-            if (this.Experience == 1 + this.Level)
-            {
-                this.Experience -= 1 + this.Level;
-                this.Level++;
-            }
+            Kills++;
+            Experience++;
+            if (Experience != 1 + Level)
+                return;
+            Experience -= 1 + Level;
+            Level++;
         }
 
-        //Added by McShooterz
+        // Added by McShooterz
         public float GetStrengthMax()
         {
-            if (this.StrengthMax <= 0)
-                this.StrengthMax = Ship_Game.ResourceManager.TroopsDict[this.Name].Strength;
-            return this.StrengthMax + this.Level / 2 + (int)(this.StrengthMax * this.Owner.data.Traits.GroundCombatModifier);
+            if (StrengthMax <= 0)
+                StrengthMax = ResourceManager.GetTroopTemplate(Name).Strength;
+            return StrengthMax + Level*0.5f + StrengthMax*(Owner?.data.Traits.GroundCombatModifier ?? 0.0f);
         }
 
         public float GetCost()
         {
-            return this.Cost * UniverseScreen.GamePaceStatic;
+            return Cost * UniverseScreen.GamePaceStatic;
         }
 	}
 }

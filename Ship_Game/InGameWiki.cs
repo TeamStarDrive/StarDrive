@@ -1,121 +1,65 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class InGameWiki : PopupWindow, IDisposable
+	public sealed class InGameWiki : PopupWindow
 	{
-		private Vector2 Cursor = Vector2.Zero;
-
 		private HelpTopics ht;
-
-		//private UniverseScreen screen;
-
 		private ScrollList CategoriesSL;
-
 		private Rectangle CategoriesRect;
-
 		private Rectangle TextRect;
-
 		private Vector2 TitlePosition;
-
 		private ScrollList TextSL;
-
 		private Video ActiveVideo;
-
-		private Microsoft.Xna.Framework.Media.VideoPlayer VideoPlayer;
-
+		private VideoPlayer VideoPlayer;
 		private Texture2D VideoFrame;
-
 		private Rectangle SmallViewer;
-
 		private Rectangle BigViewer;
-
 		private HelpTopic ActiveTopic;
-
 		private bool HoverSmallVideo;
-
 		public bool PlayingVideo;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
-		//private float transitionElapsedTime;
-
-		public InGameWiki(Rectangle r)
-		{
-			FileInfo[] Help;
-			this.r = r;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-			Help = (GlobalStats.Config.Language == "English" ? HelperFunctions.GetFilesFromDirectory("Content/HelpTopics/English") : HelperFunctions.GetFilesFromDirectory(string.Concat("Content/HelpTopics/", GlobalStats.Config.Language)));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(HelpTopics));
-			this.ht = (HelpTopics)serializer1.Deserialize(Help[0].OpenRead());
-		}
-
-		public InGameWiki()
-		{
-			FileInfo[] Help;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-			Help = (GlobalStats.Config.Language != "German" ? HelperFunctions.GetFilesFromDirectory("Content/HelpTopics/English") : HelperFunctions.GetFilesFromDirectory("Content/HelpTopics/German"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(HelpTopics));
-			this.ht = (HelpTopics)serializer1.Deserialize(Help[0].OpenRead());
-		}
-
-        public void Dispose()
+        public InGameWiki(GameScreen parent) : base(parent)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+
+            var help = Dir.GetFiles("Content/HelpTopics/" + GlobalStats.Language);
+            if (help.Length != 0)
+                ht = help[0].Deserialize<HelpTopics>();
         }
+        public InGameWiki(GameScreen parent, Rectangle r) : this(parent)
+		{
+            R = r;
+		}
 
-        ~InGameWiki() { Dispose(false); }
-
-        protected void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-               if (disposing)
-                {
-                    if (this.VideoPlayer != null)
-                        this.VideoPlayer.Dispose();
-                    if (this.CategoriesSL != null)
-                        this.CategoriesSL.Dispose();
-                    if (this.TextSL != null)
-                        this.TextSL.Dispose();
-
-                }
-                this.VideoPlayer = null;
-                this.CategoriesSL = null;
-                this.TextSL = null;
-                this.disposed = true;
-            }
+            VideoPlayer?.Dispose(ref VideoPlayer);
+            CategoriesSL?.Dispose(ref CategoriesSL);
+            TextSL?.Dispose(ref TextSL);
+            base.Dispose(disposing);
         } 
 		 
 
 		public override void Draw(GameTime gameTime)
 		{
-			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-			base.DrawBase(gameTime);
-			base.ScreenManager.SpriteBatch.Begin();
-			this.CategoriesSL.Draw(base.ScreenManager.SpriteBatch);
-			Vector2 bCursor = new Vector2((float)(this.r.X + 20), (float)(this.r.Y + 20));
-			for (int i = this.CategoriesSL.indexAtTop; i < this.CategoriesSL.Copied.Count && i < this.CategoriesSL.indexAtTop + this.CategoriesSL.entriesToDisplay; i++)
+			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+			DrawBase(gameTime);
+			ScreenManager.SpriteBatch.Begin();
+			CategoriesSL.Draw(ScreenManager.SpriteBatch);
+			Vector2 bCursor = new Vector2(R.X + 20, R.Y + 20);
+			for (int i = CategoriesSL.indexAtTop; i < CategoriesSL.Copied.Count && i < CategoriesSL.indexAtTop + CategoriesSL.entriesToDisplay; i++)
 			{
-				bCursor = new Vector2((float)(this.r.X + 35), (float)(this.r.Y + 20));
-				ScrollList.Entry e = this.CategoriesSL.Copied[i];
-				bCursor.Y = (float)e.clickRect.Y;
+				bCursor = new Vector2(R.X + 35, R.Y + 20);
+				ScrollList.Entry e = CategoriesSL.Copied[i];
+				bCursor.Y = e.clickRect.Y;
 				if (!(e.item is ModuleHeader))
 				{
 					bCursor.X = bCursor.X + 15f;
@@ -140,7 +84,7 @@ namespace Ship_Game
 					if (this.HoverSmallVideo)
 					{
 						Rectangle playIcon = new Rectangle(this.SmallViewer.X + this.SmallViewer.Width / 2 - 64, this.SmallViewer.Y + this.SmallViewer.Height / 2 - 64, 128, 128);
-						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/icon_play"], playIcon, new Color(255, 255, 255, 200));
+						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["icon_play"], playIcon, new Color(255, 255, 255, 200));
 					}
 				}
 				else
@@ -266,8 +210,8 @@ namespace Ship_Game
 						else
 						{
 							this.TextSL.Copied.Clear();
-							this.VideoPlayer = new Microsoft.Xna.Framework.Media.VideoPlayer();
-							this.ActiveVideo = base.ScreenManager.Content.Load<Video>(string.Concat("Video/", this.ActiveTopic.VideoPath));
+							this.VideoPlayer = new VideoPlayer();
+							this.ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", this.ActiveTopic.VideoPath));
 							this.VideoPlayer.Play(this.ActiveVideo);
 							this.VideoPlayer.Pause();
 						}
@@ -281,7 +225,7 @@ namespace Ship_Game
 		{
 			base.Setup();
 			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.CategoriesRect = new Rectangle(this.r.X + 25, this.r.Y + 130, 330, 430);
+			this.CategoriesRect = new Rectangle(this.R.X + 25, this.R.Y + 130, 330, 430);
 			Submenu blah = new Submenu(base.ScreenManager, this.CategoriesRect);
 			this.CategoriesSL = new ScrollList(blah, 40);
 			this.TextRect = new Rectangle(this.CategoriesRect.X + this.CategoriesRect.Width + 5, this.CategoriesRect.Y + 10, 375, 420);
@@ -298,7 +242,7 @@ namespace Ship_Game
 			};
 			HelperFunctions.parseTextToSL(this.ActiveTopic.Text, (float)(this.TextRect.Width - 40), Fonts.Arial12Bold, ref this.TextSL);
 			this.TitlePosition = new Vector2((float)(this.TextRect.X + this.TextRect.Width / 2) - Fonts.Arial20Bold.MeasureString(this.ActiveTopic.Title).X / 2f - 15f, (float)(this.TextRect.Y + 10));
-			List<string> Categories = new List<string>();
+			Array<string> Categories = new Array<string>();
 			foreach (HelpTopic halp in this.ht.HelpTopicsList)
 			{
 				if (Categories.Contains(halp.Category))
@@ -321,11 +265,6 @@ namespace Ship_Game
 				}
 			}
 			base.LoadContent();
-		}
-
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}
 }

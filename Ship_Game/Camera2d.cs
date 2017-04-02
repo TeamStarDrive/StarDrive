@@ -6,13 +6,13 @@ namespace Ship_Game
 {
 	public sealed class Camera2d
 	{
-		protected float _zoom;
+        private float _zoom;
 
 		public Matrix _transform;
 
 		public Vector2 _pos;
 
-		protected float _rotation;
+		private float _rotation;
 
 		public Vector2 Pos
 		{

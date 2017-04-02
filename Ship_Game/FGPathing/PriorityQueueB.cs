@@ -9,10 +9,8 @@
 //
 //  Copyright (C) 2006 Franco, Gustavo 
 //
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Ship_Game;
 
 namespace Algorithms
 {
@@ -33,7 +31,7 @@ namespace Algorithms
     public class PriorityQueueB<T> : IPriorityQueue<T>
     {
         #region Variables Declaration
-        protected List<T>       InnerList = new List<T>();
+        protected Array<T>       InnerList = new Array<T>();
 		protected IComparer<T>  mComparer;
         #endregion
 
@@ -65,15 +63,14 @@ namespace Algorithms
 
         protected virtual int OnCompare(int i, int j)
         {
-            return mComparer.Compare(InnerList[i],InnerList[j]);
+            return mComparer.Compare(InnerList[i], InnerList[j]);
         }
 
-		/// <summary>
-		/// Push an object onto the PQ
-		/// </summary>
-		/// <param name="O">The new object</param>
-		/// <returns>The index in the list where the object is _now_. This will change when objects are taken from or put onto the PQ.</returns>
-		public int Push(T item)
+        /// <summary>
+        /// Push an object onto the PQ
+        /// </summary>
+        /// <returns>The index in the list where the object is _now_. This will change when objects are taken from or put onto the PQ.</returns>
+        public int Push(T item)
 		{
 			int p = InnerList.Count,p2;
 			InnerList.Add(item); // E[p] = O

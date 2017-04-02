@@ -4,10 +4,11 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class DeepSpaceBuildingWindow: IDisposable
+	public sealed class DeepSpaceBuildingWindow : IDisposable
 	{
 		private Ship_Game.ScreenManager ScreenManager;
 
@@ -28,8 +29,6 @@ namespace Ship_Game
 		private Vector2 TetherOffset = new Vector2();
 
 		private Guid TargetPlanet = Guid.Empty;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 
 		public DeepSpaceBuildingWindow(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
@@ -44,24 +43,17 @@ namespace Ship_Game
 			this.SL = new ScrollList(this.ConstructionSubMenu, 40);
 
             //The Doctor: Ensure Subspace Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
-            foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
+		    var buildables = EmpireManager.Player.structuresWeCanBuild;
+            foreach (string s in buildables)
             {
-                if (ResourceManager.GetShip(s).Name == "Subspace Projector")
-                {
-                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
-                    break;
-                }
-                else
-                    continue;
+                if (s != "Subspace Projector") continue;
+                SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                break;
             }
-			foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
+			foreach (string s in buildables)
 			{
-                if (ResourceManager.GetShip(s).Name != "Subspace Projector")
-                {
-                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
-                }
-                else
-                    continue;
+                if (s != "Subspace Projector")
+                    SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
             }
 			this.TextPos = new Vector2((float)(this.win.X + this.win.Width / 2) - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, (float)(this.win.Y + 25));
 		}
@@ -74,22 +66,12 @@ namespace Ship_Game
 
        ~DeepSpaceBuildingWindow() { Dispose(false); }
 
-       protected void Dispose(bool disposing)
+       private void Dispose(bool disposing)
        {
-           if (!disposed)
-           {
-               if (disposing)
-               {
-                   if (this.SL != null)
-                       this.SL.Dispose();
+            SL?.Dispose(ref SL);
+        }
 
-               }
-               this.SL = null;
-               this.disposed = true;
-           }
-       }
-
-		public void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime)
 		{
 			Rectangle r = this.ConstructionSubMenu.Menu;
 			r.Y = r.Y + 25;
@@ -128,16 +110,16 @@ namespace Ship_Game
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
                     
-                    string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
+                    string cost = (e.item as Ship).GetCost(EmpireManager.Player).ToString();
 
                     string upkeep = "Doctor rocks";
 					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
-                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.Player).ToString("F2");
                     }
                     else
                     {
-                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.Player).ToString("F2");
                     }
 
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -195,16 +177,16 @@ namespace Ship_Game
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
 
-                    string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
+                    string cost = (e.item as Ship).GetCost(EmpireManager.Player).ToString();
 
                     string upkeep = "Doctor rocks";
 					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
-                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.Player).ToString("F2");
                     }
                     else
                     {
-                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.Player).ToString("F2");
                     }
 
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -340,13 +322,13 @@ namespace Ship_Game
 			Ray pickRay = new Ray(nearPoint, direction);
 			float k = -pickRay.Position.Z / pickRay.Direction.Z;
 			Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-			Goal buildstuff = new Goal(new Vector2(pickedPosition.X, pickedPosition.Y), this.itemToBuild.Name, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty));
+			Goal buildstuff = new Goal(new Vector2(pickedPosition.X, pickedPosition.Y), this.itemToBuild.Name, EmpireManager.Player);
 			if (this.TargetPlanet != Guid.Empty)
 			{
 				buildstuff.TetherOffset = this.TetherOffset;
 				buildstuff.TetherTarget = this.TargetPlanet;
 			}
-			EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals.Add(buildstuff);
+			EmpireManager.Player.GetGSAI().Goals.Add(buildstuff);
 			AudioManager.PlayCue("echo_affirm");
 			lock (GlobalStats.ClickableItemLocker)
 			{

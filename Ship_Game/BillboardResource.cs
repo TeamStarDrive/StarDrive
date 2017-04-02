@@ -6,117 +6,31 @@ namespace Ship_Game
 {
 	public sealed class BillboardResource : IDisposable
 	{
-		private Microsoft.Xna.Framework.Graphics.VertexBuffer _VertexBuffer;
+	    public BoundingSphere BoundingSphere { get; }
+	    public IndexBuffer IndexBuffer { get; private set; }
 
-		private Microsoft.Xna.Framework.Graphics.IndexBuffer _IndexBuffer;
+	    public int IndexStart { get; } = 0;
+	    public int PrimitiveCount { get; } = 2;
+	    public PrimitiveType PrimitiveType { get; } = PrimitiveType.TriangleList;
+	    public int SizeInBytes { get; } = BillboardVertex.SizeInBytes;
+	    public int VertexBase { get; } = 0;
+	    public VertexBuffer VertexBuffer { get; private set; }
+	    public VertexDeclaration VertexDeclaration { get; private set; }
+	    public int VertexRange { get; } = 6;
+	    public int VertexStreamOffset { get; } = 0;
 
-		private Microsoft.Xna.Framework.Graphics.VertexDeclaration _VertexDeclaration;
-
-		private Microsoft.Xna.Framework.BoundingSphere _BoundingSphere;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public Microsoft.Xna.Framework.BoundingSphere BoundingSphere
+	    public BillboardResource(GraphicsDevice device)
 		{
-			get
-			{
-				return this._BoundingSphere;
-			}
-		}
-
-		public Microsoft.Xna.Framework.Graphics.IndexBuffer IndexBuffer
-		{
-			get
-			{
-				return this._IndexBuffer;
-			}
-		}
-
-		public int IndexStart
-		{
-			get
-			{
-				return 0;
-			}
-		}
-
-		public int PrimitiveCount
-		{
-			get
-			{
-				return 2;
-			}
-		}
-
-		public Microsoft.Xna.Framework.Graphics.PrimitiveType PrimitiveType
-		{
-			get
-			{
-				return Microsoft.Xna.Framework.Graphics.PrimitiveType.TriangleList;
-			}
-		}
-
-		public int SizeInBytes
-		{
-			get
-			{
-				return BillboardResource.BillboardVertex.SizeInBytes;
-			}
-		}
-
-		public int VertexBase
-		{
-			get
-			{
-				return 0;
-			}
-		}
-
-		public Microsoft.Xna.Framework.Graphics.VertexBuffer VertexBuffer
-		{
-			get
-			{
-				return this._VertexBuffer;
-			}
-		}
-
-		public Microsoft.Xna.Framework.Graphics.VertexDeclaration VertexDeclaration
-		{
-			get
-			{
-				return this._VertexDeclaration;
-			}
-		}
-
-		public int VertexRange
-		{
-			get
-			{
-				return 6;
-			}
-		}
-
-		public int VertexStreamOffset
-		{
-			get
-			{
-				return 0;
-			}
-		}
-
-		public BillboardResource(GraphicsDevice device)
-		{
-			this._VertexDeclaration = new Microsoft.Xna.Framework.Graphics.VertexDeclaration(device, BillboardResource.BillboardVertex.VertexElements);
-			this._VertexBuffer = new Microsoft.Xna.Framework.Graphics.VertexBuffer(device, typeof(BillboardResource.BillboardVertex), 4, BufferUsage.WriteOnly);
-			this._IndexBuffer = new Microsoft.Xna.Framework.Graphics.IndexBuffer(device, typeof(short), 6, BufferUsage.WriteOnly);
-			short[] indices = new short[] { 0, 1, 2, 2, 1, 3 };
-			Vector3[] positions = new Vector3[] { new Vector3(0.5f, 1f, 0f), new Vector3(-0.5f, 1f, 0f), new Vector3(0.5f, 0f, 0f), new Vector3(-0.5f, 0f, 0f) };
-			Vector2[] uvs = new Vector2[] { new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(1f, 1f) };
+			this.VertexDeclaration = new VertexDeclaration(device, BillboardVertex.VertexElements);
+			this.VertexBuffer = new VertexBuffer(device, typeof(BillboardVertex), 4, BufferUsage.WriteOnly);
+			this.IndexBuffer = new IndexBuffer(device, typeof(short), 6, BufferUsage.WriteOnly);
+			short[] indices = { 0, 1, 2, 2, 1, 3 };
+			Vector3[] positions = { new Vector3(0.5f, 1f, 0f), new Vector3(-0.5f, 1f, 0f), new Vector3(0.5f, 0f, 0f), new Vector3(-0.5f, 0f, 0f) };
+			Vector2[] uvs = { new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(1f, 1f) };
 			Vector3[] tangents = new Vector3[4];
 			Vector3[] binormals = new Vector3[4];
 			this.BuildTangentSpaceDataForTriangleList(indices, positions, uvs, tangents, binormals);
-			BillboardResource.BillboardVertex[] verts = new BillboardResource.BillboardVertex[4];
+			BillboardVertex[] verts = new BillboardVertex[4];
 			verts[0].Position = positions[0];
 			verts[0].TextureCoordinate = uvs[0];
 			verts[0].Normal = Vector3.Forward;
@@ -137,9 +51,9 @@ namespace Ship_Game
 			verts[3].Normal = Vector3.Forward;
 			verts[3].Tangent = tangents[3];
 			verts[3].Binormal = binormals[3];
-			this._VertexBuffer.SetData<BillboardResource.BillboardVertex>(verts);
-			this._IndexBuffer.SetData<short>(indices);
-			this._BoundingSphere = Microsoft.Xna.Framework.BoundingSphere.CreateFromPoints(positions);
+			this.VertexBuffer.SetData<BillboardResource.BillboardVertex>(verts);
+			this.IndexBuffer.SetData<short>(indices);
+			this.BoundingSphere = Microsoft.Xna.Framework.BoundingSphere.CreateFromPoints(positions);
 		}
 
 		private void BuildTangentSpaceDataForTriangleList(short[] indices, Vector3[] positions, Vector2[] uvs, Vector3[] tangents, Vector3[] binormals)
@@ -194,25 +108,14 @@ namespace Ship_Game
 
         ~BillboardResource() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this._VertexBuffer != null)
-                        this._VertexBuffer.Dispose();
-                    if (this._IndexBuffer != null)
-                        this._IndexBuffer.Dispose();
-                    if (this._VertexDeclaration != null)
-                        this._VertexDeclaration.Dispose();
-
-                }
-                this._IndexBuffer = null;
-                this._VertexBuffer = null;
-                this._VertexDeclaration = null;
-                this.disposed = true;
-            }
+            IndexBuffer?.Dispose();
+            VertexBuffer?.Dispose();
+            VertexDeclaration?.Dispose();
+            IndexBuffer = null;
+            VertexBuffer = null;
+            VertexDeclaration = null;
         }
 
 		private struct BillboardVertex

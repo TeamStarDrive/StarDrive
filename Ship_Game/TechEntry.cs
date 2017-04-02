@@ -1,37 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
 	public sealed class TechEntry
 	{
-		public string UID;
+        [Serialize(0)] public string UID;
+        [Serialize(1)] public float Progress;
+        [Serialize(2)] public bool Discovered;
+        [Serialize(3)] public bool Unlocked;
+        [Serialize(4)] public int  Level;
+        [Serialize(5)] public string AcquiredFrom = "";
+        [Serialize(6)] public bool shipDesignsCanuseThis = true;
+        [Serialize(7)] public float maxOffensiveValueFromthis = 0;
 
-		public float Progress;
+        [XmlIgnore][JsonIgnore]
+        public float TechCost => Tech.Cost * (float)Math.Max(1, Math.Pow(2.0, Level));
 
-		public bool Discovered;
-
-		public bool Unlocked;
-
-        public byte level = 0;
-
-        public float GetTechCost()
-        {
-            return this.GetTech().Cost * (float)Math.Max(1, Math.Pow( 2.0, this.level));
-        }
-
-        public string AcquiredFrom = "";
-        //added by gremlin
-        public bool shipDesignsCanuseThis = true;
-        public float maxOffensiveValueFromthis = 0;
-
-		public TechEntry()
-		{
-		}
-
-		public Technology GetTech()
-		{
-			return ResourceManager.TechTree[this.UID];
-		}
+	    [XmlIgnore][JsonIgnore]
+        public Technology Tech => ResourceManager.TechTree[UID];
 	}
 }

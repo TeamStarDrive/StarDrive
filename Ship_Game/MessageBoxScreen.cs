@@ -20,8 +20,6 @@ namespace Ship_Game
 
 		public UIButton Cancel;
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		private float timer;
 
 		private bool timed;
@@ -34,10 +32,10 @@ namespace Ship_Game
 
 		private string toappend;
 
-		public MessageBoxScreen(string message)
+		public MessageBoxScreen(GameScreen parent, string message) : base(parent)
 		{
 			this.message = message;
-			this.message = HelperFunctions.parseText(Fonts.Arial12Bold, message, 250f);
+			this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -63,10 +61,10 @@ namespace Ship_Game
 			this.Buttons.Add(this.Cancel);
 		}
 
-		public MessageBoxScreen(string message, string oktext, string canceltext)
+		public MessageBoxScreen(GameScreen parent, string message, string oktext, string canceltext) : base(parent)
 		{
 			this.message = message;
-			this.message = HelperFunctions.parseText(Fonts.Arial12Bold, message, 250f);
+			this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -92,8 +90,8 @@ namespace Ship_Game
 			this.Buttons.Add(this.Cancel);
 		}
 
-		public MessageBoxScreen(string message, float Timer)
-		{
+		public MessageBoxScreen(GameScreen parent, string message, float Timer) : base(parent)
+        {
 			this.timed = true;
 			this.timer = Timer;
 			this.original = message;
@@ -123,7 +121,7 @@ namespace Ship_Game
 			this.Buttons.Add(this.Cancel);
 		}
 
-		public MessageBoxScreen(string message, bool pauseMenu) : this(message)
+		public MessageBoxScreen(GameScreen parent, string message, bool pauseMenu) : this(parent, message)
 		{
 			this.pauseMenu = pauseMenu;
 		}
@@ -150,7 +148,7 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.End();
 				return;
 			}
-			this.message = HelperFunctions.parseText(Fonts.Arial12Bold, string.Concat(this.original, this.toappend), 250f);
+			this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat(this.original, this.toappend), 250f);
             //renamed r, textposition
 			Rectangle r2 = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) + 15);
 			Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(this.message).X / 2f, (float)(r2.Y + 10));
@@ -193,7 +191,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{

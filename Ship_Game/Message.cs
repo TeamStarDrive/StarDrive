@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		public bool EndWar;
 
-		public List<Response> ResponseOptions = new List<Response>();
+		public Array<Response> ResponseOptions = new Array<Response>();
 
 		public int MoneyDemanded;
 

@@ -5,7 +5,7 @@ namespace Ship_Game
 {
 	public sealed class Tooltips
 	{
-		public List<ToolTip> ToolTipsList;
+		public Array<ToolTip> ToolTipsList;
 
 		public Tooltips()
 		{

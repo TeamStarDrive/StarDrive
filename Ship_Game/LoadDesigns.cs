@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadDesigns : GameScreen, IDisposable
+	public sealed class LoadDesigns : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -26,8 +26,6 @@ namespace Ship_Game
 		private Vector2 EnternamePos = new Vector2();
 
 		private UITextEntry EnterNameArea = new UITextEntry();
-
-		private List<UIButton> Buttons = new List<UIButton>();
 
 		//private UIButton Save;
 
@@ -55,13 +53,9 @@ namespace Ship_Game
 
 		//private bool FirstRun = true;
 
-		private List<UIButton> ShipsToLoad = new List<UIButton>();
+		private Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
-		public LoadDesigns(ShipDesignScreen screen)
+		public LoadDesigns(ShipDesignScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
@@ -90,27 +84,10 @@ namespace Ship_Game
 			this.LoadContent();
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~LoadDesigns() { Dispose(false); }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipDesigns != null)
-                        this.ShipDesigns.Dispose();
-
-                }
-                this.ShipDesigns = null;
-                this.disposed = true;
-            }
+            ShipDesigns?.Dispose(ref ShipDesigns);
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)
@@ -148,7 +125,7 @@ namespace Ship_Game
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as Ship).shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)), tCursor, Color.Orange);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as Ship).shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
 					if (e.clickRectHover == 1 && !(e.item as Ship).reserved && !(e.item as Ship).FromSave)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
@@ -170,7 +147,7 @@ namespace Ship_Game
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as ShipData).Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as ShipData).Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)), tCursor, Color.Orange);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as ShipData).Role, EmpireManager.Player), tCursor, Color.Orange);
 					if (e.clickRectHover != 1)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
@@ -218,7 +195,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -258,7 +235,7 @@ namespace Ship_Game
 						if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)
 						{
 							this.ShipToDelete = (e.item as ShipData).Name;
-							MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
+							MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
 							messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteDataAccepted);
 							base.ScreenManager.AddScreen(messageBox);
 						}
@@ -285,8 +262,8 @@ namespace Ship_Game
 					if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && !(e.item as Ship).reserved && !(e.item as Ship).FromSave && input.InGameSelect)
 					{
 						this.ShipToDelete = (e.item as Ship).Name;
-						MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
-						messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteAccepted);
+						MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+						messageBox.Accepted += DeleteAccepted;
 						base.ScreenManager.AddScreen(messageBox);
 					}
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
@@ -334,27 +311,23 @@ namespace Ship_Game
 			this.ShipDesigns = new ScrollList(this.SaveShips);
 			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
 			this.TitlePosition = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			string path = Dir.ApplicationData;
 			Rectangle gridRect = new Rectangle(this.SaveShips.Menu.X + this.SaveShips.Menu.Width - 44, this.SaveShips.Menu.Y, 29, 20);
 			this.playerDesignsToggle = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
 			{
 				Active = this.ShowAllDesigns
 			};
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/WIP"));
-			List<ShipData> WIPs = new List<ShipData>();
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			Array<ShipData> WIPs = new Array<ShipData>();
+			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
-				{
-					WIPs.Add(newShipData);
-				}
+			    ShipData newShipData = ShipData.Parse(info);
+			    var empire = EmpireManager.Player;
+                if (empire.IsHullUnlocked(newShipData.Hull))
+			    {
+			        WIPs.Add(newShipData);
+			    }
 			}
-			List<string> ShipRoles = new List<string>();
+			Array<string> ShipRoles = new Array<string>();
 			if (this.screen != null)
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
@@ -362,12 +335,12 @@ namespace Ship_Game
                     //added by gremlin HIDING ERRORS
                     try
                     {
-                        if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player)) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
                             continue;
                         }
-                        ShipRoles.Add(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
-                        ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
+                        ShipRoles.Add(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
+                        ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
                         this.ShipDesigns.AddItem(mh);
                     }
                     catch { }
@@ -382,7 +355,7 @@ namespace Ship_Game
 				{
 					foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 					{
-                        if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
 						{
 							continue;
 						}
@@ -459,32 +432,28 @@ namespace Ship_Game
 		{
 			this.ShipDesigns.Entries.Clear();
 			this.ShipDesigns.Copied.Clear();
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/WIP"));
-			List<ShipData> WIPs = new List<ShipData>();
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			string path = Dir.ApplicationData;
+			Array<ShipData> WIPs = new Array<ShipData>();
+			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
-				{
-					WIPs.Add(newShipData);
-				}
+			    ShipData newShipData = ShipData.Parse(info);
+			    var empire = EmpireManager.Player;
+                if (empire.IsHullUnlocked(newShipData.Hull))
+			    {
+			        WIPs.Add(newShipData);
+			    }
 			}
-			List<string> ShipRoles = new List<string>();
+			Array<string> ShipRoles = new Array<string>();
 			if (this.screen != null)
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 				{
-                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.Player.WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player)) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
 					{
 						continue;
 					}
-                    ShipRoles.Add(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
-                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
+                    ShipRoles.Add(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
+                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
 					this.ShipDesigns.AddItem(mh);
 				}
 				if (WIPs.Count > 0)
@@ -497,7 +466,7 @@ namespace Ship_Game
 				{
 					foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 					{
-                        if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
 						{
 							continue;
 						}

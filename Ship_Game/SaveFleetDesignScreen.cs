@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -13,10 +14,11 @@ namespace Ship_Game
 	{
         private Fleet f;
 
-		public SaveFleetDesignScreen(Fleet f) : base(SLMode.Save, f.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
+		public SaveFleetDesignScreen(GameScreen parent, Fleet f) 
+            : base(parent, SLMode.Save, f.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
         {
 			this.f = f;        // set save file data and starting name
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Fleet Designs/");
+            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Fleet Designs/");
         }
 
 		public override void DoSave()
@@ -42,17 +44,13 @@ namespace Ship_Game
 
 		protected override void SetSavesSL()
 		{
-			FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(this.Path);
-			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+			foreach (FileInfo info in Dir.GetFiles(Path))
 			{
-				FileInfo FI = filesFromDirectory[i];
-				this.SavesSL.AddItem(new FileData(FI, FI as object, System.IO.Path.GetFileNameWithoutExtension(FI.Name))).AddItemWithCancel(FI);
+			    this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItemWithCancel(info);
 			}
-			FileInfo[] fileInfoArray = HelperFunctions.GetFilesFromDirectory("Content/FleetDesigns");
-			for (int j = 0; j < (int)fileInfoArray.Length; j++)
+			foreach (FileInfo info in Dir.GetFiles("Content/FleetDesigns"))
 			{
-				FileInfo FI = fileInfoArray[j];
-				this.SavesSL.AddItem(new FileData(FI, FI as object, System.IO.Path.GetFileNameWithoutExtension(FI.Name)));
+			    this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
 			}
 		}
 	}

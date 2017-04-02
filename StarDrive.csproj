@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <AssemblyName>StarDrive</AssemblyName>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile>
@@ -25,33 +25,36 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Debug\</OutputPath>
+    <OutputPath>StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;STEAM ALTERTHREAD</DefineConstants>
-    <Optimize>true</Optimize>
+    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <NoWarn>3270</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>..\stardrive mod\</OutputPath>
+    <OutputPath>StarDrive\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <NoWarn>3270</NoWarn>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -63,80 +66,48 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
-    <OutputPath>..\stardrive mod\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ALTERTHREAD STEAM PERF AUTOTIME xPLAYERONLY </DefineConstants>
+    <OutputPath>Deploy\upload\</OutputPath>
+    <DefineConstants>STEAM</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <NoWarn>3270</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug - Auto Fast|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>StarDrive\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STEAM PERF AUTOTIME xPLAYERONLY </DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
+    <WarningLevel>0</WarningLevel>
+    <NoWarn>3270</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|x86'">
-    <OutputPath>..\..\..\..\StarDrive\</OutputPath>
-    <DefineConstants>STEAM ALTERTHREAD PERF  AUTOTIME</DefineConstants>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release -Auto Fast|x86' ">
+    <OutputPath>StarDrive\</OutputPath>
+    <DefineConstants>DEBUG;STEAM PERF  AUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Docs Debug|x86'">
-    <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Debug\</OutputPath>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DefineConstants>DEBUG;TRACE;STEAM ALTERTHREAD</DefineConstants>
+    <NoWarn>3270</NoWarn>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'McShooterz|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>L:\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>
-    </DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_Release_|x86' ">
-    <OutputPath>Deploy\Upload\</OutputPath>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>22E1FFE2950C2070B3DCFA9341530ED359B8DFD4</ManifestCertificateThumbprint>
   </PropertyGroup>
@@ -153,27 +124,6 @@
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_UNSTABLE_Test_RC_16_|x86' ">
-    <OutputPath>Deploy\Upload\</OutputPath>
-    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_Experimental_|x86' ">
-    <OutputPath>Deploy\Upload\</OutputPath>
-    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Gretman%27s Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\stardrive mod\</OutputPath>
@@ -181,60 +131,38 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_Release_|x86'">
-    <OutputPath>Deploy\upload\</OutputPath>
-    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_ModSuperPack_|x86'">
-    <OutputPath>Deploy\upload\</OutputPath>
-    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
+    <NoWarn>3270</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Fasterflect">
-      <HintPath>packages\fasterflect.2.1.3\lib\net40\Fasterflect.dll</HintPath>
+    <Reference Include="Microsoft.CSharp" />
+	<Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
-    <Reference Include="SynapseGaming-SunBurn-Pro">
-      <HintPath>..\StarDrive\StarDriveReferences\SynapseGaming-SunBurn-Pro.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="SharpRaven, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\SharpRaven.2.2.0\lib\net45\SharpRaven.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="XNAnimation">
-      <HintPath>..\StarDrive\StarDriveReferences\XNAnimation.dll</HintPath>
+      <HintPath>StarDrive\XNAnimation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ParticleSettings">
-      <HintPath>..\StarDrive\StarDriveReferences\ParticleSettings.dll</HintPath>
+      <HintPath>StarDrive\ParticleSettings.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NAudio">
-      <HintPath>..\StarDrive\StarDriveReferences\NAudio.dll</HintPath>
+      <HintPath>StarDrive\NAudio.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Configuration" />
@@ -242,15 +170,35 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
+    <Compile Include="Ship_Game\Data\GameContentManager.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\EmpireExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\SceneExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\StringExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
     <Compile Include="Ship_Game\FGPathing\PathFinder.cs" />
     <Compile Include="Ship_Game\FGPathing\PathFinderFast.cs" />
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
+    <Compile Include="Ship_Game\Gameplay\Ship_Cargo.cs" />
+    <Compile Include="Ship_Game\Gameplay\Ship_Initialize.cs" />
+    <Compile Include="Ship_Game\Gameplay\Ship_ModuleGrid.cs" />
+    <Compile Include="Ship_Game\GameScreens\DrawRoutines.cs" />
+    <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\GameScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\RuleOptionsScreen.cs" />
     <Compile Include="Ship_Game\GenericLoadSaveScreen.cs" />
     <Compile Include="Ship_Game\LoadSetupScreen.cs" />
     <Compile Include="Ship_Game\RaceSave.cs" />
@@ -272,7 +220,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Ship_Game\AgentMissionData.cs" />
-    <Compile Include="Ship_Game\DevekSplash.cs" />
     <Compile Include="Ship_Game\EspionageScreen.cs" />
     <Compile Include="Ship_Game\EventTypes.cs">
       <AutoGen>false</AutoGen>
@@ -281,17 +228,18 @@
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\Moon.cs" />
-    <Compile Include="Ship_Game\HostileFleets.cs" />
+    <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
-    <Compile Include="Ship_Game\MethodUtil.cs" />
+    <Compile Include="Ship_Game\Utils\MemoryPool.cs" />
+    <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Ship_Game\Ref_T_.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RandomNumberGenerator.cs">
+    <Compile Include="Ship_Game\Utils\Array.cs" />
+    <Compile Include="Ship_Game\Utils\Map.cs" />
+    <Compile Include="Ship_Game\Utils\Memory.cs" />
+    <Compile Include="Ship_Game\Utils\Parallel.cs" />
+    <Compile Include="Ship_Game\Utils\Ref.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -299,11 +247,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\RandomEvent.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RandomMath.cs">
+    <Compile Include="Ship_Game\ExtensionMethods\RandomMath.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -311,11 +255,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\RandomMath2.cs">
+    <Compile Include="Ship_Game\ExtensionMethods\RandomMath2.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\RandomThreadMath.cs">
+    <Compile Include="Ship_Game\ExtensionMethods\UniverseRandom.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -326,14 +270,11 @@
     <Compile Include="Ship_Game\SafeQueue.cs" />
     <Compile Include="Ship_Game\SaveSetupScreen.cs" />
     <Compile Include="Ship_Game\SetupSave.cs" />
-    <Compile Include="Ship_Game\ShipNames.cs" />
+    <Compile Include="Ship_Game\Data\ShipNames.cs" />
     <Compile Include="Ship_Game\ShipRole.cs" />
-    <Compile Include="Ship_Game\SubClasses.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.cs" />
+    <Compile Include="Ship_Game\ShipModuleFlyweight.cs" />
     <Compile Include="Ship_Game\TechnologyType.cs" />
-    <Compile Include="Ship_Game\TestScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\GenericSlider.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -358,14 +299,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\TrustEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\FearEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\Gameplay\TrustEntryType.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -382,14 +315,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ModuleSlotData.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\FederationQuest.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\Gameplay\Restrictions.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -398,7 +323,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\LoadSaveScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\LoadSaveScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -470,10 +395,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\Disc.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -494,7 +415,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameplayMMScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\GameplayMMScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -506,11 +427,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ExplosionRay.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\MissileAI.cs">
+    <Compile Include="Ship_Game\AI\MissileAI.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -522,6 +439,9 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\Utils\Log.cs" />
+    <Compile Include="Ship_Game\Utils\PerfTimer.cs" />
+    <Compile Include="Ship_Game\Utils\ScopedLock.cs" />
     <Compile Include="Ship_Game\YouWinScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -530,11 +450,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SteamManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RuleOptionsScreen.cs">
+    <Compile Include="Ship_Game\Utils\SteamManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -542,11 +458,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\AO.cs">
+    <Compile Include="Ship_Game\AI\AO.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\OptionsScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\OptionsScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -554,7 +470,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ResourceManager.cs">
+    <Compile Include="Ship_Game\Data\ResourceManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -598,7 +514,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\DefensiveCoordinator.cs">
+    <Compile Include="Ship_Game\AI\DefensiveCoordinator.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -606,11 +522,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ShipModuleNode.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SystemCommander.cs">
+    <Compile Include="Ship_Game\AI\SystemCommander.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -630,7 +542,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\RacialTrait.cs">
+    <Compile Include="Ship_Game\Data\RacialTrait.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -666,15 +578,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\EmpireUIOverlay.cs">
+    <Compile Include="Ship_Game\Universe\EmpireUIOverlay.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Beam.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="WordWrapper.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -786,15 +694,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\UnlockItem.cs">
+    <Compile Include="Ship_Game\GameScreens\Game1.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Game1.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Program.cs">
+    <Compile Include="Ship_Game\GameScreens\Program.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -846,10 +750,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ProjectileTracker.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\InventoryItem.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -858,7 +758,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ArtificialIntelligence.cs">
+    <Compile Include="Ship_Game\AI\ArtificialIntelligence.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -874,23 +774,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SingleGlobalInstance.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Token.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\LocalizationFile.cs">
+    <Compile Include="Ship_Game\Utils\SingleGlobalInstance.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Localizer.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Explosion.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -926,7 +814,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\DroneAI.cs">
+    <Compile Include="Ship_Game\AI\DroneAI.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -934,7 +822,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\UniverseScreen.cs">
+    <Compile Include="Ship_Game\Universe\UniverseScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -954,7 +842,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\Fleet.cs">
+    <Compile Include="Ship_Game\AI\Fleet.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -995,10 +883,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\SavedGame.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\HeaderData.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1046,7 +930,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\DebugInfoScreen.cs">
+    <Compile Include="Ship_Game\Debug\DebugInfoScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1074,7 +958,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\GoalType.cs">
+    <Compile Include="Ship_Game\AI\GoalType.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1086,11 +970,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\MainMenuScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\test.cs">
+    <Compile Include="Ship_Game\GameScreens\MainMenuScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1110,14 +990,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ETrait.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\DTrait.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\RootNode.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -1126,7 +998,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\LoadingScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\LoadingScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1182,7 +1054,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ZeroSplash.cs">
+    <Compile Include="Ship_Game\GameScreens\ZeroSplash.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1190,7 +1062,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\MilitaryTask.cs">
+    <Compile Include="Ship_Game\AI\MilitaryTask.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1202,7 +1074,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\HelperFunctions.cs">
+    <Compile Include="Ship_Game\ExtensionMethods\HelperFunctions.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1230,15 +1102,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\GSAI.cs">
+    <Compile Include="Ship_Game\AI\GSAI.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\CombatAI.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="FrameRateCounter.cs">
+    <Compile Include="Ship_Game\AI\CombatAI.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1254,11 +1122,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\AIState.cs">
+    <Compile Include="Ship_Game\AI\AIState.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\CombatState.cs">
+    <Compile Include="Ship_Game\AI\CombatState.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1278,7 +1146,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Goal.cs">
+    <Compile Include="Ship_Game\AI\Goal.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1295,10 +1163,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\ResearchQItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameLoadingScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1354,7 +1218,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\RenderedScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\RenderedScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1366,19 +1230,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="CustomCursor.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\Orders.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\FleetDesign.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\FleetDataNode.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1395,10 +1251,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\RandomEventManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Entry.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1419,10 +1271,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\StatTracker.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\NRO.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1450,10 +1298,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\WeaponTagModifier.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\EmpireData.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -1463,10 +1307,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\RandomItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Config.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1486,11 +1326,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\BatchRemovalCollection_T_.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\EventScreen.cs">
+    <Compile Include="Ship_Game\Utils\BatchRemovalCollection_T_.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1518,10 +1354,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ShipSpatialManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\EncounterScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -1530,7 +1362,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ThreatMatrix.cs">
+    <Compile Include="Ship_Game\AI\ThreatMatrix.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1693,9 +1525,6 @@
     <None Include="Content\Textures\Minimap\button_normal.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Textures\Minimap\radar.xnb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Content\Textures\Minimap\radar_over.xnb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1744,6 +1573,266 @@
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Deploy\Config\Deploy.cmd" />
+    <None Include="Deploy\Config\Pre-run.ps1" />
+    <None Include="Deploy\TortoiseHg\contrib\bash_completion" />
+    <None Include="Deploy\TortoiseHg\contrib\hgk" />
+    <None Include="Deploy\TortoiseHg\contrib\hgweb.fcgi" />
+    <None Include="Deploy\TortoiseHg\contrib\hgweb.wsgi" />
+    <None Include="Deploy\TortoiseHg\contrib\mercurial.el" />
+    <None Include="Deploy\TortoiseHg\contrib\tcsh_completion" />
+    <None Include="Deploy\TortoiseHg\contrib\tcsh_completion_build.sh" />
+    <None Include="Deploy\TortoiseHg\contrib\vim\hg-menu.vim" />
+    <None Include="Deploy\TortoiseHg\contrib\vim\HGAnnotate.vim" />
+    <None Include="Deploy\TortoiseHg\contrib\vim\hgcommand.vim" />
+    <None Include="Deploy\TortoiseHg\contrib\vim\hgtest.vim" />
+    <None Include="Deploy\TortoiseHg\contrib\vim\patchreview.vim" />
+    <None Include="Deploy\TortoiseHg\contrib\xml.rnc" />
+    <None Include="Deploy\TortoiseHg\contrib\zsh_completion" />
+    <None Include="Deploy\TortoiseHg\doc\hgbook.pdf" />
+    <None Include="Deploy\TortoiseHg\doc\TortoiseHg.chm" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-ca.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-cs.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-da.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-de.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-en_GB.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-en_US.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-es.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-fa.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-fr.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-he.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-hr.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-it.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-ja.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-ko.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-nl.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-nn.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-pl.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-pt.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-pt_BR.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-ru.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-tr.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-uk.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-zh_CN.reg" />
+    <None Include="Deploy\TortoiseHg\i18n\cmenu\thg-cmenu-zh_TW.reg" />
+    <None Include="Deploy\TortoiseHg\lib\bz2.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\dulwich._diff_tree.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\dulwich._objects.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\dulwich._pack.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\library.zip" />
+    <None Include="Deploy\TortoiseHg\lib\mercurial.base85.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\mercurial.bdiff.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\mercurial.diffhelpers.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\mercurial.mpatch.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\mercurial.osutil.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\mercurial.parsers.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\pyexpat.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\PyQt4.Qsci.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\PyQt4.QtCore.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\PyQt4.QtGui.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\PyQt4.QtNetwork.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\PyQt4.QtSvg.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\PyQt4.QtXml.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\select.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\sip.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\unicodedata.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32api.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32com.shell.shell.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32cred.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32event.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32file.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32gui.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32pipe.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32process.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32security.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\win32trace.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\_ctypes.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\_ctypes_test.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\_elementtree.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\_hashlib.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\_socket.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\_ssl.pyd" />
+    <None Include="Deploy\TortoiseHg\lib\_win32sysloader.pyd" />
+    <None Include="Deploy\TortoiseHg\locale\bg\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\ca\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\cs\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\da\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\da\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\de\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\de\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\el\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\en_GB\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\es\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\fa\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\fr\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\fr\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\he\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\hr\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\hu\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\it\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\it\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\ja\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\ja\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\nl\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\nn\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\pl\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\pt\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\pt_BR\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\pt_BR\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\ru\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\sv\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\sv\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\th\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\tr\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\uk\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\zh_CN\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\zh_CN\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\zh_TW\LC_MESSAGES\hg.mo" />
+    <None Include="Deploy\TortoiseHg\locale\zh_TW\LC_MESSAGES\tortoisehg.mo" />
+    <None Include="Deploy\TortoiseHg\templates\atom\bookmarkentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\bookmarks.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\branchentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\branches.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\changelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\changelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\error.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\filelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\header.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\map" />
+    <None Include="Deploy\TortoiseHg\templates\atom\tagentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\atom\tags.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\coal\header.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\coal\map" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\bookmarks.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\branches.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\changelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\changelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\changeset.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\error.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\fileannotate.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\filecomparison.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\filediff.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\filelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\filerevision.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\footer.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\graph.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\header.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\help.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\helptopics.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\index.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\manifest.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\map" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\notfound.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\search.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\shortlog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\summary.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\gitweb\tags.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\json\changelist.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\json\map" />
+    <None Include="Deploy\TortoiseHg\templates\map-cmdline.bisect" />
+    <None Include="Deploy\TortoiseHg\templates\map-cmdline.changelog" />
+    <None Include="Deploy\TortoiseHg\templates\map-cmdline.compact" />
+    <None Include="Deploy\TortoiseHg\templates\map-cmdline.default" />
+    <None Include="Deploy\TortoiseHg\templates\map-cmdline.phases" />
+    <None Include="Deploy\TortoiseHg\templates\map-cmdline.status" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\bookmarks.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\branches.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\changelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\changelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\changeset.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\error.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\fileannotate.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\filecomparison.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\filediff.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\filelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\filerevision.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\footer.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\graph.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\header.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\help.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\helptopics.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\index.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\manifest.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\map" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\notfound.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\search.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\shortlog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\summary.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\monoblue\tags.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\bookmarks.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\branches.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\changeset.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\diffstat.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\error.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\fileannotate.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\filecomparison.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\filediff.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\filelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\filelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\filerevision.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\footer.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\graph.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\header.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\help.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\helptopics.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\index.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\manifest.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\map" />
+    <None Include="Deploy\TortoiseHg\templates\paper\notfound.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\search.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\shortlog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\shortlogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\paper\tags.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\changelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\changeset.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\error.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\fileannotate.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\filediff.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\graph.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\graphedge.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\graphnode.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\index.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\logentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\manifest.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\map" />
+    <None Include="Deploy\TortoiseHg\templates\raw\notfound.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\raw\search.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\bookmarkentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\bookmarks.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\branchentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\branches.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\changelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\changelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\error.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\filelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\filelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\header.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\map" />
+    <None Include="Deploy\TortoiseHg\templates\rss\tagentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\rss\tags.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\branches.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\changelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\changelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\changeset.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\error.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\fileannotate.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\filediff.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\filelog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\filelogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\filerevision.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\footer.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\graph.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\header.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\index.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\manifest.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\map" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\notfound.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\search.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\shortlog.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\shortlogentry.tmpl" />
+    <None Include="Deploy\TortoiseHg\templates\spartan\tags.tmpl" />
+    <None Include="packages.config" />
+    <None Include="README.md" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
@@ -3210,8 +3299,117 @@
     <Content Include="Deploy\Config\config.txt" />
     <Content Include="Deploy\Config\include.txt" />
     <Content Include="Deploy\Config\include_mods.txt" />
-    <Content Include="Deploy\Config_BlackBox_ModSuperPack_\config.txt" />
-    <Content Include="Deploy\Config_BlackBox_ModSuperPack_\include.txt" />
+    <Content Include="Deploy\Config\xml.exe" />
+    <Content Include="Deploy\TortoiseHg\contrib\logo-droplets.svg" />
+    <Content Include="Deploy\TortoiseHg\contrib\vim\patchreview.txt" />
+    <Content Include="Deploy\TortoiseHg\COPYING.txt" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\diff-dll.vbs" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\diff-doc.js" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\diff-nb.vbs" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\diff-odt.vbs" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\diff-ppt.js" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\diff-sxw.vbs" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\diff-xls.js" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\merge-doc.js" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\merge-ods.vbs" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\Readme.txt" />
+    <Content Include="Deploy\TortoiseHg\diff-scripts\SOURCE.txt" />
+    <Content Include="Deploy\TortoiseHg\docdiff.exe" />
+    <Content Include="Deploy\TortoiseHg\doc\hg.1.html" />
+    <Content Include="Deploy\TortoiseHg\doc\hgignore.5.html" />
+    <Content Include="Deploy\TortoiseHg\doc\hgrc.5.html" />
+    <Content Include="Deploy\TortoiseHg\doc\style.css" />
+    <Content Include="Deploy\TortoiseHg\extension-versions.txt" />
+    <Content Include="Deploy\TortoiseHg\help\config.txt" />
+    <Content Include="Deploy\TortoiseHg\help\dates.txt" />
+    <Content Include="Deploy\TortoiseHg\help\diffs.txt" />
+    <Content Include="Deploy\TortoiseHg\help\environment.txt" />
+    <Content Include="Deploy\TortoiseHg\help\extensions.txt" />
+    <Content Include="Deploy\TortoiseHg\help\filesets.txt" />
+    <Content Include="Deploy\TortoiseHg\help\glossary.txt" />
+    <Content Include="Deploy\TortoiseHg\help\hgignore.txt" />
+    <Content Include="Deploy\TortoiseHg\help\hgweb.txt" />
+    <Content Include="Deploy\TortoiseHg\help\internals\bundles.txt" />
+    <Content Include="Deploy\TortoiseHg\help\internals\changegroups.txt" />
+    <Content Include="Deploy\TortoiseHg\help\internals\requirements.txt" />
+    <Content Include="Deploy\TortoiseHg\help\internals\revlogs.txt" />
+    <Content Include="Deploy\TortoiseHg\help\merge-tools.txt" />
+    <Content Include="Deploy\TortoiseHg\help\multirevs.txt" />
+    <Content Include="Deploy\TortoiseHg\help\patterns.txt" />
+    <Content Include="Deploy\TortoiseHg\help\phases.txt" />
+    <Content Include="Deploy\TortoiseHg\help\revisions.txt" />
+    <Content Include="Deploy\TortoiseHg\help\revsets.txt" />
+    <Content Include="Deploy\TortoiseHg\help\scripting.txt" />
+    <Content Include="Deploy\TortoiseHg\help\subrepos.txt" />
+    <Content Include="Deploy\TortoiseHg\help\templates.txt" />
+    <Content Include="Deploy\TortoiseHg\help\urls.txt" />
+    <Content Include="Deploy\TortoiseHg\hg.exe" />
+    <Content Include="Deploy\TortoiseHg\hgrc.d\EditorTools.rc" />
+    <Content Include="Deploy\TortoiseHg\hgrc.d\Mercurial.rc" />
+    <Content Include="Deploy\TortoiseHg\hgrc.d\MergePatterns.rc" />
+    <Content Include="Deploy\TortoiseHg\hgrc.d\MergeTools.rc" />
+    <Content Include="Deploy\TortoiseHg\hgrc.d\Paths.rc" />
+    <Content Include="Deploy\TortoiseHg\hgrc.d\TerminalTools.rc" />
+    <Content Include="Deploy\TortoiseHg\icons\detect_rename.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\general.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\hg.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\hgB.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\ignore.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menuabout.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menuadd.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menublame.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menucheckout.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menuclone.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menucommit.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menucreaterepos.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menudelete.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menulog.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menurepobrowse.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menurevert.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menushowchanged.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\menusynch.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\proxy.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\README.txt" />
+    <Content Include="Deploy\TortoiseHg\icons\refresh_overlays.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\settings_repo.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\settings_user.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\shelve.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\thg_logo.ico" />
+    <Content Include="Deploy\TortoiseHg\icons\TortoiseMerge.ico" />
+    <Content Include="Deploy\TortoiseHg\imageformats\qico4.dll" />
+    <Content Include="Deploy\TortoiseHg\imageformats\qsvg4.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\kdiff3.exe" />
+    <Content Include="Deploy\TortoiseHg\lib\LIBEAY32.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\pythoncom27.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\pywintypes27.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\qscintilla2.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\QtCore4.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\QtGui4.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\QtNetwork4.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\QtSvg4.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\QtXml4.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\SSLEAY32.dll" />
+    <Content Include="Deploy\TortoiseHg\lib\TortoisePlink.exe" />
+    <Content Include="Deploy\TortoiseHg\Pageant.exe" />
+    <Content Include="Deploy\TortoiseHg\python27.dll" />
+    <Content Include="Deploy\TortoiseHg\templates\map-cmdline.xml" />
+    <Content Include="Deploy\TortoiseHg\templates\static\background.png" />
+    <Content Include="Deploy\TortoiseHg\templates\static\coal-file.png" />
+    <Content Include="Deploy\TortoiseHg\templates\static\coal-folder.png" />
+    <Content Include="Deploy\TortoiseHg\templates\static\excanvas.js" />
+    <Content Include="Deploy\TortoiseHg\templates\static\feed-icon-14x14.png" />
+    <Content Include="Deploy\TortoiseHg\templates\static\hgicon.png" />
+    <Content Include="Deploy\TortoiseHg\templates\static\hglogo.png" />
+    <Content Include="Deploy\TortoiseHg\templates\static\mercurial.js" />
+    <Content Include="Deploy\TortoiseHg\templates\static\style-extra-coal.css" />
+    <Content Include="Deploy\TortoiseHg\templates\static\style-gitweb.css" />
+    <Content Include="Deploy\TortoiseHg\templates\static\style-monoblue.css" />
+    <Content Include="Deploy\TortoiseHg\templates\static\style-paper.css" />
+    <Content Include="Deploy\TortoiseHg\templates\static\style.css" />
+    <Content Include="Deploy\TortoiseHg\thg.exe" />
+    <Content Include="Deploy\TortoiseHg\ThgShellx64.dll" />
+    <Content Include="Deploy\TortoiseHg\thgw.exe" />
+    <Content Include="Deploy\TortoiseHg\TortoiseHgOverlayServer.exe" />
     <Content Include="Game.ico" />
     <Content Include="Icons\blackbox drop.ico" />
     <Content Include="Icons\blackbox.ico" />
@@ -3269,7 +3467,6 @@
     <None Include="Deploy\7-Zip\descript.ion" />
     <None Include="Deploy\7-Zip\Lang\en.ttt" />
     <None Include="Deploy\7-Zip\sd.7z" />
-    <None Include="packages.config" />
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -3278,9 +3475,25 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj">
+      <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
+      <Name>Microsoft.Xna.Framework.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
+      <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>
+      <Name>SDSunBurn</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist ..\Config if not exist ..\Config_$(ConfigurationName) (mkdir ..\Config_$(ConfigurationName)) else $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\Config_$(ConfigurationName)\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config_$(ConfigurationName)\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe
-</PostBuildEvent>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>cd  $(ProjectDir) &amp;&amp; if "$(ConfigurationName)" == "Deploy"   powershell -ExecutionPolicy ByPass  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
+  </PropertyGroup>
+  <!-- <Target Name="AfterBuild"> -->
+  <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
+  <!-- <XslTransformation XslInputPath="C:\Projects\ResharperCLT\dupFinder.xsl" XmlInputPaths="dupReport.xml" OutputPaths="dupReport.html"/> -->
+  <!-- </Target> -->
 </Project>

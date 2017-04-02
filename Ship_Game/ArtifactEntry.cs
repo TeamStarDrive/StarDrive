@@ -6,7 +6,7 @@ namespace Ship_Game
 {
 	public sealed class ArtifactEntry
 	{
-		public List<SkinnableButton> ArtifactButtons = new List<SkinnableButton>();
+		public Array<SkinnableButton> ArtifactButtons = new Array<SkinnableButton>();
 
 		public ArtifactEntry()
 		{

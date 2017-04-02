@@ -16,7 +16,7 @@ namespace Ship_Game
 
 		public Encounter encounter;
 
-		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e)
+		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(s)
 		{
 			this.screen = s;
 			this.encounter = e;
@@ -29,7 +29,7 @@ namespace Ship_Game
 			this.FromGame = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
-			this.r = new Rectangle(0, 0, 600, 600);
+			this.R = new Rectangle(0, 0, 600, 600);
 		}
 
 		public override void Draw(GameTime gameTime)

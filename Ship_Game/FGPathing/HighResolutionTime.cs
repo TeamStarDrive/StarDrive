@@ -17,40 +17,30 @@ namespace Algorithms
 {
     public static class HighResolutionTime
     {
-        #region Win32APIs
         [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
         private static extern bool QueryPerformanceCounter(out long perfcount);
 
         [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
         private static extern bool QueryPerformanceFrequency(out long freq);
-        #endregion
+        private static readonly long Frequency;
+        private static long StartCounter;
 
-        #region Variables Declaration
-        private static long mStartCounter;
-        private static long mFrequency;
-        #endregion
-
-        #region Constuctors
         static HighResolutionTime()
         {
-            QueryPerformanceFrequency(out mFrequency);
+            QueryPerformanceFrequency(out Frequency);
         }
-        #endregion
 
-        #region Methods
         public static void Start()
         {
-            QueryPerformanceCounter(out mStartCounter);
+            QueryPerformanceCounter(out StartCounter);
         }
-
         public static double GetTime()
         {
             long endCounter;
             QueryPerformanceCounter(out endCounter);
-            long elapsed = endCounter - mStartCounter;
-            return (double) elapsed / mFrequency;
+            long elapsed = endCounter - StartCounter;
+            return (double) elapsed / Frequency;
         }
-        #endregion
     }
 }
 

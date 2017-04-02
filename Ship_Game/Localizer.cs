@@ -1,149 +1,74 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Ship_Game
 {
-    public sealed class Localizer
+    public struct Token
     {
-        public static Dictionary<int, string> LocalizerDict;
-        public static Dictionary<int, bool> used;
-
-        static Localizer()
-        {
-            Localizer.LocalizerDict = new Dictionary<int, string>();
-            Localizer.used = new Dictionary<int, bool>();
-        }
-
-        public Localizer()
-        {
-        }
-
-        public static void FillLocalizer()
-        {
-            foreach (Token t in ResourceManager.LanguageFile.TokenList)
-            {
-                if (ResourceManager.OffSet != 0 && t.Index > ResourceManager.OffSet)
-                    continue;
-                t.Index += ResourceManager.OffSet;
-                if (Localizer.LocalizerDict.ContainsKey(t.Index))
-                {
-                    Localizer.LocalizerDict[t.Index] = string.Intern(t.Text);
-                    if (ResourceManager.OffSet > 0)
-                        Localizer.used[t.Index] = false;
-                }
-                else
-                {
-                    Localizer.LocalizerDict.Add(t.Index, t.Text);
-                    if (ResourceManager.OffSet > 0)
-                        Localizer.used.Add(t.Index, false);
-                }
-            }
-
-        }
-
-        public static string GetRole(ShipData.RoleName role, Empire Owner)
-        {
-            if (ResourceManager.ShipRoles.ContainsKey(role))
-            {
-                for (int i = 0; i < ResourceManager.ShipRoles[role].RaceList.Count(); i++)
-                {
-                    if (ResourceManager.ShipRoles[role].RaceList[i].ShipType == Owner.data.Traits.ShipType)
-                    {
-                        return Localizer.Token(ResourceManager.ShipRoles[role].RaceList[i].Localization);
-                    }
-                }
-                return Localizer.Token(ResourceManager.ShipRoles[role].Localization);
-            }
-            else
-            {
-                return "unknown";
-            }
-        }
-
-        public static string Token(int index)
-        {
-            string str;
-            //try
-            {
-                string val;
-                 
-                if(!Localizer.LocalizerDict.TryGetValue(index,out val) || val ==null)
-                {
-                    return "String not found";
-
-                }
-                string[] strArrays = new string[] { "\\n" };
-                string[] array = val.Split(strArrays, StringSplitOptions.None);
-                val = array[0];
-                for (int i = 1; i < array.Count<string>(); i++)
-                {
-                    val = string.Concat(val, "\n");
-                    val = string.Concat(val, array[i]);
-                }
-                str = val;
-            }
-            //catch
-            //{
-            //    str = "String not found";
-            //}
-            return str;
-        }
-        public static void cleanLocalizer()
-        {
-            //foreach (KeyValuePair<int, string> local in LocalizerDict)
-            //for (int i = 0; i< LocalizerDict.Count; i++ )
-            if (ResourceManager.OffSet == 0)
-                return;
-            List<int> keys = new List<int>(Localizer.LocalizerDict.Keys);
-            foreach(int i in keys)
-            {
-                
-                if (i < ResourceManager.OffSet || (i >= ResourceManager.OffSet&& used[i] ==true))
-                    continue;
-
-                string replace = null;
-
-                int clear = i - ResourceManager.OffSet;
-                try
-                {
-
-                    //if (LocalizerDict.TryGetValue(clear, out replace) && replace != "" && replace != null)
-                    if (LocalizerDict.TryGetValue(clear, out replace) && !string.IsNullOrEmpty(replace))
-                    {
-                        System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
-                        LocalizerDict[clear] = LocalizerDict[i];
-                        continue;
-
-                    }
-                    //else if (LocalizerDict.TryGetValue(i, out replace) && replace != "" && replace != null)
-                    else if (LocalizerDict.TryGetValue(i, out replace) && !string.IsNullOrEmpty(replace))
-                    {
-                        if (!LocalizerDict.ContainsKey(clear))
-                        {
-                            System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
-                            LocalizerDict.Add(clear, LocalizerDict[i]);
-                        }
-
-
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.Data.Add("Text", replace);
-                    e.Data.Add("SafeIndex", i);
-                    e.Data.Add("UnSafeIndex", clear);
-                        
-                }
-                //foreach (KeyValuePair<int, bool> inuse in used)
-                //{
-                //    if (inuse.Value == true)
-                //        continue;
-
-
-                //}
-            }
-        }
+        public int Index;
+        public string Text;
     }
 
+    public sealed class LocalizationFile
+    {
+        public Token[] TokenList;
+    }
+
+    public static class Localizer
+    {
+        private static string[] Strings = new string[0];
+
+        public static bool Contains(int locIndex)
+        {
+            return 0 < locIndex && locIndex <= Strings.Length && Strings[locIndex - 1] != null;
+        }
+
+        public static string Token(int locIndex)
+        {
+            return Contains(locIndex) ? Strings[locIndex - 1] : "<localization missing>";
+        }
+
+        // add extra localization tokens to the localizer
+        public static void AddTokens(Token[] tokens)
+        {
+            // Index entries aren't guaranteed to be ordered properly (due to messy mods)
+            int limit = tokens.Max(t => t.Index);
+
+            // Fill sparse map with empty entries
+            if (Strings.Length < limit)
+                Array.Resize(ref Strings, limit);
+
+            foreach (Token t in tokens)
+            {
+                string text = t.Text.Replace("\\n", "\n"); // only creates new string if \\n is found
+
+                Strings[t.Index - 1] = text;
+            }
+        }
+
+        public static string GetRole(ShipData.RoleName role, Empire owner)
+        {
+            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
+                return "unknown";
+
+            foreach (ShipRole.Race race in shipRole.RaceList)
+                if (race.ShipType == owner.data.Traits.ShipType)
+                    return Token(race.Localization);
+
+            return Token(shipRole.Localization);
+        }
+
+        // statistic for amount of memory used for storing strings
+        public static int CountBytesUsed()
+        {
+            if (Strings.Length == 0)
+                return 0;
+
+            int bytes = Strings.Length  * 4 + 8;
+            foreach (string text in Strings)
+                if (text != null) bytes += 4 + text.Length * 2;
+
+            return bytes;
+        }
+    }
 }

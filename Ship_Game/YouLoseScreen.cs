@@ -53,7 +53,7 @@ namespace Ship_Game
 
 		//private float transitionElapsedTime;
 
-		public YouLoseScreen()
+		public YouLoseScreen(GameScreen parent) : base(parent)
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(30);
@@ -136,10 +136,10 @@ namespace Ship_Game
 				this.LowRes = true;
 			}
 			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.LoseTexture = base.ScreenManager.Content.Load<Texture2D>("WinLose/groundbattle_final");
-			this.Reason = base.ScreenManager.Content.Load<Texture2D>("WinLose/YouLose");
+			this.LoseTexture = TransientContent.Load<Texture2D>("WinLose/groundbattle_final");
+			this.Reason = TransientContent.Load<Texture2D>("WinLose/YouLose");
 			this.ReasonRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.Reason.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Reason.Height / 2 - 200, this.Reason.Width, this.Reason.Height);
-			this.desaturateEffect = base.ScreenManager.Content.Load<Effect>("Effects/desaturate");
+			this.desaturateEffect = TransientContent.Load<Effect>("Effects/desaturate");
 			this.Portrait = new Rectangle(0, 0, 1920, 1080);
 			this.SourceRect = new Rectangle(864, 486, 192, 108);
 			while (this.Portrait.Width < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth && this.Portrait.Height < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)

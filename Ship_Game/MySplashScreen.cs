@@ -18,7 +18,7 @@ namespace Ship_Game
 
 		private bool handleInput;
 
-		public MySplashScreen()
+		public MySplashScreen(GameScreen parent) : base(parent)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(1);
@@ -68,12 +68,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.Splash = base.ScreenManager.Content.Load<Texture2D>("Textures/UI/splash");
-		}
-
-		public override void UnloadContent()
-		{
-			base.UnloadContent();
+			this.Splash = TransientContent.Load<Texture2D>("Textures/UI/splash");
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)

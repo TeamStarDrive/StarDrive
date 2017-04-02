@@ -9,43 +9,22 @@ namespace Ship_Game
 	public sealed class TroopInfoUIElement : UIElement, IDisposable
 	{
 		private Rectangle SliderRect;
-
 		private Rectangle clickRect;
-
 		private UniverseScreen screen;
-
 		private Rectangle LeftRect;
-
 		private Rectangle RightRect;
-
 		private Rectangle flagRect;
-
 		private Rectangle DefenseRect;
-
 		private Rectangle SoftAttackRect;
-
 		private Rectangle HardAttackRect;
-
 		private Rectangle ItemDisplayRect;
-
 		private DanButton LaunchTroop;
-
 		private Selector sel;
-
 		private ScrollList DescriptionSL;
-
 		public PlanetGridSquare pgs;
-
-        private List<TroopInfoUIElement.TippedItem> ToolTipItems = new List<TroopInfoUIElement.TippedItem>();
-
-		new private Color tColor = new Color(255, 239, 208);
-
+        private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        private new Color tColor = new Color(255, 239, 208);
 		private string fmt = "0.#";
-
-		//private Rectangle Mark;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public TroopInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -154,7 +133,7 @@ namespace Ship_Game
 			{
 				this.ItemDisplayRect = new Rectangle(this.LeftRect.X + 85 + 16, this.LeftRect.Y + 5 + 16, 64, 64);
 				this.pgs.TroopsHere[0].Draw(this.ScreenManager.SpriteBatch, this.ItemDisplayRect);
-				if (this.pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+				if (this.pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
 				{
 					this.LaunchTroop = null;
 				}
@@ -216,12 +195,10 @@ namespace Ship_Game
 						return true;
 					}
 					AudioManager.PlayCue("sd_troop_takeoff");
-                    this.pgs.TroopsHere.thisLock.EnterWriteLock();
-                    if (this.pgs.TroopsHere.Count > 0)
-					{
-						this.pgs.TroopsHere[0].Launch();
-					}
-                    this.pgs.TroopsHere.thisLock.ExitWriteLock();
+                    
+                    using (pgs.TroopsHere.AcquireWriteLock())
+                        if (pgs.TroopsHere.Count > 0) pgs.TroopsHere[0].Launch();
+
 					(this.screen.workersPanel as CombatScreen).ActiveTroop = null;
 				}
 			}            
@@ -265,19 +242,9 @@ namespace Ship_Game
 
         ~TroopInfoUIElement() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.DescriptionSL != null)
-                        this.DescriptionSL.Dispose();
-
-                }
-                this.DescriptionSL = null;
-                this.disposed = true;
-            }
+            DescriptionSL?.Dispose(ref DescriptionSL);
         }
-	}
+    }
 }
