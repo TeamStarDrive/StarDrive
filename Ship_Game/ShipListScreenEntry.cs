@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -83,7 +84,7 @@ namespace Ship_Game
 				width = width + 1f;
 			}
 
-            if (this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null && this.ship.shipData.Role != ShipData.RoleName.platform && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.GetAI().State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.freighter && ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null && this.ship.shipData.Role != ShipData.RoleName.platform && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.freighter && ship.shipData.ShipCategory != ShipData.Category.Civilian)
                 isCombat = true;
 
 			Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 - 5 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height);
@@ -105,7 +106,7 @@ namespace Ship_Game
 		public void Draw(Ship_Game.ScreenManager ScreenManager, GameTime gameTime)
 		{
 			Color TextColor = new Color(255, 239, 208);
-			string sysname = (this.ship.GetSystem() != null ? this.ship.GetSystem().Name : Localizer.Token(150));
+			string sysname = (this.ship.System!= null ? this.ship.System.Name : Localizer.Token(150));
 			if (Fonts.Arial20Bold.MeasureString(sysname).X <= (float)this.SysNameRect.Width)
 			{
 				Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
@@ -133,7 +134,7 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Status_Text, StatusPos, TextColor);
 
 			Vector2 MainPos = new Vector2((float)(this.MaintRect.X + this.MaintRect.Width / 2), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-			Empire e = EmpireManager.GetEmpireByName(this.screen.empUI.screen.PlayerLoyalty);
+			Empire e = EmpireManager.Player;
             float Maint = 1f;
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
@@ -203,9 +204,9 @@ namespace Ship_Game
 			string which;
 			string str;
 			string text = string.Empty;
-            if (ship.GetAI() == null)  //fbedard: prevent crash ?
+            if (ship.AI == null)  //fbedard: prevent crash ?
                 return text;
-			switch (ship.GetAI().State)
+			switch (ship.AI.State)
 			{
 				case AIState.DoNothing:
 				{
@@ -214,16 +215,16 @@ namespace Ship_Game
 				}
 				case AIState.Combat:
 				{
-					if (ship.GetAI().Intercepting)
+					if (ship.AI.Intercepting)
 					{
-						if (ship.GetAI().Target == null)
+						if (ship.AI.Target == null)
 						{
 							break;
 						}
-						text = string.Concat(Localizer.Token(157), " ", (ship.GetAI().Target as Ship).VanityName);
+						text = string.Concat(Localizer.Token(157), " ", (ship.AI.Target as Ship).VanityName);
 						break;
 					}
-					else if (ship.GetAI().Target == null)
+					else if (ship.AI.Target == null)
 					{
 						text = Localizer.Token(155);
 						text = string.Concat(text, "\n", Localizer.Token(156));
@@ -231,7 +232,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						text = string.Concat(Localizer.Token(158), " ", (ship.GetAI().Target as Ship).loyalty.data.Traits.Name);
+						text = string.Concat(Localizer.Token(158), " ", (ship.AI.Target as Ship).loyalty.data.Traits.Name);
 						break;
 					}
 				}
@@ -251,7 +252,7 @@ namespace Ship_Game
 				}
 				case AIState.AttackTarget:
 				{
-					if (ship.GetAI().Target == null)
+					if (ship.AI.Target == null)
 					{
 						text = Localizer.Token(155);
 						text = string.Concat(text, "\n", Localizer.Token(156));
@@ -259,39 +260,39 @@ namespace Ship_Game
 					}
 					else
 					{
-						text = string.Concat(Localizer.Token(154), " ", (ship.GetAI().Target as Ship).VanityName);
+						text = string.Concat(Localizer.Token(154), " ", (ship.AI.Target as Ship).VanityName);
 						break;
 					}
 				}
 				case AIState.Escort:
 				{
-					if (ship.GetAI().EscortTarget == null)
+					if (ship.AI.EscortTarget == null)
 					{
 						break;
 					}
-					text = string.Concat(Localizer.Token(179), " ", ship.GetAI().EscortTarget.Name);
+					text = string.Concat(Localizer.Token(179), " ", ship.AI.EscortTarget.Name);
 					break;
 				}
 				case AIState.SystemTrader:
 				{
-					if (ship.GetAI().OrderQueue.Count <= 0)
+					if (ship.AI.OrderQueue.IsEmpty)
 					{
 						text = string.Concat(Localizer.Token(164), "\n", Localizer.Token(165));
 						break;
 					}
 					else
 					{
-						switch (ship.GetAI().OrderQueue.Last.Value.Plan)
+						switch (ship.AI.OrderQueue.PeekLast.Plan)
 						{
 							case ArtificialIntelligence.Plan.PickupGoods:
 							{
-								which = ship.GetAI().FoodOrProd;
+								which = ship.AI.FoodOrProd;
 								if (which == "Prod")
 								{
 									which = "Production";
 								}
-                                if(ship.GetAI().start !=null)
-								text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().start.Name);
+                                if(ship.AI.start !=null)
+								text = string.Concat(text, Localizer.Token(159), " ", ship.AI.start.Name);
 								string pickingup = Localizer.Token(160);
 								string str1 = text;
 								string[] strArrays = new string[] { str1, "\n", pickingup, " ", null };
@@ -301,13 +302,13 @@ namespace Ship_Game
 							}
 							case ArtificialIntelligence.Plan.DropOffGoods:
 							{
-								which = ship.GetAI().FoodOrProd;
+								which = ship.AI.FoodOrProd;
 								if (which == "Prod")
 								{
 									which = "Production";
 								}
-					            if(ship.GetAI().end != null)
-                                text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().end.Name);
+					            if(ship.AI.end != null)
+                                text = string.Concat(text, Localizer.Token(159), " ", ship.AI.end.Name);
 								string delivering = Localizer.Token(163);
 								string str2 = text;
 								string[] strArrays1 = new string[] { str2, "\n", delivering, " ", null };
@@ -323,14 +324,14 @@ namespace Ship_Game
 				case AIState.PatrolSystem:
 				case AIState.Flee:                
                 {
-                    if (ship.GetAI().OrbitTarget == null)
+                    if (ship.AI.OrbitTarget == null)
                     {
                         text = Localizer.Token(182);
                         break;
                     }
                     else
                     {
-                        text = string.Concat("Fleeing to", " ", ship.GetAI().OrbitTarget.Name);
+                        text = string.Concat("Fleeing to", " ", ship.AI.OrbitTarget.Name);
                         break;
                     }
                 }
@@ -341,37 +342,34 @@ namespace Ship_Game
 				case AIState.AssaultPlanet:
 				case AIState.Exterminate:
 				{
-					if (ship.GetAI().OrderQueue.Count <= 0)
+					if (ship.AI.OrderQueue.IsEmpty)
 					{
-						text = ship.GetAI().State.ToString();
+						text = ship.AI.State.ToString();
 						break;
 					}
-					else
-					{
-                        if (ship.GetAI().OrderQueue.First.Value.TargetPlanet == null)  //fbedard
-						    text = ship.GetAI().OrderQueue.First.Value.Plan.ToString();
-                        else
-                            //text = ship.GetAI().OrderQueue.First.Value.Plan.ToString();
-                            text = string.Concat(ship.GetAI().OrderQueue.First.Value.Plan.ToString(), " to ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
-						break;
-					}
+                    var first = ship.AI.OrderQueue.PeekFirst;
+                    if (first.TargetPlanet == null)
+						text = first.Plan.ToString();
+                    else
+                        text = first.Plan + " to " + first.TargetPlanet.Name;
+					break;
 				}
 				case AIState.Orbit:
 				{
-					if (ship.GetAI().OrbitTarget == null)
+					if (ship.AI.OrbitTarget == null)
 					{
 						text = Localizer.Token(182);
 						break;
 					}
 					else
 					{
-						text = string.Concat(Localizer.Token(182), " ", ship.GetAI().OrbitTarget.Name);
+						text = string.Concat(Localizer.Token(182), " ", ship.AI.OrbitTarget.Name);
 						break;
 					}
 				}
 				case AIState.PassengerTransport:
 				{
-					if (ship.GetAI().OrderQueue.Count <= 0)
+					if (ship.AI.OrderQueue.IsEmpty)
 					{
 						text = string.Concat(Localizer.Token(168), "\n", Localizer.Token(165));
 						break;
@@ -380,17 +378,17 @@ namespace Ship_Game
 					{
 						try
 						{
-							switch (ship.GetAI().OrderQueue.Last.Value.Plan)
+							switch (ship.AI.OrderQueue.PeekLast.Plan)
 							{
 								case ArtificialIntelligence.Plan.PickupPassengers:
 								{
-									text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().start.Name);
+									text = string.Concat(text, Localizer.Token(159), " ", ship.AI.start.Name);
 									text = string.Concat(text, "\n", Localizer.Token(166));
 									break;
 								}
 								case ArtificialIntelligence.Plan.DropoffPassengers:
 								{
-									text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().end.Name);
+									text = string.Concat(text, Localizer.Token(159), " ", ship.AI.end.Name);
 									text = string.Concat(text, "\n", Localizer.Token(167));
 									break;
 								}
@@ -406,11 +404,11 @@ namespace Ship_Game
 				}
 				case AIState.Colonize:
 				{
-					if (ship.GetAI().ColonizeTarget == null)
+					if (ship.AI.ColonizeTarget == null)
 					{
 						break;
 					}
-					text = string.Concat(Localizer.Token(169), " ", ship.GetAI().ColonizeTarget.Name);
+					text = string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
 					break;
 				}
 				case AIState.MoveTo:
@@ -418,28 +416,28 @@ namespace Ship_Game
 					if (!(ship.Velocity == Vector2.Zero) || ship.isTurning)
 					{
 						text = string.Concat(Localizer.Token(187), " ");
-						if (ship.GetAI().OrderQueue.Count <= 0)
+						if (ship.AI.OrderQueue.IsEmpty)
 						{
 							IOrderedEnumerable<SolarSystem> sortedList = 
 								from system in UniverseScreen.SolarSystemList
-								orderby Vector2.Distance(ship.GetAI().MovePosition, system.Position)
+								orderby Vector2.Distance(ship.AI.MovePosition, system.Position)
 								select system;
-							text = string.Concat(text, Localizer.Token(189), " ", sortedList.First<SolarSystem>().Name);
-							if (sortedList.First<SolarSystem>().ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
+							text = string.Concat(text, Localizer.Token(189), " ", sortedList.First().Name);
+							if (sortedList.First().ExploredDict[EmpireManager.Player])
 							{
 								break;
 							}
 							text = Localizer.Token(174);
 							break;
 						}
-						else if (ship.GetAI().OrderQueue.Last.Value.Plan != ArtificialIntelligence.Plan.DeployStructure)
+						else if (ship.AI.OrderQueue.PeekLast.Plan != ArtificialIntelligence.Plan.DeployStructure)
 						{
 							IOrderedEnumerable<SolarSystem> sortedList = 
 								from system in UniverseScreen.SolarSystemList
-								orderby Vector2.Distance(ship.GetAI().MovePosition, system.Position)
+								orderby Vector2.Distance(ship.AI.MovePosition, system.Position)
 								select system;
 							text = string.Concat(text, sortedList.First<SolarSystem>().Name);
-							if (sortedList.First<SolarSystem>().ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
+							if (sortedList.First().ExploredDict[EmpireManager.Player])
 							{
 								break;
 							}
@@ -448,7 +446,7 @@ namespace Ship_Game
 						}
 						else
 						{
-							text = string.Concat(text, Localizer.Token(188), " ", ResourceManager.ShipsDict[ship.GetAI().OrderQueue.Last.Value.goal.ToBuildUID].Name);
+							text = string.Concat(text, Localizer.Token(188), " ", ResourceManager.ShipsDict[ship.AI.OrderQueue.PeekLast.goal.ToBuildUID].Name);
 							break;
 						}
 					}
@@ -470,7 +468,7 @@ namespace Ship_Game
 				}
 				case AIState.Resupply:
 				{
-                    Planet resupplyTarget = ship.GetAI().resupplyTarget;
+                    Planet resupplyTarget = ship.AI.resupplyTarget;
                     if (resupplyTarget == null)
 					{
 						text = Localizer.Token(173);
@@ -484,47 +482,40 @@ namespace Ship_Game
 				}
 				case AIState.Rebase:
 				{
-					//text = Localizer.Token(178);
-                    try
-                    {
-                        ship.GetAI().OrderQueue.thisLock.EnterReadLock();
-                        text = string.Concat(Localizer.Token(178), " to ", ship.GetAI().OrderQueue.Last.Value.TargetPlanet.Name);  //fbedard
-                        ship.GetAI().OrderQueue.thisLock.ExitReadLock();
-                    }
-                    catch { }
+                    text = Localizer.Token(178) + " to " + ship.AI.OrderQueue.PeekLast.TargetPlanet.Name;  //fbedard
 					break;
 				}
 				case AIState.Bombard:
 				{
-					if (ship.GetAI().OrderQueue.Count <= 0 || ship.GetAI().OrderQueue.First.Value.TargetPlanet == null)
+					if (ship.AI.OrderQueue.IsEmpty || ship.AI.OrderQueue.PeekFirst.TargetPlanet == null)
 					{
 						break;
 					}
-					if (Vector2.Distance(ship.Center, ship.GetAI().OrderQueue.First.Value.TargetPlanet.Position) >= 2500f)
+					if (Vector2.Distance(ship.Center, ship.AI.OrderQueue.PeekFirst.TargetPlanet.Position) >= 2500f)
 					{
-						text = string.Concat(Localizer.Token(176), " ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
+						text = string.Concat(Localizer.Token(176), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
 						break;
 					}
 					else
 					{
-						text = string.Concat(Localizer.Token(175), " ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
+						text = string.Concat(Localizer.Token(175), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
 						break;
 					}
 				}
                 case AIState.BombardTroops:
                 {
-                    if (ship.GetAI().OrderQueue.Count <= 0 || ship.GetAI().OrderQueue.First.Value.TargetPlanet == null)
+                    if (ship.AI.OrderQueue.IsEmpty || ship.AI.OrderQueue.PeekFirst.TargetPlanet == null)
                     {
                         break;
                     }
-                    if (Vector2.Distance(ship.Center, ship.GetAI().OrderQueue.First.Value.TargetPlanet.Position) >= 2500f)
+                    if (ship.Center.OutsideRadius(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Position, 2500f))
                     {
-                        text = string.Concat("Soften", " ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
+                        text = "Soften " + ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name;
                         break;
                     }
                     else
                     {
-                        text = string.Concat(Localizer.Token(175), " ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
+                        text = Localizer.Token(175) + " " + ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name;
                         break;
                     }
                 }
@@ -560,7 +551,7 @@ namespace Ship_Game
 				}
 				case AIState.Scuttle:
 				{
-					text = string.Concat("Self Destruct: ", ship.ScuttleTimer.ToString("#"));
+					text = "Self Destruct: " + ship.ScuttleTimer.ToString("#");
 					break;
 				}
 				default:
@@ -579,14 +570,14 @@ namespace Ship_Game
             // Explore button for ship list
             if (this.ExploreButton.HandleInput(input))
             {
-                if (this.ship.GetAI().State == AIState.Explore)
+                if (this.ship.AI.State == AIState.Explore)
                 {
-                    this.ship.GetAI().State = AIState.AwaitingOrders;
-                    this.ship.GetAI().OrderQueue.Clear();
+                    this.ship.AI.State = AIState.AwaitingOrders;
+                    this.ship.AI.OrderQueue.Clear();
                 }
                 else
                 {
-                    this.ship.GetAI().OrderExplore();
+                    this.ship.AI.OrderExplore();
                 }
                 this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
             }
@@ -594,64 +585,64 @@ namespace Ship_Game
             // System defence button for ship list
             if (this.PatrolButton.HandleInput(input))
             {
-                if (this.ship.GetAI().State == AIState.SystemDefender || this.ship.DoingSystemDefense)
+                if (this.ship.AI.State == AIState.SystemDefender || this.ship.DoingSystemDefense)
                 {
                     this.ship.DoingSystemDefense = false;
-                    this.ship.GetAI().State = AIState.AwaitingOrders;
-                    this.ship.GetAI().OrderQueue.Clear();
+                    this.ship.AI.State = AIState.AwaitingOrders;
+                    this.ship.AI.OrderQueue.Clear();
                 }
                 else
                 {
                     this.ship.DoingSystemDefense = true;
                 }
-                this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
+                this.Status_Text = GetStatusText(this.ship);
             }
             }
             if (this.RefitButton.HandleInput(input))
             {
                 AudioManager.PlayCue("echo_affirm");
-                this.screen.ScreenManager.AddScreen(new RefitToWindow(this, this.screen));
+                this.screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
             }
 
 			if (this.ScrapButton.HandleInput(input))
 			{
 				if (!this.isScuttle)
 				{
-					this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
+					this.Status_Text = GetStatusText(this.ship);
 				}
 				else
 				{
-					this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
+					this.Status_Text = GetStatusText(this.ship);
 				}
 				AudioManager.PlayCue("echo_affirm");
 				if (!this.isScuttle)
 				{
-					if (this.ship.GetAI().State == AIState.Scrap)
+					if (this.ship.AI.State == AIState.Scrap)
 					{
-						this.ship.GetAI().State = AIState.AwaitingOrders;
-						this.ship.GetAI().OrderQueue.Clear();
+						this.ship.AI.State = AIState.AwaitingOrders;
+						this.ship.AI.OrderQueue.Clear();
 					}
 					else
 					{
-						this.ship.GetAI().OrderScrapShip();
+						this.ship.AI.OrderScrapShip();
 					}
-					this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
+					this.Status_Text = GetStatusText(this.ship);
 				}
 				else
 				{
 					if (this.ship.ScuttleTimer != -1f)
 					{
 						this.ship.ScuttleTimer = -1f;
-						this.ship.GetAI().State = AIState.AwaitingOrders;
-						this.ship.GetAI().HasPriorityOrder = false;
-						this.ship.GetAI().OrderQueue.Clear();
+						this.ship.AI.State = AIState.AwaitingOrders;
+						this.ship.AI.HasPriorityOrder = false;
+						this.ship.AI.OrderQueue.Clear();
 					}
 					else
 					{
 						this.ship.ScuttleTimer = 10f;
-						this.ship.GetAI().State = AIState.Scuttle;
-						this.ship.GetAI().HasPriorityOrder = true;
-						this.ship.GetAI().OrderQueue.Clear();
+						this.ship.AI.State = AIState.Scuttle;
+						this.ship.AI.HasPriorityOrder = true;
+						this.ship.AI.OrderQueue.Clear();
 					}
 					this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
 				}

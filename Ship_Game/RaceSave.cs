@@ -18,16 +18,16 @@ namespace Ship_Game
         public RaceSave()
         { }
 
-        public RaceSave(RacialTrait Traits)
+        public RaceSave(RacialTrait traits)
         {
-            this.Name = Traits.Name;
-            if (GlobalStats.ActiveMod != null)
+            Name = traits.Name;
+            if (GlobalStats.HasMod)
             {
-                this.ModName = GlobalStats.ActiveMod.mi.ModName;
-                this.ModPath = GlobalStats.ActiveMod.ModPath;
+                ModName = GlobalStats.ActiveMod.mi.ModName;
+                ModPath = GlobalStats.ActiveMod.ModName;
             }
-            this.Version = Convert.ToInt32( ConfigurationManager.AppSettings["SaveVersion"] );
-            this.Traits = Traits;
+            Version = Convert.ToInt32( ConfigurationManager.AppSettings["SaveVersion"] );
+            this.Traits = traits;
         }
     }
 }

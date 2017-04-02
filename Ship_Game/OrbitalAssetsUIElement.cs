@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -37,7 +38,7 @@ namespace Ship_Game
 
 		public DanButton LandTroops;
 
-		private List<OrbitalAssetsUIElement.TippedItem> ToolTipItems = new List<OrbitalAssetsUIElement.TippedItem>();
+		private Array<OrbitalAssetsUIElement.TippedItem> ToolTipItems = new Array<OrbitalAssetsUIElement.TippedItem>();
 
 		new private Color tColor = new Color(255, 239, 208);
 
@@ -107,25 +108,25 @@ namespace Ship_Game
 			{
 				if (!this.BombardButton.Toggled)
 				{
-					foreach (Ship ship in this.p.system.ShipList)
+					foreach (Ship ship in p.system.ShipList)
 					{
-						if (ship.loyalty != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) || ship.GetAI().State != AIState.Bombard)
+						if (ship.loyalty != EmpireManager.Player || ship.AI.State != AIState.Bombard)
 						{
 							continue;
 						}
-						ship.GetAI().OrderQueue.Clear();
-						ship.GetAI().State = AIState.AwaitingOrders;
+						ship.AI.OrderQueue.Clear();
+						ship.AI.State = AIState.AwaitingOrders;
 					}
 				}
 				else
 				{
-					foreach (Ship ship in this.p.system.ShipList)
+					foreach (Ship ship in p.system.ShipList)
 					{
-						if (ship.loyalty != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, this.p.Position) >= 15000f)
+						if (ship.loyalty != EmpireManager.Player || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, this.p.Position) >= 15000f)
 						{
 							continue;
 						}
-						ship.GetAI().OrderBombardPlanet(this.p);
+						ship.AI.OrderBombardPlanet(p);
 					}
 				}
 			}

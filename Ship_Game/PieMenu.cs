@@ -109,7 +109,7 @@ namespace Ship_Game
 			this.t.Reset(Direction.Descending);
 		}
 
-		protected void ComputeSelected(Vector2 selectionVector)
+        private void ComputeSelected(Vector2 selectionVector)
 		{
 			this.selectionIndex = -1;
 			if (selectionVector.Length() > 3f)
@@ -258,11 +258,9 @@ namespace Ship_Game
 
 		public void Update(GameTime gameTime)
 		{
-			if (!this.visible)
-			{
+			if (!visible)
 				return;
-			}
-			this.t.Update(gameTime.ElapsedGameTime.TotalSeconds);
+			t.Update(gameTime.ElapsedGameTime.TotalSeconds);
 		}
 	}
 }

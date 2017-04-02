@@ -1,1684 +1,927 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Ship_Game;
 using System;
-using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
+using Ship_Game.AI;
 
 namespace Ship_Game.Gameplay
 {
-	public class Weapon : IDisposable
-	{
-		public bool Tag_Kinetic;
+    public enum WeaponTag
+    {
+        Kinetic   = (1 << 0),
+        Energy    = (1 << 1),
+        Guided    = (1 << 2),
+        Missile   = (1 << 3),
+        Hybrid    = (1 << 4),
+        Beam      = (1 << 5),
+        Explosive = (1 << 6),
+        Intercept = (1 << 7),
+        Railgun   = (1 << 8),
+        Bomb      = (1 << 9),
+        SpaceBomb = (1 << 10),
+        BioWeapon = (1 << 11),
+        Drone     = (1 << 12),
+        Warp      = (1 << 13),
+        Torpedo   = (1 << 14),
+        Cannon    = (1 << 15),
+        Subspace  = (1 << 16),
+        PD        = (1 << 17),
+        Flak      = (1 << 18),
+        Array     = (1 << 19),
+        Tractor   = (1 << 20),
+    }
 
-		public bool Tag_Energy;
+    public sealed class Weapon : IDisposable
+    {
+        private int TagBits;
+        public bool this[WeaponTag tag]
+        {
+            get { return (TagBits & (int)tag) != 0; }
+            set { TagBits = value ? TagBits|(int)tag : TagBits & ~(int)tag; }
+        }
+        public bool Tag_Kinetic   { get { return this[WeaponTag.Kinetic]; }   set { this[WeaponTag.Kinetic]   = value; }}
+        public bool Tag_Energy    { get { return this[WeaponTag.Energy]; }    set { this[WeaponTag.Energy]    = value; }}
+        public bool Tag_Guided    { get { return this[WeaponTag.Guided]; }    set { this[WeaponTag.Guided]    = value; }}
+        public bool Tag_Missile   { get { return this[WeaponTag.Missile]; }   set { this[WeaponTag.Missile]   = value; }}
+        public bool Tag_Hybrid    { get { return this[WeaponTag.Hybrid]; }    set { this[WeaponTag.Hybrid]    = value; }}
+        public bool Tag_Beam      { get { return this[WeaponTag.Beam]; }      set { this[WeaponTag.Beam]      = value; }}
+        public bool Tag_Explosive { get { return this[WeaponTag.Explosive]; } set { this[WeaponTag.Explosive] = value; }}
+        public bool Tag_Intercept { get { return this[WeaponTag.Intercept]; } set { this[WeaponTag.Intercept] = value; }}
+        public bool Tag_Railgun   { get { return this[WeaponTag.Railgun]; }   set { this[WeaponTag.Railgun]   = value; }}
+        public bool Tag_Bomb      { get { return this[WeaponTag.Bomb]; }      set { this[WeaponTag.Bomb]      = value; }}
+        public bool Tag_SpaceBomb { get { return this[WeaponTag.SpaceBomb]; } set { this[WeaponTag.SpaceBomb] = value; }}
+        public bool Tag_BioWeapon { get { return this[WeaponTag.BioWeapon]; } set { this[WeaponTag.BioWeapon] = value; }}
+        public bool Tag_Drone     { get { return this[WeaponTag.Drone]; }     set { this[WeaponTag.Drone]     = value; }}
+        public bool Tag_Warp      { get { return this[WeaponTag.Warp]; }      set { this[WeaponTag.Warp]      = value; }}
+        public bool Tag_Torpedo   { get { return this[WeaponTag.Torpedo]; }   set { this[WeaponTag.Torpedo]   = value; }}
+        public bool Tag_Cannon    { get { return this[WeaponTag.Cannon]; }    set { this[WeaponTag.Cannon]    = value; }}
+        public bool Tag_Subspace  { get { return this[WeaponTag.Subspace]; }  set { this[WeaponTag.Subspace]  = value; }}
+        public bool Tag_PD        { get { return this[WeaponTag.PD]; }        set { this[WeaponTag.PD]        = value; }}
+        public bool Tag_Flak      { get { return this[WeaponTag.Flak]; }      set { this[WeaponTag.Flak]      = value; }}
+        public bool Tag_Array     { get { return this[WeaponTag.Array]; }     set { this[WeaponTag.Array]     = value; }}
+        public bool Tag_Tractor   { get { return this[WeaponTag.Tractor]; }   set { this[WeaponTag.Tractor]   = value; }}
 
-		public bool Tag_Guided;
-
-		public bool Tag_Missile;
-
-		public bool Tag_Hybrid;
-
-		public bool Tag_Beam;
-
-		public bool Tag_Explosive;
-
-		public bool Tag_Intercept;
-
-		public bool Tag_Railgun;
-
-		public bool Tag_Bomb;
-
-		public bool Tag_SpaceBomb;
-
-		public bool Tag_BioWeapon;
-
-		public bool Tag_Drone;
-
-		public bool Tag_Warp;
-
-		public bool Tag_Torpedo;
-
-		public bool Tag_Cannon;
-
-		public bool Tag_Subspace;
-
-		public bool Tag_PD;
-
-        // Added by The Doctor: new tags for categorisation for mods who otherwise have large numbers of items in one Shipyard menu node, also new modifiers.
-
-        public bool Tag_Flak;
-
-        public bool Tag_Array;
-
-        public bool Tag_Tractor;
-
-        // End
-
-		private Ship owner;
-
-		public GameplayObject drowner;
-
-		public float HitPoints;
-
-		public bool isBeam;
-
-		public float EffectVsArmor = 1f;
-
-		public float EffectVSShields = 1f;
-
-		public bool PlaySoundOncePerSalvo;
-
-		public int SalvoCount = 1;
-
-		public float SalvoTimer;
-
-		public bool TruePD;
-
-		public float TroopDamageChance;
-
-		public float MassDamage;
-
-		public float BombPopulationKillPerHit;
-
-		public int BombTroopDamage_Min;
-
-		public int BombTroopDamage_Max;
-
-		public int BombHardDamageMin;
-
-		public int BombHardDamageMax;
-
-		public string HardCodedAction;
-
-		public float RepulsionDamage;
-
-		public float EMPDamage;
-
-		public float ShieldPenChance;
-
-		public float PowerDamage;
-
-		public float SiphonDamage;
-
-		public int BeamThickness;
-
+        [XmlIgnore][JsonIgnore]
+        public Ship Owner { get; set; }
+        [XmlIgnore][JsonIgnore]
+        public GameplayObject drowner; // drone owner
+        public float HitPoints;
+        public bool isBeam;
+        public float EffectVsArmor = 1f;
+        public float EffectVSShields = 1f;
+        public bool PlaySoundOncePerSalvo;
+        public int SalvoCount = 1;
+        public readonly float SalvoTimer;
+        public bool TruePD;
+        public float TroopDamageChance;
+        public float MassDamage;
+        public float BombPopulationKillPerHit;
+        public int BombTroopDamage_Min;
+        public int BombTroopDamage_Max;
+        public int BombHardDamageMin;
+        public int BombHardDamageMax;
+        public string HardCodedAction;
+        public float RepulsionDamage;
+        public float EMPDamage;
+        public float ShieldPenChance;
+        public float PowerDamage;
+        public float SiphonDamage;
+        public int BeamThickness;
         public float BeamDuration=2f;
-
-		public int BeamPowerCostPerSecond;
-
-		public string BeamTexture;
-
-		public int Animated;
-
-		public int Frames;
-
-		public string AnimationPath;
-
-		public string ExpColor;
-
-		public string dieCue;
-
-		protected Cue fireCue;
-
-		public string ToggleSoundName = "";
-
-		private bool ToggleSoundOn;
-
-		private Cue ToggleCue;
-
-		public string Light;
-
-		public bool isTurret;
-
-		public bool isMainGun;
-
-		public float OrdinanceRequiredToFire;
-
-		public Vector2 Center;
-
-		public float Range;
-
-		public float DamageAmount;
-
-		public float ProjectileSpeed;
-
-		public int ProjectileCount = 1;
-
-		public int FireArc;
-
-		public int FireCone;
-
-		public string ProjectileTexturePath;
-
-		public string ModelPath;
-
-		public string WeaponType;
-
-		public string WeaponEffectType;
-
-		public string UID;
-
-		public ShipModule moduleAttachedTo;
-
-		public float timeToNextFire;
-
-		public float fireDelay;
-
-		public float PowerRequiredToFire;
-
-		public bool explodes;
-
-		public float DamageRadius;
-
-		public string fireCueName;
-
-		public string MuzzleFlash;
-
-		//private float toggleTimer;
-
-		public bool IsRepairDrone;
-
-		private BatchRemovalCollection<Weapon.Salvo> SalvoList = new BatchRemovalCollection<Weapon.Salvo>();
-
-		public bool FakeExplode;
-
-		public float ProjectileRadius = 4f;
-
-		public string Name;
-
-		public byte LoopAnimation;
-
-		public float Scale = 1f;
-
-		private float lastFireSound;
-
-		public static UniverseScreen universeScreen;
-
-		public float RotationRadsPerSecond = 2f;
-
-		private AudioEmitter planetEmitter;
-
-		public bool HitsFriendlies;
-
-		public string InFlightCue = "";
-
-		public float particleDelay;
-
+        public int BeamPowerCostPerSecond;
+        public string BeamTexture;
+        public int Animated;
+        public int Frames;
+        public string AnimationPath;
+        public string ExpColor;
+        public string dieCue;
+        [XmlIgnore][JsonIgnore]
+        private Cue fireCue;
+        public string ToggleSoundName = "";
+        private bool ToggleSoundOn;
+        [XmlIgnore][JsonIgnore]
+        private Cue ToggleCue;
+        public string Light;
+        public bool isTurret;
+        public bool isMainGun;
+        public float OrdinanceRequiredToFire;
+        public Vector2 Center;
+        public float Range;
+        public float DamageAmount;
+        public float ProjectileSpeed;
+        public int ProjectileCount = 1;
+        public int FireArc;
+        public int FireCone;
+        public string ProjectileTexturePath;
+        public string ModelPath;
+        public string WeaponType;
+        public string WeaponEffectType;
+        public string UID;
+        [XmlIgnore][JsonIgnore]
+        public ShipModule moduleAttachedTo;
+        public float timeToNextFire;
+        public float fireDelay;
+        public float PowerRequiredToFire;
+        public bool explodes;
+        public float DamageRadius;
+        public string fireCueName;
+        public string MuzzleFlash;
+        public bool IsRepairDrone;
+        public bool FakeExplode;
+        public float ProjectileRadius = 4f;
+        public string Name;
+        public byte LoopAnimation;
+        public float Scale = 1f;
+        public float RotationRadsPerSecond = 2f;
+        [XmlIgnore][JsonIgnore]
+        private AudioEmitter planetEmitter;
+        public bool HitsFriendlies;
+        public string InFlightCue = "";
+        public float particleDelay;
         public float ECMResist;
-
         public bool Excludes_Fighters;
-
         public bool Excludes_Corvettes;
-
         public bool Excludes_Capitals;
-
         public bool Excludes_Stations;
-
         public bool isRepairBeam;
-
         public bool TerminalPhaseAttack;
-
         public float TerminalPhaseDistance;
-
         public float TerminalPhaseSpeedMod;
-
         public float ArmourPen = 0f;
-
         public string SecondaryFire;
-
         public bool AltFireMode;
-
         public bool AltFireTriggerFighter;
-
         public float OffPowerMod = 1f;
 
-        //public bool ExplosionFlash;          //Not referenced in code, removing to save memory
-
         public bool RangeVariance;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-        public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
-        public GameplayObject fireTarget = null;
-        public float TargetChangeTimer = 0;
+        [XmlIgnore][JsonIgnore]
+        public GameplayObject fireTarget;
+        public float TargetChangeTimer;
         public bool PrimaryTarget = false;
-        [XmlIgnore]
-        public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
+        [XmlIgnore][JsonIgnore]
+        public Array<ShipModule> AttackerTargetting;// = new Array<ModuleSlot>();
 
-		public static AudioListener audioListener
-		{
-			get;
-			set;
-		}
+        [XmlIgnore][JsonIgnore]
+        private int SalvosToFire;
+        private Vector2 SalvoDirection;
+        private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
+        public GameplayObject SalvoTarget;
 
-		public Weapon(Ship owner, ShipModule moduleAttachedTo)
-		{
-			this.owner = owner;
-			this.moduleAttachedTo = moduleAttachedTo;
-		}
+        [XmlIgnore][JsonIgnore]
+        public static AudioListener audioListener { get; set; }
 
-		public Weapon()
-		{
-            if(GlobalStats.ActiveMod != null)
-            {
-                if(GlobalStats.ActiveMod.mi !=null)
-                {
-                    this.ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
-                }
-            }
-		}
 
-        private void AddModifiers(string Tag, Projectile projectile)
+        // When ships are off-screen, we do cheap and dirty invisible damage calculation
+        [XmlIgnore][JsonIgnore]
+        public float InvisibleDamageAmount
         {
-            projectile.damageAmount += this.owner.loyalty.data.WeaponTags[Tag].Damage * projectile.damageAmount;
-            projectile.ShieldDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
-            projectile.ArmorDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
-            //Shield Penetration
-            float actualShieldPenChance = this.moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
-            actualShieldPenChance += this.owner.loyalty.data.WeaponTags[Tag].ShieldPenetration;
-            actualShieldPenChance += this.ShieldPenChance;
-            if (actualShieldPenChance > 0f && (float)((int)RandomMath2.RandomBetween(0f, 100f)) < actualShieldPenChance)
+            get
             {
-                projectile.IgnoresShields = true;
-            }
-            //Projectile specific
-            if (!this.isBeam)
-            {
-                projectile.ArmorPiercing += (byte)this.owner.loyalty.data.WeaponTags[Tag].ArmourPenetration;
-                projectile.Health += this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
-                projectile.RotationRadsPerSecond += this.owner.loyalty.data.WeaponTags[Tag].Turn * this.RotationRadsPerSecond;
-                projectile.speed += this.owner.loyalty.data.WeaponTags[Tag].Speed * this.ProjectileSpeed;
-                projectile.damageRadius += this.owner.loyalty.data.WeaponTags[Tag].ExplosionRadius * this.DamageRadius;
+                float damage = DamageAmount;
+                return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
             }
         }
 
-		protected virtual void CreateDrone(Vector2 direction)
-		{
-			Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
-			{
-				range = this.Range,
-				weapon = this,
-				explodes = this.explodes,
-				damageAmount = this.DamageAmount
-			};
-			projectile.explodes = this.explodes;
-			projectile.damageRadius = this.DamageRadius;
-            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
-			projectile.speed = this.ProjectileSpeed;
-			projectile.Health = this.HitPoints;
-			projectile.WeaponEffectType = this.WeaponEffectType;
-			projectile.WeaponType = this.WeaponType;
-			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
-			this.ModifyProjectile(projectile);
-			projectile.InitializeDrone(projectile.speed, direction);
-			projectile.Radius = this.ProjectileRadius;
-			this.owner.Projectiles.Add(projectile);
-			if (this.owner.InFrustum)
-			{
-				projectile.DieSound = true;
-				if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
-				{
-					this.ToggleSoundOn = true;
-					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-					this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					this.ToggleCue.Play();
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					}
-					this.lastFireSound = 0f;
-					if (this.fireCue != null)
-					{
-						this.fireCue.Play();
-					}
-				}
-				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
-				{
-					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
-				}
-				if (!string.IsNullOrEmpty(this.InFlightCue))
-				{
-					projectile.InFlightCue = this.InFlightCue;
-				}
-				if (this.ToggleCue == null)
-				{
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					}
-					this.lastFireSound = 0f;
-					if (this.fireCue != null)
-					{
-						this.fireCue.Play();
-					}
-				}
-			}
-		}
+        public Weapon(Ship owner, ShipModule moduleAttachedTo)
+        {
+            Owner = owner;
+            this.moduleAttachedTo = moduleAttachedTo;
+        }
 
-		protected virtual void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
-		{
+        public Weapon()
+        {
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo != null)
+            {
+                ExplosionRadiusVisual *= GlobalStats.ActiveModInfo.GlobalExplosionVisualIncreaser;
+            }
+        }
+
+        public Weapon Clone()
+        {
+            Weapon wep = (Weapon)MemberwiseClone();
+            // @todo Remove SalvoList
+            wep.SalvoTarget      = null;
+            wep.fireTarget       = null;
+            wep.planetEmitter    = null;
+            wep.moduleAttachedTo = null;
+            wep.Owner            = null;
+            wep.drowner          = null;
+            return wep;
+        }
+
+        private void CreateDrone(Vector2 direction)
+        {
+            var projectile = new Projectile(Owner, direction, moduleAttachedTo)
+            {
+                range        = Range,
+                weapon       = this,
+                explodes     = explodes,
+                damageAmount = DamageAmount
+            };
+            projectile.explodes              = explodes;
+            projectile.damageRadius          = DamageRadius;
+            projectile.explosionradiusmod    = ExplosionRadiusVisual;
+            projectile.speed                 = ProjectileSpeed;
+            projectile.Health                = HitPoints;
+            projectile.WeaponEffectType      = WeaponEffectType;
+            projectile.WeaponType            = WeaponType;
+            projectile.RotationRadsPerSecond = RotationRadsPerSecond;
+            projectile.LoadContent(ProjectileTexturePath, ModelPath);
+            ModifyProjectile(projectile);
+            projectile.InitializeDrone(projectile.speed, direction);
+            projectile.Radius = ProjectileRadius;
+            Owner.AddProjectile(projectile);
+
+            if (Owner.InFrustum)
+            {
+                projectile.DieSound = true;
+                if (!string.IsNullOrEmpty(ToggleSoundName) && !ToggleSoundOn)
+                {
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, Owner.emitter);
+                    ToggleCue.Play();
+                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
+                }
+                if (ResourceManager.GetWeaponTemplate(UID).dieCue.NotEmpty())
+                {
+                    projectile.dieCueName = ResourceManager.GetWeaponTemplate(UID).dieCue;
+                }
+                if (!string.IsNullOrEmpty(InFlightCue))
+                {
+                    projectile.InFlightCue = InFlightCue;
+                }
+                if (ToggleCue == null)
+                {
+                    fireCue = AudioManager.GetCue(fireCueName);
+                    if (!Owner.isPlayerShip())
+                    {
+                        fireCue.Apply3D(audioListener, Owner.emitter);
+                    }
+                    fireCue?.Play();
+                }
+            }
+        }
+
+        private void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
+        {
             if (source == null)
                 return;
-            Beam beam = new Beam(source.Owner.Center, target.Center, this.BeamThickness, source.Owner, target);
-			beam.moduleAttachedTo = this.moduleAttachedTo;
-			beam.PowerCost = (float)this.BeamPowerCostPerSecond;
-			beam.range = this.Range;
-			beam.thickness = this.BeamThickness;
-            beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
-			beam.damageAmount = this.DamageAmount;
-			beam.weapon = this;
+            var beam = new Beam(source.Owner.Center, target.Center, BeamThickness, source.Owner, target)
+            {
+                moduleAttachedTo = moduleAttachedTo,
+                PowerCost        = BeamPowerCostPerSecond,
+                range            = Range,
+                thickness        = BeamThickness,
+                Duration         = BeamDuration > 0 ? BeamDuration : 2f,
+                damageAmount     = DamageAmount,
+                weapon           = this
+            };
 
-            
-                if(!beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
 
+            if (!beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection))
             {
                 beam.Die(null, true);
                 return;
             } 
             source.Beams.Add(beam);
-			this.ToggleSoundOn = false;
-			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-			{
-                //Added by McShooterz: Use sounds from new sound dictionary
-                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
-                {
-                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, source.Owner.emitter, 0.5f);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(this.fireCueName))
-                    {
-                        this.fireCue = AudioManager.GetCue(this.fireCueName);
-                        this.fireCue.Apply3D(Weapon.audioListener, source.Owner.emitter);
-                        this.fireCue.Play();
-                    }
-                }
-				if (!string.IsNullOrEmpty(this.ToggleSoundName))
-				{
-					this.ToggleSoundOn = true;
-					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-					this.ToggleCue.Apply3D(Weapon.audioListener, source.Owner.emitter);
-					this.ToggleCue.Play();
-				}
-			}
-		}
-
-        protected virtual void CreateTargetedBeam(GameplayObject target)
-        {
-            Beam beam;
-
-            beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+            ToggleSoundOn = false;
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                moduleAttachedTo = this.moduleAttachedTo,
-                PowerCost = (float)this.BeamPowerCostPerSecond,
-                range = this.Range,
-                thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-                damageAmount = this.DamageAmount,
-                weapon = this,
-                Destination = target.Center
+                PlayFireCue(fireCueName, source.Owner.emitter);
+                if (!string.IsNullOrEmpty(ToggleSoundName))
+                {
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, source.Owner.emitter);
+                    ToggleCue.Play();
+                }
+            }
+        }
+
+        private void CreateTargetedBeam(GameplayObject target)
+        {
+            var beam = new Beam(moduleAttachedTo.Center, BeamThickness, moduleAttachedTo.GetParent(), target)
+            {
+                moduleAttachedTo = moduleAttachedTo,
+                PowerCost        = BeamPowerCostPerSecond,
+                range            = Range,
+                thickness        = BeamThickness,
+                Duration         = BeamDuration > 0 ? BeamDuration : 2f,
+                damageAmount     = DamageAmount,
+                weapon           = this,
+                Destination      = target.Center
             };
 
             //damage increase by level
-            if (this.owner.Level > 0)
+            if (Owner.Level > 0)
             {
-                beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
+                beam.damageAmount += beam.damageAmount * Owner.Level * 0.05f;
             }
             //Hull bonus damage increase
-			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
             {
-                HullBonus mod;
-                if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
+                if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
                     beam.damageAmount += beam.damageAmount * mod.DamageBonus;
             }
-            this.ModifyProjectile(beam);
+            ModifyProjectile(beam);
 
-
-
-            if ( !beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
+            if (!beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection))
             {
                 beam.Die(null, true);
                 return;
             }
-            this.moduleAttachedTo.GetParent().Beams.Add(beam);
-            this.ToggleSoundOn = false;
-            if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.moduleAttachedTo.GetParent().InFrustum)
+            moduleAttachedTo.GetParent().AddBeam(beam);
+            ToggleSoundOn = false;
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && moduleAttachedTo.GetParent().InFrustum)
             {
-                //Added by McShooterz: Use sounds from new sound dictionary
-                SoundEffect beamsound = null;
-                if ( ResourceManager.SoundEffectDict.TryGetValue(this.fireCueName,out beamsound))
+                PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
+
+                if (!string.IsNullOrEmpty(ToggleSoundName))
                 {
-                    AudioManager.PlaySoundEffect(beamsound, Weapon.audioListener, this.owner.emitter, 0.5f);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(this.fireCueName) && AudioManager.limitOK)
-                    {
-                        this.fireCue = AudioManager.GetCue(this.fireCueName);
-                        if (!this.owner.isPlayerShip())
-                        {                            
-                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                        }
-                        this.fireCue.Play();
-                    }
-                }
-                if (!string.IsNullOrEmpty(this.ToggleSoundName))
-                {
-                    this.ToggleSoundOn = true;
-                    this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-                    this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                    this.ToggleCue.Play();
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, Owner.emitter);
+                    ToggleCue.Play();
                 }
             }
         }
 
-		protected virtual void CreateMouseBeam(Vector2 destination)
-		{
-			
-            Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
-			{
-				moduleAttachedTo = this.moduleAttachedTo,
-				range = this.Range,
-				followMouse = true,
-				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-				PowerCost = (float)this.BeamPowerCostPerSecond,
-				damageAmount = this.DamageAmount,
-				weapon = this
-			};
-			
-			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
-            if (beam == null || !beam.Active)
+        private void CreateMouseBeam(Vector2 destination)
+        {
+            var beam = new Beam(moduleAttachedTo.Center, destination, BeamThickness, moduleAttachedTo.GetParent())
+            {
+                moduleAttachedTo = moduleAttachedTo,
+                range            = Range,
+                followMouse      = true,
+                thickness        = BeamThickness,
+                Duration         = BeamDuration > 0 ? BeamDuration : 2f,
+                PowerCost        = BeamPowerCostPerSecond,
+                damageAmount     = DamageAmount,
+                weapon           = this
+            };
+            
+            beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection);
+            if (!beam.Active)
             {
                 beam.Die(null, true);
-
                 return;
             }
-            this.moduleAttachedTo.GetParent().Beams.Add(beam);
-			this.ToggleSoundOn = false;
-			if ((this.owner.GetSystem() != null && this.owner.GetSystem().isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-			{
-                //Added by McShooterz: Use sounds from new sound dictionary
-                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
-                {
-                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(this.fireCueName))
-                    {
-                        this.fireCue = AudioManager.GetCue(this.fireCueName);
-                        if (!this.owner.isPlayerShip())
-                        {
-                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                        }
-                        this.fireCue.Play();
-                    }
-                }
-                if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
-                {
-                    this.ToggleSoundOn = true;
-                    this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-                    this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                    this.ToggleCue.Play();
-                }
-			}
-		}
-
-		protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
-		{
-
-            if (target != null && (target is ShipModule) && (target as ShipModule).GetParent().shipData.Role == ShipData.RoleName.fighter && this.AltFireMode && this.AltFireTriggerFighter && this.SecondaryFire != null)
+            moduleAttachedTo.GetParent().AddBeam(beam);
+            ToggleSoundOn = false;
+            if ((Owner.System != null && Owner.System.isVisible || Owner.InDeepSpace) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
-                Projectile projectile;
-                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
+                PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
+                if (!string.IsNullOrEmpty(ToggleSoundName) && !ToggleSoundOn)
                 {
-                    projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
-                    projectile.range = AltFire.Range;
-                    projectile.weapon = this;
-                    projectile.explodes = AltFire.explodes;
-                    projectile.damageAmount = AltFire.DamageAmount;
-                    projectile.damageRadius = AltFire.DamageRadius;
-                    projectile.explosionradiusmod = AltFire.ExplosionRadiusVisual;
-                    projectile.Health = AltFire.HitPoints;
-                    projectile.speed = AltFire.ProjectileSpeed;
-                    projectile.WeaponEffectType = AltFire.WeaponEffectType;
-                    projectile.WeaponType = AltFire.WeaponType;
-                    projectile.RotationRadsPerSecond = AltFire.RotationRadsPerSecond;
-                    projectile.ArmorPiercing = (byte)AltFire.ArmourPen;
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, Owner.emitter);
+                    ToggleCue.Play();
                 }
-                else
-                    projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
-                    {
-                        range = AltFire.Range,
-                        weapon = this,
-                        explodes = AltFire.explodes,
-                        damageAmount = AltFire.DamageAmount,
-                        damageRadius = AltFire.DamageRadius,
-                        explosionradiusmod = AltFire.ExplosionRadiusVisual,
-                        Health = AltFire.HitPoints,
-                        speed = AltFire.ProjectileSpeed,
-                        WeaponEffectType = AltFire.WeaponEffectType,
-                        WeaponType = AltFire.WeaponType,
-                        RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
-                        ArmorPiercing = (byte)AltFire.ArmourPen,
-                    };
-                //damage increase by level
-                if (this.owner.Level > 0)
+            }
+        }
+
+        private Projectile CreateProjectile(Ship owner, Vector2 direction, ShipModule attachedTo, GameplayObject target, bool playSound = true)
+        {
+            var projectile = new Projectile(owner, direction, attachedTo);
+            projectile.range                 = Range;
+            projectile.weapon                = this;
+            projectile.explodes              = explodes;
+            projectile.damageAmount          = DamageAmount;
+            projectile.damageRadius          = DamageRadius;
+            projectile.explosionradiusmod    = ExplosionRadiusVisual;
+            projectile.Health                = HitPoints;
+            projectile.speed                 = ProjectileSpeed;
+            projectile.WeaponEffectType      = WeaponEffectType;
+            projectile.WeaponType            = WeaponType;
+            projectile.RotationRadsPerSecond = RotationRadsPerSecond;
+            projectile.ArmorPiercing         = (int)ArmourPen;
+
+            if (owner.Level > 0)
+                projectile.damageAmount += projectile.damageAmount * owner.Level * 0.05f;
+            if (RangeVariance)
+                projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
+
+            //Hull bonus damage increase
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
+            {
+                if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
+                    projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
+            }
+            projectile.LoadContent(ProjectileTexturePath, ModelPath);
+            ModifyProjectile(projectile);
+
+            if (Tag_Guided) projectile.InitializeMissile(projectile.speed, direction, target);
+            else            projectile.Initialize(projectile.speed, direction, attachedTo.Center);
+            projectile.Radius = ProjectileRadius;
+
+            if (Animated == 1)
+                projectile.TexturePath = AnimationPath + 0.ToString("00000.##");
+
+            if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
+            {
+                projectile.DieSound = true;
+                if (!string.IsNullOrEmpty(ToggleSoundName) && (ToggleCue == null || ToggleCue != null && !ToggleCue.IsPlaying))
                 {
-                    projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, Owner.emitter);
+                    ToggleCue.Play();
+                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
                 }
-                if (AltFire.RangeVariance)
+
+                string dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
+                if (dieCueName.NotEmpty())  projectile.dieCueName  = dieCueName;
+                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
+                if (ToggleCue == null && Owner.ProjectilesFired.Count < 30)
                 {
-                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
+                    // @todo This is horrible, we must remove it ASAP
+                    //  seems to be used for calculating "Projectiles Fired Per Second" or something?
+                    Owner.ProjectilesFired.Add(new ProjectileTracker());
+                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
                 }
-                //Hull bonus damage increase
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    HullBonus mod;
-                    if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
-                        projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
-                }
-                projectile.LoadContent(AltFire.ProjectileTexturePath, AltFire.ModelPath);
-                AltFire.ModifyProjectile(projectile);
-                if (AltFire.Tag_Guided)
-                    projectile.InitializeMissile(projectile.speed, direction, target);
-                else
-                    projectile.Initialize(projectile.speed, direction, this.moduleAttachedTo.Center);
-                projectile.Radius = this.ProjectileRadius;
-                if (AltFire.Animated == 1)
-                {
-                    string remainder = 0.ToString("00000.##");
-                    projectile.texturePath = string.Concat(AltFire.AnimationPath, remainder);
-                }
-                //if(HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) <2)
-                if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
-                {
-                    projectile.DieSound = true;
-                    if (!string.IsNullOrEmpty(this.ToggleSoundName) && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
-                    {
-                        this.ToggleSoundOn = true;
-                        this.ToggleCue = AudioManager.GetCue(AltFire.ToggleSoundName);
-                        this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                        this.ToggleCue.Play();
-                        if (AltFire.fireCue != null)
-                        {
-                            //Added by McShooterz: Use sounds from new sound dictionary
-                            SoundEffect soundeffect = null;
-                            if (ResourceManager.SoundEffectDict.TryGetValue(AltFire.fireCueName,out soundeffect))
-                            {
-                                AudioManager.PlaySoundEffect(soundeffect, Weapon.audioListener, this.owner.emitter, 0.5f);
-                            }
-                            else
-                            {
-                                this.fireCue = AudioManager.GetCue(this.fireCueName);
-                                if (!this.owner.isPlayerShip())
-                                {
-                                    this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                                }
-                                this.lastFireSound = 0f;
-                                if (this.fireCue != null)
-                                {
-                                    this.fireCue.Play();
-                                }
-                            }
-                        }
-                    }
-                    if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[AltFire.UID].dieCue))
-                    {
-                        projectile.dieCueName = ResourceManager.WeaponsDict[AltFire.UID].dieCue;
-                    }
-                    if (!string.IsNullOrEmpty(this.InFlightCue))
-                    {
-                        projectile.InFlightCue = AltFire.InFlightCue;
-                    }
-                    if (this.ToggleCue == null && this.owner.ProjectilesFired.Count < 30)
-                    {
-                        this.lastFireSound = 0f;
-                        this.owner.ProjectilesFired.Add(new ProjectileTracker());
-                        //Added by McShooterz: Use sounds from new sound dictionary
-                        if (ResourceManager.SoundEffectDict.ContainsKey(AltFire.fireCueName))
-                        {
-                            AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
-                        }
-                        else
-                        {
-                            this.fireCue = AudioManager.GetCue(this.fireCueName);
-                            if (!this.owner.isPlayerShip())
-                            {
-                                this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                            }
-                            if (this.fireCue != null)
-                            {
-                                this.fireCue.Play();
-                            }
-                        }
-                    }
-                }
+            }
+
+            Owner.AddProjectile(projectile);
+            return projectile;
+        }
+
+        private void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
+        {
+            if (SecondaryFire != null && AltFireTriggerFighter && AltFireMode &&
+                target is ShipModule shipModule && shipModule.GetParent().shipData.Role == ShipData.RoleName.fighter)
+            {
+                Weapon altFire = ResourceManager.CreateWeapon(SecondaryFire);
+                Projectile projectile = altFire.CreateProjectile(Owner, direction, moduleAttachedTo, shipModule, playSound);
                 projectile.isSecondary = true;
-                this.owner.Projectiles.Add(projectile);
-                projectile = null;
             }
             else
             {
-                Projectile projectile;
-                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
-                {
-                    projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
-                    projectile.range = this.Range;
-                    projectile.weapon = this;
-                    projectile.explodes = this.explodes;
-                    projectile.damageAmount = this.DamageAmount;
-                    projectile.damageRadius = this.DamageRadius;
-                    projectile.explosionradiusmod = this.ExplosionRadiusVisual;
-                    projectile.Health = this.HitPoints;
-                    projectile.speed = this.ProjectileSpeed;
-                    projectile.WeaponEffectType = this.WeaponEffectType;
-                    projectile.WeaponType = this.WeaponType;
-                    projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
-                    projectile.ArmorPiercing = (byte)this.ArmourPen;
-                }
-                projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
-                {
-                    range = this.Range,
-                    weapon = this,
-                    explodes = this.explodes,
-                    damageAmount = this.DamageAmount,
-                    damageRadius = this.DamageRadius,
-                    explosionradiusmod = this.ExplosionRadiusVisual,
-                    Health = this.HitPoints,
-                    speed = this.ProjectileSpeed,
-                    WeaponEffectType = this.WeaponEffectType,
-                    WeaponType = this.WeaponType,
-                    RotationRadsPerSecond = this.RotationRadsPerSecond,
-                    ArmorPiercing = (byte)this.ArmourPen,
-                };
-                //damage increase by level
-                if (this.owner.Level > 0)
-                {
-                    projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
-                }
-                if (this.RangeVariance)
-                {
-                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
-                }
-                //Hull bonus damage increase
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    HullBonus mod;
-                    if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
-                        projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
-                }
-                projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-                this.ModifyProjectile(projectile);
-                if (this.Tag_Guided)
-                    projectile.InitializeMissile(projectile.speed, direction, target);
-                else
-                    projectile.Initialize(projectile.speed, direction, this.moduleAttachedTo.Center);
-                projectile.Radius = this.ProjectileRadius;
-                if (this.Animated == 1)
-                {
-                    string remainder = 0.ToString("00000.##");
-                    projectile.texturePath = string.Concat(this.AnimationPath, remainder);
-                }
-                if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
-                {
-                    projectile.DieSound = true;
-                    if (!string.IsNullOrEmpty(this.ToggleSoundName) && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
-                    {
-                        this.ToggleSoundOn = true;
-                        this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-                        this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                        this.ToggleCue.Play();
-                        if (this.fireCue != null)
-                        {
-                            //Added by McShooterz: Use sounds from new sound dictionary
-                            if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
-                            {
-                                AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
-                            }
-                            else
-                            {
-                                this.fireCue = AudioManager.GetCue(this.fireCueName);
-                                if (!this.owner.isPlayerShip())
-                                {
-                                    this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                                }
-                                this.lastFireSound = 0f;
-                                if (this.fireCue != null)
-                                {
-                                    this.fireCue.Play();
-                                }
-                            }
-                        }
-                    }
-                    if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
-                    {
-                        projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
-                    }
-                    if (!string.IsNullOrEmpty(this.InFlightCue))
-                    {
-                        projectile.InFlightCue = this.InFlightCue;
-                    }
-                    if (this.ToggleCue == null && this.owner.ProjectilesFired.Count < 30)
-                    {
-                        this.lastFireSound = 0f;
-                        this.owner.ProjectilesFired.Add(new ProjectileTracker());
-                        //Added by McShooterz: Use sounds from new sound dictionary
-                        if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
-                        {
-                            AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
-                        }
-                        else
-                        {
-                            this.fireCue = AudioManager.GetCue(this.fireCueName);
-                            if (!this.owner.isPlayerShip())
-                            {
-                                this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                            }
-                            if (this.fireCue != null)
-                            {
-                                this.fireCue.Play();
-                            }
-                        }
-                    }
-                }
-                this.owner.Projectiles.Add(projectile);
-                projectile = null;
+                CreateProjectile(Owner, direction, moduleAttachedTo, target);
             }
-            
-		}
+        }
 
-		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
-		{
-			Projectile projectile = new Projectile(p, direction)
-			{
-				range = this.Range,
-				weapon = this,
-				explodes = this.explodes,
-				damageAmount = this.DamageAmount
-			};
-            if (this.RangeVariance)
+        // Use sounds from new sound dictionary
+        private void PlayFireCue(string cueName, AudioEmitter emitter, bool apply3D = true)
+        {
+            if (ResourceManager.SoundEffectDict.TryGetValue(cueName, out SoundEffect sfx))
+            {
+                AudioManager.PlaySoundEffect(sfx, audioListener, emitter, 0.5f);
+            }
+            else if (cueName.NotEmpty() && AudioManager.LimitOk)
+            {
+                fireCue = AudioManager.GetCue(cueName);
+                if (apply3D)
+                    fireCue?.Apply3D(audioListener, emitter);
+                fireCue?.Play();
+            }
+        }
+
+        private void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
+        {
+            var projectile = new Projectile(p, direction)
+            {
+                range = Range,
+                weapon = this,
+                explodes = explodes,
+                damageAmount = DamageAmount
+            };
+            if (RangeVariance)
             {
                 projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
             }
-			projectile.explodes = this.explodes;
-			projectile.damageRadius = this.DamageRadius;
-            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
-            projectile.Health = this.HitPoints;
-			projectile.speed = this.ProjectileSpeed;
-			projectile.WeaponEffectType = this.WeaponEffectType;
-			projectile.WeaponType = this.WeaponType;
-			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
-            projectile.ArmorPiercing = (byte)this.ArmourPen;
-            /*
-            if (this.ShieldPenChance > 0)
+            projectile.explodes              = explodes;
+            projectile.damageRadius          = DamageRadius;
+            projectile.explosionradiusmod    = ExplosionRadiusVisual;
+            projectile.Health                = HitPoints;
+            projectile.speed                 = ProjectileSpeed;
+            projectile.WeaponEffectType      = WeaponEffectType;
+            projectile.WeaponType            = WeaponType;
+            projectile.LoadContent(ProjectileTexturePath, ModelPath);
+            projectile.RotationRadsPerSecond = RotationRadsPerSecond;
+            projectile.ArmorPiercing         = (int)ArmourPen;
+
+            ModifyProjectile(projectile);
+            if (Tag_Guided) projectile.InitializeMissilePlanet(projectile.speed, direction, target, p);
+            else            projectile.InitializePlanet(projectile.speed, direction, p.Position);
+            projectile.Radius = ProjectileRadius;
+            if (Animated == 1)
             {
-                projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
-            } */
-			this.ModifyProjectile(projectile);
-            if(this.Tag_Guided)
-                projectile.InitializeMissilePlanet(projectile.speed, direction, target, p);
+                projectile.TexturePath = AnimationPath + 0.ToString("00000.##");
+            }
+            p.Projectiles.Add(projectile);
+            planetEmitter = new AudioEmitter()
+            {
+                Position = new Vector3(p.Position, 2500f)
+            };
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                projectile.DieSound = true;
+                if (!string.IsNullOrEmpty(ToggleSoundName) && !ToggleSoundOn)
+                {
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, planetEmitter);
+                    ToggleCue.Play();
+                    PlayFireCue(fireCueName, planetEmitter);
+                }
+                if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[UID].dieCue))
+                {
+                    projectile.dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
+                }
+                if (!string.IsNullOrEmpty(InFlightCue))
+                {
+                    projectile.InFlightCue = InFlightCue;
+                }
+                if (ToggleCue == null)
+                {
+                    planetEmitter.Position = new Vector3(p.Position, -2500f);
+                    PlayFireCue(fireCueName, planetEmitter);
+                }
+            }
+        }
+
+        public void Fire(Vector2 direction, GameplayObject target)
+        {
+            if (Owner.engineState == Ship.MoveState.Warp || timeToNextFire > 0f || !Owner.CheckRangeToTarget(this, target))
+                return;
+            Owner.InCombatTimer = 15f;
+
+            timeToNextFire = fireDelay + (RandomMath.InRange(10)*0.016f + -0.008f);
+
+            if (moduleAttachedTo.Active && Owner.PowerCurrent > PowerRequiredToFire && OrdinanceRequiredToFire <= Owner.Ordinance)
+            {
+                Owner.Ordinance -= OrdinanceRequiredToFire;
+                Owner.PowerCurrent -= PowerRequiredToFire;
+
+                if (FireArc != 0)
+                {
+                    foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
+                        CreateProjectiles(fireDir, target, true);
+                }
+                else
+                {
+                    for (int i = 0; i < ProjectileCount; ++i)
+                        CreateProjectiles(GetFireConeVector(direction), target, true);
+                }
+                if (SalvoCount > 1)
+                {
+                    SalvosToFire   = SalvoCount - 1;
+                    SalvoDirection = direction;
+                    SalvoFireTimer = 0f;
+                    SalvoTarget = target;
+                }
+            }
+        }
+
+        public void FireDrone(Vector2 direction)
+        {
+            if (timeToNextFire > 0f)
+            {
+                return;
+            }
+            Owner.InCombatTimer = 15f;
+            timeToNextFire = fireDelay;
+            if (moduleAttachedTo.Active && Owner.PowerCurrent > PowerRequiredToFire && OrdinanceRequiredToFire <= Owner.Ordinance)
+            {
+                Owner.Ordinance    -= OrdinanceRequiredToFire;
+                Owner.PowerCurrent -= PowerRequiredToFire;
+                CreateDrone(Vector2.Normalize(direction));
+            }
+        }
+
+        public void FireDroneBeam(Vector2 direction, GameplayObject target, DroneAI source)
+        {
+            drowner = source.Owner;
+            if (timeToNextFire > 0f)
+            {
+                return;
+            }
+            timeToNextFire = fireDelay;
+            CreateDroneBeam(direction, target, source);
+        }
+
+        public void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
+        {
+            if (target is ShipModule shipModule)
+                shipModule.GetParent().InCombatTimer = 15f;
+
+            if (FireArc != 0)
+            {
+                foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
+                    CreateProjectilesFromPlanet(fireDir, p, target);
+            }
+            else if (FireCone <= 0)
+            {
+                if (!isBeam)
+                {
+                    Vector2 dir = WeaponType != "Missile" ? direction : Vector2.Normalize(direction);
+                    for (int i = 0; i < ProjectileCount; i++)
+                        CreateProjectilesFromPlanet(dir, p, target);
+                }
+            }
             else
-			    projectile.InitializePlanet(projectile.speed, direction, p.Position);
-			projectile.Radius = this.ProjectileRadius;
-            if (this.Animated == 1)
             {
-                string remainder = 0.ToString("00000.##");
-                projectile.texturePath = string.Concat(this.AnimationPath, remainder);
-            }
-			p.Projectiles.Add(projectile);
-			this.planetEmitter = new AudioEmitter()
-			{
-				Position = new Vector3(p.Position, 2500f)
-			};
-			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-			{
-				projectile.DieSound = true;
-				if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
-				{
-					this.ToggleSoundOn = true;
-					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-					this.ToggleCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-					this.ToggleCue.Play();
-                    this.lastFireSound = 0f;
-                    //Added by McShooterz: Use sounds from new sound dictionary
-                    if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
-                    {
-                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter, 0.5f);
-                    }
-                    else
-                    {
-                        this.fireCue = AudioManager.GetCue(this.fireCueName);
-                        if (!this.owner.isPlayerShip())
-                        {
-                            this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-                        }
-                        if (this.fireCue != null)
-                        {
-                            this.fireCue.Play();
-                        }
-                    }
-				}
-				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
-				{
-					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
-				}
-				if (!string.IsNullOrEmpty(this.InFlightCue))
-				{
-					projectile.InFlightCue = this.InFlightCue;
-				}
-				try
-				{
-					if (this.ToggleCue == null)
-					{
-                        this.planetEmitter.Position = new Vector3(p.Position, -2500f);
-                        this.lastFireSound = 0f;
-                        //Added by McShooterz: Use sounds from new sound dictionary
-                        if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
-                        {
-                            AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter, 0.5f);
-                        }
-                        else
-                        {
-                            this.fireCue = AudioManager.GetCue(this.fireCueName);
-                            this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-                            if (this.fireCue != null)
-                            {
-                                this.fireCue.Play();
-                            }
-                        }
-					}
-				}
-				catch
-				{
-				}
-			}
-		}
-
-		private float findAngleToTarget(Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = 0f;
-			float centerY = 0f;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-			}
-			else if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			return angle_to_target;
-		}
-
-		private Vector2 findTargetFromAngleAndDistance(Vector2 position, float angle, float distance)
-		{
-			float theta;
-			Vector2 TargetPosition = new Vector2(0f, 0f);
-			float gamma = angle;
-			float D = distance;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			if (gamma == 0f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				TargetPosition.X = position.X + D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gamma == 180f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				TargetPosition.X = position.X - D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			return TargetPosition;
-		}
-
-		private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
-		{
-			Vector2 Vec2Target = new Vector2(0f, 0f)
-			{
-				X = -(OwnerPos.X - TargetPos.X),
-				Y = OwnerPos.Y - TargetPos.Y
-			};
-			return Vec2Target;
-		}
-
-		public virtual void Fire(Vector2 direction, GameplayObject target)
-		{
-            
-            if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f ||! this.owner.CheckRangeToTarget(this,target))
-				return;
-			this.owner.InCombatTimer = 15f;
-
-			this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) *.016f + -.008f);
-
-            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
-			{
-                //this.owner.supplyLock.EnterWriteLock();
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;
-                this.owner.PowerCurrent -= this.PowerRequiredToFire;
-                //this.owner.supplyLock.ExitWriteLock();
-				if (this.SalvoCount == 1)
-				{
-					if (this.FireArc != 0)
-					{
-						float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
-						for (int i = 0; i < this.ProjectileCount; i++)
-						{
-							Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
-							Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-							fireDirection.Y = fireDirection.Y * -1f;
-							this.CreateProjectiles(Vector2.Normalize(fireDirection), target, true);
-						}
-						return;
-					}
-					if (this.FireCone <= 0)
-					{
-						for (int i = 0; i < this.ProjectileCount; i++)
-						{
-                            this.CreateProjectiles(direction, target, true);
-						}
-						return;
-					}
-					float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                    //renamed angletotarget,newtarget,firedirection
-                    float angleToTarget2 = this.findAngleToTarget(direction);
-					Vector2 newTarget2 = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget2 + spread, this.Range);
-					Vector2 fireDirection2 = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget2);
-					fireDirection2.Y = fireDirection2.Y * -1f;
-					this.CreateProjectiles(Vector2.Normalize(fireDirection2), target, true);
-					return;
-				}
-				if (this.SalvoCount > 1)
-				{
-					float TimeBetweenShots = this.SalvoTimer / (float)this.SalvoCount;
-					for (int j = 1; j < this.SalvoCount; j++)
-					{
-						Weapon.Salvo sal = new Weapon.Salvo()
-						{
-							Timing = (float)j * TimeBetweenShots,
-                            Direction = direction
-						};
-						this.SalvoList.Add(sal);
-					}
-                    this.SalvoTarget = target;
-					if (this.FireArc != 0)
-					{
-						float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
-						for (int i = 0; i < this.ProjectileCount; i++)
-						{
-							Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
-							Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-							fireDirection.Y = fireDirection.Y * -1f;
-							this.CreateProjectiles(Vector2.Normalize(fireDirection), target, true);
-						}
-						return;
-					}
-					if (this.FireCone > 0)
-					{
-						float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                        float angleToTarget = this.findAngleToTarget(direction);
-						Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
-						Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-						fireDirection.Y = fireDirection.Y * -1f;
-						this.CreateProjectiles(Vector2.Normalize(fireDirection), target, true);
-						return;
-					}
-					for (int i = 0; i < this.ProjectileCount; i++)
-					{
-                        this.CreateProjectiles(direction, target, true);
-					}
-					return;
-				}
-			}
-
-		}
-
-		public virtual void FireDrone(Vector2 direction)
-		{
-			if (this.timeToNextFire > 0f)
-			{
-				return;
-			}
-			this.owner.InCombatTimer = 15f;
-			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
-			{
-				Ship ordinance = this.owner;
-				ordinance.Ordinance = ordinance.Ordinance - this.OrdinanceRequiredToFire;
-				Ship powerCurrent = this.owner;
-				powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - this.PowerRequiredToFire;
-				this.CreateDrone(Vector2.Normalize(direction));
-			}
-		}
-
-		public virtual void FireDroneBeam(Vector2 direction, GameplayObject target, DroneAI source)
-		{
-			this.drowner = source.Owner;
-			if (this.timeToNextFire > 0f)
-			{
-				return;
-			}
-			this.timeToNextFire = this.fireDelay;
-			this.CreateDroneBeam(direction, target, source);
-		}
-
-        public virtual void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
-        {
-            if (target is ShipModule)
-                (target as ShipModule).GetParent().InCombatTimer = 15f;
-            Vector2 StartPos = p.Position;
-            if (this.FireArc != 0)
-            {
-                float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                float angleToTarget = this.findAngleToTarget(direction);
-                for (int i = 0; i < this.ProjectileCount; i++)
-                {
-                    Vector2 newTarget = this.findTargetFromAngleAndDistance(StartPos, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
-                    Vector2 fireDirection = this.findVectorToTarget(StartPos, newTarget);
-                    fireDirection.Y = fireDirection.Y * -1f;
-                    this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection), p, target);
-                }
-                return;
-            }
-            if (this.FireCone <= 0)
-            {
-                if (!this.isBeam)
-                {
-                    for (int i = 0; i < this.ProjectileCount; i++)
-                    {
-                        if (this.WeaponType != "Missile")
-                        {
-                            this.CreateProjectilesFromPlanet(direction, p, target);
-                        }
-                        else
-                        {
-                            this.CreateProjectilesFromPlanet(Vector2.Normalize(direction), p, target);
-                        }
-                    }
-                }
-                return;
-            }
-            float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-            float angleToTarget2 = this.findAngleToTarget(direction);
-            Vector2 newTarget2 = this.findTargetFromAngleAndDistance(StartPos, angleToTarget2 + spread, this.Range);
-            Vector2 fireDirection2 = this.findVectorToTarget(StartPos, newTarget2);
-            fireDirection2.Y = fireDirection2.Y * -1f;
-            this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection2), p, target);
-        }
-
-		public virtual void FireSalvo(Vector2 direction, GameplayObject target)
-		{
-			if (this.owner.engineState == Ship.MoveState.Warp ) //|| (this.owner !=null && this.owner.CheckIfInsideFireArc(this,target)))
-			{
-				return;
-			}
-			this.owner.InCombatTimer = 15f;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
-			{
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;
-                this.owner.PowerCurrent -= this.PowerRequiredToFire;
-				if (this.FireArc != 0)
-				{
-					float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                    float angleToTarget = this.findAngleToTarget(direction);
-					for (int i = 0; i < this.ProjectileCount; i++)
-					{
-						Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
-						Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-						fireDirection.Y = fireDirection.Y * -1f;
-                        this.CreateProjectiles(Vector2.Normalize(fireDirection), target, !this.PlaySoundOncePerSalvo);
-					}
-					return;
-				}
-				if (this.FireCone > 0)
-				{
-					float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                    float angleToTarget = this.findAngleToTarget(direction);
-					Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
-					Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-					fireDirection.Y = fireDirection.Y * -1f;
-                    this.CreateProjectiles(Vector2.Normalize(fireDirection), target, !this.PlaySoundOncePerSalvo);
-					return;
-				}
-				for (int i = 0; i < this.ProjectileCount; i++)
-				{
-                    this.CreateProjectiles(direction, target, !this.PlaySoundOncePerSalvo);
-				}
-				return;
-			}
-		}
-
-		public virtual void FireTargetedBeam(GameplayObject target)
-		{
-			if (this.timeToNextFire > 0f )
-			{
-				return;
-			}
-            //if (!this.owner.CheckIfInsideFireArc(this, target.Center, this.owner.Rotation))
-            //{
-              
-            //    return;
-            //}
-			this.owner.InCombatTimer = 15f;
-            this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) * .016f + -.008f);
-            
-            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
-			{
-                
-                    this.CreateTargetedBeam(target);
-                
-                
-                
-
-                
-                
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;                
-                this.owner.PowerCurrent -= this.PowerRequiredToFire;
-				
-			}
-            
-		}
-
-        public virtual void FireMouseBeam(Vector2 direction)
-        {
-            if (this.timeToNextFire > 0f)
-            {
-                return;
-            }
-            this.owner.InCombatTimer = 15f;
-            this.timeToNextFire = this.fireDelay;
-            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
-            {
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;
-                this.owner.PowerCurrent -= this.PowerRequiredToFire;
-                this.CreateMouseBeam(direction);
+                CreateProjectilesFromPlanet(GetFireConeVector(direction), p, target);
             }
         }
 
-        public virtual void FireMouse(Vector2 direction)
+        public void FireSalvo(Vector2 direction, GameplayObject target)
         {
-            if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
+            if (Owner.engineState == Ship.MoveState.Warp)
                 return;
-            this.owner.InCombatTimer = 15f;
-            this.timeToNextFire = this.fireDelay;
-            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+            Owner.InCombatTimer = 15f;
+            if (moduleAttachedTo.Active && Owner.PowerCurrent > PowerRequiredToFire && OrdinanceRequiredToFire <= Owner.Ordinance)
             {
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;
-                this.owner.PowerCurrent -= this.PowerRequiredToFire;
-                if (this.SalvoCount == 1)
+                Owner.Ordinance -= OrdinanceRequiredToFire;
+                Owner.PowerCurrent -= PowerRequiredToFire;
+                if (FireArc != 0)
                 {
-                    if (this.FireArc != 0)
-                    {
-                        float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
-                        for (int i = 0; i < this.ProjectileCount; i++)
-                        {
-                            Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
-                            Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-                            fireDirection.Y = fireDirection.Y * -1f;
-                            this.CreateProjectiles(Vector2.Normalize(fireDirection), null, true);
-                        }
-                        return;
-                    }
-                    if (this.FireCone <= 0)
-                    {
-                        for (int i = 0; i < this.ProjectileCount; i++)
-                        {
-                            this.CreateProjectiles(direction, null, true);
-                        }
-                        return;
-                    }
-                    float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                    //renamed angletotarget,newtarget,firedirection
-                    float angleToTarget2 = this.findAngleToTarget(direction);
-                    Vector2 newTarget2 = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget2 + spread, this.Range);
-                    Vector2 fireDirection2 = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget2);
-                    fireDirection2.Y = fireDirection2.Y * -1f;
-                    this.CreateProjectiles(Vector2.Normalize(fireDirection2), null, true);
-                    return;
+                    foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
+                        CreateProjectiles(fireDir, target, !PlaySoundOncePerSalvo);
                 }
-                if (this.SalvoCount > 1)
+                else
                 {
-                    float TimeBetweenShots = this.SalvoTimer / (float)this.SalvoCount;
-                    for (int j = 1; j < this.SalvoCount; j++)
-                    {
-                        Weapon.Salvo sal = new Weapon.Salvo()
-                        {
-                            Timing = (float)j * TimeBetweenShots,
-                            Direction = direction
-                        };
-                        this.SalvoList.Add(sal);
-                    }
-                    if (this.FireArc != 0)
-                    {
-                        float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
-                        for (int i = 0; i < this.ProjectileCount; i++)
-                        {
-                            Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
-                            Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-                            fireDirection.Y = fireDirection.Y * -1f;
-                            this.CreateProjectiles(Vector2.Normalize(fireDirection), null, true);
-                        }
-                        return;
-                    }
-                    if (this.FireCone > 0)
-                    {
-                        float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                        float angleToTarget = this.findAngleToTarget(direction);
-                        Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
-                        Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
-                        fireDirection.Y = fireDirection.Y * -1f;
-                        this.CreateProjectiles(Vector2.Normalize(fireDirection), null, true);
-                        return;
-                    }
-                    for (int i = 0; i < this.ProjectileCount; i++)
-                    {
-                        this.CreateProjectiles(direction, null, true);
-                    }
-                    return;
+                    for (int i = 0; i < ProjectileCount; ++i)
+                        CreateProjectiles(GetFireConeVector(direction), target, !PlaySoundOncePerSalvo);
                 }
             }
         }
 
-		public Ship GetOwner()
-		{
-			return this.owner;
-		}
-
-		public Projectile LoadProjectiles(Vector2 direction, Ship owner)
-		{
-			Projectile projectile = new Projectile(owner, direction)
-			{
-				range = this.Range,
-				weapon = this,
-				explodes = this.explodes,
-				damageAmount = this.DamageAmount
-			};
-			projectile.explodes = this.explodes;
-			projectile.damageRadius = this.DamageRadius;
-            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
-			projectile.speed = this.ProjectileSpeed;
-			projectile.WeaponEffectType = this.WeaponEffectType;
-			projectile.WeaponType = this.WeaponType;
-			projectile.Initialize(this.ProjectileSpeed, direction, owner.Center);
-			projectile.Radius = this.ProjectileRadius;
-			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			if (owner.GetSystem() != null && owner.GetSystem().isVisible || owner.isInDeepSpace)
-			{
-				int numberSameWeapons = 0;
-				//this.toggleTimer = 0f;
-				foreach (Weapon w in owner.Weapons)
-				{
-					if (w == this || !(w.Name == this.Name) || w.timeToNextFire > 0f)
-					{
-						continue;
-					}
-					numberSameWeapons++;
-				}
-				projectile.DieSound = true;
-				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
-				{
-					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
-				}
-				if (!string.IsNullOrEmpty(this.InFlightCue))
-				{
-					projectile.InFlightCue = this.InFlightCue;
-				}
-			}
-			return projectile;
-		}
-
-		private void ModifyProjectile(Projectile projectile)
-		{
-            if (this.owner == null)
-			{
-				return;
-			}
-            if (this.owner.loyalty.data.Traits.Pack)
+        public void FireTargetedBeam(GameplayObject target)
+        {
+            if (timeToNextFire > 0f )
+                return;
+            Owner.InCombatTimer = 15f;
+            timeToNextFire = fireDelay + (RandomMath.InRange(10) * 0.016f + -0.008f);
+            if (moduleAttachedTo.Active && Owner.PowerCurrent > PowerRequiredToFire && OrdinanceRequiredToFire <= Owner.Ordinance)
             {
-                projectile.damageAmount += projectile.damageAmount * this.owner.DamageModifier;
+                Owner.Ordinance    -= OrdinanceRequiredToFire;                
+                Owner.PowerCurrent -= PowerRequiredToFire;
+                CreateTargetedBeam(target);
+            }
+        }
+
+        public void FireMouseBeam(Vector2 direction)
+        {
+            if (timeToNextFire > 0f)
+                return;
+            Owner.InCombatTimer = 15f;
+            timeToNextFire = fireDelay;
+            if (moduleAttachedTo.Active && Owner.PowerCurrent > PowerRequiredToFire && OrdinanceRequiredToFire <= Owner.Ordinance)
+            {
+                Owner.Ordinance    -= OrdinanceRequiredToFire;
+                Owner.PowerCurrent -= PowerRequiredToFire;
+                CreateMouseBeam(direction);
+            }
+        }
+
+        private Vector2 GetFireConeVector(Vector2 direction)
+        {
+            if (FireCone <= 0)
+                return direction;
+            float spread = RandomMath2.RandomBetween(-FireCone, FireCone) * 0.5f;
+            return (direction.ToDegrees() + spread).AngleToDirection();
+        }
+
+        private IEnumerable<Vector2> EnumFireArc(Vector2 direction, int projectileCount)
+        {
+            float degreesBetweenShots = FireArc / (float)projectileCount;
+            float angleToTarget = direction.ToDegrees() - FireArc * 0.5f;
+            for (int i = 0; i < projectileCount; ++i)
+            {
+                Vector2 dir = angleToTarget.AngleToDirection();
+                angleToTarget += degreesBetweenShots;
+                yield return dir;
+            }
+        }
+
+        public void FireMouse(Vector2 direction)
+        {
+            if (Owner.engineState == Ship.MoveState.Warp || timeToNextFire > 0f)
+                return;
+            Owner.InCombatTimer = 15f;
+            timeToNextFire = fireDelay;
+            if (moduleAttachedTo.Active && Owner.PowerCurrent > PowerRequiredToFire && OrdinanceRequiredToFire <= Owner.Ordinance)
+            {
+                Owner.Ordinance -= OrdinanceRequiredToFire;
+                Owner.PowerCurrent -= PowerRequiredToFire;
+
+                if (FireArc != 0)
+                {
+                    foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
+                        CreateProjectiles(fireDir, null, true);
+                }
+                else
+                {
+                    for (int i = 0; i < ProjectileCount; i++)
+                        CreateProjectiles(GetFireConeVector(direction), null, true);
+                }
+
+                if (SalvoCount > 1) // queue the rest of the salvo to follow later
+                {
+                    SalvosToFire   = SalvoCount - 1;
+                    SalvoDirection = direction;
+                    SalvoFireTimer = 0f;
+                    SalvoTarget    = null; // untargeted salvo... well whatever
+                }
+            }
+        }
+
+        public Projectile LoadProjectiles(Vector2 direction, Ship owner)
+        {
+            Projectile projectile = new Projectile(owner, direction)
+            {
+                range = Range,
+                weapon = this,
+                explodes = explodes,
+                damageAmount = DamageAmount
+            };
+            projectile.explodes           = explodes;
+            projectile.damageRadius       = DamageRadius;
+            projectile.explosionradiusmod = ExplosionRadiusVisual;
+            projectile.speed              = ProjectileSpeed;
+            projectile.WeaponEffectType   = WeaponEffectType;
+            projectile.WeaponType         = WeaponType;
+            projectile.Initialize(ProjectileSpeed, direction, owner.Center);
+            projectile.Radius = ProjectileRadius;
+            projectile.LoadContent(ProjectileTexturePath, ModelPath);
+            if (owner.System != null && owner.System.isVisible || owner.InDeepSpace)
+            {
+                projectile.DieSound = true;
+                if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[UID].dieCue))
+                    projectile.dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
+                if (!string.IsNullOrEmpty(InFlightCue))
+                    projectile.InFlightCue = InFlightCue;
+            }
+            return projectile;
+        }
+
+        private void ModifyProjectile(Projectile projectile)
+        {
+            if (Owner == null)
+                return;
+            if (Owner.loyalty.data.Traits.Pack)
+            {
+                projectile.damageAmount += projectile.damageAmount * Owner.DamageModifier;
             }
             //Added by McShooterz: Check if mod uses weapon modifiers
-			if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.useWeaponModifiers)
-            {
+            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
                 return;
-            }
-			if (this.Tag_Missile)
-			{
-				this.AddModifiers("Missile", projectile);
-			}
-            if (this.Tag_Energy)
+            if (Tag_Missile)   AddModifiers("Missile", projectile);
+            if (Tag_Energy)    AddModifiers("Energy", projectile);
+            if (Tag_Torpedo)   AddModifiers("Torpedo", projectile);
+            if (Tag_Kinetic)   AddModifiers("Kinetic", projectile);
+            if (Tag_Hybrid)    AddModifiers("Hybrid", projectile);
+            if (Tag_Railgun)   AddModifiers("Railgun", projectile);
+            if (Tag_Explosive) AddModifiers("Explosive", projectile);
+            if (Tag_Guided)    AddModifiers("Guided", projectile);
+            if (Tag_Intercept) AddModifiers("Intercept", projectile);
+            if (Tag_PD)        AddModifiers("PD", projectile);
+            if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile);
+            if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile);
+            if (Tag_Drone)     AddModifiers("Drone", projectile);
+            if (Tag_Subspace)  AddModifiers("Subspace", projectile);
+            if (Tag_Warp)      AddModifiers("Warp", projectile);
+            if (Tag_Cannon)    AddModifiers("Cannon", projectile);
+            if (Tag_Beam)      AddModifiers("Beam", projectile);
+            if (Tag_Bomb)      AddModifiers("Bomb", projectile);
+            if (Tag_Array)     AddModifiers("Array", projectile);
+            if (Tag_Flak)      AddModifiers("Flak", projectile);
+            if (Tag_Tractor)   AddModifiers("Tractor", projectile);
+        }
+        
+        private void AddModifiers(string tag, Projectile projectile)
+        {
+            var wepTags = Owner.loyalty.data.WeaponTags;
+            projectile.damageAmount      += wepTags[tag].Damage * projectile.damageAmount;
+            projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
+            projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
+            //Shield Penetration
+            float actualShieldPenChance = moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
+            actualShieldPenChance += wepTags[tag].ShieldPenetration;
+            actualShieldPenChance += ShieldPenChance;
+            if (actualShieldPenChance > 0f && RandomMath2.InRange(100) < actualShieldPenChance)
             {
-                this.AddModifiers("Energy", projectile);
+                projectile.IgnoresShields = true;
             }
-            if (this.Tag_Torpedo)
+            if (!isBeam)
             {
-                this.AddModifiers("Torpedo", projectile);
+                projectile.ArmorPiercing         += (int)wepTags[tag].ArmourPenetration;
+                projectile.Health                += HitPoints * wepTags[tag].HitPoints;
+                projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
+                projectile.speed                 += wepTags[tag].Speed * ProjectileSpeed;
+                projectile.damageRadius          += wepTags[tag].ExplosionRadius * DamageRadius;
             }
-            if (this.Tag_Kinetic)
-            {
-                this.AddModifiers("Kinetic", projectile);
-            }
-            if (this.Tag_Hybrid)
-            {
-                this.AddModifiers("Hybrid", projectile);
-            }
-            if (this.Tag_Railgun)
-            {
-                this.AddModifiers("Railgun", projectile);
-            }
-            if (this.Tag_Explosive)
-            {
-                this.AddModifiers("Explosive", projectile);
-            }
-            if (this.Tag_Guided)
-            {
-                this.AddModifiers("Guided", projectile);
-            }
-            if (this.Tag_Intercept)
-            {
-                this.AddModifiers("Intercept", projectile);
-            }
-            if (this.Tag_PD)
-            {
-                this.AddModifiers("PD", projectile);
-            }
-            if (this.Tag_SpaceBomb)
-            {
-                this.AddModifiers("Spacebomb", projectile);
-            }
-            if (this.Tag_BioWeapon)
-            {
-                this.AddModifiers("BioWeapon", projectile);
-            }
-            if (this.Tag_Drone)
-            {
-                this.AddModifiers("Drone", projectile);
-            }
-            if (this.Tag_Subspace)
-            {
-                this.AddModifiers("Subspace", projectile);
-            }
-            if (this.Tag_Warp)
-            {
-                this.AddModifiers("Warp", projectile);
-            }
-            if (this.Tag_Cannon)
-            {
-                this.AddModifiers("Cannon", projectile);
-            }
-            if (this.Tag_Beam)
-            {
-                this.AddModifiers("Beam", projectile);
-            }
-            if (this.Tag_Bomb)
-            {
-                this.AddModifiers("Bomb", projectile);
-            }
-            if (this.Tag_Array)
-            {
-                this.AddModifiers("Array", projectile);
-            }
-            if (this.Tag_Flak)
-            {
-                this.AddModifiers("Flak", projectile);
-            }
-            if (this.Tag_Tractor)
-            {
-                this.AddModifiers("Tractor", projectile);
-            }
-		}
+        }
 
-		public void ResetToggleSound()
-		{
-			if (this.ToggleCue != null)
-			{
-				this.ToggleCue.Stop(AudioStopOptions.Immediate);
-				this.ToggleCue = null;
-			}
-			this.ToggleSoundOn = false;
-		}
+        public void ResetToggleSound()
+        {
+            if (ToggleCue != null)
+            {
+                ToggleCue.Stop(AudioStopOptions.Immediate);
+                ToggleCue = null;
+            }
+            ToggleSoundOn = false;
+        }
 
-		public void SetOwner(Ship owner)
-		{
-			this.owner = owner;
-		}
-
-		public virtual void Update(float elapsedTime)
-		{
-            this.lastFireSound += elapsedTime;
-			if (this.timeToNextFire > 0f)
-			{
-                if (this.WeaponType != "Drone") this.timeToNextFire = MathHelper.Max(this.timeToNextFire - elapsedTime, 0f);
+        public void Update(float elapsedTime)
+        {
+            if (timeToNextFire > 0f)
+            {
+                if (WeaponType != "Drone") timeToNextFire = MathHelper.Max(timeToNextFire - elapsedTime, 0f);
                 //Gretman -- To fix broken Repair Drones, I moved updating the cooldown for drone weapons to the ArtificialIntelligence update function.
             }
-			foreach (Weapon.Salvo salvo in this.SalvoList)
-			{
-                salvo.Timing -= elapsedTime;
-				if (salvo.Timing > 0f)
-				{
-					continue;
-				}
-                //this.FireSalvo(salvo.Direction, this.SalvoTarget);
-                
-                if (this.SalvoTarget !=null && this.owner.CheckIfInsideFireArc(this,SalvoTarget))
+
+            if (SalvosToFire > 0)
+            {
+                float timeBetweenShots = SalvoTimer / SalvoCount;
+                SalvoFireTimer += elapsedTime;
+                if (SalvoFireTimer >= timeBetweenShots)
                 {
-                    if (this.Tag_Guided)
-                        this.FireSalvo(salvo.Direction, SalvoTarget);
-                    else
-                        this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                    SalvoFireTimer -= timeBetweenShots;
+                    --SalvosToFire;
+
+                    if (SalvoTarget == null)
+                    {
+                        FireSalvo(SalvoDirection, null);
+                    }
+                    else if (Owner.CheckIfInsideFireArc(this, SalvoTarget))
+                    {
+                        if (Tag_Guided)
+                            FireSalvo(SalvoDirection, SalvoTarget);
+                        else
+                            Owner.AI.CalculateAndFire(this, SalvoTarget, true);
+                    }
                 }
-                else if (this.SalvoTarget != null)
-                    this.FireSalvo(salvo.Direction, null);
-				this.SalvoList.QueuePendingRemoval(salvo);
-			}
-			this.SalvoList.ApplyPendingRemovals();
-            if (this.SalvoList.Count == 0)
-                this.SalvoTarget = null;
-			this.Center = this.moduleAttachedTo.Center;
-		}
-
-		private class Salvo
-		{
-			public float Timing;
-
-            public Vector2 Direction;
-
-			public Salvo()
-			{
-			}
-		}
+            }
+            else SalvoTarget = null;
+            Center = moduleAttachedTo.Center;
+        }
 
         public float GetModifiedRange()
         {
-			if (this.GetOwner() == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
-                return this.Range;
-            float modifiedRange = this.Range;
-            EmpireData loyaltyData = this.GetOwner().loyalty.data;
-            if (this.Tag_Beam)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Beam"].Range;
-            if (this.Tag_Energy)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Energy"].Range;
-            if (this.Tag_Explosive)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Explosive"].Range;
-            if (this.Tag_Guided)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Guided"].Range;
-            if (this.Tag_Hybrid)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Hybrid"].Range;
-            if (this.Tag_Intercept)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Intercept"].Range;
-            if (this.Tag_Kinetic)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Kinetic"].Range;
-            if (this.Tag_Missile)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Missile"].Range;
-            if (this.Tag_Railgun)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Railgun"].Range;
-            if (this.Tag_Cannon)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Cannon"].Range;
-            if (this.Tag_PD)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["PD"].Range;
-            if (this.Tag_SpaceBomb)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Spacebomb"].Range;
-            if (this.Tag_BioWeapon)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["BioWeapon"].Range;
-            if (this.Tag_Drone)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Drone"].Range;
-            if (this.Tag_Subspace)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Subspace"].Range;
-            if (this.Tag_Warp)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Warp"].Range;
-            if (this.Tag_Array)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Array"].Range;
-            if (this.Tag_Flak)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Flak"].Range;
-            if (this.Tag_Tractor)
-                modifiedRange += this.Range * loyaltyData.WeaponTags["Tractor"].Range;
+            if (Owner == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
+                return Range;
+            float modifiedRange = Range;
+            EmpireData loyaltyData = Owner.loyalty.data;
+            if (Tag_Beam)      modifiedRange += Range * loyaltyData.WeaponTags["Beam"].Range;
+            if (Tag_Energy)    modifiedRange += Range * loyaltyData.WeaponTags["Energy"].Range;
+            if (Tag_Explosive) modifiedRange += Range * loyaltyData.WeaponTags["Explosive"].Range;
+            if (Tag_Guided)    modifiedRange += Range * loyaltyData.WeaponTags["Guided"].Range;
+            if (Tag_Hybrid)    modifiedRange += Range * loyaltyData.WeaponTags["Hybrid"].Range;
+            if (Tag_Intercept) modifiedRange += Range * loyaltyData.WeaponTags["Intercept"].Range;
+            if (Tag_Kinetic)   modifiedRange += Range * loyaltyData.WeaponTags["Kinetic"].Range;
+            if (Tag_Missile)   modifiedRange += Range * loyaltyData.WeaponTags["Missile"].Range;
+            if (Tag_Railgun)   modifiedRange += Range * loyaltyData.WeaponTags["Railgun"].Range;
+            if (Tag_Cannon)    modifiedRange += Range * loyaltyData.WeaponTags["Cannon"].Range;
+            if (Tag_PD)        modifiedRange += Range * loyaltyData.WeaponTags["PD"].Range;
+            if (Tag_SpaceBomb) modifiedRange += Range * loyaltyData.WeaponTags["Spacebomb"].Range;
+            if (Tag_BioWeapon) modifiedRange += Range * loyaltyData.WeaponTags["BioWeapon"].Range;
+            if (Tag_Drone)     modifiedRange += Range * loyaltyData.WeaponTags["Drone"].Range;
+            if (Tag_Subspace)  modifiedRange += Range * loyaltyData.WeaponTags["Subspace"].Range;
+            if (Tag_Warp)      modifiedRange += Range * loyaltyData.WeaponTags["Warp"].Range;
+            if (Tag_Array)     modifiedRange += Range * loyaltyData.WeaponTags["Array"].Range;
+            if (Tag_Flak)      modifiedRange += Range * loyaltyData.WeaponTags["Flak"].Range;
+            if (Tag_Tractor)   modifiedRange += Range * loyaltyData.WeaponTags["Tractor"].Range;
             return modifiedRange;            
         }
 
-        public bool TargetValid(ShipData.RoleName Role)
+        public bool TargetValid(ShipData.RoleName role)
         {
-            if (this.Excludes_Fighters && (Role == ShipData.RoleName.fighter || Role == ShipData.RoleName.scout || Role == ShipData.RoleName.drone))
+            if (Excludes_Fighters && (role == ShipData.RoleName.fighter || role == ShipData.RoleName.scout || role == ShipData.RoleName.drone))
                 return false;
-            if (this.Excludes_Corvettes && (Role == ShipData.RoleName.corvette || Role == ShipData.RoleName.gunboat))
+            if (Excludes_Corvettes && (role == ShipData.RoleName.corvette || role == ShipData.RoleName.gunboat))
                 return false;
-            if (this.Excludes_Capitals && (Role == ShipData.RoleName.frigate || Role == ShipData.RoleName.destroyer || Role == ShipData.RoleName.cruiser || Role == ShipData.RoleName.carrier || Role == ShipData.RoleName.capital))
+            if (Excludes_Capitals && (role == ShipData.RoleName.frigate || role == ShipData.RoleName.destroyer || role == ShipData.RoleName.cruiser || role == ShipData.RoleName.carrier || role == ShipData.RoleName.capital))
                 return false;
-            if (this.Excludes_Stations && (Role == ShipData.RoleName.platform || Role == ShipData.RoleName.station))
+            if (Excludes_Stations && (role == ShipData.RoleName.platform || role == ShipData.RoleName.station))
                 return false;
             return true;
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~Weapon() { Dispose(false); }
+        ~Weapon() { Destroy(); }
 
-        protected virtual void Dispose(bool disposing)
+        private void Destroy()
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.SalvoList != null)
-                        this.SalvoList.Dispose();
-
-                }
-                this.SalvoList = null;
-                this.disposed = true;
-            }
         }
-	}
+
+        public override string ToString() => $"Weapon {WeaponType} {WeaponEffectType} {Name}";
+    }
+
+    public sealed class ProjectileTracker
+    {
+        public float Timer = 1f;
+    }
+
 }

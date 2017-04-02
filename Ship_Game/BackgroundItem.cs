@@ -25,15 +25,12 @@ namespace Ship_Game
 		public int[] Indexes = new int[6];
 
 		public BasicEffect quadEffect;
-        
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public BackgroundItem()
 		{
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection, float Alpha, List<BackgroundItem> bgiList)
+		public void Draw(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection, float Alpha, Array<BackgroundItem> bgiList)
 		{
 			this.quadEffect.View = view;
 			this.quadEffect.Projection = projection;
@@ -115,19 +112,9 @@ namespace Ship_Game
 
         ~BackgroundItem() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.quadVertexDecl != null)
-                        this.quadVertexDecl.Dispose();
-                  
-                }
-                this.quadVertexDecl = null;
-                this.disposed = true;
-            }
+            quadVertexDecl?.Dispose(ref quadVertexDecl);
         }
     }
 }

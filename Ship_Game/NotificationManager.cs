@@ -4,554 +4,415 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace Ship_Game
 {
 	public sealed class NotificationManager: IDisposable
 	{
-		private Ship_Game.ScreenManager ScreenManager;
+		private readonly ScreenManager ScreenManager;
+		private readonly UniverseScreen Screen;
+        private readonly int MaxEntriesToDisplay;
+        private Rectangle NotificationArea;
 
-		public Rectangle NotificationArea;
-
-		private int numentriesToDisplay;
-
-		private UniverseScreen screen;
-
-		public BatchRemovalCollection<Notification> NotificationList = new BatchRemovalCollection<Notification>();
+	    private static readonly object NotificationLocker = new object();
+        private BatchRemovalCollection<Notification> NotificationList = 
+            new BatchRemovalCollection<Notification>();
         private float Timer;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
-
-		public NotificationManager(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
+		public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
 		{
-			this.screen = screen;
-			this.ScreenManager = ScreenManager;
-			this.NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 275);
-			this.numentriesToDisplay = this.NotificationArea.Height / 70;
+			Screen = screen;
+			ScreenManager = screenManager;
+
+		    var presentParams = screenManager.GraphicsDevice.PresentationParameters;
+            NotificationArea = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70, 
+                                             presentParams.BackBufferHeight - 70 - 275);
+			MaxEntriesToDisplay = NotificationArea.Height / 70;
 		}
 
-		public void AddAgentResultNotification(bool Good, string result, Empire Owner)
+	    private Rectangle GetNotificationRect(int index)
+	    {
+	        return new Rectangle(NotificationArea.X,
+	            NotificationArea.Y + NotificationArea.Height - (index+1) * 70, 64, 64);
+	    }
+        private Rectangle DefaultNotificationRect => GetNotificationRect(NotificationList.Count);
+        private Rectangle DefaultClickRect => new Rectangle(NotificationArea.X, NotificationArea.Y, 64, 64);
+
+	    public void AddNotification(Notification notify, params string[] soundCueStrings)
+	    {
+	        notify.ClickRect = DefaultClickRect;
+	        notify.DestinationRect = DefaultNotificationRect;
+	        
+            foreach (string cue in soundCueStrings)
+                AudioManager.PlayCue(cue);
+
+            lock (NotificationLocker)
+                NotificationList.Add(notify);
+        }
+
+        public void AddAgentResultNotification(bool good, string result, Empire owner)
 		{
-			if (Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
-			{
+			if (owner != EmpireManager.Player)
 				return;
-			}
-			Notification cNote = new Notification()
-			{
-				Message = result,
-				IconPath = (Good ? "NewUI/icon_spy_notification" : "NewUI/icon_spy_notification_bad"),
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			if (!Good)
-			{
-				AudioManager.PlayCue("sd_ui_spy_fail_02");
-			}
-			else
-			{
-				AudioManager.PlayCue("sd_ui_spy_win_02");
-			}
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+
+		    AddNotification(new Notification
+		    {
+		        Message = result,
+		        IconPath = good ? "NewUI/icon_spy_notification" : "NewUI/icon_spy_notification_bad"
+		    }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02");
 		}
 
-		public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire Invader)
+	    public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader)
 		{
-			Notification cNote = new Notification()
-			{
-				RelevantEmpire = Invader
-			};
-			string[] singular = new string[] { Invader.data.Traits.Singular, Localizer.Token(1500), "\n", Localizer.Token(1501), beingInvaded.Name, Localizer.Token(1502) };
-			cNote.Message = string.Concat(singular);
-			cNote.ReferencedItem1 = beingInvaded;
-			cNote.IconPath = "NewUI/icon_planet_terran_01_mid";
-			cNote.Action = "SnapToSystem";
-			cNote.ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64);
-			cNote.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64);
-			AudioManager.PlayCue("sd_notify_alert");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+            AddNotification(new Notification
+		    {
+		        RelevantEmpire  = invader,
+		        Message         = invader.data.Traits.Singular + Localizer.Token(1500) + '\n' + Localizer.Token(1501) + beingInvaded.Name + Localizer.Token(1502),
+		        ReferencedItem1 = beingInvaded,
+		        IconPath        = "NewUI/icon_planet_terran_01_mid",
+		        Action          = "SnapToSystem"
+            }, "sd_notify_alert");
 		}
 
 		public void AddColonizedNotification(Planet wasColonized, Empire emp)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-				RelevantEmpire = emp,
-				Message = string.Concat(wasColonized.Name, Localizer.Token(1513)),
+				RelevantEmpire  = emp,
+				Message         = wasColonized.Name + Localizer.Token(1513),
 				ReferencedItem1 = wasColonized,
-				IconPath = string.Concat("Planets/", wasColonized.planetType),
-				Action = "SnapToPlanet",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_colonized_01");
-			this.NotificationList.Add(cNote);
+				IconPath        = "Planets/" + wasColonized.planetType,
+				Action          = "SnapToPlanet"
+            }, "sd_ui_notification_colonized_01");
 		}
 
-		public void AddConqueredNotification(Planet wasConquered, Empire Conquerer, Empire Loser)
+		public void AddConqueredNotification(Planet wasConquered, Empire conquerer, Empire loser)
 		{
-			Notification cNote = new Notification()
-			{
-				RelevantEmpire = Conquerer
-			};
-			string[] name = new string[] { Conquerer.data.Traits.Name, Localizer.Token(1503), wasConquered.Name, "\n", Localizer.Token(1504), Loser.data.Traits.Name };
-			cNote.Message = string.Concat(name);
-			cNote.ReferencedItem1 = wasConquered.system;
-			cNote.IconPath = string.Concat("Planets/", wasConquered.planetType);
-			cNote.Action = "SnapToSystem";
-			cNote.ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64);
-			cNote.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64);
-			AudioManager.PlayCue("sd_troop_march_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+		    AddNotification(new Notification
+		    {
+		        RelevantEmpire  = conquerer,
+		        Message         = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
+		        ReferencedItem1 = wasConquered.system,
+		        IconPath        = "Planets/" + wasConquered.planetType,
+		        Action          = "SnapToSystem"
+		    }, "sd_troop_march_01");
 		}
 
 		public void AddEmpireDiedNotification(Empire thatDied)
 		{
-			Notification cNote = new Notification()
-			{
-				RelevantEmpire = thatDied,
-				Message = string.Concat(thatDied.data.Traits.Name, " has been defeated"),
-				IconPath = "NewUI/icon_planet_terran_01_mid",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_troop_march_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+		    AddNotification(new Notification
+		    {
+		        RelevantEmpire  = thatDied,
+		        Message         = thatDied.data.Traits.Name + " has been defeated",
+		        IconPath        = "NewUI/icon_planet_terran_01_mid",
+		        ClickRect       = DefaultClickRect,
+		        DestinationRect = DefaultNotificationRect
+		    }, "sd_troop_march_01");
 		}
 
-		public void AddEnemyTroopsLandedNotification(Planet where, Empire Invader, Empire Player)
+		public void AddEnemyTroopsLandedNotification(Planet where, Empire invader, Empire player)
 		{
-			Notification cNote = new Notification()
-			{
-				RelevantEmpire = Invader,
-				Message = string.Concat(Invader.data.Traits.Singular, Localizer.Token(1507), where.Name, "!"),
-				ReferencedItem1 = where,
-				IconPath = string.Concat("Planets/", where.planetType),
-				Action = "CombatScreen",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_notify_alert");
-			AudioManager.PlayCue("sd_troop_march_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+		    AddNotification(new Notification
+		    {
+		        RelevantEmpire  = invader,
+		        Message         = invader.data.Traits.Singular + Localizer.Token(1507) + where.Name + "!",
+		        ReferencedItem1 = where,
+		        IconPath        = "Planets/" + where.planetType,
+		        Action          = "CombatScreen"
+		    }, "sd_notify_alert", "sd_troop_march_01");
 		}
 
         public void AddForeignTroopsRemovedNotification(Planet where)
         {
-            Notification cNote = new Notification()
+            AddNotification(new Notification
             {
-                Message = string.Concat("Foreign troops evacuated from ", where.Name),
+                Message         = "Foreign troops evacuated from " + where.Name,
                 ReferencedItem1 = where,
-                IconPath = string.Concat("Planets/", where.planetType),
-                Action = "SnapToPlanet",
-                ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-                DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-            };
-            AudioManager.PlayCue("sd_notify_alert");
-            lock (GlobalStats.NotificationLocker)
-            {
-                this.NotificationList.Add(cNote);
-            }
+                IconPath        = "Planets/" + where.planetType,
+                Action          = "SnapToPlanet"
+            }, "sd_notify_alert");
         }
 
         public void AddTroopsRemovedNotification(Planet where)
         {
-            Notification cNote = new Notification()
+            AddNotification(new Notification
             {
-                Message = string.Concat("Your troops stationed on ", where.Name, " had to evacuate when ", where.Owner.data.Traits.Name, " colonized the planet"),
+                Message         = "Your troops stationed on " + where.Name + " had to evacuate when " + where.Owner.data.Traits.Name + " colonized the planet",
                 ReferencedItem1 = where,
-                IconPath = string.Concat("Planets/", where.planetType),
-                Action = "SnapToPlanet",
-                ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-                DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-            };
-            AudioManager.PlayCue("sd_notify_alert");
-            lock (GlobalStats.NotificationLocker)
-            {
-                this.NotificationList.Add(cNote);
-            }
+                IconPath        = "Planets/" + where.planetType,
+                Action          = "SnapToPlanet"
+            }, "sd_notify_alert");
         }
 
-		public void AddEventNotification(ExplorationEvent expEvent)
+		public void AddNotify(ExplorationEvent expEvent)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                Message = Localizer.Token(2295),
+                Pause           = false,
+                Message         = Localizer.Token(2295),
 				ReferencedItem1 = expEvent,
-				IconPath = "ResearchMenu/icon_event_science",
-				Action = "LoadEvent",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_encounter");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+				IconPath        = "ResearchMenu/icon_event_science",
+				Action          = "LoadEvent"
+			}, "sd_ui_notification_encounter");
 		}
 
-        public void AddEventNotification(ExplorationEvent expEvent, string cMessage)
+        public void AddNotify(ExplorationEvent expEvent, string cMessage)
         {
-            Notification cNote = new Notification()
+            AddNotification(new Notification
             {
-                Pause = false,
-                Message = cMessage,
+                Pause           = false,
+                Message         = cMessage,
                 ReferencedItem1 = expEvent,
-                IconPath = "ResearchMenu/icon_event_science",
-                Action = "LoadEvent",
-                ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-                DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-            };
-            AudioManager.PlayCue("sd_ui_notification_encounter");
-            lock (GlobalStats.NotificationLocker)
-            {
-                this.NotificationList.Add(cNote);
-            }
+                IconPath        = "ResearchMenu/icon_event_science",
+                Action          = "LoadEvent"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddNotify(Technology.TriggeredEvent techEvent, string message)
+        {
+            AddNotify(ResourceManager.EventsDict[techEvent.EventUID], message);
+        }
+        public void AddNotify(Technology.TriggeredEvent techEvent)
+        {
+            AddNotify(ResourceManager.EventsDict[techEvent.EventUID]);
         }
 
 		public void AddFoundSomethingInteresting(Planet p)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                Message = string.Concat(Localizer.Token(1505), p.Name, Localizer.Token(1506)),
+                Pause           = false,
+                Message         = Localizer.Token(1505) + p.Name + Localizer.Token(1506),
 				ReferencedItem1 = p.system,
-                ReferencedItem2=p,
-				IconPath = string.Concat("Planets/", p.planetType),
-                Action = "SnapToExpandSystem",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_encounter");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                ReferencedItem2 = p,
+				IconPath        = "Planets/" + p.planetType,
+                Action          = "SnapToExpandSystem"
+			}, "sd_ui_notification_encounter");
 		}
 
-		public void AddMolePlantedNotification(Planet wasConquered, Empire Us)
+		public void AddMolePlantedNotification(Planet wasConquered, Empire us)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                RelevantEmpire = Us,
-				Message = string.Concat(Localizer.Token(1510), wasConquered.Name),
+                Pause           = false,
+                RelevantEmpire  = us,
+				Message         = Localizer.Token(1510) + wasConquered.Name,
 				ReferencedItem1 = wasConquered,
-				IconPath = string.Concat("Planets/", wasConquered.planetType),
-				Action = "SnapToPlanet",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_troop_march_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+				IconPath        = "Planets/" + wasConquered.planetType,
+				Action          = "SnapToPlanet"
+			}, "sd_troop_march_01");
 		}
 
-		public void AddMoleRemovedNotification(Planet wasConquered, Empire Us, Empire them)
+		public void AddMoleRemovedNotification(Planet wasConquered, Empire us, Empire them)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                RelevantEmpire = Us,
-				Message = string.Concat("Removed ", them.data.Traits.Singular, " agent from ", wasConquered.Name),
+                Pause           = false,
+                RelevantEmpire  = us,
+				Message         = "Removed " + them.data.Traits.Singular + " agent from " + wasConquered.Name,
 				ReferencedItem1 = wasConquered,
-				IconPath = string.Concat("Planets/", wasConquered.planetType),
-				Action = "SnapToPlanet",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_troop_march_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+				IconPath        = "Planets/" + wasConquered.planetType,
+				Action          = "SnapToPlanet"
+			}, "sd_troop_march_01");
 		}
 
 		public void AddMoneyWarning()
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                Message = Localizer.Token(2296),
-				IconPath = "UI/icon_warning_money",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_warning");
-			AudioManager.PlayCue("sd_trade_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                Pause    = false,
+                Message  = Localizer.Token(2296),
+				IconPath = "UI/icon_warning_money"
+			}, "sd_ui_notification_warning", "sd_trade_01");
 		}
 
-		public void AddNoMolesNotification(Empire Us, Empire them)
+		public void AddNoMolesNotification(Empire us, Empire them)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                RelevantEmpire = Us,
-				Message = string.Concat(Localizer.Token(1508), them.data.Traits.Singular, Localizer.Token(1509)),
-				IconPath = "NewUI/icon_planet_terran_01_mid",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_troop_march_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                Pause          = false,
+                RelevantEmpire = us,
+				Message        = Localizer.Token(1508) + them.data.Traits.Singular + Localizer.Token(1509),
+				IconPath       = "NewUI/icon_planet_terran_01_mid"
+			}, "sd_troop_march_01");
 		}
 
-		public void AddPeacefulMergerNotification(Empire Absorber, Empire Target)
+		public void AddPeacefulMergerNotification(Empire absorber, Empire target)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-				RelevantEmpire = Absorber,
-				Message = string.Concat(Absorber.data.Traits.Name, " ", Localizer.Token(2258), Target.data.Traits.Name),
-				IconPath = "NewUI/icon_planet_terran_01_mid",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_troop_march_01");
-			this.NotificationList.Add(cNote);
+				RelevantEmpire = absorber,
+				Message        = absorber.data.Traits.Name + " " + Localizer.Token(2258) + target.data.Traits.Name,
+				IconPath       = "NewUI/icon_planet_terran_01_mid"
+			}, "sd_troop_march_01");
 		}
 
-		public void AddPeaceTreatyEnteredNotification(Empire First, Empire Second)
+		public void AddPeaceTreatyEnteredNotification(Empire first, Empire second)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\nare now at peace"),
-				IconPath = "UI/icon_peace",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 78, 58),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_conquer_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                Pause    = false,
+                Message  = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at peace",
+				IconPath = "UI/icon_peace"
+			}, "sd_ui_notification_conquer_01");
 		}
 
 		public void AddPeaceTreatyExpiredNotification(Empire otherEmpire)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Pause = false,
-                Message = string.Concat("Peace Treaty expired with \n", otherEmpire.data.Traits.Name),
-				IconPath = "UI/icon_peace_cancel",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_warning");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                Pause    = false,
+                Message  = "Peace Treaty expired with \n" + otherEmpire.data.Traits.Name,
+				IconPath = "UI/icon_peace_cancel"
+			}, "sd_ui_notification_warning");
 		}
 
-		public void AddPlanetDiedNotification(Planet died, Empire Owner)
+		public void AddPlanetDiedNotification(Planet died, Empire owner)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-				Message = string.Concat(Localizer.Token(1511), died.Name, Localizer.Token(1512)),
+				Message         = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
 				ReferencedItem1 = died.system,
-				IconPath = string.Concat("Planets/", died.planetType),
-				Action = "SnapToSystem",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_warning");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+				IconPath        = "Planets/" + died.planetType,
+				Action          = "SnapToSystem"
+			}, "sd_ui_notification_warning");
 		}
 
-		public void AddRandomEventNotification(string Message, string IconPath, string Action, Planet p)
+		public void AddRandomEventNotification(string message, string iconPath, string action, Planet p)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-				Message = Message
-			};
-			if (Action != null)
-			{
-				cNote.Action = Action;
-			}
-			if (p != null)
-			{
-				cNote.ReferencedItem1 = p;
-			}
-			cNote.IconPath = (IconPath != null ? IconPath : "ResearchMenu/icon_event_science_bad");
-			cNote.ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64);
-			cNote.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64);
-			AudioManager.PlayCue("sd_ui_notification_encounter");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+				Message         = message,
+                Action          = action,
+                ReferencedItem1 = p,
+                IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter");
 		}
 
-		public void AddRebellionNotification(Planet beingInvaded, Empire Invader)
+		public void AddRebellionNotification(Planet beingInvaded, Empire invader)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-				Message = string.Concat("Rebellion on ", beingInvaded.Name, "!"),
+				Message         = "Rebellion on " + beingInvaded.Name + "!",
 				ReferencedItem1 = beingInvaded.system,
-				IconPath = "UI/icon_rebellion",
-				Action = "SnapToSystem",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_troop_march_01");
-			AudioManager.PlayCue("sd_notify_alert");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+				IconPath        = "UI/icon_rebellion",
+				Action          = "SnapToSystem"
+			}, "sd_troop_march_01", "sd_notify_alert");
 		}
 
 		public void AddResearchComplete(string unlocked, Empire emp)
 		{
-			Notification cNote = new Notification()
+            // Techs using Icon Path need this for notifications
+		    string techIcon = "TechIcons/" + ResourceManager.TechTree[unlocked].IconPath;
+		    bool hasTechIcon = ResourceManager.TextureDict.ContainsKey(techIcon);
+
+            AddNotification(new Notification
 			{
-				Tech = true,
-				Message = string.Concat(Localizer.Token(ResourceManager.TechTree[unlocked].NameIndex), Localizer.Token(1514)),
+				Tech            = true,
+				Message         = Localizer.Token(ResourceManager.TechTree[unlocked].NameIndex) + Localizer.Token(1514),
 				ReferencedItem1 = unlocked,
-                //Added by McShooterz: Techs using Icon Path need this for notifications
-                IconPath = ResourceManager.TextureDict.ContainsKey(string.Concat("TechIcons/", ResourceManager.TechTree[unlocked].IconPath)) ? string.Concat("TechIcons/", ResourceManager.TechTree[unlocked].IconPath) : string.Concat("TechIcons/", unlocked),
-                //IconPath = string.Concat("TechIcons/", unlocked),
-				Action = "ResearchScreen",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_ui_notification_research_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                IconPath        = hasTechIcon ? techIcon : "TechIcons/" + unlocked,
+				Action          = "ResearchScreen"
+			}, "sd_ui_notification_research_01");
 		}
 
-		public void AddSurrendered(Empire Absorber, Empire Target)
+		public void AddSurrendered(Empire absorber, Empire target)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-				RelevantEmpire = Absorber,
-				Message = string.Concat(Target.data.Traits.Name, " ", Localizer.Token(2259), Absorber.data.Traits.Name),
-				IconPath = "NewUI/icon_planet_terran_01_mid",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-			AudioManager.PlayCue("sd_troop_march_01");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+				RelevantEmpire = absorber,
+				Message        = target.data.Traits.Name + " " + Localizer.Token(2259) + absorber.data.Traits.Name,
+				IconPath       = "NewUI/icon_planet_terran_01_mid"
+			}, "sd_troop_march_01");
 		}
 
-		public void AddWarDeclaredNotification(Empire Declarant, Empire Other)
+		public void AddWarDeclaredNotification(Empire declarant, Empire other)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-                Message = string.Concat(Declarant.data.Traits.Name, " and ", Other.data.Traits.Name, "\nare now at war"),
+                Message  = declarant.data.Traits.Name + " and " + other.data.Traits.Name + "\nare now at war",
 				IconPath = "ResearchMenu/icons_techroot_infantry_hover",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 78, 58),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-            if (!Declarant.isPlayer && !Other.isPlayer)
-                cNote.Pause = false;
-			AudioManager.PlayCue("sd_troop_march_01");
-			AudioManager.PlayCue("sd_notify_alert");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                Pause    = declarant.isPlayer || other.isPlayer
+            }, "sd_troop_march_01", "sd_notify_alert");
 		}
 
-		public void AddWarStartedNotification(Empire First, Empire Second)
+		public void AddWarStartedNotification(Empire first, Empire second)
 		{
-			Notification cNote = new Notification()
+            AddNotification(new Notification
 			{
-				Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\nare now at War"),
+				Message  = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at War",
 				IconPath = "UI/icon_warning_money",
-				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
-				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
-			};
-            if (!First.isPlayer && !Second.isPlayer)
-                cNote.Pause = false;
-			AudioManager.PlayCue("sd_ui_notification_startgame");
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.Add(cNote);
-			}
+                Pause    = first.isPlayer || second.isPlayer
+			}, "sd_ui_notification_startgame");
 		}
 
-		public void Draw()
+	    public void AddEmptyQueueNotification(Planet planet)
+	    {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                RelevantEmpire  = planet.Owner,
+                Message         = planet.Name + " is not producing anything.",
+                ReferencedItem1 = this, //this.system,
+                IconPath        = "Planets/" + planet.planetType, //"UI/icon_warning_money",
+                Action          = "SnapToPlanet" //"SnapToSystem",
+            }, "sd_ui_notification_warning");
+        }
+
+        private void UpdateAllPositions()
+        {
+            for (int i = 0; i < NotificationList.Count; i++)
+            {
+                Notification n = NotificationList[i];
+                n.DestinationRect = GetNotificationRect(i);
+                n.ClickRect.X = NotificationArea.X;
+                n.transitionElapsedTime = 0f;
+            }
+        }
+
+        public void Draw()
 		{
-			lock (GlobalStats.NotificationLocker)
+			lock (NotificationLocker)
 			{
-                if (this.NotificationList.Count >= this.numentriesToDisplay)  //fbedard: remove excess notifications
+                if (NotificationList.Count >= MaxEntriesToDisplay)  //fbedard: remove excess notifications
                 {
-                    for (int i = 0; i < this.NotificationList.Count && i <= this.numentriesToDisplay; i++)
+                    for (int i = 0; i < NotificationList.Count; i++)
                     {
-                        Notification n = this.NotificationList[i];
-                        if (n.Action != "LoadEvent" && !n.Pause)
-                            this.NotificationList.QueuePendingRemoval(n);
+                        Notification n = NotificationList[i];
+                        if (n.Action == "LoadEvent" || n.Pause) continue;
+                        NotificationList.QueuePendingRemoval(n);
                         break;
                     }
-                    this.NotificationList.ApplyPendingRemovals();
-                    for (int i = 0; i < this.NotificationList.Count; i++)
-                    {
-                        Notification n = this.NotificationList[i];
-                        n.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (i + 1) * 70, 64, 64);
-                        n.transitionElapsedTime = 0f;
-                        n.ClickRect = new Rectangle(this.NotificationArea.X, n.ClickRect.Y, n.ClickRect.Width, n.ClickRect.Height);
-                    }
+                    NotificationList.ApplyPendingRemovals();
+                    UpdateAllPositions();
                 }
 
-				for (int i = 0; i < this.NotificationList.Count && i <= this.numentriesToDisplay; i++)
+				for (int i = 0; i < NotificationList.Count && i <= MaxEntriesToDisplay; i++)
 				{
-					Notification n = this.NotificationList[i];
-					Rectangle clickRect = n.ClickRect;
+					Notification n = NotificationList[i];
 					if (n.IconPath != null)
 					{
-						if (!n.Tech)
+					    Texture2D iconTex = ResourceManager.TextureDict[n.IconPath];
+                        if (!n.Tech)
 						{
-							this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[n.IconPath], n.ClickRect, Color.White);
+							ScreenManager.SpriteBatch.Draw(iconTex, n.ClickRect, Color.White);
 						}
 						else
 						{
 							Rectangle rect = n.ClickRect;
-							if (n.ClickRect.X == 0)
-							{
+							if (rect.X == 0)
 								continue;
-							}
-							rect.X = n.ClickRect.X + n.ClickRect.Width / 2 - ResourceManager.TextureDict[n.IconPath].Width / 2;
-							rect.Y = n.ClickRect.Y + n.ClickRect.Height / 2 - ResourceManager.TextureDict[n.IconPath].Height / 2;
-							rect.Width = ResourceManager.TextureDict[n.IconPath].Width;
-							rect.Height = ResourceManager.TextureDict[n.IconPath].Height;
-							this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TechIcons/techbg"], rect, Color.White);
-							this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[n.IconPath], rect, Color.White);
-							Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, rect, new Color(32, 30, 18));
+
+							rect.X = n.ClickRect.X + n.ClickRect.Width / 2 - iconTex.Width / 2;
+							rect.Y = n.ClickRect.Y + n.ClickRect.Height / 2 - iconTex.Height / 2;
+
+							rect.Width = iconTex.Width;
+							rect.Height = iconTex.Height;
+							ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TechIcons/techbg"], rect, Color.White);
+							ScreenManager.SpriteBatch.Draw(iconTex, rect, Color.White);
+							Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, rect, new Color(32, 30, 18));
 						}
 					}
 					if (n.RelevantEmpire != null)
@@ -562,12 +423,10 @@ namespace Ship_Game
 					}
 					if (n.ShowMessage)
 					{
-						Vector2 Cursor = new Vector2((float)n.ClickRect.X - Fonts.Arial12Bold.MeasureString(n.Message).X - 3f, (float)(n.ClickRect.Y + 32) - Fonts.Arial12Bold.MeasureString(n.Message).Y / 2f);
-						HelperFunctions.ClampVectorToInt(ref Cursor);
-                        if (n.Pause)
-						    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.Red);
-                        else
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.White);
+					    Vector2 msgSize = Fonts.Arial12Bold.MeasureString(n.Message);
+                        Vector2 cursor = new Vector2(n.ClickRect.X - msgSize.X - 3f, n.ClickRect.Y + 32 - msgSize.Y / 2f);
+						HelperFunctions.ClampVectorToInt(ref cursor);
+					    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, cursor, n.Pause ? Color.Red : Color.White);
 					}
 				}
 
@@ -577,14 +436,13 @@ namespace Ship_Game
 		public bool HandleInput(InputState input)
 		{
 			bool retValue = false;
-			Vector2 MousePos = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
-			bool Recalculate = false;
-			lock (GlobalStats.NotificationLocker)
+			Vector2 mousePos = new Vector2(input.CurrentMouseState.X, input.CurrentMouseState.Y);
+			bool recalculate = false;
+			lock (NotificationLocker)
 			{
-				for (int i = 0; i < this.NotificationList.Count; i++)
+				foreach (Notification n in NotificationList)
 				{
-					Notification n = this.NotificationList[i];
-					if (!HelperFunctions.CheckIntersection(n.ClickRect, MousePos))
+					if (!HelperFunctions.CheckIntersection(n.ClickRect, mousePos))
 					{
 						n.ShowMessage = false;
 					}
@@ -592,224 +450,162 @@ namespace Ship_Game
 					{
 						if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
 						{
-							this.NotificationList.QueuePendingRemoval(n);
-							Recalculate = true;
-							string action = n.Action;
-							string str = action;
-							if (action != null)
-							{
-								if (str == "SnapToPlanet")
-								{
-									this.SnapToPlanet(n.ReferencedItem1 as Planet);
-								}
-								else if (str == "SnapToSystem")
-								{
-									this.SnapToSystem(n.ReferencedItem1 as SolarSystem);
-								}
-								else if (str == "CombatScreen")
-								{
-									this.SnapToCombat(n.ReferencedItem1 as Planet);
-								}
-								else if (str == "LoadEvent")
-								{
-                                    ExplorationEvent e = n.ReferencedItem1 as ExplorationEvent;
-                                    Outcome triggeredOutcome = GetRandomOutcome(e);
-									this.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), n.ReferencedItem1 as ExplorationEvent, triggeredOutcome));
-									(n.ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
-								}
-								else if (str == "ResearchScreen")
-								{
-									this.ScreenManager.AddScreen(new ResearchPopup(this.screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
-								}
-                                else if (str == "SnapToExpandSystem")
-                                {
-                                   // this.ScreenManager.AddScreen(new ResearchPopup(this.screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
-                                    
-                                    this.SnapToExpandedSystem(n.ReferencedItem2 as Planet,n.ReferencedItem1 as SolarSystem);
-                                }
-							}
-							retValue = true;
-						}
-						if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released && n.Action != "LoadEvent")
+							NotificationList.QueuePendingRemoval(n);
+							recalculate = true;
+                            switch (n.Action)
+                            {
+                                case "SnapToPlanet":
+                                    SnapToPlanet(n.ReferencedItem1 as Planet);
+                                    break;
+                                case "SnapToSystem":
+                                    SnapToSystem(n.ReferencedItem1 as SolarSystem);
+                                    break;
+                                case "CombatScreen":
+                                    SnapToCombat(n.ReferencedItem1 as Planet);
+                                    break;
+                                case "LoadEvent":
+                                    TriggerExplorationEvent(n.ReferencedItem1 as ExplorationEvent);
+                                    break;
+                                case "ResearchScreen":
+                                    ScreenManager.AddScreen(new ResearchPopup(Screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
+                                    break;
+                                case "SnapToExpandSystem":
+                                    SnapToExpandedSystem(n.ReferencedItem2 as Planet, n.ReferencedItem1 as SolarSystem);
+                                    break;
+                            }
+                            retValue = true;
+                        }
+                        if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released && n.Action != "LoadEvent")
 						{
 							AudioManager.PlayCue("sub_bass_whoosh");
-							this.NotificationList.QueuePendingRemoval(n);
-							Recalculate = true;
+							NotificationList.QueuePendingRemoval(n);
+							recalculate = true;
 							retValue = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
                             if (GlobalStats.PauseOnNotification && n.Pause)
-                                this.screen.Paused = false;
+                                this.Screen.Paused = false;
 						}
 						n.ShowMessage = true;
-					}
-				}
-			}
-			lock (GlobalStats.NotificationLocker)
-			{
-				this.NotificationList.ApplyPendingRemovals();
-				if (Recalculate)
-				{
-					for (int i = 0; i < this.NotificationList.Count; i++)
-					{
-						Notification n = this.NotificationList[i];
-						n.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (i + 1) * 70, 64, 64);
-						n.transitionElapsedTime = 0f;
-						n.ClickRect = new Rectangle(this.NotificationArea.X, n.ClickRect.Y, n.ClickRect.Width, n.ClickRect.Height);
-					}
-				}
-			}
+                    }
+                }
+                NotificationList.ApplyPendingRemovals();
+                if (recalculate)
+                    UpdateAllPositions();
+            }
 			return retValue;
-		}
+        }
 
 		public void ReSize()
 		{
-			this.NotificationArea = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
-			lock (GlobalStats.NotificationLocker)
-			{
-				for (int i = 0; i < this.NotificationList.Count; i++)
-				{
-					Notification n = this.NotificationList[i];
-					n.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (i + 1) * 70, n.DestinationRect.Width, n.DestinationRect.Height);
-					n.transitionElapsedTime = 0f;
-					if (i < this.numentriesToDisplay)
-					{
-						n.ClickRect = new Rectangle(this.NotificationArea.X, n.DestinationRect.Y, n.ClickRect.Width, n.ClickRect.Height);
-					}
-				}
-			}
+			NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, 
+                                             ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
+			lock (NotificationLocker)
+			    UpdateAllPositions();
 		}
 
 		public void SnapToCombat(Planet p)
 		{
 			AudioManager.PlayCue("sub_bass_whoosh");
-			this.screen.SelectedPlanet = p;
-			if (!this.screen.SnapBackToSystem)
+			Screen.SelectedPlanet = p;
+			if (!Screen.SnapBackToSystem)
 			{
-				this.screen.HeightOnSnap = this.screen.camHeight;
+				Screen.HeightOnSnap = this.Screen.camHeight;
 			}
-			this.screen.OpenCombatMenu(null);
+			Screen.OpenCombatMenu(null);
 		}
 
 		public void SnapToPlanet(Planet p)
 		{
 			AudioManager.PlayCue("sub_bass_whoosh");
-			this.screen.SelectedPlanet = p;
-			if (!this.screen.SnapBackToSystem)
+			Screen.SelectedPlanet = p;
+			if (!Screen.SnapBackToSystem)
 			{
-				this.screen.HeightOnSnap = this.screen.camHeight;
+				Screen.HeightOnSnap = Screen.camHeight;
 			}
-			this.screen.SnapViewPlanet(p);
+			Screen.SnapViewPlanet(p);
 		}
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
         {
             AudioManager.PlayCue("sub_bass_whoosh");
-            p= p!= null ? this.screen.SelectedPlanet = p:null;
-            this.screen.SelectedSystem = system;
-           // this.screen.mouseWorldPos = p == null ? system.Position : p.Position;
-            this.screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView); 
+            if (p != null) Screen.SelectedPlanet = p;
+            Screen.SelectedSystem = system;
+           // Screen.mouseWorldPos = p == null ? system.Position : p.Position;
+            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView); 
         }
 
 		public void SnapToSystem(SolarSystem system)
 		{
 			AudioManager.PlayCue("sub_bass_whoosh");
-            this.screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
+            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
 		}
 
         public Outcome GetRandomOutcome(ExplorationEvent e)
         {
-            int ranMax = 0;
-            foreach (Outcome outcome in e.PotentialOutcomes)
-            {
-                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
-                {
-                    continue;
-                }
-                else
-                {
-                    ranMax += outcome.Chance;
-                }
-            }
+            int ranMax = e.PotentialOutcomes.Where(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
+                .Sum(outcome => outcome.Chance);
 
-            int Random = (int)RandomMath.RandomBetween(0, ranMax);
+            int random = (int)RandomMath.RandomBetween(0, ranMax);
             Outcome triggeredOutcome = new Outcome();
             int cursor = 0;
             foreach (Outcome outcome in e.PotentialOutcomes)
             {
-                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
-                {
+                if (outcome.OnlyTriggerOnce && outcome.AlreadyTriggered)
                     continue;
-                }
-                else
-                {
-                    cursor = cursor + outcome.Chance;
-                    if (Random > cursor)
-                    {
-                        continue;
-                    }
-                    triggeredOutcome = outcome;
-                    outcome.alreadyTriggered = true;
-                    break;
-                }
+                cursor = cursor + outcome.Chance;
+                if (random > cursor)
+                    continue;
+                triggeredOutcome = outcome;
+                outcome.AlreadyTriggered = true;
+                break;
             }
             return triggeredOutcome;
         }
 
+	    private void TriggerExplorationEvent(ExplorationEvent evt)
+	    {
+            Outcome triggeredOutcome = GetRandomOutcome(evt);
+
+            Empire empire = EmpireManager.Player;
+            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome, false));
+            evt.TriggerOutcome(empire, triggeredOutcome);
+        }
 
 		public void Update(float elapsedTime)
 		{
-
-            float date = this.screen.StarDate;
-            if (Timer< date && ResourceManager.EventsDict.ContainsKey(date.ToString()))
+            float date = Screen.StarDate;
+		    string dateString = date.ToString(CultureInfo.InvariantCulture);
+            if (Timer < date && ResourceManager.EventsDict.ContainsKey(dateString))
             {
                 Timer = date;
-                ExplorationEvent ReferencedItem1 = ResourceManager.EventsDict[date.ToString()];
-                Outcome triggeredOutcome = GetRandomOutcome(ReferencedItem1);
-                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, triggeredOutcome));
-                (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
+                TriggerExplorationEvent(ResourceManager.EventsDict[dateString]);
             }
             
-
-            
-            lock (GlobalStats.NotificationLocker)
+            lock (NotificationLocker)
 			{
-				for (int i = 0; i < this.NotificationList.Count; i++)
+				foreach (Notification n in NotificationList)
 				{
-					Notification n = this.NotificationList[i];
-					Notification notification = n;
-					notification.transitionElapsedTime = notification.transitionElapsedTime + elapsedTime;
-					float amount = (float)Math.Pow((double)(n.transitionElapsedTime / n.transDuration), 2);
-					n.ClickRect.Y = (int)MathHelper.SmoothStep((float)n.ClickRect.Y, (float)n.DestinationRect.Y, amount);
-                    // ADDED BY SHAHMATT (pause game when there are any notifications)
-                    //if (GlobalStats.PauseOnNotification && this.screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
-                    //fbedard : Add filter to pause
-                    if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
-                        this.screen.Paused = true;                   
-                    // END OF ADDED BY SHAHMATT
+				    n.transitionElapsedTime = n.transitionElapsedTime + elapsedTime;
+				    float amount = (float)Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
+				    n.ClickRect.Y = (int)MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount);
+				    // ADDED BY SHAHMATT (pause game when there are any notifications)
+				    //if (GlobalStats.PauseOnNotification && this.Screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
+				    //fbedard : Add filter to pause
+				    if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
+				        Screen.Paused = true;
 				}
 			}
 		}
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
-
-        ~NotificationManager() { Dispose(false); }
-
-        protected void Dispose(bool disposing)
+	    ~NotificationManager() { Destroy(); }
+        private void Destroy()
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.NotificationList != null)
-                        this.NotificationList.Dispose();
-
-                }
-                this.NotificationList = null;
-                this.disposed = true;
-            }
+            NotificationList?.Dispose();
+            NotificationList = null;
         }
-	}
+    }
 }

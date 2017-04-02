@@ -1,0 +1,36 @@
+[merge-patterns]
+**.doc = docdiff
+**.rtf = docdiff
+**.docx = docdiff
+**.docm = docdiff
+**.ods = docdiff
+**.odt = docdiff
+**.sxw = docdiff
+
+# If you have Telelogic Rhapsody DifMerge, enable these
+#**.sbs = rhapsody_diffmerge
+#**.rpy = rhapsody_diffmerge
+#**.cmp = rhapsody_diffmerge
+
+[diff-patterns]
+**.doc = docdiff
+**.rtf = docdiff
+**.docx = docdiff
+**.docm = docdiff
+**.ppt = docdiff
+**.pptx = docdiff
+**.pptm = docdiff
+**.xls = docdiff
+**.xlsx = docdiff
+**.xlsm = docdiff
+**.xlsb = docdiff
+**.xlam = docdiff
+**.ods = docdiff
+**.odt = docdiff
+**.sxw = docdiff
+**.nb = docdiff
+
+# If you have Telelogic Rhapsody DifMerge, enable these
+#*.sbs = rhapsody_diffmerge
+#*.rpy = rhapsody_diffmerge
+#*.cmp = rhapsody_diffmerge

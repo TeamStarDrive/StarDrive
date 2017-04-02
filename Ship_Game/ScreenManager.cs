@@ -15,97 +15,40 @@ namespace Ship_Game
 {
 	public sealed class ScreenManager : IDisposable
 	{
-		public List<GameScreen> screens = new List<GameScreen>();
-
-		private List<GameScreen> screensToUpdate = new List<GameScreen>();
-
-		private List<GameScreen> screensToDraw = new List<GameScreen>();
-
+		public Array<GameScreen> screens = new Array<GameScreen>();
+		private readonly Array<GameScreen> screensToUpdate = new Array<GameScreen>();
+		private readonly Array<GameScreen> screensToDraw = new Array<GameScreen>();
 		public InputState input = new InputState();
-
-		private IGraphicsDeviceService graphicsDeviceService;
-
-		private ContentManager content;
-
-		private Texture2D blankTexture;
-
-		private Rectangle titleSafeArea;
-
-		private bool traceEnabled;
-
-		public LightingSystemManager lightingSystemManager;
-
+		private readonly IGraphicsDeviceService graphicsDeviceService;
+	    private Texture2D blankTexture;
+	    public LightingSystemManager lightingSystemManager;
 		public LightingSystemEditor editor;
-
 		public SceneState sceneState;
-
 		public SceneEnvironment environment;
-
 		public LightingSystemPreferences preferences;
-
 		public SplashScreenGameComponent splashScreenGameComponent;
-
 		public SceneInterface inter;
-
 		public SceneInterface buffer1;
-
 		public SceneInterface buffer2;
-
 		public SceneInterface renderBuffer;
-
 		public Cue Music;
-
 		public AudioCategory musicCategory;
-
 		public AudioCategory racialMusic;
-
 		public AudioCategory combatMusic;
-
 		public AudioCategory weaponsCategory;
-
         public AudioCategory defaultCategory;
         public AudioCategory GlobalCategory;
+		public GraphicsDevice GraphicsDevice;
+		public SpriteBatch SpriteBatch;
 
-		public Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
+        public float exitScreenTimer;
 
-		public Microsoft.Xna.Framework.Graphics.SpriteBatch SpriteBatch;
+		//public GameContentManager Content { get; private set; }
+	    public Rectangle TitleSafeArea { get; private set; }
+	    public bool TraceEnabled { get; set; }
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-        public float exitScreenTimer = 0;
-
-		public ContentManager Content
+	    public ScreenManager(Game1 game, GraphicsDeviceManager graphics)
 		{
-			get
-			{
-				return this.content;
-			}
-		}
-
-		public Rectangle TitleSafeArea
-		{
-			get
-			{
-				return this.titleSafeArea;
-			}
-		}
-
-		public bool TraceEnabled
-		{
-			get
-			{
-				return this.traceEnabled;
-			}
-			set
-			{
-				this.traceEnabled = value;
-			}
-		}
-
-		public ScreenManager(Game game, GraphicsDeviceManager graphics)
-		{
-			this.content = new ContentManager(game.Services, "Content");
 			this.GraphicsDevice = graphics.GraphicsDevice;
 			this.graphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
 			if (this.graphicsDeviceService == null)
@@ -125,130 +68,95 @@ namespace Ship_Game
 
 		public void AddScreen(GameScreen screen)
 		{
-
-            foreach (GameScreen gs in this.screens)
+            foreach (GameScreen gs in screens)
 			{
-				if (!(gs is DiplomacyScreen))
-				{
-					continue;
-				}
-				return;
+				if (gs is DiplomacyScreen)
+				    return;
 			}
-			screen.ScreenManager = this;
-			if (this.graphicsDeviceService != null && this.graphicsDeviceService.GraphicsDevice != null)
-			{
+			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.LoadContent();
-			}
-			this.screens.Add(screen);
-
+			screens.Add(screen);
 		}
 
 		public void AddScreenNoLoad(GameScreen screen)
 		{
-			foreach (GameScreen gs in this.screens)
+			foreach (GameScreen gs in screens)
 			{
-				if (!(gs is DiplomacyScreen))
-				{
-					continue;
-				}
-				return;
+				if (gs is DiplomacyScreen)
+			    	return;
 			}
-			screen.ScreenManager = this;
-			this.screens.Add(screen);
+			screens.Add(screen);
 		}
 
 		public void Draw(GameTime gameTime)
 		{
-			this.screensToDraw.Clear();
-			foreach (GameScreen screen in this.screens)
-			{
-				this.screensToDraw.Add(screen);
-			}
-			for (int i = 0; i < this.screensToDraw.Count; i++)
-            //Parallel.For(0, this.screensToDraw.Count, i =>
-            {
-                GameScreen screen = this.screensToDraw[i];
-                if (screen.ScreenState != ScreenState.Hidden)
-                {
-                    screen.Draw(gameTime);
-                }
-            }//);
-		}
+			screensToDraw.Clear();
+			foreach (GameScreen screen in screens)
+				screensToDraw.Add(screen);
 
-		public void DrawRectangle(Rectangle rectangle, Color color)
-		{
-			this.SpriteBatch.Begin();
-			this.SpriteBatch.Draw(this.blankTexture, rectangle, color);
-			this.SpriteBatch.End();
+			foreach (GameScreen screen in screensToDraw)
+			{
+			    if (screen.ScreenState != ScreenState.Hidden)
+			        screen.Draw(gameTime);
+			}
 		}
 
 		public void ExitAll()
 		{
-			for (int i = 0; i < this.screens.Count; i++)
-			{
-				this.screens[i].ExitScreen();
-			}
+		    foreach (GameScreen screen in screens.ToArray())
+		        screen.ExitScreen();
 		}
 
-		public void FadeBackBufferToBlack(int alpha, Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
+		public void FadeBackBufferToBlack(int alpha, SpriteBatch spriteBatch)
 		{
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			spriteBatch.Draw(this.blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
+			Viewport viewport = GraphicsDevice.Viewport;
+			spriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
 		}
 
 		public void FadeBackBufferToBlack(int alpha)
 		{
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			this.SpriteBatch.Begin();
-			this.SpriteBatch.Draw(this.blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
-			this.SpriteBatch.End();
+			Viewport viewport = GraphicsDevice.Viewport;
+			SpriteBatch.Begin();
+			SpriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
+			SpriteBatch.End();
 		}
 
-		public GameScreen[] GetScreens()
-		{
-			return this.screens.ToArray();
-		}
+        public int ScreenCount => screens.Count;
 
 		public void LoadContent()
 		{
-			if (AudioManager.getAudioEngine() != null)
+			if (AudioManager.AudioEngine!= null)
 			{
-				this.musicCategory = AudioManager.getAudioEngine().GetCategory("Music");
-				this.racialMusic = AudioManager.getAudioEngine().GetCategory("RacialMusic");
-				this.combatMusic = AudioManager.getAudioEngine().GetCategory("CombatMusic");
-				this.weaponsCategory = AudioManager.getAudioEngine().GetCategory("Weapons");
-				this.weaponsCategory.SetVolume(0.5f);
-                this.defaultCategory = AudioManager.getAudioEngine().GetCategory("Default");
-                this.GlobalCategory = AudioManager.getAudioEngine().GetCategory("Global");
+				musicCategory   = AudioManager.AudioEngine.GetCategory("Music");
+				racialMusic     = AudioManager.AudioEngine.GetCategory("RacialMusic");
+				combatMusic     = AudioManager.AudioEngine.GetCategory("CombatMusic");
+				weaponsCategory = AudioManager.AudioEngine.GetCategory("Weapons");
+				weaponsCategory.SetVolume(0.5f);
+                defaultCategory = AudioManager.AudioEngine.GetCategory("Default");
+                GlobalCategory  = AudioManager.AudioEngine.GetCategory("Global");
 			}
-			this.SpriteBatch = new Microsoft.Xna.Framework.Graphics.SpriteBatch(this.GraphicsDevice);
-			this.blankTexture = this.content.Load<Texture2D>("Textures/blank");
-			foreach (GameScreen screen in this.screens)
+			SpriteBatch = new SpriteBatch(GraphicsDevice);
+            blankTexture = ResourceManager.LoadTexture("blank");
+			foreach (GameScreen screen in screens)
 			{
 				screen.LoadContent();
 			}
-			float x = (float)this.GraphicsDevice.Viewport.X;
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			int num = (int)Math.Floor((double)(x + (float)viewport.Width * 0.05f));
-			float y = (float)this.GraphicsDevice.Viewport.Y;
-			Viewport viewport1 = this.GraphicsDevice.Viewport;
-			int num1 = (int)Math.Floor((double)(y + (float)viewport1.Height * 0.05f));
-			Viewport viewport2 = this.GraphicsDevice.Viewport;
-			int num2 = (int)Math.Floor((double)((float)viewport2.Width * 0.9f));
-			Viewport viewport3 = this.GraphicsDevice.Viewport;
-			this.titleSafeArea = new Rectangle(num, num1, num2, (int)Math.Floor((double)((float)viewport3.Height * 0.9f)));
+
+			Viewport viewport = GraphicsDevice.Viewport;
+			TitleSafeArea = new Rectangle(
+                (int)(viewport.X + viewport.Width  * 0.05f),
+                (int)(viewport.Y + viewport.Height * 0.05f),
+                (int)(viewport.Width  * 0.9f),
+                (int)(viewport.Height * 0.9f));
 		}
 
 		public void RemoveScreen(GameScreen screen)
 		{
-			if (this.graphicsDeviceService != null && this.graphicsDeviceService.GraphicsDevice != null)
-			{
+			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.UnloadContent();
-			}
-			this.screens.Remove(screen);
-			this.screensToUpdate.Remove(screen);
-            this.exitScreenTimer = .025f;
-            
+			screens.Remove(screen);
+			screensToUpdate.Remove(screen);
+            exitScreenTimer = .025f;
 		}
 
 		public void SetupSunburn()
@@ -257,57 +165,40 @@ namespace Ship_Game
 
 		private void TraceScreens()
 		{
-			List<string> screenNames = new List<string>();
-			foreach (GameScreen screen in this.screens)
-			{
+			var screenNames = new Array<string>();
+			foreach (GameScreen screen in screens)
 				screenNames.Add(screen.GetType().Name);
-			}
 			Trace.WriteLine(string.Join(", ", screenNames.ToArray()));
-		}
-
-		protected void UnloadContent()
-		{
-			this.content.Unload();
-			foreach (GameScreen screen in this.screens)
-			{
-				screen.UnloadContent();
-			}
 		}
 
 		public void Update(GameTime gameTime)
 		{
-			this.input.Update(gameTime);
-			this.screensToUpdate.Clear();
-			foreach (GameScreen screen in this.screens)
+			input.Update(gameTime);
+			screensToUpdate.Clear();
+			foreach (GameScreen screen in screens)
 			{
-				this.screensToUpdate.Add(screen);
+				screensToUpdate.Add(screen);
 			}
 			bool otherScreenHasFocus = !Game1.Instance.IsActive;
 			bool coveredByOtherScreen = false;
-			while (this.screensToUpdate.Count > 0)
+			while (screensToUpdate.Count > 0)
 			{
-				GameScreen screen = this.screensToUpdate[this.screensToUpdate.Count - 1];
-				this.screensToUpdate.RemoveAt(this.screensToUpdate.Count - 1);
+				GameScreen screen = screensToUpdate[screensToUpdate.Count - 1];
+				screensToUpdate.RemoveAt(screensToUpdate.Count - 1);
 				screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 				if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
-				{
 					continue;
-				}
 				if (!otherScreenHasFocus)
 				{
-					screen.HandleInput(this.input);
+					screen.HandleInput(input);
 					otherScreenHasFocus = true;
 				}
 				if (screen.IsPopup)
-				{
 					continue;
-				}
 				coveredByOtherScreen = true;
 			}
-			if (this.traceEnabled)
-			{
-				this.TraceScreens();
-			}
+			if (TraceEnabled)
+				TraceScreens();
 		}
         public void Dispose()
         {
@@ -317,22 +208,9 @@ namespace Ship_Game
 
         ~ScreenManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.content != null)
-                        this.content.Dispose();
-                    if (this.SpriteBatch != null)
-                        this.SpriteBatch.Dispose();
-
-                }
-                this.content = null;
-                this.SpriteBatch = null;
-                this.disposed = true;
-            }
+            SpriteBatch?.Dispose(ref SpriteBatch);
         }
 	}
 }

@@ -1,0 +1,172 @@
+# Editor tool descriptions
+#
+# tool.regkey, tool.regname specify a registry key with the editor path
+# tool.executable specifies the editor executable name or full path
+# You can also set platform specific executables (i.e. executable-win,
+# executable-unix, executable-osx). If the one corresponding to the
+# current platform is set, it will be used instead of tool.executable.
+#
+# Failing those, TortoiseHg will search for the tool name in $PATH,
+# with appropriate file extensions (*.exe) on Windows.
+#
+# tool.args       - $FILE is expanded to a single filename (editor per file)
+#                   $FILES is expanded to all filenames (single editor instance)
+# tool.argsln     - $LINENUM is expanded to an integer line number
+#                   $FILE is expanded to a single filename
+# tool.argssearch - $LINENUM is expanded to an integer line number
+#                   $FILE is expanded to a single filename
+#                   $SEARCH is expanded to a search string to be highlighted
+#
+# If the editor does not support highlighting strings from the command
+# line, do not configure a tools.argssearch command line for it.  TortoiseHg
+# will fallback to tool.argsln (if supported) or tool.args. tool.args
+# must be configured.
+
+[editor-tools]
+
+;
+; user choices. If installed the user probably wants to use them
+;
+
+; Notepad++ shell extension registry key has the executable path
+notepad++.priority = -1
+; 64-bit builds
+notepad++.regkey = Software\Classes\CLSID\{B298D29A-A6ED-11DE-BA8C-A68E55D89593}\Settings
+; 32-bit builds
+notepad++.regkeyalt=Software\Classes\CLSID\{00F3C2EC-A6EE-11DE-A03A-EF8F55D89593}\Settings
+notepad++.regname = Path
+notepad++.args = $FILES -nosession
+notepad++.argsln = $FILE -n$LINENUM -nosession
+
+chrimsonedit.priority = -1
+chrimsonedit.executable = cedit
+chrimsonedit.args = $FILES
+chrimsonedit.argsln = /L:$LINENUM $FILE
+
+; UltraEdit home page: http://www.ultraedit.com
+ultraedit.priority = -1
+ultraedit.executable = uedit32
+ultraedit.args = $FILES
+ultraedit.argsln = $FILE --lx $LINENUM
+ultraedit.argssearch = $FILE --lx $LINENUM -f$SEARCH
+
+textpad.priority = -1
+textpad.executable = TextPad
+textpad.args = $FILES
+textpad.argsln = $FILE($LINENUM)
+
+sublime_text.priority = -1
+sublime_text.executable = subl
+sublime_text.args = $FILES
+sublime_text.argsln = $FILE:$LINENUM
+
+bbedit.priority = -1
+bbedit.args = --wait $FILES
+bbedit.argsln = +$LINENUM --wait $FILE
+
+; TextWrangler homepage: http://www.barebones.com/products/textwrangler
+textwrangler.priority = -1
+textwrangler.executable = /usr/local/bin/edit
+textwrangler.args = --wait $FILES
+textwrangler.argsln = +$LINENUM --wait $FILE
+
+textmate.priority = -1
+textmate.executable = mate
+textmate.args = --wait $FILES
+textmate.argsln = --wait --line $LINENUM $FILE
+
+; textadept command line info: http://foicica.com/textadept/13_Help.html
+; On OSX the textadept executable is called 'ta'.
+; TortoiseHg will try to find ta[.exe], then textadept[.exe]
+textadept.priority = -1
+textadept.executable = ta
+textadept.args = -f -n $FILES
+textadept.argsln = -f -n $FILE -e "goto_line($LINENUM)"
+textadept.argssearch = -f -n $FILE -e "goto_line($LINENUM)" -e "find.find_entry_text=\"$SEARCH\"]];find.find_next()"
+
+; PSPad homepage: http://gogogadgetscott.info/pspad
+pspad.priority = -1
+pspad.args = $FILES
+pspad.argsln = -$LINENUM $FILE
+
+scite.priority = -1
+scite.args = "-open:$FILE"
+scite.argsln = "-open:$FILE" -goto:$LINENUM
+scite.argssearch = "-open:$FILE" -goto:$LINENUM "-find:$SEARCH"
+
+
+;
+; system editors - KDE/Gnome defaults
+;
+
+; kate info: http://docs.kde.org/stable/en/kde-baseapps/kate
+kate.priority = -3
+kate.args = $FILES
+kate.argsln = --line $LINENUM $FILE
+
+gedit.priority = -3
+gedit.args = $FILES
+gedit.argsln = +$LINENUM $FILE
+
+;
+; baseline editors - often installed on Unix but not preferred
+;
+
+gvim.priority = -5
+gvim.regkey = SOFTWARE\Vim\Gvim
+gvim.regname = path
+gvim.args = -f $FILES
+gvim.argsln = -f +$LINENUM $FILE
+gvim.argssearch = -f -c":set hls" -c"/$SEARCH/" +$LINENUM $FILE
+
+emacs.priority = -5
+emacs.args = $FILES
+emacs.argsln = +$LINENUM $FILE
+emacs.argssearch = +$LINENUM $FILE --eval '(highlight-regexp "$SEARCH")'
+
+;
+; developer environments - may be installed but not preferred
+;
+
+eclipse.priority = -7
+eclipse.args = --launcher.openFile $FILE
+
+VisualStudio.priority = -7
+VisualStudio.regkey = SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\devenv.exe
+VisualStudio.args = /EDIT $FILES
+
+;
+; last gasp - better than nothing (sometimes)
+;
+
+notepad.priority = -9
+notepad.args = $FILES
+
+;
+; special purpose editors - probably should not be preferred for most projects
+;
+
+; PyScripter (Python IDE)
+; Homepage: http://code.google.com/p/pyscripter
+pyscripter.priority = -10
+pyscripter.regkey = SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyScripter_is1
+pyscripter.regkeyalt = SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\PyScripter_is1
+pyscripter.regname = DisplayIcon
+pyscripter.args = $FILES
+
+; Sigasi (Eclipse based VHDL / Verilog editor)
+; Home page: http://www.sigasi.com
+sigasi.priority = -10
+sigasi.executable = ${SystemDrive}/Sigasi/sigasi
+sigasi.args = $FILES
+sigasi.argsln = $FILE +$LINENUM
+
+
+[editor-patterns]
+# Use Mercurial glob patterns to specify editors to use for a given
+# filename pattern.  If the specified tool is not found, TortoiseHg will
+# fallback to basic editor detection.
+
+**.py = pyscripter
+**.v = sigasi
+**.vhd = sigasi

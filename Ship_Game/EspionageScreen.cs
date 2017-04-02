@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public sealed class EspionageScreen : GameScreen, IDisposable
+    public sealed class EspionageScreen : GameScreen
     {
         private UniverseScreen screen;
 
@@ -30,7 +30,7 @@ namespace Ship_Game
 
 		public Empire SelectedEmpire;
 
-		private List<RaceEntry> Races = new List<RaceEntry>();
+		private Array<RaceEntry> Races = new Array<RaceEntry>();
 
 		private GenericSlider SpyBudgetSlider;
 
@@ -48,10 +48,7 @@ namespace Ship_Game
 
 		private float TransitionElapsedTime;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public EspionageScreen(UniverseScreen screen)
+		public EspionageScreen(UniverseScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
@@ -59,30 +56,11 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~EspionageScreen() { Dispose(false); }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.OperationsSL != null)
-                        this.OperationsSL.Dispose();
-                    if (this.AgentComponent != null)
-                        this.AgentComponent.Dispose();
-
-                }
-                this.OperationsSL = null;
-                this.AgentComponent = null;
-                this.disposed = true;
-            }
+            OperationsSL?.Dispose(ref OperationsSL);
+            AgentComponent?.Dispose(ref AgentComponent);
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)
@@ -123,9 +101,9 @@ namespace Ship_Game
 						spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
 					}
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e && EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
+				else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
 				{
-					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].AtWar && !race.e.data.Defeated)
+					if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
 					{
 						Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
 						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, war, Color.Red);
@@ -151,7 +129,7 @@ namespace Ship_Game
                         ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
                     }
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e)
+				else if (EmpireManager.Player != race.e)
 				{
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/unknown"], race.container, Color.White);
 				}
@@ -201,7 +179,7 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6108), this.AgentComponent.SelectedAgent.Name), TextCursor, Color.Orange);
                 //if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
                 if (string.IsNullOrEmpty(this.AgentComponent.SelectedAgent.HomePlanet))
-                    this.AgentComponent.SelectedAgent.HomePlanet = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.HomeworldName; 
+                    this.AgentComponent.SelectedAgent.HomePlanet = EmpireManager.Player.data.Traits.HomeworldName; 
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 6);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6109), this.AgentComponent.SelectedAgent.HomePlanet), TextCursor, Color.LightGray);
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
@@ -446,9 +424,9 @@ namespace Ship_Game
 			bool GotRace = false;
 			foreach (RaceEntry race in this.Races)
 			{
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
+				if (EmpireManager.Player == race.e || !EmpireManager.Player.GetRelations(race.e).Known)
 				{
-					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e || !HelperFunctions.ClickedRect(race.container, input))
+					if (EmpireManager.Player != race.e || !HelperFunctions.ClickedRect(race.container, input))
 					{
 						continue;
 					}
@@ -513,9 +491,9 @@ namespace Ship_Game
 			};
             Rectangle ComponentRect = new Rectangle(this.SelectedInfoRect.X + 20, this.SelectedInfoRect.Y + 35, this.SelectedInfoRect.Width - 40, this.SelectedInfoRect.Height - 95);
 			this.AgentComponent = new Ship_Game.AgentComponent(ComponentRect, this);
-			foreach (Empire e in EmpireManager.EmpireList)
+			foreach (Empire e in EmpireManager.Empires)
 			{
-				if (e != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+				if (e != EmpireManager.Player)
 				{
 					if (e.isFaction || e.MinorRace)
 					{

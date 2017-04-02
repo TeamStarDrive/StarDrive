@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class PlanetListScreen : GameScreen, IDisposable
+	public sealed class PlanetListScreen : GameScreen
 	{
 		//private bool LowRes;
 
@@ -55,7 +55,7 @@ namespace Ship_Game
 
 		private bool HideUninhab = true;
 
-		private List<Planet> planets = new List<Planet>();
+		private Array<Planet> planets = new Array<Planet>();
 
 		private Rectangle eRect;
 
@@ -63,18 +63,15 @@ namespace Ship_Game
 
 		private Rectangle AutoButton;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		//private bool AutoButtonHover;
 
-		public PlanetListScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
+		public PlanetListScreen(GameScreen parent, EmpireUIOverlay empUI)
+            : base(parent)
 		{
 			this.empUI = empUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			base.IsPopup = true;
-			base.ScreenManager = ScreenManager;
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				//this.LowRes = true;
@@ -103,67 +100,37 @@ namespace Ship_Game
 			this.PlanetSL = new ScrollList(this.ShipSubMenu, 40);
            // this.LastSorted = this.empUI.empire.data.PLSort;
 
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetWeightedCenter())))
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.Player.GetWeightedCenter())))
             {
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (!p.ExploredDict[EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty)])
+                    if (!p.ExploredDict[EmpireManager.Player])
                     {
                         continue;
                     }
                     this.planets.Add(p);
                 }
             }
-            //foreach (Planet p in this.planets)
-            //{
-            //    if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
-            //    {
-            //        continue;
-            //    }
-            //    PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
-            //    this.PlanetSL.AddItem(entry);
-            //}
 
+			cb_hideOwned = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
+                () => HideOwned, 
+                x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
 
-            //this.ResetList();
-			//this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
-			Ref<bool> aeRef = new Ref<bool>(() => this.HideOwned, (bool x) => {
-				this.HideOwned = x;
-				this.ResetList();
-			});
-			this.cb_hideOwned = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 15), (float)(this.TitleBar.Menu.Y + 15)), "Hide Owned", aeRef, Fonts.Arial12Bold);
-			aeRef = new Ref<bool>(() => this.HideUninhab, (bool x) => {
-				this.HideUninhab = x;
-				this.ResetList();
-			});
-			this.cb_hideUninhabitable = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 15), (float)(this.TitleBar.Menu.Y + 35)), "Hide Uninhabitable", aeRef, Fonts.Arial12Bold);
-			this.AutoButton = new Rectangle(0, 0, 243, 33);
+			cb_hideUninhabitable = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
+                () => HideUninhab, 
+                x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0);
+
+			AutoButton = new Rectangle(0, 0, 243, 33);
             
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            PlanetSL?.Dispose(ref PlanetSL);
+            base.Dispose(disposing);
         }
 
-        ~PlanetListScreen() { Dispose(false); }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.PlanetSL != null)
-                        this.PlanetSL.Dispose();
-                }
-                this.PlanetSL = null;
-                this.disposed = true;
-            }
-        }
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -185,37 +152,37 @@ namespace Ship_Game
 				this.sb_Name.Update(TextCursor);
 				this.sb_Name.Draw(base.ScreenManager);
 				TextCursor = new Vector2((float)(entry.FertRect.X + entry.FertRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
 				
 				this.sb_Fert.Update(TextCursor);
-				this.sb_Fert.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Fert.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.RichRect.X + entry.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
 				
 				this.sb_Rich.Update(TextCursor);
-				this.sb_Rich.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Rich.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.PopRect.X + entry.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(15f, 10f);
 				}
 				
 				this.sb_Pop.Update(TextCursor);
-				this.sb_Pop.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Pop.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.OwnerRect.X + entry.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
 				
 				this.sb_Owned.Update(TextCursor);
-				this.sb_Owned.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Owned.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				Color smallHighlight = TextColor;
 				smallHighlight.A = (byte)(TextColor.A / 2);
 				for (int i = this.PlanetSL.indexAtTop; i < this.PlanetSL.Entries.Count && i < this.PlanetSL.indexAtTop + this.PlanetSL.entriesToDisplay; i++)
@@ -540,10 +507,10 @@ namespace Ship_Game
                     {
                         this.ExitScreen();
                         AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.empUI.screen.SelectedPlanet = entry.planet;
-                        this.empUI.screen.ViewingShip = false;
-                        this.empUI.screen.returnToShip = false;
-                        this.empUI.screen.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
+                        Empire.Universe.SelectedPlanet = entry.planet;
+                        Empire.Universe.ViewingShip = false;
+                        Empire.Universe.returnToShip = false;
+                        Empire.Universe.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
                     }
 				}
 			}
@@ -564,7 +531,7 @@ namespace Ship_Game
 		public void ResetList()
 		{
             
-            List<Planet> pList = new List<Planet>();
+            Array<Planet> pList = new Array<Planet>();
 			foreach (ScrollList.Entry entry in this.PlanetSL.Entries)
 			{
 				pList.Add((entry.item as PlanetListScreenEntry).planet);

@@ -30,9 +30,5 @@ namespace Ship_Game
 		public bool ShowMessage;
         
         public bool Pause = true;
-
-		public Notification()
-		{
-		}
 	}
 }

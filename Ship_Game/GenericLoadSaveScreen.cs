@@ -10,11 +10,9 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class GenericLoadSaveScreen : GameScreen, IDisposable
+    public class GenericLoadSaveScreen : GameScreen
     {
         protected Vector2 Cursor = Vector2.Zero;
-
-        protected List<UIButton> Buttons = new List<UIButton>();
 
         protected Rectangle Window;
 
@@ -56,18 +54,14 @@ namespace Ship_Game
 
         protected Selector selector;
 
-        //private float transitionElapsedTime;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        protected bool disposed;
-
         protected FileInfo fileToDel;
 
         protected FileData selectedFile;
 
         protected int eHeight = 55;      // element height
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText)
+            : base(parent)
         {
             this.mode = mode;
             this.InitText = InitText;
@@ -78,42 +72,28 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) : this(mode, InitText, TitleText, TabText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) 
+            : this(parent, mode, InitText, TitleText, TabText)
         {
             this.OverWriteText = OverWriteText;
         }
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, int eHeight) : this(mode, InitText, TitleText, TabText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, int eHeight) 
+            : this(parent, mode, InitText, TitleText, TabText)
         {
             this.eHeight = eHeight;
         }
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText, int eHeight) : this(mode, InitText, TitleText, TabText, OverWriteText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText, int eHeight) 
+            : this(parent, mode, InitText, TitleText, TabText, OverWriteText)
         {
             this.eHeight = eHeight;
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~GenericLoadSaveScreen() { Dispose(false); }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.SavesSL != null)
-                        this.SavesSL.Dispose();
-
-                }
-                this.SavesSL = null;
-                this.disposed = true;
-            }
+            SavesSL?.Dispose(ref SavesSL);
+            base.Dispose(disposing);
         }
 
         public virtual void DoSave()
@@ -233,8 +213,8 @@ namespace Ship_Game
                     if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)        // handle file delete
                     {
                         this.fileToDel = (e.item as FileData).FileLink;
-                        MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
-                        messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteFile);
+                        MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                        messageBox.Accepted += DeleteFile;
                         base.ScreenManager.AddScreen(messageBox);
                     } else if (input.InGameSelect)
                     {
@@ -250,7 +230,7 @@ namespace Ship_Game
             {
                 if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
                 {
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
                 }
                 else
                 {
@@ -374,8 +354,8 @@ namespace Ship_Game
             }
             else
             {
-                MessageBoxScreen messageBox = new MessageBoxScreen(this.OverWriteText);
-                messageBox.Accepted += new EventHandler<EventArgs>(this.OverWriteAccepted);
+                MessageBoxScreen messageBox = new MessageBoxScreen(this, OverWriteText);
+                messageBox.Accepted += OverWriteAccepted;
                 base.ScreenManager.AddScreen(messageBox);
             }
         }

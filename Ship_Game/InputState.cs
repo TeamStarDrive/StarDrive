@@ -134,39 +134,33 @@ namespace Ship_Game
 		{
 			get
 			{
-				if ((this.CurrentMouseState.LeftButton != ButtonState.Pressed ? false : this.LastMouseState.LeftButton == ButtonState.Released))
+				if (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released)
 				{
 					return true;
 				}
-				if (this.CurrentGamePadState.Buttons.A != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.A != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.A == ButtonState.Released;
+				return LastGamePadState.Buttons.A == ButtonState.Released;
 			}
 		}
 
-		public bool Land
-		{
-			get
-			{
-				return this.IsNewKeyPress(Keys.L);
-			}
-		}
+		public bool Land => IsNewKeyPress(Keys.L);
 
-		public bool Left
+	    public bool Left
 		{
 			get
 			{
-				if (this.IsNewKeyPress(Keys.Left))
+				if (IsNewKeyPress(Keys.Left))
 				{
 					return true;
 				}
-				if (this.CurrentGamePadState.DPad.Left != ButtonState.Pressed)
+				if (CurrentGamePadState.DPad.Left != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.DPad.Left == ButtonState.Released;
+				return LastGamePadState.DPad.Left == ButtonState.Released;
 			}
 		}
 
@@ -174,11 +168,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.CurrentGamePadState.Buttons.LeftShoulder != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.LeftShoulder != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.LeftShoulder == ButtonState.Released;
+				return LastGamePadState.Buttons.LeftShoulder == ButtonState.Released;
 			}
 		}
 

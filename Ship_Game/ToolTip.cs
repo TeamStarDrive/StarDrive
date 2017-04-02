@@ -9,177 +9,172 @@ namespace Ship_Game
 	public sealed class ToolTip
 	{
 		public int TIP_ID;
-
 		public int Data;
-
 		public string Title;
-
-		public static Rectangle r;
-
-		public static string text;
-
-		public static string ti;
-
-		public static string textLast;
-
+		public static Rectangle Rect;
+		public static string Text;
+		public static string Ti;
+		public static string TextLast;
 		public static string Hotkey;
-
 		public static int TipTimer;
-
-		public static int lastWhich;
+		public static int LastWhich;
 
 		static ToolTip()
 		{
-			ToolTip.Hotkey = "";
-			ToolTip.TipTimer = 50;
-			ToolTip.lastWhich = -1;
+			Hotkey = "";
+			TipTimer = 0; //Changed to 0 from 50. tooltips were taking a long time to come up.
+            LastWhich = -1;
 		}
 
 		public ToolTip()
 		{
 		}
 
-		public static void CreateTooltip(string intext, Ship_Game.ScreenManager ScreenManager)
+		public static void CreateTooltip(string intext, ScreenManager screenManager)
 		{
-			ToolTip.Hotkey = "";
-			float x = (float)Mouse.GetState().X;
+			Hotkey = "";
 			MouseState state = Mouse.GetState();
-			Vector2 Position = new Vector2(x, (float)state.Y);
-			ToolTip.text = HelperFunctions.parseText(Fonts.Arial12Bold, intext, 200f);
-			float width = Fonts.Arial12Bold.MeasureString(ToolTip.text).X;
-			float height = Fonts.Arial12Bold.MeasureString(ToolTip.text).Y;
-			Rectangle tipRect = new Rectangle((int)Position.X + 10, (int)Position.Y + 10, (int)width + 20, (int)height + 10);
-			if (tipRect.X + tipRect.Width > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth)
-			{
+			Text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
+
+			Vector2 pos  = new Vector2(state.X, state.Y);
+            Vector2 size = Fonts.Arial12Bold.MeasureString(Text);
+			Rectangle tipRect = new Rectangle((int)pos.X + 10, (int)pos.Y + 10, 
+                                              (int)size.X + 20, (int)size.Y + 10);
+
+			if (tipRect.X + tipRect.Width > screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth)
 				tipRect.X = tipRect.X - (tipRect.Width + 10);
-			}
-			while (tipRect.Y + tipRect.Height > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
-			{
+			while (tipRect.Y + tipRect.Height > screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
 				tipRect.Y = tipRect.Y - 1;
-			}
-			if (ToolTip.textLast != ToolTip.text)
+
+			if (TextLast != Text)
 			{
-				ToolTip.TipTimer = 50;
-				ToolTip.textLast = ToolTip.text;
+				TipTimer = 50;
+				TextLast = Text;
 			}
-			ToolTip.r = tipRect;
-			ToolTip.ti = "";
+			Rect = tipRect;
+			Ti = "";
 		}
 
-		public static void CreateTooltip(string intext, Ship_Game.ScreenManager ScreenManager, string Hotkey)
+		public static void CreateTooltip(string intext, ScreenManager screenManager, string hotKey)
 		{
-			ToolTip.Hotkey = Hotkey;
-			float x = (float)Mouse.GetState().X;
+			Hotkey = hotKey;
 			MouseState state = Mouse.GetState();
-			Vector2 Position = new Vector2(x, (float)state.Y);
-			ToolTip.text = HelperFunctions.parseText(Fonts.Arial12Bold, intext, 200f);
-			float width = Fonts.Arial12Bold.MeasureString(ToolTip.text).X;
-			float height = Fonts.Arial12Bold.MeasureString(ToolTip.text).Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
-			Rectangle tipRect = new Rectangle((int)Position.X + 10, (int)Position.Y + 10, (int)width + 20, (int)height + 10);
-			if (tipRect.X + tipRect.Width > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth)
-			{
+			Text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
+
+			Vector2 pos = new Vector2(state.X, state.Y);
+            Vector2 size = Fonts.Arial12Bold.MeasureString(Text);
+			Rectangle tipRect = new Rectangle((int)pos.X + 10, (int)pos.Y + 10, 
+                                              (int)size.X + 20, (int)size.Y + 10 + Fonts.Arial12Bold.LineSpacing * 2);
+
+            var presParams = screenManager.GraphicsDevice.PresentationParameters;
+			if (tipRect.X + tipRect.Width > presParams.BackBufferWidth)
 				tipRect.X = tipRect.X - (tipRect.Width + 10);
-			}
-			while (tipRect.Y + tipRect.Height > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
-			{
+			while (tipRect.Y + tipRect.Height > presParams.BackBufferHeight)
 				tipRect.Y = tipRect.Y - 1;
-			}
-			if (ToolTip.textLast != ToolTip.text)
+
+			if (TextLast != Text)
 			{
-				ToolTip.TipTimer = 50;
-				ToolTip.textLast = ToolTip.text;
+				TipTimer = 5; //Changed to 5 from 50. tooltips were taking a long time to come up.
+				TextLast = Text;
 			}
-			ToolTip.r = tipRect;
-			ToolTip.ti = "";
+			Rect = tipRect;
+			Ti = "";
 		}
 
-		public static void CreateTooltip(int which, Ship_Game.ScreenManager ScreenManager)
+        // @todo This needs some refactoring, lots of inlined code
+		public static void CreateTooltip(int which, ScreenManager screenManager)
 		{
-			ToolTip.Hotkey = "";
-			if (which != ToolTip.lastWhich)
+			Hotkey = "";
+			if (which != LastWhich)
 			{
-				ToolTip.TipTimer = 50;
-				ToolTip.lastWhich = which;
+				TipTimer = 50;
+				LastWhich = which;
 			}
-			float x = (float)Mouse.GetState().X;
-			MouseState state = Mouse.GetState();
-			Vector2 Position = new Vector2(x, (float)state.Y);
-			string text = Localizer.Token(ResourceManager.ToolTips[which].Data);
-			text = HelperFunctions.parseText(Fonts.Arial12Bold, text, 200f);
-			float width = Fonts.Arial12Bold.MeasureString(text).X;
-			float height = Fonts.Arial12Bold.MeasureString(text).Y;
-			Rectangle tipRect = new Rectangle((int)Position.X + 10, (int)Position.Y + 10, (int)width + 20, (int)height + 10);
-			if (tipRect.X + tipRect.Width > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth)
-			{
+
+			string txt = Localizer.Token(ResourceManager.GetToolTip(which).Data);
+			txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, 200f);
+
+            MouseState state = Mouse.GetState();
+			Vector2 pos  = new Vector2(state.X, state.Y);
+            Vector2 size = Fonts.Arial12Bold.MeasureString(txt);
+			Rectangle tipRect = new Rectangle((int)pos.X + 10, (int)pos.Y + 10, 
+                                              (int)size.X + 20, (int)size.Y + 10);
+
+            var presParams = screenManager.GraphicsDevice.PresentationParameters;
+			if (tipRect.X + tipRect.Width > presParams.BackBufferWidth)
 				tipRect.X = tipRect.X - (tipRect.Width + 10);
-			}
-			while (tipRect.Y + tipRect.Height > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
-			{
+			while (tipRect.Y + tipRect.Height > presParams.BackBufferHeight)
 				tipRect.Y = tipRect.Y - 1;
-			}
-			ToolTip.r = tipRect;
-			ToolTip.text = text;
-			ToolTip.ti = ResourceManager.ToolTips[which].Title;
+
+			Rect = tipRect;
+			Text = txt;
+			Ti = ResourceManager.GetToolTip(which).Title;
 		}
 
-		public static void CreateTooltip(int which, Ship_Game.ScreenManager ScreenManager, string Hotkey)
+		public static void CreateTooltip(int which, ScreenManager screenManager, string hotKey)
 		{
-			ToolTip.Hotkey = Hotkey;
-			if (which != ToolTip.lastWhich)
+			Hotkey = hotKey;
+			if (which != LastWhich)
 			{
-				ToolTip.TipTimer = 50;
-				ToolTip.lastWhich = which;
+				TipTimer = 50;
+				LastWhich = which;
 			}
-			float x = (float)Mouse.GetState().X;
+			string txt = Localizer.Token(ResourceManager.GetToolTip(which).Data);
+			txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, 200f);
+
+            
 			MouseState state = Mouse.GetState();
-			Vector2 Position = new Vector2(x, (float)state.Y);
-			string text = Localizer.Token(ResourceManager.ToolTips[which].Data);
-			text = HelperFunctions.parseText(Fonts.Arial12Bold, text, 200f);
-			float width = Fonts.Arial12Bold.MeasureString(text).X;
-			float height = Fonts.Arial12Bold.MeasureString(text).Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
-			Rectangle tipRect = new Rectangle((int)Position.X + 10, (int)Position.Y + 10, (int)width + 20, (int)height + 10);
-			if (tipRect.X + tipRect.Width > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth)
-			{
+			Vector2 pos = new Vector2(state.X, state.Y);
+            Vector2 size = Fonts.Arial12Bold.MeasureString(txt);
+			Rectangle tipRect = new Rectangle((int)pos.X + 10, (int)pos.Y + 10, 
+                                              (int)size.X + 20, (int)size.Y + 10 + Fonts.Arial12Bold.LineSpacing * 2);
+
+            var presParams = screenManager.GraphicsDevice.PresentationParameters;
+			if (tipRect.X + tipRect.Width > presParams.BackBufferWidth)
 				tipRect.X = tipRect.X - (tipRect.Width + 10);
-			}
-			while (tipRect.Y + tipRect.Height > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
-			{
+			while (tipRect.Y + tipRect.Height > presParams.BackBufferHeight)
 				tipRect.Y = tipRect.Y - 1;
-			}
-			ToolTip.r = tipRect;
-			ToolTip.text = text;
-			ToolTip.ti = ResourceManager.ToolTips[which].Title;
+
+			Rect = tipRect;
+			Text = txt;
+			Ti = ResourceManager.GetToolTip(which).Title;
 		}
 
-		public static void Draw(Ship_Game.ScreenManager ScreenManager)
+		public static void Draw(ScreenManager screenManager)
 		{
-			ToolTip.TipTimer = ToolTip.TipTimer - 1;
-			if (ToolTip.TipTimer <= 0)
+			TipTimer = TipTimer - 1;
+			if (TipTimer <= 0)
 			{
-				ToolTip.TipTimer = 0;
+				TipTimer = 0;
 			}
-			float alpha = 210f - 210f * (float)ToolTip.TipTimer / 20f;
-			if (ToolTip.TipTimer < 20 && ToolTip.text != null)
+			float alpha = 210f - 210f * TipTimer / 20f;
+			if (TipTimer < 20 && Text != null)
 			{
-				Selector sel = new Selector(ScreenManager, ToolTip.r, new Color(0, 0, 0, (byte)alpha));
+				Selector sel = new Selector(screenManager, Rect, new Color(0, 0, 0, (byte)alpha));
 				sel.Draw();
-				Vector2 textpos = new Vector2((float)(ToolTip.r.X + 10), (float)(ToolTip.r.Y + 5));
-				alpha = 255f - 255f * (float)ToolTip.TipTimer / 30f;
-				if (!string.IsNullOrEmpty(ToolTip.Hotkey))
+				Vector2 textpos = new Vector2(Rect.X + 10, Rect.Y + 5);
+				alpha = 255f - 255f * TipTimer / 30f;
+
+                Color color = new Color(255, 239, 208, (byte)alpha);
+				if (!string.IsNullOrEmpty(Hotkey))
 				{
 					Vector2 hotkeypos = textpos;
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2300), ": "), textpos, new Color(255, 239, 208, (byte)alpha));
-					hotkeypos.X = hotkeypos.X + Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(2300), ": ")).X;
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ToolTip.Hotkey, hotkeypos, new Color(Color.Gold, (byte)alpha));
-					textpos.Y = textpos.Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
+
+                    string title = Localizer.Token(2300) + ": ";
+
+					screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, title, textpos, color);
+					hotkeypos.X = hotkeypos.X + Fonts.Arial12Bold.MeasureString(title).X;
+                    Color gold = new Color(Color.Gold, (byte)alpha);
+					screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Hotkey, hotkeypos, gold);
+					textpos.Y = textpos.Y + Fonts.Arial12Bold.LineSpacing * 2;
 				}
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ToolTip.text, textpos, new Color(255, 239, 208, (byte)alpha));
+				screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Text, textpos, color);
 			}
-			if (ToolTip.text == null)
+			if (Text == null)
 			{
-				ToolTip.TipTimer = 50;
+				TipTimer = 50;
 			}
-			ToolTip.text = null;
+			Text = null;
 		}
 	}
 }

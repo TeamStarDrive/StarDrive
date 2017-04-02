@@ -7,7 +7,7 @@ namespace Ship_Game
 	{
 		public SlotStruct clickedSS;
 
-		public List<SlotStruct> AlteredSlots = new List<SlotStruct>();
+		public Array<SlotStruct> AlteredSlots = new Array<SlotStruct>();
 
 		public DesignAction()
 		{

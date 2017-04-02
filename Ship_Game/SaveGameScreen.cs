@@ -14,10 +14,11 @@ namespace Ship_Game
 	{
         private UniverseScreen screen;
 
-        public SaveGameScreen(UniverseScreen screen) : base(SLMode.Save, string.Concat(screen.PlayerLoyalty, ", Star Date ", screen.StarDate.ToString(screen.StarDateFmt)), "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
+        public SaveGameScreen(UniverseScreen screen) 
+            : base(screen, SLMode.Save, screen.PlayerLoyalty + ", Star Date " + screen.StarDate.ToString(screen.StarDateFmt), "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
 		{
 			this.screen = screen;
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Games/");
             //this.selectedFile = new FileData();
         }
 
@@ -32,7 +33,7 @@ namespace Ship_Game
             try
             {
                 FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
-                //Console.WriteLine(headerToDel.FullName);
+                //Log.Info(headerToDel.FullName);
                 headerToDel.Delete();
             }
             catch { }
@@ -42,41 +43,39 @@ namespace Ship_Game
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            List<FileData> saves = new List<FileData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(this.Path, "Headers"));
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            var saves = new Array<FileData>();
+            foreach (FileInfo fileInfo in Dir.GetFiles(Path + "Headers", "xml"))
             {
-                Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
+                    HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(fileInfo);
 
                     if (string.IsNullOrEmpty(data.SaveName))
                     {
-                        data.SaveName = System.IO.Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);         // set name before it's used
+                        data.SaveName = fileInfo.NameNoExt(); // set name before it's used
                         data.Version = 0;
                     }
 
-                    data.SetFileInfo(new FileInfo(string.Concat(this.Path, data.SaveName, ".xml.gz")));
+                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.OldZipExt);
+                    if (!data.FI.Exists)
+                        data.FI = new FileInfo(Path + data.SaveName + SavedGame.NewZipExt);
+                    if (!data.FI.Exists)
+                    {
+                        Log.Warning("Missing save payload {0}", data.FI.FullName);
+                        continue;
+                    }
 
-                    string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+                    string info = data.PlayerName + " StarDate " + data.StarDate;
                     string extraInfo = data.RealDate;
-                    saves.Add(new FileData(data.GetFileInfo(), data, data.SaveName, info, extraInfo));
-                    file.Dispose();
+                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
                 }
                 catch
                 {
-                    file.Dispose();
                 }
             }
-            IOrderedEnumerable<FileData> sortedList =
-                from header in saves
-                orderby (header.Data as HeaderData).Time descending
-                select header;
+            var sortedList = from header in saves orderby (header.Data as HeaderData)?.Time descending select header;
             foreach (FileData data in sortedList)
-            {
-                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
-            }
+                SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
         }
     }
 }
