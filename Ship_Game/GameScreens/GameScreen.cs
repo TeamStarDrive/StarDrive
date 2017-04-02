@@ -143,6 +143,17 @@ namespace Ship_Game
         public void DrawCircle(Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
             => Primitives2D.DrawCircle(ScreenManager.SpriteBatch, posOnScreen, radius, sides, color, thickness);
 
+        //Just draws a given rectangle with a color fill
+        public void DrawRectangle(Rectangle rectangle, Color edgeColor, Color fillColor)
+        {            
+            Primitives2D.FillRectangle(ScreenManager.SpriteBatch, rectangle, fillColor);
+            DrawRectangle(rectangle, edgeColor);            
+        }
+
+        //Just draws a given rectangle
+        public void DrawRectangle(Rectangle rectangle, Color edgeColor)
+            => Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, rectangle, edgeColor);        
+
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTexture(Texture2D texture, Vector2 posOnScreen, float scale, float rotation, Color color)
