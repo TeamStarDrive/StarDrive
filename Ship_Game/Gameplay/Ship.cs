@@ -2313,7 +2313,7 @@ namespace Ship_Game.Gameplay
                 Rotation += zdie * elapsedTime;
                 if (ShipSO == null)
                     return;
-                if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && inSensorRange)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && inSensorRange)
                 {
                     ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(yRotation) 
                                                    * Matrix.CreateRotationX(xRotation) 

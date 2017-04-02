@@ -37,7 +37,7 @@ namespace Ship_Game
 
         private static void AddLight(Explosion newExp, Vector3 position, float radius, float intensity)
         {
-            if (Universe.viewState != UniverseScreen.UnivScreenState.ShipView)
+            if (Universe.viewState > UniverseScreen.UnivScreenState.ShipView)
                 return;
 
             if (radius <= 0f) radius = 1f;
