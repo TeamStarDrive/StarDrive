@@ -24,7 +24,7 @@ namespace Ship_Game.Gameplay
         public int YSIZE = 1;
         public bool Powered;
         public float FieldOfFire;
-        public float Facing;
+        public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public Vector2 XMLPosition; // module slot location in the ship design
         private Ship Parent;
         public float HealthMax;
