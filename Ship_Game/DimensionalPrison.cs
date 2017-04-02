@@ -4,6 +4,7 @@ using Particle3DSample;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -24,15 +25,10 @@ namespace Ship_Game
 		private BackgroundItem Prison;
 
 		private Beam b1;
-
 		private Beam b2;
-
 		private Beam b3;
-
 		private Ship s1;
-
 		private Ship s2;
-
 		private Ship s3;
 
 		private int numCreated;
@@ -41,17 +37,15 @@ namespace Ship_Game
 
 		private float timer;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public DimensionalPrison(Vector2 Position)
 		{
 			this.p1 = Position + new Vector2(0f, -400f);
 			this.p2 = Position + new Vector2(-400f, 400f);
 			this.p3 = Position + new Vector2(400f, 400f);
-			this.s1 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.GetEmpireByName("Unknown"), this.p1);
-			this.s2 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.GetEmpireByName("Unknown"), this.p2);
-			this.s3 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.GetEmpireByName("Unknown"), this.p3);
+			this.s1 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p1);
+			this.s2 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p2);
+			this.s3 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p3);
 			this.Position = Position;
 			Rectangle r = new Rectangle((int)Position.X - 200, (int)Position.Y - 200, 400, 400);
 			this.Prison = new BackgroundItem();
@@ -60,14 +54,14 @@ namespace Ship_Game
 			this.Prison.LowerLeft = this.Prison.UpperLeft + new Vector3(0f, (float)r.Height, 0f);
 			this.Prison.UpperRight = this.Prison.UpperLeft + new Vector3((float)r.Width, 0f, 0f);
 			this.Prison.LowerRight = this.Prison.UpperLeft + new Vector3((float)r.Width, (float)r.Height, 0f);
-			this.Prison.Texture = ResourceManager.TextureDict["Textures/star_neutron"];
+			this.Prison.Texture = ResourceManager.TextureDict["star_neutron"];
 			this.Prison.FillVertices();
 			this.b1 = new Beam(this.p1, Position, 50, this.s1)
 			{
 				weapon = ResourceManager.WeaponsDict["AncientRepulsor"]
 			};
 			this.b1.LoadContent(Anomaly.screen.ScreenManager, Anomaly.screen.view, Anomaly.screen.projection);
-			this.s1.Beams.Add(this.b1);
+			this.s1.AddBeam(this.b1);
 			this.b1.infinite = true;
 			this.b1.range = 2500f;
 			this.b1.thickness = 75;
@@ -79,7 +73,7 @@ namespace Ship_Game
 			};
 			this.b2.LoadContent(Anomaly.screen.ScreenManager, Anomaly.screen.view, Anomaly.screen.projection);
 			this.b2.infinite = true;
-			this.s2.Beams.Add(this.b2);
+			this.s2.AddBeam(this.b2);
 			this.b2.range = 2500f;
 			this.b2.thickness = 75;
 			this.b2.PowerCost = 0f;
@@ -90,7 +84,7 @@ namespace Ship_Game
 			};
 			this.b3.LoadContent(Anomaly.screen.ScreenManager, Anomaly.screen.view, Anomaly.screen.projection);
 			this.b3.infinite = true;
-			this.s3.Beams.Add(this.b3);
+			this.s3.AddBeam(this.b3);
 			this.b3.range = 2500f;
 			this.b3.thickness = 75;
 			this.b3.PowerCost = 0f;
@@ -136,9 +130,9 @@ namespace Ship_Game
 				dimensionalPrison.timer = dimensionalPrison.timer - elapsedTime;
 				if (this.timer <= 0f)
 				{
-					Ship enemy = ResourceManager.CreateShipAtPoint("Heavy Drone", EmpireManager.GetEmpireByName("The Remnant"), this.Position);
+					Ship enemy = ResourceManager.CreateShipAtPoint("Heavy Drone", EmpireManager.Remnants, this.Position);
 					enemy.Velocity = this.GenerateRandomV2(100f);
-					enemy.GetAI().State = AIState.AwaitingOrders;
+					enemy.AI.State = AIState.AwaitingOrders;
 					this.timer = 2f;
 					DimensionalPrison dimensionalPrison1 = this;
 					dimensionalPrison1.numCreated = dimensionalPrison1.numCreated + 1;
@@ -158,19 +152,9 @@ namespace Ship_Game
 
         ~DimensionalPrison() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.Prison != null)
-                        this.Prison.Dispose();
-
-                }
-                this.Prison = null;
-                this.disposed = true;
-            }
+            Prison?.Dispose(ref Prison);
         }
 	}
 }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Audio;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -66,7 +67,7 @@ namespace Ship_Game
 
 		private bool draggingSlider3;
 
-		private List<PlanetInfoUIElement.TippedItem> ToolTipItems = new List<PlanetInfoUIElement.TippedItem>();
+		private Array<PlanetInfoUIElement.TippedItem> ToolTipItems = new Array<PlanetInfoUIElement.TippedItem>();
 
 		private float slider1Last;
 
@@ -149,9 +150,9 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
 			Vector2 NamePos = new Vector2((float)(this.Housing.X + 41), (float)(this.Housing.Y + 65));
-			if (this.p.Owner == null || !this.p.ExploredDict[EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)])
+			if (this.p.Owner == null || !this.p.ExploredDict[EmpireManager.Player])
 			{
-				if (!this.p.ExploredDict[EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)])
+				if (!this.p.ExploredDict[EmpireManager.Player])
 				{
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(Localizer.Token(1429), this.p.GetTypeTranslation()), NamePos, this.tColor);
 					Vector2 TextCursor2 = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
@@ -218,12 +219,12 @@ namespace Ship_Game
 				this.Mark = new Rectangle(this.RightRect.X - 10, this.Housing.Y + 150, 182, 25);
 				Vector2 Text = new Vector2((float)(this.RightRect.X + 25), (float)(this.Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], this.Mark, Color.White);
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					Text.X = Text.X - 9f;
 				}
 				bool marked = false;
-				foreach (Goal g in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals)
+				foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
 				{
 					if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.p)
 					{
@@ -280,7 +281,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);         
                 troops= this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0 )
-                     .Where(troopAI => troopAI.GetAI().OrderQueue
+                     .Where(troopAI => troopAI.AI.OrderQueue
                          .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() >0).Count();
                 if (!HelperFunctions.CheckIntersection(this.SendTroops, MousePos))
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
@@ -315,7 +316,7 @@ namespace Ship_Game
             float grossUpkeepPI = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
             float netIncomePI = (float)(grossIncome - grossUpkeepPI);
 
-            if (p.Owner == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+            if (p.Owner == EmpireManager.Player)
             {
                 string sNetIncome = netIncomePI.ToString("F2");
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sNetIncome, TextCursorMoney, netIncomePI > 0.0 ? Color.LightGreen : Color.Salmon);
@@ -510,7 +511,7 @@ namespace Ship_Game
 			{
 				bool marked = false;
 				Goal markedGoal = new Goal();
-				foreach (Goal g in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals)
+				foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
 				{
 					if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.p)
 					{
@@ -526,31 +527,31 @@ namespace Ship_Game
 					{
 						lock (markedGoal.GetColonyShip())
 						{
-							markedGoal.GetColonyShip().GetAI().OrderQueue.Clear();
-							markedGoal.GetColonyShip().GetAI().State = AIState.AwaitingOrders;
+							markedGoal.GetColonyShip().AI.OrderQueue.Clear();
+							markedGoal.GetColonyShip().AI.State = AIState.AwaitingOrders;
 						}
 					}
-					EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals.QueuePendingRemoval(markedGoal);
-					EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals.ApplyPendingRemovals();
+					EmpireManager.Player.GetGSAI().Goals.QueuePendingRemoval(markedGoal);
+					EmpireManager.Player.GetGSAI().Goals.ApplyPendingRemovals();
 				}
 				else
 				{
 					AudioManager.PlayCue("echo_affirm");
-					Goal g = new Goal(this.p, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty));
-					EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals.Add(g);
+					Goal g = new Goal(this.p, EmpireManager.Player);
+					EmpireManager.Player.GetGSAI().Goals.Add(g);
 				}
 			}
             if (HelperFunctions.CheckIntersection(this.SendTroops, input.CursorPosition) && input.InGameSelect)
             {
-                List<Ship> troopShips = new List<Ship>(this.screen.player.GetShips()
+                Array<Ship> troopShips = new Array<Ship>(this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0
-                         && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
+                         && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
                          && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
-                List<Planet> planetTroops = new List<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
+                Array<Planet> planetTroops = new Array<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
                 if (troopShips.Count > 0)
                 {
                     AudioManager.PlayCue("echo_affirm");
-                    troopShips.First().GetAI().OrderAssaultPlanet(this.p);
+                    troopShips.First().AI.OrderAssaultPlanet(this.p);
 
                 }
                 else
@@ -561,7 +562,7 @@ namespace Ship_Game
                             if (troop != null)
                             {
                                 AudioManager.PlayCue("echo_affirm");                              
-                                troop.GetAI().OrderAssaultPlanet(this.p);
+                                troop.AI.OrderAssaultPlanet(this.p);
                             }
                         }
                     }
@@ -575,7 +576,7 @@ namespace Ship_Game
 
 			if (this.Inspect.Hover)
 			{
-				if (this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+				if (this.p.Owner == null || this.p.Owner != EmpireManager.Player)
 				{
 					ToolTip.CreateTooltip(61, this.ScreenManager);
 				}
@@ -603,7 +604,7 @@ namespace Ship_Game
 			{
 				return false;
 			}
-			if (this.p.Owner != null && this.p.Owner == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+			if (this.p.Owner != null && this.p.Owner == EmpireManager.Player)
 			{
 				this.HandleSlider(input);
 			}
@@ -885,8 +886,6 @@ namespace Ship_Game
 			this.FoodLock.Locked = p.FoodLocked;
 			this.ResLock.Locked = p.ResLocked;
 			this.ProdLock.Locked = p.ProdLocked;
-			Empire owner = p.Owner;
-			EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty);
 		}
 
 		private struct TippedItem

@@ -4,14 +4,15 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
 	public sealed class ShipListInfoUIElement : UIElement, IDisposable
 	{
-		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
+		public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
-		private List<ShipListInfoUIElement.TippedItem> ToolTipItems = new List<ShipListInfoUIElement.TippedItem>();
+		private Array<ShipListInfoUIElement.TippedItem> ToolTipItems = new Array<ShipListInfoUIElement.TippedItem>();
 
 		private Rectangle SliderRect;
 
@@ -19,7 +20,7 @@ namespace Ship_Game
 
 		private UniverseScreen screen;
 
-		private List<Ship> ShipList = new List<Ship>();
+		private Array<Ship> ShipList = new Array<Ship>();
 
 		private Selector sel;
 
@@ -49,7 +50,7 @@ namespace Ship_Game
 
 		private SlidingElement sliding_element;
 
-		public List<OrdersButton> Orders = new List<OrdersButton>();
+		public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
 		private Ship HoveredShip;
 
@@ -64,13 +65,8 @@ namespace Ship_Game
 		private bool ShowModules = true;
 
 		private Ship HoveredShipLast;
-
 		private float HoverOff;
-
 		private string fmt = "0";
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public ShipListInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -299,9 +295,9 @@ namespace Ship_Game
 				SpriteFont arial12Bold = Fonts.Arial12Bold;
 				float mechanicalBoardingDefense = this.HoveredShip.MechanicalBoardingDefense + this.HoveredShip.TroopBoardingDefense;
 				spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
-				text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
+				text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
                 Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
-				text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
+				text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
 				HelperFunctions.ClampVectorToInt(ref ShipStatus);
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
 				ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
@@ -324,7 +320,7 @@ namespace Ship_Game
 		{
             if (this.screen.SelectedShipList == null) return false;  //fbedard
 
-            List<Ship> ships = new List<Ship>();
+            Array<Ship> ships = new Array<Ship>();
 			bool reset = false;
 			for (int i = this.SelectedShipsSL.indexAtTop; i < this.SelectedShipsSL.Entries.Count && i < this.SelectedShipsSL.indexAtTop + this.SelectedShipsSL.entriesToDisplay; i++)
 			{
@@ -394,63 +390,63 @@ namespace Ship_Game
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.AttackRuns;
+										ship.AI.CombatState = CombatState.AttackRuns;
 									}
 								}
 								else if (str == "arty")
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.Artillery;
+										ship.AI.CombatState = CombatState.Artillery;
 									}
 								}
 								else if (str == "hold")
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.HoldPosition;
+										ship.AI.CombatState = CombatState.HoldPosition;
 									}
 								}
 								else if (str == "orbit_left")
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.OrbitLeft;
+										ship.AI.CombatState = CombatState.OrbitLeft;
 									}
 								}
                                 else if (str == "broadside_left")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.BroadsideLeft;
+                                        ship.AI.CombatState = CombatState.BroadsideLeft;
                                     }
                                 }
                                 else if (str == "orbit_right")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.OrbitRight;
+                                        ship.AI.CombatState = CombatState.OrbitRight;
                                     }
                                 }
                                 else if (str == "broadside_right")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.BroadsideRight;
+                                        ship.AI.CombatState = CombatState.BroadsideRight;
                                     }
                                 }
                                 else if (str == "short")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.ShortRange;
+                                        ship.AI.CombatState = CombatState.ShortRange;
                                     }
                                 }
                                 else if (str == "evade")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.Evade;
+                                        ship.AI.CombatState = CombatState.Evade;
                                     }
                                 }
 							}
@@ -470,7 +466,7 @@ namespace Ship_Game
 						}
 						if (str1 == "attack")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.AttackRuns)
+							if (this.HoveredShip.AI.CombatState != CombatState.AttackRuns)
 							{
 								button.Active = false;
 							}
@@ -481,7 +477,7 @@ namespace Ship_Game
 						}
 						else if (str1 == "arty")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.Artillery)
+							if (this.HoveredShip.AI.CombatState != CombatState.Artillery)
 							{
 								button.Active = false;
 							}
@@ -492,7 +488,7 @@ namespace Ship_Game
 						}
 						else if (str1 == "hold")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.HoldPosition)
+							if (this.HoveredShip.AI.CombatState != CombatState.HoldPosition)
 							{
 								button.Active = false;
 							}
@@ -503,7 +499,7 @@ namespace Ship_Game
 						}
 						else if (str1 == "orbit_left")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.OrbitLeft)
+							if (this.HoveredShip.AI.CombatState != CombatState.OrbitLeft)
 							{
 								button.Active = false;
 							}
@@ -514,7 +510,7 @@ namespace Ship_Game
 						}
                         else if (str1 == "broadside_left")
                         {
-                            if (this.HoveredShip.GetAI().CombatState != CombatState.BroadsideLeft)
+                            if (this.HoveredShip.AI.CombatState != CombatState.BroadsideLeft)
                             {
                                 button.Active = false;
                             }
@@ -527,7 +523,7 @@ namespace Ship_Game
                         {
                             if (str1 == "evade")
                             {
-                                if (this.HoveredShip.GetAI().CombatState != CombatState.Evade)
+                                if (this.HoveredShip.AI.CombatState != CombatState.Evade)
                                 {
                                     button.Active = false;
                                 }
@@ -539,7 +535,7 @@ namespace Ship_Game
                         }
                         else if (str1 == "broadside_right")
                         {
-                            if (this.HoveredShip.GetAI().CombatState != CombatState.BroadsideRight)
+                            if (this.HoveredShip.AI.CombatState != CombatState.BroadsideRight)
                             {
                                 button.Active = false;
                             }
@@ -550,7 +546,7 @@ namespace Ship_Game
                         }
                         else if (str1 == "short")
                         {
-                            if (this.HoveredShip.GetAI().CombatState != CombatState.ShortRange)
+                            if (this.HoveredShip.AI.CombatState != CombatState.ShortRange)
                             {
                                 button.Active = false;
                             }
@@ -559,7 +555,7 @@ namespace Ship_Game
                                 button.Active = true;
                             }
                         }
-                        else if (this.HoveredShip.GetAI().CombatState != CombatState.OrbitRight)
+                        else if (this.HoveredShip.AI.CombatState != CombatState.OrbitRight)
                         {
                             button.Active = false;
                         }
@@ -599,12 +595,12 @@ namespace Ship_Game
                         if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships.Count >0 && this.screen.SelectedFleet.Ships[0] != null)
                         {
                             bool flag = true;                            
-                            foreach (Ship ship2 in (List<Ship>)this.screen.SelectedFleet.Ships)
-                                if (ship2.GetAI().State != AIState.Resupply)
+                            foreach (Ship ship2 in (Array<Ship>)this.screen.SelectedFleet.Ships)
+                                if (ship2.AI.State != AIState.Resupply)
                                     flag = false;
                             
                             if (flag)
-                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].GetAI().OrbitTarget.Position;  //fbedard: center fleet on resupply planet
+                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].AI.OrbitTarget.Position;  //fbedard: center fleet on resupply planet
                             
                         }
                         //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
@@ -689,7 +685,7 @@ namespace Ship_Game
 			return false;
 		}
 
-		public void SetShipList(List<Ship> shipList, bool isFleet)
+		public void SetShipList(Array<Ship> shipList, bool isFleet)
 		{
 			this.Orders.Clear();
 			this.isFleet = isFleet;
@@ -722,20 +718,20 @@ namespace Ship_Game
 					this.SelectedShipsSL.AddItem(entry);
 					entry = new SelectedShipEntry();
 				}
-				if (ship.GetAI().State != AIState.Resupply)
+				if (ship.AI.State != AIState.Resupply)
 				{
 					AllResupply = false;
 				}
-				if (ship.loyalty != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+				if (ship.loyalty != EmpireManager.Player)
 				{
 					this.AllShipsMine = false;
 				}
 				//if (ship.CargoSpace_Max == 0f)
-                if (ship.CargoSpace_Max == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.GetAI().State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
+                if (ship.CargoSpaceMax == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.AI.State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
 				{
 					AllFreighters = false;
 				}
-                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State == AIState.Colonize || ship.Mothership != null)
+                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.AI.State == AIState.Colonize || ship.Mothership != null)
                 {
                     AllCombat = false;
                 }
@@ -824,20 +820,9 @@ namespace Ship_Game
 
         ~ShipListInfoUIElement() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.SelectedShipsSL != null)
-                        this.SelectedShipsSL.Dispose();
-             
-
-                }
-                this.SelectedShipsSL = null;
-                this.disposed = true;
-            }
+            SelectedShipsSL?.Dispose(ref SelectedShipsSL);
         }
 	}
 }

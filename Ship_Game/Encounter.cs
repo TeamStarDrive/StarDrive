@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		public string DescriptionText;
 
-		public List<Message> MessageList;
+		public Array<Message> MessageList;
 
 		public int CurrentMessage;
 
@@ -36,10 +36,6 @@ namespace Ship_Game
 		private SolarSystem sysToDiscuss;
 
 		private Empire empToDiscuss;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 
 		public Encounter()
 		{
@@ -147,7 +143,7 @@ namespace Ship_Game
 						{
 							this.empToDiscuss.GetGSAI().EndWarFromEvent(this.playerEmpire);
 						}
-						this.playerEmpire.GetRelations()[this.empToDiscuss].EncounterStep = this.MessageList[this.CurrentMessage].SetEncounterStep;
+						this.playerEmpire.GetRelations(this.empToDiscuss).EncounterStep = this.MessageList[this.CurrentMessage].SetEncounterStep;
 						this.SetResponses();
 					}
 				}
@@ -336,26 +332,17 @@ namespace Ship_Game
 			this.empToDiscuss = e;
 		}
 
-               public void Dispose()
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-               ~Encounter() { Dispose(false); }
+        ~Encounter() { Dispose(false); }
 
-               protected void Dispose(bool disposing)
-               {
-                   if (!disposed)
-                   {
-                       if (disposing)
-                       {
-                           if (this.ResponseSL != null)
-                               this.ResponseSL.Dispose();
-                       }
-                       this.ResponseSL = null;
-                       this.disposed = true;
-                   }
-               }
+        private void Dispose(bool disposing)
+        {
+            ResponseSL?.Dispose(ref ResponseSL);
+        }
 	}
 }

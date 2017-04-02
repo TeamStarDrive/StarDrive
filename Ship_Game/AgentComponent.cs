@@ -12,17 +12,17 @@ namespace Ship_Game
 	{
 		public Agent SelectedAgent;
 
-		public Rectangle ComponentRect = new Rectangle();
+		public Rectangle ComponentRect;
 
-		public Rectangle SubRect = new Rectangle();
+		public Rectangle SubRect;
 
-		public Rectangle OpsSubRect = new Rectangle();
+		public Rectangle OpsSubRect;
 
 		public ScrollList AgentSL;
 
 		public ScrollList OpsSL;
 
-		private Ship_Game.ScreenManager ScreenManager;
+		private ScreenManager ScreenManager;
 
 		public DanButton RecruitButton;
 
@@ -43,28 +43,26 @@ namespace Ship_Game
 		private MissionEntry InciteRebellion;
 
 		private Selector selector;
-        private int spyLimitCount = 0;
-        private bool AutoTrain = false;
+        private int spyLimitCount;
+        private bool AutoTrain;
         private Checkbox CBAutoRepeat;
-        private bool SpyMute = false;
+        private bool SpyMute;
         private Checkbox cbSpyMute;
-        private int empirePlanetSpys = 0;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+        private int empirePlanetSpys;
 
 
         public AgentComponent(Rectangle r, EspionageScreen Escreen)
         {
-            this.SpyMute = EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMute;
-            this.AutoTrain = EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMissionRepeat;
+            this.SpyMute = EmpireManager.Player.data.SpyMute;
+            this.AutoTrain = EmpireManager.Player.data.SpyMissionRepeat;
             this.Escreen = Escreen;
             this.ComponentRect = r;
-            this.ScreenManager = Ship.universeScreen.ScreenManager;
+            this.ScreenManager = Empire.Universe.ScreenManager;
             this.SubRect = new Rectangle(this.ComponentRect.X, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
             this.OpsSubRect = new Rectangle(Escreen.OperationsRect.X + 20, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
             Submenu sub = new Submenu(this.ScreenManager, this.ComponentRect);
             this.AgentSL = new ScrollList(sub, 40);
-            foreach (Agent agent in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList)
+            foreach (Agent agent in EmpireManager.Player.data.AgentList)
             {
                 this.AgentSL.AddItem(agent);
             }
@@ -132,7 +130,7 @@ namespace Ship_Game
 						{
 							Vector2 targetCursor = namecursor;
 							targetCursor.X = targetCursor.X + 75f;
-							missionstring = string.Concat(Localizer.Token(2199), ": ", Ship.universeScreen.PlanetsDict[(e.item as Agent).TargetGUID].Name);
+							missionstring = string.Concat(Localizer.Token(2199), ": ", Empire.Universe.PlanetsDict[(e.item as Agent).TargetGUID].Name);
 							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
 						}
 						if ((e.item as Agent).Mission != AgentMission.Undercover)
@@ -172,57 +170,45 @@ namespace Ship_Game
         //added by gremlin deveksmod spy draw
         public void Draw()
         {
-            Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.SubRect, Color.Black);
-            this.AgentSL.Draw(this.ScreenManager.SpriteBatch);
-            this.RecruitButton.Draw(this.ScreenManager);
-            Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X, this.RecruitButton.r.Y + 30, 21, 20);
-            this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_money"], MoneyRect, Color.White);
-            Vector2 costPos = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost).ToString(), costPos, Color.White);
+            Primitives2D.FillRectangle(ScreenManager.SpriteBatch, SubRect, Color.Black);
+            AgentSL.Draw(ScreenManager.SpriteBatch);
+            RecruitButton.Draw(ScreenManager);
+            Rectangle moneyRect = new Rectangle(RecruitButton.r.X, RecruitButton.r.Y + 30, 21, 20);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], moneyRect, Color.White);
 
-            //aeRef = new Ref<bool>(() => this.HideUninhab, (bool x) =>
-            //{
-            //    this.HideUninhab = x;
-            //    this.ResetList();
-            //});
+            Vector2 costPos = new Vector2(moneyRect.X + 25, moneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2);
 
-            Ref<bool> ATRef = new Ref<bool>(() => AutoTrain, (bool x) => AutoTrain = x);
-            Vector2 ATCBPos = new Vector2((float)(this.OpsSubRect.X - 10), (float)(MoneyRect.Y - 30));
-            CBAutoRepeat = new Checkbox(ATCBPos, "Repeat Missions", ATRef, Fonts.Arial12);
-            Ref<bool> muteATRef = new Ref<bool>(() => this.SpyMute, (bool x) => this.SpyMute = x);
-            Vector2 muteCBPos = new Vector2((float)(ATCBPos.X), (float)(ATCBPos.Y + 15));
-            cbSpyMute = new Checkbox(muteCBPos, "Mute Spies", muteATRef, Fonts.Arial12);
+            int cost = ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost.ToString(), costPos, Color.White);
 
-            EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMute = this.SpyMute ;
-            EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMissionRepeat = this.AutoTrain;
+            // @todo Why are we creating new checkboxes every frame??
+            CBAutoRepeat = new Checkbox(OpsSubRect.X - 10, moneyRect.Y - 30, () => AutoTrain, Fonts.Arial12, "Repeat Missions", 0);
+            cbSpyMute    = new Checkbox(OpsSubRect.X - 10, moneyRect.Y - 15, () => SpyMute,   Fonts.Arial12, "Mute Spies", 0);
+
+            EmpireManager.Player.data.SpyMute = SpyMute;
+            EmpireManager.Player.data.SpyMissionRepeat = AutoTrain;
 
             CBAutoRepeat.Draw(ScreenManager);
             cbSpyMute.Draw(ScreenManager);
 
-            Rectangle spyLimit = new Rectangle((int)MoneyRect.X + 65, (int)MoneyRect.Y, 21, 20);
-            this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
+            Rectangle spyLimit = new Rectangle((int)moneyRect.X + 65, (int)moneyRect.Y, 21, 20);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
             Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
-            //empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
-            //if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
-            empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count() / 3 + 3;
-            spyLimitCount = (empirePlanetSpys - EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count);
+            //empirePlanetSpys = EmpireManager.Player.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
+            //if (EmpireManager.Player.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
+            empirePlanetSpys = EmpireManager.Player.GetPlanets().Count() / 3 + 3;
+            spyLimitCount = (empirePlanetSpys - EmpireManager.Player.data.AgentList.Count);
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
 
-            //Rectangle spyDefense = new Rectangle(spyLimitPos.Y, spyLimitPos, 21, 20);
-            //this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_planetshield"], spyDefense, Color.White);
-            //Vector2 spyDefensePos = new Vector2((float)(spyLimit.X + 100), (float)(spyLimit.Y ));
-            //this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "SpyDefense: ", spyDefensePos, Color.White);
-
-
-            for (int i = this.AgentSL.indexAtTop; i < this.AgentSL.Entries.Count && i < this.AgentSL.indexAtTop + this.AgentSL.entriesToDisplay; i++)
+            for (int i = AgentSL.indexAtTop; i < AgentSL.Entries.Count && i < AgentSL.indexAtTop + AgentSL.entriesToDisplay; i++)
             {
                 try
                 {
-                    ScrollList.Entry e = this.AgentSL.Entries[i];
+                    ScrollList.Entry e = AgentSL.Entries[i];
                     Agent agent = e.item as Agent;
                     Rectangle r = new Rectangle(e.clickRect.X, e.clickRect.Y, 25, 26);
-                    this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_spy"], r, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy"], r, Color.White);
                     Vector2 namecursor = new Vector2((float)(r.X + 30), (float)r.Y);
                     //Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
 
@@ -235,52 +221,52 @@ namespace Ship_Game
                         Rectangle levelRect = new Rectangle(e.clickRect.X + e.clickRect.Width - 18 - 12 * j, e.clickRect.Y, 12, 11);
                         this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_star"], levelRect, Color.White);
                     }
-                    if ((e.item as Agent).Mission != AgentMission.Defending)
+                    if (agent.Mission != AgentMission.Defending)
                     {
-                        if (!string.IsNullOrEmpty((e.item as Agent).TargetEmpire) && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
+                        if (!string.IsNullOrEmpty(agent.TargetEmpire) && agent.Mission != AgentMission.Training && agent.Mission != AgentMission.Undercover)
                         {
                             Vector2 targetCursor = namecursor;
-                            targetCursor.X = targetCursor.X + 75f;
-                            missionstring = string.Concat(Localizer.Token(2199), ": ", EmpireManager.GetEmpireByName((e.item as Agent).TargetEmpire).data.Traits.Plural);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                            targetCursor.X += 75f;
+                            missionstring = Localizer.Token(2199) + ": " + EmpireManager.GetEmpireByName(agent.TargetEmpire).data.Traits.Plural;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
                         }
-                        else if ((e.item as Agent).TargetGUID != Guid.Empty && (e.item as Agent).Mission == AgentMission.Undercover)
+                        else if (agent.TargetGUID != Guid.Empty && agent.Mission == AgentMission.Undercover)
                         {
                             Vector2 targetCursor = namecursor;
-                            targetCursor.X = targetCursor.X + 75f;
-                            missionstring = string.Concat(Localizer.Token(2199), ": ", Ship.universeScreen.PlanetsDict[(e.item as Agent).TargetGUID].Name);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                            targetCursor.X += 75f;
+                            missionstring = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
                         }
-                        if ((e.item as Agent).Mission != AgentMission.Undercover)
+                        if (agent.Mission != AgentMission.Undercover)
                         {
                             Vector2 turnsCursor = namecursor;
-                            turnsCursor.X = turnsCursor.X + 193f;
-                            missionstring = string.Concat(Localizer.Token(2200), ": ", (e.item as Agent).TurnsRemaining);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
+                            turnsCursor.X += 193f;
+                            missionstring = Localizer.Token(2200) + ": " + agent.TurnsRemaining;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Log.Error(ex, "AgentComponent Draw crashed at index {0} out of {1}", i, AgentSL.Entries.Count);
                 }
             }
-            if (this.selector != null)
+            selector?.Draw();
+
+            if (SelectedAgent != null)
             {
-                this.selector.Draw();
-            }
-            if (this.SelectedAgent != null)
-            {
-                Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.OpsSubRect, Color.Black);
-                this.OpsSL.Draw(this.ScreenManager.SpriteBatch);
-                for (int i = this.OpsSL.indexAtTop; i < this.OpsSL.Entries.Count && i < this.OpsSL.indexAtTop + this.OpsSL.entriesToDisplay; i++)
+                Primitives2D.FillRectangle(ScreenManager.SpriteBatch, OpsSubRect, Color.Black);
+                OpsSL.Draw(ScreenManager.SpriteBatch);
+                for (int i = OpsSL.indexAtTop; i < OpsSL.Entries.Count && i < OpsSL.indexAtTop + OpsSL.entriesToDisplay; i++)
                 {
                     try
                     {
-                        ScrollList.Entry e = this.OpsSL.Entries[i];
-                        (e.item as MissionEntry).Draw(this.ScreenManager, e.clickRect);
+                        ScrollList.Entry e = OpsSL.Entries[i];
+                        (e.item as MissionEntry).Draw(ScreenManager, e.clickRect);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Log.Error(ex, "MissionEntry Draw crashed");
                     }
                 }
             }
@@ -289,8 +275,8 @@ namespace Ship_Game
 		public static string GetName(string[] Tokens)
 		{
 			string ret = "";
-			List<string> PotentialFirst = new List<string>();
-			List<string> PotentialSecond = new List<string>();
+			Array<string> PotentialFirst = new Array<string>();
+			Array<string> PotentialSecond = new Array<string>();
 			string[] tokens = Tokens;
 			for (int i = 0; i < (int)tokens.Length; i++)
 			{
@@ -306,8 +292,8 @@ namespace Ship_Game
 					PotentialSecond.Add(t);
 				}
 			}
-			ret = string.Concat(ret, PotentialFirst[HelperFunctions.GetRandomIndex(PotentialFirst.Count)], " ");
-			ret = string.Concat(ret, PotentialSecond[HelperFunctions.GetRandomIndex(PotentialSecond.Count)]);
+			ret = string.Concat(ret, PotentialFirst[RandomMath.InRange(PotentialFirst.Count)], " ");
+			ret = string.Concat(ret, PotentialSecond[RandomMath.InRange(PotentialSecond.Count)]);
 			return ret;
 		}
 
@@ -325,21 +311,21 @@ namespace Ship_Game
 			}
 			if (this.RecruitButton.HandleInput(input))
 			{
-				if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < 250f)
+				if (EmpireManager.Player.Money < 250f)
 				{
 					AudioManager.PlayCue("UI_Misc20");
 				}
 				else
 				{
-					Empire empireByName = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty);
+					Empire empireByName = EmpireManager.Player;
 					empireByName.Money = empireByName.Money - 250f;
-					Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")));
+					Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")));
 					string[] Tokens = Names.Split(new char[] { ',' });
 					Agent a = new Agent()
 					{
 						Name = AgentComponent.GetName(Tokens)
 					};
-					EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Add(a);
+					EmpireManager.Player.data.AgentList.Add(a);
 					this.AgentSL.AddItem(a);
 				}
 			}
@@ -383,7 +369,7 @@ namespace Ship_Game
 							}
 							else
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2198), Ship.universeScreen.ScreenManager);
+								ToolTip.CreateTooltip(Localizer.Token(2198), Empire.Universe.ScreenManager);
 							}
 						}
 					}
@@ -408,23 +394,23 @@ namespace Ship_Game
             }
             if (this.RecruitButton.HandleInput(input))
             {
-                if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) || spyLimitCount <= 0)//EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count >= EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count)
+                if (EmpireManager.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) || spyLimitCount <= 0)//EmpireManager.Player.data.AgentList.Count >= EmpireManager.Player.GetPlanets().Count)
                 {
                     AudioManager.PlayCue("UI_Misc20");
                 }
                 else
                 {
-                    Empire empireByName = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty);
+                    Empire empireByName = EmpireManager.Player;
                     empireByName.Money -= ResourceManager.AgentMissionData.AgentCost;
-                    Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")));
+                    Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")));
                     string[] Tokens = Names.Split(new char[] { ',' });
                     Agent a = new Agent();
                     a.Name = AgentComponent.GetName(Tokens);
                     //Added new agent information
                     a.Age = RandomMath.RandomBetween(20, 30);
-                    int RandomPlanetIndex = HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count);
-                    a.HomePlanet = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()[RandomPlanetIndex].Name;
-                    EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Add(a);
+                    int RandomPlanetIndex = RandomMath.InRange(EmpireManager.Player.GetPlanets().Count);
+                    a.HomePlanet = EmpireManager.Player.GetPlanets()[RandomPlanetIndex].Name;
+                    EmpireManager.Player.data.AgentList.Add(a);
                     this.AgentSL.AddItem(a);
                     a.AssignMission(AgentMission.Training, empireByName, "");
 
@@ -470,7 +456,7 @@ namespace Ship_Game
                             }
                             else
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2198), Ship.universeScreen.ScreenManager);
+                                ToolTip.CreateTooltip(Localizer.Token(2198), Empire.Universe.ScreenManager);
                             }
                         }
                     }
@@ -509,22 +495,10 @@ namespace Ship_Game
 
         ~AgentComponent() { Dispose(false);  }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.AgentSL != null)
-                        this.AgentSL.Dispose();
-                    if (this.OpsSL != null)
-                        this.OpsSL.Dispose();
-
-                }
-                this.AgentSL = null;
-                this.OpsSL = null;
-                this.disposed = true;
-            }
+            AgentSL?.Dispose(ref AgentSL);
+            OpsSL?.Dispose(ref OpsSL);
         }
 	}
 }

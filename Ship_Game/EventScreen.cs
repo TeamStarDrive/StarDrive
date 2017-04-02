@@ -45,7 +45,7 @@ namespace Ship_Game
 			Vector2 cursor = new Vector2((float)(this.TopRect.X + 10), (float)(this.TopRect.Y + 4));
 			HelperFunctions.DrawDropShadowText(base.ScreenManager, this.ExpEvent.Name, cursor, Fonts.Arial12Bold);
 			Vector2 DescriptionPos = new Vector2((float)(this.MainRect.X + 30), (float)(this.MainRect.Y + 40));
-			string Description = HelperFunctions.parseText(Fonts.Arial12Bold, this.outcome.DescriptionText, (float)(this.MainRect.Width - 55));
+			string Description = HelperFunctions.ParseText(Fonts.Arial12Bold, this.outcome.DescriptionText, (float)(this.MainRect.Width - 55));
 			if (Fonts.Arial12Bold.MeasureString(Description).Y < (float)this.MainRect.Height)
 			{
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Description, DescriptionPos, Color.White);
@@ -61,7 +61,7 @@ namespace Ship_Game
 				Rectangle Icon = new Rectangle((int)TheirTextPos.X, (int)TheirTextPos.Y, 32, 32);
 				base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Artifact Icons/", this.outcome.GetArtifact().Name)], Icon, Color.White);
 				TheirTextPos.Y = TheirTextPos.Y + 36f;
-				theirText = HelperFunctions.parseText(Fonts.Arial12, this.outcome.GetArtifact().Description, (float)(this.MainRect.Width - 40));
+				theirText = HelperFunctions.ParseText(Fonts.Arial12, this.outcome.GetArtifact().Description, (float)(this.MainRect.Width - 40));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, TheirTextPos, Color.White);
 				TheirTextPos.Y = TheirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
 				if (this.outcome.GetArtifact().DiplomacyMod > 0f)
@@ -159,7 +159,7 @@ namespace Ship_Game
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockedMod.UID].IconTexturePath], IconRect, Color.White);
 						string moduleName = Localizer.Token(unlockedMod.NameIndex);
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, moduleName, new Vector2(TheirTextPos.X + 100f, TheirTextPos.Y), Color.Orange);
-						string desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(unlockedMod.DescriptionIndex), (float)(this.BlackRect.Width - 120));
+						string desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(unlockedMod.DescriptionIndex), (float)(this.BlackRect.Width - 120));
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, new Vector2(TheirTextPos.X + 100f, TheirTextPos.Y + 22f), Color.White);
 					}
 				}

@@ -24,17 +24,15 @@ namespace Ship_Game
 
 		private Rectangle PlanetIcon;
 
-		private Ship_Game.ScreenManager ScreenManager;
-
 		private MouseState currentMouse;
 
 		private MouseState previousMouse;
 
-		public UnownedPlanetScreen(Planet p, Ship_Game.ScreenManager ScreenManager)
+		public UnownedPlanetScreen(Planet p, ScreenManager screenMgr)
 		{
-			this.ScreenManager = ScreenManager;
+			ScreenManager = screenMgr;
 			this.p = p;
-			if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+			if (screenMgr.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				this.LowRes = true;
 			}
@@ -43,12 +41,12 @@ namespace Ship_Game
 			{
 				titleRect.Width = 365;
 			}
-			this.TitleBar = new Menu2(ScreenManager, titleRect);
+			this.TitleBar = new Menu2(screenMgr, titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(p.Name).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * (float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight));
-			this.PlanetMenu = new Menu1(ScreenManager, leftRect);
+			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * (float)screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight));
+			this.PlanetMenu = new Menu1(screenMgr, leftRect);
 			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-			this.PlanetInfo = new Submenu(ScreenManager, psubRect);
+			this.PlanetInfo = new Submenu(screenMgr, psubRect);
 			this.PlanetInfo.AddTab("Planet Info");
 			this.PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
 		}
@@ -69,7 +67,7 @@ namespace Ship_Game
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing * 2);
 			string fmt = "#.#";
 			float amount = 80f;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				amount = amount + 25f;
 			}

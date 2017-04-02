@@ -15,51 +15,29 @@ namespace Ship_Game
 
 		public Model star;
 
-		private readonly static Color[] layerColors;
-
-		private readonly static float[] movementFactors;
-
-		//private Vector2 lastPosition;
-
-		//private Vector2 position;
-
-		public Starfield3D.Star[] stars;
-
+		private static readonly Color[] layerColors;
+		private static readonly float[] movementFactors;
+		public Star[] stars;
 		private GraphicsDevice graphicsDevice;
-
-		private ContentManager contentManager;
-
+		private GameContentManager contentManager;
 		private SpriteBatch spriteBatch;
-
 		private Texture2D starTexture;
-
 		public Model starModel;
-
 		private Rectangle starfieldRectangle;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		static Starfield3D()
 		{
-			Color[] color = new Color[] { new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 160), new Color(255, 255, 255, 128), new Color(255, 255, 255, 96), new Color(255, 255, 255, 64), new Color(255, 255, 255, 32) };
-			Starfield3D.layerColors = color;
-			Starfield3D.movementFactors = new float[] { 0.1f, 0.09f, 0.08f, 0.06f, 0.04f, 0.02f, 0.01f, 0.005f };
+			Color[] color = { new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 160), new Color(255, 255, 255, 128), new Color(255, 255, 255, 96), new Color(255, 255, 255, 64), new Color(255, 255, 255, 32) };
+			layerColors = color;
+			movementFactors = new [] { 0.1f, 0.09f, 0.08f, 0.06f, 0.04f, 0.02f, 0.01f, 0.005f };
 		}
 
-		public Starfield3D(Vector2 position, GraphicsDevice graphicsDevice, ContentManager contentManager)
+		public Starfield3D(Vector2 position, GraphicsDevice graphicsDevice, GameContentManager contentManager)
 		{
-			if (graphicsDevice == null)
-			{
-				throw new ArgumentNullException("graphicsDevice");
-			}
-			if (contentManager == null)
-			{
-				throw new ArgumentNullException("contentManager");
-			}
 			this.graphicsDevice = graphicsDevice;
 			this.contentManager = contentManager;
-			this.stars = new Starfield3D.Star[1000];
+			stars = new Star[1000];
 		}
 
 		public void InitializeStars()
@@ -109,22 +87,10 @@ namespace Ship_Game
 
         ~Starfield3D() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.starTexture != null)
-                        this.starTexture.Dispose();
-                    if (this.spriteBatch != null)
-                        this.spriteBatch.Dispose();
-
-                }
-                this.starTexture = null;
-                this.spriteBatch = null;
-                this.disposed = true;
-            }
+            starTexture?.Dispose(ref starTexture);
+            spriteBatch?.Dispose(ref spriteBatch);
         }
 	}
 }

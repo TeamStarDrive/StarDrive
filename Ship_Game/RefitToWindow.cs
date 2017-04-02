@@ -7,15 +7,13 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class RefitToWindow : GameScreen, IDisposable
+	public sealed class RefitToWindow : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
 		private ShipListScreen screen;
 
 		private Ship shiptorefit;
-
-		private List<UIButton> Buttons = new List<UIButton>();
 
 		//private UIButton Exit;
 
@@ -33,10 +31,7 @@ namespace Ship_Game
 
 		private Selector selector;
 
-         //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public RefitToWindow(ShipListScreenEntry entry, ShipListScreen screen)
+		public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
 		{
 			this.screen = screen;
 			this.shiptorefit = entry.ship;
@@ -45,7 +40,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public RefitToWindow(Ship ship)
+		public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
 		{
 			this.shiptorefit = ship;
 			base.IsPopup = true;
@@ -53,30 +48,13 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-	        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            ShipSL?.Dispose(ref ShipSL);
+            base.Dispose(disposing);
         }
 
-            ~RefitToWindow() { Dispose(false); }
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipSL != null)
-                        this.ShipSL.Dispose();
-               
-                }
-                this.ShipSL = null;
-                this.disposed = true;
-            }
-        }
-		
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -121,7 +99,7 @@ namespace Ship_Game
 				this.RefitOne.Draw(base.ScreenManager.SpriteBatch);
 				this.RefitAll.Draw(base.ScreenManager.SpriteBatch);
 				Vector2 Cursor = new Vector2((float)this.ConfirmRefit.r.X, (float)(this.ConfirmRefit.r.Y + 30));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, string.Concat("Refit ", this.shiptorefit.Name, " to ", this.RefitTo), 270f), Cursor, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat("Refit ", this.shiptorefit.Name, " to ", this.RefitTo), 270f), Cursor, Color.White);
 			}
 			if (base.IsActive)
 			{
@@ -169,7 +147,7 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(Localizer.Token(2267), base.ScreenManager);
 					if (input.InGameSelect)
 					{
-						this.shiptorefit.GetAI().OrderRefitTo(this.RefitTo);
+						this.shiptorefit.AI.OrderRefitTo(this.RefitTo);
 						AudioManager.PlayCue("echo_affirm");
 						this.ExitScreen();
 					}
@@ -179,13 +157,13 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(Localizer.Token(2268), base.ScreenManager);
 					if (input.InGameSelect)
 					{
-						foreach (Ship ship in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetShips())
+						foreach (Ship ship in EmpireManager.Player.GetShips())
 						{
 							if (ship.Name != this.shiptorefit.Name)
 							{
 								continue;
 							}
-							ship.GetAI().OrderRefitTo(this.RefitTo);
+							ship.AI.OrderRefitTo(this.RefitTo);
 						}
 						AudioManager.PlayCue("echo_affirm");
 						this.ExitScreen();

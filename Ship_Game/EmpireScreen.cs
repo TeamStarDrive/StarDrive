@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class EmpireScreen : GameScreen, IDisposable
+	public sealed class EmpireScreen : GameScreen
 	{
 		private EmpireUIOverlay eui;
 
@@ -49,22 +49,16 @@ namespace Ship_Game
 
 		private Rectangle AutoButton;
 
-		//private bool AutoButtonHover;
-
 		private Planet SelectedPlanet;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-        //private bool firstSort = true;
 
-		public EmpireScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
+		public EmpireScreen(GameScreen parent, EmpireUIOverlay empUI) : base(parent)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			base.IsPopup = true;
 			this.eui = empUI;
-			base.ScreenManager = ScreenManager;
-			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+			if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				//this.LowRes = true;
 			}
@@ -84,7 +78,7 @@ namespace Ship_Game
 			this.ColoniesList = new ScrollList(this.ColonySubMenu, 80);
             //if (!this.firstSort || this.pop.Ascending !=true)
             {
-                foreach (Planet p in EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetPlanets())
+                foreach (Planet p in EmpireManager.Player.GetPlanets())
                 {
                     EmpireScreenEntry entry = new EmpireScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 80, this);
                     this.ColoniesList.AddItem(entry);
@@ -127,33 +121,16 @@ namespace Ship_Game
             //this.firstSort = true;
 		}
 
-		       public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            ColoniesList?.Dispose(ref ColoniesList);
+            base.Dispose(disposing);
         }
-
-               ~EmpireScreen() { Dispose(false); }
-
-               protected void Dispose(bool disposing)
-               {
-                   if (!disposed)
-                   {
-                       if (disposing)
-                       {
-                           if (this.ColoniesList != null)
-                               this.ColoniesList.Dispose();
-
-                       }
-                       this.ColoniesList = null;
-                       this.disposed = true;
-                   }
-               }
 
 		public override void Draw(GameTime gameTime)
 		{
 			Rectangle buildingsRect;
-			float x = (float)Mouse.GetState().X;
+			float x = Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
@@ -173,7 +150,7 @@ namespace Ship_Game
 			Vector2 PNameCursor = new Vector2((float)(PlanetIconRect.X + PlanetIconRect.Width + 5), nameCursor.Y + 20f);
 			string fmt = "0.#";
 			float amount = 80f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				amount = amount + 25f;
 			}
@@ -214,14 +191,14 @@ namespace Ship_Game
 			}
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			string text = HelperFunctions.parseText(Fonts.Arial12Bold, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15));
+			string text = HelperFunctions.ParseText(Fonts.Arial12Bold, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15));
 			if (Fonts.Arial12Bold.MeasureString(text).Y + PNameCursor.Y <= (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 20))
 			{
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, PNameCursor, Color.White);
 			}
 			else
 			{
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.parseText(Fonts.Arial12, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15)), PNameCursor, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15)), PNameCursor, Color.White);
 			}
 			Rectangle MapRect = new Rectangle(PlanetInfoRect.X + PlanetInfoRect.Width, PlanetInfoRect.Y, e1.QueueRect.X - (PlanetInfoRect.X + PlanetInfoRect.Width), PlanetInfoRect.Height);
 			int desiredWidth = 700;
@@ -236,7 +213,7 @@ namespace Ship_Game
 			MapRect.Width = buildingsRect.Width;
 			int xsize = buildingsRect.Width / 7;
 			int ysize = buildingsRect.Height / 5;
-			List<PlanetGridSquare> localPgsList = new List<PlanetGridSquare>();
+			Array<PlanetGridSquare> localPgsList = new Array<PlanetGridSquare>();
 			foreach (PlanetGridSquare pgs in this.SelectedPlanet.TilesList)
 			{
 				PlanetGridSquare pgnew = new PlanetGridSquare()
@@ -284,7 +261,7 @@ namespace Ship_Game
 				portraitRect.Height = portraitRect.Height - (int)(0.25 * (double)portraitRect.Height);
 				portraitRect.Width = portraitRect.Width - (int)(0.25 * (double)portraitRect.Width);
 			}
-			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", EmpireManager.GetEmpireByName(this.eui.screen.PlayerLoyalty).data.PortraitName)], portraitRect, Color.White);
+			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", EmpireManager.Player.data.PortraitName)], portraitRect, Color.White);
 			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], portraitRect, Color.White);
 			if (this.SelectedPlanet.colonyType == Planet.ColonyType.Colony)
 			{
@@ -338,37 +315,37 @@ namespace Ship_Game
 			{
 				case Planet.ColonyType.Core:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(378), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(378), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Colony:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(382), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(382), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Industrial:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(379), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(379), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Research:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(381), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(381), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Agricultural:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(377), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(377), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Military:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
                 case Planet.ColonyType.TradeHub:
                 {
-                    desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+                    desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
                     break;
                 }
 			}
@@ -573,7 +550,7 @@ namespace Ship_Game
                 if (!this.pop.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.Population
 						select p;
 					this.pop.Ascending = true;
@@ -582,7 +559,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.Population descending
 						select p;
 					this.ResetListSorted(sortedList);
@@ -598,7 +575,7 @@ namespace Ship_Game
 				if (!this.food.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetFoodPerTurn - p.consumption
 						select p;
 					this.food.Ascending = true;
@@ -607,7 +584,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetFoodPerTurn - p.consumption descending
 						select p;
 					this.ResetListSorted(sortedList);
@@ -623,7 +600,7 @@ namespace Ship_Game
                 
                 if (!this.prod.Ascending)
 				{
-					IOrderedEnumerable<Planet> sortedList = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().OrderBy<Planet, float>((Planet p) => {
+					IOrderedEnumerable<Planet> sortedList = EmpireManager.Player.GetPlanets().OrderBy<Planet, float>((Planet p) => {
 						if (p.Owner.data.Traits.Cybernetic == 0)
 						{
 							return p.NetProductionPerTurn;
@@ -635,7 +612,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					IOrderedEnumerable<Planet> sortedList = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().OrderByDescending<Planet, float>((Planet p) => {
+					IOrderedEnumerable<Planet> sortedList = EmpireManager.Player.GetPlanets().OrderByDescending<Planet, float>((Planet p) => {
 						if (p.Owner.data.Traits.Cybernetic == 0)
 						{
 							return p.NetProductionPerTurn;
@@ -655,7 +632,7 @@ namespace Ship_Game
 				if (!this.res.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetResearchPerTurn
 						select p;
 					this.res.Ascending = true;
@@ -664,7 +641,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetResearchPerTurn descending
 						select p;
 					this.ResetListSorted(sortedList);
@@ -680,7 +657,7 @@ namespace Ship_Game
 				if (!this.money.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.GrossMoneyPT + p.Owner.data.Traits.TaxMod * p.GrossMoneyPT - (p.TotalMaintenanceCostsPerTurn + p.TotalMaintenanceCostsPerTurn * p.Owner.data.Traits.MaintMod)
 						select p;
 					this.money.Ascending = true;
@@ -689,7 +666,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.GrossMoneyPT + p.Owner.data.Traits.TaxMod * p.GrossMoneyPT - (p.TotalMaintenanceCostsPerTurn + p.TotalMaintenanceCostsPerTurn * p.Owner.data.Traits.MaintMod) descending
 						select p;
 					this.ResetListSorted(sortedList);
@@ -733,8 +710,8 @@ namespace Ship_Game
 					else
 					{
 						
-                        this.eui.screen.SelectedPlanet = this.SelectedPlanet;
-						this.eui.screen.ViewPlanet(null);
+                        Empire.Universe.SelectedPlanet = this.SelectedPlanet;
+                        Empire.Universe.ViewPlanet(null);
 						this.ExitScreen();
 					}
 				}

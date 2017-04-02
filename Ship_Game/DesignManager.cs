@@ -7,51 +7,26 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class DesignManager : GameScreen, IDisposable
+	public sealed class DesignManager : GameScreen
 	{
-		private Vector2 Cursor = Vector2.Zero;
-
 		private ShipDesignScreen screen;
-
 		private string ShipName;
-
 		private Selector selector;
-
 		private Submenu SaveShips;
-
 		private Menu1 SaveMenu;
-
-		private Rectangle Window = new Rectangle();
-
-		private Vector2 TitlePosition = new Vector2();
-
-		private Vector2 EnternamePos = new Vector2();
+		private Rectangle Window;
+		private Vector2 TitlePosition;
+		private Vector2 EnternamePos;
 
 		private UITextEntry EnterNameArea = new UITextEntry();
-
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		private UIButton Save;
 
-		//private UIButton Load;
-
-		//private UIButton Options;
-
-		//private UIButton Exit;
-
 		private Submenu subAllDesigns;
-
 		private ScrollList ShipDesigns;
-
 		private MouseState currentMouse;
-
 		private MouseState previousMouse;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
-		public DesignManager(ShipDesignScreen screen, string txt)
+		public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
 		{
 			this.ShipName = txt;
 			this.screen = screen;
@@ -60,26 +35,10 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~DesignManager() { Dispose(false); }
-        
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipDesigns != null)
-                        this.ShipDesigns.Dispose();
-                }
-                this.ShipDesigns = null;
-                this.disposed = true;
-            }
+            ShipDesigns?.Dispose(ref ShipDesigns);
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)
@@ -189,7 +148,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -287,7 +246,7 @@ namespace Ship_Game
 			{
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);
 			}
-			Empire emp = EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty);
+			Empire emp = EmpireManager.Player;
             ResourceManager.ShipsDict[this.EnterNameArea.Text].BaseStrength = ResourceManager.ShipsDict[this.EnterNameArea.Text].GetStrength();
 			foreach (Planet p in emp.GetPlanets())
 			{
@@ -341,10 +300,10 @@ namespace Ship_Game
 				}
 				Reserved = true;
 			}
-			if (Reserved && !this.screen.EmpireUI.screen.Debug)
+			if (Reserved && !Empire.Universe.Debug)
 			{
 				AudioManager.PlayCue("UI_Misc20");
-				MessageBoxScreen messageBox = new MessageBoxScreen(string.Concat(this.EnterNameArea.Text, " is a reserved ship name and you cannot overwrite this design"));
+				MessageBoxScreen messageBox = new MessageBoxScreen(this, EnterNameArea.Text + " is a reserved ship name and you cannot overwrite this design");
 				base.ScreenManager.AddScreen(messageBox);
 				return;
 			}
@@ -352,9 +311,9 @@ namespace Ship_Game
 			{
 				if (needOverWriteConfirmation)
 				{
-					MessageBoxScreen messageBox = new MessageBoxScreen("Design name already exists.  Overwrite?");
-					messageBox.Accepted += new EventHandler<EventArgs>(this.OverWriteAccepted);
-					base.ScreenManager.AddScreen(messageBox);
+					MessageBoxScreen messageBox = new MessageBoxScreen(this, "Design name already exists.  Overwrite?");
+					messageBox.Accepted += OverWriteAccepted;
+					ScreenManager.AddScreen(messageBox);
 				}
 				return;
 			}
@@ -364,11 +323,6 @@ namespace Ship_Game
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);
 			}
 			this.ExitScreen();
-		}
-
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}
 }

@@ -6,65 +6,32 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class DropOptions
+    public sealed class Entry
+    {
+        public string Name;
+        public bool Hover;
+        public Rectangle clickRect;
+        public int @value;
+        public object ReferencedObject;
+    }
+
+    public sealed class DropOptions
 	{
-		private DropOptions.RecTexPair TL;
-
-		private DropOptions.RecTexPair TR;
-
-		private DropOptions.RecTexPair BL;
-
-		private DropOptions.RecTexPair BR;
-
-		private DropOptions.RecTexPair LV;
-
-		private DropOptions.RecTexPair RV;
-
-		private DropOptions.RecTexPair Top;
-
-		private DropOptions.RecTexPair Bot;
-
-		private List<DropOptions.RecTexPair> container = new List<DropOptions.RecTexPair>();
+        private readonly RecTexPair[] Border = new RecTexPair[16];
+        private int Count;
 
 		public Rectangle r;
-
-		private Rectangle OpenRect = new Rectangle();
-
-		private Rectangle ClickAbleOpenRect = new Rectangle();
-
+		private Rectangle OpenRect;
+		private Rectangle ClickAbleOpenRect;
 		public int ActiveIndex;
-
-		public List<Entry> Options = new List<Entry>();
-
+		public Array<Entry> Options = new Array<Entry>();
 		public bool Open;
+		public Entry Active => Options[ActiveIndex];
 
-		public Entry Active
-		{
-			get
-			{
-				return this.Options[this.ActiveIndex];
-			}
-		}
-
-		public DropOptions(Rectangle r)
+	    public DropOptions(Rectangle r)
 		{
 			this.r = r;
-			this.TL = new DropOptions.RecTexPair(r.X, r.Y, "NewUI/dropdown_menu_corner_TL");
-			this.TR = new DropOptions.RecTexPair(r.X + r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_TR"].Width, r.Y, "NewUI/dropdown_menu_corner_TR");
-			this.BL = new DropOptions.RecTexPair(r.X, r.Y + r.Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Height, "NewUI/dropdown_menu_corner_BL");
-			this.BR = new DropOptions.RecTexPair(r.X + r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Width, r.Y + r.Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BR"].Height, "NewUI/dropdown_menu_corner_BR");
-			this.LV = new DropOptions.RecTexPair(r.X, r.Y + 6, r.Height - 12, "NewUI/dropdown_menu_sides_left");
-			this.RV = new DropOptions.RecTexPair(r.X + r.Width - 6, r.Y + 6, r.Height - 12, "NewUI/dropdown_menu_sides_right");
-			this.Top = new DropOptions.RecTexPair(r.X + this.TL.r.Width, r.Y, "NewUI/dropdown_menu_sides_top", r.Width - this.TL.r.Width - this.TR.r.Width);
-			this.Bot = new DropOptions.RecTexPair(r.X + this.TL.r.Width, r.Y + r.Height - 6, "NewUI/dropdown_menu_sides_bottom", r.Width - this.BL.r.Width - this.BR.r.Width);
-			this.container.Add(this.TL);
-			this.container.Add(this.TR);
-			this.container.Add(this.BL);
-			this.container.Add(this.BR);
-			this.container.Add(this.LV);
-			this.container.Add(this.RV);
-			this.container.Add(this.Top);
-			this.container.Add(this.Bot);
+            Reset();
 		}
 
 		public void AddOption(string option, int value)
@@ -73,10 +40,10 @@ namespace Ship_Game
 			{
 				Name = option,
 				Hover = false,
-				clickRect = new Rectangle(this.r.X, this.r.Y + this.r.Height * this.Options.Count + 3, this.r.Width, 18),
+				clickRect = new Rectangle(r.X, r.Y + r.Height * Options.Count + 3, r.Width, 18),
 				@value = value
 			};
-			this.Options.Add(e);
+            Options.Add(e);
 		}
 
 		public void AddOption(string option, object value)
@@ -85,36 +52,31 @@ namespace Ship_Game
 			{
 				Name = option,
 				Hover = false,
-				clickRect = new Rectangle(this.r.X, this.r.Y + this.r.Height * this.Options.Count + 3, this.r.Width, 18),
+				clickRect = new Rectangle(r.X, r.Y + r.Height * Options.Count + 3, r.Width, 18),
 				ReferencedObject = value
 			};
-			this.Options.Add(e);
+            Options.Add(e);
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
 			bool hover = false;
-			float x = (float)Mouse.GetState().X;
-			MouseState state = Mouse.GetState();
-			Vector2 MousePos = new Vector2(x, (float)state.Y);
-			if (HelperFunctions.CheckIntersection(this.r, MousePos))
+			Vector2 mousePos = Mouse.GetState().Pos();
+			if (HelperFunctions.CheckIntersection(r, mousePos))
 			{
 				hover = true;
 			}
 			if (hover)
 			{
-				Primitives2D.FillRectangle(spriteBatch, this.r, new Color(128, 87, 43, 50));
+				Primitives2D.FillRectangle(spriteBatch, r, new Color(128, 87, 43, 50));
 			}
-			foreach (DropOptions.RecTexPair r in this.container)
-			{
-				spriteBatch.Draw(ResourceManager.TextureDict[r.tex], r.r, Color.White);
-			}
-            if (!hover && this.Options.Count > 0)
+            for (int i = 0; i < Count; ++i) Border[i].Draw(spriteBatch, Color.White);
+            if (!hover && Options.Count > 0)
 			{
 				
-                string txt = this.Options[this.ActiveIndex].Name;
+                string txt = Options[ActiveIndex].Name;
 				bool addDots = false;
-				while (Fonts.Arial12Bold.MeasureString(txt).X > (float)(this.r.Width - 22))
+				while (Fonts.Arial12Bold.MeasureString(txt).X > (float)(r.Width - 22))
 				{
 					txt = txt.Remove(txt.Length - 1);
 					addDots = true;
@@ -123,13 +85,13 @@ namespace Ship_Game
 				{
 					txt = string.Concat(txt, "...");
 				}
-				spriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), new Color(255, 239, 208));
+				spriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2(r.X + 10, r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), new Color(255, 239, 208));
 			}
-			else if(this.Options.Count >0)
+			else if(Options.Count >0)
 			{
-				string txt = this.Options[this.ActiveIndex].Name;
+				string txt = Options[ActiveIndex].Name;
 				bool addDots = false;
-				while (Fonts.Arial12Bold.MeasureString(txt).X > (float)(this.r.Width - 22))
+				while (Fonts.Arial12Bold.MeasureString(txt).X > (r.Width - 22))
 				{
 					txt = txt.Remove(txt.Length - 1);
 					addDots = true;
@@ -138,34 +100,34 @@ namespace Ship_Game
 				{
 					txt = string.Concat(txt, "...");
 				}
-				spriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.White);
+				spriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((r.X + 10), (r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.White);
 			}
-			if (this.Open)
+			if (Open)
 			{
-				Primitives2D.FillRectangle(spriteBatch, this.OpenRect, new Color(22, 22, 23));
+				Primitives2D.FillRectangle(spriteBatch, OpenRect, new Color(22, 22, 23));
 				int i = 1;
-				foreach (Entry e in this.Options)
+				foreach (Entry e in Options)
 				{
-					if (e.Name == this.Options[this.ActiveIndex].Name)
+					if (e.Name == Options[ActiveIndex].Name)
 					{
 						continue;
 					}
-					Rectangle rectangle = new Rectangle(this.r.X, this.r.Y + this.r.Height * i + 3, this.r.Width, 18);
+					Rectangle rectangle = new Rectangle(r.X, r.Y + r.Height * i + 3, r.Width, 18);
 					Rectangle rectangle1 = rectangle;
 					e.clickRect = rectangle;
 					e.clickRect = rectangle1;
-					if (HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+					if (HelperFunctions.CheckIntersection(e.clickRect, mousePos))
 					{
-						Rectangle HoverLeft = new Rectangle(e.clickRect.X + 5, e.clickRect.Y + 1, 6, 15);
-						Rectangle HoverMiddle = new Rectangle(e.clickRect.X + 11, e.clickRect.Y + 1, e.clickRect.Width - 22, 15);
-						Rectangle HoverRight = new Rectangle(HoverMiddle.X + HoverMiddle.Width, HoverMiddle.Y, 6, 15);
-						spriteBatch.Draw(ResourceManager.TextureDict["NewUI/dropdown_menuitem_hover_left"], HoverLeft, Color.White);
-						spriteBatch.Draw(ResourceManager.TextureDict["NewUI/dropdown_menuitem_hover_middle"], HoverMiddle, Color.White);
-						spriteBatch.Draw(ResourceManager.TextureDict["NewUI/dropdown_menuitem_hover_right"], HoverRight, Color.White);
+						var hoverLeft   = new Rectangle(e.clickRect.X + 5, e.clickRect.Y + 1, 6, 15);
+                        var hoverMiddle = new Rectangle(e.clickRect.X + 11, e.clickRect.Y + 1, e.clickRect.Width - 22, 15);
+                        var hoverRight  = new Rectangle(hoverMiddle.X + hoverMiddle.Width, hoverMiddle.Y, 6, 15);
+						spriteBatch.Draw(ResourceManager.TextureDict["NewUI/dropdown_menuitem_hover_left"], hoverLeft, Color.White);
+						spriteBatch.Draw(ResourceManager.TextureDict["NewUI/dropdown_menuitem_hover_middle"], hoverMiddle, Color.White);
+						spriteBatch.Draw(ResourceManager.TextureDict["NewUI/dropdown_menuitem_hover_right"], hoverRight, Color.White);
 					}
 					string txt = e.Name;
 					bool addDots = false;
-					while (Fonts.Arial12Bold.MeasureString(txt).X > (float)(this.r.Width - 22))
+					while (Fonts.Arial12Bold.MeasureString(txt).X > (float)(r.Width - 22))
 					{
 						txt = txt.Remove(txt.Length - 1);
 						addDots = true;
@@ -174,7 +136,7 @@ namespace Ship_Game
 					{
 						txt = string.Concat(txt, "...");
 					}
-					spriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.r.X + 10), (float)(e.clickRect.Y + e.clickRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.White);
+					spriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(r.X + 10), (float)(e.clickRect.Y + e.clickRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.White);
 					i++;
 				}
 			}
@@ -182,125 +144,119 @@ namespace Ship_Game
 
 		public void DrawGrayed(SpriteBatch spriteBatch)
 		{
-			foreach (DropOptions.RecTexPair r in this.container)
-			{
-				spriteBatch.Draw(ResourceManager.TextureDict[r.tex], r.r, Color.DarkGray);
-			}
-			spriteBatch.DrawString(Fonts.Arial12Bold, "-", new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.DarkGray);
+            for (int i = 0; i < Count; ++i) Border[i].Draw(spriteBatch, Color.DarkGray);
+            spriteBatch.DrawString(Fonts.Arial12Bold, "-", new Vector2(r.X + 10, r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.DarkGray);
 		}
 
 		public void HandleInput(InputState input)
 		{
-			if (HelperFunctions.CheckIntersection(this.r, input.CursorPosition))
+			if (r.HitTest(input.CursorPosition) && input.InGameSelect)
 			{
-				if (input.InGameSelect)
+                Open = !Open;
+				if (Open && Options.Count == 1)
 				{
-					this.Open = !this.Open;
-					if (this.Open && this.Options.Count == 1)
-					{
-						this.Open = false;
-					}
-					if (this.Open)
-					{
-						AudioManager.PlayCue("sd_ui_accept_alt3");
-					}
-					this.Reset();
-					return;
+                    Open = false;
 				}
-			}
-			else if (HelperFunctions.CheckIntersection(this.ClickAbleOpenRect, input.CursorPosition))
-			{
-				if (this.Open)
+				if (Open)
 				{
-					foreach (Entry e in this.Options)
+					AudioManager.PlayCue("sd_ui_accept_alt3");
+				}
+                Reset();
+			}
+			else if (ClickAbleOpenRect.HitTest(input.CursorPosition))
+			{
+				if (Open)
+				{
+					foreach (Entry e in Options)
 					{
-						if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition) || !input.InGameSelect)
+						if (!e.clickRect.HitTest(input.CursorPosition) || !input.InGameSelect)
 						{
 							continue;
 						}
-						this.Options[this.ActiveIndex].clickRect = e.clickRect;
+                        Options[ActiveIndex].clickRect = e.clickRect;
 						e.clickRect = new Rectangle();
-						this.ActiveIndex = this.Options.IndexOf(e);
+                        ActiveIndex = Options.IndexOf(e);
 						AudioManager.PlayCue("sd_ui_accept_alt3");
-						this.Open = false;
-						this.Reset();
+                        Open = false;
+                        Reset();
 						return;
 					}
 				}
 			}
 			else if (input.InGameSelect)
 			{
-				this.Open = false;
-				this.Reset();
+                Open = false;
+                Reset();
 			}
 		}
 
 		public void Reset()
 		{
-			this.container.Clear();
-			this.TL = new DropOptions.RecTexPair(this.r.X, this.r.Y, "NewUI/dropdown_menu_corner_TL");
-			this.TR = new DropOptions.RecTexPair(this.r.X + this.r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_TR"].Width, this.r.Y, "NewUI/dropdown_menu_corner_TR");
-			this.BL = new DropOptions.RecTexPair(this.r.X, this.r.Y + this.r.Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Height, "NewUI/dropdown_menu_corner_BL");
-			this.BR = new DropOptions.RecTexPair(this.r.X + this.r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Width, this.r.Y + this.r.Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BR"].Height, "NewUI/dropdown_menu_corner_BR");
-			this.LV = new DropOptions.RecTexPair(this.r.X, this.r.Y + 6, this.r.Height - 12, "NewUI/dropdown_menu_sides_left");
-			this.RV = new DropOptions.RecTexPair(this.r.X + this.r.Width - 6, this.r.Y + 6, this.r.Height - 12, "NewUI/dropdown_menu_sides_right");
-			this.Top = new DropOptions.RecTexPair(this.r.X + this.TL.r.Width, this.r.Y, "NewUI/dropdown_menu_sides_top", this.r.Width - this.TL.r.Width - this.TR.r.Width);
-			this.Bot = new DropOptions.RecTexPair(this.r.X + this.TL.r.Width, this.r.Y + this.r.Height - 6, "NewUI/dropdown_menu_sides_bottom", this.r.Width - this.BL.r.Width - this.BR.r.Width);
-			this.container.Add(this.TL);
-			this.container.Add(this.TR);
-			this.container.Add(this.BL);
-			this.container.Add(this.BR);
-			this.container.Add(this.LV);
-			this.container.Add(this.RV);
-			this.container.Add(this.Top);
-			this.container.Add(this.Bot);
-			if (this.Open)
+            Array.Clear(Border, 0, Border.Length);
+
+            var ttl = ResourceManager.TextureDict["NewUI/dropdown_menu_corner_TL"];
+            var ttr = ResourceManager.TextureDict["NewUI/dropdown_menu_corner_TR"];
+            var tbl = ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"];
+            var tbr = ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BR"];
+            var left  = ResourceManager.TextureDict["NewUI/dropdown_menu_sides_left"];
+            var right = ResourceManager.TextureDict["NewUI/dropdown_menu_sides_right"];
+            var top = ResourceManager.TextureDict["NewUI/dropdown_menu_sides_top"];
+            var bot = ResourceManager.TextureDict["NewUI/dropdown_menu_sides_bottom"];
+
+            int x = r.X, y = r.Y, w = r.Width, h = r.Height;
+            var tl = Border[0] = new RecTexPair(x, y, ttl);
+            var tr = Border[1] = new RecTexPair(x+w-ttr.Width, y, ttr);
+            var bl = Border[2] = new RecTexPair(x, y+h-tbl.Height, tbl);
+            var br = Border[3] = new RecTexPair(x+w-tbl.Width, y+h-tbr.Height, tbr);
+            Border[4] = new RecTexPair(x, y+6, h-12, left);
+            Border[5] = new RecTexPair(x+w-6, y+6, h-12, right);
+            Border[6] = new RecTexPair(x+tl.W, y, top, w-tl.W-tr.W);
+            Border[7] = new RecTexPair(x+tl.W, y+h-6, bot, w-bl.W-br.W);
+            Count = 8;
+            if (Open)
 			{
-				int Height = (this.Options.Count - 1) * 18;
-				this.OpenRect = new Rectangle(this.r.X + 6, this.r.Y + this.r.Height + 3 + 6, this.r.Width - 12, Height - 12);
-				this.ClickAbleOpenRect = new Rectangle(this.r.X + 6, this.r.Y + this.r.Height + 3, this.r.Width - 12, Height - 6);
-				this.TL = new DropOptions.RecTexPair(this.r.X, this.r.Y + this.r.Height + 3, "NewUI/dropdown_menu_corner_TL");
-				this.TR = new DropOptions.RecTexPair(this.r.X + this.r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_TR"].Width, this.TL.r.Y, "NewUI/dropdown_menu_corner_TR");
-				this.BL = new DropOptions.RecTexPair(this.r.X, this.TL.r.Y + Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Height, "NewUI/dropdown_menu_corner_BL");
-				this.BR = new DropOptions.RecTexPair(this.r.X + this.r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Width, this.TL.r.Y + Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BR"].Height, "NewUI/dropdown_menu_corner_BR");
-				this.LV = new DropOptions.RecTexPair(this.r.X, this.TL.r.Y + 6, Height - 12, "NewUI/dropdown_menu_sides_left");
-				this.RV = new DropOptions.RecTexPair(this.r.X + this.r.Width - 6, this.TL.r.Y + 6, Height - 12, "NewUI/dropdown_menu_sides_right");
-				this.Top = new DropOptions.RecTexPair(this.r.X + this.TL.r.Width, this.TL.r.Y, "NewUI/dropdown_menu_sides_top", this.r.Width - this.TL.r.Width - this.TR.r.Width);
-				this.Bot = new DropOptions.RecTexPair(this.r.X + this.TL.r.Width, this.TL.r.Y + Height - 6, "NewUI/dropdown_menu_sides_bottom", this.r.Width - this.BL.r.Width - this.BR.r.Width);
-				this.container.Add(this.TL);
-				this.container.Add(this.TR);
-				this.container.Add(this.BL);
-				this.container.Add(this.BR);
-				this.container.Add(this.LV);
-				this.container.Add(this.RV);
-				this.container.Add(this.Top);
-				this.container.Add(this.Bot);
+				int height = (Options.Count - 1) * 18;
+                OpenRect = new Rectangle(x + 6, y + h + 3 + 6, w - 12, height - 12);
+                ClickAbleOpenRect = new Rectangle(x + 6, y + h + 3, w - 12, height - 6);
+
+                tl = Border[8]  = new RecTexPair(x, y+h+3, ttl);
+                tr = Border[9]  = new RecTexPair(x+w-ttr.Width, tl.Y, ttr);
+                bl = Border[10] = new RecTexPair(x, tl.Y+height-tbl.Height, tbl);
+                br = Border[11] = new RecTexPair(x+w-tbl.Width, tl.Y+height-tbr.Height, tbr);
+                Border[12] = new RecTexPair(x, tl.Y+6, height-12, left);
+                Border[13] = new RecTexPair(x+w-6, tl.Y+6, height-12, right);
+                Border[14] = new RecTexPair(x+tl.W, tl.Y, top, w-tl.W-tr.W);
+                Border[15] = new RecTexPair(x+tl.W, tl.Y+height-6, bot, w-bl.W-br.W);
+                Count = 16;
 			}
 		}
 
-		private class RecTexPair
+		private struct RecTexPair
 		{
-			public Rectangle r;
+			private readonly Rectangle Rect;
+            private readonly Texture2D Tex;
+            public int Y => Rect.Y;
+            public int W => Rect.Width;
 
-			public string tex;
-
-			public RecTexPair(int x, int y, string t)
+			public RecTexPair(int x, int y, Texture2D t)
 			{
-				this.r = new Rectangle(x, y, ResourceManager.TextureDict[t].Width, ResourceManager.TextureDict[t].Height);
-				this.tex = t;
+                Rect = new Rectangle(x, y, t.Width, t.Height);
+                Tex = t;
 			}
-
-			public RecTexPair(int x, int y, int h, string t)
+			public RecTexPair(int x, int y, int h, Texture2D t)
 			{
-				this.r = new Rectangle(x, y, ResourceManager.TextureDict[t].Width, h);
-				this.tex = t;
+                Rect = new Rectangle(x, y, t.Width, h);
+                Tex = t;
 			}
-
-			public RecTexPair(int x, int y, string t, int w)
+			public RecTexPair(int x, int y, Texture2D t, int w)
 			{
-				this.r = new Rectangle(x, y, w, ResourceManager.TextureDict[t].Height);
-				this.tex = t;
+                Rect = new Rectangle(x, y, w, t.Height);
+                Tex = t;
 			}
-		}
+            public void Draw(SpriteBatch spriteBatch, Color color)
+            {
+                spriteBatch.Draw(Tex, Rect, color);
+            }
+        }
 	}
 }

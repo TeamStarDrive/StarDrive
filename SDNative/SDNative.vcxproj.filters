@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{82679bed-c6f5-4316-b39c-d32c59bbcbaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rapidxml">
+      <UniqueIdentifier>{b48f0e2e-8904-4bf8-a7b7-ccc73e00b232}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ShipDataSerializer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="util\strview.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\file_io.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryUtils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="util\apex_memmove.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ShipDataSerializer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="util\file_io.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml.hpp">
+      <Filter>rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_iterators.hpp">
+      <Filter>rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_print.hpp">
+      <Filter>rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_utils.hpp">
+      <Filter>rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="util\strview.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="node_parser.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="util\apex_memmove.h">
+      <Filter>util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="util\strview.natvis">
+      <Filter>util</Filter>
+    </Natvis>
+    <Natvis Include="SDNative.natvis">
+      <Filter>src</Filter>
+    </Natvis>
+  </ItemGroup>
+</Project>

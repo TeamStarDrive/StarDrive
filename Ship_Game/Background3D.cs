@@ -10,9 +10,9 @@ namespace Ship_Game
 	{
 		private UniverseScreen screen;
 
-		public List<BackgroundItem> BGItems = new List<BackgroundItem>();
+		public Array<BackgroundItem> BGItems = new Array<BackgroundItem>();
 
-		private List<BackgroundItem> NonAdditiveList = new List<BackgroundItem>();
+		private Array<BackgroundItem> NonAdditiveList = new Array<BackgroundItem>();
 
 		public Background3D(UniverseScreen screen)
 		{
@@ -130,7 +130,7 @@ namespace Ship_Game
 			{
 				BackgroundItem BigNeb_4 = new BackgroundItem()
 				{
-					Texture = ResourceManager.TextureDict["Textures/smoke"]
+					Texture = ResourceManager.TextureDict["smoke"]
 				};
 				float rw = RandomMath.RandomBetween(150000f, 800000f);
 				Rectangle b = new Rectangle((int)RandomMath.RandomBetween((float)r1.X + (float)r1.Width * 0.2f, (float)r1.X + (float)r1.Width * 0.6f), (int)RandomMath.RandomBetween((float)r1.Y + (float)r1.Height * 0.2f, (float)r1.Y + (float)r1.Height * 0.6f), (int)rw, (int)rw);

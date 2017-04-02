@@ -12,15 +12,10 @@
 #define DEBUGON
 
 using System;
-using System.Text;
-using System.Drawing;
-using System.Threading;
-using System.Collections;
-using System.Windows.Forms;
-using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Algorithms;
+using Microsoft.Xna.Framework;
+using Ship_Game;
 
 namespace Algorithms
 {
@@ -55,7 +50,7 @@ namespace Algorithms
         // Heap variables are initializated to default, but I like to do it anyway
         private byte[,]                         mGrid                   = null;
         private PriorityQueueB<int>             mOpen                   = null;
-        private List<PathFinderNode>            mClose                  = new List<PathFinderNode>();
+        private Array<PathFinderNode>            mClose                  = new Array<PathFinderNode>();
         private bool                            mStop                   = false;
         private bool                            mStopped                = true;
         private int                             mHoriz                  = 0;
@@ -203,7 +198,7 @@ namespace Algorithms
             mStop = true;
         }
 
-        public List<PathFinderNode> FindPath(Point start, Point end)
+        public Array<PathFinderNode> FindPath(Point start, Point end)
         {
             lock(this)
             {

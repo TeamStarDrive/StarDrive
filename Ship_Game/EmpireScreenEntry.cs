@@ -91,7 +91,7 @@ namespace Ship_Game
 
 		public EmpireScreenEntry(Planet planet, int x, int y, int width1, int height, EmpireScreen eScreen)
 		{
-			if (Ship.universeScreen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
+			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
 			{
 				this.LowRes = true;
 			}
@@ -166,7 +166,7 @@ namespace Ship_Game
 				color = "green"
 			};
 			int ddwidth = (int)(0.2f * (float)this.StorageRect.Width);
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				ddwidth = (int)Fonts.Arial12.MeasureString(Localizer.Token(330)).X + 22;
 			}
@@ -340,11 +340,12 @@ namespace Ship_Game
 					};
 					pb.Draw(ScreenManager.SpriteBatch);
 				}
-				if (qi.isTroop)
+				else if (qi.isTroop)
 				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", qi.troop.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Troops/" + template.TexturePath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.troop.Name, tCursor, Color.White);
+					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.troopType, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					Rectangle pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
 					ProgressBar pb = new ProgressBar(pbRect)
@@ -935,7 +936,7 @@ namespace Ship_Game
 
 		public void SetNewPos(int x, int y)
 		{
-			if (Ship.universeScreen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
+			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
 			{
 				this.LowRes = true;
 			}
@@ -984,7 +985,7 @@ namespace Ship_Game
 				color = "green"
 			};
 			int ddwidth = (int)(0.2f * (float)this.StorageRect.Width);
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				ddwidth = (int)Fonts.Arial12.MeasureString(Localizer.Token(330)).X + 22;
 			}

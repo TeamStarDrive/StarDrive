@@ -1,140 +1,112 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using System;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
+using Cue = Microsoft.Xna.Framework.Audio.Cue;
 
 namespace Ship_Game
 {
 	public sealed class AudioManager : GameComponent
 	{
 		private static AudioManager audioManager;
-
 		private AudioEngine audioEngine;
-
 		private SoundBank soundBank;
-
 		private WaveBank waveBank;
 
-        private bool disposed;
+        private readonly Array<SoundEffectInstance> SoundEffectInstances;
 
-        //Added by McShooterz: store sounds instances
-        private List<SoundEffectInstance> SoundEffectInstances;
+	    public static bool LimitOk => audioManager.SoundEffectInstances.Count < 7;
 
-		static AudioManager()
+	    private AudioManager(Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
 		{
-		}
-        
-
-	static public bool limitOK
-	{
-        get { return AudioManager.audioManager.SoundEffectInstances.Count <7 ; }
-		
-	}
-	
-		private AudioManager(Microsoft.Xna.Framework.Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
-		{
-            this.SoundEffectInstances = new List<SoundEffectInstance>();
+            SoundEffectInstances = new Array<SoundEffectInstance>();
 			try
 			{
-				this.audioEngine = new AudioEngine(settingsFile);
-				this.waveBank = new WaveBank(this.audioEngine, waveBankFile, 0, 16);
-				this.soundBank = new SoundBank(this.audioEngine, soundBankFile);
-			}
-			catch (NoAudioHardwareException)
+				audioEngine = new AudioEngine(settingsFile);
+				waveBank    = new WaveBank(audioEngine, waveBankFile, 0, 16);
+				soundBank   = new SoundBank(audioEngine, soundBankFile);
+
+                while (!waveBank.IsPrepared)
+                {
+                    audioEngine.Update();
+                }
+            }
+			catch (Exception ex)
 			{
-				this.audioEngine = null;
-				this.waveBank = null;
-				this.soundBank = null;
-			}
-			catch (InvalidOperationException)
-			{
-				this.audioEngine = null;
-				this.waveBank = null;
-				this.soundBank = null;
-			}
-			while (!this.waveBank.IsPrepared)
-			{
-				this.audioEngine.Update();
-			}
+                audioEngine = null;
+                waveBank    = null;
+                soundBank   = null;
+                Log.Error(ex, "AudioEngine init failed");
+            }
 		}
 
-        ~AudioManager() { Dispose(false); }
-
+        // Dispose called by GameComponent Dispose() or finalizer
 		protected override void Dispose(bool disposing)
 		{
-			if (!disposed)
-			{
-				if (disposing)
-				{
-					if (this.soundBank != null)
-						this.soundBank.Dispose();
-					if (this.waveBank != null)
-						this.waveBank.Dispose();
-					if (this.audioEngine != null)
-						this.audioEngine.Dispose();
-                }
-            this.soundBank = null;
-            this.waveBank = null;
-            this.audioEngine = null;
+            soundBank?.Dispose(ref soundBank);
+            waveBank?.Dispose(ref waveBank);
+            audioEngine?.Dispose(ref audioEngine);
             base.Dispose(disposing);
-            disposed=true;
-			}
 		}
 
-		public static AudioEngine getAudioEngine()
+	    public static AudioManager Manager
+	    {
+	        get
+	        {
+	            if (audioManager?.audioEngine == null
+                    || audioManager.soundBank == null
+                    || audioManager.waveBank == null)
+                    return null;
+                return audioManager;
+	        }
+	    }
+        public static AudioEngine AudioEngine => Manager?.audioEngine;
+
+        public static Cue GetCue(string cueName)
 		{
-			if (AudioManager.audioManager == null || AudioManager.audioManager.audioEngine == null || AudioManager.audioManager.soundBank == null || AudioManager.audioManager.waveBank == null)
-			{
-				return null;
-			}
-			return AudioManager.audioManager.audioEngine;
+			return Manager?.soundBank.GetCue(cueName);
 		}
 
-		public static Cue GetCue(string cueName)
+        // @todo Why is this class a singleton? Singletons suck.
+		public static void Initialize(Game game, string settingsFile, string waveBankFile, string soundBankFile)
 		{
-			if (AudioManager.audioManager == null || AudioManager.audioManager.audioEngine == null || AudioManager.audioManager.soundBank == null || AudioManager.audioManager.waveBank == null)
-			{
-				return null;
-			}
-            
-			return AudioManager.audioManager.soundBank.GetCue(cueName);
-		}
-
-		public static void Initialize(Microsoft.Xna.Framework.Game game, string settingsFile, string waveBankFile, string soundBankFile)
-		{
-			AudioManager.audioManager = new AudioManager(game, settingsFile, waveBankFile, soundBankFile);
-			if (game != null)
-			{
-				game.Components.Add(AudioManager.audioManager);
-			}
+			audioManager = new AudioManager(game, settingsFile, waveBankFile, soundBankFile);
+		    game?.Components.Add(audioManager);
 		}
 
 		public static void PlayCue(string cueName)
 		{
-			if (AudioManager.audioManager != null &&  AudioManager.audioManager.SoundEffectInstances.Count <7 &&   AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+			if (audioManager?.audioEngine != null 
+                && audioManager.soundBank != null 
+                && audioManager.waveBank != null 
+                && audioManager.SoundEffectInstances.Count < 7 )
 			{
-				
-                AudioManager.audioManager.soundBank.PlayCue(cueName);
+                audioManager.soundBank.PlayCue(cueName);
 			}
 		}
         public static void PlayCue(string cueName, Vector3 listener, Vector3 emitter)
         {
-            if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+            if (audioManager?.audioEngine != null 
+                && audioManager.soundBank != null 
+                && audioManager.waveBank != null)
             {
                 
-                AudioManager.audioManager.soundBank.PlayCue(cueName);
+                audioManager.soundBank.PlayCue(cueName);
             }
+        }
+
+        public static Cue PlayCue(string cueName, AudioListener listener, AudioEmitter emitter)
+        {
+            Cue cue = GetCue(cueName);
+            cue.Apply3D(listener, emitter);
+            cue.Play();
+            return cue;
         }
 
 		public override void Update(GameTime gameTime)
 		{
-            this.DisposeSoundEffectInstances();
-			if (this.audioEngine != null)
-			{
-				this.audioEngine.Update();
-			}
-			base.Update(gameTime);
+            DisposeSoundEffectInstances();
+		    audioEngine?.Update();
+		    base.Update(gameTime);
 		}
 
         //Added by McShooterz: Play a sound
@@ -144,19 +116,19 @@ namespace Ship_Game
                 return;
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
-            sei.Volume = GlobalStats.Config.EffectsVolume * VolumeMod;
+            sei.Volume = GlobalStats.EffectsVolume * VolumeMod;
             sei.Play();
         }
 
         //Added by McShooterz: Play 3d sound effect
-        public static void PlaySoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float VolumeMod)
+        public static void PlaySoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float volumeMod)
         {
-            if (AudioManager.audioManager.SoundEffectInstances.Count > 6)
+            if (audioManager.SoundEffectInstances.Count > 6)
                 return;
             SoundEffectInstance sei = se.CreateInstance();
-            AudioManager.audioManager.SoundEffectInstances.Add(sei);
+            audioManager.SoundEffectInstances.Add(sei);
             sei.Apply3D(al, ae);
-            sei.Volume = GlobalStats.Config.EffectsVolume * VolumeMod;
+            sei.Volume = GlobalStats.EffectsVolume * volumeMod;
             sei.Play();
         }
 
