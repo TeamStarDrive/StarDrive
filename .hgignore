@@ -15,3 +15,4 @@ StarDrive/
 SDNative\SDNative.vcxproj
 x64\Debug\SDNative.lib
 x64/
+.idea/
