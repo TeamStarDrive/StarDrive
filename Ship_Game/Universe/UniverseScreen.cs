@@ -6790,7 +6790,7 @@ namespace Ship_Game
               
                 foreach (Planet planet in solarSystem.PlanetList)
                 {
-                    if (!planet.ExploredDict[player]) continue;
+                    if (!planet.Explored(player)) continue;
 
                     Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
                     Vector2 posOffSet       = screenPosPlanet;                    
