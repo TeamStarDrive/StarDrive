@@ -673,7 +673,7 @@ namespace Ship_Game.AI
             {                                                
                 int assaultShips = CountShipsWithStrength(out int availableTroops);                
                 if (availableTroops == 0)                
-                    availableTroops += task.GetTargetPlanet().GetEmpireTroopCount(Owner);                    
+                    availableTroops += task.GetTargetPlanet().CountEmpireTroops(Owner);                    
                 
                 if (availableTroops == 0 || assaultShips == 0)
                 {
