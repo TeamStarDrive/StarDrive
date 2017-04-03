@@ -6637,12 +6637,7 @@ namespace Ship_Game
                 DrawShields();
             renderState.DepthBufferWriteEnable = true;
         }
-        Color ColorWaypoints(byte alpha) => new Color(Color.Lime,alpha); 
-        Color ColorAttack(byte alpha) => new Color(Color.Red, alpha); 
-        Color ColorCombatOrders(byte alpha) => new Color(Color.MediumPurple, alpha);
-        Color ColorOrders(byte alpha) => new Color(Color.Aqua,alpha); 
-        Color ColorError(byte alpha) => new Color(Color.Orange, alpha); 
-        Color ColorWarning(byte alpha) => new Color(Color.Yellow, alpha); 
+ 
 
         private void DrawShipLines(Ship ship, byte alpha)
         {
@@ -6657,7 +6652,7 @@ namespace Ship_Game
                 ArtificialIntelligence.ShipGoal goal;
                 if (!ship.InCombat || ship.AI.HasPriorityOrder)
                 {
-                    color = ColorOrders(alpha); 
+                    color = Colors.Orders(alpha); 
                     if (ship.AI.State == AIState.Ferrying)
                     {
                         DrawLineProjected(start, ship.AI.EscortTarget.Center, color);
@@ -6700,43 +6695,43 @@ namespace Ship_Game
                     goal = ship.AI.OrderQueue.PeekFirst;
                     if (ship.AI.State == AIState.Bombard && goal?.TargetPlanet != null)
                     {
-                        DrawLineProjected(ship.Center, goal.TargetPlanet.Position, ColorCombatOrders(alpha), 2500f);
-                        DrawWayPointLines(ship, ColorCombatOrders(alpha));
+                        DrawLineProjected(ship.Center, goal.TargetPlanet.Position, Colors.CombatOrders(alpha), 2500f);
+                        DrawWayPointLines(ship, Colors.CombatOrders(alpha));
                     }
                 }
                 if (!ship.AI.HasPriorityOrder && (ship.AI.State == AIState.AttackTarget || ship.AI.State == AIState.Combat) && ship.AI.Target is Ship)
                 {                    
-                    DrawLineProjected(ship.Center, ship.AI.Target.Center, ColorAttack(alpha));
+                    DrawLineProjected(ship.Center, ship.AI.Target.Center, Colors.Attack(alpha));
                     if (ship.AI.TargetQueue.Count > 1)
                     {                        
                         for (int i = 0; i < ship.AI.TargetQueue.Count - 1; ++i)
                         {
                             var target = ship.AI.TargetQueue[i];
                             if (!target?.Active ?? true) continue;
-                            DrawLineProjected(target.Center, ship.AI.TargetQueue[i].Center, ColorAttack((byte)(alpha * .5f)));
+                            DrawLineProjected(target.Center, ship.AI.TargetQueue[i].Center, Colors.Attack((byte)(alpha * .5f)));
                         }
                     }
                     return;
                 }
                 if (ship.AI.State == AIState.Boarding && ship.AI.EscortTarget != null)
                 {
-                    DrawLineProjected(start, ship.AI.EscortTarget.Center, ColorCombatOrders(alpha));
+                    DrawLineProjected(start, ship.AI.EscortTarget.Center, Colors.CombatOrders(alpha));
                     return;
                 }
                 if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
                 {
                     int spots = ship.AI.OrbitTarget.GetGroundLandingSpots();
                     if (spots > 4)
-                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, ColorCombatOrders(alpha), 2500f);
+                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, Colors.CombatOrders(alpha), 2500f);
                     else if (spots > 0)
-                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, ColorWarning(alpha), 2500f);
+                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, Colors.Warning(alpha), 2500f);
                     else
-                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, ColorError(alpha), 2500f);
+                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, Colors.Error(alpha), 2500f);
                     DrawWayPointLines(ship, new Color(Color.Lime, alpha));
                     return;
                 }
 
-                DrawWayPointLines(ship,ColorWarning(alpha));
+                DrawWayPointLines(ship, Colors.WayPoints(alpha));
 
 
             }
@@ -6744,6 +6739,7 @@ namespace Ship_Game
             {
             }
         }
+
         public void DrawWayPointLines(Ship ship, Color color)
         {
             if (ship.AI.ActiveWayPoints.Count < 1) return;
@@ -6783,10 +6779,10 @@ namespace Ship_Game
             if (LookingAtPlanet || viewState > UnivScreenState.SectorView || viewState < UnivScreenState.ShipView)
                 return;
             Vector2 mousePos              = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
-            Texture2D planetNamePointer   = null;
-            Texture2D icon_fighting_small = null;
-            Texture2D icon_spy_small      = null;
-            Texture2D icon_anomaly_small  = null;
+            Texture2D planetNamePointer   = ResourceManager.Texture("UI/planetNamePointer");
+            Texture2D icon_fighting_small = ResourceManager.Texture("UI/icon_fighting_small");
+            Texture2D icon_spy_small      = ResourceManager.Texture("UI/icon_spy_small");
+            Texture2D icon_anomaly_small  = ResourceManager.Texture("UI/icon_anomaly_small");
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 if (!solarSystem.isVisible)
@@ -6797,22 +6793,17 @@ namespace Ship_Game
                     if (!planet.ExploredDict[player]) continue;
 
                     Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
-                    Vector2 posOffSet       = screenPosPlanet;
-                    planetNamePointer       = planetNamePointer ?? ResourceManager.Texture("UI/planetNamePointer");                    
-                    posOffSet.X             += 20f; 
-                    posOffSet.Y             += 37f;
+                    Vector2 posOffSet       = screenPosPlanet;                    
+                    posOffSet.X            += 20f; 
+                    posOffSet.Y            += 37f;
                     int drawLocationOffset  = 0;
 
-                    DrawTextureRect(planetNamePointer, screenPosPlanet, Color.Green);
-                    HelperFunctions.ClampVectorToInt(ref posOffSet);
-                    Color textColor = planet.Owner?.EmpireColor ?? Color.White;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, planet.Name, posOffSet, textColor);                    
-                                        
-                    posOffSet               = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
+                    DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name, planet.Owner?.EmpireColor ?? Color.White);
+                    
+                    posOffSet = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
 
                     if (planet.RecentCombat)
-                    {
-                        icon_fighting_small = icon_fighting_small ?? ResourceManager.Texture("UI/icon_fighting_small");
+                    {                        
                         DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
@@ -6821,9 +6812,8 @@ namespace Ship_Game
                         foreach (Mole mole in (Array<Mole>)player.data.MoleList)
                         {
                             if (mole.PlanetGuid == planet.guid)
-                            {
-                                icon_spy_small = icon_spy_small ?? ResourceManager.Texture("UI/icon_spy_small");
-                                posOffSet.X    += (float)(18 * drawLocationOffset);
+                            {                                
+                                posOffSet.X += (float)(18 * drawLocationOffset);
                                 DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                                 ++drawLocationOffset;                                
                                 break;
@@ -6833,16 +6823,25 @@ namespace Ship_Game
                     foreach (Building building in planet.BuildingList)
                     {
                         if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
-
-                        icon_anomaly_small = icon_anomaly_small ?? ResourceManager.Texture("UI/icon_anomaly_small");
-                        posOffSet.X        += (float)(18 * drawLocationOffset);                        
+                        
+                        posOffSet.X += (float)(18 * drawLocationOffset);                        
                         DrawTextureWithToolTip(icon_anomaly_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);                        
                         break;
                     }
                 }
             }
         }
-
+        //This will likely only work with "this UI\planetNamePointer" texture 
+        //Other textures might work but would need the x and y offset adjusted. 
+        public void DrawPointerWithText(Vector2 screenPos, Texture2D planetNamePointer, Color pointerColor, string text, Color textColor, float xOffSet =20f, float yOffSet = 37f)
+        {            
+            DrawTextureRect(planetNamePointer, screenPos, pointerColor);
+            Vector2 posOffSet = screenPos;
+            posOffSet.X      += xOffSet;
+            posOffSet.Y      += yOffSet;
+            HelperFunctions.ClampVectorToInt(ref posOffSet);            
+            ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, text, posOffSet, textColor);
+        }
 
 
         // this does some magic to convert a game position/coordinate to a drawable screen position
