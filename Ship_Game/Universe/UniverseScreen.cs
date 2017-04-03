@@ -6856,14 +6856,15 @@ namespace Ship_Game
         }
         //This will likely only work with "this UI\planetNamePointer" texture 
         //Other textures might work but would need the x and y offset adjusted. 
-        public void DrawPointerWithText(Vector2 screenPos, Texture2D planetNamePointer, Color pointerColor, string text, Color textColor, float xOffSet =20f, float yOffSet = 37f)
-        {            
+        public void DrawPointerWithText(Vector2 screenPos, Texture2D planetNamePointer, Color pointerColor, string text, Color textColor, SpriteFont font = null, float xOffSet =20f, float yOffSet = 37f)
+        {
+            font = font ?? Fonts.Tahoma10;
             DrawTextureRect(planetNamePointer, screenPos, pointerColor);
             Vector2 posOffSet = screenPos;
             posOffSet.X      += xOffSet;
             posOffSet.Y      += yOffSet;
             HelperFunctions.ClampVectorToInt(ref posOffSet);            
-            ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, text, posOffSet, textColor);
+            ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
         }
 
 
