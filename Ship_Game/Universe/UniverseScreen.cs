@@ -6794,6 +6794,7 @@ namespace Ship_Game
                 SolarSystem solarSystem = SolarSystemList[k];
                 if (!solarSystem.isVisible)
                     continue;
+<<<<<<< local
 
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
@@ -6809,6 +6810,22 @@ namespace Ship_Game
                     DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name,
                         planet.Owner?.EmpireColor ?? Color.White);
 
+=======
+              
+                foreach (Planet planet in solarSystem.PlanetList)
+                {
+                    if (!planet.IsExploredBy(player))
+                        continue;
+
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
+                    Vector2 posOffSet       = screenPosPlanet;                    
+                    posOffSet.X            += 20f; 
+                    posOffSet.Y            += 37f;
+                    int drawLocationOffset  = 0;
+
+                    DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name, planet.Owner?.EmpireColor ?? Color.White);
+                    
+>>>>>>> other
                     posOffSet = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
 
                     if (planet.RecentCombat)

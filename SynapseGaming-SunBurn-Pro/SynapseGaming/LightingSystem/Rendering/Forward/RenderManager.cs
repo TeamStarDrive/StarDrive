@@ -235,7 +235,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                   {
                     if (renderableMesh != null)
                     {
-                      ISceneObject isceneObject0 = renderableMesh.isceneObject_0;
+                      ISceneObject isceneObject0 = renderableMesh.sceneObject;
                       bool flag;
                       if (this.dictionary_0.TryGetValue(isceneObject0, out flag))
                       {
@@ -381,7 +381,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         class63.HasRenderableObjects = false;
         foreach (RenderableMesh renderableMesh in class63.Objects.All)
         {
-          if (flag1 && (renderableMesh == null || shadowGroup_0.BoundingBox.Contains(renderableMesh.isceneObject_0.WorldBoundingSphere) == ContainmentType.Disjoint))
+          if (flag1 && (renderableMesh == null || shadowGroup_0.BoundingBox.Contains(renderableMesh.sceneObject.WorldBoundingSphere) == ContainmentType.Disjoint))
           {
             renderableMesh.bool_0 = false;
           }
@@ -564,8 +564,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
       if (effect_0 is IDeferredObjectEffect)
       {
         string str = string.Empty;
-        if (list_14[0].isceneObject_0 != null)
-          str = list_14[0].isceneObject_0.Name;
+        if (list_14[0].sceneObject != null)
+          str = list_14[0].sceneObject.Name;
         throw new Exception("Forward rendering does not support deferred effects (SceneObject '" + str + "'). Make sure model processors are set to a non-deferred processor.");
       }
       if (bool_6)
@@ -641,19 +641,19 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             bool flag4 = false;
             if (basicEffect != null)
             {
-              basicEffect.World = renderableMesh_1.matrix_4;
+              basicEffect.World = renderableMesh_1.world;
               flag4 = true;
             }
             else
             {
               if (skinnedEffect != null)
               {
-                skinnedEffect.SkinBones = renderableMesh_1.isceneObject_0.SkinBones;
+                skinnedEffect.SkinBones = renderableMesh_1.sceneObject.SkinBones;
                 flag4 = true;
               }
               if (renderableEffect1 != null)
               {
-                renderableEffect1.SetWorldAndWorldToObject(ref renderableMesh_1.matrix_4, ref renderableMesh_1.matrix_5, ref renderableMesh_1.matrix_6, ref renderableMesh_1.matrix_7);
+                renderableEffect1.SetWorldAndWorldToObject(ref renderableMesh_1.world, ref renderableMesh_1.worldTranspose, ref renderableMesh_1.worldToMesh, ref renderableMesh_1.matrix_7);
                 flag4 = true;
               }
               if (renderableEffect2 != null)
@@ -674,10 +674,10 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
               ++this.class57_0.lightingSystemStatistic_5.AccumulationValue;
             }
             this.class67_0.method_1(graphicsDevice, renderableMesh_1);
-            if (renderableMesh_1.indexBuffer_0 == null)
-              graphicsDevice.DrawPrimitives(renderableMesh_1.primitiveType_0, renderableMesh_1.int_4, renderableMesh_1.int_5);
+            if (renderableMesh_1.indexBuffer == null)
+              graphicsDevice.DrawPrimitives(renderableMesh_1.primitiveType_0, renderableMesh_1.elementStart, renderableMesh_1.int_5);
             else
-              graphicsDevice.DrawIndexedPrimitives(renderableMesh_1.primitiveType_0, renderableMesh_1.int_2, 0, renderableMesh_1.int_3, renderableMesh_1.int_4, renderableMesh_1.int_5);
+              graphicsDevice.DrawIndexedPrimitives(renderableMesh_1.primitiveType_0, renderableMesh_1.vertexBase, 0, renderableMesh_1.vertexCount, renderableMesh_1.elementStart, renderableMesh_1.int_5);
             ++this.class57_0.lightingSystemStatistic_2.AccumulationValue;
             this.class57_0.lightingSystemStatistic_0.AccumulationValue += renderableMesh_1.int_5;
           }
