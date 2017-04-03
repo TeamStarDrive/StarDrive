@@ -6663,7 +6663,7 @@ namespace Ship_Game
                         if (ship.Mothership != null)
                             DrawLineProjected(start, ship.Mothership.Center, color);
                         else
-                            ship.AI.State = AIState.AwaitingOrders;
+                            ship.AI.State = AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix. 
                         return;
                     }
                     if (ship.AI.State == AIState.Escort && ship.AI.EscortTarget != null)
