@@ -28,7 +28,7 @@ namespace Ship_Game
         Terran,
     }
 
-    public sealed class Planet: IDisposable
+    public sealed class Planet : IDisposable
     {
         public bool GovBuildings = true;
         public bool GovSliders = true;
@@ -37,8 +37,8 @@ namespace Ship_Game
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         public string Special = "None";
         public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
-        public Planet.GoodState fs = Planet.GoodState.STORE;
-        public Planet.GoodState ps = Planet.GoodState.STORE;
+        public GoodState fs = GoodState.STORE;
+        public GoodState ps = GoodState.STORE;
         public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
         public Array<Building> BuildingList = new Array<Building>();
         public SpaceStation Station = new SpaceStation();
@@ -148,27 +148,24 @@ namespace Ship_Game
         public int uniqueHabPercent;
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
+
         public float ObjectRadius
         {
-            get
-            {
-                if (this.SO == null)
-                    return this.Objectradius;                
-                return this.SO.WorldBoundingSphere.Radius;
-                 }
-            set { if (this.SO == null)
-                    this.Objectradius =value;                
-            else
-                this.Objectradius = this.SO.WorldBoundingSphere.Radius;
-            }
+            get => SO != null ? SO.WorldBoundingSphere.Radius : ObjectRadius;
+            set => ObjectRadius = SO != null ? SO.WorldBoundingSphere.Radius : value;
         }
-        
         
         public Planet()
         {
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
-                this.AddGood(keyValuePair.Key, 0);
-            this.HasShipyard = false;
+                AddGood(keyValuePair.Key, 0);
+            HasShipyard = false;
+        }
+
+        public bool IsExploredBy(Empire empire)
+        {
+            ExploredDict.TryGetValue(empire, out bool explored);
+            return explored;
         }
 
         public void DropBombORIG(Bomb bomb)
@@ -6151,16 +6148,12 @@ output = maxp * take10 = 5
             //this.initializing = false;
         }
 
-        public void AddGood(string UID, int Amount)
+        public void AddGood(string goodId, int Amount)
         {
-            if (this.ResourcesDict.ContainsKey(UID))
-            {
-                Map<string, float> dictionary;
-                string index;
-                (dictionary = this.ResourcesDict)[index = UID] = dictionary[index] + (float)Amount;
-            }
+            if (ResourcesDict.ContainsKey(goodId))
+                ResourcesDict[goodId] += Amount;
             else
-                this.ResourcesDict.Add(UID, (float)Amount);
+                ResourcesDict.Add(goodId, Amount);
         }
 
         private  void UpdatePosition(float elapsedTime)
