@@ -1735,11 +1735,11 @@ namespace Ship_Game
                         if (HelperFunctions.CheckIntersection(rect, pos))
                             viewing = true;
                     }
-                    if (system.ExploredDict[this.player] && viewing)
+                    if (system.Explored(player) && viewing)
                     {
-                        system.isVisible = viewState < UnivScreenState.GalaxyView;//this.camHeight < 250000.0;
+                        system.isVisible = viewState <= UnivScreenState.SectorView;
                     }
-                    if (system.isVisible && viewState < UnivScreenState.SectorView)
+                    if (system.isVisible && viewState <= UnivScreenState.SystemView)
                     {
                         foreach (Asteroid asteroid in system.AsteroidsList)
                         {
@@ -1874,11 +1874,11 @@ namespace Ship_Game
                     if (HelperFunctions.CheckIntersection(rect, pos))
                         inFrustrum = true;
                 }
-                if (system.ExploredDict[this.player] && inFrustrum)
+                if (system.Explored(this.player) && inFrustrum)
                 {
-                        system.isVisible = (double)this.camHeight < 250000.0; 
+                        system.isVisible =camHeight < GetZfromScreenState(UnivScreenState.GalaxyView); 
                 }
-                if (system.isVisible && this.camHeight < 150000.0)
+                if (system.isVisible && camHeight < GetZfromScreenState(UnivScreenState.SystemView) )
                 {
                     foreach (Asteroid asteroid in system.AsteroidsList)
                     {
@@ -1908,7 +1908,7 @@ namespace Ship_Game
                     if (planet.HasShipyard && system.isVisible)
                         planet.Station.Update(elapsedTime);
                 }
-                if (system.isVisible && camHeight < 150000.0f)
+                if (system.isVisible && camHeight < GetZfromScreenState(UnivScreenState.SystemView))
                 {
                     foreach (Asteroid asteroid in system.AsteroidsList)
                         asteroid.Update(elapsedTime);
@@ -2757,13 +2757,13 @@ namespace Ship_Game
                 {
                     this.snappingToShip = false;
                     this.ViewingShip = false;
-                    if ((double)this.camHeight < 1175000.0 && (double)this.camHeight > 146900.0)
+                    if (camHeight < GetZfromScreenState(UnivScreenState.GalaxyView) && camHeight > GetZfromScreenState(UnivScreenState.SectorView))
                     {
                         this.AdjustCamTimer = 1f;
                         this.transitionElapsedTime = 0.0f;
                         this.transitionDestination = new Vector3(this.camPos.X, this.camPos.Y, 1175000f);
                     }
-                    else if ((double)this.camHeight < 146900.0)
+                    else if (camHeight > GetZfromScreenState(UnivScreenState.ShipView))
                     {
                         this.AdjustCamTimer = 1f;
                         this.transitionElapsedTime = 0.0f;
@@ -6474,14 +6474,14 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Begin();
             if (DefiningAO && Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
-                DrawRectangleProjected(AORect, GetColor(ColorType.AORect));                
+                DrawRectangleProjected(AORect, Color.Red);                
             }
             if (DefiningAO && SelectedShip != null)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Localizer.Token(1411), new Vector2((float)SelectedStuffRect.X, (float)(SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2)), Color.White);
                 foreach (Rectangle rectangle in SelectedShip.AreaOfOperation)
                 {
-                    DrawRectangleProjected(rectangle, GetColor(ColorType.AORect), GetColor(ColorType.AORect,10)); 
+                    DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 10)); 
                     
                 }
             }
@@ -6493,265 +6493,20 @@ namespace Ship_Game
             byte alpha = (byte)num;
             if (SelectedShip != null)
             {
-                if (!SelectedShip.InCombat || SelectedShip.AI.HasPriorityOrder)
-                {
-                    if (SelectedShip.AI.State == AIState.Ferrying)
-                    {                        
-                        DrawLineProjected(SelectedShip.Center, SelectedShip.AI.EscortTarget.Center, GetColor(ColorType.Ferry, alpha));
-                    }
-                    else if (SelectedShip.AI.State == AIState.Escort)
-                    {
-                        if (SelectedShip.AI.EscortTarget != null)
-                            DrawLineProjected(SelectedShip.Center, SelectedShip.AI.EscortTarget.Center, GetColor(ColorType.Escort, alpha));
-                    }
-                    else if (SelectedShip.AI.State == AIState.ReturnToHangar)
-                    {
-                        if (SelectedShip.Mothership != null)
-                            DrawLineProjected(SelectedShip.Center, SelectedShip.Mothership.Center, GetColor(ColorType.HangarShip, alpha));
-                    }                
-                                            
-                    if (SelectedShip.AI.State == AIState.Explore && SelectedShip.AI.ExplorationTarget != null)                                            
-                        DrawLineProjected(SelectedShip.Center, SelectedShip.AI.ExplorationTarget.Position, GetColor(ColorType.Explore, alpha));
-                    
-                    if (SelectedShip.AI.State == AIState.Orbit && SelectedShip.AI.OrbitTarget != null)                                            
-                        DrawLineProjected(SelectedShip.Center, SelectedShip.AI.OrbitTarget.Position, GetColor(ColorType.Orbit, alpha), 2500f);
-                    
-                    if (SelectedShip.AI.State == AIState.Colonize && SelectedShip.AI.ColonizeTarget != null)                                            
-                        DrawLineProjected(SelectedShip.Center, SelectedShip.AI.ColonizeTarget.Position, GetColor(ColorType.Colonize, alpha), 2500f);
-                    
-                    if (SelectedShip.AI.State == AIState.Bombard && SelectedShip.AI.OrderQueue.NotEmpty && SelectedShip.AI.OrderQueue.PeekFirst.TargetPlanet != null)                                            
-                        DrawLineProjected(SelectedShip.Center, SelectedShip.AI.OrderQueue.PeekFirst.TargetPlanet.Position, GetColor(ColorType.Bombard, alpha), 2500f);
-                    
-                    if (SelectedShip.AI.State == AIState.Rebase )
-                    {
-                        lock (SelectedShip.AI.WayPointLocker)
-                        {
-                            bool waydpoint =false;
-                            var waypoints = SelectedShip.AI.ActiveWayPoints.ToArray();
-                            for (int i = 0; i < SelectedShip.AI.ActiveWayPoints.Count; ++i)
-                            {
-                                waydpoint =true;
-                                if (i == 0)
-                                {                                    
-                                    DrawLineProjected(SelectedShip.Center, SelectedShip.AI.ActiveWayPoints.Peek(), GetColor(ColorType.Waypoint, alpha));
-                                }
-                                else if (i < SelectedShip.AI.ActiveWayPoints.Count - 1)
-                                {                                    
-                                    DrawLineProjected(waypoints[i], waypoints[i+1], GetColor(ColorType.Waypoint, alpha));
-                                }
-                            }
-                            if(!waydpoint )
-                            {
-                                ArtificialIntelligence.ShipGoal goal = SelectedShip.AI.OrderQueue.PeekFirst;
-                                if (goal != null && goal.TargetPlanet != null)
-                                {                                    
-                                    DrawLineProjected(SelectedShip.Center, goal.TargetPlanet.Position, GetColor(ColorType.Waypoint, alpha));
-                                }
-                            }
-                        }
-
-                    }
-                    if ( SelectedShip.AI.State == AIState.AssaultPlanet)
-                    {
-                        Vector2 target = SelectedShip.AI.OrbitTarget.Position;
-                        Color mode;
-                        int spots = 0;
-                        if (SelectedShip.AI.OrbitTarget.Position.InRadius(SelectedShip.Center, SelectedShip.SensorRange))
-                            spots = SelectedShip.AI.OrbitTarget.GetGroundLandingSpots();
-                        else spots = 11;
-                        if (spots >10)
-                        {
-                            
-                            mode = GetColor(ColorType.TroopLand,alpha);
-                        }
-                        else if(spots >0)
-                            mode = GetColor(ColorType.TroopLandWarning, alpha);
-                        else
-                            mode = GetColor(ColorType.TroopLandBad,alpha);
-                        
-                        lock (SelectedShip.AI.WayPointLocker)
-                        {
-                            bool waypoint = false;
-                            for (int index = 0; index < SelectedShip.AI.ActiveWayPoints.Count; ++index)
-                            {
-                                waypoint = true;
-                                if (index == 0)                                
-                                    DrawLineProjected(SelectedShip.Center, SelectedShip.AI.ActiveWayPoints.Peek(), mode);                                
-                                else if (index < SelectedShip.AI.ActiveWayPoints.Count - 1)
-                                {
-                                    Vector2[] waypoints = SelectedShip.AI.ActiveWayPoints.ToArray();
-                                    DrawLineProjected(waypoints[index], waypoints[index + 1], mode);
-                                }
-                                
-                            }
-                            if (!waypoint && target != Vector2.Zero) 
-                            {
-                                DrawLineProjected(SelectedShip.Center, target, mode);
-                            }
-                        }
-
-                    }
-                    
-                    if (SelectedShip.AI.ActiveWayPoints.Count > 0 && (SelectedShip.AI.State == AIState.MoveTo || SelectedShip.AI.State == AIState.PassengerTransport || SelectedShip.AI.State == AIState.SystemTrader))
-                    {
-                        lock (SelectedShip.AI.WayPointLocker)
-                        {
-                            Vector2[] waypoints = SelectedShip.AI.ActiveWayPoints.ToArray();
-                            for (int i = 0; i < SelectedShip.AI.ActiveWayPoints.Count; ++i)
-                            {
-                                if (i == 0)
-                                {                                    
-                                    DrawLineProjected(SelectedShip.Center, waypoints[0], GetColor(ColorType.Waypoint, alpha));
-                                }
-                                if (i < SelectedShip.AI.ActiveWayPoints.Count - 1)
-                                {                                 
-                                    DrawLineProjected(waypoints[i], waypoints[i + 1], GetColor(ColorType.Waypoint,alpha));
-                                }
-                            }
-                        }
-                    }
-                }
-                if (!SelectedShip.AI.HasPriorityOrder && (SelectedShip.AI.State == AIState.AttackTarget || SelectedShip.AI.State == AIState.Combat) && (SelectedShip.AI.Target != null && SelectedShip.AI.Target is Ship))
-                {                    
-                    DrawLineProjected(SelectedShip.Center, SelectedShip.AI.Target.Center, GetColor(ColorType.Attack, alpha));
-                    if (SelectedShip.AI.TargetQueue.Count > 1)
-                    {
-                        for (int i = 0; i < SelectedShip.AI.TargetQueue.Count - 1; ++i)
-                        {                            
-                            DrawLineProjected(SelectedShip.Center, SelectedShip.AI.TargetQueue[i + 1].Center, GetColor(ColorType.Attack,alpha));
-                        }
-                    }
-                }
-                if (SelectedShip.AI.State == AIState.Boarding && SelectedShip.AI.EscortTarget != null)
-                {                    
-                    DrawLineProjected(SelectedShip.Center, SelectedShip.AI.EscortTarget.Center, GetColor(ColorType.Escort,alpha));
-                }
+                DrawShipLines(SelectedShip, alpha);                
             }
             else if (SelectedShipList.Count > 0)
-            {
-                int ships = this.SelectedShipList.Count;
-                bool planetFullCheck = false;
-                Color modeSelected = new Color(Color.Orange, (byte)alpha);
+            {                                             
                 for (int index1 = 0; index1 < this.SelectedShipList.Count; ++index1)
                 {
                     try
                     {
-                        Ship ship = this.SelectedShipList[index1];
-                        bool flag = false;
- 
-                        if (!ship.InCombat || ship.AI.HasPriorityOrder)
-                        {
-                            if (ship.AI.State == AIState.Ferrying)
-                            {
-                                DrawLineProjected(ship.Center, ship.AI.EscortTarget.Center, GetColor(ColorType.Ferry, alpha));
-                                flag = true;
-                            }
-                            else if (ship.AI.State == AIState.ReturnToHangar)
-                            {
-                                if (ship.Mothership != null)
-                                {
-                                    
-                                    DrawLineProjected(ship.Center, ship.Mothership.Center, GetColor(ColorType.HangarShip, alpha));
-                                    flag = true;
-                                }
-                                else
-                                    ship.AI.State = AIState.AwaitingOrders;
-                            }
-                            else if (ship.AI.State == AIState.Escort && ship.AI.EscortTarget != null)
-                            {
-                                
-                                DrawLineProjected(ship.Center, ship.AI.EscortTarget.Center, GetColor(ColorType.Escort, alpha));
-                                flag = true;
-                            }
-                            if (ship.AI.State == AIState.Explore && ship.AI.ExplorationTarget != null)
-                            {
-
-                                DrawLineProjected(ship.Center, ship.AI.ExplorationTarget.Position, GetColor(ColorType.Explore, alpha)); 
-                                flag = true;
-                            }
-                            if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
-                            {
-
-                                DrawLineProjected(ship.Center, ship.AI.OrbitTarget.Position, GetColor(ColorType.Orbit, alpha), 2500f);
-                                flag = true;
-                            }
-                          
-                        }
-                        if (!ship.AI.HasPriorityOrder && (ship.AI.State == AIState.AttackTarget || ship.AI.State == AIState.Combat) && (ship.AI.Target != null && ship.AI.Target is Ship))
-                        {
-                            
-                            DrawLineProjected(ship.Center, ship.AI.Target.Center, GetColor(ColorType.Attack,alpha));
-                            if (ship.AI.TargetQueue.Count > 1)
-                            {
-                                for (int i = 0; i < ship.AI.TargetQueue.Count - 1; ++i)
-                                {
-                                    var target = ship.AI.TargetQueue[i];
-                                    
-                                    DrawLineProjected(target.Center, ship.AI.TargetQueue[i +1].Center, GetColor(ColorType.Attack, alpha));
-                                }
-                            }
-                            flag = true;
-                        }
-                        if (ship.AI.State == AIState.Boarding && ship.AI.EscortTarget != null)
-                        {
-                            
-                            DrawLineProjected(ship.Center, ship.AI.EscortTarget.Center, GetColor(ColorType.TroopLand, alpha));
-                            flag = true;
-                        }
-                        if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
-                        {
-
-                            if (!planetFullCheck)
-                            {
-                                planetFullCheck = true;
-                                int spots = 0;
-                                if (ship.AI.OrbitTarget.Position.InRadius(ship.Center, ship.SensorRange))
-                                    spots = ship.AI.OrbitTarget.GetGroundLandingSpots();
-                                else spots = -1;
-
-                                if (spots < 0 || (spots > 10 && spots < ships))
-                                {
-
-                                    modeSelected = GetColor(ColorType.TroopLandBad, alpha);
-                                }
-                                else if (spots > 0)
-                                    modeSelected = GetColor(ColorType.TroopLand, alpha);
-
-                            }
-
-                            
-                            DrawLineProjected(ship.Center, ship.AI.OrbitTarget.Position, modeSelected, 2500f);
-                            flag = true;
-
-
-                        }
-                        
-                        if (!flag)
-                        {
-                            if (ship.AI.ActiveWayPoints.Count > 0)
-                            {
-                                lock (ship.AI.WayPointLocker)
-                                {
-                                    var waypoints = ship.AI.ActiveWayPoints.ToArray();
-                                    for (int i = 0; i < ship.AI.ActiveWayPoints.Count; ++i)
-                                    {                                        
-                                        if (i == 0)
-                                        {
-                            
-                                            DrawLineProjected(ship.Center, ship.AI.ActiveWayPoints.Peek(), GetColor(ColorType.Waypoint,alpha));
-                                        }
-                                        if (i < ship.AI.ActiveWayPoints.Count - 1)
-                                        {
-                            
-                                            DrawLineProjected(waypoints[i], waypoints[i+1], GetColor(ColorType.Waypoint,alpha));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        Ship ship = this.SelectedShipList[index1];        
+                        DrawShipLines(ship, alpha);
+                    }                 
                     catch
                     {
+                        Log.Warning("DrawShipLines Blew Up");
                     }
                 }
             }
@@ -6882,60 +6637,136 @@ namespace Ship_Game
                 DrawShields();
             renderState.DepthBufferWriteEnable = true;
         }
-        public Color GetColor(ColorType type, byte alpha = 255, Ship ship = null)
-        {
+        Color ColorWaypoints(byte alpha) => new Color(Color.Lime,alpha); 
+        Color ColorAttack(byte alpha) => new Color(Color.Red, alpha); 
+        Color ColorCombatOrders(byte alpha) => new Color(Color.MediumPurple, alpha);
+        Color ColorOrders(byte alpha) => new Color(Color.Aqua,alpha); 
+        Color ColorError(byte alpha) => new Color(Color.Orange, alpha); 
+        Color ColorWarning(byte alpha) => new Color(Color.Yellow, alpha); 
 
-            switch (type)
+        private void DrawShipLines(Ship ship, byte alpha)
+        {
+            if (ship == null) return;
+            Color color;
+            try
             {
-                case ColorType.Attack:
-                    return new Color(Color.Red, alpha);
-                case ColorType.Escort:
-                    return new Color(Color.Aqua, alpha);
-                case ColorType.Waypoint:
-                    return new Color(Color.Lime, alpha);
-                case ColorType.TroopLand:
-                    return new Color(Color.Red, alpha);
-                case ColorType.TroopLandBad:
-                    return new Color(Color.OrangeRed,alpha);
-                case ColorType.TroopLandWarning:
-                    return new Color(Color.Orange, alpha);
-                case ColorType.Bombard:
-                    return new Color(Color.Red, alpha); 
-                case ColorType.Explore:
-                    return new Color(Color.Aqua, alpha);
-                case ColorType.HangarShip:
-                    return new Color(Color.Aqua, alpha);
-                case ColorType.Orbit:
-                    return new Color(Color.Aqua, alpha);
-                case ColorType.Colonize:
-                    return new Color(Color.Aqua, alpha);
-                case ColorType.AORect:
-                    return new Color(Color.Red, alpha);
-                case ColorType.Empire:                
-                        return ship?.loyalty?.EmpireColor ?? Color.Gray;                       
-                default:
-                    return new Color(Color.Red, alpha);
+                bool flag = false;
+                
+                Vector2 start = ship.Center;
+                
+                ArtificialIntelligence.ShipGoal goal;
+                if (!ship.InCombat || ship.AI.HasPriorityOrder)
+                {
+                    color = ColorOrders(alpha); 
+                    if (ship.AI.State == AIState.Ferrying)
+                    {
+                        DrawLineProjected(start, ship.AI.EscortTarget.Center, color);
+                        return;
+                    }
+                    if (ship.AI.State == AIState.ReturnToHangar)
+                    {
+                        if (ship.Mothership != null)
+                            DrawLineProjected(start, ship.Mothership.Center, color);
+                        else
+                            ship.AI.State = AIState.AwaitingOrders;
+                        return;
+                    }
+                    if (ship.AI.State == AIState.Escort && ship.AI.EscortTarget != null)
+                    {
+                        DrawLineProjected(start, ship.AI.EscortTarget.Center, color);
+                        return;
+                    }
+
+                    if (ship.AI.State == AIState.Explore && ship.AI.ExplorationTarget != null)
+                    {
+                        DrawLineProjected(start, ship.AI.ExplorationTarget.Position, color);
+                        return;
+                    }
+                    if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
+                    {
+                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, color, 2500f);
+                        return;
+                    }
+                    if (ship.AI.State == AIState.Orbit && ship.AI.ColonizeTarget != null)
+                    {
+                        DrawLineProjected(start, ship.AI.ColonizeTarget.Position, color, 2500f);
+                        return;
+                    }
+                    if (ship.AI.State == AIState.Rebase)
+                    {
+                        DrawWayPointLines(ship, color);
+                        return;
+                    }
+                    goal = ship.AI.OrderQueue.PeekFirst;
+                    if (ship.AI.State == AIState.Bombard && goal?.TargetPlanet != null)
+                    {
+                        DrawLineProjected(ship.Center, goal.TargetPlanet.Position, ColorCombatOrders(alpha), 2500f);
+                        DrawWayPointLines(ship, ColorCombatOrders(alpha));
+                    }
+                }
+                if (!ship.AI.HasPriorityOrder && (ship.AI.State == AIState.AttackTarget || ship.AI.State == AIState.Combat) && ship.AI.Target is Ship)
+                {                    
+                    DrawLineProjected(ship.Center, ship.AI.Target.Center, ColorAttack(alpha));
+                    if (ship.AI.TargetQueue.Count > 1)
+                    {                        
+                        for (int i = 0; i < ship.AI.TargetQueue.Count - 1; ++i)
+                        {
+                            var target = ship.AI.TargetQueue[i];
+                            if (!target?.Active ?? true) continue;
+                            DrawLineProjected(target.Center, ship.AI.TargetQueue[i].Center, ColorAttack((byte)(alpha * .5f)));
+                        }
+                    }
+                    return;
+                }
+                if (ship.AI.State == AIState.Boarding && ship.AI.EscortTarget != null)
+                {
+                    DrawLineProjected(start, ship.AI.EscortTarget.Center, ColorCombatOrders(alpha));
+                    return;
+                }
+                if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
+                {
+                    int spots = ship.AI.OrbitTarget.GetGroundLandingSpots();
+                    if (spots > 4)
+                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, ColorCombatOrders(alpha), 2500f);
+                    else if (spots > 0)
+                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, ColorWarning(alpha), 2500f);
+                    else
+                        DrawLineProjected(start, ship.AI.OrbitTarget.Position, ColorError(alpha), 2500f);
+                    DrawWayPointLines(ship, new Color(Color.Lime, alpha));
+                    return;
+                }
+
+                DrawWayPointLines(ship,ColorWarning(alpha));
+
+
             }
-            return new Color(Color.Red, alpha);
+            catch
+            {
+            }
         }
-        public enum ColorType
+        public void DrawWayPointLines(Ship ship, Color color)
         {
-            Attack,
-            Escort,
-            Waypoint,
-            TroopLand,
-            TroopLandBad,
-            TroopLandWarning,
-            Bombard,
-            Explore,
-            HangarShip,
-            Ferry,
-            Orbit,
-            Empire,
-            Colonize,
-            AORect,
+            if (ship.AI.ActiveWayPoints.Count < 1) return;
+
+            lock (ship.AI.WayPointLocker)
+            {
+                var waypoints = ship.AI.ActiveWayPoints.ToArray();
+                for (int i = 0; i < ship.AI.ActiveWayPoints.Count; ++i)
+                {
+                    if (i == 0)
+                    {
+                        DrawLineProjected(ship.Center, ship.AI.ActiveWayPoints.Peek(), color);
+                    }
+                    if (i < ship.AI.ActiveWayPoints.Count - 1)
+                    {
+                        DrawLineProjected(waypoints[i], waypoints[i + 1], color);
+                    }
+                }
+            }
+            return;
 
         }
+                  
         protected void DrawShields()
         {            
             var renderState                    = ScreenManager.GraphicsDevice.RenderState;
@@ -7254,7 +7085,6 @@ namespace Ship_Game
             GalaxyView  ,
         }
 
-        //80000f
 
         public float GetZfromScreenState(UnivScreenState screenState)
         {
@@ -7262,16 +7092,16 @@ namespace Ship_Game
             switch (screenState)
             {
                 case UnivScreenState.DetailView:
-                    returnZ = 10000;
+                    returnZ = (float)UnivScreenState.DetailView;
                     break;
                 case UnivScreenState.ShipView:
-                    returnZ = 30000f; 
+                    returnZ = (float)UnivScreenState.ShipView; 
                     break;
                 case UnivScreenState.SystemView:
-                    returnZ = 250000.0f;
+                    returnZ = (float)UnivScreenState.SystemView;
                     break;
                 case UnivScreenState.SectorView:
-                    returnZ = 1775000.0f;
+                    returnZ = (float)UnivScreenState.SectorView; // 1775000.0f;
                     break;
                 case UnivScreenState.GalaxyView:
                     returnZ = MaxCamHeight;
@@ -7320,6 +7150,7 @@ namespace Ship_Game
             Orbit,
         }
 
-    }
+        
+}
 }
 
