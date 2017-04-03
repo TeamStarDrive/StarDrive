@@ -234,7 +234,7 @@ namespace Ship_Game.AI
                     predicted += pool;
                     continue;
                 }
-                min += Us.data.DiplomaticPersonality.Territorialism;
+                min += Us.data.DiplomaticPersonality?.Territorialism ?? 50;
             }
 
             IdealShipStrength = (int)(predicted * (10f / RankImportance)) +min;

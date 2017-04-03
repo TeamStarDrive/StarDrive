@@ -6609,23 +6609,23 @@ namespace Ship_Game
                 lightning.Draw(gameTime);
                 flash.Draw(gameTime);
             }
-            if (!Paused)  //Are these being done twice?
+            if (!Paused)
             {
-                //beamflashes.Update(gameTime);
-                //explosionParticles.Update(gameTime);
-                //photonExplosionParticles.Update(gameTime);
-                //explosionSmokeParticles.Update(gameTime);
-                //projectileTrailParticles.Update(gameTime);
-                //fireTrailParticles.Update(gameTime);
-                //smokePlumeParticles.Update(gameTime);
-                //fireParticles.Update(gameTime);
-                //engineTrailParticles.Update(gameTime);
-                //star_particles.Update(gameTime);
-                //neb_particles.Update(gameTime);
-                //flameParticles.Update(gameTime);
-                //sparks.Update(gameTime);
-                //lightning.Update(gameTime);
-                //flash.Update(gameTime);
+                beamflashes.Update(gameTime);
+                explosionParticles.Update(gameTime);
+                photonExplosionParticles.Update(gameTime);
+                explosionSmokeParticles.Update(gameTime);
+                projectileTrailParticles.Update(gameTime);
+                fireTrailParticles.Update(gameTime);
+                smokePlumeParticles.Update(gameTime);
+                fireParticles.Update(gameTime);
+                engineTrailParticles.Update(gameTime);
+                star_particles.Update(gameTime);
+                neb_particles.Update(gameTime);
+                flameParticles.Update(gameTime);
+                sparks.Update(gameTime);
+                lightning.Update(gameTime);
+                flash.Update(gameTime);
             }
             lock (GlobalStats.ObjectManagerLocker)
             {
@@ -6677,14 +6677,19 @@ namespace Ship_Game
                         DrawLineProjected(start, ship.AI.ExplorationTarget.Position, color);
                         return;
                     }
+
+                    if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
+                    {
+                        Vector2 screenPos = ProjectToScreenPosition(ship.Center);
+                        Vector2 screenPosTarget = ProjectToScreenPosition(ship.AI.ColonizeTarget.Position,2500f);
+                        DrawLine(screenPos, screenPosTarget, color);
+                        string text = String.Format("Colinize\nSystem : {0}\nPlanet : {1}", ship.AI.ColonizeTarget.ParentSystem.Name, ship.AI.ColonizeTarget.Name);
+                        DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
+                        return;
+                    }
                     if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
                     {
                         DrawLineProjected(start, ship.AI.OrbitTarget.Position, color, 2500f);
-                        return;
-                    }
-                    if (ship.AI.State == AIState.Orbit && ship.AI.ColonizeTarget != null)
-                    {
-                        DrawLineProjected(start, ship.AI.ColonizeTarget.Position, color, 2500f);
                         return;
                     }
                     if (ship.AI.State == AIState.Rebase)
@@ -6783,51 +6788,69 @@ namespace Ship_Game
             Texture2D icon_fighting_small = ResourceManager.Texture("UI/icon_fighting_small");
             Texture2D icon_spy_small      = ResourceManager.Texture("UI/icon_spy_small");
             Texture2D icon_anomaly_small  = ResourceManager.Texture("UI/icon_anomaly_small");
-            foreach (SolarSystem solarSystem in SolarSystemList)
+            Texture2D icon_troop          = ResourceManager.Texture("UI/icon_troop");
+            for (int k = 0; k < SolarSystemList.Count; k++)
             {
+                SolarSystem solarSystem = SolarSystemList[k];
                 if (!solarSystem.isVisible)
                     continue;
-              
-                foreach (Planet planet in solarSystem.PlanetList)
+
+                for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
-                    if (!planet.Explored(player)) continue;
+                    Planet planet = solarSystem.PlanetList[j];
+                    if (!planet.Explored(this.player)) continue;
 
-                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
-                    Vector2 posOffSet       = screenPosPlanet;                    
-                    posOffSet.X            += 20f; 
-                    posOffSet.Y            += 37f;
-                    int drawLocationOffset  = 0;
+                    Vector2 screenPosPlanet = this.ProjectToScreenPosition(planet.Position, 2500f);
+                    Vector2 posOffSet = screenPosPlanet;
+                    posOffSet.X += 20f;
+                    posOffSet.Y += 37f;
+                    int drawLocationOffset = 0;
 
-                    DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name, planet.Owner?.EmpireColor ?? Color.White);
-                    
+                    DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name,
+                        planet.Owner?.EmpireColor ?? Color.White);
+
                     posOffSet = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
 
                     if (planet.RecentCombat)
-                    {                        
-                        DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                    {
+                        this.DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int) posOffSet.X,
+                            (int) posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
-                    if (player.data.MoleList.Count > 0)
+                    if (this.player.data.MoleList.Count > 0)
                     {
-                        foreach (Mole mole in (Array<Mole>)player.data.MoleList)
+                        for (int i = 0; i < ((Array<Mole>) this.player.data.MoleList).Count; i++)
                         {
+                            Mole mole = ((Array<Mole>) this.player.data.MoleList)[i];
                             if (mole.PlanetGuid == planet.guid)
-                            {                                
-                                posOffSet.X += (float)(18 * drawLocationOffset);
-                                DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
-                                ++drawLocationOffset;                                
+                            {
+                                posOffSet.X += (float) (18 * drawLocationOffset);
+                                DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos,
+                                    (int) posOffSet.X, (int) posOffSet.Y, 14, 14);
+                                ++drawLocationOffset;
                                 break;
                             }
                         }
                     }
-                    foreach (Building building in planet.BuildingList)
+                    for (int i = 0; i < planet.BuildingList.Count; i++)
                     {
+                        Building building = planet.BuildingList[i];
                         if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
-                        
-                        posOffSet.X += (float)(18 * drawLocationOffset);                        
-                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);                        
+                        posOffSet.X += (float) (18 * drawLocationOffset);
+                        string text = Localizer.Token(building.DescriptionIndex);
+                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, text, mousePos, (int) posOffSet.X,
+                            (int) posOffSet.Y, 14, 14);
                         break;
                     }
+                    int troopCount = planet.CountEmpireTroops(player);
+                    if (troopCount > 0)
+                    {
+                        posOffSet.X += (float)(18 * drawLocationOffset);
+                        DrawTextureWithToolTip(icon_troop, Color.TransparentWhite, string.Format("Troops {0}",troopCount), mousePos,
+                            (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+                    
                 }
             }
         }
@@ -6946,7 +6969,16 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(tooltipID, ScreenManager);                
             }
         }
+        public void DrawTextureWithToolTip(Texture2D texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
+        {
+            Rectangle rectangle = new Rectangle(rectangleX, rectangleY, width, height);
+            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
 
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(text, ScreenManager);
+            }
+        }
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 screenPos = ProjectToScreenPosition(posInWorld);
