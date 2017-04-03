@@ -22,15 +22,15 @@ namespace ns9
 
     public void method_1(GraphicsDevice graphicsDevice_0, RenderableMesh renderableMesh_1)
     {
-      if (this.renderableMesh_0 == null || this.renderableMesh_0.vertexBuffer_0 != renderableMesh_1.vertexBuffer_0 || (this.renderableMesh_0.int_0 != renderableMesh_1.int_0 || this.renderableMesh_0.int_1 != renderableMesh_1.int_1))
+      if (this.renderableMesh_0 == null || this.renderableMesh_0.vertexBuffer != renderableMesh_1.vertexBuffer || (this.renderableMesh_0.vertexStreamOffset != renderableMesh_1.vertexStreamOffset || this.renderableMesh_0.stride != renderableMesh_1.stride))
       {
-        graphicsDevice_0.Vertices[0].SetSource(renderableMesh_1.vertexBuffer_0, renderableMesh_1.int_0, renderableMesh_1.int_1);
+        graphicsDevice_0.Vertices[0].SetSource(renderableMesh_1.vertexBuffer, renderableMesh_1.vertexStreamOffset, renderableMesh_1.stride);
         ++this.Statistics.lightingSystemStatistic_0.AccumulationValue;
       }
-      if (this.renderableMesh_0 == null || this.renderableMesh_0.indexBuffer_0 != renderableMesh_1.indexBuffer_0)
-        graphicsDevice_0.Indices = renderableMesh_1.indexBuffer_0;
-      if (this.renderableMesh_0 == null || this.renderableMesh_0.vertexDeclaration_0 != renderableMesh_1.vertexDeclaration_0)
-        graphicsDevice_0.VertexDeclaration = renderableMesh_1.vertexDeclaration_0;
+      if (this.renderableMesh_0 == null || this.renderableMesh_0.indexBuffer != renderableMesh_1.indexBuffer)
+        graphicsDevice_0.Indices = renderableMesh_1.indexBuffer;
+      if (this.renderableMesh_0 == null || this.renderableMesh_0.vertexDeclaration != renderableMesh_1.vertexDeclaration)
+        graphicsDevice_0.VertexDeclaration = renderableMesh_1.vertexDeclaration;
       this.renderableMesh_0 = renderableMesh_1;
     }
 
