@@ -6082,11 +6082,9 @@ namespace Ship_Game
 
         protected virtual void RenderBackdrop()
         {
-            bg.Draw(this, starfield);
-            if (viewState > UnivScreenState.ShipView)
-            {                
-                bg3d.Draw();
-            }
+            bg.Draw(this, starfield);                           
+            bg3d.Draw();
+            
             ClickableShipsList.Clear();
             ScreenManager.SpriteBatch.Begin();
             Rectangle rect = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
