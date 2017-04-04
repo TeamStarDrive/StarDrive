@@ -6147,7 +6147,7 @@ namespace Ship_Game
                         {
                             if (solarSystem.Explored(EmpireManager.Player))
                             {
-                                ProjectToScreenCoords(planet.Position, 4500f, planet.SO.WorldBoundingSphere.Radius, out Vector2 planetScreenPos, out float planetScreenRadius);
+                                ProjectToScreenCoords(planet.Position, 2500f, planet.SO.WorldBoundingSphere.Radius, out Vector2 planetScreenPos, out float planetScreenRadius);
                                 float scale = planetScreenRadius / 115f;
 
                                 if (planet.planetType == 1 || planet.planetType == 11 ||
@@ -6478,7 +6478,6 @@ namespace Ship_Game
 
         public virtual void Render(GameTime gameTime)
         {
-            return;
             if (Frustum == (BoundingFrustum)null)
                 Frustum = new BoundingFrustum(view * projection);
             else
@@ -6880,7 +6879,7 @@ namespace Ship_Game
         private void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
         {
             posOnScreen = ProjectToScreenPosition(posInWorld, zAxis);
-            sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y)).Distance(ref posOnScreen);
+            sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y),zAxis).Distance(ref posOnScreen);
         }
 
         private void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
