@@ -198,7 +198,7 @@ namespace Particle3DSample
             parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize));
             parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize));
 
-            Texture2D texture = ResourceManager.LoadTexture("3DParticles/" + Settings.TextureName);
+            var texture = Content.Load<Texture2D>("3DParticles/" + Settings.TextureName);
             parameters["Texture"].SetValue(texture);
 
             string techniqueName;
