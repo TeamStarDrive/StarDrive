@@ -883,21 +883,21 @@ namespace Ship_Game
         {
             var content = TransientContent;
             var device = ScreenManager.GraphicsDevice;
-            beamflashes              = new ParticleSystem(Game1.Instance, content, "3DParticles/BeamFlash", device);
-            explosionParticles       = new ParticleSystem(Game1.Instance, content, "3DParticles/ExplosionSettings", device);
-            photonExplosionParticles = new ParticleSystem(Game1.Instance, content, "3DParticles/PhotonExplosionSettings", device);
-            explosionSmokeParticles  = new ParticleSystem(Game1.Instance, content, "3DParticles/ExplosionSmokeSettings", device);
-            projectileTrailParticles = new ParticleSystem(Game1.Instance, content, "3DParticles/ProjectileTrailSettings", device);
-            fireTrailParticles       = new ParticleSystem(Game1.Instance, content, "3DParticles/FireTrailSettings", device);
-            smokePlumeParticles      = new ParticleSystem(Game1.Instance, content, "3DParticles/SmokePlumeSettings", device);
-            fireParticles            = new ParticleSystem(Game1.Instance, content, "3DParticles/FireSettings", device);
-            engineTrailParticles     = new ParticleSystem(Game1.Instance, content, "3DParticles/EngineTrailSettings", device);
-            flameParticles           = new ParticleSystem(Game1.Instance, content, "3DParticles/FlameSettings", device);
-            sparks                   = new ParticleSystem(Game1.Instance, content, "3DParticles/sparks", device);
-            lightning                = new ParticleSystem(Game1.Instance, content, "3DParticles/lightning", device);
-            flash                    = new ParticleSystem(Game1.Instance, content, "3DParticles/FlashSettings", device);
-            star_particles           = new ParticleSystem(Game1.Instance, content, "3DParticles/star_particles", device);
-            neb_particles            = new ParticleSystem(Game1.Instance, content, "3DParticles/GalaxyParticle", device);
+            beamflashes              = new ParticleSystem(content, "3DParticles/BeamFlash", device);
+            explosionParticles       = new ParticleSystem(content, "3DParticles/ExplosionSettings", device);
+            photonExplosionParticles = new ParticleSystem(content, "3DParticles/PhotonExplosionSettings", device);
+            explosionSmokeParticles  = new ParticleSystem(content, "3DParticles/ExplosionSmokeSettings", device);
+            projectileTrailParticles = new ParticleSystem(content, "3DParticles/ProjectileTrailSettings", device);
+            fireTrailParticles       = new ParticleSystem(content, "3DParticles/FireTrailSettings", device);
+            smokePlumeParticles      = new ParticleSystem(content, "3DParticles/SmokePlumeSettings", device);
+            fireParticles            = new ParticleSystem(content, "3DParticles/FireSettings", device);
+            engineTrailParticles     = new ParticleSystem(content, "3DParticles/EngineTrailSettings", device);
+            flameParticles           = new ParticleSystem(content, "3DParticles/FlameSettings", device);
+            sparks                   = new ParticleSystem(content, "3DParticles/sparks", device);
+            lightning                = new ParticleSystem(content, "3DParticles/lightning", device);
+            flash                    = new ParticleSystem(content, "3DParticles/FlashSettings", device);
+            star_particles           = new ParticleSystem(content, "3DParticles/star_particles", device);
+            neb_particles            = new ParticleSystem(content, "3DParticles/GalaxyParticle", device);
         }
 
         public void LoadGraphics()
@@ -909,7 +909,6 @@ namespace Ship_Game
             int width   = device.PresentationParameters.BackBufferWidth;
             int height  = device.PresentationParameters.BackBufferHeight;
 
-            Projectile.contentManager             = content;
             MuzzleFlashManager.universeScreen     = this;
             DroneAI.UniverseScreen                = this;
             ExplosionManager.Universe             = this;
@@ -4588,7 +4587,6 @@ namespace Ship_Game
             Bomb.Screen                           = null;
             Anomaly.screen                        = null;
             MinimapButtons.screen                 = null;
-            Projectile.contentManager             = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                   = null;
@@ -5077,7 +5075,7 @@ namespace Ship_Game
                         {
                             if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" && projectile.WeaponType != "Drone")
                                 DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath], projectile.GetWorld(), 
-                                    view, projection, projectile.weapon.Animated != 0 
+                                    view, projection, projectile.Weapon.Animated != 0 
                                         ? ResourceManager.TextureDict[projectile.TexturePath] 
                                         : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
                         }
@@ -6016,7 +6014,7 @@ namespace Ship_Game
                 {
                     DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
                         projectile.GetWorld(), this.view, this.projection,
-                        projectile.weapon.Animated != 0
+                        projectile.Weapon.Animated != 0
                             ? ResourceManager.TextureDict[projectile.TexturePath]
                             : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
                 }
@@ -6525,7 +6523,7 @@ namespace Ship_Game
                         for (int i = ship.Projectiles.Count - 1; i >= 0; i--)
                         {
                             Projectile projectile = ship.Projectiles[i];
-                            if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
+                            if (projectile.Weapon.IsRepairDrone && projectile.GetDroneAI() != null)
                             {
                                 for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
                                     projectile.GetDroneAI().Beams[j].Draw(ScreenManager);
@@ -6536,7 +6534,7 @@ namespace Ship_Game
                             for (int i = ship.Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
                             {
                                 Beam beam = ship.Beams[i];
-                                if (beam.Source.InRadius(beam.ActualHitDestination, beam.range + 10.0f))
+                                if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
                                     beam.Draw(ScreenManager);
                                 else
                                     beam.Die(null, true);
@@ -6609,23 +6607,23 @@ namespace Ship_Game
                 lightning.Draw(gameTime);
                 flash.Draw(gameTime);
             }
-            if (!Paused)  //Are these being done twice?
+            if (!Paused) // Particle pools need to be updated
             {
-                //beamflashes.Update(gameTime);
-                //explosionParticles.Update(gameTime);
-                //photonExplosionParticles.Update(gameTime);
-                //explosionSmokeParticles.Update(gameTime);
-                //projectileTrailParticles.Update(gameTime);
-                //fireTrailParticles.Update(gameTime);
-                //smokePlumeParticles.Update(gameTime);
-                //fireParticles.Update(gameTime);
-                //engineTrailParticles.Update(gameTime);
-                //star_particles.Update(gameTime);
-                //neb_particles.Update(gameTime);
-                //flameParticles.Update(gameTime);
-                //sparks.Update(gameTime);
-                //lightning.Update(gameTime);
-                //flash.Update(gameTime);
+                beamflashes.Update(gameTime);
+                explosionParticles.Update(gameTime);
+                photonExplosionParticles.Update(gameTime);
+                explosionSmokeParticles.Update(gameTime);
+                projectileTrailParticles.Update(gameTime);
+                fireTrailParticles.Update(gameTime);
+                smokePlumeParticles.Update(gameTime);
+                fireParticles.Update(gameTime);
+                engineTrailParticles.Update(gameTime);
+                star_particles.Update(gameTime);
+                neb_particles.Update(gameTime);
+                flameParticles.Update(gameTime);
+                sparks.Update(gameTime);
+                lightning.Update(gameTime);
+                flash.Update(gameTime);
             }
             lock (GlobalStats.ObjectManagerLocker)
             {
