@@ -576,7 +576,6 @@ namespace Ship_Game
                     ship.AI.GotoStep             = shipData.AISave.GoToStep;
                     ship.AI.MovePosition         = shipData.AISave.MovePosition;
                     ship.AI.OrbitTargetGuid      = shipData.AISave.OrbitTarget;
-                    //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory
                     ship.AI.TargetGuid           = shipData.AISave.AttackTarget;
                     ship.AI.SystemToDefendGuid   = shipData.AISave.SystemToDefend;
                     ship.AI.EscortTargetGuid     = shipData.AISave.EscortTarget;
@@ -611,16 +610,16 @@ namespace Ship_Game
                     e.AddShip(ship);
                     foreach (SavedGame.ProjectileSaveData pdata in shipData.Projectiles)
                     {
-                        Weapon w = Ship_Game.ResourceManager.CreateWeapon(pdata.Weapon);
+                        Weapon w = ResourceManager.CreateWeapon(pdata.Weapon);
                         Projectile p = w.LoadProjectiles(pdata.Velocity, ship);
                         p.Velocity = pdata.Velocity;
                         p.Position = pdata.Position;
-                        p.Center = pdata.Position;
-                        p.duration = pdata.Duration;
+                        p.Center   = pdata.Position;
+                        p.Duration = pdata.Duration;
                         
                         ship.AddProjectile(p);
                     }
-                    this.data.MasterShipList.Add(ship);
+                    data.MasterShipList.Add(ship);
                 }
             }
             foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
@@ -1177,7 +1176,7 @@ namespace Ship_Game
                     }
                     foreach (Projectile p in ship.Projectiles)
                     {
-                        p.firstRun = false;
+                        p.FirstRun = false;
                     }
                 }
                 foreach (SolarSystem sys in this.data.SolarSystemsList)

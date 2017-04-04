@@ -1,11 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Particle3DSample;
 using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-using System.Runtime;
 
 
 namespace Ship_Game
@@ -20,115 +16,115 @@ namespace Ship_Game
         public Vector3 Normal;
         public Vector3 Up;
         public Vector3 Left;
-        public int thickness;
         public float PowerCost;
-        public ShipModule hitLast;
+        public ShipModule HitLast;
         public Vector2 Source;
-        private readonly int Thickness;
+        public int Thickness { get; private set; }
         public Vector2 Destination;
         public static Effect BeamEffect;
         public Vector2 ActualHitDestination;
-        public bool followMouse;
-        public float Duration = 2f;
+        public bool FollowMouse;
         public float BeamOffsetAngle;
         public VertexPositionNormalTexture[] Vertices;
         public int[] Indexes;
         private float BeamZ;
         private GameplayObject Target;
-        public bool infinite;
+        public bool Infinite;
         private Cue DamageToggleSound;
         private bool DamageToggleOn;
-        private VertexDeclaration quadVertexDecl;
-        private float displacement = 1f;
+        private VertexDeclaration QuadVertexDecl;
+        private float Displacement = 1f;
 
         public Beam()
         {
+            Duration = 2f;
         }
 
-        public Beam(Vector2 srcCenter, int Thickness, Ship Owner, GameplayObject target)
+        public Beam(Vector2 srcCenter, int thickness, Ship owner, GameplayObject target) : this()
         {
+            Thickness = thickness;
             Target = target;
-            owner = Owner;
-            Vector2 TargetPosition = Vector2.Normalize(target.Center);
-            if (Owner.InFrustum)
+            Owner = owner;
+            Vector2 targetDir = Vector2.Normalize(target.Center);
+            if (owner.InFrustum)
             {
                 DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
             }
 
             SetSystem(owner.System);
             Source = srcCenter;
-            BeamOffsetAngle = Owner.Rotation - srcCenter.AngleToTarget(TargetPosition).ToRadians();
-            Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + BeamOffsetAngle, range);
+            BeamOffsetAngle = owner.Rotation - srcCenter.AngleToTarget(targetDir).ToRadians();
+            Destination = srcCenter.PointFromRadians(owner.Rotation + BeamOffsetAngle, Range);
             ActualHitDestination = Destination;
             Vertices = new VertexPositionNormalTexture[4];
             Indexes = new int[6];
             BeamZ = RandomMath2.RandomBetween(-1f, 1f);
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, TargetPosition, (float)Thickness, new Vector2[4], 0, BeamZ);
-            UpperLeft = points[0];
-            UpperRight = points[1];
-            LowerLeft = points[2];
-            LowerRight = points[3];
-            FillVertices();
-        }
-
-        public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Projectile Owner, GameplayObject target)
-        {
-            Target = target;
-            DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
-            SetSystem(Owner.System);
-            Source          = srcCenter;
-            BeamOffsetAngle = 0f;
-            Vertices        = new VertexPositionNormalTexture[4];
-            Indexes         = new int[6];
-            BeamZ           = RandomMath2.RandomBetween(-1f, 1f);
-            ActualHitDestination = destination;
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, (float)thickness, new Vector2[4], 0, BeamZ);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, targetDir, thickness, new Vector2[4], 0, BeamZ);
             UpperLeft  = points[0];
             UpperRight = points[1];
             LowerLeft  = points[2];
             LowerRight = points[3];
             FillVertices();
         }
-        public void BeamRecreate(Vector2 srcCenter, int Thickness, Ship Owner, GameplayObject target)
+
+        public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Projectile owner, GameplayObject target) : this()
+        {
+            Target = target;
+            DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+            SetSystem(owner.System);
+            Source          = srcCenter;
+            BeamOffsetAngle = 0f;
+            Vertices        = new VertexPositionNormalTexture[4];
+            Indexes         = new int[6];
+            BeamZ           = RandomMath2.RandomBetween(-1f, 1f);
+            ActualHitDestination = destination;
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, thickness, new Vector2[4], 0, BeamZ);
+            UpperLeft  = points[0];
+            UpperRight = points[1];
+            LowerLeft  = points[2];
+            LowerRight = points[3];
+            FillVertices();
+        }
+        public void BeamRecreate(Vector2 srcCenter, int thickness, Ship owner, GameplayObject target)
         {
             Indexes = new int[6];
             ActualHitDestination = Vector2.Zero;
-            followMouse     = false;
+            FollowMouse     = false;
             Duration        = 2f;
             BeamOffsetAngle = 0f;
             BeamOffsetAngle = 0f;
             Indexes.Initialize();
             BeamZ             = 0f;
             Target            = null;
-            infinite          = false;
+            Infinite          = false;
             DamageToggleSound = null;
             DamageToggleOn    = false;
 
-            moduleAttachedTo = weapon.moduleAttachedTo;
-            PowerCost        = weapon.BeamPowerCostPerSecond;
-            range            = weapon.Range;
-            thickness        = weapon.BeamThickness;
-            Duration         = weapon.BeamDuration > 0 ? weapon.BeamDuration : 2f;
-            damageAmount     = weapon.DamageAmount;
+            ModuleAttachedTo = Weapon.moduleAttachedTo;
+            PowerCost        = Weapon.BeamPowerCostPerSecond;
+            Range            = Weapon.Range;
+            Thickness        = Weapon.BeamThickness;
+            Duration         = Weapon.BeamDuration > 0 ? Weapon.BeamDuration : 2f;
+            DamageAmount     = Weapon.DamageAmount;
             Destination      = target.Center;
             Active           = true;
             
             Target = target;
-            owner = Owner;
-            Vector2 TargetPosition = Vector2.Normalize(target.Center);
-            if (Owner.InFrustum)
+            Owner = owner;
+            Vector2 targetDir = Vector2.Normalize(target.Center);
+            if (owner.InFrustum)
             {
                 DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
             }
-            SetSystem(owner.System);
+            SetSystem(Owner.System);
             Source          = srcCenter;
-            BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(TargetPosition);
-            Destination     = MathExt.PointFromRadians(srcCenter, Owner.Rotation + BeamOffsetAngle, range);
+            BeamOffsetAngle = owner.Rotation - srcCenter.RadiansToTarget(targetDir);
+            Destination     = srcCenter.PointFromRadians(owner.Rotation + BeamOffsetAngle, Range);
             Vertices        = new VertexPositionNormalTexture[4];
             Indexes         = new int[6];
             BeamZ           = RandomMath2.RandomBetween(-1f, 1f);
             ActualHitDestination = Destination;
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, TargetPosition, Thickness, new Vector2[4], 0, BeamZ);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, targetDir, Thickness, new Vector2[4], 0, BeamZ);
             UpperLeft  = points[0];
             UpperRight = points[1];                                 
             LowerLeft  = points[2];
@@ -138,16 +134,16 @@ namespace Ship_Game
         }
         public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Ship shipOwner)
         {
-            owner = shipOwner;
+            Owner = shipOwner;
             if (shipOwner.InFrustum)
             {
                 DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
             }
-            SetSystem(owner.System);
+            SetSystem(Owner.System);
             Source = srcCenter;
             Thickness       = thickness;
             BeamOffsetAngle = shipOwner.Rotation - srcCenter.RadiansToTarget(destination);
-            Destination     = srcCenter.PointFromRadians(shipOwner.Rotation + BeamOffsetAngle, range);
+            Destination     = srcCenter.PointFromRadians(shipOwner.Rotation + BeamOffsetAngle, Range);
             Vertices        = new VertexPositionNormalTexture[4];
             Indexes         = new int[6];
             BeamZ           = RandomMath2.RandomBetween(-1f, 1f);
@@ -167,17 +163,17 @@ namespace Ship_Game
                 DamageToggleSound.Stop(AudioStopOptions.Immediate);
                 DamageToggleSound = null;
             }
-            if (owner != null)
+            if (Owner != null)
             {
-                owner.RemoveBeam(this);
-                SetSystem(owner.System);
+                Owner.RemoveBeam(this);
+                SetSystem(Owner.System);
             }
-            else if (weapon.drowner != null)
+            else if (Weapon.drowner != null)
             {
-                (weapon.drowner as Projectile)?.GetDroneAI().Beams.QueuePendingRemoval(this);
-                SetSystem(weapon.drowner.System);
+                (Weapon.drowner as Projectile)?.GetDroneAI().Beams.QueuePendingRemoval(this);
+                SetSystem(Weapon.drowner.System);
             }
-            weapon.ResetToggleSound();
+            Weapon.ResetToggleSound();
         }
 
         public void Draw(ScreenManager screenMgr)
@@ -185,17 +181,17 @@ namespace Ship_Game
             lock (GlobalStats.BeamEffectLocker)
             {
                 Empire.Universe.beamflashes.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
-                screenMgr.GraphicsDevice.VertexDeclaration = quadVertexDecl;
+                screenMgr.GraphicsDevice.VertexDeclaration = QuadVertexDecl;
                 BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
                 BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
-                string beamTexPath = "Beams/" + ResourceManager.WeaponsDict[weapon.UID].BeamTexture;
+                string beamTexPath = "Beams/" + ResourceManager.WeaponsDict[Weapon.UID].BeamTexture;
                 BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath));
-                displacement -= 0.05f;
-                if (displacement < 0f)
+                Displacement -= 0.05f;
+                if (Displacement < 0f)
                 {
-                    displacement = 1f;
+                    Displacement = 1f;
                 }
-                BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, displacement));
+                BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
                 BeamEffect.Begin();
                 var rs = screenMgr.GraphicsDevice.RenderState;
                 rs.AlphaTestEnable = true;
@@ -252,23 +248,19 @@ namespace Ship_Game
 
         public bool LoadContent(ScreenManager screenMgr, Matrix view, Matrix projection)
         {
-            quadVertexDecl = new VertexDeclaration(screenMgr.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+            QuadVertexDecl = new VertexDeclaration(screenMgr.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
             return true;
         }
 
         public override bool Touch(GameplayObject target)
         {
-            if (target == null)
-                return true;
-            if (target == owner && !weapon.HitsFriendlies)
+            if (target == null || target == Owner && !Weapon.HitsFriendlies || target is Ship)
                 return false;
             if (target is Projectile && WeaponType != "Missile")
                 return false;
-            if (target is Ship)
-                return false;
 
             var targetModule = target as ShipModule;
-            if (damageAmount < 0f && targetModule?.ShieldPower > 0f)
+            if (DamageAmount < 0f && targetModule?.ShieldPower > 0f)
                 return false;
 
             if (!DamageToggleOn && targetModule != null)
@@ -280,7 +272,7 @@ namespace Ship_Game
                 // @todo What's going on here?
             }
 
-            targetModule?.Damage(this, damageAmount);
+            targetModule?.Damage(this, DamageAmount);
             return true;
         }
 
@@ -292,23 +284,22 @@ namespace Ship_Game
                 if (DamageToggleSound != null && DamageToggleSound.IsPlaying)
                 {
                     DamageToggleSound.Stop(AudioStopOptions.Immediate);
-                    if (base.Owner.InFrustum)
+                    if (Owner.InFrustum)
                     {
                         DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
                     }
                 }
             }
-            Ship owner = base.Owner;
-            owner.PowerCurrent = owner.PowerCurrent - PowerCost * elapsedTime;
-            if (base.Owner.PowerCurrent < 0f)
+            Owner.PowerCurrent = Owner.PowerCurrent - PowerCost * elapsedTime;
+            if (Owner.PowerCurrent < 0f)
             {
-                base.Owner.PowerCurrent = 0f;
+                Owner.PowerCurrent = 0f;
                 Die(null, false);
                 Duration = 0f;
                 return;
             }
             var ship = Target as Ship;
-            if (owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp )
+            if (Owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp )
             {
                 Die(null, false);
                 Duration = 0f;
@@ -321,15 +312,15 @@ namespace Ship_Game
             if (Target == null)// If current target sucks, use "destination" instead
             {
                 Log.Info("Beam assigned alternate destination at update");
-                Destination = Source.PointFromRadians(owner.Rotation - BeamOffsetAngle, range);
+                Destination = Source.PointFromRadians(Owner.Rotation - BeamOffsetAngle, Range);
             }
-            else if (!owner.isPlayerShip() && Vector2.Distance(Destination, Source) > range + owner.Radius) //So beams at the back of a ship can hit too!
+            else if (!Owner.isPlayerShip() && Vector2.Distance(Destination, Source) > Range + Owner.Radius) //So beams at the back of a ship can hit too!
             {
-                Log.Info("Beam killed because of distance: Dist = " + Vector2.Distance(Destination, Source).ToString() + "  Beam Range = " + (range).ToString());
+                Log.Info("Beam killed because of distance: Dist = " + Vector2.Distance(Destination, Source) + "  Beam Range = " + (Range).ToString());
                 Die(null, true);
                 return;
             }
-            else if (!owner.isPlayerShip() && !Owner.CheckIfInsideFireArc(weapon, Destination, base.Owner.Rotation))
+            else if (!Owner.isPlayerShip() && !Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation))
             {
                 Log.Info("Beam killed because of angle");
                 Die(null, true);
@@ -340,19 +331,14 @@ namespace Ship_Game
                 Destination = Target.Center;
             }// Done messing with stuff - Gretman
 
-            //if (quadEffect != null)
-            //{
-            //    quadEffect.View = view;
-            //    quadEffect.Projection = projection;
-            //}
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, ActualHitDestination, (float)Thickness, new Vector2[4], 0, BeamZ);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, ActualHitDestination, Thickness, new Vector2[4], 0, BeamZ);
             UpperLeft = points[0];
             UpperRight = points[1];
             LowerLeft = points[2];
             LowerRight = points[3];
             FillVertices();
 
-            if ((Duration < 0f && !infinite ))// ||Vector2.Distance(Destination, owner.Center) > range)
+            if ((Duration < 0f && !Infinite ))// ||Vector2.Distance(Destination, owner.Center) > range)
             {
                 Die(null, true);
             }
@@ -382,7 +368,7 @@ namespace Ship_Game
             LowerLeft = points[2];
             LowerRight = points[3];
             FillVertices();
-            if (Duration < 0f && !infinite)
+            if (Duration < 0f && !Infinite)
             {
                 Die(null, true);
             }
@@ -391,7 +377,7 @@ namespace Ship_Game
 
         protected override void Dispose(bool disposing)
         {
-            quadVertexDecl?.Dispose(ref quadVertexDecl);
+            QuadVertexDecl?.Dispose(ref QuadVertexDecl);
             base.Dispose(disposing);
         }
     }

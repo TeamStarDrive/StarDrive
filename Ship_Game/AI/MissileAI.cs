@@ -23,7 +23,7 @@ namespace Ship_Game.AI
                 Ship[] nearbyShips = Owner.GetNearby<Ship>();
                 foreach(Ship nearbyShip in nearbyShips)
                 {
-                    if (nearbyShip.loyalty != Owner.loyalty && Owner.weapon.TargetValid(nearbyShip.shipData.Role))
+                    if (nearbyShip.loyalty != Owner.Loyalty && Owner.Weapon.TargetValid(nearbyShip.shipData.Role))
                         TargetList.Add(nearbyShip);
                 }
             }
@@ -36,18 +36,18 @@ namespace Ship_Game.AI
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
         {
-            if (this.Owner.owner != null && this.Owner.owner.Active && !this.Owner.owner.dying)
+            if (this.Owner.Owner != null && this.Owner.Owner.Active && !this.Owner.Owner.dying)
             {
-                GameplayObject sourceTarget = this.Owner.owner.AI.Target;
+                GameplayObject sourceTarget = this.Owner.Owner.AI.Target;
                 Relationship relTarget = null;
    
                 Ship sourceTargetShip = sourceTarget as Ship;
-                if (this.Owner.owner != null && sourceTargetShip != null)
+                if (this.Owner.Owner != null && sourceTargetShip != null)
                 {
-                    this.Owner.loyalty.TryGetRelations(sourceTargetShip.loyalty, out relTarget);
+                    this.Owner.Loyalty.TryGetRelations(sourceTargetShip.loyalty, out relTarget);
                 }
                 if (sourceTarget != null && sourceTarget.Active
-                    && sourceTargetShip.loyalty != this.Owner.loyalty && (relTarget == null || !relTarget.Known || !relTarget.Treaty_NAPact))
+                    && sourceTargetShip.loyalty != this.Owner.Loyalty && (relTarget == null || !relTarget.Known || !relTarget.Treaty_NAPact))
                 {
                     this.SetTarget(sourceTargetShip.GetRandomInternalModule(this.Owner));
                     return;
@@ -64,8 +64,8 @@ namespace Ship_Game.AI
             if (TargetList.Count > 0)
             {
                 Empire owner = null;
-                if(this.Owner.owner != null)
-                owner = this.Owner.owner.loyalty;
+                if(this.Owner.Owner != null)
+                owner = this.Owner.Owner.loyalty;
                 if(owner == null)
                     owner = this.Owner.Planet.Owner;
                 if(owner == null)
@@ -80,7 +80,7 @@ namespace Ship_Game.AI
                     if (!sourceTargetShip.Active || sourceTargetShip.dying )
                         continue;
                     
-                    this.Owner.loyalty.TryGetRelations(owner, out relTarget);
+                    this.Owner.Loyalty.TryGetRelations(owner, out relTarget);
                     
                     currentd = Vector2.Distance(this.Owner.Center, sourceTargetShip.Center) ;
                     if ((relTarget != null && relTarget.Treaty_NAPact) || currentd > distance)
@@ -117,8 +117,8 @@ namespace Ship_Game.AI
         {
             Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
             Vector2 wantedForward = Vector2.Normalize(forward);
-            this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
-            this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
+            this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.Speed);
+            this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.VelocityMax;
         }
 
         private void MoveTowardsTarget(float elapsedTime)
@@ -141,8 +141,8 @@ namespace Ship_Game.AI
                     owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
                 }
                 wantedForward = Vector2.Normalize(forward);
-                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
-                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
+                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.Speed);
+                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.VelocityMax;
             }
             catch
             {
@@ -184,8 +184,8 @@ namespace Ship_Game.AI
                 if (angleDiff > 0.1f)
                    this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
                 wantedForward = Vector2.Normalize(forward);
-                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
-                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
+                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.Speed);
+                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.VelocityMax;
                 float DistancetoEnd = Vector2.Distance(this.Owner.Center, AimPosition);
                 if (DistancetoEnd <= 300f)
                     this.Owner.Die((GameplayObject)this.Owner, false);
@@ -215,8 +215,8 @@ namespace Ship_Game.AI
                 if (angleDiff > 0.1f)
                     this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
                 wantedForward = Vector2.Normalize(forward);
-                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
-                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum * this.Owner.weapon.TerminalPhaseSpeedMod;
+                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.Speed);
+                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.VelocityMax * this.Owner.Weapon.TerminalPhaseSpeedMod;
             }
             catch
             {
@@ -235,7 +235,7 @@ namespace Ship_Game.AI
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-            if (this.Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM || this.Owner.weapon.TerminalPhaseAttack))
+            if (this.Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM || this.Owner.Weapon.TerminalPhaseAttack))
             {
                 float DistancetoTarget = this.Owner.Center.Distance(this.Target.Center);
                 if (this.Jammed)
@@ -247,7 +247,7 @@ namespace Ship_Game.AI
                 {
                     this.ECMRun = true;
                     float TargetECM = (this.Target as ShipModule).GetParent().ECMValue;
-                    float ECMResist = this.Owner.weapon.ECMResist;
+                    float ECMResist = this.Owner.Weapon.ECMResist;
                     if (RandomMath.RandomBetween(0f, 1f) + ECMResist < TargetECM)
                     {
                         this.Jammed = true;
@@ -255,7 +255,7 @@ namespace Ship_Game.AI
                         return;
                     }
                 }
-                if (this.Owner.weapon.TerminalPhaseAttack && DistancetoTarget <= this.Owner.weapon.TerminalPhaseDistance)
+                if (this.Owner.Weapon.TerminalPhaseAttack && DistancetoTarget <= this.Owner.Weapon.TerminalPhaseDistance)
                 {
                     this.MoveTowardsTargetTerminal(elapsedTime);
                     return;
