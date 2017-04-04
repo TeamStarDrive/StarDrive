@@ -10,12 +10,21 @@ namespace Ship_Game.Gameplay
     public sealed partial class Ship
     {
 
-        public void CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave)
+        public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave)
         {
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
-                if (ShipModule.CanCreate(templateSlots[i].InstalledModuleUID))
-                    ++count; // @note Backwards savegame compatibility, dummy modules are deprecated
+            {
+                string uid = templateSlots[i].InstalledModuleUID;
+                if (uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                    continue;
+                if (!ResourceManager.ShipModules.ContainsKey(uid))
+                {
+                    Log.Warning($"Failed to load ship {Name} due to invalid Module {uid}!");
+                    return false;
+                }
+                ++count;
+            }
 
             ModuleSlotList = new ShipModule[count];
 
@@ -23,10 +32,10 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slotData = templateSlots[i];
-                if (!ShipModule.CanCreate(slotData.InstalledModuleUID))
+                string uid = slotData.InstalledModuleUID;
+                if (uid == "Dummy")
                     continue;
-
-                ShipModule module = ShipModule.Create(slotData.InstalledModuleUID, this, slotData.Position, slotData.Facing);
+                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing);
                 if (fromSave)
                 {
                     module.Health      = slotData.Health;
@@ -36,31 +45,33 @@ namespace Ship_Game.Gameplay
                 module.hangarShipUID  = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
             }
+            return true;
         }
 
         public static Ship CreateShipFromShipData(ShipData data, bool fromSave)
         {
             var ship = new Ship
             {
-                Position = new Vector2(200f, 200f),
-                Name = data.Name,
-                Level = data.Level,
+                Position   = new Vector2(200f, 200f),
+                Name       = data.Name,
+                Level      = data.Level,
                 experience = data.experience,
-                shipData = data,
-                ModelPath = data.ModelPath
+                shipData   = data,
+                ModelPath  = data.ModelPath
             };
 
-            ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave);
+            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave))
+                return null;
 
             foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
+            {
                 ship.ThrusterList.Add(new Thruster
                 {
                     tscale = thrusterZone.Scale,
                     XMLPos = thrusterZone.Position,
                     Parent = ship
                 });
-
-
+            }
             return ship;
         }
     }

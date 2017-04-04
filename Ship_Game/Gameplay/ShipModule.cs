@@ -207,12 +207,6 @@ namespace Ship_Game.Gameplay
             TargetValue          = s.TargetValue;
         }
 
-        public static bool CanCreate(string uid)
-        {
-            return uid != "Dummy" // dummy modules are deprecated, so disallow creation
-                && ResourceManager.ShipModules.ContainsKey(uid);
-        }
-
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
         {
             return new ShipModule(template);
