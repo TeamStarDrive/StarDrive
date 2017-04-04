@@ -6096,25 +6096,16 @@ namespace Ship_Game
                     if (ship != null && ship.Active &&
                         (viewState != UnivScreenState.GalaxyView || !ship.IsPlatform))
                     {
-                        float shipRadius = ship.GetSO().WorldBoundingSphere.Radius;
-                        Vector3 screenPosV3 =
-                            ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f),
-                                projection, view, Matrix.Identity);
-                        Vector2 screenPos = new Vector2(screenPosV3.X, screenPosV3.Y);
+                        ProjectToScreenCoords(ship.Position, ship.GetSO().WorldBoundingSphere.Radius, out Vector2 screenPos, out float ScreenRadius);
+
                         if (HelperFunctions.CheckIntersection(rect, screenPos))
                         {
-                            Vector3 shipRight = new Vector3(ship.Position.PointOnCircle(90f, shipRadius), 0.0f);
-                            Vector3 shipRightScreenPosV3 =
-                                ScreenManager.GraphicsDevice.Viewport.Project(shipRight, projection, view,
-                                    Matrix.Identity);
-                            Vector2 shipRightScreenPos = new Vector2(shipRightScreenPosV3.X, shipRightScreenPosV3.Y);
-                            float distanceCenterToRight = Vector2.Distance(shipRightScreenPos, screenPos);
-                            if (distanceCenterToRight < 7.0f) distanceCenterToRight = 7f;
-                            ship.ScreenRadius = distanceCenterToRight;
+                            if (ScreenRadius < 7.0f) ScreenRadius = 7f;
+                            ship.ScreenRadius = ScreenRadius;
                             ship.ScreenPosition = screenPos;
                             ClickableShipsList.Add(new ClickableShip
                             {
-                                Radius = distanceCenterToRight,
+                                Radius = ScreenRadius,
                                 ScreenPos = screenPos,
                                 shipToClick = ship
                             });                            
@@ -6131,9 +6122,9 @@ namespace Ship_Game
                 ClickableSystems.Clear();
             }
             Texture2D Glow_Terran = ResourceManager.TextureDict["PlanetGlows/Glow_Terran"];
-            Texture2D Glow_Red = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
-            Texture2D Glow_White = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
-            Texture2D Glow_Aqua = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
+            Texture2D Glow_Red    = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
+            Texture2D Glow_White  = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
+            Texture2D Glow_Aqua   = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
             Texture2D Glow_Orange = ResourceManager.TextureDict["PlanetGlows/Glow_Orange"];
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
@@ -6141,15 +6132,8 @@ namespace Ship_Game
                 Vector3 systemV3 = solarSystem.Position.ToVec3();
                 if (Frustum.Contains(new BoundingSphere(systemV3, 100000f)) != ContainmentType.Disjoint)
                 {
-                    Vector3 sysScreenPosV3 =
-                        ScreenManager.GraphicsDevice.Viewport.Project(systemV3, projection, view,
-                            Matrix.Identity);
-                    Vector2 sysScreenPos = new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y);
-                    Vector3 sysScreenPosRightV3 =
-                        ScreenManager.GraphicsDevice.Viewport.Project(
-                            new Vector3(solarSystem.Position.PointOnCircle(90f, 4500f), 0.0f), projection,
-                            view, Matrix.Identity);
-                    float sysScreenPosDisToRight = Vector2.Distance(new Vector2(sysScreenPosRightV3.X, sysScreenPosRightV3.Y), sysScreenPos);
+                    ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2 sysScreenPos, out float sysScreenPosDisToRight);
+
                     lock (GlobalStats.ClickableSystemsLock)
                         ClickableSystems.Add(new UniverseScreen.ClickableSystem()
                         {
@@ -6163,18 +6147,9 @@ namespace Ship_Game
                         {
                             if (solarSystem.Explored(EmpireManager.Player))
                             {
-                                float planetRadius = planet.SO.WorldBoundingSphere.Radius;
-                                Vector3 planetScreenPosV3 =
-                                    ScreenManager.GraphicsDevice.Viewport.Project(
-                                        new Vector3(planet.Position, 2500f), projection, view,
-                                        Matrix.Identity);
-                                Vector2 planetScreenPos = new Vector2(planetScreenPosV3.X, planetScreenPosV3.Y);
-                                Vector3 planetScreenPosRight =
-                                    ScreenManager.GraphicsDevice.Viewport.Project(
-                                        new Vector3(planet.Position.PointOnCircle(90f, planetRadius), 2500f), projection,
-                                        view, Matrix.Identity);
-                                float planetScreenRadius = Vector2.Distance(new Vector2(planetScreenPosRight.X, planetScreenPosRight.Y), planetScreenPos);
+                                ProjectToScreenCoords(planet.Position, 4500f, planet.SO.WorldBoundingSphere.Radius, out Vector2 planetScreenPos, out float planetScreenRadius);
                                 float scale = planetScreenRadius / 115f;
+
                                 if (planet.planetType == 1 || planet.planetType == 11 ||
                                     (planet.planetType == 13 || planet.planetType == 21) ||
                                     (planet.planetType == 22 || planet.planetType == 25 ||
@@ -6185,7 +6160,7 @@ namespace Ship_Game
                                 else if (planet.planetType == 5 || planet.planetType == 7 ||
                                          (planet.planetType == 8 || planet.planetType == 9) || planet.planetType == 23)
                                     ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
-                                        Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
+                                            Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
                                 else if (planet.planetType == 17)
                                     ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
@@ -6215,7 +6190,7 @@ namespace Ship_Game
                             Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
                             projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
                         DrawTransparentModel(SunModel,
-                            Matrix.CreateRotationZ((float) (-(double) Zrotate / 2.0)) *
+                            Matrix.CreateRotationZ((float) (- Zrotate / 2.0)) *
                             Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), view,
                             projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
                         if (solarSystem.Explored(EmpireManager.Player))
@@ -6223,21 +6198,17 @@ namespace Ship_Game
                             for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                             {
                                 Planet planet = solarSystem.PlanetList[i];
-                                Vector3 planetScreenPos =
-                                    this.ScreenManager.GraphicsDevice.Viewport.Project(
-                                        new Vector3(planet.Position.X, planet.Position.Y, 2500f), projection,
-                                        view, Matrix.Identity);
-                                float planetOrbitRadius = Vector2.Distance(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y),
-                                    new Vector2(planetScreenPos.X, planetScreenPos.Y));
+                                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Position, 2500f);
+                                float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
                                 if (this.viewState > UniverseScreen.UnivScreenState.ShipView)
                                 {
-                                    DrawCircle(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y), planetOrbitRadius, 100,
+                                    DrawCircle(sysScreenPos, planetOrbitRadius, 100,
                                         new Color((byte)50, (byte)50, (byte)50, (byte)90), 3f);
                                     if (planet.Owner == null)
-                                        this.DrawCircle(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y), planetOrbitRadius, 100,
+                                        this.DrawCircle(sysScreenPos, planetOrbitRadius, 100,
                                             new Color((byte) 50, (byte) 50, (byte) 50, (byte) 90), 3f);
                                     else
-                                        this.DrawCircle(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y), planetOrbitRadius, 100,
+                                        this.DrawCircle(sysScreenPos, planetOrbitRadius, 100,
                                             new Color(planet.Owner.EmpireColor.R, planet.Owner.EmpireColor.G,
                                                 planet.Owner.EmpireColor.B, (byte) 100), 3f);
                                 }
@@ -6507,6 +6478,7 @@ namespace Ship_Game
 
         public virtual void Render(GameTime gameTime)
         {
+            return;
             if (Frustum == (BoundingFrustum)null)
                 Frustum = new BoundingFrustum(view * projection);
             else
@@ -6905,10 +6877,15 @@ namespace Ship_Game
             return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
         }
 
+        private void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
+        {
+            posOnScreen = ProjectToScreenPosition(posInWorld, zAxis);
+            sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y)).Distance(ref posOnScreen);
+        }
+
         private void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
         {
-            posOnScreen  = ProjectToScreenPosition(posInWorld);
-            sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y)).Distance(ref posOnScreen);
+            ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out posOnScreen, out sizeOnScreen);
         }
 
         private void ProjectToScreenCoords(Vector2 posInWorld, float widthInWorld, float heightInWorld, 

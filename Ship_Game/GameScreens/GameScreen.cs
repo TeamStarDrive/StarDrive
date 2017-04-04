@@ -166,9 +166,10 @@ namespace Ship_Game
             var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
             ScreenManager.SpriteBatch.Draw(texture, rect, null, color, rotation, texture.Center(), SpriteEffects.None, 1f);
         }
-
-        // just draws a texture to screen, no fancy reprojections, where screenPos is the texture top left.
         public void DrawTextureRect(Texture2D texture, Vector2 posOnScreen, Color color, float rotation = 0f)
+            => DrawTextureRect(texture, posOnScreen, color, rotation, Vector2.Zero);
+        // just draws a texture to screen, no fancy reprojections, where screenPos is the texture top left.
+        public void DrawTextureRect(Texture2D texture, Vector2 posOnScreen, Color color, float rotation , Vector2 origin )
         {
             ScreenManager.SpriteBatch.Draw(texture, posOnScreen, null, color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
         }
