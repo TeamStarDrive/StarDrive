@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
 using SgMotion.Controllers;
@@ -16,6 +11,10 @@ namespace Ship_Game.Gameplay
 {
     public sealed partial class Ship
     {
+        // The only way to spawn instances of Ship is to call Ship.CreateShip... overloads
+        private Ship()
+        {
+        }
 
         public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave)
         {
@@ -106,6 +105,16 @@ namespace Ship_Game.Gameplay
                 Position     = position
             };
 
+            if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
+            {
+                Log.Error($"Unexpected failure while spawning ship '{shipName}'. Is the module list corrupted??");
+                return null; // return and crash again...
+            }
+
+            ship.ThrusterList.Capacity = template.ThrusterList.Count;
+            foreach (Thruster t in template.ThrusterList)
+                ship.AddThruster(t);
+
             if (!template.shipData.Animated)
             {
                 ship.SetSO(new SceneObject(ResourceManager.GetModel(template.ModelPath).Meshes[0])
@@ -117,12 +126,6 @@ namespace Ship_Game.Gameplay
                 ship.SetSO(new SceneObject(model.Model) { ObjectType = ObjectType.Dynamic });
                 ship.SetAnimationController(new AnimationController(model.SkeletonBones), model);
             }
-
-            ship.GetTList().Capacity = template.GetTList().Count;
-            foreach (Thruster t in template.GetTList())
-                ship.AddThruster(t);
-
-            ship.CreateModuleSlotsFromData(template.GetShipData().ModuleSlots, fromSave: false);
 
             // Added by McShooterz: add automatic ship naming
             if (GlobalStats.HasMod)
@@ -185,22 +188,8 @@ namespace Ship_Game.Gameplay
 
             // Added by McShooterz: add automatic ship naming
             ship.VanityName = refitName;
-            ship.Level = refitLevel;
+            ship.Level      = refitLevel;
             return ship;
-        }
-
-        // unused -- Called in fleet creation function, which is in turn not used
-        public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 p, float facing)
-        {
-            Ship ship = CreateShipAtPoint(shipName, owner, p);
-            ship.Rotation = facing;
-            return ship;
-        }
-
-        // Unused... Battle mode, eh?
-        public static Ship CreateShipForBattleMode(string shipName, Empire owner, Vector2 p)
-        {
-            return CreateShipAtPoint(shipName, owner, p);
         }
 
         // Hangar Ship Creation
