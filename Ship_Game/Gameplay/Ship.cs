@@ -205,10 +205,6 @@ namespace Ship_Game.Gameplay
 
         public float FTLModifier { get; private set; } = 1f;
 
-        public Ship()
-        {
-        }
-
         public bool IsInNeutralSpace
         {
             get
