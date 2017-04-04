@@ -493,6 +493,8 @@ namespace Ship_Game
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                 {
                     Ship ship = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
+                    if (ship == null) // happens if module creation failed
+                        continue;
                     ship.guid = shipData.guid;
                     ship.Name = shipData.Name;
                     if (shipData.Name != shipData.VanityName)//  !string.IsNullOrEmpty(shipData.VanityName))
@@ -521,7 +523,7 @@ namespace Ship_Game
                     {
                         shipData.data.Hull = shipData.Hull;
                         Ship newShip = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
-                        if (!newShip.InitializeStatus(true))
+                        if (newShip == null/*if module creation failed*/ || !newShip.InitializeStatus(true))
                             continue;
                         newShip.IsPlayerDesign = false;
                         newShip.FromSave = true;
