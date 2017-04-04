@@ -205,6 +205,10 @@ namespace Ship_Game.Gameplay
 
         public float FTLModifier { get; private set; } = 1f;
 
+        public Ship()
+        {
+        }
+
         public bool IsInNeutralSpace
         {
             get
@@ -662,9 +666,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public Ship()
-        {
-        }
         public void ShipRecreate()
         {
             Active            = false;
@@ -758,14 +759,13 @@ namespace Ship_Game.Gameplay
 
 
         }
-        public float GetmaxFTLSpeed { get { return maxFTLSpeed; } }
+        public float GetmaxFTLSpeed => maxFTLSpeed;
 
-        
 
         public float GetSTLSpeed()
         {
             //Added by McShooterz: hull bonus speed
-            float speed= Thrust / Mass + Thrust / Mass * loyalty.data.SubLightModifier;
+            float speed = Thrust / Mass + Thrust / Mass * loyalty.data.SubLightModifier;
             return speed > 2500f ? 2500 : speed;
         }
 
@@ -787,7 +787,7 @@ namespace Ship_Game.Gameplay
 
         public Ship SoftCopy()
         {
-            return new Ship()
+            return new Ship
             {
                 shipData            = shipData,
                 FleetOffset         = FleetOffset,
@@ -4022,23 +4022,6 @@ namespace Ship_Game.Gameplay
             if (drone.IsPlaying)
                 drone.Stop(AudioStopOptions.Immediate);
             drone.Dispose();
-        }
-
-        public static Ship Copy(Ship ship)
-        {
-            return new Ship
-            {
-                shipData       = ship.shipData,
-                ThrusterList   = ship.ThrusterList,
-                ModelPath      = ship.ModelPath,
-                ModuleSlotList = ship.ModuleSlotList
-            };
-        }
-
-        private static Vector2 MoveInCircle(GameTime gameTime, float speed)
-        {
-            double num = gameTime.TotalGameTime.TotalSeconds * speed;
-            return new Vector2((float)Math.Cos(num), (float)Math.Sin(num));
         }
 
         public enum MoveState
