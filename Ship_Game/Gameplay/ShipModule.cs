@@ -736,7 +736,7 @@ namespace Ship_Game.Gameplay
                     return;
                 if (hangarTimer <= 0f && hangarShip == null)
                 {
-                    hangarShip = ResourceManager.CreateTroopShipAtPoint("Assault_Shuttle", Parent.loyalty, Center, troop);
+                    hangarShip = Ship.CreateTroopShipAtPoint("Assault_Shuttle", Parent.loyalty, Center, troop);
                     hangarShip.VanityName = "Assault Shuttle";
                     hangarShip.Mothership = Parent;
                     hangarShip.DoEscort(Parent);
@@ -796,7 +796,7 @@ namespace Ship_Game.Gameplay
             if (ship == null || ship.Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
                 return;
 
-            SetHangarShip(ResourceManager.CreateShipFromHangar(ship.Name, Parent.loyalty, Center, Parent));
+            SetHangarShip(Ship.CreateShipFromHangar(ship.Name, Parent.loyalty, Center, Parent));
 
             hangarShip.DoEscort(Parent);
             hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().speed + Parent.Velocity;
