@@ -149,10 +149,11 @@ namespace Ship_Game
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
 
+        private float InvisibleRadius;
         public float ObjectRadius
         {
-            get => SO != null ? SO.WorldBoundingSphere.Radius : ObjectRadius;
-            set => ObjectRadius = SO != null ? SO.WorldBoundingSphere.Radius : value;
+            get { return SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius; }
+            set { InvisibleRadius = SO != null ? SO.WorldBoundingSphere.Radius : value; }
         }
         
         public Planet()

@@ -5775,18 +5775,28 @@ namespace Ship_Game
             {
                 ShipModule slot = ship.ModuleSlotList[i];
 
-                float slotFacing = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
-                float slotRotation = ship.Rotation + slotFacing.ToRadians();
                 float moduleWidth  = slot.XSIZE * 16.5f; // using 16.5f instead of 16 to reduce pixel error flickering
                 float moduleHeight = slot.YSIZE * 16.5f;
                 ProjectToScreenCoords(slot.Center, moduleWidth, moduleHeight,
                                       out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen);
 
-                DrawTextureSized(concreteGlass, posOnScreen, ship.Rotation, widthOnScreen, heightOnScreen, Color.White);
+                // round all the values to TRY prevent module flickering on screen (well, it only helps a tiny bit)
+                posOnScreen.X = (float)Math.Round(posOnScreen.X);
+                posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
+                float shipDegrees = (float)Math.Round(ship.Rotation.ToDegrees());
+                float shipRotation = shipDegrees.ToRadians();
+                float slotFacing = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
+                float slotRotation = (shipDegrees + slotFacing).ToRadians();
+
+                //float shipRotation = ship.Rotation;
+                //float slotFacing = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
+                //float slotRotation = shipRotation + slotFacing.ToRadians();
+
+                DrawTextureSized(concreteGlass, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, Color.White);
 
                 if (camHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
-                    DrawTextureSized(symbolFighter, posOnScreen, ship.Rotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColor());
+                    DrawTextureSized(symbolFighter, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColor());
                 }
                 else
                 {
@@ -5814,11 +5824,11 @@ namespace Ship_Game
                     }
                     if (Debug && slot.isExternal && slot.Active)
                     {
-                        DrawTexture(symbolFighter, posOnScreen, scale * 0.6f, ship.Rotation, new Color(0, 0, 255, 120));
+                        DrawTexture(symbolFighter, posOnScreen, scale * 0.6f, shipRotation, new Color(0, 0, 255, 120));
                     }
                     if (enableModuleDebug)
                     {
-                        DrawString(posOnScreen, ship.Rotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
+                        DrawString(posOnScreen, shipRotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
                     }
                 }
 
