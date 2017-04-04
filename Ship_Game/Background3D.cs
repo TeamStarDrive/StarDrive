@@ -202,32 +202,36 @@ namespace Ship_Game
             screen.ScreenManager.GraphicsDevice.RenderState.DestinationBlend       = Blend.One;
             screen.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
             screen.ScreenManager.GraphicsDevice.RenderState.CullMode               = CullMode.None;
-            foreach (BackgroundItem bgi in BGItems)
+            for (int i = 0; i < this.BGItems.Count; i++)
             {
+                BackgroundItem bgi = this.BGItems[i];
                 float zpos = bgi.LowerRight.Z;
                 if (zpos >= 0f)
                 {
-                    float alpha = (screen.camHeight + zpos) / 8000000f;
+                    float alpha = (this.screen.camHeight + zpos) / 8000000f;
                     if (alpha > 0.4f)
                         alpha = 0.4f;
                     if (alpha < 0f)
                         alpha = 0f;
-                    bgi.Draw(screen.ScreenManager, screen.view, screen.projection, alpha);
+                    bgi.Draw(this.screen.ScreenManager, this.screen.view, this.screen.projection, alpha);
                 }
                 else
                 {
                     zpos = zpos * -1f;
-                    float alpha = (screen.camHeight - zpos) / 8000000f;
+                    float alpha = (this.screen.camHeight - zpos) / 8000000f;
                     if (alpha > 0.8f)
                         alpha = 0.8f;
                     if (alpha < 0f)
                         alpha = 0f;
-                    bgi.Draw(screen.ScreenManager, screen.view, screen.projection, alpha);
+                    bgi.Draw(this.screen.ScreenManager, this.screen.view, this.screen.projection, alpha);
                 }
             }
             screen.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            foreach (BackgroundItem bgi in NonAdditiveList)
-                bgi.Draw(screen.ScreenManager, screen.view, screen.projection, 1f);
+            for (int i = 0; i < this.NonAdditiveList.Count; i++)
+            {
+                BackgroundItem bgi = this.NonAdditiveList[i];
+                bgi.Draw(this.screen.ScreenManager, this.screen.view, this.screen.projection, 1f);
+            }
         }
     }
 }
