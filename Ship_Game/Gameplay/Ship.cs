@@ -785,18 +785,6 @@ namespace Ship_Game.Gameplay
             return TetheredTo;
         }
 
-        public Ship SoftCopy()
-        {
-            return new Ship
-            {
-                shipData            = shipData,
-                FleetOffset         = FleetOffset,
-                RelativeFleetOffset = RelativeFleetOffset,
-                guid                = guid,
-                projectedPosition   = projectedPosition
-            };
-        }
-
         public Ship Clone()
         {
             return (Ship)MemberwiseClone();
