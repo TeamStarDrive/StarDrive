@@ -6639,12 +6639,9 @@ namespace Ship_Game
 
         private void DrawShipLines(Ship ship, byte alpha)
         {
-            if (ship == null) return;
+            if (ship == null)
+                return;
             Color color;
-            try
-            {
-                bool flag = false;
-                
                 Vector2 start = ship.Center;
                 
                 ArtificialIntelligence.ShipGoal goal;
@@ -6661,7 +6658,7 @@ namespace Ship_Game
                         if (ship.Mothership != null)
                             DrawLineProjected(start, ship.Mothership.Center, color);
                         else
-                            ship.AI.State = AIState.AwaitingOrders;
+                            ship.AI.State = AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix. 
                         return;
                     }
                     if (ship.AI.State == AIState.Escort && ship.AI.EscortTarget != null)
@@ -6675,14 +6672,19 @@ namespace Ship_Game
                         DrawLineProjected(start, ship.AI.ExplorationTarget.Position, color);
                         return;
                     }
+
+                    if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
+                    {
+                        Vector2 screenPos = ProjectToScreenPosition(ship.Center);
+                        Vector2 screenPosTarget = ProjectToScreenPosition(ship.AI.ColonizeTarget.Position,2500f);
+                        DrawLine(screenPos, screenPosTarget, color);
+                        string text = String.Format("Colinize\nSystem : {0}\nPlanet : {1}", ship.AI.ColonizeTarget.ParentSystem.Name, ship.AI.ColonizeTarget.Name);
+                        DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
+                        return;
+                    }
                     if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
                     {
                         DrawLineProjected(start, ship.AI.OrbitTarget.Position, color, 2500f);
-                        return;
-                    }
-                    if (ship.AI.State == AIState.Orbit && ship.AI.ColonizeTarget != null)
-                    {
-                        DrawLineProjected(start, ship.AI.ColonizeTarget.Position, color, 2500f);
                         return;
                     }
                     if (ship.AI.State == AIState.Rebase)
@@ -6730,35 +6732,23 @@ namespace Ship_Game
                 }
 
                 DrawWayPointLines(ship, Colors.WayPoints(alpha));
-
-
-            }
-            catch
-            {
-            }
         }
 
         public void DrawWayPointLines(Ship ship, Color color)
         {
-            if (ship.AI.ActiveWayPoints.Count < 1) return;
+            if (ship.AI.ActiveWayPoints.Count < 1)
+                return;
 
+            Vector2[] waypoints;
             lock (ship.AI.WayPointLocker)
-            {
-                var waypoints = ship.AI.ActiveWayPoints.ToArray();
-                for (int i = 0; i < ship.AI.ActiveWayPoints.Count; ++i)
-                {
-                    if (i == 0)
-                    {
-                        DrawLineProjected(ship.Center, ship.AI.ActiveWayPoints.Peek(), color);
-                    }
-                    if (i < ship.AI.ActiveWayPoints.Count - 1)
-                    {
-                        DrawLineProjected(waypoints[i], waypoints[i + 1], color);
-                    }
-                }
-            }
-            return;
+                waypoints = ship.AI.ActiveWayPoints.ToArray();
 
+            DrawLineProjected(ship.Center, waypoints[0], color);
+
+            for (int i = 1; i < waypoints.Length; ++i)
+            {
+                DrawLineProjected(waypoints[i-1], waypoints[i], color);
+            }
         }
                   
         protected void DrawShields()
@@ -6781,65 +6771,83 @@ namespace Ship_Game
             Texture2D icon_fighting_small = ResourceManager.Texture("UI/icon_fighting_small");
             Texture2D icon_spy_small      = ResourceManager.Texture("UI/icon_spy_small");
             Texture2D icon_anomaly_small  = ResourceManager.Texture("UI/icon_anomaly_small");
-            foreach (SolarSystem solarSystem in SolarSystemList)
+            Texture2D icon_troop          = ResourceManager.Texture("UI/icon_troop");
+            for (int k = 0; k < SolarSystemList.Count; k++)
             {
+                SolarSystem solarSystem = SolarSystemList[k];
                 if (!solarSystem.isVisible)
                     continue;
-              
-                foreach (Planet planet in solarSystem.PlanetList)
+
+                for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
+                    Planet planet = solarSystem.PlanetList[j];
                     if (!planet.IsExploredBy(player))
                         continue;
 
-                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
-                    Vector2 posOffSet       = screenPosPlanet;                    
-                    posOffSet.X            += 20f; 
-                    posOffSet.Y            += 37f;
-                    int drawLocationOffset  = 0;
+                    Vector2 screenPosPlanet = this.ProjectToScreenPosition(planet.Position, 2500f);
+                    Vector2 posOffSet = screenPosPlanet;
+                    posOffSet.X += 20f;
+                    posOffSet.Y += 37f;
+                    int drawLocationOffset = 0;
 
                     DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name, planet.Owner?.EmpireColor ?? Color.White);
-                    
+
                     posOffSet = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
 
                     if (planet.RecentCombat)
-                    {                        
-                        DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                    {
+                        this.DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int) posOffSet.X,
+                            (int) posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
-                    if (player.data.MoleList.Count > 0)
+                    if (this.player.data.MoleList.Count > 0)
                     {
-                        foreach (Mole mole in (Array<Mole>)player.data.MoleList)
+                        for (int i = 0; i < ((Array<Mole>) this.player.data.MoleList).Count; i++)
                         {
+                            Mole mole = ((Array<Mole>) this.player.data.MoleList)[i];
                             if (mole.PlanetGuid == planet.guid)
-                            {                                
-                                posOffSet.X += (float)(18 * drawLocationOffset);
-                                DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
-                                ++drawLocationOffset;                                
+                            {
+                                posOffSet.X += (float) (18 * drawLocationOffset);
+                                DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos,
+                                    (int) posOffSet.X, (int) posOffSet.Y, 14, 14);
+                                ++drawLocationOffset;
                                 break;
                             }
                         }
                     }
-                    foreach (Building building in planet.BuildingList)
+                    for (int i = 0; i < planet.BuildingList.Count; i++)
                     {
+                        Building building = planet.BuildingList[i];
                         if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
-                        
-                        posOffSet.X += (float)(18 * drawLocationOffset);                        
-                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, 121, mousePos, (int)posOffSet.X, (int)posOffSet.Y, 14, 14);                        
+                        posOffSet.X += (float) (18 * drawLocationOffset);
+                        string text = Localizer.Token(building.DescriptionIndex);
+                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, text, mousePos, (int) posOffSet.X,
+                            (int) posOffSet.Y, 14, 14);
                         break;
                     }
+                    int troopCount = planet.CountEmpireTroops(player);
+                    if (troopCount > 0)
+                    {
+                        posOffSet.X += (float)(18 * drawLocationOffset);
+                        DrawTextureWithToolTip(icon_troop, Color.TransparentWhite, string.Format("Troops {0}",troopCount), mousePos,
+                            (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+                    
                 }
             }
         }
         //This will likely only work with "this UI\planetNamePointer" texture 
         //Other textures might work but would need the x and y offset adjusted. 
-        public void DrawPointerWithText(Vector2 screenPos, Texture2D planetNamePointer, Color pointerColor, string text, Color textColor, float xOffSet =20f, float yOffSet = 37f)
-        {            
+        public void DrawPointerWithText(Vector2 screenPos, Texture2D planetNamePointer, Color pointerColor, string text, Color textColor, SpriteFont font = null, float xOffSet =20f, float yOffSet = 37f)
+        {
+            font = font ?? Fonts.Tahoma10;
             DrawTextureRect(planetNamePointer, screenPos, pointerColor);
             Vector2 posOffSet = screenPos;
             posOffSet.X      += xOffSet;
             posOffSet.Y      += yOffSet;
             HelperFunctions.ClampVectorToInt(ref posOffSet);            
-            ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma10, text, posOffSet, textColor);
+            ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
         }
 
 
@@ -6945,7 +6953,16 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(tooltipID, ScreenManager);                
             }
         }
+        public void DrawTextureWithToolTip(Texture2D texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
+        {
+            Rectangle rectangle = new Rectangle(rectangleX, rectangleY, width, height);
+            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
 
+            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            {
+                ToolTip.CreateTooltip(text, ScreenManager);
+            }
+        }
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 screenPos = ProjectToScreenPosition(posInWorld);

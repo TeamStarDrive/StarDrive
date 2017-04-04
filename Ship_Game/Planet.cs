@@ -3142,7 +3142,7 @@ namespace Ship_Game
             }
             return num;
         }
-        public int GetEmpireTroopCount(Empire us)
+        public int CountEmpireTroops(Empire us)
         {
             int num = 0;
             for (int index = 0; index < this.TroopsHere.Count; index++)
@@ -3155,7 +3155,7 @@ namespace Ship_Game
         }
         public int GetDefendingTroopCount()
         {            
-            return GetEmpireTroopCount(this.Owner);
+            return this.CountEmpireTroops(this.Owner);
         }
         public bool AnyOfOurTroops(Empire us)
         {
