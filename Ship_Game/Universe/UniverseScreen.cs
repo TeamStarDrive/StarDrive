@@ -6004,8 +6004,11 @@ namespace Ship_Game
         {
             using (BombList.AcquireReadLock())
             {
-                foreach (Bomb bomb in BombList)
-                    DrawTransparentModel(bomb.Model, bomb.World, view, projection, bomb.Texture, 0.5f);
+                for (int i = 0; i < this.BombList.Count; i++)
+                {
+                    Bomb bomb = this.BombList[i];
+                    this.DrawTransparentModel(bomb.Model, bomb.World, this.view, this.projection, bomb.Texture, 0.5f);
+                }
             }
         }
 
@@ -6126,6 +6129,7 @@ namespace Ship_Game
             Texture2D Glow_White  = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
             Texture2D Glow_Aqua   = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
             Texture2D Glow_Orange = ResourceManager.TextureDict["PlanetGlows/Glow_Orange"];
+            Map<string, Texture2D> sunPaths = new Map<string, Texture2D>();
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
                 SolarSystem solarSystem = SolarSystemList[index];
@@ -6133,6 +6137,10 @@ namespace Ship_Game
                 if (Frustum.Contains(new BoundingSphere(systemV3, 100000f)) != ContainmentType.Disjoint)
                 {
                     ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2 sysScreenPos, out float sysScreenPosDisToRight);
+                    if(!sunPaths.ContainsKey(solarSystem.SunPath)) 
+                    {
+                        sunPaths.Add(solarSystem.SunPath, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath]);
+                    }
 
                     lock (GlobalStats.ClickableSystemsLock)
                         ClickableSystems.Add(new UniverseScreen.ClickableSystem()
@@ -6143,38 +6151,40 @@ namespace Ship_Game
                         });
                     if (viewState <= UniverseScreen.UnivScreenState.SectorView)
                     {
-                        foreach (Planet planet in solarSystem.PlanetList)
+                        for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                         {
+                            Planet planet = solarSystem.PlanetList[i];
                             if (solarSystem.Explored(EmpireManager.Player))
                             {
-                                ProjectToScreenCoords(planet.Position, 2500f, planet.SO.WorldBoundingSphere.Radius, out Vector2 planetScreenPos, out float planetScreenRadius);
+                                this.ProjectToScreenCoords(planet.Position, 2500f, planet.SO.WorldBoundingSphere.Radius,
+                                    out Vector2 planetScreenPos, out float planetScreenRadius);
                                 float scale = planetScreenRadius / 115f;
 
                                 if (planet.planetType == 1 || planet.planetType == 11 ||
                                     (planet.planetType == 13 || planet.planetType == 21) ||
                                     (planet.planetType == 22 || planet.planetType == 25 ||
                                      (planet.planetType == 27 || planet.planetType == 29)))
-                                    ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
+                                    this.ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.planetType == 5 || planet.planetType == 7 ||
                                          (planet.planetType == 8 || planet.planetType == 9) || planet.planetType == 23)
-                                    ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
-                                            Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
+                                    this.ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
+                                        Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
                                 else if (planet.planetType == 17)
-                                    ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
+                                    this.ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.planetType == 19)
-                                    ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
+                                    this.ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.planetType == 14 || planet.planetType == 18)
-                                    ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
+                                    this.ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 lock (GlobalStats.ClickableSystemsLock)
-                                    ClickPlanetList.Add(new UniverseScreen.ClickablePlanets()
+                                    this.ClickPlanetList.Add(new UniverseScreen.ClickablePlanets()
                                     {
                                         ScreenPos = planetScreenPos,
                                         Radius = planetScreenRadius < 8f ? 8f : planetScreenRadius,
@@ -6188,11 +6198,11 @@ namespace Ship_Game
                         DrawTransparentModel(SunModel,
                             Matrix.CreateRotationZ(Zrotate) *
                             Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
-                            projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
+                            projection, sunPaths[solarSystem.SunPath], 10.0f);
                         DrawTransparentModel(SunModel,
                             Matrix.CreateRotationZ((float) (- Zrotate / 2.0)) *
-                            Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), view,
-                            projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
+                            Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
+                            projection, sunPaths[solarSystem.SunPath], 10.0f);
                         if (solarSystem.Explored(EmpireManager.Player))
                         {
                             for (int i = 0; i < solarSystem.PlanetList.Count; i++)
@@ -6495,10 +6505,10 @@ namespace Ship_Game
             if (DefiningAO && SelectedShip != null)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Localizer.Token(1411), new Vector2((float)SelectedStuffRect.X, (float)(SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2)), Color.White);
-                foreach (Rectangle rectangle in SelectedShip.AreaOfOperation)
+                for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; index++)
                 {
-                    DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 10)); 
-                    
+                    Rectangle rectangle = this.SelectedShip.AreaOfOperation[index];
+                    this.DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 10));
                 }
             }
             else
@@ -6507,22 +6517,25 @@ namespace Ship_Game
             if (num < 0f)
                 num = 0.0f;
             byte alpha = (byte)num;
-            if (SelectedShip != null)
+            if (alpha > 0)
             {
-                DrawShipLines(SelectedShip, alpha);                
-            }
-            else if (SelectedShipList.Count > 0)
-            {                                             
-                for (int index1 = 0; index1 < this.SelectedShipList.Count; ++index1)
+                if (SelectedShip != null)
                 {
-                    try
+                    DrawShipLines(SelectedShip, alpha);
+                }
+                else if (SelectedShipList.Count > 0)
+                {
+                    for (int index1 = 0; index1 < this.SelectedShipList.Count; ++index1)
                     {
-                        Ship ship = this.SelectedShipList[index1];        
-                        DrawShipLines(ship, alpha);
-                    }                 
-                    catch
-                    {
-                        Log.Warning("DrawShipLines Blew Up");
+                        try
+                        {
+                            Ship ship = this.SelectedShipList[index1];
+                            DrawShipLines(ship, alpha);
+                        }
+                        catch
+                        {
+                            Log.Warning("DrawShipLines Blew Up");
+                        }
                     }
                 }
             }
