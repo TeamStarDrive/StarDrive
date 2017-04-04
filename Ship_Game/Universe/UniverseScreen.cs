@@ -6079,54 +6079,45 @@ namespace Ship_Game
 
         protected virtual void RenderBackdrop()
         {
-            this.bg.Draw(this, this.starfield);
+            bg.Draw(this, starfield);
             if (viewState > UnivScreenState.ShipView)
             {                
-                this.bg3d.Draw();
+                bg3d.Draw();
             }
-            this.ClickableShipsList.Clear();
-            this.ScreenManager.SpriteBatch.Begin();
+            ClickableShipsList.Clear();
+            ScreenManager.SpriteBatch.Begin();
             Rectangle rect = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
 
             using (player.KnownShips.AcquireReadLock())
             {
-                for (int i = 0; i < this.player.KnownShips.Count; i++)
+                for (int i = 0; i < player.KnownShips.Count; i++)
                 {
-                    Ship ship = this.player.KnownShips[i];
+                    Ship ship = player.KnownShips[i];
                     if (ship != null && ship.Active &&
-                        (this.viewState != UnivScreenState.GalaxyView || !ship.IsPlatform))
+                        (viewState != UnivScreenState.GalaxyView || !ship.IsPlatform))
                     {
-                        float local_4 = ship.GetSO().WorldBoundingSphere.Radius;
-                        Vector3 local_6 =
-                            this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f),
-                                this.projection, this.view, Matrix.Identity);
-                        Vector2 local_7 = new Vector2(local_6.X, local_6.Y);
-                        if (HelperFunctions.CheckIntersection(rect, local_7))
+                        float shipRadius = ship.GetSO().WorldBoundingSphere.Radius;
+                        Vector3 screenPosV3 =
+                            ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f),
+                                projection, view, Matrix.Identity);
+                        Vector2 screenPos = new Vector2(screenPosV3.X, screenPosV3.Y);
+                        if (HelperFunctions.CheckIntersection(rect, screenPos))
                         {
-                            Vector3 local_9 = new Vector3(ship.Position.PointOnCircle(90f, local_4), 0.0f);
-                            Vector3 local_10 =
-                                this.ScreenManager.GraphicsDevice.Viewport.Project(local_9, this.projection, this.view,
+                            Vector3 shipRight = new Vector3(ship.Position.PointOnCircle(90f, shipRadius), 0.0f);
+                            Vector3 shipRightScreenPosV3 =
+                                ScreenManager.GraphicsDevice.Viewport.Project(shipRight, projection, view,
                                     Matrix.Identity);
-                            Vector2 local_11 = new Vector2(local_10.X, local_10.Y);
-                            float local_12 = Vector2.Distance(local_11, local_7);
-                            if (local_12 < 7.0f) local_12 = 7f;
-                            ship.ScreenRadius = local_12;
-                            ship.ScreenPosition = local_7;
-                            this.ClickableShipsList.Add(new ClickableShip
+                            Vector2 shipRightScreenPos = new Vector2(shipRightScreenPosV3.X, shipRightScreenPosV3.Y);
+                            float distanceCenterToRight = Vector2.Distance(shipRightScreenPos, screenPos);
+                            if (distanceCenterToRight < 7.0f) distanceCenterToRight = 7f;
+                            ship.ScreenRadius = distanceCenterToRight;
+                            ship.ScreenPosition = screenPos;
+                            ClickableShipsList.Add(new ClickableShip
                             {
-                                Radius = local_12,
-                                ScreenPos = local_7,
+                                Radius = distanceCenterToRight,
+                                ScreenPos = screenPos,
                                 shipToClick = ship
-                            });
-                            if (ship.loyalty == this.player || ship.loyalty != this.player &&
-                                this.player.GetRelations(ship.loyalty).Treaty_Alliance)
-                            {
-                                local_9 = new Vector3(ship.Position.PointOnCircle(90f, ship.SensorRange), 0.0f);
-                                local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(local_9, this.projection,
-                                    this.view, Matrix.Identity);
-                                local_11 = new Vector2(local_10.X, local_10.Y);
-                                //local_2.ScreenSensorRadius = Vector2.Distance(local_11, local_7);    //This is assigned here, but is not referenced anywhere, removing to save memory -Gretman
-                            }
+                            });                            
                         }
                         else
                             ship.ScreenPosition = new Vector2(-1f, -1f);
@@ -6136,81 +6127,127 @@ namespace Ship_Game
 
             lock (GlobalStats.ClickableSystemsLock)
             {
-                this.ClickPlanetList.Clear();
-                this.ClickableSystems.Clear();
+                ClickPlanetList.Clear();
+                ClickableSystems.Clear();
             }
-            foreach (SolarSystem solarSystem in SolarSystemList)
+            Texture2D Glow_Terran = ResourceManager.TextureDict["PlanetGlows/Glow_Terran"];
+            Texture2D Glow_Red = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
+            Texture2D Glow_White = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
+            Texture2D Glow_Aqua = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
+            Texture2D Glow_Orange = ResourceManager.TextureDict["PlanetGlows/Glow_Orange"];
+            for (int index = 0; index < SolarSystemList.Count; index++)
             {
-                Vector3 vector3_1 = new Vector3(solarSystem.Position, 0.0f);
-                if (this.Frustum.Contains(new BoundingSphere(vector3_1, 100000f)) != ContainmentType.Disjoint)
+                SolarSystem solarSystem = SolarSystemList[index];
+                Vector3 systemV3 = solarSystem.Position.ToVec3();
+                if (Frustum.Contains(new BoundingSphere(systemV3, 100000f)) != ContainmentType.Disjoint)
                 {
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(vector3_1, this.projection, this.view, Matrix.Identity);
-                    Vector2 vector2 = new Vector2(vector3_2.X, vector3_2.Y);
-                    Vector3 vector3_3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(solarSystem.Position.PointOnCircle(90f, 4500f), 0.0f), this.projection, this.view, Matrix.Identity);
-                    float num1 = Vector2.Distance(new Vector2(vector3_3.X, vector3_3.Y), vector2);
+                    Vector3 sysScreenPosV3 =
+                        ScreenManager.GraphicsDevice.Viewport.Project(systemV3, projection, view,
+                            Matrix.Identity);
+                    Vector2 sysScreenPos = new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y);
+                    Vector3 sysScreenPosRightV3 =
+                        ScreenManager.GraphicsDevice.Viewport.Project(
+                            new Vector3(solarSystem.Position.PointOnCircle(90f, 4500f), 0.0f), projection,
+                            view, Matrix.Identity);
+                    float sysScreenPosDisToRight = Vector2.Distance(new Vector2(sysScreenPosRightV3.X, sysScreenPosRightV3.Y), sysScreenPos);
                     lock (GlobalStats.ClickableSystemsLock)
-                        this.ClickableSystems.Add(new UniverseScreen.ClickableSystem()
+                        ClickableSystems.Add(new UniverseScreen.ClickableSystem()
                         {
-                            Radius = (double)num1 < 8.0 ? 8f : num1,
-                            ScreenPos = vector2,
+                            Radius = sysScreenPosDisToRight < 8f ? 8f : sysScreenPosDisToRight,
+                            ScreenPos = sysScreenPos,
                             systemToClick = solarSystem
                         });
-                    if (this.viewState <= UniverseScreen.UnivScreenState.SectorView)
+                    if (viewState <= UniverseScreen.UnivScreenState.SectorView)
                     {
                         foreach (Planet planet in solarSystem.PlanetList)
                         {
-                            if (solarSystem.ExploredDict[EmpireManager.Player])
+                            if (solarSystem.Explored(EmpireManager.Player))
                             {
-                                float radius = planet.SO.WorldBoundingSphere.Radius;
-                                Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
-                                Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
-                                Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position.PointOnCircle(90f, radius), 2500f), this.projection, this.view, Matrix.Identity);
-                                float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
-                                float scale = num2 / 115f;
-                                if (planet.planetType == 1 || planet.planetType == 11 || (planet.planetType == 13 || planet.planetType == 21) || (planet.planetType == 22 || planet.planetType == 25 || (planet.planetType == 27 || planet.planetType == 29)))
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetGlows/Glow_Terran"], position, new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
-                                else if (planet.planetType == 5 || planet.planetType == 7 || (planet.planetType == 8 || planet.planetType == 9) || planet.planetType == 23)
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetGlows/Glow_Red"], position, new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
+                                float planetRadius = planet.SO.WorldBoundingSphere.Radius;
+                                Vector3 planetScreenPosV3 =
+                                    ScreenManager.GraphicsDevice.Viewport.Project(
+                                        new Vector3(planet.Position, 2500f), projection, view,
+                                        Matrix.Identity);
+                                Vector2 planetScreenPos = new Vector2(planetScreenPosV3.X, planetScreenPosV3.Y);
+                                Vector3 planetScreenPosRight =
+                                    ScreenManager.GraphicsDevice.Viewport.Project(
+                                        new Vector3(planet.Position.PointOnCircle(90f, planetRadius), 2500f), projection,
+                                        view, Matrix.Identity);
+                                float planetScreenRadius = Vector2.Distance(new Vector2(planetScreenPosRight.X, planetScreenPosRight.Y), planetScreenPos);
+                                float scale = planetScreenRadius / 115f;
+                                if (planet.planetType == 1 || planet.planetType == 11 ||
+                                    (planet.planetType == 13 || planet.planetType == 21) ||
+                                    (planet.planetType == 22 || planet.planetType == 25 ||
+                                     (planet.planetType == 27 || planet.planetType == 29)))
+                                    ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
+                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        SpriteEffects.None, 1f);
+                                else if (planet.planetType == 5 || planet.planetType == 7 ||
+                                         (planet.planetType == 8 || planet.planetType == 9) || planet.planetType == 23)
+                                    ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
+                                        Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
                                 else if (planet.planetType == 17)
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetGlows/Glow_White"], position, new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
+                                    ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
+                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        SpriteEffects.None, 1f);
                                 else if (planet.planetType == 19)
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"], position, new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
+                                    ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
+                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        SpriteEffects.None, 1f);
                                 else if (planet.planetType == 14 || planet.planetType == 18)
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetGlows/Glow_Orange"], position, new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
+                                    ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
+                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        SpriteEffects.None, 1f);
                                 lock (GlobalStats.ClickableSystemsLock)
-                                    this.ClickPlanetList.Add(new UniverseScreen.ClickablePlanets()
+                                    ClickPlanetList.Add(new UniverseScreen.ClickablePlanets()
                                     {
-                                        ScreenPos = position,
-                                        Radius = (double)num2 < 8.0 ? 8f : num2,
+                                        ScreenPos = planetScreenPos,
+                                        Radius = planetScreenRadius < 8f ? 8f : planetScreenRadius,
                                         planetToClick = planet
                                     });
                             }
                         }
                     }
-                    if (this.viewState < UniverseScreen.UnivScreenState.GalaxyView)
+                    if (viewState < UniverseScreen.UnivScreenState.GalaxyView)
                     {
-                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ(this.Zrotate) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
-                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 2.0)) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
-                        if (solarSystem.ExploredDict[EmpireManager.Player])
+                        DrawTransparentModel(SunModel,
+                            Matrix.CreateRotationZ(Zrotate) *
+                            Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
+                            projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
+                        DrawTransparentModel(SunModel,
+                            Matrix.CreateRotationZ((float) (-(double) Zrotate / 2.0)) *
+                            Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), view,
+                            projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
+                        if (solarSystem.Explored(EmpireManager.Player))
                         {
-                            foreach (Planet planet in solarSystem.PlanetList)
+                            for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                             {
-                                Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position.X, planet.Position.Y, 2500f), this.projection, this.view, Matrix.Identity);
-                                float radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), new Vector2(vector3_4.X, vector3_4.Y));
+                                Planet planet = solarSystem.PlanetList[i];
+                                Vector3 planetScreenPos =
+                                    this.ScreenManager.GraphicsDevice.Viewport.Project(
+                                        new Vector3(planet.Position.X, planet.Position.Y, 2500f), projection,
+                                        view, Matrix.Identity);
+                                float planetOrbitRadius = Vector2.Distance(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y),
+                                    new Vector2(planetScreenPos.X, planetScreenPos.Y));
                                 if (this.viewState > UniverseScreen.UnivScreenState.ShipView)
                                 {
+                                    DrawCircle(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y), planetOrbitRadius, 100,
+                                        new Color((byte)50, (byte)50, (byte)50, (byte)90), 3f);
                                     if (planet.Owner == null)
-                                        DrawCircle(new Vector2(vector3_2.X, vector3_2.Y), radius, 100, new Color((byte)50, (byte)50, (byte)50, (byte)90), 3f);
+                                        this.DrawCircle(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y), planetOrbitRadius, 100,
+                                            new Color((byte) 50, (byte) 50, (byte) 50, (byte) 90), 3f);
                                     else
-                                        DrawCircle(new Vector2(vector3_2.X, vector3_2.Y), radius, 100, new Color(planet.Owner.EmpireColor.R, planet.Owner.EmpireColor.G, planet.Owner.EmpireColor.B, (byte)100), 3f);
+                                        this.DrawCircle(new Vector2(sysScreenPosV3.X, sysScreenPosV3.Y), planetOrbitRadius, 100,
+                                            new Color(planet.Owner.EmpireColor.R, planet.Owner.EmpireColor.G,
+                                                planet.Owner.EmpireColor.B, (byte) 100), 3f);
                                 }
                             }
                         }
                     }
                 }
             }
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             var renderState = ScreenManager.GraphicsDevice.RenderState;
             renderState.AlphaBlendEnable       = true;
             renderState.AlphaBlendOperation    = BlendFunction.Add;
@@ -6219,7 +6256,7 @@ namespace Ship_Game
             renderState.DepthBufferWriteEnable = false;
             renderState.CullMode               = CullMode.None;
             renderState.DepthBufferWriteEnable = true;
-            this.ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.End();
         }
 
         protected virtual void RenderGalaxyBackdrop()
