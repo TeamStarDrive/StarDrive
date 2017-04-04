@@ -381,7 +381,7 @@ namespace Ship_Game.Gameplay
 
             // Vulnerabilities and resistances for modules, XML-defined.
             if (proj != null)
-                damageAmount = ApplyResistances(proj.weapon, damageAmount);
+                damageAmount = ApplyResistances(proj.Weapon, damageAmount);
 
             if (ShieldPower <= 0f || proj != null && proj.IgnoresShields)
             {
@@ -395,9 +395,9 @@ namespace Ship_Game.Gameplay
                     if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
                         damageAmount *= (1f - mod.ArmoredBonus);
                 }
-                if (proj?.weapon.EMPDamage > 0f)
+                if (proj?.Weapon.EMPDamage > 0f)
                 {
-                    Parent.EMPDamage = Parent.EMPDamage + proj.weapon.EMPDamage;
+                    Parent.EMPDamage = Parent.EMPDamage + proj.Weapon.EMPDamage;
                 }
                 if (beam != null)
                 {
@@ -413,40 +413,40 @@ namespace Ship_Game.Gameplay
                             Empire.Universe.sparks.AddParticleThreadB(new Vector3(beam.ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
                         }
                     }
-                    if (beam.weapon.PowerDamage > 0f)
+                    if (beam.Weapon.PowerDamage > 0f)
                     {
-                        Parent.PowerCurrent -= beam.weapon.PowerDamage;
+                        Parent.PowerCurrent -= beam.Weapon.PowerDamage;
                         if (Parent.PowerCurrent < 0f)
                         {
                             Parent.PowerCurrent = 0f;
                         }
                     }
-                    if (beam.weapon.TroopDamageChance > 0f)
+                    if (beam.Weapon.TroopDamageChance > 0f)
                     {
                         if (Parent.TroopList.Count > 0)
                         {
-                            if (UniverseRandom.RandomBetween(0f, 100f) < beam.weapon.TroopDamageChance)
+                            if (UniverseRandom.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
                             {
                                 Parent.TroopList[0].Strength = Parent.TroopList[0].Strength - 1;
                                 if (Parent.TroopList[0].Strength <= 0)
                                     Parent.TroopList.RemoveAt(0);
                             }
                         }
-                        else if (Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < beam.weapon.TroopDamageChance)
+                        else if (Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
                         {
                             Parent.MechanicalBoardingDefense -= 1f;
                         }
                     }
-                    if (beam.weapon.MassDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
+                    if (beam.Weapon.MassDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
                     {
-                        Parent.Mass += beam.weapon.MassDamage;
+                        Parent.Mass += beam.Weapon.MassDamage;
                         Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
                         Parent.speed = Parent.velocityMaximum;
                         Parent.rotationRadiansPerSecond = Parent.speed / 700f;
                     }
-                    if (beam.weapon.RepulsionDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
+                    if (beam.Weapon.RepulsionDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
                     {
-                        Parent.Velocity += ((Center - beam.Owner.Center) * beam.weapon.RepulsionDamage) / Parent.Mass;
+                        Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
                     }
                 }
                 if (shield_power_max > 0f && (!isExternal || quadrant <= 0))
@@ -456,19 +456,19 @@ namespace Ship_Game.Gameplay
 
                 if (ModuleType == ShipModuleType.Armor && source is Projectile)
                 {
-                    if (proj.isSecondary)
+                    if (proj.IsSecondary)
                     {
-                        Weapon secondary = ResourceManager.GetWeaponTemplate(proj.weapon.SecondaryFire);
+                        Weapon secondary = ResourceManager.GetWeaponTemplate(proj.Weapon.SecondaryFire);
                         damageAmount *= secondary.EffectVsArmor; 
                     }
                     else
                     {
-                        damageAmount *= proj.weapon.EffectVsArmor;
+                        damageAmount *= proj.Weapon.EffectVsArmor;
                     }
                 }
                 else if (ModuleType == ShipModuleType.Armor && beam != null)
                 {
-                    damageAmount *= beam.weapon.EffectVsArmor;
+                    damageAmount *= beam.Weapon.EffectVsArmor;
                 }
 
                 if (damageAmount > Health)
@@ -497,7 +497,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 if (proj != null)
-                    damageAmount *= proj.weapon.EffectVSShields;
+                    damageAmount *= proj.Weapon.EffectVSShields;
 
                 if (damageAmount <= shield_threshold)
                     damageAmount = 0f;
@@ -523,17 +523,17 @@ namespace Ship_Game.Gameplay
 
                     if (beam != null)
                     {
-                        if (beam.weapon.SiphonDamage > 0f)
+                        if (beam.Weapon.SiphonDamage > 0f)
                         {
-                            ShieldPower -= beam.weapon.SiphonDamage;
+                            ShieldPower -= beam.Weapon.SiphonDamage;
                             if (ShieldPower < 0f)
                             {
                                 ShieldPower = 0f;
                             }
-                            beam.owner.PowerCurrent += beam.weapon.SiphonDamage;
-                            if (beam.owner.PowerCurrent > beam.owner.PowerStoreMax)
+                            beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
+                            if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
                             {
-                                beam.owner.PowerCurrent = beam.owner.PowerStoreMax;
+                                beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
                             }
                         }
                         shield.Rotation = Center.RadiansToTarget(beam.Source);
@@ -559,9 +559,9 @@ namespace Ship_Game.Gameplay
                                 Empire.Universe.sparks.AddParticleThreadA(new Vector3(beam.ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
                             }
                         }
-                        if (beam.weapon.SiphonDamage > 0f)
+                        if (beam.Weapon.SiphonDamage > 0f)
                         {
-                            ShieldPower -= beam.weapon.SiphonDamage;
+                            ShieldPower -= beam.Weapon.SiphonDamage;
                             if (ShieldPower < 0f)
                                 ShieldPower = 0f;
                         }
@@ -985,15 +985,15 @@ namespace Ship_Game.Gameplay
             {
                 if (reallyFuckedUp)
                 {
-                    if (trailEmitter == null) trailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 50f, Center3D);
-                    if (flameEmitter == null) flameEmitter = new ParticleEmitter(Empire.Universe.flameParticles, 80f, Center3D);
+                    if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (flameEmitter == null) flameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
                     trailEmitter.Update(elapsedTime, Center3D);
                     flameEmitter.Update(elapsedTime, Center3D);
                 }
                 else if (onFire)
                 {
-                    if (trailEmitter == null)     trailEmitter     = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 50f, Center3D);
-                    if (firetrailEmitter == null) firetrailEmitter = new ParticleEmitter(Empire.Universe.fireTrailParticles, 60f, Center3D);
+                    if (trailEmitter == null)     trailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (firetrailEmitter == null) firetrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
                     trailEmitter.Update(elapsedTime, Center3D);
                     firetrailEmitter.Update(elapsedTime, Center3D);
                 }

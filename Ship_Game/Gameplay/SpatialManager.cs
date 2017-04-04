@@ -433,7 +433,7 @@ namespace Ship_Game.Gameplay
             Vector2 beamStart = beam.Source;
             Vector2 beamEnd = beam.Destination;
             float distance = beamEnd.Distance(beamStart);
-            if (distance > beam.range + 10f)
+            if (distance > beam.Range + 10f)
                 return;
 
             GameplayObject targetObject = null;
@@ -445,13 +445,13 @@ namespace Ship_Game.Gameplay
                     targetObject = ship; // @todo Is this correct? Should fix a null pointer crash...
                     ship.MoveModulesTimer = 2f;
                     beam.ActualHitDestination = beamTarget.Center;
-                    if (beam.damageAmount >= 0f)
+                    if (beam.DamageAmount >= 0f)
                         return;
 
                     // @todo Why is this here?? Healing stuff shuld be handled elsewhere! like target.Touch(beam)
                     foreach (ShipModule module in ship.ModuleSlotList)
                     {
-                        module.Health -= beam.damageAmount;
+                        module.Health -= beam.DamageAmount;
 
                         if (module.Health < 0f)
                             module.Health = 0f;
@@ -480,10 +480,10 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < nearby.Length; i++)
             {
                 Ship ship = nearby[i];
-                if (ship.loyalty == beam.owner?.loyalty)
+                if (ship.loyalty == beam.Owner?.loyalty)
                     continue; // dont hit allied. need to expand this to actual allies.
 
-                if (ship == beam.owner && !beam.weapon.HitsFriendlies) //hits friendlies is in the  wrong place.
+                if (ship == beam.Owner && !beam.Weapon.HitsFriendlies) //hits friendlies is in the  wrong place.
                     continue;
 
                 ++GlobalStats.BeamTests;
@@ -517,11 +517,11 @@ namespace Ship_Game.Gameplay
 
             if (otherObj is Ship otherShip)
             {
-                if (thisProj.loyalty == otherShip.loyalty)
+                if (thisProj.Loyalty == otherShip.loyalty)
                     return false;
 
                 // if projectile travels more than 16 units (module width) per frame, we need to do ray collision
-                float distPerFrame = thisProj.speed / 60.0f;
+                float distPerFrame = thisProj.Speed / 60.0f;
                 if (thisProj.Center.OutsideRadius(otherShip.Center, otherShip.Radius + thisProj.Radius + distPerFrame))
                     return false;
 
@@ -541,14 +541,14 @@ namespace Ship_Game.Gameplay
             }
             if (otherObj is Projectile otherProj)
             {
-                if (thisProj.Center.OutsideRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherProj.weapon.ProjectileRadius))
+                if (thisProj.Center.OutsideRadius(otherObj.Center, thisProj.Weapon.ProjectileRadius + otherProj.Weapon.ProjectileRadius))
                     return false;
                 collidedWith = otherObj;
                 return true; // thisProj died
             }
 
             // finally, generic collision with any kind of 'simple' object
-            if (thisProj.Center.OutsideRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherObj.Radius))
+            if (thisProj.Center.OutsideRadius(otherObj.Center, thisProj.Weapon.ProjectileRadius + otherObj.Radius))
                 return false;
             collidedWith = otherObj;
             return true; // thisProj died

@@ -1411,7 +1411,7 @@ namespace Ship_Game.AI
                     {
                         foreach (Projectile missile in Owner.GetNearby<Projectile>())
                         {
-                            if (missile.loyalty != Owner.loyalty && missile.weapon.Tag_Intercept)
+                            if (missile.Loyalty != Owner.loyalty && missile.Weapon.Tag_Intercept)
                                 TrackProjectiles.Add(missile);
                         }
                         TrackProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
@@ -1489,7 +1489,7 @@ namespace Ship_Game.AI
                                             }
 
                                             if (proj == null || !proj.Active || proj.Health <= 0 ||
-                                                !proj.weapon.Tag_Intercept)
+                                                !proj.Weapon.Tag_Intercept)
                                                 continue;
                                             if (Owner.CheckIfInsideFireArc(weapon,
                                                 proj as GameplayObject))
@@ -1556,7 +1556,7 @@ namespace Ship_Game.AI
 
 
                                         if (proj == null || !proj.Active || proj.Health <= 0 ||
-                                            !proj.weapon.Tag_Intercept)
+                                            !proj.Weapon.Tag_Intercept)
                                             continue;
                                         if (Owner.CheckIfInsideFireArc(weapon,
                                             proj as GameplayObject))

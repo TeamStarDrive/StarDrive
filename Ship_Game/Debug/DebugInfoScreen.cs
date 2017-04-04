@@ -190,7 +190,7 @@ namespace Ship_Game.Debug
                     Screen.DrawLineProjected(weapon.Center, projDest1, Color.Yellow);
                     Screen.DrawLineProjected(weapon.Center, projDest0, Color.LightYellow);
 
-                    Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.weapon == weapon);
+                    Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.Weapon == weapon);
                     if (projectile != null)
                     {
                         Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);

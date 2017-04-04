@@ -488,9 +488,9 @@ namespace Ship_Game
                         {
                             Velocity = p.Velocity,
                             Rotation = p.Rotation,
-                            Weapon   = p.weapon.UID,
+                            Weapon   = p.Weapon.UID,
                             Position = p.Center,
-                            Duration = p.duration
+                            Duration = p.Duration
                         };
                         sdata.Projectiles.Add(pdata);
                     }

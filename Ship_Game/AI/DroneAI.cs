@@ -26,11 +26,11 @@ namespace Ship_Game.AI
             DroneTarget = null;
 			Array<Ship> potentials = new Array<Ship>();
 
-		    for (int index = 0; index < Owner.owner.AI.FriendliesNearby.Count; index++)
+		    for (int index = 0; index < Owner.Owner.AI.FriendliesNearby.Count; index++)
 		    {
-		        Ship go = Owner.owner.AI.FriendliesNearby[index];
+		        Ship go = Owner.Owner.AI.FriendliesNearby[index];
 
-		        if (go == null || !go.Active || go.loyalty != Owner.loyalty || go.Health >= go.HealthMax)
+		        if (go == null || !go.Active || go.loyalty != Owner.Loyalty || go.Health >= go.HealthMax)
 		        {
 		            continue;
 		        }
@@ -60,20 +60,20 @@ namespace Ship_Game.AI
 				float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
 				float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
 				if (angleDiff > 0.2f)
-                    this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.speed / 350f);
+                    this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.Speed / 350f);
 				wantedForward = Vector2.Normalize(forward);
-				this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
-				this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
+				this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.Speed);
+				this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.VelocityMax;
 				return;
 			}
 			Vector2 wantedForward0 = Vector2.Normalize(-Owner.Center.FindVectorToTarget(DroneTarget.Center));
 			float angleDiff0 = (float)Math.Acos((double)Vector2.Dot(wantedForward0, forward));
 			float facing0 = (Vector2.Dot(wantedForward0, right) > 0f ? 1f : -1f);
 			if (angleDiff0 > 0.2f)
-                this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff0, facing0 * elapsedTime * this.Owner.speed / 350f);
+                this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff0, facing0 * elapsedTime * this.Owner.Speed / 350f);
 			wantedForward0 = Vector2.Normalize(forward);
-			this.Owner.Velocity = wantedForward0 * (elapsedTime * this.Owner.speed);
-			this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
+			this.Owner.Velocity = wantedForward0 * (elapsedTime * this.Owner.Speed);
+			this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.VelocityMax;
 		}
 
 		private void OrbitShip(Ship ship, float elapsedTime)
@@ -111,8 +111,8 @@ namespace Ship_Game.AI
 				{
 					this.Beams[i].Die(null, true);
 				}
-				if (this.Owner.owner != null)
-					this.OrbitShip(this.Owner.owner, elapsedTime);
+				if (this.Owner.Owner != null)
+					this.OrbitShip(this.Owner.Owner, elapsedTime);
 				return;
 			}
 			if ((  this.DroneTarget as Ship).Health / (this.DroneTarget as Ship).HealthMax < 1f

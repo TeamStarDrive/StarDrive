@@ -2578,9 +2578,9 @@ namespace Ship_Game.Gameplay
                             for (int i = 0; i < beams.Count; i++)
                             {
                                 Beam beam = beams[i];
-                                if (beam.moduleAttachedTo != null)
+                                if (beam.ModuleAttachedTo != null)
                                 {
-                                    ShipModule shipModule = beam.moduleAttachedTo;
+                                    ShipModule shipModule = beam.ModuleAttachedTo;
                                     Vector2 origin = (int)shipModule.XSIZE != 1
                                         || (int)shipModule.YSIZE != 3
                                         ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))
@@ -2593,13 +2593,13 @@ namespace Ship_Game.Gameplay
                                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
                                     float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
                                     origin = angleAndDistance.PointFromAngle(MathHelper.ToDegrees(radians), distance);
-                                    int thickness = (int)UniverseRandom.RandomBetween(beam.thickness*0.75f, beam.thickness*1.1f);
+                                    int thickness = (int)UniverseRandom.RandomBetween(beam.Thickness*0.75f, beam.Thickness*1.1f);
 
-                                    beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, 
-                                        beam.followMouse ? Empire.Universe.mouseWorldPos : beam.Destination, 
+                                    beam.Update(beam.ModuleAttachedTo != null ? origin : beam.Owner.Center, 
+                                        beam.FollowMouse ? Empire.Universe.mouseWorldPos : beam.Destination, 
                                         thickness, Empire.Universe.view, Empire.Universe.projection, elapsedTime);
 
-                                    if (beam.duration < 0f && !beam.infinite)
+                                    if (beam.Duration < 0f && !beam.Infinite)
                                     {
                                         beam.Die(null, false);
                                         beams.RemoveRef(beam);
@@ -3714,7 +3714,7 @@ namespace Ship_Game.Gameplay
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
             if (!cleanupOnly)
-                psource?.owner?.AddKill(this);
+                psource?.Owner?.AddKill(this);
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
@@ -3725,7 +3725,7 @@ namespace Ship_Game.Gameplay
                 ydie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
                 zdie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
                 dietimer = UniverseRandom.RandomBetween(4f, 6f);
-                if (psource != null && psource.explodes && psource.damageAmount > 100.0)
+                if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
                     reallyDie = true;
             }
             else reallyDie = true;
@@ -3733,12 +3733,12 @@ namespace Ship_Game.Gameplay
             if (dying && !reallyDie)
                 return;
 
-            if (psource?.owner != null)
+            if (psource?.Owner != null)
             {
                 float amount = 1f;
                 if (ResourceManager.ShipRoles.ContainsKey(shipData.Role))
                     amount = ResourceManager.ShipRoles[shipData.Role].DamageRelations;
-                loyalty.DamageRelationship(psource.owner.loyalty, "Destroyed Ship", amount, null);
+                loyalty.DamageRelationship(psource.Owner.loyalty, "Destroyed Ship", amount, null);
             }
             if (!cleanupOnly && InFrustum)
             {
@@ -3999,7 +3999,7 @@ namespace Ship_Game.Gameplay
         {
             Vector2 center = source.Owner?.Center ?? source.Center;
             int level      = source.Owner?.Level ?? 0;
-            return TargetRandomInternalModule(ref source.weapon.AttackerTargetting, center, level);
+            return TargetRandomInternalModule(ref source.Weapon.AttackerTargetting, center, level);
         }
 
         public void UpdateShields()
