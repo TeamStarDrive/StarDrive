@@ -763,10 +763,7 @@ namespace Ship_Game
             return template.Cost;
         }
 
-        public static ShipModule GetModuleTemplate(string uid)
-        {
-            return ShipModulesDict[uid];
-        }
+        public static ShipModule GetModuleTemplate(string uid) => ShipModulesDict[uid];
         public static bool ModuleExists(string uid) => ShipModulesDict.ContainsKey(uid);
         public static IReadOnlyDictionary<string, ShipModule> ShipModules => ShipModulesDict;
         public static bool TryGetModule(string uid, out ShipModule mod) => ShipModulesDict.TryGetValue(uid, out mod);
@@ -1148,6 +1145,8 @@ namespace Ship_Game
                             continue;
 
                         Ship newShip = Ship.CreateShipFromShipData(shipData, fromSave: false);
+                        if (newShip == null) // happens if module creation failed
+                            continue;
                         newShip.SetShipData(shipData);
                         if (!newShip.InitializeStatus(fromSave: false))
                             continue;

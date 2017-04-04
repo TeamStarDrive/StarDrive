@@ -5956,6 +5956,8 @@ namespace Ship_Game
             ShipSaved = true;
 
             Ship newShip = Ship.CreateShipFromShipData(toSave, fromSave: false);
+            if (newShip == null) // happens if module creation failed
+                return;
             newShip.SetShipData(toSave);
             newShip.InitializeStatus(fromSave: false);
             newShip.IsPlayerDesign = true;
