@@ -5722,9 +5722,9 @@ output = maxp * take10 = 5
                 {
                     Ship shipAt;
                     if (queueItem.isRefit)
-                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, !string.IsNullOrEmpty(queueItem.RefitName) ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
+                        shipAt = Ship.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, !string.IsNullOrEmpty(queueItem.RefitName) ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
                     else
-                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
+                        shipAt = Ship.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
 
                     //foreach (string current in shipAt.GetMaxGoods().Keys)

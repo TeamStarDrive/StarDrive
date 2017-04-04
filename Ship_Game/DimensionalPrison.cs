@@ -11,19 +11,12 @@ namespace Ship_Game
     public sealed class DimensionalPrison : Anomaly, IDisposable
     {
         public Vector2 p1;
-
         public Vector2 p2;
-
         public Vector2 p3;
-
         public string PlatformName = "Mysterious Platform";
-
-        new public Vector2 Pos;
-
+        public Vector2 Pos;
         public string PrisonerID;
-
         private BackgroundItem Prison;
-
         private Beam b1;
         private Beam b2;
         private Beam b3;
@@ -32,20 +25,17 @@ namespace Ship_Game
         private Ship s3;
 
         private int numCreated;
-
         private int numToCreate = 9;
-
         private float timer;
-
 
         public DimensionalPrison(Vector2 pos)
         {
             this.p1 = pos + new Vector2(0f, -400f);
             this.p2 = pos + new Vector2(-400f, 400f);
             this.p3 = pos + new Vector2(400f, 400f);
-            this.s1 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p1);
-            this.s2 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p2);
-            this.s3 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p3);
+            this.s1 = Ship.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p1);
+            this.s2 = Ship.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p2);
+            this.s3 = Ship.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p3);
             this.Pos = pos;
             var r = new Rectangle((int)pos.X - 200, (int)pos.Y - 200, 400, 400);
             this.Prison = new BackgroundItem();
@@ -127,7 +117,7 @@ namespace Ship_Game
                 dimensionalPrison.timer = dimensionalPrison.timer - elapsedTime;
                 if (this.timer <= 0f)
                 {
-                    Ship enemy = ResourceManager.CreateShipAtPoint("Heavy Drone", EmpireManager.Remnants, this.Pos);
+                    Ship enemy = Ship.CreateShipAtPoint("Heavy Drone", EmpireManager.Remnants, this.Pos);
                     enemy.Velocity = this.GenerateRandomV2(100f);
                     enemy.AI.State = AIState.AwaitingOrders;
                     this.timer = 2f;

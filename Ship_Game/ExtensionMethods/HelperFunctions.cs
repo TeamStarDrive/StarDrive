@@ -113,7 +113,7 @@ namespace Ship_Game
             using (fleet.DataNodes.AcquireWriteLock())
                 foreach (FleetDataNode node in fleet.DataNodes)
                 {
-                    Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
+                    Ship s = Ship.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
                     s.RelativeFleetOffset = node.FleetOffset;
                     node.Ship = s;
                     fleet.AddShip(s);

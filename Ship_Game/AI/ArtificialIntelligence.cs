@@ -640,7 +640,7 @@ namespace Ship_Game.AI
                 OrderDeepSpaceBuild(shipgoal.goal);
                 return;
             }
-            Ship platform = ResourceManager.CreateShipAtPoint(shipgoal.goal.ToBuildUID, Owner.loyalty,
+            Ship platform = Ship.CreateShipAtPoint(shipgoal.goal.ToBuildUID, Owner.loyalty,
                 shipgoal.goal.BuildPosition);
             if (platform == null)
                 return;
@@ -4534,7 +4534,7 @@ namespace Ship_Game.AI
                                 continue;                            
                             if (ResourceManager.ShipsDict["Supply_Shuttle"].Mass / 5f > Owner.Ordinance)  //fbedard: New spawning cost
                                 continue;
-                            Ship shuttle = ResourceManager.CreateShipFromHangar("Supply_Shuttle", Owner.loyalty, Owner.Center, Owner);
+                            Ship shuttle = Ship.CreateShipFromHangar("Supply_Shuttle", Owner.loyalty, Owner.Center, Owner);
                             shuttle.VanityName = "Supply Shuttle";
                             //shuttle.shipData.Role = ShipData.RoleName.supply;
                             //shuttle.GetAI().DefaultAIState = AIState.Flee;
