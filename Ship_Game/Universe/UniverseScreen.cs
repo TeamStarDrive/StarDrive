@@ -5753,12 +5753,15 @@ namespace Ship_Game
             var concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             var lightningBolt = ResourceManager.Texture("UI/lightningBolt");
 
-            bool enableModuleDebug = Debug && false;
+            bool enableModuleDebug = Debug && true;
             if (enableModuleDebug)
             {
                 foreach (Projectile projectile in ship.Projectiles)
                     DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
             }
+
+            float shipDegrees  = (float)Math.Round(ship.Rotation.ToDegrees());
+            float shipRotation = shipDegrees.ToRadians();
 
             for (int i = 0; i < ship.ModuleSlotList.Length; ++i)
             {
@@ -5772,14 +5775,9 @@ namespace Ship_Game
                 // round all the values to TRY prevent module flickering on screen (well, it only helps a tiny bit)
                 posOnScreen.X = (float)Math.Round(posOnScreen.X);
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
-                float shipDegrees = (float)Math.Round(ship.Rotation.ToDegrees());
-                float shipRotation = shipDegrees.ToRadians();
-                float slotFacing = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
-                float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
-                //float shipRotation = ship.Rotation;
-                //float slotFacing = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
-                //float slotRotation = shipRotation + slotFacing.ToRadians();
+                float slotFacing   = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
+                float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
                 DrawTextureSized(concreteGlass, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, Color.White);
 
