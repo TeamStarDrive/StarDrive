@@ -4008,7 +4008,7 @@ namespace Ship_Game
                 bool flag4 = true;
                 if (flag3)
                 {
-                    foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
+                    foreach (QueueItem queueItem in ConstructionQueue)
                     {
                         if (queueItem.isBuilding
                             && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0
@@ -4021,12 +4021,12 @@ namespace Ship_Game
                     }
                 }
                 if (this.Owner != EmpireManager.Player
-                    && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
+                    && !Shipyards.Any(ship => ship.Value.GetShipData().IsShipyard)
                     && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) && (double)this.GrossMoneyPT > 5.0
                     && (double)this.NetProductionPerTurn > 6.0)
                 {
                     bool hasShipyard = false;
-                    foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
+                    foreach (QueueItem queueItem in ConstructionQueue)
                     {
                         if (queueItem.isShip && queueItem.sData.IsShipyard)
                         {
@@ -4201,7 +4201,7 @@ namespace Ship_Game
                             //else
                             //    this.ps = GoodState.STORE;
                             if (this.Owner != Empire.Universe.PlayerEmpire
-                                && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
+                                && !Shipyards.Any(ship => ship.Value.GetShipData().IsShipyard)
                                 && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard)
 
                                 )
@@ -5066,7 +5066,7 @@ namespace Ship_Game
                                 this.AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
                         }
                         if (this.Owner != EmpireManager.Player
-                            && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
+                            && !Shipyards.Any(ship => ship.Value.GetShipData().IsShipyard)
                             && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) &&  this.GrossMoneyPT > 3.0)
                         {
                             bool hasShipyard = false;
@@ -5286,14 +5286,14 @@ namespace Ship_Game
                             {
                                 if (DefBudget - stationUpkeep < -stationUpkeep)
                                 {
-                                    this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                                    ConstructionQueue.QueuePendingRemoval(queueItem);
                                     continue;
                                 }
                                 DefBudget -= stationUpkeep;
                                 stationCount++;
                             }
                         }
-                        foreach (Ship platform in this.Shipyards.Values)
+                        foreach (Ship platform in Shipyards.Values)
                         {
                             if (platform.BaseStrength <= 0)
                                 continue;
@@ -5722,9 +5722,9 @@ output = maxp * take10 = 5
                 {
                     Ship shipAt;
                     if (queueItem.isRefit)
-                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, !string.IsNullOrEmpty(queueItem.RefitName) ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
+                        shipAt = Ship.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, !string.IsNullOrEmpty(queueItem.RefitName) ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
                     else
-                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
+                        shipAt = Ship.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
 
                     //foreach (string current in shipAt.GetMaxGoods().Keys)

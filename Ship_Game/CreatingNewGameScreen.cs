@@ -491,20 +491,20 @@ namespace Ship_Game
 
                             // @todo This hack is here because SD has several tight coupling issues, need to fix loading order
                             ResourceManager.ScreenManager = ScreenManager;
-                            Ship ship1 = ResourceManager.CreateShipAt(colonyShip, empire, planet, new Vector2(-2000, -2000), true);
+                            Ship ship1 = Ship.CreateShipAt(colonyShip, empire, planet, new Vector2(-2000, -2000), true);
                             Data.MasterShipList.Add(ship1);
 
                             string startingScout = empire.data.StartingScout;
                             if (GlobalStats.HardcoreRuleset) startingScout += " STL";
 
-                            Ship ship2 = ResourceManager.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
+                            Ship ship2 = Ship.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
                             Data.MasterShipList.Add(ship2);
 
                             if (empire == PlayerEmpire)
                             {
                                 string starterShip = empire.data.Traits.Prototype == 0 ? empire.data.StartingShip : empire.data.PrototypeShip;
 
-                                playerShip = ResourceManager.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
+                                playerShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
                                 playerShip.SensorRange = 100000f; // @todo What is this range hack?
 
                                 if (GlobalStats.ActiveModInfo == null || playerShip.VanityName == "")
@@ -524,7 +524,7 @@ namespace Ship_Game
                                 if (GlobalStats.HardcoreRuleset) starterShip += " STL";
                                 starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
 
-                                Ship ship3 = ResourceManager.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
+                                Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
                                 Data.MasterShipList.Add(ship3);
 
                                 empire.AddShip(ship3);

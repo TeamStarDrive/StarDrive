@@ -116,11 +116,11 @@ namespace Ship_Game
 	    {
             foreach (string ship in FriendlyShipsToSpawn)
             {
-                triggerer.ForcePoolAdd(ResourceManager.CreateShipAt(ship, triggerer, p, true));
+                triggerer.ForcePoolAdd(Ship.CreateShipAt(ship, triggerer, p, true));
             }
             foreach (string ship in RemnantShipsToSpawn)
             {
-                Ship tomake = ResourceManager.CreateShipAt(ship, EmpireManager.Remnants, p, true);
+                Ship tomake = Ship.CreateShipAt(ship, EmpireManager.Remnants, p, true);
                 tomake.AI.DefaultAIState = AIState.Exterminate;
             }
         }
