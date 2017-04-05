@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
-    [DebuggerDisplay("UID = {Flyweight.UID} InternalPos={XMLPosition} WorldPos={Position}")]
     public sealed class ShipModule : GameplayObject
     {
         //private static int TotalModules = 0;
@@ -25,7 +24,7 @@ namespace Ship_Game.Gameplay
         public bool Powered;
         public float FieldOfFire;
         public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
-        public Vector2 XMLPosition; // module slot location in the ship design
+        public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
         private Ship Parent;
         public float HealthMax;
         public string WeaponType;
@@ -175,7 +174,7 @@ namespace Ship_Game.Gameplay
                                 || ModuleType == ShipModuleType.Drone 
                                 || ModuleType == ShipModuleType.Bomb;
 
-        private ShipModule()     //Constructor
+        private ShipModule()
         {
             Flyweight = ShipModuleFlyweight.Empty;
         }
@@ -1082,5 +1081,7 @@ namespace Ship_Game.Gameplay
         {
 
         }
+
+        public override string ToString() => $"{UID}  {Position}  World={Center}";
     }
 }

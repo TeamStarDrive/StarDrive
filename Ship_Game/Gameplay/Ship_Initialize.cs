@@ -26,7 +26,7 @@ namespace Ship_Game.Gameplay
                     continue;
                 if (!ResourceManager.ShipModules.ContainsKey(uid))
                 {
-                    Log.Warning($"Failed to load ship {Name} due to invalid Module {uid}!");
+                    Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{uid}'!");
                     return false;
                 }
                 ++count;
@@ -51,6 +51,8 @@ namespace Ship_Game.Gameplay
                 module.hangarShipUID  = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
             }
+
+            CreateModuleGrid();
             return true;
         }
 
@@ -81,8 +83,6 @@ namespace Ship_Game.Gameplay
             return ship;
         }
 
-
-
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
@@ -91,7 +91,7 @@ namespace Ship_Game.Gameplay
                 var stackTrace = new Exception();
                 MessageBox.Show($"Failed to create new ship '{shipName}'. " +
                                 $"This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
-                    "Ship spawn failed!", MessageBoxButtons.OK);
+                                 "Ship spawn failed!", MessageBoxButtons.OK);
                 return null;
             }
 

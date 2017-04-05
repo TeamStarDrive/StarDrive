@@ -1,17 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Gameplay
 {
     public sealed partial class Ship
     {
-        private Map<Vector2, ShipModule> ModulesDictionary = new Map<Vector2, ShipModule>();
+        private readonly Map<Vector2, ShipModule> ModulesDictionary = new Map<Vector2, ShipModule>();
         public ShipModule[] ModuleSlotList;
 
-        private ShipModule[] SparseModuleGrid;
-        private Vector2 ModuleGridSize;
+        private ShipModule[] SparseModuleGrid; // single dimensional grid, for performance reasons
+        private int GridWidth;
+        private int GridHeight;
+        private Vector2 GridOrigin;
 
+        private void CreateModuleGrid()
+        {
+            float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
+
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule module = ModuleSlotList[i];
+                Vector2 topLeft = module.Position;
+                var botRight = new Vector2(topLeft.X + module.XSIZE * 16.0f,
+                                           topLeft.Y + module.YSIZE * 16.0f);
+
+                if (topLeft.X < minX) minX = topLeft.X;
+                if (topLeft.Y < minY) minY = topLeft.Y;
+                if (botRight.X > maxX) maxX = botRight.X;
+                if (botRight.Y > maxY) maxY = botRight.Y;
+            }
+
+            GridOrigin = new Vector2(minX, minY);
+            GridWidth  = (int)(maxX - minX) / 16;
+            GridHeight = (int)(maxY - minY) / 16;
+            SparseModuleGrid = new ShipModule[GridWidth * GridHeight];
+
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule module = ModuleSlotList[i];
+                Point origin = SlotPointAt(module.Position);
+
+                for (int y = 0; y < module.YSIZE; ++y)
+                {
+                    for (int x = 0; x < module.XSIZE; ++x)
+                    {
+                        int idx = GridWidth * (origin.Y + y) + (origin.X + x);
+                        SparseModuleGrid[idx] = module;
+                    }
+                }
+            }
+        }
+
+        private Point SlotPointAt(Vector2 pos)
+        {
+            Vector2 offset = pos - GridOrigin;
+            return new Point((int)(offset.X / 16.0f),
+                             (int)(offset.Y / 16.0f));
+        }
+
+        private int SlotIndexAt(Vector2 pos)
+        {
+            Vector2 offset = pos - GridOrigin;
+            int x = (int)(offset.X / 16.0f);
+            int y = (int)(offset.Y / 16.0f);
+            int idx = y * GridHeight + x;
+            if ((uint)idx >= SparseModuleGrid.Length)
+                return -1;
+            return idx;
+        }
 
         private void CheckIfExternalModule(Vector2 pos, ShipModule module)
         {
