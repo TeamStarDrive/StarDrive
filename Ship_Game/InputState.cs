@@ -18,13 +18,56 @@ namespace Ship_Game
 
 		public MouseState LastMouseState;
 
-		public int previousScrollWheelValue;
+		public int PreviousScrollWheelValue;
 
-		private Vector2 cursorPosition;
+        public bool Repeat;
+
 
 	    public float RightMouseTimer = 0.35f;
+	    public bool RightMouseClick  => (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Released);
+	    public bool LeftMouseClick   => (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released);
+	    public bool BackMouseClick   => (CurrentMouseState.XButton1 == ButtonState.Pressed && LastMouseState.XButton1 == ButtonState.Released);
+	    public bool MiddleMouseClick => (CurrentMouseState.MiddleButton == ButtonState.Pressed && LastMouseState.MiddleButton == ButtonState.Released);
+        public bool LeftMouseRelease => CurrentMouseState.LeftButton == ButtonState.Released;
+        public Vector2 MouseScreenPos => new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
 
-		public bool AButtonDown
+
+        //Ingame 
+        //UniverseScreen
+	    public bool PauseGame            => IsNewKeyPress(Keys.Space);
+        public bool UseRealLights        => IsNewKeyPress(Keys.F5);
+        public bool ShowExceptionTracker => IsNewKeyPress(Keys.F6);
+	    public bool SendKudos            => IsNewKeyPress(Keys.F7);
+        public bool SpeedUp              => IsNewKeyPress(Keys.OemPlus) || IsNewKeyPress(Keys.Add);
+	    public bool SpeedDown            => IsNewKeyPress(Keys.OemMinus) || IsNewKeyPress(Keys.Subtract);
+        public bool ScrapShip            => IsNewKeyPress(Keys.Back) || IsNewKeyPress(Keys.Delete);
+        //debug
+        public bool DebugMode            => LeftCtrlShift && (IsNewKeyPress(Keys.OemTilde) || IsNewKeyPress(Keys.Tab));
+        public bool GetMemory            => IsNewKeyPress(Keys.G);
+        public bool ShowDebugWindow      => IsNewKeyPress(Keys.H);
+        public bool DeepSpaceBuildWindow => IsNewKeyPress(Keys.B);
+        public bool PlanetListScreen     => IsNewKeyPress(Keys.L);
+	    public bool FTLOverlay           => IsNewKeyPress(Keys.F1);
+	    public bool RangeOverlay         => IsNewKeyPress(Keys.F2);
+        public bool ShipListScreen       => IsNewKeyPress(Keys.K);
+	    public bool FleetDesignScreen    => IsNewKeyPress(Keys.J);
+	    public bool AutomationWindow     => IsNewKeyPress(Keys.H);
+	    
+        //Ingame controls
+        public bool PreviousTarget => BackMouseClick;
+        public bool ChaseCam       => MiddleMouseClick;
+        public bool TacticalIcons => IsNewKeyPress(Keys.LeftAlt);        
+        //Ingame debug
+       // public bool 
+
+        /// <summary>
+        /// below are the defaults set previously. i bleieve the idea is to set the button wanted here with a name to indicate its use.
+        /// </summary>
+
+        //keyCombinations
+        private bool LeftCtrlShift => CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && CurrentKeyboardState.IsKeyDown(Keys.LeftShift);
+
+        public bool AButtonDown
 		{
 			get
 			{
@@ -74,28 +117,9 @@ namespace Ship_Game
 			}
 		}
 
-		public Vector2 CursorPosition
-		{
-			get => cursorPosition;
-		    set => cursorPosition = value;
-		}
+		public Vector2 CursorPosition { get; set; }
 
-		public bool Down
-		{
-			get
-			{
-				if (IsNewKeyPress(Keys.Down))
-				{
-					return true;
-				}
-				if (CurrentGamePadState.DPad.Down != ButtonState.Pressed)
-				{
-					return false;
-				}
-				return LastGamePadState.DPad.Down == ButtonState.Released;
-			}
-		}
-
+	   
 		public bool Escaped => IsNewKeyPress(Keys.Escape);
 
 	    public bool ExitScreen
@@ -128,22 +152,7 @@ namespace Ship_Game
 
 		public bool Land => IsNewKeyPress(Keys.L);
 
-	    public bool Left
-		{
-			get
-			{
-				if (IsNewKeyPress(Keys.Left))
-				{
-					return true;
-				}
-				if (CurrentGamePadState.DPad.Left != ButtonState.Pressed)
-				{
-					return false;
-				}
-				return LastGamePadState.DPad.Left == ButtonState.Released;
-			}
-		}
-
+	    
 		public bool LeftShoulderDown
 		{
 			get
@@ -219,32 +228,18 @@ namespace Ship_Game
 				return LastGamePadState.ThumbSticks.Left.Y <= 0f;
 			}
 		}
-
 		public Vector2 NormalizedCursorPosition { get; set; }
 
 	    public bool OpenMap => IsNewKeyPress(Keys.M);
 
-	    public bool PauseGame
-		{
-			get
-			{
-				if (IsNewKeyPress(Keys.Escape))
-				{
-					return true;
-				}
-				if (CurrentGamePadState.Buttons.Start != ButtonState.Pressed)
-				{
-					return false;
-				}
-				return LastGamePadState.Buttons.Start == ButtonState.Released;
-			}
-		}
+	    
 
-		public bool Right
+
+        public bool Right
 		{
 			get
 			{
-				if (IsNewKeyPress(Keys.Right))
+				if (IsNewKeyPress(Keys.Right) || IsNewKeyPress(Keys.D))
 				{
 					return true;
 				}
@@ -256,9 +251,57 @@ namespace Ship_Game
 			}
 		}
 
-		public bool RightMouseClick => (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Released);
+	    public bool Up
+	    {
+	        get
+	        {
+	            if (IsNewKeyPress(Keys.Up) || IsNewKeyPress(Keys.W))
+	            {
+	                return true;
+	            }
+	            if (CurrentGamePadState.DPad.Up != ButtonState.Pressed)
+	            {
+	                return false;
+	            }
+	            return LastGamePadState.DPad.Up == ButtonState.Released;
+	        }
+	    }
 
-	    public bool RightShoulderDown
+        public bool Down
+	    {
+	        get
+	        {
+	            if (IsNewKeyPress(Keys.Down) || IsNewKeyPress(Keys.S))
+	            {
+	                return true;
+	            }
+	            if (CurrentGamePadState.DPad.Down != ButtonState.Pressed)
+	            {
+	                return false;
+	            }
+	            return LastGamePadState.DPad.Down == ButtonState.Released;
+	        }
+	    }
+
+        public bool Left
+	    {
+	        get
+	        {
+	            if (IsNewKeyPress(Keys.Left) || IsNewKeyPress(Keys.A))
+	            {
+	                return true;
+	            }
+	            if (CurrentGamePadState.DPad.Left != ButtonState.Pressed)
+	            {
+	                return false;
+	            }
+	            return LastGamePadState.DPad.Left == ButtonState.Released;
+	        }
+	    }
+
+
+
+        public bool RightShoulderDown
 		{
 			get
 			{
@@ -270,9 +313,9 @@ namespace Ship_Game
 			}
 		}
 
-		public bool ScrollIn => CurrentMouseState.ScrollWheelValue > previousScrollWheelValue;
+		public bool ScrollIn => CurrentMouseState.ScrollWheelValue > PreviousScrollWheelValue;
 
-	    public bool ScrollOut => CurrentMouseState.ScrollWheelValue < previousScrollWheelValue;
+	    public bool ScrollOut => CurrentMouseState.ScrollWheelValue < PreviousScrollWheelValue;
 
 	    public bool StartButtonDown
 		{
@@ -288,22 +331,7 @@ namespace Ship_Game
 
 		public bool Tab => IsNewKeyPress(Keys.Tab);
 
-	    public bool Up
-		{
-			get
-			{
-				if (IsNewKeyPress(Keys.Up))
-				{
-					return true;
-				}
-				if (CurrentGamePadState.DPad.Up != ButtonState.Pressed)
-				{
-					return false;
-				}
-				return LastGamePadState.DPad.Up == ButtonState.Released;
-			}
-		}
-
+	    
 		public bool XButtonDown
 		{
 			get
@@ -334,10 +362,13 @@ namespace Ship_Game
 
 	    private bool IsNewKeyPress(Keys key)
 	    {
-	        return CurrentKeyboardState.IsKeyDown(key) && LastKeyboardState.IsKeyUp(key);
+            if (!Repeat)
+                return CurrentKeyboardState.IsKeyDown(key) && LastKeyboardState.IsKeyUp(key);
+            
+                 return CurrentKeyboardState.IsKeyDown(key);
 	    }
 
-		public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
 		{
 			float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 			if (CurrentMouseState.RightButton != ButtonState.Pressed)
@@ -352,9 +383,9 @@ namespace Ship_Game
 			LastKeyboardState = CurrentKeyboardState;
 			LastGamePadState = CurrentGamePadState;
 			LastMouseState = CurrentMouseState;
-			previousScrollWheelValue = CurrentMouseState.ScrollWheelValue;
+			PreviousScrollWheelValue = CurrentMouseState.ScrollWheelValue;
 			CurrentMouseState = Mouse.GetState();
-			cursorPosition = new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
+			CursorPosition = new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
 			CurrentKeyboardState = Keyboard.GetState();
 		}
 	}
