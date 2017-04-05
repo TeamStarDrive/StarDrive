@@ -5603,15 +5603,13 @@ namespace Ship_Game
             renderState.DestinationBlend       = Blend.One;
             renderState.DepthBufferWriteEnable = false;
             renderState.CullMode               = CullMode.None;
-            //lock (GlobalStats.KnownShipsLock)
+            
             using (player.KnownShips.AcquireReadLock())
-            {
+            {                
                 foreach (Ship ship in player.KnownShips)
                 {
-                    if (!ship.Active)
-                        MasterShipList.QueuePendingRemoval(ship);
-                    else
-                        DrawInRange(ship);
+                    if (!ship.Active) continue;
+                    DrawInRange(ship);
                 }
             }
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
@@ -5636,10 +5634,7 @@ namespace Ship_Game
                     if (SelectedShip == ship || SelectedShipList.Contains(ship))
                     {
                         Color color = Color.LightGreen;
-                        if (player.TryGetRelations(ship.loyalty, out Relationship rel))
-                        {
-                            color = rel.AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
-                        }
+                        color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;     
                         Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, color);
                     }
                 }
@@ -6020,46 +6015,32 @@ namespace Ship_Game
             for (int i = 0; i < ship.Projectiles.Count; i++)
             {
                 Projectile projectile = ship.Projectiles[i];
-                if (projectile.WeaponType != "Missile" && 
-                    projectile.WeaponType != "Rocket"  && 
-                    projectile.WeaponType != "Drone"   && 
-                    Frustum.Contains(projectile.Center, projectile.Radius))
+                if (projectile.WeaponType != "Missile" &&
+                    projectile.WeaponType != "Rocket" &&
+                    projectile.WeaponType != "Drone" &&
+                    (ship.InFrustum || Frustum.Contains(projectile.Center, projectile.Radius)))
                 {
                     DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
                         projectile.GetWorld(), this.view, this.projection,
                         projectile.Weapon.Animated != 0
-                            ? ResourceManager.TextureDict[projectile.TexturePath]
-                            : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
+                            ? ResourceManager.Texture(projectile.TexturePath)
+                            : ResourceManager.ProjTexture(projectile.TexturePath), projectile.Scale);
                 }
             }
         }
 
-        private Circle DrawSelectionCircles(Vector2 WorldPos, float WorldRadius)
+        private Circle GetSelectionCircles(Vector2 WorldPos, float WorldRadius, float radiusMin = 0, float radiusIncrease = 0 )
         {
-            float radius = WorldRadius;
-            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(WorldPos, 0.0f), this.projection, this.view, Matrix.Identity);
-            Vector2 Center = new Vector2(vector3_1.X, vector3_1.Y);
-            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(WorldPos.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
-            float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Center) + 10f;
-            return new Circle(Center, Radius);
+            ProjectToScreenCoords(WorldPos, WorldRadius, out Vector2 screenPos, out float screenRadius);
+            if (radiusMin > 0)
+                screenRadius = screenRadius < radiusMin ? radiusMin : screenRadius;            
+            return new Circle(screenPos, screenRadius + radiusIncrease);
+
         }
 
-        private Circle DrawSelectionCirclesAroundShip(Ship ship)
-        {
-            if (this.SelectedShip != null && this.SelectedShip == ship || this.SelectedShipList.Contains(ship))
-            {
-                float num = ship.GetSO().WorldBoundingSphere.Radius;
-                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                Vector2 Center = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(new Vector2(ship.Center.X + num, ship.Center.Y), 0.0f), this.projection, this.view, Matrix.Identity);
-                float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Center);
-                if ((double)Radius < 5.0)
-                    Radius = 5f;
-                if (this.viewState < UniverseScreen.UnivScreenState.SectorView)
-                    return new Circle(Center, Radius);
-            }
-            return null;
-        }
+        private Circle GetSelectionCirclesAroundShip(Ship ship)
+            => GetSelectionCircles(ship.Center, ship.GetSO().WorldBoundingSphere.Radius, 5, 0);            
+        
 
         protected void RenderParticles()
         {
@@ -6127,7 +6108,8 @@ namespace Ship_Game
             Texture2D Glow_White  = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
             Texture2D Glow_Aqua   = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
             Texture2D Glow_Orange = ResourceManager.TextureDict["PlanetGlows/Glow_Orange"];
-            Map<string, Texture2D> sunPaths = new Map<string, Texture2D>();
+            Texture2D sunTexture = null;
+            string sunPath = string.Empty;
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
                 SolarSystem solarSystem = SolarSystemList[index];
@@ -6135,10 +6117,6 @@ namespace Ship_Game
                 if (Frustum.Contains(new BoundingSphere(systemV3, 100000f)) != ContainmentType.Disjoint)
                 {
                     ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2 sysScreenPos, out float sysScreenPosDisToRight);
-                    if(!sunPaths.ContainsKey(solarSystem.SunPath)) 
-                    {
-                        sunPaths.Add(solarSystem.SunPath, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath]);
-                    }
 
                     lock (GlobalStats.ClickableSystemsLock)
                         ClickableSystems.Add(new UniverseScreen.ClickableSystem()
@@ -6193,14 +6171,16 @@ namespace Ship_Game
                     }
                     if (viewState < UniverseScreen.UnivScreenState.GalaxyView)
                     {
+                        if(solarSystem.SunPath != sunPath)
+                            sunTexture = ResourceManager.Texture("Suns/" + solarSystem.SunPath);
                         DrawTransparentModel(SunModel,
                             Matrix.CreateRotationZ(Zrotate) *
                             Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
-                            projection, sunPaths[solarSystem.SunPath], 10.0f);
+                            projection, sunTexture, 10.0f);
                         DrawTransparentModel(SunModel,
                             Matrix.CreateRotationZ((float) (- Zrotate / 2.0)) *
                             Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
-                            projection, sunPaths[solarSystem.SunPath], 10.0f);
+                            projection, sunTexture, 10.0f);
                         if (solarSystem.Explored(EmpireManager.Player))
                         {
                             for (int i = 0; i < solarSystem.PlanetList.Count; i++)
@@ -7025,12 +7005,6 @@ namespace Ship_Game
         protected void DrawTransparentModelAdditive(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
             =>  DrawModelMesh(model, world, view, new Vector3(1f, 1f, 1f), projection, projTex, camHeight / 3500000);            
         
-        protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
-        {
-            DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);            
-            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
-        }
-
         public void DrawSunModel(Matrix world, Texture2D texture, float scale)        
             => DrawTransparentModel(SunModel, world, view, projection, texture, scale);
         
