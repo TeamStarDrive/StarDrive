@@ -41,8 +41,6 @@ namespace Ship_Game.Gameplay
         private Array<Projectile> projectiles = new Array<Projectile>();
         private Array<Beam> beams = new Array<Beam>();
         public Array<Weapon> Weapons = new Array<Weapon>();
-        //public float fireThresholdSquared = 0.25f;    //Not referenced in code, removing to save memory
-        public Array<ShipModule> ExternalSlots = new Array<ShipModule>();
         private float JumpTimer = 3f;
         public Array<ProjectileTracker> ProjectilesFired = new Array<ProjectileTracker>();
         public AudioEmitter emitter = new AudioEmitter();
@@ -765,11 +763,6 @@ namespace Ship_Game.Gameplay
             return speed > 2500f ? 2500 : speed;
         }
 
-        public bool TryGetModule(Vector2 pos, out ShipModule module)
-        {
-            return ModulesDictionary.TryGetValue(pos, out module);
-        }
-
         public void TetherToPlanet(Planet p)
         {
             TetheredTo = p;
@@ -1011,7 +1004,7 @@ namespace Ship_Game.Gameplay
                 if (targetship.engineState == MoveState.Warp
                     || targetship.dying
                     || !targetship.Active
-                    || targetship.ExternalSlots.Count <= 0
+                    || targetship.NumExternalSlots <= 0
                     || !w.TargetValid(targetship.shipData.Role)
 
                     )
@@ -1610,7 +1603,7 @@ namespace Ship_Game.Gameplay
                 Empire.Universe.ShipsToAdd.Add(this);
 
             SetSystem(System);
-            FillExternalSlots();
+            InitExternalSlots();
 
             base.Initialize();
             foreach (ShipModule m in ModuleSlotList)
@@ -1669,7 +1662,7 @@ namespace Ship_Game.Gameplay
             if (AI == null)
                 InitializeAI();
             AI.CombatState = template.shipData.CombatState;
-            FillExternalSlots();
+            InitExternalSlots();
             //this.hyperspace = (Cue)null;   //Removed to save space, because this is set to null in ship initilizers, and never reassigned. -Gretman
             base.Initialize();
             foreach (ShipModule module in ModuleSlotList)
@@ -2828,14 +2821,21 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public Array<ShipModule> GetShields()
-        {
-            return Shields;
-        }
-
         public Array<ShipModule> GetHangars()
         {
             return Hangars;
+        }
+
+        public void DamageShieldInvisible(Ship damageSource, float damageAmount)
+        {
+            for (int i = 0; i < Shields.Count; ++i)
+            {
+                ShipModule shield = Shields[i];
+                if (!shield.Active || shield.ShieldPower <= 0f)
+                    continue;
+                shield.Damage(damageSource, damageAmount);
+                return;
+            }
         }
 
         public Array<ShipModule> GetTroopHangars()
@@ -3403,7 +3403,7 @@ namespace Ship_Game.Gameplay
                     }
                     //Checks to see if there is an active command module
 
-                    if (slot.Active && (slot.Powered || slot.PowerDraw == 0))
+                    if (slot.Active && (slot.Powered || slot.PowerDraw <= 0f))
                     {
                         if (!hasCommand && slot.IsCommandModule)
                             hasCommand = true;
@@ -3736,17 +3736,18 @@ namespace Ship_Game.Gameplay
             {
                 EmpireManager.Empires[index].GetGSAI().ThreatMatrix.RemovePin(this);                 
             }
+
+            ModuleSlotList     = Empty<ShipModule>.Array;
+            SparseModuleGrid   = Empty<ShipModule>.Array;
+            ExternalModuleGrid = Empty<ShipModule>.Array;
+            NumExternalSlots   = 0;
+
             BorderCheck.Clear();
-            ModuleSlotList = Empty<ShipModule>.Array;
-            ExternalSlots.Clear();
-            ModulesDictionary.Clear();
             ThrusterList.Clear();
             AI.PotentialTargets.Clear();
             AttackerTargetting.Clear();
             Velocity = Vector2.Zero;
             velocityMaximum = 0.0f;
-            //this.AfterBurnerAmount = 0.0f;    //Not referenced in code, removing to save memory
-
 
             if (Active)
             {
@@ -3801,8 +3802,6 @@ namespace Ship_Game.Gameplay
             AI.TargetShip     = null;
             AI.ColonizeTarget = null;
             AI.EscortTarget   = null;
-            ExternalSlots.Clear();
-     
             AI.start = null;
             AI.end   = null;
             AI.PotentialTargets.Clear();
@@ -3818,10 +3817,8 @@ namespace Ship_Game.Gameplay
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Hangars)
-                {
                     if (shipModule.GetHangarShip() == this)
                         shipModule.SetHangarShip(null);
-                }
             }
             foreach (ShipModule hanger in Hangars)
             {
@@ -3837,11 +3834,14 @@ namespace Ship_Game.Gameplay
                 projectile.Die(this, false);
             projectiles.Clear();
 
+            ModuleSlotList     = Empty<ShipModule>.Array;
+            SparseModuleGrid   = Empty<ShipModule>.Array;
+            ExternalModuleGrid = Empty<ShipModule>.Array;
+            NumExternalSlots   = 0;
+
             Shields.Clear();
             Hangars.Clear();
             BombBays.Clear();
-
-            ModuleSlotList = Empty<ShipModule>.Array;
             TroopList.Clear();
             RemoveFromAllFleets();
             ShipSO.Clear();
@@ -3853,10 +3853,7 @@ namespace Ship_Game.Gameplay
             TetheredTo = null;
             Transporters.Clear();
             RepairBeams.Clear();
-            ModulesDictionary.Clear();
             ProjectilesFired.Clear();
-
-
         }
 
         public void RemoveFromAllFleets()
@@ -3900,90 +3897,6 @@ namespace Ship_Game.Gameplay
             projectiles      = null;
             beams            = null;
             ProjectilesFired = null;
-        }
-
-        public static ShipModule ClosestModuleSlot(Array<ShipModule> slots, Vector2 center, float maxRange=999999f)
-        {
-            float nearest = maxRange*maxRange;
-            ShipModule closestModule = null;
-            foreach (ShipModule slot in slots)
-            {
-                if (!slot.Active || slot.quadrant < 1 || slot.Health <= 0f)
-                    continue;
-
-                float sqDist = center.SqDist(slot.Center);
-                if (!(sqDist < nearest) && closestModule != null)
-                    continue;
-                nearest       = sqDist;
-                closestModule = slot;
-            }
-            return closestModule;
-        }
-
-        public Array<ShipModule> FilterSlotsInDamageRange(ShipModule[] slots, ShipModule closestExtSlot)
-        {
-            Vector2 extSlotCenter = closestExtSlot.Center;
-            int quadrant          = closestExtSlot.quadrant;
-            float sqDamageRadius  = Center.SqDist(extSlotCenter);
-
-            var filtered = new Array<ShipModule>();
-            for (int i = 0; i < slots.Length; ++i)
-            {
-                ShipModule module = slots[i];
-                if (!module.Active || module.Health <= 0f || 
-                    (module.quadrant != quadrant && module.isExternal))
-                    continue;
-                if (module.Center.SqDist(extSlotCenter) < sqDamageRadius)
-                    filtered.Add(module);
-            }
-            return filtered;
-        }
-
-        // Refactor by RedFox: Picks a random internal module to target and updates targetting list if needed
-        private ShipModule TargetRandomInternalModule(ref Array<ShipModule> inAttackerTargetting, 
-                                                      Vector2 center, int level, float weaponRange=999999f)
-        {
-            ShipModule closestExtSlot = ClosestModuleSlot(ExternalSlots, center, weaponRange);
-
-            if (closestExtSlot == null) // ship might be destroyed, no point in targeting it
-            {
-                return ExternalSlots.Count == 0 ? null : ExternalSlots[0];
-            }
-
-            if (inAttackerTargetting == null || !inAttackerTargetting.Contains(closestExtSlot))
-            {
-                inAttackerTargetting = FilterSlotsInDamageRange(ModuleSlotList, closestExtSlot);
-                if (level > 1)
-                {
-                    // Sort Descending, so first element is the module with greatest TargettingValue
-                    inAttackerTargetting.Sort((sa, sb) => sb.ModuleTargettingValue 
-                                                        - sa.ModuleTargettingValue);
-                }
-            }
-
-            if (inAttackerTargetting.Count == 0)
-                return ExternalSlots.Count == 0 ? null : ExternalSlots[0];
-
-            if (inAttackerTargetting.Count == 0)
-                return null;
-            // higher levels lower the limit, which causes a better random pick
-            int limit = inAttackerTargetting.Count / (level + 1);
-            return inAttackerTargetting[RandomMath.InRange(limit)];
-        }
-
-        public ShipModule GetRandomInternalModule(Weapon source)
-        {
-            float searchRange = source.Range + 100;
-            Vector2 center    = source.Owner?.Center ?? source.Center;
-            int level         = source.Owner?.Level ?? 0;
-            return TargetRandomInternalModule(ref source.AttackerTargetting, center, level, searchRange);
-        }
-
-        public ShipModule GetRandomInternalModule(Projectile source)
-        {
-            Vector2 center = source.Owner?.Center ?? source.Center;
-            int level      = source.Owner?.Level ?? 0;
-            return TargetRandomInternalModule(ref source.Weapon.AttackerTargetting, center, level);
         }
 
         public void UpdateShields()
