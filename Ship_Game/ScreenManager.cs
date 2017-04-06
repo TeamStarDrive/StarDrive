@@ -200,6 +200,17 @@ namespace Ship_Game
 			if (TraceEnabled)
 				TraceScreens();
 		}
+	    public bool UpdateExitTimeer(bool stopFurtherInput)
+	    {
+	        if (!stopFurtherInput)
+	        {
+	            exitScreenTimer -= .0016f;
+	            if (exitScreenTimer > 0f)
+	                return true;
+	        }
+	        else exitScreenTimer = .025f;
+	        return false;
+	    }
         public void Dispose()
         {
             Dispose(true);
