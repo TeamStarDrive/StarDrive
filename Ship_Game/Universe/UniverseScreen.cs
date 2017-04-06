@@ -211,7 +211,7 @@ namespace Ship_Game
         public DeepSpaceBuildingWindow dsbw;
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
-        public InputState input;
+        public InputState Input;
         private float Memory;
         public bool Paused;
         public bool SkipRightOnce;
@@ -2769,6 +2769,8 @@ namespace Ship_Game
         }
         public override void HandleInput(InputState input)
         {
+            this.Input = input;
+
             if (input.PauseGame && !GlobalStats.TakingInput) Paused = !Paused;
             if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet)) return; //if planet screen is still exiting prevent further input
 
@@ -3231,7 +3233,7 @@ namespace Ship_Game
         {
             foreach (ClickablePlanets clickablePlanets in ClickPlanetList)
             {
-                if (input.CursorPosition.InRadius(clickablePlanets.ScreenPos, clickablePlanets.Radius + 10.0f))
+                if (Input.CursorPosition.InRadius(clickablePlanets.ScreenPos, clickablePlanets.Radius + 10.0f))
                     return clickablePlanets.planetToClick;
             }
             return null;
@@ -3783,7 +3785,7 @@ namespace Ship_Game
                 {
                     if (planet.Owner != null && planet.Owner == this.player && (!ship.HasTroopBay && !ship.hasTransporter))
                     {
-                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                        if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                             ship.AI.OrderToOrbit(planet, false);
                         else
                             ship.AI.OrderRebase(planet, true);
@@ -3791,7 +3793,7 @@ namespace Ship_Game
                     else if (planet.habitable && (planet.Owner == null || planet.Owner != player && (ship.loyalty.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)))
                     {
                         //add new right click troop and troop ship options on planets
-                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                        if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                             ship.AI.OrderToOrbit(planet, false);
                         else
                         {
@@ -3812,7 +3814,7 @@ namespace Ship_Game
                     {
                         if (planet.Owner == null || this.player.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
                         {
-                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                            if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 ship.AI.OrderBombardPlanet(planet);
                             else if (enemies > friendlies || planet.Population > 0f)
                                 ship.AI.OrderBombardPlanet(planet);
@@ -3828,14 +3830,14 @@ namespace Ship_Game
 
 
                     }
-                    else if (enemies > friendlies && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                    else if (enemies > friendlies && Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                     {
                         ship.AI.OrderBombardPlanet(planet);
                     }
                     else
                         ship.AI.OrderToOrbit(planet, true);
                 }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                else if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                     ship.AI.OrderToOrbit(planet, false);
                 else
                     ship.AI.OrderToOrbit(planet, true);
