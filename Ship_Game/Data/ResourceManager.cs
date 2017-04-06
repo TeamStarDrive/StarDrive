@@ -531,6 +531,10 @@ namespace Ship_Game
         {
             return TextureDict[texturePath];
         }
+        public static Texture2D ProjTexture(string texturePath)
+        {
+            return ProjTextDict[texturePath];
+        }
 
         private static void LoadTexture(FileInfo info)
         {
