@@ -48,7 +48,7 @@ namespace Ship_Game
 
 			if (TextLast != Text)
 			{
-				TipTimer = 50;
+				TipTimer = 30;
 				TextLast = Text;
 			}
 			Rect = tipRect;
@@ -87,7 +87,7 @@ namespace Ship_Game
 			Hotkey = "";
 			if (which != LastWhich)
 			{
-				TipTimer = 50;
+				TipTimer = 30;
 				LastWhich = which;
 			}
 
@@ -116,7 +116,7 @@ namespace Ship_Game
 			Hotkey = hotKey;
 			if (which != LastWhich)
 			{
-				TipTimer = 50;
+				TipTimer = 30;
 				LastWhich = which;
 			}
 			string txt = Localizer.Token(ResourceManager.GetToolTip(which).Data);
@@ -172,7 +172,7 @@ namespace Ship_Game
 			}
 			if (Text == null)
 			{
-				TipTimer = 50;
+				TipTimer = 30;
 			}
 			Text = null;
 		}

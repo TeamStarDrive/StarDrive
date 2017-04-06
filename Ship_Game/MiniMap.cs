@@ -88,9 +88,9 @@ namespace Ship_Game
                     Primitives2D.FillRectangle(screenManager.SpriteBatch, star, system.OwnerList.ToList()[0].EmpireColor);
 				}
 			}
-			Vector2 upperLeftView = screen.GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
+			Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
 			upperLeftView = new Vector2((float)HelperFunctions.RoundTo(upperLeftView.X, 20000), (float)HelperFunctions.RoundTo(upperLeftView.Y, 20000));
-			Vector2 right = screen.GetWorldSpaceFromScreenSpace(new Vector2((float)screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
+			Vector2 right = screen.UnprojectToWorldPosition(new Vector2((float)screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
 			right = new Vector2((float)HelperFunctions.RoundTo(right.X, 20000), 0f);
 			float xdist = (right.X - upperLeftView.X) * scale;
 			xdist = (float)HelperFunctions.RoundTo(xdist, 1);
