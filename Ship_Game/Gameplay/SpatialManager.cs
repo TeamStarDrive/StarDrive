@@ -381,8 +381,8 @@ namespace Ship_Game.Gameplay
 
             int minX = (int)((posX - radius) / cellSize);
             int maxX = (int)((posX + radius) / cellSize);
-            int minY = (int)((posY - radius) / cellSize) * width;
-            int maxY = (int)((posY + radius) / cellSize) * width;
+            int minY = (int)((posY - radius) / cellSize);
+            int maxY = (int)((posY + radius) / cellSize);
 
             // Luckily .NET can successfully optimize these to Min/Max
             if (minX < 0) minX = 0; else if (minX >= width)  minX = width - 1;
