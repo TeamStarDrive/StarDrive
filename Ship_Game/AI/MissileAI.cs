@@ -36,64 +36,54 @@ namespace Ship_Game.AI
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
         {
-            if (this.Owner.Owner != null && this.Owner.Owner.Active && !this.Owner.Owner.dying)
+            Ship owningShip = Owner.Owner;
+            if (owningShip != null && owningShip.Active && !owningShip.dying)
             {
-                GameplayObject sourceTarget = this.Owner.Owner.AI.Target;
-                Relationship relTarget = null;
-   
-                Ship sourceTargetShip = sourceTarget as Ship;
-                if (this.Owner.Owner != null && sourceTargetShip != null)
+                if (owningShip.AI.Target is Ship targetShip)
                 {
-                    this.Owner.Loyalty.TryGetRelations(sourceTargetShip.loyalty, out relTarget);
+                    if (targetShip.Active && targetShip.loyalty != Owner.Loyalty && 
+                        (!Owner.Loyalty.TryGetRelations(targetShip.loyalty, out Relationship targetRelations) 
+                         || !targetRelations.Known || !targetRelations.Treaty_NAPact))
+                    {
+                        SetTarget(targetShip.GetRandomInternalModule(Owner));
+                        return;
+                    }
                 }
-                if (sourceTarget != null && sourceTarget.Active
-                    && sourceTargetShip.loyalty != this.Owner.Loyalty && (relTarget == null || !relTarget.Known || !relTarget.Treaty_NAPact))
-                {
-                    this.SetTarget(sourceTargetShip.GetRandomInternalModule(this.Owner));
-                    return;
-                }
+
                 foreach (Ship ship in TargetList)
                 {
                     if (!ship.Active || ship.dying || ship.engineState == Ship.MoveState.Warp)
                         continue;
-                    this.SetTarget(ship
-                    .GetRandomInternalModule(this.Owner));
+                    SetTarget(ship.GetRandomInternalModule(Owner));
                     return;
                 }                
             }
-            if (TargetList.Count > 0)
-            {
-                Empire owner = null;
-                if(this.Owner.Owner != null)
-                owner = this.Owner.Owner.loyalty;
-                if(owner == null)
-                    owner = this.Owner.Planet.Owner;
-                if(owner == null)
-                    return;
-                
-                Relationship relTarget = null;
-                float distance = 1000000;
-                float currentd = 0;
-                Ship test1 = null;
-                foreach (Ship sourceTargetShip in this.TargetList)
-                {
-                    if (!sourceTargetShip.Active || sourceTargetShip.dying )
-                        continue;
-                    
-                    this.Owner.Loyalty.TryGetRelations(owner, out relTarget);
-                    
-                    currentd = Vector2.Distance(this.Owner.Center, sourceTargetShip.Center) ;
-                    if ((relTarget != null && relTarget.Treaty_NAPact) || currentd > distance)
-                        continue;
-                    distance = currentd;
-                    test1 = sourceTargetShip;                    
-                }
 
-                if (test1 != null)
-                {
-                    if (distance < 30000)
-                        this.SetTarget(test1.GetRandomInternalModule(this.Owner));
-                }
+            if (TargetList.Count <= 0)
+                return;
+
+            Empire owner = owningShip?.loyalty ?? Owner.Planet.Owner;
+            if (owner == null)
+                return;
+
+            float bestSqDist = float.MaxValue;
+            Ship bestTarget = null;
+            foreach (Ship sourceTargetShip in TargetList)
+            {
+                if (!sourceTargetShip.Active || sourceTargetShip.dying )
+                    continue;
+
+                float sqDist = Owner.Center.SqDist(sourceTargetShip.Center);
+                if (sqDist > bestSqDist && 
+                    Owner.Loyalty.TryGetRelations(owner, out Relationship relTarget) && relTarget.Treaty_NAPact)
+                    continue;
+                bestSqDist = sqDist;
+                bestTarget = sourceTargetShip;                    
+            }
+
+            if (bestTarget != null && bestSqDist < 30000 * 30000)
+            {
+                SetTarget(bestTarget.GetRandomInternalModule(Owner));
             }
         }
 
