@@ -235,6 +235,7 @@ namespace Ship_Game.Gameplay
             }
             SetSystem(null);
             base.Die(source, cleanupOnly);
+            Owner = null;
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
