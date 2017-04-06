@@ -147,7 +147,7 @@ namespace Ship_Game
         public void DrawRectangle(Rectangle rectangle, Color edgeColor, Color fillColor)
         {            
             Primitives2D.FillRectangle(ScreenManager.SpriteBatch, rectangle, fillColor);
-            DrawRectangle(rectangle, edgeColor);            
+            DrawRectangle(rectangle, edgeColor);               
         }
 
         //Just draws a given rectangle
@@ -202,6 +202,11 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, posOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
         }
 
+        protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
+        {
+            DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
+            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+        }
 
         public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool LightingEnabled = false)
         {
