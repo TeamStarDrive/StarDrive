@@ -1657,7 +1657,7 @@ namespace Ship_Game.AI
                 return;
             }
             w.timeToNextFire = w.fireDelay;
-            if (targetShip.ExternalSlots.IsEmpty)
+            if (targetShip.NumExternalSlots == 0)
             {
                 targetShip.Die(null, true);
                 return;
@@ -1670,16 +1670,7 @@ namespace Ship_Game.AI
 
             if (targetShip.shield_power > 0f)
             {
-                Array<ShipModule> shields = targetShip.GetShields();
-                for (int i = 0; i < shields.Count; ++i)
-                {
-                    ShipModule shield = shields[i];
-                    if (shield.Active && shield.ShieldPower > 0f)
-                    {
-                        shield.Damage(Owner, w.InvisibleDamageAmount);
-                        return;
-                    }
-                }
+                targetShip.DamageShieldInvisible(Owner, w.InvisibleDamageAmount);
                 return;
             }
 
