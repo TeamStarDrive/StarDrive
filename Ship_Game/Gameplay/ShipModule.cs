@@ -311,6 +311,8 @@ namespace Ship_Game.Gameplay
         // HitTest uses the World scene POSITION. Not module XML location
         public bool HitTest(Vector2 point, float radius, bool ignoreShields = false)
         {
+            ++GlobalStats.DistanceCheckTotal;
+
             float r2 = radius + Radius;
             float dx = Center.X - point.X;
             float dy = Center.Y - point.Y;
