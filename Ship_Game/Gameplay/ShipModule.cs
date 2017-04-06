@@ -592,7 +592,7 @@ namespace Ship_Game.Gameplay
             if (shield_power_max > 0f)
                 Health = 0f;
 
-            SetNewExternals();
+            Parent.UpdateExternalSlots(this, becameActive: false);
             Health = 0f;
             var center = new Vector3(Center.X, Center.Y, -100f);
 
@@ -888,36 +888,6 @@ namespace Ship_Game.Gameplay
                 HangarShipGuid = ship.guid;  //fbedard: save mothership
         }
 
-        private void AddExternalModule(ShipModule module, int moduleQuadrant)
-        {
-            module.isExternal = true;
-            module.quadrant   = moduleQuadrant;
-            Parent.ExternalSlots.Add(module);
-        }
-
-        public void SetNewExternals()
-        {
-            quadrant = -1;
-
-            Vector2 pos = XMLPosition;
-            if (Parent.TryGetModule(new Vector2(pos.X, pos.Y - 16f), out ShipModule module) && module.Active && !module.isExternal)
-            {
-                AddExternalModule(module, 1);
-            }
-            else if (Parent.TryGetModule(new Vector2(pos.X + 16f, pos.Y), out module) && module.Active && !module.isExternal)
-            {
-                AddExternalModule(module, 2);
-            }
-            else if (Parent.TryGetModule(new Vector2(pos.X, pos.Y + 16f), out module) && module.Active && !module.isExternal)
-            {
-                AddExternalModule(module, 3);
-            }
-            else if (Parent.TryGetModule(new Vector2(pos.X - 16f, pos.Y), out module) && module.Active && !module.isExternal)
-            {
-                AddExternalModule(module, 4);
-            }
-        }
-
         public void SetParent(Ship p)
         {
             Parent = p;
@@ -928,7 +898,7 @@ namespace Ship_Game.Gameplay
             if (Health > 0f && !Active)
             {
                 Active = true;
-                SetNewExternals();
+                Parent.UpdateExternalSlots(this, becameActive: true);
                 Parent.RecalculatePower();
             }
             else if (shield_power_max > 0f && !isExternal && Active)
@@ -1082,6 +1052,6 @@ namespace Ship_Game.Gameplay
 
         }
 
-        public override string ToString() => $"{UID}  {Position}  World={Center}";
+        public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}";
     }
 }
