@@ -3061,7 +3061,8 @@ namespace Ship_Game
             int fixedtargets          = 0;
             float TotalECM            = 0f;
 
-            var bonus = ResourceManager.HullBonuses[ActiveHull.Hull];
+            // bonuses are only available in mods
+            ResourceManager.HullBonuses.TryGetValue(ActiveHull.Hull, out HullBonus bonus);
 
             foreach (SlotStruct slot in this.Slots)
             {
@@ -3120,7 +3121,7 @@ namespace Ship_Game
                     TurnThrust = TurnThrust + slot.module.TurnThrust;
 
                     RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * 
-                        EmpireManager.Player.data.Traits.RepairMod) * (1f + bonus.RepairBonus));
+                        EmpireManager.Player.data.Traits.RepairMod) * (1f + bonus?.RepairBonus??0));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
                     {
@@ -3171,7 +3172,7 @@ namespace Ship_Game
             float Speed = 0f;
             float WarpSpeed = WarpThrust / (Mass + 0.1f);
             //Added by McShooterz: hull bonus speed
-            WarpSpeed = WarpSpeed * EmpireManager.Player.data.FTLModifier * (1f + bonus.SpeedBonus);
+            WarpSpeed *= EmpireManager.Player.data.FTLModifier * (1f + bonus?.SpeedBonus??0);
             float single = WarpSpeed / 1000f;
             string WarpString = string.Concat(single.ToString("#.0"), "k");
             float Turn = 0f;
@@ -3184,8 +3185,8 @@ namespace Ship_Game
             AfterSpeed = AfterSpeed * EmpireManager.Player.data.SubLightModifier;
             Turn = (float)MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
-            //Added by McShooterz: Draw Hull Bonuses
-            if (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull))
+            
+            if (bonus != null) //Added by McShooterz: Draw Hull Bonuses
             {
                Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 145, HullSelectionRect.Y + 31);
                if (bonus.ArmoredBonus  != 0 || bonus.ShieldBonus != 0 || bonus.SensorBonus != 0 ||
@@ -3242,8 +3243,8 @@ namespace Ship_Game
                 }
             }
             //Added by McShooterz: hull bonus starting cost
-            this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? bonus.StartingCost : 0)) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f - bonus.CostBonus : 1)), 99);
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            DrawStat60(ref Cursor, Localizer.Token(109)+":", ((int)Cost + (bonus?.StartingCost ?? 0)) * (1f - bonus?.CostBonus ?? 0), 99);
+            Cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
