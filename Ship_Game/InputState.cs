@@ -152,6 +152,7 @@ namespace Ship_Game
 
 		public bool Land => IsNewKeyPress(Keys.L);
 
+	    public bool RepeatingKeyCheck(Keys key)  => CurrentKeyboardState.IsKeyDown(key);
 	    
 		public bool LeftShoulderDown
 		{
