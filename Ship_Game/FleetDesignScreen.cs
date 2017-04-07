@@ -156,12 +156,15 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
 		}
 
-		public FleetDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI) : base(parent)
+		public FleetDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI, string audioCue ="") : base(parent)
 		{
-			this.fleet = new Fleet();
+		    if (!string.IsNullOrEmpty(audioCue))
+		        AudioManager.PlayCue(audioCue);
+            this.fleet = new Fleet();
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
             EmpireUI.empire.UpdateShipsWeCanBuild();
+            Open = true;
 		}
 
 		private void AdjustCamera()

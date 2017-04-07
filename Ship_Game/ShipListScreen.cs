@@ -79,9 +79,11 @@ namespace Ship_Game
 
         private int CurrentLine;
 
-		public ShipListScreen(GameScreen parent, EmpireUIOverlay empUI) : base(parent)
+		public ShipListScreen(GameScreen parent, EmpireUIOverlay empUI, string audioCue = "") : base(parent)
 		{
-			this.empUI = empUI;
+		    if (!string.IsNullOrEmpty(audioCue))
+		        AudioManager.PlayCue(audioCue);
+            this.empUI = empUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			base.IsPopup = true;
