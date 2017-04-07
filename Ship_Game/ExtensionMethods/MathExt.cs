@@ -412,6 +412,15 @@ namespace Ship_Game
             return Vector2.Dot(Vector2.Normalize(facingTo), right) > 0f ? 1f : -1f;
         }
 
+        // takes self and rotates it around the center pivot by some radians
+        public static Vector2 RotateAroundPoint(this Vector2 self, Vector2 center, float radians)
+        {
+            float s = (float)Sin(radians);
+            float c = (float)Cos(radians);
+            return new Vector2(c * (self.X - center.X) - s * (self.Y - center.Y) + center.X,
+                               s * (self.X - center.X) + c * (self.Y - center.Y) + center.Y);
+        }
+
         // Creates a 3D Forward vector from XYZ RADIANS rotation
         // X = Yaw;  Y = Pitch;  Z = Roll
         public static Vector3 RadiansToForward(this Vector3 radians)
