@@ -65,40 +65,42 @@ namespace Ship_Game
 
 		//private bool AutoButtonHover;
 
-		public PlanetListScreen(GameScreen parent, EmpireUIOverlay empUI)
+		public PlanetListScreen(GameScreen parent, EmpireUIOverlay empUI, string audioCue = "")
             : base(parent)
 		{
-			this.empUI = empUI;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-			base.IsPopup = true;
-			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+            if(!string.IsNullOrEmpty(audioCue))
+                AudioManager.PlayCue(audioCue);
+            empUI = empUI;
+			TransitionOnTime = TimeSpan.FromSeconds(0.25);
+			TransitionOffTime = TimeSpan.FromSeconds(0.25);
+			IsPopup = true;
+			if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
-				//this.LowRes = true;
+				//LowRes = true;
 			}
 			Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
-			this.TitleBar = new Menu2(ScreenManager, titleRect);
-			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-			this.leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
-			this.EMenu = new Menu2(ScreenManager, this.leftRect);
-			this.close = new CloseButton(new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
-			this.eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
-            this.sb_Sys = new SortButton(this.empUI.empire.data.PLSort, Localizer.Token(192));
-			this.sb_Name = new SortButton(this.empUI.empire.data.PLSort, Localizer.Token(389));
-			this.sb_Fert = new SortButton(this.empUI.empire.data.PLSort,Localizer.Token(386) );
-			this.sb_Rich = new SortButton(this.empUI.empire.data.PLSort,Localizer.Token(387));
-			this.sb_Pop = new SortButton(this.empUI.empire.data.PLSort,Localizer.Token(1403));
-			this.sb_Owned = new SortButton(this.empUI.empire.data.PLSort, "Owner");
+			TitleBar = new Menu2(ScreenManager, titleRect);
+			TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+			leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
+			EMenu = new Menu2(ScreenManager, leftRect);
+			close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+			eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
+            sb_Sys = new SortButton(empUI.empire.data.PLSort, Localizer.Token(192));
+			sb_Name = new SortButton(empUI.empire.data.PLSort, Localizer.Token(389));
+			sb_Fert = new SortButton(empUI.empire.data.PLSort,Localizer.Token(386) );
+			sb_Rich = new SortButton(empUI.empire.data.PLSort,Localizer.Token(387));
+			sb_Pop = new SortButton(empUI.empire.data.PLSort,Localizer.Token(1403));
+			sb_Owned = new SortButton(empUI.empire.data.PLSort, "Owner");
             
 
-			while (this.eRect.Height % 40 != 0)
+			while (eRect.Height % 40 != 0)
 			{
-				this.eRect.Height = this.eRect.Height - 1;
+				eRect.Height = eRect.Height - 1;
 			}
-			this.eRect.Height = this.eRect.Height - 20;
-			this.ShipSubMenu = new Submenu(ScreenManager, this.eRect);
-			this.PlanetSL = new ScrollList(this.ShipSubMenu, 40);
-           // this.LastSorted = this.empUI.empire.data.PLSort;
+			eRect.Height = eRect.Height - 20;
+			ShipSubMenu = new Submenu(ScreenManager, eRect);
+			PlanetSL = new ScrollList(ShipSubMenu, 40);
+           // LastSorted = empUI.empire.data.PLSort;
 
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.Player.GetWeightedCenter())))
             {
@@ -108,7 +110,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    this.planets.Add(p);
+                    planets.Add(p);
                 }
             }
 
