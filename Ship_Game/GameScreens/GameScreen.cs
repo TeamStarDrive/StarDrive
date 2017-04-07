@@ -136,23 +136,28 @@ namespace Ship_Game
         // just draws a line, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawLine(Vector2 screenPoint1, Vector2 screenPoint2, Color color, float thickness = 1f)
-            => Primitives2D.DrawLine(ScreenManager.SpriteBatch, screenPoint1, screenPoint2, color, thickness);
+            => ScreenManager.SpriteBatch.DrawLine(screenPoint1, screenPoint2, color, thickness);
 
         // just draws a circle, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircle(Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
-            => Primitives2D.DrawCircle(ScreenManager.SpriteBatch, posOnScreen, radius, sides, color, thickness);
+            => ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, sides, color, thickness);
 
         //Just draws a given rectangle with a color fill
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawRectangle(Rectangle rectangle, Color edgeColor, Color fillColor)
-        {            
-            Primitives2D.FillRectangle(ScreenManager.SpriteBatch, rectangle, fillColor);
+        {
+            ScreenManager.SpriteBatch.FillRectangle(rectangle, fillColor);
             DrawRectangle(rectangle, edgeColor);               
         }
 
         //Just draws a given rectangle
         public void DrawRectangle(Rectangle rectangle, Color edgeColor)
-            => Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, rectangle, edgeColor);        
+            => ScreenManager.SpriteBatch.DrawRectangle(rectangle, edgeColor);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawRectangle(Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)
+            => ScreenManager.SpriteBatch.DrawRectangle(center, size, rotation, color, thickness);
 
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -166,8 +171,11 @@ namespace Ship_Game
             var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
             ScreenManager.SpriteBatch.Draw(texture, rect, null, color, rotation, texture.Center(), SpriteEffects.None, 1f);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureRect(Texture2D texture, Vector2 posOnScreen, Color color, float rotation = 0f)
             => DrawTextureRect(texture, posOnScreen, color, rotation, Vector2.Zero);
+
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture top left.
         public void DrawTextureRect(Texture2D texture, Vector2 posOnScreen, Color color, float rotation , Vector2 origin )
         {

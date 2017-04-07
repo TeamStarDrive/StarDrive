@@ -5780,6 +5780,9 @@ namespace Ship_Game
                 if (ship.isPlayerShip() && slot.FieldOfFire > 0.0f && slot.InstalledWeapon != null)
                     DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
+
+            if (enableModuleDebug)
+                ship.DrawSparseModuleGrid(this);
         }
 
         private void DrawTacticalIcons(Ship ship)
@@ -5797,10 +5800,9 @@ namespace Ship_Game
             {
                 float worldRadius = ship.GetSO().WorldBoundingSphere.Radius;
                 ProjectToScreenCoords(ship.Position, worldRadius, out Vector2 screenPos, out float screenRadius);
-                if (screenRadius < 5.0f)
-                    screenRadius = 5f;
-                float scale = screenRadius / (45 - GlobalStats.IconSize);
-
+                if (screenRadius < 8.0f)
+                    screenRadius = 8f;
+                float scale = screenRadius / (32 - GlobalStats.IconSize);
 
                 bool flag = true;
                 foreach (ClickableFleet clickableFleet in ClickableFleetsList)
