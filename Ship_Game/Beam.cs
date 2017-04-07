@@ -166,7 +166,6 @@ namespace Ship_Game
             if (Owner != null)
             {
                 Owner.RemoveBeam(this);
-                SetSystem(Owner.System);
             }
             else if (Weapon.drowner != null)
             {
@@ -174,6 +173,7 @@ namespace Ship_Game
                 SetSystem(Weapon.drowner.System);
             }
             Weapon.ResetToggleSound();
+            base.Die(source, cleanupOnly);
         }
 
         public void Draw(ScreenManager screenMgr)
