@@ -50,7 +50,6 @@ namespace Ship_Game
         private Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
         private Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
-        private float PieMenuDelay = 1f;
         private Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
         public Background bg            = new Background();
@@ -250,10 +249,6 @@ namespace Ship_Game
         public int reducer          = 1;
         public float screenDelay    = 0f;
 
-        public UniverseScreen() : base(null)
-        {
-        }
-
         public UniverseScreen(UniverseData data) : base(null)
         {
             Size                        = data.Size;
@@ -265,8 +260,8 @@ namespace Ship_Game
             playerShip                  = data.playerShip;
             PlayerEmpire                = playerShip.loyalty;
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
-            playerShip.loyalty.isPlayer = true;
             ShipToView                  = playerShip;
+            PlayerEmpire.isPlayer       = true;
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
@@ -279,18 +274,11 @@ namespace Ship_Game
             MasterShipList        = data.MasterShipList;
             loadFogPath           = data.loadFogPath;
             playerShip            = data.playerShip;
-            PlayerLoyalty         = loyalty;
             PlayerEmpire          = EmpireManager.GetEmpireByName(loyalty);
-            PlayerEmpire.isPlayer = true;
+            PlayerLoyalty         = loyalty;
             ShipToView            = playerShip;
+            PlayerEmpire.isPlayer = true;
             loading               = true;
-        
-        }
-
-        public UniverseScreen(int numsys, float size) : base(null)
-        {
-            Size.X = size;
-            Size.Y = size;
         }
 
         public void SetLighting(bool real)
@@ -329,7 +317,7 @@ namespace Ship_Game
             light.AddTo(this);
         }
 
-        private virtual void LoadMenu()
+        private void LoadMenu()
         {
             var viewPlanetIcon = ResourceManager.TextureDict["UI/viewPlanetIcon"];
             pieMenu    = new PieMenu();
@@ -6722,7 +6710,7 @@ namespace Ship_Game
         {
             if (LookingAtPlanet || viewState > UnivScreenState.SectorView || viewState < UnivScreenState.ShipView)
                 return;
-            Vector2 mousePos              = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
+            Vector2 mousePos              = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
             Texture2D planetNamePointer   = ResourceManager.Texture("UI/planetNamePointer");
             Texture2D icon_fighting_small = ResourceManager.Texture("UI/icon_fighting_small");
             Texture2D icon_spy_small      = ResourceManager.Texture("UI/icon_spy_small");
@@ -6740,7 +6728,7 @@ namespace Ship_Game
                     if (!planet.IsExploredBy(player))
                         continue;
 
-                    Vector2 screenPosPlanet = this.ProjectToScreenPosition(planet.Position, 2500f);
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;
                     posOffSet.Y += 37f;
@@ -6752,18 +6740,18 @@ namespace Ship_Game
 
                     if (planet.RecentCombat)
                     {
-                        this.DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int) posOffSet.X,
+                        DrawTextureWithToolTip(icon_fighting_small, Color.White, 121, mousePos, (int) posOffSet.X,
                             (int) posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
-                    if (this.player.data.MoleList.Count > 0)
+                    if (player.data.MoleList.Count > 0)
                     {
-                        for (int i = 0; i < ((Array<Mole>) this.player.data.MoleList).Count; i++)
+                        for (int i = 0; i < player.data.MoleList.Count; i++)
                         {
-                            Mole mole = ((Array<Mole>) this.player.data.MoleList)[i];
+                            Mole mole = player.data.MoleList[i];
                             if (mole.PlanetGuid == planet.guid)
                             {
-                                posOffSet.X += (float) (18 * drawLocationOffset);
+                                posOffSet.X += (18 * drawLocationOffset);
                                 DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos,
                                     (int) posOffSet.X, (int) posOffSet.Y, 14, 14);
                                 ++drawLocationOffset;
@@ -6775,7 +6763,7 @@ namespace Ship_Game
                     {
                         Building building = planet.BuildingList[i];
                         if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
-                        posOffSet.X += (float) (18 * drawLocationOffset);
+                        posOffSet.X += (18 * drawLocationOffset);
                         string text = Localizer.Token(building.DescriptionIndex);
                         DrawTextureWithToolTip(icon_anomaly_small, Color.White, text, mousePos, (int) posOffSet.X,
                             (int) posOffSet.Y, 14, 14);
@@ -6784,8 +6772,8 @@ namespace Ship_Game
                     int troopCount = planet.CountEmpireTroops(player);
                     if (troopCount > 0)
                     {
-                        posOffSet.X += (float)(18 * drawLocationOffset);
-                        DrawTextureWithToolTip(icon_troop, Color.TransparentWhite, string.Format("Troops {0}",troopCount), mousePos,
+                        posOffSet.X += (18 * drawLocationOffset);
+                        DrawTextureWithToolTip(icon_troop, Color.TransparentWhite, $"Troops {troopCount}", mousePos,
                             (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
@@ -6806,140 +6794,15 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
         }
 
+        private void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex, float scale)
+            => DrawModelMesh(model, world, viewMat, new Vector3(1f, 1f, 1f), projMat, projTex);
 
-        // this does some magic to convert a game position/coordinate to a drawable screen position
-        private Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
-        {
-            //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
-            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
-        }
-
-        private void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
-        {
-            posOnScreen = ProjectToScreenPosition(posInWorld, zAxis);
-            sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y),zAxis).Distance(ref posOnScreen);
-        }
-
-        private void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
-        {
-            ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out posOnScreen, out sizeOnScreen);
-        }
-
-        private void ProjectToScreenCoords(Vector2 posInWorld, float widthInWorld, float heightInWorld, 
-                                       out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen)
-        {
-            posOnScreen    = ProjectToScreenPosition(posInWorld);
-            widthOnScreen  = ProjectToScreenPosition(new Vector2(posInWorld.X + widthInWorld,  posInWorld.Y)).Distance(ref posOnScreen);
-            heightOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + heightInWorld, posInWorld.Y)).Distance(ref posOnScreen);
-        }
-
-        private Vector2 ProjectToScreenSize(float widthInWorld, float heightInWorld)
-        {
-            return ProjectToScreenPosition(new Vector2(widthInWorld, heightInWorld));
-        }
-
-        private float ProjectToScreenSize(float sizeInWorld)
-        {
-            Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
-            return zero.Distance(ProjectToScreenPosition(new Vector2(sizeInWorld, 0f)));
-        }
-        public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
-        {
-            Vector3 position = ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(screenSpace, 0.0f), projection, view, Matrix.Identity);
-            Vector3 direction = ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(screenSpace, 1f), projection, view, Matrix.Identity) - position;
-            direction.Normalize();
-            var ray = new Ray(position, direction);
-            float num = -ray.Position.Z / ray.Direction.Z;
-            var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-            return new Vector2(vector3.X, vector3.Y);
-        }
-        // projects the line from World positions into Screen positions, then draws the line
-        public void DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, float zAxis = 0f)
-        {
-            DrawLine(ProjectToScreenPosition(startInWorld, zAxis), ProjectToScreenPosition(endInWorld, zAxis), color);
-        }
-
-        // non-projected draw to screen
-        public void DrawLinesToScreen(Vector2 posOnScreen, Array<string> lines)
-        {
-            foreach (string line in lines)
-            {
-                if (line.Length != 0)
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, line, posOnScreen, Color.White);
-                posOnScreen.Y += Fonts.Arial12Bold.LineSpacing + 2;
-            }
-        }
+        private void DrawTransparentModelAdditive(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
+            =>  DrawModelMesh(model, world, view, new Vector3(1f, 1f, 1f), projection, projTex, camHeight / 3500000);            
         
-        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
-        {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
-            DrawCircle(screenPos, screenRadius, sides, color, thickness);
-        }
-
-        public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, int sides = 16, float zAxis = 0f)
-        {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
-            DrawCircle(screenPos, screenRadius, sides, color);
-        }
-
-        // draws a projected circle, with an additional overlay texture
-        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor)
-        {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
-            float scale = screenRadius / overlay.Width;
-            DrawTexture(overlay, screenPos, scale, 0f, overlayColor);
-            DrawCircle(screenPos, screenRadius, sides, color, thickness);
-        }
-
-        public void DrawRectangleProjected(Rectangle rectangle, Color edge)
-        {
-            Vector2 rectTopLeft = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
-            Rectangle rect = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, (int)Math.Abs(rectTopLeft.X - rectBotRight.X), (int)Math.Abs(rectTopLeft.Y - rectBotRight.Y));
-            DrawRectangle(rect, edge);
-        }
-        public void DrawRectangleProjected(Rectangle rectangle, Color edge, Color fill)
-        {
-            Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
-            Rectangle rect       = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, 
-                                    (int)Math.Abs(rectTopLeft.X - rectBotRight.X), (int)Math.Abs(rectTopLeft.Y - rectBotRight.Y));
-            DrawRectangle(rect, edge, fill);            
-        }
-
-        public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, Color color)
-            => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, 0.0f, color);
-
-        public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
-            => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
-
-        public void DrawTextureWithToolTip(Texture2D texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
-        {
-            Rectangle rectangle = new Rectangle(rectangleX, rectangleY, width, height);
-            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
-            
-            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
-            {
-                ToolTip.CreateTooltip(tooltipID, ScreenManager);                
-            }
-        }
-        public void DrawTextureWithToolTip(Texture2D texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
-        {
-            Rectangle rectangle = new Rectangle(rectangleX, rectangleY, width, height);
-            ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
-
-            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
-            {
-                ToolTip.CreateTooltip(text, ScreenManager);
-            }
-        }
-        public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
-        {
-            Vector2 screenPos = ProjectToScreenPosition(posInWorld);
-            Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
-        }
-
+        public void DrawSunModel(Matrix world, Texture2D texture, float scale)        
+            => DrawTransparentModel(SunModel, world, view, projection, texture, scale);
+        
         private void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
@@ -6955,34 +6818,20 @@ namespace Ship_Game
             renderState.DepthBufferWriteEnable = true;
         }
 
-        private void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex, float scale)
-            => DrawModelMesh(model, world, viewMat, new Vector3(1f, 1f, 1f), projMat, projTex);
-
-        private void DrawTransparentModelAdditive(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
-            =>  DrawModelMesh(model, world, view, new Vector3(1f, 1f, 1f), projection, projTex, camHeight / 3500000);            
-        
-        public void DrawSunModel(Matrix world, Texture2D texture, float scale)        
-            => DrawTransparentModel(SunModel, world, view, projection, texture, scale);
-        
         private void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale, Vector3 Color)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.InverseSourceAlpha;
+            renderState.AlphaBlendEnable       = true;
+            renderState.AlphaBlendOperation    = BlendFunction.Add;
+            renderState.SourceBlend            = Blend.SourceAlpha;
+            renderState.DestinationBlend       = Blend.InverseSourceAlpha;
             renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
+            renderState.CullMode               = CullMode.None;
             DrawModelMesh(model, Matrix.CreateScale(50f) * Matrix.CreateScale(scale) * world, view, Color, projection, projTex);
 
             renderState.DepthBufferWriteEnable = true;
-        }
-
-        public static FileInfo[] GetFilesFromDirectory(string DirPath)
-        {
-            return new DirectoryInfo(DirPath).GetFiles("*.*", SearchOption.AllDirectories);
         }
 
         protected override void Dispose(bool disposing)
@@ -7061,7 +6910,7 @@ namespace Ship_Game
             ShipView   = 30000,
             SystemView = 250000,
             SectorView = 1775000,
-            GalaxyView  ,
+            GalaxyView,
         }
 
 
@@ -7128,8 +6977,6 @@ namespace Ship_Game
             Attack,
             Orbit,
         }
-
-        
-}
+    }
 }
 
