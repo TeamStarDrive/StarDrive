@@ -192,11 +192,20 @@ namespace Ship_Game.Gameplay
             return null; // aargghh ;(
         }
 
+        public Vector2 WorldToGridLocal(Vector2 worldPoint)
+        {
+            return (worldPoint - Center).RotateAroundPoint(Vector2.Zero, -Rotation);
+        }
+
+        public void DrawSparseModuleGrid(UniverseScreen screen)
+        {
+            
+        }
+
         // Generic shipmodule grid search with an optional predicate filter
         private ShipModule RadialSearch(Vector2 worldPos, float radius, bool ignoreShields, ShipModule[] grid, int width, int height)
         {
-            Vector2 localPoint = worldPos - Center;
-            localPoint = localPoint.RotateAroundPoint(Center, -Rotation);
+            Vector2 localPoint = WorldToGridLocal(worldPos);
 
             Vector2 center = localPoint - GridOrigin;
             int firstX = (int)((center.X - radius) / 16.0f);
