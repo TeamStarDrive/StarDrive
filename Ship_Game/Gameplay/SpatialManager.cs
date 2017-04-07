@@ -274,7 +274,7 @@ namespace Ship_Game.Gameplay
             int maxY = (int)((posY + radius) / cellSize);
 
             // Luckily .NET can successfully inline Min/Max
-            if (minX < 0) minX = 0; else if (minX >= width) minX = width - 1;
+            if (minX < 0) minX = 0; else if (minX >= width)  minX = width - 1;
             if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width - 1;
             if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
             if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
@@ -381,12 +381,12 @@ namespace Ship_Game.Gameplay
 
             int minX = (int)((posX - radius) / cellSize);
             int maxX = (int)((posX + radius) / cellSize);
-            int minY = (int)((posY - radius) / cellSize) * width;
-            int maxY = (int)((posY + radius) / cellSize) * width;
+            int minY = (int)((posY - radius) / cellSize);
+            int maxY = (int)((posY + radius) / cellSize);
 
-            // Luckily .NET can successfully inline Min/Max
-            if (minX < 0) minX = 0; else if (minX >= width) minX = width - 1;
-            if (maxX < 0) maxX = 0; else if (maxX >= width) maxX = width - 1;
+            // Luckily .NET can successfully optimize these to Min/Max
+            if (minX < 0) minX = 0; else if (minX >= width)  minX = width - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width - 1;
             if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
             if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
 
@@ -394,7 +394,6 @@ namespace Ship_Game.Gameplay
             PoolArrayU16** allBuckets = Buckets.Items;
             for (int y = minY; y <= maxY; ++y)
             {
-                PoolArrayU16** gridBucketPtr = &allBuckets[y * width];
                 for (int x = minX; x <= maxX; ++x)
                 {
                     PoolArrayU16** bucketRef = &allBuckets[y * width + x];
