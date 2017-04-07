@@ -199,7 +199,6 @@ namespace Ship_Game.Gameplay
 
         public void DrawSparseModuleGrid(UniverseScreen screen)
         {
-            
         }
 
         // Generic shipmodule grid search with an optional predicate filter
