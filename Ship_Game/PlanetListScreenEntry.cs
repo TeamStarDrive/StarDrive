@@ -286,7 +286,7 @@ namespace Ship_Game
             //if (i > 0 && this.planet.Owner == null)
             if (this.planet.Owner ==null && this.planet.habitable)  //fbedard: can send troop anywhere
             {
-                int troopsInvading = this.screen.empUI.empire.GetShips()
+                int troopsInvading = this.screen.EmpireUI.empire.GetShips()
                  .Where(troop => troop.TroopList.Count > 0)
                  .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
                 if (troopsInvading > 0)
@@ -308,7 +308,7 @@ namespace Ship_Game
             //fbedard : Add Send Button for your planets
             if (this.planet.Owner == Empire.Universe.player)
             {
-                int troopsInvading = this.screen.empUI.empire.GetShips()
+                int troopsInvading = this.screen.EmpireUI.empire.GetShips()
                  .Where(troop => troop.TroopList.Count > 0)
                  .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
                 if (troopsInvading > 0)
@@ -341,15 +341,15 @@ namespace Ship_Game
                 if (input.InGameSelect)
                 {
                     Array<Ship> troopShips;
-                    using (screen.empUI.empire.GetShips().AcquireReadLock())
+                    using (screen.EmpireUI.empire.GetShips().AcquireReadLock())
                     {
-                        troopShips = new Array<Ship>(this.screen.empUI.empire.GetShips()
+                        troopShips = new Array<Ship>(this.screen.EmpireUI.empire.GetShips()
                             .Where(troop => troop.TroopList.Count > 0
                                 && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
                                 && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Position)));
                     }
 
-                    var planetTroops = new Array<Planet>(screen.empUI.empire.GetPlanets()
+                    var planetTroops = new Array<Planet>(screen.EmpireUI.empire.GetPlanets()
                         .Where(troops => troops.TroopsHere.Count > 1)
                         .OrderBy(distance => Vector2.Distance(distance.Position, planet.Position))
                         .Where(p => p.Name != planet.Name));
