@@ -23,12 +23,12 @@ namespace Ship_Game
         public bool Repeat;
 
 
-	    public float RightMouseTimer = 0.35f;
-	    public bool RightMouseClick  => (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Released);
-	    public bool LeftMouseClick   => (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released);
-	    public bool BackMouseClick   => (CurrentMouseState.XButton1 == ButtonState.Pressed && LastMouseState.XButton1 == ButtonState.Released);
-	    public bool MiddleMouseClick => (CurrentMouseState.MiddleButton == ButtonState.Pressed && LastMouseState.MiddleButton == ButtonState.Released);
-        public bool LeftMouseRelease => CurrentMouseState.LeftButton == ButtonState.Released;
+	    public float RightMouseTimer  = 0.35f;
+	    public bool RightMouseClick   => (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Released);
+	    public bool LeftMouseClick    => (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released);
+	    public bool BackMouseClick    => (CurrentMouseState.XButton1 == ButtonState.Pressed && LastMouseState.XButton1 == ButtonState.Released);
+	    public bool MiddleMouseClick  => (CurrentMouseState.MiddleButton == ButtonState.Pressed && LastMouseState.MiddleButton == ButtonState.Released);
+        public bool LeftMouseRelease  => CurrentMouseState.LeftButton == ButtonState.Released;
         public Vector2 MouseScreenPos => new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
 
 
@@ -41,6 +41,8 @@ namespace Ship_Game
         public bool SpeedUp              => IsNewKeyPress(Keys.OemPlus) || IsNewKeyPress(Keys.Add);
 	    public bool SpeedDown            => IsNewKeyPress(Keys.OemMinus) || IsNewKeyPress(Keys.Subtract);
         public bool ScrapShip            => IsNewKeyPress(Keys.Back) || IsNewKeyPress(Keys.Delete);
+        public bool ZoomToShip           => IsNewKeyPress(Keys.PageUp);
+        public bool ZoomOut              => IsNewKeyPress(Keys.PageDown);
         //debug
         public bool DebugMode            => LeftCtrlShift && (IsNewKeyPress(Keys.OemTilde) || IsNewKeyPress(Keys.Tab));
         public bool GetMemory            => IsNewKeyPress(Keys.G);
@@ -52,11 +54,16 @@ namespace Ship_Game
         public bool ShipListScreen       => IsNewKeyPress(Keys.K);
 	    public bool FleetDesignScreen    => IsNewKeyPress(Keys.J);
 	    public bool AutomationWindow     => IsNewKeyPress(Keys.H);
-	    
+        public bool EmpireToggle         => RepeatingKeyCheck(Keys.LeftShift);
+        public bool SpawnShip            => IsNewKeyPress(Keys.C);
+	    public bool SpawnFleet1          => IsNewKeyPress(Keys.Z);
+	    public bool SpawnFleet2          => RepeatingKeyCheck(Keys.LeftControl) && IsNewKeyPress(Keys.Z);
+        public bool KillThis             => IsNewKeyPress(Keys.X);
+        public bool SpawnRemnantShip     => IsNewKeyPress(Keys.V);
         //Ingame controls
-        public bool PreviousTarget => BackMouseClick;
-        public bool ChaseCam       => MiddleMouseClick;
-        public bool TacticalIcons => IsNewKeyPress(Keys.LeftAlt);        
+        public bool PreviousTarget       => BackMouseClick;
+        public bool ChaseCam             => MiddleMouseClick;
+        public bool TacticalIcons        => IsNewKeyPress(Keys.LeftAlt);        
         //Ingame debug
        // public bool 
 
