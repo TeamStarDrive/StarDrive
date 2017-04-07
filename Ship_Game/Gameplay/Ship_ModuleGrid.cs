@@ -166,18 +166,19 @@ namespace Ship_Game.Gameplay
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
-        public ShipModule FindClosestExternalModule(Vector2 point)
+        public ShipModule FindClosestExternalModule(Vector2 worldPoint)
         {
             if (NumExternalSlots == 0)
                 return null;
-            return RadialSearch(point, 0f, false, ExternalModuleGrid, GridWidth, GridHeight);
+
+            return RadialSearch(worldPoint, 0f, false, ExternalModuleGrid, GridWidth, GridHeight);
         }
 
-        public ShipModule HitTestExternalModules(Vector2 hitPos, float hitRadius, bool ignoreShields = false)
+        public ShipModule HitTestExternalModules(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
             if (NumExternalSlots == 0)
                 return null;
-            return RadialSearch(hitPos, hitRadius, ignoreShields, ExternalModuleGrid, GridWidth, GridHeight);
+            return RadialSearch(worldHitPos, hitRadius, ignoreShields, ExternalModuleGrid, GridWidth, GridHeight);
         }
 
         public ShipModule FindUnshieldedExternalModule(int quadrant)
@@ -194,7 +195,10 @@ namespace Ship_Game.Gameplay
         // Generic shipmodule grid search with an optional predicate filter
         private ShipModule RadialSearch(Vector2 worldPos, float radius, bool ignoreShields, ShipModule[] grid, int width, int height)
         {
-            Vector2 center = worldPos - GridOrigin;
+            Vector2 localPoint = worldPos - Center;
+            localPoint = localPoint.RotateAroundPoint(Center, -Rotation);
+
+            Vector2 center = localPoint - GridOrigin;
             int firstX = (int)((center.X - radius) / 16.0f);
             int lastX  = (int)((center.X + radius) / 16.0f);
             int firstY = (int)((center.Y - radius) / 16.0f);
