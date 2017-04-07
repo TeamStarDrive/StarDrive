@@ -18,7 +18,7 @@ using Ship_Game.Debug;
 
 namespace Ship_Game
 {
-    public class UniverseScreen : GameScreen
+    public sealed partial class UniverseScreen : GameScreen
     {
         private readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
         private readonly PerfTimer Perfavg2          = new PerfTimer();
@@ -47,11 +47,11 @@ namespace Ship_Game
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
-        protected Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
+        private Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
-        protected Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
-        protected float PieMenuDelay = 1f;
-        protected Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
+        private Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
+        private float PieMenuDelay = 1f;
+        private Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
         public Background bg            = new Background();
         public Vector2 Size             = new Vector2(5000000f, 5000000f);
@@ -72,10 +72,10 @@ namespace Ship_Game
         public float camHeight = 2550f;
         public Vector3 camPos = Vector3.Zero;
         public Array<Ship> ShipsToAdd = new Array<Ship>();
-        protected float TooltipTimer = 0.5f;
-        protected float sTooltipTimer = 0.5f;
-        protected float TimerDelay = 0.25f;
-        protected GameTime zgameTime = new GameTime();
+        private float TooltipTimer = 0.5f;
+        private float sTooltipTimer = 0.5f;
+        private float TimerDelay = 0.25f;
+        private GameTime zgameTime = new GameTime();
         public Array<ShipModule> ModulesNeedingReset = new Array<ShipModule>();
         private bool TurnFlip = true;
         private int Auto = 1;
@@ -89,13 +89,13 @@ namespace Ship_Game
         private object thislock             = new object();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
-        protected float SectorMiniMapHeight = 20000f;
+        private float SectorMiniMapHeight = 20000f;
         public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
         private Array<FleetButton> FleetButtons = new Array<FleetButton>();
-        protected Vector2 startDrag;
+        private Vector2 startDrag;
         private Vector2 ProjectedPosition;
-        protected float desiredSectorZ = 20000f;
+        private float desiredSectorZ = 20000f;
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         private bool drawBloom = true;
         private Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
@@ -105,10 +105,10 @@ namespace Ship_Game
         public Planet SelectedPlanet;
         public Ship SelectedShip;
         public ClickableItemUnderConstruction SelectedItem;
-        protected PieMenu pieMenu;
-        protected PieMenuNode planetMenu;
-        protected PieMenuNode shipMenu;
-        protected float PieMenuTimer;
+        private PieMenu pieMenu;
+        private PieMenuNode planetMenu;
+        private PieMenuNode shipMenu;
+        private float PieMenuTimer;
         public Matrix view;
         public Matrix projection;
         public ParticleSystem beamflashes;
@@ -132,8 +132,8 @@ namespace Ship_Game
         public Empire PlayerEmpire;
         public string PlayerLoyalty;
         public string loadFogPath;
-        protected Model SunModel;
-        protected Model NebModel;
+        private Model SunModel;
+        private Model NebModel;
         public Model xnaPlanetModel;
         public Texture2D RingTexture;
         public AudioListener listener;
@@ -147,12 +147,12 @@ namespace Ship_Game
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
         public Texture2D FogMap;
-        protected RenderTarget2D FogMapTarget;
+        private RenderTarget2D FogMapTarget;
         public RenderTarget2D MainTarget;
         public RenderTarget2D MiniMapSector;
         public RenderTarget2D BorderRT;
         public RenderTarget2D StencilRT;
-        protected RenderTarget2D LightsTarget;
+        private RenderTarget2D LightsTarget;
         public Effect basicFogOfWarEffect;
         public Rectangle SectorMap;
         public Rectangle SectorSourceRect;
@@ -184,15 +184,15 @@ namespace Ship_Game
         public bool WorkerUpdateGameWorld;
         public Ship playerShip;
         public float transitionElapsedTime;
-        protected float Zrotate;
+        private float Zrotate;
         public BoundingFrustum Frustum;
-        protected ClickablePlanets tippedPlanet;
-        protected ClickableSystem tippedSystem;
-        protected bool ShowingSysTooltip;
-        protected bool ShowingPlanetToolTip;
-        protected float ClickTimer;
-        protected float ClickTimer2;
-        protected float zTime;
+        private ClickablePlanets tippedPlanet;
+        private ClickableSystem tippedSystem;
+        private bool ShowingSysTooltip;
+        private bool ShowingPlanetToolTip;
+        private float ClickTimer;
+        private float ClickTimer2;
+        private float zTime;
         private float MusicCheckTimer;
         private int ArmageddonCounter;
         private float shiptimer;
@@ -232,7 +232,7 @@ namespace Ship_Game
         private Model atmoModel;
         public PlanetScreen workersPanel;
         private ResolveTexture2D sceneMap;
-        protected CursorState cState;
+        private CursorState cState;
         private float radlast;
         private int SelectorFrame;
         public static bool debug;
@@ -313,7 +313,7 @@ namespace Ship_Game
                 ScreenManager.inter.LightManager.Submit(rig);
         }
 
-        protected void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
+        private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
         {
             PointLight light = new PointLight
             {
@@ -329,7 +329,7 @@ namespace Ship_Game
             light.AddTo(this);
         }
 
-        protected virtual void LoadMenu()
+        private virtual void LoadMenu()
         {
             var viewPlanetIcon = ResourceManager.TextureDict["UI/viewPlanetIcon"];
             pieMenu    = new PieMenu();
@@ -340,7 +340,7 @@ namespace Ship_Game
             shipMenu.Add(new PieMenuNode("Commandeer Ship", viewPlanetIcon, ViewShip));
         }
 
-        protected Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
+        private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
         {
             Vector2 vector2_1 = new Vector2(MousePosition.X - (float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), MousePosition.Y - (float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
             Vector3 position1 = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -360,7 +360,7 @@ namespace Ship_Game
             return new Vector2(ray.Position.X + num2 * ray.Direction.X, ray.Position.Y + num2 * ray.Direction.Y);
         }
 
-        protected void LoadMenuNodes(bool Owned, bool Habitable)
+        private void LoadMenuNodes(bool Owned, bool Habitable)
         {
             this.planetMenu.Children.Clear();
             this.planetMenu.Add(new PieMenuNode(Localizer.Token(1421), ResourceManager.TextureDict["UI/viewPlanetIcon"], new SimpleDelegate(this.ViewPlanet)));
@@ -409,7 +409,7 @@ namespace Ship_Game
                 SelectedShip.ScuttleTimer = 10f;
         }
 
-        protected void LoadShipMenuNodes(int which)
+        private void LoadShipMenuNodes(int which)
         {
             shipMenu.Children.Clear();
             if (which == 1)
@@ -682,12 +682,12 @@ namespace Ship_Game
             }
         }
 
-        protected void MarkForColonization(object sender)
+        private void MarkForColonization(object sender)
         {
             player.GetGSAI().Goals.Add(new Goal(SelectedPlanet, player));
         }
 
-        protected void ViewSystem(SolarSystem system)
+        private void ViewSystem(SolarSystem system)
         {
             transitionDestination = new Vector3(system.Position, 147000f);
             ViewingShip           = false;
@@ -1007,7 +1007,7 @@ namespace Ship_Game
             };
         }
 
-        protected void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
+        private void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
         }
@@ -1258,7 +1258,7 @@ namespace Ship_Game
             pieMenu.ScaleFactor = 1f;
         }
 
-        protected void ProcessTurnDelta(float elapsedTime)
+        private void ProcessTurnDelta(float elapsedTime)
         {
             perfavg5.Start(); // total dowork lag
 
@@ -1833,7 +1833,7 @@ namespace Ship_Game
             }//);
         }
 
-        public virtual void UpdateAllSystems(float elapsedTime)
+        public void UpdateAllSystems(float elapsedTime)
         {
             if (IsExiting)
                 return;
@@ -1916,7 +1916,7 @@ namespace Ship_Game
             }
         }
 
-        protected virtual void AdjustCamera(float elapsedTime)
+        private void AdjustCamera(float elapsedTime)
         {
             if (this.ShipToView == null)
                 this.ViewingShip = false;
@@ -2027,7 +2027,7 @@ namespace Ship_Game
             AudioManager.GetCue("UI_Misc20").Play();
         }
 
-        protected bool HandleGUIClicks(InputState input)
+        private bool HandleGUIClicks(InputState input)
         {
             bool flag = false;
             if (this.dsbw != null && this.showingDSBW && this.dsbw.HandleInput(input))
@@ -3235,7 +3235,7 @@ namespace Ship_Game
             return null;
         }
 
-        protected void HandleRightMouseNew(InputState input)
+        private void HandleRightMouseNew(InputState input)
         {
             if (SkipRightOnce)
             {
@@ -3894,7 +3894,7 @@ namespace Ship_Game
             //this.transitionElapsedTime = 0.0f;
         }
 
-        protected void HandleScrolls(InputState input)
+        private void HandleScrolls(InputState input)
         {
             if ((double)this.AdjustCamTimer >= 0.0)
                 return;
@@ -3980,7 +3980,7 @@ namespace Ship_Game
                 this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
         }
 
-        protected void HandleScrollsSectorMiniMap(InputState input)
+        private void HandleScrollsSectorMiniMap(InputState input)
         {
             this.SectorMiniMapHeight = MathHelper.SmoothStep(this.SectorMiniMapHeight, this.desiredSectorZ, 0.2f);
             if ((double)this.SectorMiniMapHeight < 6000.0)
@@ -4027,7 +4027,7 @@ namespace Ship_Game
             this.camHeight = 1.684718E+08f * this.GameScale;
         }
 
-        protected void HandleSelectionBox(InputState input)
+        private void HandleSelectionBox(InputState input)
         {
             if (this.LookingAtPlanet)
                 return;
@@ -4570,7 +4570,7 @@ namespace Ship_Game
            // GC.Collect(1, GCCollectionMode.Optimized);
         }
 
-        protected void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)
+        private void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -4593,7 +4593,7 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
         }
 
-        protected MultiShipData ComputeMultiShipCircle()
+        private MultiShipData ComputeMultiShipCircle()
         {
             float num1 = 0.0f;
             float num2 = 0.0f;
@@ -4622,7 +4622,7 @@ namespace Ship_Game
             return multiShipData;
         }
 
-        protected void DrawAtmo(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
+        private void DrawAtmo(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -4658,7 +4658,7 @@ namespace Ship_Game
             renderState.AlphaBlendEnable = false;
         }
 
-        protected Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
+        private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
         {
             return new Vector2(0.0f, 0.0f)
             {
@@ -4667,7 +4667,7 @@ namespace Ship_Game
             };
         }
 
-        protected void DrawAtmo1(Matrix world, Matrix view, Matrix projection)
+        private void DrawAtmo1(Matrix world, Matrix view, Matrix projection)
         {
             world = Matrix.CreateScale(3.83f) * world;
             Matrix matrix = world * view * projection;
@@ -4688,7 +4688,7 @@ namespace Ship_Game
             }
         }
 
-        protected void DrawClouds(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
+        private void DrawClouds(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
         {
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -4734,7 +4734,7 @@ namespace Ship_Game
             effect.End();
         }
 
-        protected void DrawToolTip()
+        private void DrawToolTip()
         {
             if (this.SelectedSystem != null && !this.LookingAtPlanet)
             {
@@ -4762,7 +4762,7 @@ namespace Ship_Game
             Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, Position1, Radius1, this.SelectedPlanet.Owner != null ? this.SelectedPlanet.Owner.EmpireColor : Color.Gray);
         }
 
-        protected void DrawShieldBubble(Ship ship)
+        private void DrawShieldBubble(Ship ship)
         {
             var uiNode = ResourceManager.Texture("UI/node");
 
@@ -4781,7 +4781,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
         
-        protected void DrawFogNodes()
+        private void DrawFogNodes()
         {
             var uiNode = ResourceManager.TextureDict["UI/node"];
             var viewport = ScreenManager.GraphicsDevice.Viewport;
@@ -4800,7 +4800,7 @@ namespace Ship_Game
             }
         }
 
-        protected void DrawInfluenceNodes()
+        private void DrawInfluenceNodes()
         {
             var uiNode = ResourceManager.TextureDict["UI/node"];
             var viewport = ScreenManager.GraphicsDevice.Viewport;
@@ -4821,7 +4821,7 @@ namespace Ship_Game
         // Refactored by RedFox
         // this draws the colored empire borders
         // the borders are drawn into a separate framebuffer texture and later blended with final visual
-        protected void DrawColoredEmpireBorders()
+        private void DrawColoredEmpireBorders()
         {
             var spriteBatch = ScreenManager.SpriteBatch;
             var graphics    = ScreenManager.GraphicsDevice;
@@ -4879,7 +4879,7 @@ namespace Ship_Game
             spriteBatch.End();
         }
 
-        protected void DrawMain(GameTime gameTime)
+        private void DrawMain(GameTime gameTime)
         {
             Render(gameTime);
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
@@ -4892,7 +4892,7 @@ namespace Ship_Game
                     DrawShieldBubble(clickableShip.shipToClick);
         }
 
-        protected virtual void DrawLights(GameTime gameTime)
+        private void DrawLights(GameTime gameTime)
         {
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.FogMapTarget);
             this.ScreenManager.GraphicsDevice.Clear(Color.TransparentWhite);
@@ -5486,7 +5486,7 @@ namespace Ship_Game
                 DrawCircleProjected(goal.BuildPosition, 50f, 50, goal.empire.EmpireColor);
         }
 
-        protected void DrawShipUI(GameTime gameTime)
+        private void DrawShipUI(GameTime gameTime)
         {
             Vector2 vector2 = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
             lock (GlobalStats.FleetButtonLocker)
@@ -5539,7 +5539,7 @@ namespace Ship_Game
             }
         }
 
-        protected void DrawShipsInRange()
+        private void DrawShipsInRange()
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -5626,7 +5626,7 @@ namespace Ship_Game
             }
         }
 
-        protected void DrawProjectedGroup()
+        private void DrawProjectedGroup()
         {
             if (projectedGroup == null)
                 return;
@@ -5954,7 +5954,7 @@ namespace Ship_Game
             }
         }
 
-        protected void DrawInRange(Ship ship)
+        private void DrawInRange(Ship ship)
         {
             if (viewState > UnivScreenState.SystemView)
                 return;
@@ -5989,7 +5989,7 @@ namespace Ship_Game
             => GetSelectionCircles(ship.Center, ship.GetSO().WorldBoundingSphere.Radius, 5, 0);            
         
 
-        protected void RenderParticles()
+        private void RenderParticles()
         {
             this.beamflashes.SetCamera(this.view, this.projection);
             this.explosionParticles.SetCamera(this.view, this.projection);
@@ -6008,7 +6008,7 @@ namespace Ship_Game
             this.neb_particles.SetCamera(this.view, this.projection);
         }
 
-        protected virtual void RenderBackdrop()
+        private void RenderBackdrop()
         {
             bg.Draw(this, starfield);                           
             bg3d.Draw();
@@ -6165,7 +6165,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        protected virtual void RenderGalaxyBackdrop()
+        private void RenderGalaxyBackdrop()
         {
             this.bg.DrawGalaxyBackdrop(this, this.starfield);
             this.ScreenManager.SpriteBatch.Begin();
@@ -6184,7 +6184,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.End();
         }
 
-        protected virtual void RenderOverFog(GameTime gameTime)
+        private void RenderOverFog(GameTime gameTime)
         {
             Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
             Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X, this.Size.Y, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -6385,7 +6385,7 @@ namespace Ship_Game
             }
         }
 
-        protected void RenderThrusters()
+        private void RenderThrusters()
         {
             if (this.viewState > UniverseScreen.UnivScreenState.ShipView)
                 return;
@@ -6411,7 +6411,7 @@ namespace Ship_Game
             }
         }
 
-        public virtual void Render(GameTime gameTime)
+        public void Render(GameTime gameTime)
         {
             if (Frustum == (BoundingFrustum)null)
                 Frustum = new BoundingFrustum(view * projection);
@@ -6707,7 +6707,7 @@ namespace Ship_Game
             }
         }
                   
-        protected void DrawShields()
+        private void DrawShields()
         {            
             var renderState                    = ScreenManager.GraphicsDevice.RenderState;
             renderState.AlphaBlendEnable       = true;
@@ -6718,7 +6718,7 @@ namespace Ship_Game
             ShieldManager.Draw(view, projection);
         }
 
-        protected virtual void DrawPlanetInfo()
+        private void DrawPlanetInfo()
         {
             if (LookingAtPlanet || viewState > UnivScreenState.SectorView || viewState < UnivScreenState.ShipView)
                 return;
@@ -6940,7 +6940,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
         }
 
-        protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
+        private void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -6955,16 +6955,16 @@ namespace Ship_Game
             renderState.DepthBufferWriteEnable = true;
         }
 
-        protected void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex, float scale)
+        private void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex, float scale)
             => DrawModelMesh(model, world, viewMat, new Vector3(1f, 1f, 1f), projMat, projTex);
 
-        protected void DrawTransparentModelAdditive(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
+        private void DrawTransparentModelAdditive(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
             =>  DrawModelMesh(model, world, view, new Vector3(1f, 1f, 1f), projection, projTex, camHeight / 3500000);            
         
         public void DrawSunModel(Matrix world, Texture2D texture, float scale)        
             => DrawTransparentModel(SunModel, world, view, projection, texture, scale);
         
-        protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale, Vector3 Color)
+        private void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale, Vector3 Color)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -7039,7 +7039,7 @@ namespace Ship_Game
             public Ship shipToClick;
         }
 
-        protected struct ClickableSystem
+        private struct ClickableSystem
         {
             public Vector2 ScreenPos;
             public float Radius;
@@ -7099,7 +7099,7 @@ namespace Ship_Game
             public int Key;
         }
 
-        protected struct MultiShipData
+        private struct MultiShipData
         {
             public float status;
             public Vector2 weightedCenter;
@@ -7120,7 +7120,7 @@ namespace Ship_Game
             public float ClickRadius;
         }
 
-        protected enum CursorState
+        private enum CursorState
         {
             Normal,
             Move,
