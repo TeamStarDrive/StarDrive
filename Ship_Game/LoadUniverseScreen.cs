@@ -629,7 +629,8 @@ namespace Ship_Game
 
                             // fleet saves can be corrupted because in older saves,
                             // so for avoiding bugs, don't add ship to the same fleet twice
-                            if (ship.fleet == fleet)
+                            // @todo @hack This "Core Fleet" stuff is just a temp hack, please solve this issue
+                            if (ship.fleet == fleet || ship.fleet != null && (fleet.Name.IsEmpty() || fleet.Name == "Core Fleet"))
                                 continue;
 
                             ship.RelativeFleetOffset = ssave.fleetOffset;
