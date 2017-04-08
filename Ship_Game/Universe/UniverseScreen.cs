@@ -98,7 +98,7 @@ namespace Ship_Game
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         private bool drawBloom = true;
         private Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
-        private bool ShowTacticalCloseup;
+        public bool ShowTacticalCloseup { get; private set; }
         public bool Debug;
         public bool GridOn;
         public Planet SelectedPlanet;
@@ -5563,7 +5563,7 @@ namespace Ship_Game
                     if (!ship.Active || !ScreenRectangle.HitTest(ship.ScreenPosition))
                         continue;
 
-                    DrawTacticalIcons(ship);
+                    DrawTacticalIcon(ship);
                     DrawOverlay(ship);
 
                     if (SelectedShip == ship || SelectedShipList.Contains(ship))
@@ -5685,245 +5685,31 @@ namespace Ship_Game
         }
 
 
+
         private void DrawOverlay(Ship ship)
         {
-            if (LookingAtPlanet || viewState > UnivScreenState.SystemView || (!ShowShipNames || ship.dying) || !ship.InFrustum)
-                return;
-
-            var symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
-            var concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
-            var lightningBolt = ResourceManager.Texture("UI/lightningBolt");
-
-            bool enableModuleDebug = Debug && true;
-            if (enableModuleDebug)
-            {
-                foreach (Projectile projectile in ship.Projectiles)
-                    DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
-            }
-
-            float shipDegrees  = (float)Math.Round(ship.Rotation.ToDegrees());
-            float shipRotation = shipDegrees.ToRadians();
-
-            for (int i = 0; i < ship.ModuleSlotList.Length; ++i)
-            {
-                ShipModule slot = ship.ModuleSlotList[i];
-
-                float moduleWidth  = slot.XSIZE * 16.5f; // using 16.5f instead of 16 to reduce pixel error flickering
-                float moduleHeight = slot.YSIZE * 16.5f;
-                ProjectToScreenCoords(slot.Center, moduleWidth, moduleHeight,
-                                      out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen);
-
-                // round all the values to TRY prevent module flickering on screen (well, it only helps a tiny bit)
-                posOnScreen.X = (float)Math.Round(posOnScreen.X);
-                posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
-
-                float slotFacing   = (int)((slot.Facing + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
-                float slotRotation = (shipDegrees + slotFacing).ToRadians();
-
-                DrawTextureSized(concreteGlass, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, Color.White);
-
-                if (camHeight > 6000.0f) // long distance view, draw the modules as colored icons
-                {
-                    DrawTextureSized(symbolFighter, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColor());
-                }
-                else
-                {
-                    var moduleTex = ResourceManager.Texture(slot.IconTexturePath);
-                    float moduleSize = moduleTex.Width / (slot.XSIZE * 16f);
-                    float scale = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight / moduleSize;
-
-                    DrawTextureSized(moduleTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColorWhite());
-
-                    if (enableModuleDebug)
-                    {
-                        DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
-                    }
-                    if (slot.ModuleType == ShipModuleType.PowerConduit)
-                    {
-                        if (slot.Powered)
-                        {
-                            var poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
-                            DrawTextureSized(poweredTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, Color.White);
-                        }
-                    }
-                    else if (!slot.Powered && slot.PowerDraw > 0.0f)
-                    {
-                        DrawTexture(lightningBolt, posOnScreen, scale * 2f, slotRotation, Color.White);
-                    }
-                    if (Debug && slot.isExternal && slot.Active)
-                    {
-                        DrawTexture(symbolFighter, posOnScreen, scale * 0.6f, shipRotation, new Color(0, 0, 255, 120));
-                    }
-                    if (enableModuleDebug)
-                    {
-                        DrawString(posOnScreen, shipRotation, 350f / camHeight, Color.Red, $"{slot.LocalCenter}");
-                    }
-                }
-
-                // finally, draw firing arcs for the player ship
-                if (ship.isPlayerShip() && slot.FieldOfFire > 0.0f && slot.InstalledWeapon != null)
-                    DrawWeaponArc(slot, posOnScreen, slotRotation);
-            }
-
-            if (enableModuleDebug)
-                ship.DrawSparseModuleGrid(this);
+            if (ship.InFrustum && !ship.dying && !LookingAtPlanet && ShowShipNames && viewState <= UnivScreenState.SystemView)
+                ship.DrawModulesOverlay(this);
         }
 
-        private void DrawTacticalIcons(Ship ship)
+        // @todo fleetIconScreenRadius could be replaced with clickableFleet.ClickRadius ????
+        public bool IsShipUnderFleetIcon(Ship ship, Vector2 screenPos, float fleetIconScreenRadius)
         {
-            if (LookingAtPlanet || (!showingFTLOverlay && ship.IsPlatform && viewState == UnivScreenState.GalaxyView))
-                return;
-            if (showingFTLOverlay && ship.IsPlatform && ship.Name != "Subspace Projector")
-                return;
-
-            if (ship.StrategicIconPath.IsEmpty())
-            {
-                ship.StrategicIconPath = "TacticalIcons/symbol_" + (ship.isConstructor ? "construction" : ship.shipData.GetRole());
-            }
-            if (viewState == UnivScreenState.GalaxyView)
-            {
-                float worldRadius = ship.GetSO().WorldBoundingSphere.Radius;
-                ProjectToScreenCoords(ship.Position, worldRadius, out Vector2 screenPos, out float screenRadius);
-                if (screenRadius < 8f)
-                    screenRadius = 8f;
-                float size = screenRadius * 2;
-                //float scale = screenRadius / (32 - GlobalStats.IconSize);
-
-                foreach (ClickableFleet clickableFleet in ClickableFleetsList)
-                    if (clickableFleet.fleet == ship.fleet && screenPos.Distance(clickableFleet.ScreenPos) < 20f)
-                        return;
-
-                Texture2D tex = ResourceManager.Texture(ship.StrategicIconPath);
-                if (tex != null)
-                    DrawTextureSized(tex, screenPos, ship.Rotation, size, size, ship.loyalty?.EmpireColor ?? Color.White);
-            }
-            else if ((this.ShowTacticalCloseup || this.viewState > UnivScreenState.ShipView) && !this.LookingAtPlanet)
-            {
-                float num1 = ship.GetSO().WorldBoundingSphere.Radius;
-                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                Vector2 position = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(new Vector2(ship.Center.X + num1, ship.Center.Y), 0.0f), this.projection, this.view, Matrix.Identity);
-                float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), position);
-                if ((double)num2 < 5.0)
-                    num2 = 5f;
-                float scale = num2 / (float)(45- GlobalStats.IconSize); //45
-                Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
-                bool flag = true;
-                foreach (ClickableFleet clickableFleet in this.ClickableFleetsList)
-                {
-                    if (clickableFleet.fleet == ship.fleet && (double)Vector2.Distance(position, clickableFleet.ScreenPos) < (double)num2 + 3.0)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (!ship.Active || !flag)
-                    return;
-                if (ship.isColonyShip)
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], position + new Vector2(-7f, -17f), ship.loyalty.EmpireColor);
-                //Added by McShooterz: Make Fighter tactical symbol default if not found
-                if (ResourceManager.TextureDict.ContainsKey(ship.StrategicIconPath))
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
-                else
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
-            }
-            //else if (this.viewState == UniverseScreen.UnivScreenState.ShipView)
-            //{
-            //    float num1 = ship.GetSO().WorldBoundingSphere.Radius;
-            //    Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-            //    Vector2 position = new Vector2(vector3_1.X, vector3_1.Y);
-            //    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(new Vector2(ship.Center.X + num1, ship.Center.Y), 0.0f), this.projection, this.view, Matrix.Identity);
-            //    float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), position);
-            //    if ((double)num2 < 5.0)
-            //        num2 = 5f;
-            //    float scale = num2 / (float)(45 - GlobalStats.IconSize); //45
-            //    scale *= .2f;
-            //    Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
-            //    bool flag = true;
-            //    foreach (UniverseScreen.ClickableFleet clickableFleet in this.ClickableFleetsList)
-            //    {
-            //        if (clickableFleet.fleet == ship.fleet && (double)Vector2.Distance(position, clickableFleet.ScreenPos) < (double)num2 + 3.0)
-            //        {
-            //            flag = false;
-            //            break;
-            //        }
-            //    }
-            //    if (!ship.Active || !flag)
-            //        return;
-            //    if (ship.isColonyShip)
-            //        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], position + new Vector2(-7f, -17f), ship.loyalty.EmpireColor);
-            //    //Added by McShooterz: Make Fighter tactical symbol default if not found
-            //    if (ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.Role))
-            //        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
-            //    else
-            //        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
-            //}
-            else
-            {
-                if (this.viewState > UnivScreenState.ShipView || this.LookingAtPlanet)
-                    return;
-                float num1 = ship.GetSO().WorldBoundingSphere.Radius;
-                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                Vector2 vector2_1 = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(new Vector2(ship.Center.X + num1, ship.Center.Y), 0.0f), this.projection, this.view, Matrix.Identity);
-                float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2_1);
-                float scale2 = num2 / (float)(45 - GlobalStats.IconSize); 
-                if ((double)num2 < 5.0)
-                    num2 = 5f;
-                float scale = num2 / (float)(45 - GlobalStats.IconSize); //45
-                float check = this.GetZfromScreenState(UnivScreenState.ShipView);
-                if (ship.shipData.Role != ShipData.RoleName.fighter && ship.shipData.Role != ShipData.RoleName.scout)
-                {
-                    
-                    scale2 *= (this.camHeight / (check + (check*2 -camHeight*2)));
-                }
-                else
-                {
-                   // scale2 *= this.camHeight * 2 > this.GetZfromScreenState(UnivScreenState.ShipView) ? 1 : this.camHeight * 2 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
-                     scale2 *= (this.camHeight * 3 / this.GetZfromScreenState(UnivScreenState.ShipView));
-                }
-
-                if (!ship.Active )
-                    return;
-               
-                Vector2 position = new Vector2(vector2_1.X + 15f * scale2, vector2_1.Y + 15f * scale);
-                if (ship.isColonyShip)
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], position + new Vector2(-7f, -17f), ship.loyalty.EmpireColor);
-                position = new Vector2(vector3_1.X, vector3_1.Y);
-                //Added by McShooterz: Make Fighter tactical symbol default if not found
-                position = new Vector2(vector3_1.X, vector3_1.Y);
-                if (ResourceManager.TextureDict.ContainsKey(ship.StrategicIconPath))
-                {
-
-                    float width = (float)(ResourceManager.TextureDict[ship.StrategicIconPath].Width / 2);
-                    //width = width * scale2 < 20? width / scale2 : width;
-                    Vector2 origin = new Vector2(width, width);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale2, SpriteEffects.None, 1f);
-                }
-                else
-                {
-                    float width = (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2);
-                    //width = width * scale2 < 20 ? width / scale2 : width;
-                    Vector2 origin = new Vector2(width, width);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale2, SpriteEffects.None, 1f);
-                }
-                
-                if (ship.OrdinanceMax <= 0.0f)
-                    return;
-                if (ship.Ordinance <= 0.2f * ship.OrdinanceMax)
-                {
-                    position = new Vector2(vector2_1.X + 15f * scale, vector2_1.Y + 15f * scale);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_ammo"], position, new Rectangle?(), Color.Red, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1f);
-                }
-                else
-                {
-                    if (ship.Ordinance >= 0.5f * ship.OrdinanceMax)
-                        return;
-                    position = new Vector2(vector2_1.X + 15f * scale, vector2_1.Y + 15f * scale);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_ammo"], position, new Rectangle?(), Color.Yellow, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1f);
-                }
-            }
+            foreach (ClickableFleet clickableFleet in ClickableFleetsList)
+                if (clickableFleet.fleet == ship.fleet && screenPos.InRadius(clickableFleet.ScreenPos, fleetIconScreenRadius))
+                    return true;
+            return false;
         }
+
+        private void DrawTacticalIcon(Ship ship)
+        {
+            if (LookingAtPlanet || ship.IsPlatform && (
+                (!showingFTLOverlay && viewState == UnivScreenState.GalaxyView) || (showingFTLOverlay && ship.Name != "Subspace Projector")))
+                return;
+            ship.DrawTacticalIcon(this, viewState);
+        }
+
+
 
         private void DrawBombs()
         {

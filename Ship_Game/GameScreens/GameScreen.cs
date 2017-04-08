@@ -159,10 +159,15 @@ namespace Ship_Game
         public void DrawRectangle(Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)
             => ScreenManager.SpriteBatch.DrawRectangle(center, size, rotation, color, thickness);
 
+
+
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTexture(Texture2D texture, Vector2 posOnScreen, float scale, float rotation, Color color)
             => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, null, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
+
+        public void DrawTexture(Texture2D texture, Vector2 posOnScreen, Color color)
+            => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color);
 
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
