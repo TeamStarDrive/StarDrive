@@ -687,7 +687,7 @@ namespace Ship_Game.Gameplay
 
             ModuleSlotList = Empty<ShipModule>.Array;
             TroopList.Clear();
-            RemoveFromAllFleets();
+            ClearFleet();
             ShipSO.Clear();
 
             loyalty.RemoveShip(this);
@@ -3240,7 +3240,7 @@ namespace Ship_Game.Gameplay
                         if (fleet != null)
                         {
                             fleet.Ships.Remove(this);
-                            RemoveFromAllFleets();                            
+                            ClearFleet();                            
                         }
                         AI.ClearOrdersNext = true;
                         AI.State = AIState.AwaitingOrders;
@@ -3843,7 +3843,7 @@ namespace Ship_Game.Gameplay
             Hangars.Clear();
             BombBays.Clear();
             TroopList.Clear();
-            RemoveFromAllFleets();
+            ClearFleet();
             ShipSO.Clear();
             lock (GlobalStats.ObjectManagerLocker)
                 Empire.Universe.ScreenManager.inter.ObjectManager.Remove(ShipSO);
@@ -3856,30 +3856,8 @@ namespace Ship_Game.Gameplay
             ProjectilesFired.Clear();
         }
 
-        public void RemoveFromAllFleets()
-        {
-            if (fleet == null)
-                return;
-            fleet.Ships.Remove(this);
-            foreach (FleetDataNode fleetDataNode in fleet.DataNodes)
-            {
-                if (fleetDataNode.Ship == this)
-                    fleetDataNode.Ship = null;
-            }
-            foreach (Array<Fleet.Squad> list in fleet.AllFlanks)
-            {
-                foreach (Fleet.Squad squad in list)
-                {
-                    if (squad.Ships.Contains(this))
-                        squad.Ships.QueuePendingRemoval(this);
-                    foreach (FleetDataNode fleetDataNode in squad.DataNodes)
-                    {
-                        if (fleetDataNode.Ship == this)
-                            fleetDataNode.Ship = null;
-                    }
-                }
-            }
-        }
+        public void ClearFleet() => fleet?.RemoveShip(this);
+        
 
         public void Dispose()
         {
