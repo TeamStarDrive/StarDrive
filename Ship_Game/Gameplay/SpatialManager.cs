@@ -487,7 +487,7 @@ namespace Ship_Game.Gameplay
 
                 ++GlobalStats.BeamTests;
 
-                ShipModule hit = ship.RayHitTestExternalModules(beamStart, beamEnd, 8f, beam.IgnoresShields);
+                ShipModule hit = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
                 if (!beam.Touch(hit)) // dish out damage if we can
                     continue;
 
@@ -529,8 +529,8 @@ namespace Ship_Game.Gameplay
                 if (distPerFrame > 16.0f) // ray collision
                 {
                     Vector2 dir = thisProj.Velocity.Normalized();
-                    collidedWith = otherShip.RayHitTestExternalModules(
-                        thisProj.Center, dir, distPerFrame, thisProj.Radius, thisProj.IgnoresShields);
+                    collidedWith = otherShip.RayHitTestSingle(
+                        thisProj.Center, thisProj.Center + dir*distPerFrame, thisProj.Radius, thisProj.IgnoresShields);
                 }
                 else
                 {
