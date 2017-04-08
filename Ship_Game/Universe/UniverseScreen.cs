@@ -6574,7 +6574,12 @@ namespace Ship_Game
             GalaxyView,
         }
 
-        public float GetZfromScreenState(UnivScreenState screenState) => (float)screenState;
+        public float GetZfromScreenState(UnivScreenState screenState)
+        {
+            if (screenState == UnivScreenState.GalaxyView)
+                return MaxCamHeight;
+            return (float)screenState;
+        }
 
         private struct FleetButton
         {
