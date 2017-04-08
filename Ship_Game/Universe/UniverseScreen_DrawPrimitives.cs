@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -10,8 +7,7 @@ namespace Ship_Game
 {
     public sealed partial class UniverseScreen
     {
-
-                // this does some magic to convert a game position/coordinate to a drawable screen position
+        // this does some magic to convert a game position/coordinate to a drawable screen position
         private Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
             //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
@@ -20,7 +16,7 @@ namespace Ship_Game
 
         private void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
         {
-            posOnScreen = ProjectToScreenPosition(posInWorld, zAxis);
+            posOnScreen  = ProjectToScreenPosition(posInWorld, zAxis);
             sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y),zAxis).Distance(ref posOnScreen);
         }
 
@@ -33,8 +29,16 @@ namespace Ship_Game
                                        out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen)
         {
             posOnScreen    = ProjectToScreenPosition(posInWorld);
-            widthOnScreen  = ProjectToScreenPosition(new Vector2(posInWorld.X + widthInWorld,  posInWorld.Y)).Distance(ref posOnScreen);
-            heightOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + heightInWorld, posInWorld.Y)).Distance(ref posOnScreen);
+            Vector2 size   = ProjectToScreenPosition(new Vector2(posInWorld.X + widthInWorld, posInWorld.Y + heightInWorld)) - posOnScreen;
+            widthOnScreen  = Math.Abs(size.X);
+            heightOnScreen = Math.Abs(size.Y);
+        }
+
+        private void ProjectToScreenCoords(Vector2 posInWorld, Vector2 sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen)
+        {
+            posOnScreen  = ProjectToScreenPosition(posInWorld);
+            Vector2 size = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld.X, posInWorld.Y + sizeInWorld.Y)) - posOnScreen;
+            sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
         }
 
         private Vector2 ProjectToScreenSize(float widthInWorld, float heightInWorld)
@@ -61,6 +65,7 @@ namespace Ship_Game
 
 
         // projects the line from World positions into Screen positions, then draws the line
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, float zAxis = 0f)
         {
             DrawLine(ProjectToScreenPosition(startInWorld, zAxis), ProjectToScreenPosition(endInWorld, zAxis), color);
@@ -76,15 +81,17 @@ namespace Ship_Game
                 posOnScreen.Y += Fonts.Arial12Bold.LineSpacing + 2;
             }
         }
-        
 
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             DrawCircle(screenPos, screenRadius, sides, color, thickness);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, int sides = 16, float zAxis = 0f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
@@ -104,27 +111,39 @@ namespace Ship_Game
 
         public void DrawRectangleProjected(Rectangle rectangle, Color edge)
         {
-            Vector2 rectTopLeft = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
+            Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
+            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
             var rect = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, (int)Math.Abs(rectTopLeft.X - rectBotRight.X), (int)Math.Abs(rectTopLeft.Y - rectBotRight.Y));
             DrawRectangle(rect, edge);
         }
+
         public void DrawRectangleProjected(Rectangle rectangle, Color edge, Color fill)
         {
-            Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2((float)rectangle.X, (float)rectangle.Y), 0f);
+            Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
+            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
             var rect  = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, 
                                     (int)Math.Abs(rectTopLeft.X - rectBotRight.X), (int)Math.Abs(rectTopLeft.Y - rectBotRight.Y));
             DrawRectangle(rect, edge, fill);            
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawRectangleProjected(Vector2 centerInWorld, Vector2 sizeInWorld, float rotation, Color color, float thickness = 1f)
+        {
+            ProjectToScreenCoords(centerInWorld, sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen);
+            DrawRectangle(posOnScreen, sizeOnScreen, rotation, color, thickness);
+        }
 
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, 0.0f, color);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
+
+
 
         public void DrawTextureWithToolTip(Texture2D texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
         {
@@ -132,19 +151,16 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
             
             if (HelperFunctions.CheckIntersection(rectangle, mousePos))
-            {
                 ToolTip.CreateTooltip(tooltipID, ScreenManager);                
-            }
         }
+
         public void DrawTextureWithToolTip(Texture2D texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
         {
-            Rectangle rectangle = new Rectangle(rectangleX, rectangleY, width, height);
+            var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
 
             if (HelperFunctions.CheckIntersection(rectangle, mousePos))
-            {
                 ToolTip.CreateTooltip(text, ScreenManager);
-            }
         }
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {

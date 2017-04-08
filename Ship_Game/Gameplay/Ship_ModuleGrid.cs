@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
@@ -11,7 +13,7 @@ namespace Ship_Game.Gameplay
         public int NumExternalSlots { get; private set; }
         private int GridWidth;
         private int GridHeight;
-        private Vector2 GridOrigin;
+        private Vector2 GridOrigin; // local origin, eg -32, -48
 
         private void CreateModuleGrid()
         {
@@ -43,7 +45,8 @@ namespace Ship_Game.Gameplay
 
         private void AddExternalModule(ShipModule module, int x, int y, int quadrant)
         {
-            if (module.isExternal) return;
+            if (module.isExternal)
+                return;
             ++NumExternalSlots;
             module.isExternal = true;
             module.quadrant   = quadrant;
@@ -52,7 +55,8 @@ namespace Ship_Game.Gameplay
 
         private void RemoveExternalModule(ShipModule module, int x, int y)
         {
-            if (!module.isExternal) return;
+            if (!module.isExternal)
+                return;
             --NumExternalSlots;
             module.isExternal = false;
             module.quadrant   = 0;
@@ -61,8 +65,7 @@ namespace Ship_Game.Gameplay
 
         private bool IsModuleInactiveAt(int x, int y)
         {
-            int idx = x + y * GridWidth;
-            ShipModule module = (uint)idx < SparseModuleGrid.Length ? SparseModuleGrid[idx] : null;
+            ShipModule module = (uint)x < GridWidth && (uint)y < GridHeight ? SparseModuleGrid[x + y*GridWidth] : null;
             return module == null || !module.Active;
         }
 
@@ -174,8 +177,18 @@ namespace Ship_Game.Gameplay
             return RadialSearch(worldPoint, 0f, false, ExternalModuleGrid, GridWidth, GridHeight);
         }
 
-        public ShipModule HitTestExternalModules(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
+        public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
+            if (!ignoreShields)
+            {
+                for (int i = 0; i < Shields.Count; ++i)
+                {
+                    ShipModule shield = Shields[i];
+                    if (shield.Active && shield.ShieldPower > 0f && shield.HitTest(worldHitPos, hitRadius))
+                        return shield;
+                }
+            }
+
             if (NumExternalSlots == 0)
                 return null;
             return RadialSearch(worldHitPos, hitRadius, ignoreShields, ExternalModuleGrid, GridWidth, GridHeight);
@@ -192,21 +205,55 @@ namespace Ship_Game.Gameplay
             return null; // aargghh ;(
         }
 
+        // find ShipModules that fall into hit radius (eg an explosion)
+        // results are sorted by distance
+        public Array<ShipModule> HitTestMulti(Vector2 hitPos, float hitRadius, bool ignoreShields = false)
+        {
+            var modules = new Array<ShipModule>();
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule module = ModuleSlotList[i];
+                if (!module.Active || module.Health <= 0f)
+                    continue;
+
+                ++GlobalStats.DistanceCheckTotal;
+
+                if (module.HitTest(hitPos, hitRadius, ignoreShields))
+                    modules.Add(module);
+            }
+            modules.Sort(module => hitPos.SqDist(module.Position));
+            return modules;
+        }
+
+        // Converts a world position to a grid local position (such as [16f,32f])
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
-            return (worldPoint - Center).RotateAroundPoint(Vector2.Zero, -Rotation);
+            return (worldPoint - Center).RotateAroundPoint(Vector2.Zero, -Rotation) - GridOrigin;
         }
 
         public void DrawSparseModuleGrid(UniverseScreen screen)
         {
+            for (int y = 0; y < GridHeight; ++y)
+            {
+                for (int x = 0; x < GridWidth; ++x)
+                {
+                    Color color = Color.DarkGray;
+                    if    (ExternalModuleGrid[x + y*GridWidth] != null) color = Color.Blue;
+                    else if (SparseModuleGrid[x + y*GridWidth] != null) color = Color.Yellow;
+
+                    Vector2 gridLocal = GridOrigin + new Vector2(x*16f + 8f, y*16f + 8f);
+                    gridLocal = gridLocal.RotateAroundPoint(Vector2.Zero, Rotation);
+
+                    Vector2 worldPos = Center + gridLocal;
+                    screen.DrawRectangleProjected(worldPos, new Vector2(16f, 16f), Rotation, color);
+                }
+            }
         }
 
         // Generic shipmodule grid search with an optional predicate filter
         private ShipModule RadialSearch(Vector2 worldPos, float radius, bool ignoreShields, ShipModule[] grid, int width, int height)
         {
-            Vector2 localPoint = WorldToGridLocal(worldPos);
-
-            Vector2 center = localPoint - GridOrigin;
+            Vector2 center = WorldToGridLocal(worldPos);
             int firstX = (int)((center.X - radius) / 16.0f);
             int lastX  = (int)((center.X + radius) / 16.0f);
             int firstY = (int)((center.Y - radius) / 16.0f);
@@ -222,9 +269,13 @@ namespace Ship_Game.Gameplay
             int minY = (firstY + lastY) / 2;
             int maxX = minX;
             int maxY = minY;
+
+            ShipModule m;
+            if ((m = grid[minX + minY * width]) != null && m.Active
+                    && (radius <= 0f || m.HitTest(worldPos, radius, ignoreShields))) return m;
+
             for (;;)
             {
-                ShipModule m;
                 bool didExpand = false;
                 if (minX > firstX) // test all modules to the left
                 {
@@ -310,25 +361,6 @@ namespace Ship_Game.Gameplay
             return modules;
         }
 
-        // find ShipModules that fall into hit radius (eg an explosion)
-        // results are sorted by distance
-        public Array<ShipModule> HitTestModules(Vector2 hitPos, float hitRadius, bool ignoreShields = false)
-        {
-            var modules = new Array<ShipModule>();
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (!module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                if (module.HitTest(hitPos, hitRadius, ignoreShields))
-                    modules.Add(module);
-            }
-            modules.Sort(module => hitPos.SqDist(module.Position));
-            return modules;
-        }
         
         private ShipModule ClosestExternalModuleSlot(Vector2 center, float maxRange=999999f)
         {
