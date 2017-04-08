@@ -241,25 +241,6 @@ namespace Ship_Game.Gameplay
             return (worldPoint - Center).RotateAroundPoint(Vector2.Zero, -Rotation) - GridOrigin;
         }
 
-        public void DrawSparseModuleGrid(UniverseScreen screen)
-        {
-            for (int y = 0; y < GridHeight; ++y)
-            {
-                for (int x = 0; x < GridWidth; ++x)
-                {
-                    Color color = Color.DarkGray;
-                    if    (ExternalModuleGrid[x + y*GridWidth] != null) color = Color.Blue;
-                    else if (SparseModuleGrid[x + y*GridWidth] != null) color = Color.Yellow;
-
-                    Vector2 gridLocal = GridOrigin + new Vector2(x*16f + 8f, y*16f + 8f);
-                    gridLocal = gridLocal.RotateAroundPoint(Vector2.Zero, Rotation);
-
-                    Vector2 worldPos = Center + gridLocal;
-                    screen.DrawRectangleProjected(worldPos, new Vector2(16f, 16f), Rotation, color);
-                }
-            }
-        }
-
         // Generic shipmodule grid search with an optional predicate filter
         private ShipModule RadialSearch(Vector2 worldPos, float radius, bool ignoreShields, ShipModule[] grid, int width, int height)
         {
