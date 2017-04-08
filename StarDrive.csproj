@@ -195,6 +195,7 @@
     <Compile Include="Ship_Game\Gameplay\Ship_Cargo.cs" />
     <Compile Include="Ship_Game\Gameplay\Ship_Initialize.cs" />
     <Compile Include="Ship_Game\Gameplay\Ship_ModuleGrid.cs" />
+    <Compile Include="Ship_Game\Gameplay\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
     <Compile Include="Ship_Game\GameScreens\DrawRoutines.cs" />
     <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
