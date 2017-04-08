@@ -86,6 +86,10 @@ namespace Ship_Game.AI
         {
             foreach (Ship ship in area.GetOffensiveForcePool().OrderBy(ship => Vector2.Distance(ship.Center, area.Position) >= area.Radius*.5).ThenBy(str => str.BaseStrength))
             {
+                if (ship.fleet != null)
+                    Log.Error("GetAvailableShips: a ship is in fleet {0} and not available for {1}", ship.fleet.Name, type.ToString());
+                if (area.GetWaitingShips().ContainsRef(ship))
+                    Log.Error("ship is in waiting list and should not be");
                 if ((ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform)
                     || !ship.BaseCanWarp
                     || ship.InCombat
@@ -345,8 +349,8 @@ namespace Ship_Game.AI
                     g.Held = false;
                 }
             }
+            AO closestAO = FindClosestAO();
             
-            AO closestAO = Empire.GetGSAI().AreasOfOperations.FindMin(ao => AO.SqDist(ao.Position));
             
             if (closestAO == null)
             {
@@ -368,17 +372,19 @@ namespace Ship_Game.AI
                 }
                 else
                 {
-                    if (!Empire.GetFleetsDict().ContainsKey(WhichFleet))
-                    { //what the hell is this for? dictionary doesnt contain the key the foreach below would blow up. 
-                        if (!Fleet.IsCoreFleet && Empire != Empire.Universe.player)
-                        {
-                            foreach (Ship ship in Empire.GetFleetsDict()[WhichFleet].Ships)
-                            {
-                                Empire.ForcePoolAdd(ship);
-                            }
-                        }
+                    if (Fleet.IsCoreFleet || Empire.isPlayer)
                         return;
+
+                    if (Fleet == null)
+                        return;
+                    for (int i = Empire.GetFleetsDict()[WhichFleet].Ships.Count - 1; i >= 0; i--)
+                    {
+                        Ship ship = Empire.GetFleetsDict()[WhichFleet].Ships[i];
+                        Empire.ForcePoolAdd(ship);
                     }
+                        
+                        
+                    
 
                     for (int index = Fleet.Ships.Count - 1; index >= 0; index--)
                     {
@@ -836,13 +842,12 @@ namespace Ship_Game.AI
                 {                    
                     if (planet.Owner != Empire) continue;
                     if (planet.RecentCombat) continue;
-                    int extra = rank;
+                    int extra = rank -1;
                     foreach(Troop troop in planet.TroopsHere)
                     {
-                        if (troop.GetOwner() != Empire) continue;
-                        extra--;
+                        if (troop.GetOwner() != Empire) continue;                        
 
-                        if (extra < 0)
+                        if (extra-- < 0)
                             potentialTroops.Add(troop);
                     }
                 }
@@ -1196,11 +1201,30 @@ namespace Ship_Game.AI
 
             return true;
         }
-        private AO FindClosestAO()
+        private bool IsNull<T>(T item)
         {
-            AO closestAO = Empire.GetGSAI().AreasOfOperations?.FindMin(ao => ao.Position.SqDist(AO)) 
-                ?? Empire.GetGSAI().AreasOfOperations?.FindMax(ao => ao.GetOffensiveForcePool().Count);
-
+            if(item == null)
+            {
+                Log.Error("Null Value");
+                return false;
+            }
+            return true;
+        }
+        private AO FindClosestAO()
+        {            
+            var aos = Empire.GetGSAI().AreasOfOperations;
+            if(aos == null)
+            {
+                Log.Error("{0} has no areas of operation", Empire.Name);
+                return null;
+            }
+            AO closestAO = aos.FindMaxFiltered(ao =>ao.GetOffensiveForcePool().Count > 0 && ao.GetWaitingShips().Count ==0,ao => -ao.Position.SqDist(AO)) ??
+                aos.FindMin(ao => ao.Position.SqDist(AO));
+            if (closestAO == null)
+            {
+                Log.Error("{0} : no areas of operation found", Empire.Name);
+                return null;
+            }
             return closestAO;
         }
         private void RequisitionDefenseForce()
@@ -1255,16 +1279,20 @@ namespace Ship_Game.AI
             AO closestAO = FindClosestAO();
             
             if (closestAO == null || closestAO.GetOffensiveForcePool().Count < 1)
-                return;
-
-            EnemyStrength = 0f;
-            foreach (var kv in Empire.GetGSAI().ThreatMatrix.Pins)
             {
-                if (Vector2.Distance(AO, kv.Value.Position) >= AORadius || EmpireManager.GetEmpireByName(kv.Value.EmpireName) == Empire)
-                    continue;
-
-                EnemyStrength += kv.Value.Strength;
+                EndTask();
+                return;
             }
+            
+            Planet rallyPoint =  closestAO.GetPlanets().Intersect(Empire.RallyPoints).ToArrayList().FindMin(p => p.Position.SqDist(AO));
+
+            if (rallyPoint == null)
+            {
+                EndTask();
+                return;
+            }
+            EnemyStrength = 0f;
+            EnemyStrength = Empire.GetGSAI().ThreatMatrix.PingRadarStr(AO, AORadius, Empire);            
 
             MinimumTaskForceStrength = EnemyStrength + 0.35f * EnemyStrength;
 
@@ -1294,15 +1322,7 @@ namespace Ship_Game.AI
             Array<Ship> potentialUtilityShips = new Array<Ship>();
             GetAvailableShips(closestAO, potentialBombers, potentialCombatShips, potentialAssaultShips, potentialUtilityShips);
 
-            Array<Planet> shipyards = closestAO.GetPlanets().Intersect(Empire.RallyPoints).ToArrayList();
 
-            Planet rallyPoint = shipyards.FindMin(p => p.Position.SqDist(AO));
-
-            if (rallyPoint == null)
-            {
-                EndTask();
-                return;
-            }
 
             float ourAvailableStrength = 0f;
             CountShipTroopAndStrength(potentialAssaultShips, out float troopStrength);
@@ -1339,7 +1359,7 @@ namespace Ship_Game.AI
             EnemyStrength = Empire.GetGSAI().ThreatMatrix.PingRadarStr(AO, AORadius,Empire);
 
             MinimumTaskForceStrength = EnemyStrength;
-            if (MinimumTaskForceStrength == 0f)
+            if (MinimumTaskForceStrength < 1f)
             {
                 EndTask();
                 return;
