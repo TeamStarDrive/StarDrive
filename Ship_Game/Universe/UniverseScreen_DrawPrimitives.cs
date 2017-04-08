@@ -8,24 +8,24 @@ namespace Ship_Game
     public sealed partial class UniverseScreen
     {
         // this does some magic to convert a game position/coordinate to a drawable screen position
-        private Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
+        public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
             //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
             return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
         }
 
-        private void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
+        public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
         {
             posOnScreen  = ProjectToScreenPosition(posInWorld, zAxis);
             sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y),zAxis).Distance(ref posOnScreen);
         }
 
-        private void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
+        public void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
         {
             ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out posOnScreen, out sizeOnScreen);
         }
 
-        private void ProjectToScreenCoords(Vector2 posInWorld, float widthInWorld, float heightInWorld, 
+        public void ProjectToScreenCoords(Vector2 posInWorld, float widthInWorld, float heightInWorld, 
                                        out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen)
         {
             posOnScreen    = ProjectToScreenPosition(posInWorld);
@@ -34,23 +34,24 @@ namespace Ship_Game
             heightOnScreen = Math.Abs(size.Y);
         }
 
-        private void ProjectToScreenCoords(Vector2 posInWorld, Vector2 sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen)
+        public void ProjectToScreenCoords(Vector2 posInWorld, Vector2 sizeInWorld, out Vector2 posOnScreen, out Vector2 sizeOnScreen)
         {
             posOnScreen  = ProjectToScreenPosition(posInWorld);
             Vector2 size = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld.X, posInWorld.Y + sizeInWorld.Y)) - posOnScreen;
             sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
         }
 
-        private Vector2 ProjectToScreenSize(float widthInWorld, float heightInWorld)
+        public Vector2 ProjectToScreenSize(float widthInWorld, float heightInWorld)
         {
             return ProjectToScreenPosition(new Vector2(widthInWorld, heightInWorld));
         }
 
-        private float ProjectToScreenSize(float sizeInWorld)
+        public float ProjectToScreenSize(float sizeInWorld)
         {
             Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
             return zero.Distance(ProjectToScreenPosition(new Vector2(sizeInWorld, 0f)));
         }
+
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
         {
             Vector3 position = ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(screenSpace, 0.0f), projection, view, Matrix.Identity);
