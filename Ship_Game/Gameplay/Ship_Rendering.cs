@@ -118,14 +118,17 @@ namespace Ship_Game.Gameplay
             else if (maxSize > 0f && size > maxSize)
                 size = maxSize;
 
-            if (isColonyShip)
-                us.DrawTexture(ResourceManager.Texture("UI/flagicon"), screenPos, loyalty.EmpireColor);
-
             if (StrategicIconPath.IsEmpty())
                 StrategicIconPath = "TacticalIcons/symbol_" + (isConstructor ? "construction" : shipData.GetRole());
             Texture2D icon = ResourceManager.Texture(StrategicIconPath) 
                           ?? ResourceManager.Texture("TacticalIcons/symbol_fighter"); // default symbol
             us.DrawTextureSized(icon, screenPos, Rotation, size, size, loyalty.EmpireColor);
+
+            if (isColonyShip)
+            {
+                us.DrawTexture(ResourceManager.Texture("UI/flagicon"), 
+                    screenPos + new Vector2(-7f, -17f), loyalty.EmpireColor);
+            }
         }
 
         public void DrawTacticalIcon(UniverseScreen us, UniverseScreen.UnivScreenState viewState)
@@ -136,7 +139,7 @@ namespace Ship_Game.Gameplay
             if (viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
                 if (!us.IsShipUnderFleetIcon(this, screenPos, 20f))
-                    DrawTactical(us, screenPos, screenRadius, 16f);
+                    DrawTactical(us, screenPos, screenRadius, 16f, 64f);
             }
             // ShowTacticalCloseup => when you hold down LALT key
             else if (us.ShowTacticalCloseup || viewState > UniverseScreen.UnivScreenState.ShipView)
@@ -146,7 +149,7 @@ namespace Ship_Game.Gameplay
             }
             else if (viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
-                DrawTactical(us, screenPos, screenRadius, 8f, 32f);
+                DrawTactical(us, screenPos, screenRadius, 16f, 64f);
 
                 // display low ammo
                 if (OrdinanceMax > 0.0f && Ordinance < 0.5f * OrdinanceMax)
