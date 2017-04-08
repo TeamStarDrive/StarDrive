@@ -219,7 +219,7 @@ namespace Ship_Game
         private bool NeedARelease;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
-        private Array<Fleet.Squad> SelectedFlank;
+        //private Array<Fleet.Squad> SelectedFlank;
         private int FBTimer;
         private bool pickedSomethingThisFrame;
         private Vector2 startDragWorld;
@@ -2782,7 +2782,7 @@ namespace Ship_Game
             if (input.DebugMode)
             {
                 Debug = !Debug;
-                UniverseScreen.debug = !Debug;
+                UniverseScreen.debug = !debug;
                 foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                     solarSystem.ExploredDict[player] = true;
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
@@ -2904,268 +2904,149 @@ namespace Ship_Game
                 }
             }
         }
+        private int InputFleetSelection(InputState input)
+        {
+            if (input.Fleet1)            
+                return 1;            
+            if (input.Fleet2)            
+                return 2;                            
+            if (input.Fleet3)
+                return 3;                            
+            if (input.Fleet4)
+                return 4;                            
+            if (input.Fleet5)
+                return 5;                            
+            if (input.Fleet6)
+                return 6;                            
+            if (input.Fleet7)
+                return 7;                            
+            if (input.Fleet8)
+                return 8;                            
+            if (input.Fleet9)
+                return 9;
+
+            return 10;
+            
+        }
+
+        private void AddSelectedShipsToFleet(Fleet fleet)
+        {
+            foreach (Ship ship in SelectedShipList)
+            {
+                if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null && ship.fleet == null)  //fbedard: cannot add ships from hangar in fleet
+                    fleet.Ships.Add(ship);
+            }
+            fleet.AutoArrange();
+            InputCheckPreviousShip();
+
+            SelectedShip = (Ship)null;
+            SelectedShipList.Clear();
+            if (fleet.Ships.Count > 0)
+            {
+                SelectedFleet = fleet;
+                AudioManager.PlayCue("techy_affirm1");
+            }
+            else
+                SelectedFleet = (Fleet)null;
+            foreach (Ship ship in fleet.Ships)
+            {
+                SelectedShipList.Add(ship);
+                ship.fleet = fleet;
+            }
+            RecomputeFleetButtons(true);
+            shipListInfoUI.SetShipList(SelectedShipList, true);  //fbedard:display new fleet in UI            
+        }
 
         private void HandleFleetSelections(InputState input)
         {
-            bool flag = false;
-            int index = 10;
-            if (input.RepeatingKeyCheck(Keys.LeftControl))
-            {
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.D1) && input.LastKeyboardState.IsKeyUp(Keys.D1))
-                {
-                    index = 1;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D2) && input.LastKeyboardState.IsKeyUp(Keys.D2))
-                {
-                    index = 2;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D3) && input.LastKeyboardState.IsKeyUp(Keys.D3))
-                {
-                    index = 3;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D4) && input.LastKeyboardState.IsKeyUp(Keys.D4))
-                {
-                    index = 4;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D5) && input.LastKeyboardState.IsKeyUp(Keys.D5))
-                {
-                    index = 5;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D6) && input.LastKeyboardState.IsKeyUp(Keys.D6))
-                {
-                    index = 6;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D7) && input.LastKeyboardState.IsKeyUp(Keys.D7))
-                {
-                    index = 7;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D8) && input.LastKeyboardState.IsKeyUp(Keys.D8))
-                {
-                    index = 8;
-                    flag = true;
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D9) && input.LastKeyboardState.IsKeyUp(Keys.D9))
-                {
-                    index = 9;
-                    flag = true;
-                }
-            }
-            if (flag && !input.RepeatingKeyCheck(Keys.LeftShift))
-            {
-                if (this.SelectedShipList.Count > 0)
-                {
-                    foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
-                        ship.fleet = (Fleet)null;
-                    this.player.GetFleetsDict()[index] = (Fleet)null;
-                    string str = "";
-                    switch (index)
-                    {
-                        case 1:
-                            str = "First";
-                            break;
-                        case 2:
-                            str = "Second";
-                            break;
-                        case 3:
-                            str = "Third";
-                            break;
-                        case 4:
-                            str = "Fourth";
-                            break;
-                        case 5:
-                            str = "Fifth";
-                            break;
-                        case 6:
-                            str = "Sixth";
-                            break;
-                        case 7:
-                            str = "Seventh";
-                            break;
-                        case 8:
-                            str = "Eigth";
-                            break;
-                        case 9:
-                            str = "Ninth";
-                            break;
-                    }
-                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
-                    {
+            
+            int index = InputFleetSelection(input);
+            if (index == 10) return;
 
-                        ship.RemoveFromAllFleets();
+            //replace ships in fleet from selection
+            if (input.ReplaceFleet) 
+            {
+                if (SelectedShipList.Count == 0) return;
 
-                    }
-                    this.player.GetFleetsDict()[index] = new Fleet();
-                    this.player.GetFleetsDict()[index].Name = str + " Fleet";
-                    this.player.GetFleetsDict()[index].Owner = this.player;
-                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
-                    {
-                        if (ship.loyalty == this.player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
-                            this.player.GetFleetsDict()[index].Ships.Add(ship);
-                    }
-                    this.player.GetFleetsDict()[index].AutoArrange();
-                    if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
-                        this.previousSelection = this.SelectedShip;
-                    this.SelectedShip = (Ship)null;
-                    this.SelectedShipList.Clear();
-                    this.SelectedFlank = (Array<Fleet.Squad>)null;
-                    if (this.player.GetFleetsDict()[index].Ships.Count > 0)
-                    {
-                        this.SelectedFleet = this.player.GetFleetsDict()[index];
-                        AudioManager.PlayCue("techy_affirm1");
-                    }
-                    else
-                        this.SelectedFleet = (Fleet)null;
-                    foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
-                    {
-                        this.SelectedShipList.Add(ship);
-                        ship.fleet = this.player.GetFleetsDict()[index];
-                    }
-                    this.RecomputeFleetButtons(true);
-                    this.shipListInfoUI.SetShipList(this.SelectedShipList, true);  //fbedard:display new fleet in UI
+                for (int i = player.GetFleetsDict()[index].Ships.Count - 1; i >= 0; i--)
+                {
+                    Ship ship = player.GetFleetsDict()[index].Ships[i];
+                    ship?.ClearFleet();
                 }
+
+                string str = Fleet.GetDefaultFleetNames(index);
+                foreach (Ship ship in SelectedShipList)
+                    ship.ClearFleet();
+                Fleet fleet = new Fleet();
+                fleet.Name = str + " Fleet";
+                fleet.Owner = player;
+
+                AddSelectedShipsToFleet(fleet);               
+                player.GetFleetsDict()[index] = fleet;
+
             }
             //added by gremlin add ships to exiting fleet
-            else if (flag && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+            else if (input.AddToFleet)
             {
-                if (this.SelectedShipList.Count > 0)
+                if (SelectedShipList.Count == 0) return;
+
+                string str = Fleet.GetDefaultFleetNames(index);
+                Fleet fleet = player.GetFleetsDict()[index];
+                foreach (Ship ship in SelectedShipList)
                 {
-                    //foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
-                    //    ship.fleet = (Fleet)null;
-                    //this.player.GetFleetsDict()[index] = (Fleet)null;
-                    string str = "";
-                    switch (index)
-                    {
-                        case 1:
-                            str = "First";
-                            break;
-                        case 2:
-                            str = "Second";
-                            break;
-                        case 3:
-                            str = "Third";
-                            break;
-                        case 4:
-                            str = "Fourth";
-                            break;
-                        case 5:
-                            str = "Fifth";
-                            break;
-                        case 6:
-                            str = "Sixth";
-                            break;
-                        case 7:
-                            str = "Seventh";
-                            break;
-                        case 8:
-                            str = "Eigth";
-                            break;
-                        case 9:
-                            str = "Ninth";
-                            break;
-                    }
-                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
-                    {
-                        if (ship.fleet != null && ship.fleet.Name == str + " Fleet")
-                            continue;
-                        if (ship.fleet != null && ship.fleet.Name != str + " Fleet")
-                            ship.RemoveFromAllFleets();
-                    }
-                    if (this.player.GetFleetsDict()[index] !=null && this.player.GetFleetsDict()[index].Ships.Count == 0)
-                    {
-                        this.player.GetFleetsDict()[index] = new Fleet();
-                        this.player.GetFleetsDict()[index].Name = str + " Fleet";
-                        this.player.GetFleetsDict()[index].Owner = this.player;
-                    }
-                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
-                    {
-                        if (ship.loyalty == this.player && !ship.isConstructor && (ship.fleet == null || ship.fleet.Name != str + " Fleet") && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
-                            this.player.GetFleetsDict()[index].Ships.Add(ship);
-                    }
-                    this.player.GetFleetsDict()[index].AutoArrange();
-                    if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
-                        this.previousSelection = this.SelectedShip;
-                    this.SelectedShip = (Ship)null;
-                    this.SelectedShipList.Clear();
-                    this.SelectedFlank = (Array<Fleet.Squad>)null;
-                    if (this.player.GetFleetsDict()[index].Ships.Count > 0)
-                    {
-                        this.SelectedFleet = this.player.GetFleetsDict()[index];
-                        AudioManager.PlayCue("techy_affirm1");
-                    }
-                    else
-                        this.SelectedFleet = (Fleet)null;
-                    foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
-                    {
-                        this.SelectedShipList.Add(ship);
-                        ship.fleet = this.player.GetFleetsDict()[index];
-                    }
-                    this.RecomputeFleetButtons(true);
+                    if (ship.fleet == fleet) continue;
+                    ship.ClearFleet();
                 }
+                
+                if (fleet != null && fleet.Ships.Count == 0)
+                {
+                    fleet = new Fleet();
+                    fleet.Name = str + " Fleet";
+                    fleet.Owner = player;
+                }
+                AddSelectedShipsToFleet(fleet);              
+                player.GetFleetsDict()[index] = fleet;
+
             }
-               //end of added by
-            else
+            //end of added by
+            else //populate ship info UI with ships in fleet
             {
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.D1) && input.LastKeyboardState.IsKeyUp(Keys.D1))
-                    index = 1;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D2) && input.LastKeyboardState.IsKeyUp(Keys.D2))
-                    index = 2;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D3) && input.LastKeyboardState.IsKeyUp(Keys.D3))
-                    index = 3;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D4) && input.LastKeyboardState.IsKeyUp(Keys.D4))
-                    index = 4;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D5) && input.LastKeyboardState.IsKeyUp(Keys.D5))
-                    index = 5;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D6) && input.LastKeyboardState.IsKeyUp(Keys.D6))
-                    index = 6;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D7) && input.LastKeyboardState.IsKeyUp(Keys.D7))
-                    index = 7;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D8) && input.LastKeyboardState.IsKeyUp(Keys.D8))
-                    index = 8;
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.D9) && input.LastKeyboardState.IsKeyUp(Keys.D9))
-                    index = 9;
+
                 if (index != 10)
                 {
-                    this.SelectedPlanet = (Planet)null;
-                    if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
-                        this.previousSelection = this.SelectedShip;
-                    this.SelectedShip = (Ship)null;
-                    this.SelectedFlank = (Array<Fleet.Squad>)null;
-                    if (this.player.GetFleetsDict()[index].Ships.Count > 0)
+                    SelectedPlanet = (Planet)null;
+                    InputCheckPreviousShip();
+
+                    SelectedShip = (Ship)null;
+                    Fleet fleet = player.GetFleetsDict()[index] ?? new Fleet();
+                    if (fleet.Ships.Count > 0)
                     {
-                        this.SelectedFleet = this.player.GetFleetsDict()[index];
+                        SelectedFleet = fleet;
                         AudioManager.PlayCue("techy_affirm1");
                     }
                     else
                         SelectedFleet = null;
                     SelectedShipList.Clear();
-                    foreach (Ship ship in player.GetFleetsDict()[index].Ships)
+                    foreach (Ship ship in fleet.Ships)
                     {
                         SelectedShipList.Add(ship);
                         SelectedSomethingTimer = 3f;
                     }
                     if (SelectedShipList.Count == 1)  //fbedard:display new fleet in UI
                     {
-                        if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != SelectedShipList[0]) //fbedard
-                            previousSelection = SelectedShip;
+                        InputCheckPreviousShip(SelectedShipList[0]);
                         SelectedShip = SelectedShipList[0];
                         ShipInfoUIElement.SetShip(SelectedShip);
                     }
                     else if (SelectedShipList.Count > 1)
-                        shipListInfoUI.SetShipList(SelectedShipList, true);  
+                        shipListInfoUI.SetShipList(SelectedShipList, true);
 
                     if (SelectedFleet != null && ClickTimer < TimerDelay)
                     {
                         ViewingShip = false;
                         AdjustCamTimer = 0.5f;
-                        transitionDestination.X = SelectedFleet.FindAveragePosition().X;
-                        transitionDestination.Y = SelectedFleet.FindAveragePosition().Y;
+                        transitionDestination = SelectedFleet.FindAveragePosition().ToVec3();
+
                         if (camHeight < GetZfromScreenState(UnivScreenState.SystemView))
                             transitionDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
                     }
@@ -3520,7 +3401,7 @@ namespace Ship_Game
                                 fleet.Reset();
                             }
                         }
-                        if (SelectedFlank == null && SelectedFleet  == null && SelectedItem == null &&
+                        if (SelectedFleet  == null && SelectedItem == null &&
                             SelectedShip  == null && SelectedPlanet == null && SelectedShipList.Count == 0)
                         {
                             Ship ship = CheckShipClick(input.CursorPosition, input);
@@ -4047,7 +3928,6 @@ namespace Ship_Game
                 this.SelectedShip = (Ship)null;
                 this.SelectedPlanet = (Planet)null;
                 this.SelectedFleet = (Fleet)null;
-                this.SelectedFlank = (Array<Fleet.Squad>)null;
                 this.SelectedSystem = (SolarSystem)null;
                 this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
                 this.ProjectingPosition = false;
