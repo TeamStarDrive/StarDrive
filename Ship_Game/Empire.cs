@@ -3107,7 +3107,7 @@ namespace Ship_Game
             ship.AI.OrderQueue.Clear();
            
             ship.AI.State = AIState.AwaitingOrders;
-            ship.RemoveFromAllFleets();
+            ship.ClearFleet();
         }
         public bool IsEmpireAttackable(Empire empire, GameplayObject target =null)
         {
