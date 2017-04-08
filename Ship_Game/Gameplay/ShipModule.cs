@@ -345,6 +345,16 @@ namespace Ship_Game.Gameplay
             return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
+        public bool HitTestShield(Vector2 point, float radius, out float squaredDist)
+        {
+            ++GlobalStats.DistanceCheckTotal;
+            float r2 = radius + shield_radius + 10f;
+            float dx = Center.X - point.X;
+            float dy = Center.Y - point.Y;
+            squaredDist = dx*dx + dy*dy;
+            return squaredDist <= r2*r2;
+        }
+
         private void UpdateModuleRadius()
         {
             // slightly bigger radius for better collision detection
@@ -484,12 +494,16 @@ namespace Ship_Game.Gameplay
                 {
                     Health -= damageAmount;
                 }
+
                 if (Health >= HealthMax)
                 {
                     Health = HealthMax;
                     Active = true;
                     onFire = false;
                 }
+
+                Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {Health} by {proj?.WeaponType}");
+
                 if (Health / HealthMax < 0.5f)
                 {
                     onFire = true;
@@ -517,6 +531,8 @@ namespace Ship_Game.Gameplay
                     ShieldPower -= damageAmount;
                     Parent.UpdateShields();
                 }
+
+                Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
 
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
                 {
