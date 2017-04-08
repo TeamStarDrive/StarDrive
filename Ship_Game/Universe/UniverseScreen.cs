@@ -5717,7 +5717,7 @@ namespace Ship_Game
                 posOnScreen.X = (float)Math.Round(posOnScreen.X);
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
 
-                float slotFacing   = ((int)((slot.Facing + 45) / 90)) * 90f; // align the facing to 0, 90, 180, 270...
+                float slotFacing   = (int)((slot.Facing + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
                 DrawTextureSized(concreteGlass, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, Color.White);
@@ -5784,23 +5784,18 @@ namespace Ship_Game
             {
                 float worldRadius = ship.GetSO().WorldBoundingSphere.Radius;
                 ProjectToScreenCoords(ship.Position, worldRadius, out Vector2 screenPos, out float screenRadius);
-                if (screenRadius < 8.0f)
+                if (screenRadius < 8f)
                     screenRadius = 8f;
-                float scale = screenRadius / (32 - GlobalStats.IconSize);
+                float size = screenRadius * 2;
+                //float scale = screenRadius / (32 - GlobalStats.IconSize);
 
-                bool flag = true;
                 foreach (ClickableFleet clickableFleet in ClickableFleetsList)
-                {
                     if (clickableFleet.fleet == ship.fleet && screenPos.Distance(clickableFleet.ScreenPos) < 20f)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (!flag)
-                    return;
+                        return;
+
                 Texture2D tex = ResourceManager.Texture(ship.StrategicIconPath);
-                if (tex != null) DrawTexture(tex, screenPos, scale, ship.Rotation, ship.loyalty?.EmpireColor ?? Color.White);
+                if (tex != null)
+                    DrawTextureSized(tex, screenPos, ship.Rotation, size, size, ship.loyalty?.EmpireColor ?? Color.White);
             }
             else if ((this.ShowTacticalCloseup || this.viewState > UnivScreenState.ShipView) && !this.LookingAtPlanet)
             {
@@ -6913,34 +6908,8 @@ namespace Ship_Game
             GalaxyView,
         }
 
+        public float GetZfromScreenState(UnivScreenState screenState) => (float)screenState;
 
-        public float GetZfromScreenState(UnivScreenState screenState)
-        {
-            float returnZ = 0;
-            switch (screenState)
-            {
-                case UnivScreenState.DetailView:
-                    returnZ = (float)UnivScreenState.DetailView;
-                    break;
-                case UnivScreenState.ShipView:
-                    returnZ = (float)UnivScreenState.ShipView; 
-                    break;
-                case UnivScreenState.SystemView:
-                    returnZ = (float)UnivScreenState.SystemView;
-                    break;
-                case UnivScreenState.SectorView:
-                    returnZ = (float)UnivScreenState.SectorView; // 1775000.0f;
-                    break;
-                case UnivScreenState.GalaxyView:
-                    returnZ = MaxCamHeight;
-                    break;
-                default:
-                    returnZ = 550f;
-                    break;
-            }
-            return returnZ;
-
-        }
         private struct FleetButton
         {
             public Rectangle ClickRect;

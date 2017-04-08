@@ -202,7 +202,7 @@ namespace Ship_Game.Gameplay
             BombTimer            = s.BombTimer;
             ModuleType           = s.ModuleType;
             IconTexturePath      = s.IconTexturePath;
-            isExternal           = s.isExternal;
+            //isExternal           = s.isExternal; // I think it's safer to let ship externals init handle this...
             TargetValue          = s.TargetValue;
         }
 
@@ -313,7 +313,10 @@ namespace Ship_Game.Gameplay
         {
             ++GlobalStats.DistanceCheckTotal;
 
-            float r2 = radius + Radius;
+            bool shields = !ignoreShields && ShieldPower > 0f;
+            float moduleRadius = shields ? shield_radius + 10f : Radius;
+
+            float r2 = radius + moduleRadius;
             float dx = Center.X - point.X;
             float dy = Center.Y - point.Y;
             if (dx * dx + dy * dy > r2 * r2)
@@ -321,7 +324,7 @@ namespace Ship_Game.Gameplay
 
             // we are a Square module? since we're already inside radius, collision happened
             // OR if module is shielded, then radius check is always circular
-            if (XSIZE == YSIZE || !ignoreShields && ShieldPower > 0.0f)
+            if (shields || XSIZE == YSIZE)
                 return true; 
 
             int smaller = XSIZE <  YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
@@ -342,11 +345,18 @@ namespace Ship_Game.Gameplay
             return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
+        private void UpdateModuleRadius()
+        {
+            // slightly bigger radius for better collision detection
+            Radius = 8f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+        }
+
+
         public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float health = Health;
+            float health = Health + ShieldPower;
             bool result = Damage(source, damageAmount);
-            damageRemainder = damageAmount - (health - Health);
+            damageRemainder = damageAmount - (health - Health - ShieldPower);
             return result;
         }
 
@@ -537,7 +547,7 @@ namespace Ship_Game.Gameplay
                         shield.pointLight.Radius = shield_radius * 2f;
                         shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
                         shield.displacement       = 0f;
-                        shield.Radius             = Radius;
+                        shield.Radius             = shield_radius + 10f;
                         shield.displacement       = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         shield.texscale           = 2.8f;
                         shield.texscale           = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
@@ -566,7 +576,7 @@ namespace Ship_Game.Gameplay
                         Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
                         shieldcue.Apply3D(Empire.Universe.listener, Parent.emitter);
                         shieldcue.Play();
-                        shield.Radius       = Radius;
+                        shield.Radius       = shield_radius + 10f;
                         shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         shield.texscale     = 2.8f;
                         shield.texscale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
@@ -584,7 +594,6 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            UpdateModuleRadius();
             return true;
         }
 
@@ -679,16 +688,6 @@ namespace Ship_Game.Gameplay
             }
             if (Parent == null)
                 Log.Error("module parent is null");
-        }
-
-        // so, when the shields are online, the module radius is much larger
-        private void UpdateModuleRadius()
-        {
-            if (ShieldPower <= 0f)
-                // slightly bigger radius for better collision detection
-                Radius = 8f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
-            else
-                Radius = shield_radius;
         }
 
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
@@ -902,11 +901,6 @@ namespace Ship_Game.Gameplay
                 Active = true;
                 Parent.UpdateExternalSlots(this, becameActive: true);
                 Parent.RecalculatePower();
-            }
-            else if (shield_power_max > 0f && !isExternal && Active)
-            {
-                quadrant = -1;
-                isExternal = true;
             }
             if (Health <= 0f && Active)
             {

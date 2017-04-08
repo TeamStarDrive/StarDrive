@@ -534,7 +534,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    collidedWith = otherShip.HitTestExternalModules(thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
+                    collidedWith = otherShip.HitTestSingle(thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
                 }
                 return collidedWith != null;
             }
@@ -575,7 +575,7 @@ namespace Ship_Game.Gameplay
                 if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
                     modifiedRadius *= 1f - ship.loyalty.data.ExplosiveRadiusReduction;
 
-                Array<ShipModule> modules = ship.HitTestModules(source.Center, modifiedRadius, source.IgnoresShields);
+                Array<ShipModule> modules = ship.HitTestMulti(source.Center, modifiedRadius, source.IgnoresShields);
 
                 float damageTracker = damageAmount;
                 foreach (ShipModule module in modules)
@@ -604,7 +604,7 @@ namespace Ship_Game.Gameplay
 
             // affected modules sorted by distance
             Vector2 explosionCenter = hitModule.Center;
-            Array<ShipModule> hitModules = parent.HitTestModules(explosionCenter, damageRadius, ignoreShields: true/*internal explosion*/);
+            Array<ShipModule> hitModules = parent.HitTestMulti(explosionCenter, damageRadius, ignoreShields: true/*internal explosion*/);
 
             // start dishing out damage from inside out to first 8 modules
             // since damage is internal, we can't explode with radial falloff
