@@ -2931,9 +2931,9 @@ namespace Ship_Game
 
         private void AddSelectedShipsToFleet(Fleet fleet)
         {
-            foreach (Ship ship in (Array<Ship>)SelectedShipList)
+            foreach (Ship ship in SelectedShipList)
             {
-                if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
+                if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null && ship.fleet == null)  //fbedard: cannot add ships from hangar in fleet
                     fleet.Ships.Add(ship);
             }
             fleet.AutoArrange();
@@ -2968,8 +2968,11 @@ namespace Ship_Game
             {
                 if (SelectedShipList.Count == 0) return;
 
-                foreach (Ship ship in player.GetFleetsDict()[index].Ships)
-                    ship.fleet = (Fleet)null;
+                for (int i = player.GetFleetsDict()[index].Ships.Count - 1; i >= 0; i--)
+                {
+                    Ship ship = player.GetFleetsDict()[index].Ships[i];
+                    ship?.ClearFleet();
+                }
 
                 string str = Fleet.GetDefaultFleetNames(index);
                 foreach (Ship ship in SelectedShipList)
