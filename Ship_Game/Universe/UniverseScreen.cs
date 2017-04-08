@@ -2782,7 +2782,7 @@ namespace Ship_Game
             if (input.DebugMode)
             {
                 Debug = !Debug;
-                UniverseScreen.debug = !Debug;
+                UniverseScreen.debug = !debug;
                 foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                     solarSystem.ExploredDict[player] = true;
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;

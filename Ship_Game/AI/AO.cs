@@ -126,7 +126,10 @@ namespace Ship_Game.AI
         public bool RemoveShip(Ship ship)
         {
             if (ship.fleet?.IsCoreFleet ?? false)
+            {
                 CoreFleet.RemoveShip(ship);
+                Log.Error("Ship was in core fleet");
+            }
             ShipsWaitingForCoreFleet.Remove(ship);            
             return OffensiveForcePool.Remove(ship);
         }
