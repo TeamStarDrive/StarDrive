@@ -217,6 +217,18 @@ namespace Ship_Game.AI
                 OurPlanetsInAo = PlanetsInAo.FilterBy(p => p.Owner == Owner);
             }
 
+            for (int i = ShipsWaitingForCoreFleet.Count - 1; i >= 0; i--)
+            {
+                Ship ship = ShipsWaitingForCoreFleet[i];
+                if (ship.fleet != null)
+                {
+                    ShipsWaitingForCoreFleet.RemoveAtSwapLast(i);
+                    Log.Error("ship {0} in fleet {1}", ship.Name, ship.fleet.Name);
+                }
+                if (OffensiveForcePool.Contains(ship))
+                    Log.Error("warning. Ship in offensive and waiting {0} ", CoreWorld.Name);
+                
+            }
             for (int i = 0; i < OffensiveForcePool.Count;)
             {
                 Ship ship = OffensiveForcePool[i];
