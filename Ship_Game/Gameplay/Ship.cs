@@ -3237,11 +3237,9 @@ namespace Ship_Game.Gameplay
                         loyalty.GetShips().QueuePendingRemoval(this);
                         loyalty = EnemyTroops[0].GetOwner();
                         loyalty.AddShipNextFrame(this);
-                        if (fleet != null)
-                        {
-                            fleet.Ships.Remove(this);
+                        if (fleet != null)                                                   
                             ClearFleet();                            
-                        }
+                        
                         AI.ClearOrdersNext = true;
                         AI.State = AIState.AwaitingOrders;
                     }
