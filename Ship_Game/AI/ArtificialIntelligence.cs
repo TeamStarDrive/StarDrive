@@ -854,25 +854,26 @@ namespace Ship_Game.AI
             {
                 if (Owner.engineState == Ship.MoveState.Warp && distCenter < 7500f)
                     Owner.HyperspaceReturn();
-                if (distCenter < radius  )
-                    ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime, Owner.speed > 200 ? Owner.speed*.90f : Owner.velocityMaximum);
+                if (distCenter < radius)
+                    ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime, Owner.speed > 200 ? Owner.speed * .90f : Owner.velocityMaximum);
                 else
                     ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime, Owner.speed);
                 if (distCenter < goal.TargetPlanet.ObjectRadius && goal.TargetPlanet.AssignTroopToTile(Owner.TroopList[0]))
-                        Owner.QueueTotalRemoval();
+                    Owner.QueueTotalRemoval();
                 return;
             }
-            else if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
-                     || Owner.TroopList.Count <= 0 || Owner.shipData.Role != ShipData.RoleName.troop
-                     && !Owner.GetHangars().Any(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0)
-                     && !Owner.hasTransporter)
+             if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
+                     || Owner.TroopList.Count <= 0 )
+                //||( Owner.shipData.Role != ShipData.RoleName.troop
+                //     && Owner.HasTroopBay !Owner.GetHangars().Any(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0)
+                //     && !Owner.hasTransporter))
             {
                 if (Owner.loyalty.isPlayer)
                     HadPO = true;
                 HasPriorityOrder = false;
                 State = DefaultAIState;
                 OrderQueue.Clear();
-                Log.Info("Do Land Troop: Troop Assault Canceled");
+                Log.Info("Do Land Troop: Troop Assault Canceled with {0} troops and {1} Landing Spots ", Owner.TroopList.Count , goal.TargetPlanet.GetGroundLandingSpots());
             }
             else if (distCenter < radius)
             {
@@ -921,7 +922,7 @@ namespace Ship_Game.AI
                                         break;
                                     }
                             Owner.TroopList.Remove(to);
-                        }   
+                        }
                     }
                 }
             }
@@ -940,7 +941,8 @@ namespace Ship_Game.AI
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.speed);
                 return;
             }
-            else if (distanceToTarget < Owner.Radius)
+
+            if (distanceToTarget < Owner.Radius)
             {
                 Owner.Velocity = Owner.Velocity + Vector2.Normalize(-forward) * (elapsedTime * Owner.GetSTLSpeed());
             }
