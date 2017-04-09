@@ -1152,20 +1152,18 @@ namespace Ship_Game.AI
         private bool RequisitionClaimForce()
         {
   
-            AO closestAO = FindClosestAO();
-            float tfstrength = 0f;
+            AO closestAO            = FindClosestAO();
+            float tfstrength        = 0f;
             Array<Ship> elTaskForce = new Array<Ship>();
-            int shipCount = 0;
-            float strengthNeeded = EnemyStrength;
+            int shipCount           = 0;
+            float strengthNeeded    = EnemyStrength;
 
             if (strengthNeeded <1)
                 strengthNeeded = Empire.GetGSAI().ThreatMatrix.PingRadarStr(TargetPlanet.Position, 125000, Empire);
-
-            if (strengthNeeded < Empire.currentMilitaryStrength * .02f)
-                strengthNeeded = Empire.currentMilitaryStrength * .02f;
+            
             foreach (Ship ship in closestAO.GetOffensiveForcePool().OrderBy(str=>str.GetStrength()))
             {
-                if (shipCount >= 3 && tfstrength >= strengthNeeded)
+                if (shipCount >= 3 && (strengthNeeded < Empire.currentMilitaryStrength * .02f && strengthNeeded < tfstrength))
                     break;
 
                 if (ship.GetStrength() <= 0f || ship.InCombat || ship.fleet != null)
@@ -1173,7 +1171,7 @@ namespace Ship_Game.AI
 
                 shipCount++;
                 if (elTaskForce.Contains(ship))
-                     Log.Error("eltaskforce already contains ship");
+                     Log.Error("eltaskforce already contains ship");             
                 elTaskForce.Add(ship);
                 tfstrength += ship.GetStrength();
             }
@@ -1181,29 +1179,26 @@ namespace Ship_Game.AI
             if (shipCount < 3 && tfstrength < strengthNeeded)
                 return false;
 
-            TaskForce = elTaskForce;
+            TaskForce        = elTaskForce;
             StartingStrength = tfstrength;
-            int FleetNum = FindFleetNumber();
-            Fleet newFleet = new Fleet();
+            int FleetNum     = FindFleetNumber();
+            Fleet newFleet   = new Fleet();
             foreach (Ship ship in TaskForce)
             {
                 closestAO.RemoveShip(ship);
                 Empire.GetGSAI().DefensiveCoordinator.Remove(ship);
-                //if (ship.fleet == null || ship.fleet.IsCoreFleet)
-                //{
-                //    Log.Error("ship fleet became null");
-                //}
+ 
             }
             foreach (Ship ship in TaskForce)            
                 newFleet.AddShip(ship);
             
 
             newFleet.Owner = Empire;
-            newFleet.Name = "Scout Fleet";
+            newFleet.Name  = "Scout Fleet";
             newFleet.AutoArrange();
             Empire.GetFleetsDict()[FleetNum] = newFleet;
             Empire.GetGSAI().UsedFleets.Add(FleetNum);
-            WhichFleet = FleetNum;
+            WhichFleet         = FleetNum;
             newFleet.FleetTask = this;
 
 
