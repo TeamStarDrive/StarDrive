@@ -403,7 +403,7 @@ namespace Ship_Game
         public static float AngleDiffTo(this GameplayObject origin, Vector2 target, out Vector2 right, out Vector2 forward)
         {
             forward = new Vector2((float)Sin(origin.Rotation), -(float)Cos(origin.Rotation));
-            right = new Vector2(forward.Y, -forward.X);
+            right = new Vector2(-forward.Y, forward.X);
             return (float)Acos(Vector2.Dot(target, forward));
         }
 
