@@ -246,7 +246,10 @@ namespace Ship_Game
 
         public static Vector2 FindVectorToTarget(this Vector2 origin, Vector2 target)
         {
-            return Vector2.Normalize(target - origin);
+            float dx = target.X - origin.X;
+            float dy = target.Y - origin.Y;
+            float len = (float)Sqrt(dx*dx + dy*dy);
+            return new Vector2(dx / len, dy / len);
         }
 
         public static Vector2 FindPredictedTargetPosition(this Vector2 weaponPos, Vector2 ownerVelocity,
@@ -369,6 +372,46 @@ namespace Ship_Game
             // no intersection: FallShort, Past, CompletelyInside
             return 0f;
         }
+
+        /// <summary>Attempt to intersect two line segments.</summary>
+        /// <param name="a">Start of line AB.</param>
+        /// <param name="b">End of line AB.</param>
+        /// <param name="c">Start of line CD.</param>
+        /// <param name="d">End of line CD.</param>
+        /// <param name="hit">The point of intersection if within the line segments, or empty..</param>
+        /// <returns><c>true</c> if the line segments intersect, otherwise <c>false</c>.</returns>
+        public static bool TryLineIntersect(Point a, Point b, Point c, Point d, out Point hit)
+        {
+            int dxA = b.X - a.X;
+            int dyA = b.Y - a.Y;
+            int dxD = d.X - c.X;
+            int dyD = d.Y - c.Y;
+
+            // t = (q − p) × s / (r × s)
+            // u = (q − p) × r / (r × s)
+            int denom = dxA*dyD - dyA*dxD;
+            if (denom == 0)
+            {
+                // lines are collinear or parallel
+                hit = default(Point);
+                return false;
+            }
+            int dxC = c.X - a.X;
+            int dyC = c.Y - a.Y;
+            float t = (dxC * dyD - dyC * dxD) / (float)denom;
+            float u = (dxC * dyA - dyC * dxA) / (float)denom;
+
+            if (t < 0 || t > 1 || u < 0 || u > 1)
+            {
+                // line segments do not intersect within their ranges
+                hit = default(Point);
+                return false;
+            }
+            hit = new Point(a.X + (int)(dxA * t), 
+                            a.Y + (int)(dyA * t));
+            return true;
+        }
+
 
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
