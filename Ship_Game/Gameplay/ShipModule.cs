@@ -266,6 +266,7 @@ namespace Ship_Game.Gameplay
             return module;
         }
 
+        // @todo Why isn't this used? A bug?
         private float ApplyShieldResistances(Weapon weapon, float damage)
         {
             if (weapon.Tag_Kinetic)   damage -= damage * shield_kinetic_resist;
@@ -743,7 +744,8 @@ namespace Ship_Game.Gameplay
                     GameplayObject damageCauser = Parent.LastDamagedBy;
                     if (damageCauser == null)
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
-                    SpatialManagerForSystem(inSystem).ExplodeAtModule(damageCauser, this, damageAmount:size*2500, damageRadius:size*64);
+                    SpatialManagerForSystem(inSystem).ExplodeAtModule(damageCauser, this, 
+                        ignoreShields:true, damageAmount:size*2500, damageRadius:size*64);
                 }
                 if (PowerFlowMax > 0 || PowerRadius > 0)
                     Parent.NeedRecalculate = true;
