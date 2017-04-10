@@ -246,7 +246,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (module.Health > 0f && module.HitTest(worldHitPos, hitRadius, ignoreShields))
+                if (module.Health > 0f && module.HitTestNoShields(worldHitPos, hitRadius))
                     modules.Add(module);
             }
 
@@ -304,7 +304,7 @@ namespace Ship_Game.Gameplay
 
             ShipModule m;
             if ((m = grid[minX + minY * width]) != null && m.Active
-                    && (radius <= 0f || m.HitTest(worldPos, radius, true))) return m;
+                    && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
 
             for (;;)
             {
@@ -314,14 +314,14 @@ namespace Ship_Game.Gameplay
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[minX + y * width]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, true))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (maxX < lastX) // test all modules to the right
                 {
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[maxX + y * width]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, true))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (minY > firstY) // test all top modules
                 {
@@ -329,7 +329,7 @@ namespace Ship_Game.Gameplay
                     int rowstart = minY * width;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[rowstart + x]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, true))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (maxY < lastY) // test all bottom modules
                 {
@@ -337,7 +337,7 @@ namespace Ship_Game.Gameplay
                     int rowstart = maxY * width;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[rowstart + x]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, true))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
@@ -404,7 +404,7 @@ namespace Ship_Game.Gameplay
         // find ShipModules that collide with a this wide RAY
         // direction must be normalized!!
         // results are sorted by distance
-        // @todo Optimize this
+        // @note Don't bother optimizing this. It's only used during armour piercing, which is super rare.
         public Array<ShipModule> RayHitTestModules(
             Vector2 startPos, Vector2 direction, float distance, float rayRadius)
         {
@@ -414,7 +414,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (module.Health > 0f && module.RayHitTest(startPos, endPos, rayRadius))
+                if (module.Health > 0f && module.RayHitTestNoShield(startPos, endPos, rayRadius))
                     modules.Add(module);
             }
             modules.Sort(module => startPos.SqDist(module.Position));
