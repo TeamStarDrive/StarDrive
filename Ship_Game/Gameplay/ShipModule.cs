@@ -305,6 +305,75 @@ namespace Ship_Game.Gameplay
             return damage;
         }
 
+        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+
+        private void Initialize(Vector2 pos)
+        {
+            ++DebugInfoScreen.ModulesCreated;
+
+            XMLPosition = pos;
+            // center of the top left 1x1 slot of this module 
+            //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
+
+            // top left position of this module
+            Position = new Vector2(pos.X - 264f, pos.Y - 264f);
+
+            // center of this module
+            Center.X = Position.X + XSIZE * 8f;
+            Center.Y = Position.Y + YSIZE * 8f;
+
+            UpdateModuleRadius();
+            SetAttributesByType();
+
+            if (Parent?.loyalty != null)
+            {
+                float max = ResourceManager.GetModuleTemplate(UID).HealthMax;
+                HealthMax = max + max * Parent.loyalty.data.Traits.ModHpModifier;
+                Health    = Math.Min(Health, HealthMax);     //Gretman (Health bug fix)
+            }
+
+            base.Initialize();
+            if (ModuleType == ShipModuleType.Hangar && !IsSupplyBay)
+            {
+                if (OrdinanceCapacity == 0)
+                {
+                    OrdinanceCapacity = (short)(MaximumHangarShipSize / 2);
+                    if (OrdinanceCapacity < 50)
+                        OrdinanceCapacity = 50;
+                }     
+            }
+            if (Parent == null)
+                Log.Error("module parent is null");
+        }
+
+        // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
+        public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
+        {
+            // Move the module, this part is optimized according to profiler data
+            ++GlobalStats.ModulesMoved;
+
+            Vector2 offset = XMLPosition; // huge cache miss here
+            offset.X += XSIZE*8f - 264f;
+            offset.Y += YSIZE*8f - 264f;
+
+            Vector2 parentCenter = Parent.Center;
+            float cx = offset.X * cos - offset.Y * sin;
+            float cy = offset.X * sin + offset.Y * cos;
+            cx += parentCenter.X;
+            cy += parentCenter.Y;
+            Center.X = cx;
+            Center.Y = cy;
+            Center3D.X = cx;
+            Center3D.Y = cy;
+            Center3D.Z = tan * (256f - XMLPosition.X);
+
+            // this can only happen if onFire is already true
+            reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
+
+            HandleDamageFireTrail(elapsedTime);
+            Rotation = Parent.Rotation;
+        }
+
         // Collision test with this ShipModule. Returns TRUE if point is inside this module's
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
         // are not accurately checked.
@@ -341,18 +410,37 @@ namespace Ship_Game.Gameplay
             float offset = (larger*16.0f - diameter) * 0.5f;
             Vector2 startPos = Position - dir * offset;
             Vector2 endPos   = Position + dir * offset;
-            float rayWidth = diameter * 1.125f; // approx 18.0x instead of 16.0x
+            float rayWidth   = diameter * 1.125f; // approx 18.0x instead of 16.0x
             return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
-        public bool HitTestShield(Vector2 point, float radius, out float squaredDist)
+        public bool HitTestShield(Vector2 point, float radius)
         {
             ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + shield_radius + 10f;
             float dx = Center.X - point.X;
             float dy = Center.Y - point.Y;
-            squaredDist = dx*dx + dy*dy;
-            return squaredDist <= r2*r2;
+            return dx*dx + dy*dy <= r2*r2;
+        }
+
+        public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius)
+        {
+            ++GlobalStats.DistanceCheckTotal;
+            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
+            float r2 = rayRadius + shield_radius + 10f;
+            float dx = Center.X - point.X;
+            float dy = Center.Y - point.Y;
+            return dx*dx + dy*dy <= r2*r2;
+        }
+
+        public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius)
+        {
+            ++GlobalStats.DistanceCheckTotal;
+            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
+            float r2 = rayRadius + Radius;
+            float dx = Center.X - point.X;
+            float dy = Center.Y - point.Y;
+            return dx*dx + dy*dy <= r2*r2;
         }
 
         private void UpdateModuleRadius()
@@ -370,7 +458,6 @@ namespace Ship_Game.Gameplay
             return result;
         }
 
-        // @todo Unify with DamageInvisible
         public override bool Damage(GameplayObject source, float damageAmount)
         {
             if (source != null)
@@ -398,7 +485,7 @@ namespace Ship_Game.Gameplay
             if (proj != null)
                 damageAmount = ApplyResistances(proj.Weapon, damageAmount);
 
-            if (ShieldPower <= 0f || proj != null && proj.IgnoresShields)
+            if (ShieldPower <= 0f || proj?.IgnoresShields == true)
             {
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= DamageThreshold)
@@ -495,6 +582,14 @@ namespace Ship_Game.Gameplay
                     Health -= damageAmount;
                 }
 
+            #if DEBUG
+                if (Empire.Universe.Debug && Parent.VanityName == "Perseverance")
+                {
+                    if (Health < 10) // never give up, never surrender! F_F
+                        Health = 10;
+                }
+            #endif
+
                 if (Health >= HealthMax)
                 {
                     Health = HealthMax;
@@ -502,7 +597,7 @@ namespace Ship_Game.Gameplay
                     onFire = false;
                 }
 
-                Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {Health} by {proj?.WeaponType}");
+                //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {Health} by {proj?.WeaponType}");
 
                 if (Health / HealthMax < 0.5f)
                 {
@@ -532,7 +627,7 @@ namespace Ship_Game.Gameplay
                     Parent.UpdateShields();
                 }
 
-                Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
+                //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
 
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
                 {
@@ -664,75 +759,6 @@ namespace Ship_Game.Gameplay
 
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
-
-        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
-
-        private void Initialize(Vector2 pos)
-        {
-            ++DebugInfoScreen.ModulesCreated;
-
-            XMLPosition = pos;
-            // center of the top left 1x1 slot of this module 
-            //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
-
-            // top left position of this module
-            Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-
-            // center of this module
-            Center.X = Position.X + XSIZE * 8f;
-            Center.Y = Position.Y + YSIZE * 8f;
-
-            UpdateModuleRadius();
-            SetAttributesByType();
-
-            if (Parent?.loyalty != null)
-            {
-                float max = ResourceManager.GetModuleTemplate(UID).HealthMax;
-                HealthMax = max + max * Parent.loyalty.data.Traits.ModHpModifier;
-                Health    = Math.Min(Health, HealthMax);     //Gretman (Health bug fix)
-            }
-
-            base.Initialize();
-            if (ModuleType == ShipModuleType.Hangar && !IsSupplyBay)
-            {
-                if (OrdinanceCapacity == 0)
-                {
-                    OrdinanceCapacity = (short)(MaximumHangarShipSize / 2);
-                    if (OrdinanceCapacity < 50)
-                        OrdinanceCapacity = 50;
-                }     
-            }
-            if (Parent == null)
-                Log.Error("module parent is null");
-        }
-
-        // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
-        public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
-        {
-            // Move the module, this part is optimized according to profiler data
-            ++GlobalStats.ModulesMoved;
-
-            Vector2 offset = XMLPosition; // huge cache miss here
-            offset.X += XSIZE*8f - 264f;
-            offset.Y += YSIZE*8f - 264f;
-
-            Vector2 parentCenter = Parent.Center;
-            float cx = offset.X * cos - offset.Y * sin;
-            float cy = offset.X * sin + offset.Y * cos;
-            cx += parentCenter.X;
-            cy += parentCenter.Y;
-            Center.X = cx;
-            Center.Y = cy;
-            Center3D.X = cx;
-            Center3D.Y = cy;
-            Center3D.Z = tan * (256f - XMLPosition.X);
-
-            // this can only happen if onFire is already true
-            reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
-
-            HandleDamageFireTrail(elapsedTime);
-            Rotation = Parent.Rotation;
-        }
 
 
         //added by gremlin boarding parties

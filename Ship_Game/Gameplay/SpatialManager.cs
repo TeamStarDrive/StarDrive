@@ -419,6 +419,8 @@ namespace Ship_Game.Gameplay
                 if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && collidedWith != null && (
                     projectile.Touch(collidedWith) || collidedWith.Touch(projectile)))
                 {
+                    projectile.CollidedThisFrame = true;
+                    collidedWith.CollidedThisFrame = true;
                     return; // projectile collided (and died), no need to continue collisions
                 }
             }
@@ -530,7 +532,7 @@ namespace Ship_Game.Gameplay
                 {
                     Vector2 dir = thisProj.Velocity.Normalized();
                     collidedWith = otherShip.RayHitTestSingle(
-                        thisProj.Center, thisProj.Center + dir*distPerFrame, thisProj.Radius, thisProj.IgnoresShields);
+                        thisProj.Center, thisProj.Center + dir*distPerFrame*2, thisProj.Radius, thisProj.IgnoresShields);
                 }
                 else
                 {

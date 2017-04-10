@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,24 +6,51 @@ namespace Ship_Game.Gameplay
 {
     public sealed partial class Ship
     {
-
-        private void DrawSparseModuleGrid(UniverseScreen screen)
+    #if DEBUG
+        private class TimedDebugPoint
         {
-            for (int y = 0; y < GridHeight; ++y)
+            public float Time;
+            public Vector2 Start;
+            public Vector2 End;
+        }
+        private readonly Array<TimedDebugPoint> SparseGridDebug = new Array<TimedDebugPoint>();
+        private void AddGridLocalDebugLine(float time, Vector2 localStart, Vector2 localEnd)
+        {
+            SparseGridDebug.Add(new TimedDebugPoint
             {
-                for (int x = 0; x < GridWidth; ++x)
+                Time = time, Start = localStart, End = localEnd
+            });
+        }
+    #endif
+
+        private void DrawSparseModuleGrid(UniverseScreen us)
+        {
+            if (SparseModuleGrid.Length == 0) // ship probably died
+            {
+                for (int y = 0; y < GridHeight; ++y)
                 {
-                    Color color = Color.DarkGray;
-                    if (ExternalModuleGrid[x + y * GridWidth] != null) color = Color.Blue;
-                    else if (SparseModuleGrid[x + y * GridWidth] != null) color = Color.Yellow;
+                    for (int x = 0; x < GridWidth; ++x)
+                    {
+                        Color color = Color.DarkGray;
+                        if    (ExternalModuleGrid[x + y * GridWidth] != null) color = Color.Blue;
+                        else if (SparseModuleGrid[x + y * GridWidth] != null) color = Color.Yellow;
 
-                    Vector2 gridLocal = GridOrigin + new Vector2(x * 16f + 8f, y * 16f + 8f);
-                    gridLocal = gridLocal.RotateAroundPoint(Vector2.Zero, Rotation);
-
-                    Vector2 worldPos = Center + gridLocal;
-                    screen.DrawRectangleProjected(worldPos, new Vector2(16f, 16f), Rotation, color);
+                        Vector2 worldPos = GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
+                        us.DrawRectangleProjected(worldPos, new Vector2(16f, 16f), Rotation, color);
+                    }
                 }
             }
+        #if DEBUG
+            for (int i = 0; i < SparseGridDebug.Count; ++i)
+            {
+                TimedDebugPoint tdp = SparseGridDebug[i];
+                Vector2 startPos = GridLocalToWorld(tdp.Start);
+                Vector2 endPos   = GridLocalToWorld(tdp.End);
+                us.DrawLineProjected(startPos, endPos, Color.Magenta);
+                us.DrawCircleProjected(endPos, 4f, 24, Color.Orange, 1.5f);
+                if ((tdp.Time -= 1f/60f) <= 0f) SparseGridDebug.RemoveAtSwapLast(i);
+            }
+        #endif
         }
 
 
@@ -79,7 +105,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (slot.Powered)
                         {
-                            var poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
+                            Texture2D poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
                             us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, Color.White);
                         }
                     }
@@ -105,7 +131,9 @@ namespace Ship_Game.Gameplay
             }
 
             if (enableModuleDebug)
+            {
                 DrawSparseModuleGrid(us);
+            }
         }
 
 
@@ -139,17 +167,17 @@ namespace Ship_Game.Gameplay
             if (viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
                 if (!us.IsShipUnderFleetIcon(this, screenPos, 20f))
-                    DrawTactical(us, screenPos, screenRadius, 16f, 64f);
+                    DrawTactical(us, screenPos, screenRadius, 16f, 32f);
             }
             // ShowTacticalCloseup => when you hold down LALT key
             else if (us.ShowTacticalCloseup || viewState > UniverseScreen.UnivScreenState.ShipView)
             {
                 if (!us.IsShipUnderFleetIcon(this, screenPos, screenRadius + 3.0f))
-                    DrawTactical(us, screenPos, screenRadius, 16f, 64f);
+                    DrawTactical(us, screenPos, screenRadius, 16f, 32f);
             }
             else if (viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
-                DrawTactical(us, screenPos, screenRadius, 16f, 64f);
+                DrawTactical(us, screenPos, screenRadius, 16f, 32f);
 
                 // display low ammo
                 if (OrdinanceMax > 0.0f && Ordinance < 0.5f * OrdinanceMax)

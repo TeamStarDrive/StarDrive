@@ -3152,7 +3152,7 @@ namespace Ship_Game
                             AudioManager.PlayCue("echo_affirm1");
                             SelectedSomethingTimer = 3f;
                             float num3 = SelectedFleet.Position.RadiansToTarget(vector2_1);
-                            Vector2 vectorToTarget = Vector2.Zero.FindVectorToTarget(SelectedFleet.Position.PointFromRadians(num3, 1f));
+                            Vector2 vectorToTarget = Vector2.Zero.DirectionToTarget(SelectedFleet.Position.PointFromRadians(num3, 1f));
                             foreach (Ship ship in SelectedFleet.Ships)
                                 player.GetGSAI().DefensiveCoordinator.Remove(ship);
                             Ship ship1 = CheckShipClick(startDrag, input);

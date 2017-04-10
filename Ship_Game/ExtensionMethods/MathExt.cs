@@ -244,7 +244,7 @@ namespace Ship_Game
             return ship.Position - (forward * distance);
         }
 
-        public static Vector2 FindVectorToTarget(this Vector2 origin, Vector2 target)
+        public static Vector2 DirectionToTarget(this Vector2 origin, Vector2 target)
         {
             float dx = target.X - origin.X;
             float dy = target.Y - origin.Y;
@@ -409,6 +409,54 @@ namespace Ship_Game
             }
             hit = new Point(a.X + (int)(dxA * t), 
                             a.Y + (int)(dyA * t));
+            return true;
+        }
+
+
+        // Liang-Barsky line clipping algorithm
+        // @note This algorithm relies on Y down !! It will not work with Y up
+        // Takes an axis aligned bounding rect (0..boundsWidth)x(0..boundsHeight)
+        // and two points that form a line [start, end]
+        // If result is true (which means line [start,end] intersects bounds) then
+        // output is [clippedStart, clippedEnd]. Otherwise no result is written.
+        // http://www.skytopia.com/project/articles/compsci/clipping.html
+        public static bool ClipLineWithBounds(
+            int boundsWidth, int boundsHeight, // Define the x/y clipping values for the border.
+            Point start, Point end,            // Define the start and end points of the line.
+            ref Point clippedStart, ref Point clippedEnd)  // The clipped points
+        {
+
+            float t0 = 0f, t1 = 1f;
+            int dx = end.X - start.X;
+            int dy = end.Y - start.Y;
+            int p = 0, q = 0;
+            for (int edge = 0; edge < 4; ++edge)
+            {
+                switch (edge) // Traverse through left, right, bottom, top edges.
+                {
+                    case 0: p = -dx; q = start.X;                  break; // left  edge check
+                    case 1: p =  dx; q = (boundsWidth-1)  - start.X; break; // right edge check
+                    case 2: p = -dy; q = (boundsHeight-1) - start.Y; break; // bottom edge check
+                    case 3: p =  dy; q = start.Y;                  break; // top edge check
+                }
+                if (p == 0 && q < 0)
+                    return false;   // (parallel line outside)
+                float r = q / (float)p;
+                if (p < 0)
+                {
+                    if (r > t1) return false; // line will clip too far, we're out of bounds
+                    if (r > t0) t0 = r;       // clip line from start towards end
+                }
+                else if (p > 0)
+                {
+                    if (r < t0) return false; // line will clip too far, we're out of bounds
+                    if (r < t1) t1 = r;       // clip line from end towards start
+                }
+            }
+            clippedStart.X = (int)(start.X + t0 * dx);
+            clippedStart.Y = (int)(start.Y + t0 * dy);
+            clippedEnd.X   = (int)(start.X + t1 * dx);
+            clippedEnd.Y   = (int)(start.Y + t1 * dy);
             return true;
         }
 
