@@ -591,7 +591,7 @@ namespace Ship_Game.Gameplay
                         if (DamageAmount > 0f) // damage passes through to next modules
                         {
                             Vector2 projectileDir = Velocity.Normalized();
-                            var projectedModules = parent.RayHitTestModules(Center, projectileDir, 64.0f, Radius);
+                            var projectedModules = parent.RayHitTestModules(Center, projectileDir, 100f, Radius);
 
                             // now pierce through all of the modules while we can still pierce and damage:
                             foreach (ShipModule impactModule in projectedModules)
