@@ -2500,41 +2500,46 @@ namespace Ship_Game.AI
             this.MarkedForExploration.Add(nearesttoHome);
             return nearesttoHome;
         }
-
-        public void AssignShipToForce(Ship toAdd)
+        public void RemoveShipFromForce(Ship ship, AO ao = null)
         {
-            if(empire.GetForcePool().Contains(toAdd))
+            if (ship == null) return;
+            empire.ForcePoolRemove(ship);
+            ao?.RemoveShip(ship);
+            DefensiveCoordinator.Remove(ship);
+
+        }
+        public void AssignShipToForce(Ship toAdd)
+        {            
+            if (toAdd.fleet != null ||empire.GetShipsFromOffensePools().Contains(toAdd) )//|| empire.GetForcePool().Contains(toAdd))
             {
-                Log.Error("ship already in force pool");
+                Log.Error("ship in {0}", toAdd.fleet?.Name ?? "force Pool");
             }
             int numWars = empire.AtWarCount;
-
-            float defStr = DefStr;
+            
             float baseDefensePct = 0.1f;
             baseDefensePct = baseDefensePct + 0.15f * (float)numWars;
-            
-           
+            if(toAdd .hasAssaultTransporter || toAdd.BombCount >0 || toAdd.HasTroopBay || toAdd.BaseStrength ==0 || toAdd.WarpThrust <= 0 || toAdd.GetStrength() < toAdd.BaseStrength || !toAdd.BaseCanWarp && !empire.GetForcePool().Contains(toAdd))
+            {
+                empire.GetForcePool().Add(toAdd);
+                return;
+            }
+
             if (baseDefensePct > 0.35f)
             {
                 baseDefensePct = 0.35f;
             }
-            //float EntireStrength = 0f;
-            //foreach (Ship ship in this.empire.GetShips())
-            //{
-            //	EntireStrength = EntireStrength + ship.GetStrength();
-            //}
-            //added by gremlin dont add zero strength ships to defensive force pool
-            if ((this.DefensiveCoordinator.DefenseDeficit > 0  //&& this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
-                && (toAdd.BombBays.Count == 0 || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp))  //
+            
+            bool needDef = empire.currentMilitaryStrength * baseDefensePct - DefStr >0 && DefensiveCoordinator.DefenseDeficit >0;
+
+            if (needDef)   //
             {
                 DefensiveCoordinator.AddShip(toAdd);
                 return;
             }
-
-            if (empire.GetGSAI().AreasOfOperations.FindMin(out AO ao, a => toAdd.Position.SqDist(a.Position)))
-                ao.AddShip(toAdd);
-            else
+            AO area = AreasOfOperations.FindMinFiltered(ao => !ao.AOFull, ao => toAdd.Position.SqDist(ao.Position));
+            if (!area?.AddShip(toAdd) ?? false )
                 empire.GetForcePool().Add(toAdd);
+
         }
 
         public void CallAllyToWar(Empire Ally, Empire Enemy)
@@ -6194,10 +6199,10 @@ namespace Ship_Game.AI
                 {
                     aOs.Add(areasOfOperation);
                     continue;
-                }
-                areasOfOperation.ThreatLevel = 0;
-                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStr(areasOfOperation.Position, areasOfOperation.Radius, empire);
-                int min = (int)(empireStr * ((DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())+1) * .01f));
+                }                
+                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Position, areasOfOperation.Radius, empire);
+
+                int min = (int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) *.5f);
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
                 
@@ -9267,29 +9272,32 @@ namespace Ship_Game.AI
                 }
             }
             int num5 = 0;
-            foreach (Ship ship in (Array<Ship>)this.empire.GetForcePool())
+            for (int i = empire.GetShipsFromOffensePools().Count - 1; i >= 0; i--)
             {
+                Ship ship = empire.GetShipsFromOffensePools()[i];
                 if (num5 < 5)
                 {
                     int techScore = ship.GetTechScore();
                     Array<string> list = new Array<string>();
-                    foreach (string index in this.empire.ShipsWeCanBuild)
+                    foreach (string index in empire.ShipsWeCanBuild)
                     {
-                        if (ResourceManager.ShipsDict[index].GetShipData().Hull == ship.GetShipData().Hull && ResourceManager.ShipsDict[index].GetTechScore() > techScore)
+                        if (ResourceManager.ShipsDict[index].GetShipData().Hull == ship.GetShipData().Hull &&
+                            ResourceManager.ShipsDict[index].GetTechScore() > techScore)
                             list.Add(index);
                     }
                     if (list.Count > 0)
                     {
-                        IOrderedEnumerable<string> orderedEnumerable = Enumerable.OrderByDescending<string, int>((IEnumerable<string>)list, (Func<string, int>)(uid => ResourceManager.ShipsDict[uid].GetTechScore()));
-                        ship.AI.OrderRefitTo(Enumerable.First<string>((IEnumerable<string>)orderedEnumerable));
-                        this.empire.GetForcePool().QueuePendingRemoval(ship);
+                        IOrderedEnumerable<string> orderedEnumerable = Enumerable.OrderByDescending<string, int>(
+                            (IEnumerable<string>) list,
+                            (Func<string, int>) (uid => ResourceManager.ShipsDict[uid].GetTechScore()));
+                        ship.AI.OrderRefitTo(Enumerable.First<string>((IEnumerable<string>) orderedEnumerable));
+
                         ++num5;
                     }
                 }
                 else
                     break;
             }
-            this.empire.GetForcePool().ApplyPendingRemovals();
         }
 
         public void Update()
