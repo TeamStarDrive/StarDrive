@@ -180,6 +180,10 @@ namespace Ship_Game.Gameplay
             return module != null;
         }
 
+
+
+
+
         // The simplest form of collision against shields. This is handled in all other HitTest functions
         private ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
@@ -204,6 +208,42 @@ namespace Ship_Game.Gameplay
             return null;
         }
 
+
+
+
+        
+        // Converts a world position to a grid local position (such as [16f,32f])
+        public Vector2 WorldToGridLocal(Vector2 worldPoint)
+        {
+            Vector2 offset = worldPoint - Center;
+            Vector2 rotated = offset.RotateAroundPoint(Vector2.Zero, -Rotation);
+            return rotated - GridOrigin;
+        }
+
+        public Point WorldToGridLocalPoint(Vector2 worldPoint)
+        {
+            Vector2 local = WorldToGridLocal(worldPoint);
+            return new Point((int)(local.X / 16f), (int)(local.Y / 16f));
+        }
+
+        public Vector2 GridLocalToWorld(Vector2 localPoint)
+        {
+            Vector2 centerLocal = GridOrigin + localPoint;
+            return centerLocal.RotateAroundPoint(Vector2.Zero, Rotation) + Center;
+        }
+
+        public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
+        {
+            return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
+        }
+
+        private static Point ClipGridPointToBounds(Point pt, int width, int height)
+        {
+            if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
+            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
+            return pt;
+        }
+
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
@@ -212,9 +252,49 @@ namespace Ship_Game.Gameplay
         {
             if (NumExternalSlots == 0)
                 return null;
-            return RadialSearch(worldPoint, 0f, ExternalModuleGrid, GridWidth, GridHeight);
+
+            ShipModule[] grid = ExternalModuleGrid;
+            int width = GridWidth;
+            int height = GridHeight;
+
+            Point pt = ClipGridPointToBounds(WorldToGridLocalPoint(worldPoint));
+
+            int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
+            ShipModule m;
+            if ((m = grid[minX + minY * width]) != null && m.Active) return m;
+
+            for (;;)
+            {
+                bool didExpand = false;
+                if (minX > 0f) // test all modules to the left
+                {
+                    --minX; didExpand = true;
+                    for (int y = minY; y <= maxY; ++y)
+                        if ((m = grid[minX + y*width]) != null && m.Active) return m;
+                }
+                if (maxX < width) // test all modules to the right
+                {
+                    ++maxX; didExpand = true;
+                    for (int y = minY; y <= maxY; ++y)
+                        if ((m = grid[maxX + y*width]) != null && m.Active) return m;
+                }
+                if (minY > 0f) // test all top modules
+                {
+                    --minY; didExpand = true;
+                    for (int x = minX; x <= maxX; ++x)
+                        if ((m = grid[x + minY*width]) != null && m.Active) return m;
+                }
+                if (maxY < height) // test all bottom modules
+                {
+                    ++maxY; didExpand = true;
+                    for (int x = minX; x <= maxX; ++x)
+                        if ((m = grid[x + maxY*width]) != null && m.Active) return m;
+                }
+                if (!didExpand) return null; // aargh, looks like we didn't find any!
+            }
         }
 
+        // find the first module that falls under this
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
             if (NumExternalSlots == 0)
@@ -259,34 +339,11 @@ namespace Ship_Game.Gameplay
             return modules;
         }
 
-        // Converts a world position to a grid local position (such as [16f,32f])
-        public Vector2 WorldToGridLocal(Vector2 worldPoint)
-        {
-            Vector2 offset = worldPoint - Center;
-            Vector2 rotated = offset.RotateAroundPoint(Vector2.Zero, -Rotation);
-            return rotated - GridOrigin;
-        }
-
-        public Point WorldToGridLocalPoint(Vector2 worldPoint)
-        {
-            Vector2 local = WorldToGridLocal(worldPoint);
-            return new Point((int)(local.X / 16f), (int)(local.Y / 16f));
-        }
-
-        public Vector2 GridLocalToWorld(Vector2 localPoint)
-        {
-            Vector2 centerLocal = GridOrigin + localPoint;
-            return centerLocal.RotateAroundPoint(Vector2.Zero, Rotation) + Center;
-        }
-
-        public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
-        {
-            return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
-        }
-
-        // Generic shipmodule grid search with an optional predicate filter
+        // Generic shipmodule grid search
         private ShipModule RadialSearch(Vector2 worldPos, float radius, ShipModule[] grid, int width, int height)
         {
+            
+
             Vector2 center = WorldToGridLocal(worldPos);
             int firstX = (int)((center.X - radius) / 16.0f);
             int lastX  = (int)((center.X + radius) / 16.0f);
@@ -420,7 +477,6 @@ namespace Ship_Game.Gameplay
             modules.Sort(module => startPos.SqDist(module.Position));
             return modules;
         }
-
 
 
         // @todo Redo all of this targeting code
