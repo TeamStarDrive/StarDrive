@@ -1649,15 +1649,14 @@ namespace Ship_Game.AI
                 fireTarget.Damage(w.Owner, w.DamageAmount);
                 return;
             }
+
             if (!(fireTarget is Ship targetShip))
             {
                 if (fireTarget is ShipModule shipModule)
-                {
-                    w.timeToNextFire = w.fireDelay;
-                    shipModule.GetParent().FindClosestExternalModule(Owner.Center).Damage(Owner, w.InvisibleDamageAmount);
-                }
-                return;
+                    targetShip = shipModule.GetParent();
+                else return; // aaarggh!
             }
+
             w.timeToNextFire = w.fireDelay;
             if (targetShip.NumExternalSlots == 0)
             {
@@ -1665,22 +1664,15 @@ namespace Ship_Game.AI
                 return;
             }//@todo invisible ecm and such should match visible
 
-            if ((fireTarget as Ship).AI.CombatState == CombatState.Evade)   //fbedard: firing on evading ship can miss !
+
+            if (targetShip.AI.CombatState == CombatState.Evade) // fbedard: firing on evading ship can miss !
                 if (RandomMath.RandomBetween(0f, 100f) < 5f + targetShip.experience)
                     return;
 
-
             if (targetShip.shield_power > 0f)
-            {
                 targetShip.DamageShieldInvisible(Owner, w.InvisibleDamageAmount);
-                return;
-            }
-
-            ShipModule closestExtSlot = targetShip.FindClosestExternalModule(Owner.Center);
-            if (closestExtSlot == null)
-                return;
-            ShipModule unshieldedModule = targetShip.FindUnshieldedExternalModule(closestExtSlot.quadrant);
-            unshieldedModule?.Damage(Owner, w.InvisibleDamageAmount);
+            else
+                targetShip.FindClosestUnshieldedModule(Owner.Center)?.Damage(Owner, w.InvisibleDamageAmount);
         }
 
         //go colonize

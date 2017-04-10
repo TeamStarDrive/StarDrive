@@ -596,7 +596,8 @@ namespace Ship_Game.Gameplay
         }
 
         // Refactored by RedFox
-        public void ExplodeAtModule(GameplayObject damageSource, ShipModule hitModule, float damageAmount, float damageRadius)
+        public void ExplodeAtModule(GameplayObject damageSource, ShipModule hitModule, 
+                                    bool ignoreShields, float damageAmount, float damageRadius)
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
@@ -606,7 +607,7 @@ namespace Ship_Game.Gameplay
 
             // affected modules sorted by distance
             Vector2 explosionCenter = hitModule.Center;
-            Array<ShipModule> hitModules = parent.HitTestMulti(explosionCenter, damageRadius, ignoreShields: true/*internal explosion*/);
+            Array<ShipModule> hitModules = parent.HitTestMulti(explosionCenter, damageRadius, ignoreShields);
 
             // start dishing out damage from inside out to first 8 modules
             // since damage is internal, we can't explode with radial falloff
@@ -654,7 +655,7 @@ namespace Ship_Game.Gameplay
 
                 if (otherObj is Ship otherShip)
                 {
-                    ShipModule nearest = otherShip.FindClosestExternalModule(explosionCenter);
+                    ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);
                     if (nearest == null)
                         continue;
 
@@ -663,7 +664,7 @@ namespace Ship_Game.Gameplay
                         continue;
 
                     float damageFalloff = DamageFalloff(explosionCenter, nearest.Center, damageRadius);
-                    ExplodeAtModule(thisShip, nearest, damageAmount * damageFalloff, reducedDamageRadius);
+                    ExplodeAtModule(thisShip, nearest, false, damageAmount * damageFalloff, reducedDamageRadius);
 
                     if (!otherShip.dying)
                     {
