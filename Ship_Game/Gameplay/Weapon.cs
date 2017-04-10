@@ -161,8 +161,6 @@ namespace Ship_Game.Gameplay
         public GameplayObject fireTarget;
         public float TargetChangeTimer;
         public bool PrimaryTarget = false;
-        [XmlIgnore][JsonIgnore]
-        public Array<ShipModule> AttackerTargetting;// = new Array<ModuleSlot>();
 
         [XmlIgnore][JsonIgnore]
         private int SalvosToFire;

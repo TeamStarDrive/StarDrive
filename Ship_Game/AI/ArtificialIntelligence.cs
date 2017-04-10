@@ -5930,8 +5930,6 @@ namespace Ship_Game.AI
                         purge.fireTarget = null;
                         purge.SalvoTarget = null;
                     }
-                    if (purge.AttackerTargetting != null)
-                        purge.AttackerTargetting.Clear();
                 }
                 if (Owner.GetHangars().Count > 0 && Owner.loyalty != universeScreen.player)
                     foreach (ShipModule hangar in Owner.GetHangars())
