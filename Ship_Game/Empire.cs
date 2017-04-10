@@ -48,7 +48,7 @@ namespace Ship_Game
         public string ResearchTopic = "";
         //private Array<War> Wars = new Array<War>();          //Not referenced in code, removing to save memory
         private Fleet DefensiveFleet = new Fleet();
-        private BatchRemovalCollection<Ship> ForcePool = new BatchRemovalCollection<Ship>();
+        private Array<Ship> ForcePool = new Array<Ship>();
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
@@ -465,13 +465,15 @@ namespace Ship_Game
         {
             return OwnedShips;
         }
-        public Array<Ship> GetShipsFromOffensePools()
+        public Array<Ship> GetShipsFromOffensePools(bool OnlyAO = false)
         {
             Array<Ship> ships = new Array<Ship>();
             foreach (AO ao in GetGSAI().AreasOfOperations)
             {
                 ships.AddRange(ao.GetOffensiveForcePool());
             }
+            if(!OnlyAO)
+                ships.AddRange(ForcePool);
             return ships;
         }
         public BatchRemovalCollection<Ship> GetProjectors()
@@ -2646,17 +2648,17 @@ namespace Ship_Game
 
         public void ForcePoolAdd(Ship s)
         {
-            if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian || s.fleet != null )
+            if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian )
                 return;
             this.GSAI.AssignShipToForce(s);
         }
 
         public void ForcePoolRemove(Ship s)
         {
-            this.ForcePool.Remove(s);
+            this.ForcePool.RemoveSwapLast(s);
         }
 
-        public BatchRemovalCollection<Ship> GetForcePool()
+        public Array<Ship> GetForcePool()
         {
             return this.ForcePool;
         }
@@ -3155,7 +3157,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            ForcePool?.Dispose(ref ForcePool);
+            ForcePool = null;
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);

@@ -277,7 +277,7 @@ namespace Ship_Game.AI
 
                 case 2:
                     this.beingBuilt.DoDefense();
-                    this.empire.ForcePoolAdd(this.beingBuilt);
+                    // this.empire.ForcePoolAdd(this.beingBuilt);
                     this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
             }

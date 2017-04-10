@@ -1300,6 +1300,18 @@ namespace Ship_Game
                     for (int i = 0; i < EmpireManager.Empires.Count; i++)
                     {
                         var empire = EmpireManager.Empires[i];
+
+                        if (!empire.isPlayer)
+                        {
+                            Ship[] forcePool = empire.GetForcePool().ToArray();
+                            empire.GetForcePool().Clear();
+                            for (int j = forcePool.Length - 1; j >= 0; j--)
+                            {
+                                Ship ship = forcePool[j];                                
+                                empire.ForcePoolAdd(ship);
+                            }
+                        }
+                    
                         foreach (Ship s in empire.ShipsToAdd)
                         {
                             empire.AddShip(s);
