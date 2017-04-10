@@ -1011,8 +1011,8 @@ namespace Ship_Game.AI
             float distance = orbitTarget.Position.Distance(Owner.Center);
             if(Owner.shipData.ShipCategory == ShipData.Category.Civilian && distance < Empire.ProjectorRadius * 2)
             {
-                OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, OrbitTarget);
                 OrbitPos = orbitTarget.Position;
+                OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, OrbitTarget);                
                 return;
             }
 
@@ -3846,6 +3846,8 @@ namespace Ship_Game.AI
                             ActiveWayPoints.Enqueue(point);
                     }
                 }
+                if (endv == Vector2.Zero)
+                    Log.Error("pathcache error. end = {0},{1}", endv.X.ToString(), endv.Y.ToString());
                 ActiveWayPoints.Enqueue(endv);
             }
             ++pathend.CacheHits;

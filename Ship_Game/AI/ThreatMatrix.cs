@@ -170,6 +170,29 @@ namespace Ship_Game.AI
             return retList;
 
         }
+        public float PingRadarStrengthLargestCluster(Vector2 position, float radius, Empire empire, float granularity = 50000f)
+        {
+            var retList = new Map<Vector2, float>();
+            Array<Ship> pings = PingRadarShip(position, radius, empire);
+            float largestCluster =0;
+            var filter = new HashSet<Ship>();
+
+            for (int index = 0; index < pings.Count; index++)
+            {
+                Ship ship = pings[index];
+                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
+                    continue;
+
+                Array<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
+                if (cluster.Count == 0) continue;
+
+                float clusterStrength =cluster.Sum(str => str.GetStrength());
+                if (clusterStrength > largestCluster) largestCluster = clusterStrength;                
+                filter.UnionWith(cluster);
+            }
+            return largestCluster;
+
+        }
         public Vector2 PingRadarAvgPos(Vector2 position, float radius, Empire us)
         {
             var pos = new Vector2();

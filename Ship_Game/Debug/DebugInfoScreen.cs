@@ -221,7 +221,7 @@ namespace Ship_Game.Debug
                     DrawString("Ships: " + Screen.SelectedFleet.Ships.Count);
                     DrawString("Strength: " + Screen.SelectedFleet.GetStrength());
 
-                    string shipAI = Screen.SelectedFleet.Ships.FirstOrDefault().AI.State.ToString() ?? "";
+                    string shipAI = Screen.SelectedFleet.Ships?.FirstOrDefault().AI.State.ToString() ?? "";
                     DrawString("Ship State: " + shipAI);
                 }
             }
@@ -355,12 +355,15 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                foreach (MilitaryTask task in e.GetGSAI().TaskList)
+                for (int j = 0; j < e.GetGSAI().TaskList.Count; j++)
                 {
+                    MilitaryTask task = e.GetGSAI().TaskList[j];
+                    if (task == null) continue;
                     string sysName = "Deep Space";
-                    foreach (SolarSystem sys in UniverseScreen.SolarSystemList)
+                    for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
                     {
-                        if (task.AO.InRadius(sys.Position, 100000f))
+                        SolarSystem sys = UniverseScreen.SolarSystemList[i];
+                        if ((task?.AO.InRadius(sys.Position, 100000f)) ?? false)
                             sysName = sys.Name;
                     }
                     NewLine();

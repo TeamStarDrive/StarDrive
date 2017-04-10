@@ -84,7 +84,8 @@ namespace Ship_Game.AI
 
         private void GetAvailableShips(AO area, Array<Ship> bombers, Array<Ship> combat, Array<Ship> troopShips, Array<Ship> utility)
         {
-            foreach (Ship ship in area.GetOffensiveForcePool().OrderBy(ship => Vector2.Distance(ship.Center, area.Position) >= area.Radius*.5).ThenBy(str => str.BaseStrength))
+            var ships =area.GetOffensiveForcePool().Union(Empire.GetForcePool());
+            foreach (Ship ship in ships )
             {
                 if (ship.fleet != null)
                     Log.Error("GetAvailableShips: a ship is in fleet {0} and not available for {1}", ship.fleet.Name, type.ToString());
@@ -103,7 +104,6 @@ namespace Ship_Game.AI
                     || ship.InCombat
                     || ship.fleet != null
                     || ship.Mothership != null
-                    || Empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship)
                     || ship.AI.State !=  AIState.AwaitingOrders
                     || (ship.System!= null && ship.System.CombatInSystem)   )
                     continue;
@@ -312,7 +312,7 @@ namespace Ship_Game.AI
         public void EndTask()
         {
             DebugInfoScreen.CanceledMtasksCount++;
-
+            Empire.GetGSAI().TaskList.QueuePendingRemoval(this);
             switch (type)
             {
                 case TaskType.Exploration:
@@ -380,19 +380,12 @@ namespace Ship_Game.AI
                 }
                 else
                 {
+                    TaskForce.Clear();
                     if (Fleet.IsCoreFleet || Empire.isPlayer)
                         return;
 
                     if (Fleet == null)
-                        return;
-                    for (int i = Empire.GetFleetsDict()[WhichFleet].Ships.Count - 1; i >= 0; i--)
-                    {
-                        Ship ship = Empire.GetFleetsDict()[WhichFleet].Ships[i];
-                        Empire.ForcePoolAdd(ship);
-                    }
-                        
-                        
-                    
+                        return;                                                               
 
                     for (int index = Fleet.Ships.Count - 1; index >= 0; index--)
                     {
@@ -402,17 +395,17 @@ namespace Ship_Game.AI
                         Fleet.RemoveShip(ship);
                         ship.HyperspaceReturn();
                         ship.isSpooling = false;
-                        if (ship.shipData.Role != ShipData.RoleName.troop)
+                        if (ship.shipData.Role == ShipData.RoleName.troop)
                             ship.AI.OrderRebaseToNearest();
                         else
                         {
 
-                            closestAO.AddShip(ship);
+                            Empire.ForcePoolAdd(ship);
                             ship.AI.OrderResupplyNearest(false);
                         }
                         
                     }
-                    TaskForce.Clear();
+                    
                     Empire.GetGSAI().UsedFleets.Remove(WhichFleet);
                     Fleet.Reset();
                 }
@@ -443,11 +436,12 @@ namespace Ship_Game.AI
                     toLaunch.Clear();
                 }
             }
-            Empire.GetGSAI().TaskList.QueuePendingRemoval(this);
+            
         }
 
         public void EndTaskWithMove()
         {
+            Empire.GetGSAI().TaskList.QueuePendingRemoval(this);
             foreach (Guid goalGuid in HeldGoals)
             {
                 foreach (Goal g in Empire.GetGSAI().Goals)
@@ -493,7 +487,7 @@ namespace Ship_Game.AI
                     Empire.GetFleetsDict()[WhichFleet].Reset();
                 }
             }
-            Empire.GetGSAI().TaskList.QueuePendingRemoval(this);
+            
         }
 
         public void Evaluate(Empire e)
@@ -985,7 +979,6 @@ namespace Ship_Game.AI
 
                 newFleet.AddShip(ship);
                 ForceStrength += ship.PlanetAssaultStrength;
-                Empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 
             }
 
@@ -1014,10 +1007,8 @@ namespace Ship_Game.AI
                 newFleet.AddShip(ship);
                 ship.AI.OrderQueue.Clear();
                 ship.AI.State = AIState.AwaitingOrders;
-               
-                closestAO.RemoveShip(ship);
-                if (ship.AI.SystemToDefend != null)
-                    Empire.GetGSAI().DefensiveCoordinator.Remove(ship);
+
+                Empire.GetGSAI().RemoveShipFromForce(ship,closestAO);
             }
             newFleet.AutoArrange();
             Step = 1;
@@ -1176,7 +1167,7 @@ namespace Ship_Game.AI
                 tfstrength += ship.GetStrength();
             }
 
-            if (shipCount < 3 && tfstrength < strengthNeeded)
+            if (shipCount < 3 && tfstrength ==0 || tfstrength < strengthNeeded)
                 return false;
 
             TaskForce        = elTaskForce;
@@ -1185,12 +1176,10 @@ namespace Ship_Game.AI
             Fleet newFleet   = new Fleet();
             foreach (Ship ship in TaskForce)
             {
-                closestAO.RemoveShip(ship);
-                Empire.GetGSAI().DefensiveCoordinator.Remove(ship);
- 
-            }
-            foreach (Ship ship in TaskForce)            
+                Empire.GetGSAI().RemoveShipFromForce(ship,closestAO);
                 newFleet.AddShip(ship);
+            }          
+                
             
 
             newFleet.Owner = Empire;

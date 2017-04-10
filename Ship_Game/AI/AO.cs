@@ -13,13 +13,13 @@ namespace Ship_Game.AI
         public static readonly Planet[] NoPlanets = new Planet[0];
 
         [XmlIgnore][JsonIgnore] private Planet CoreWorld;
-        [XmlIgnore][JsonIgnore] private Array<Ship> OffensiveForcePool = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] private Fleet CoreFleet = new Fleet();
+        [XmlIgnore][JsonIgnore] private Array<Ship> OffensiveForcePool                = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] private Fleet CoreFleet                               = new Fleet();
         [XmlIgnore][JsonIgnore] private readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] private Planet[] PlanetsInAo    = NoPlanets;
-        [XmlIgnore][JsonIgnore] private Planet[] OurPlanetsInAo = NoPlanets;
-        [XmlIgnore][JsonIgnore] public Vector2 Position => CoreWorld.Position;
-        [XmlIgnore][JsonIgnore] private Empire Owner => CoreWorld.Owner;
+        [XmlIgnore][JsonIgnore] private Planet[] PlanetsInAo                          = NoPlanets;
+        [XmlIgnore][JsonIgnore] private Planet[] OurPlanetsInAo                       = NoPlanets;
+        [XmlIgnore][JsonIgnore] public Vector2 Position                               => CoreWorld.Position;
+        [XmlIgnore][JsonIgnore] private Empire Owner                                  => CoreWorld.Owner;
 
         [Serialize(0)] public int ThreatLevel;
         [Serialize(1)] public Guid CoreWorldGuid;
@@ -30,19 +30,26 @@ namespace Ship_Game.AI
         //[Serialize(6)] private bool Flip; // @todo Change savegame version before reassigning Serialize indices
         [Serialize(7)] public float Radius;
         [Serialize(8)] public int TurnsToRelax;
-        public Fleet GetCoreFleet() => CoreFleet;
-        public Planet GetPlanet() => CoreWorld;
-        public Planet[] GetPlanets() => OurPlanetsInAo;
+        public Fleet GetCoreFleet()                        => CoreFleet;
+        public Planet GetPlanet()                          => CoreWorld;
+        public Planet[] GetPlanets()                       => OurPlanetsInAo;
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
-        public IReadOnlyList<Ship> GetWaitingShips() => ShipsWaitingForCoreFleet;
+        public IReadOnlyList<Ship> GetWaitingShips()       => ShipsWaitingForCoreFleet;
+        public bool AOFull { get; private set; }           = true;
 
         public AO()
         {
-        }
+        }        
+        
 
         private bool IsCoreFleetFull()
         {
-            return ThreatLevel < CoreFleet.GetStrength();            
+            float str =0;
+            foreach (Ship ship in ShipsWaitingForCoreFleet)
+                str += ship.GetStrength();
+
+            return ThreatLevel < CoreFleet.GetStrength() + str;
+
         }
 
         private void CoreFleetAddShip(Ship ship)
@@ -69,57 +76,31 @@ namespace Ship_Game.AI
             PlanetsInAo = tempPlanet.ToArray();
         }
 
-        public void AddShip(Ship ship)
+        public bool AddShip(Ship ship)
         {
-            if (ship.BaseStrength < 1f)
-                return ;
+            if (ship.BaseStrength < 1f || ship.BombBays.Count > 0 || ship.hasAssaultTransporter || ship.HasTroopBay)
+                return false;
             if (OffensiveForcePool.Contains(ship))
             {
                 Log.Warning("offensive forcepool already contains this ship. not adding");
-                return;
+                return false;
             }
             if (ship.fleet != null)
-                Log.Error("readding corefleet ship");
-            //@check for arbitraty comarison threatlevel
-            if (IsCoreFleetFull() || ship.BombBays.Count > 0 || ship.hasAssaultTransporter || ship.HasTroopBay)
+                Log.Error("corefleet ship in {0}" , ship.fleet.Name);
+            Owner.GetGSAI().RemoveShipFromForce(ship);
+            if (IsCoreFleetFull()) // )
             {
                 OffensiveForcePool.Add(ship);
-                return;
+
+                return true;
             }
 
             if (ShipsWaitingForCoreFleet.Contains(ship))
                 Log.Error("ships waiting for corefleet already contains this ship");
 
-            ShipsWaitingForCoreFleet.Add(ship);
+            ShipsWaitingForCoreFleet.Add(ship);            
 
-            ////@corefleet speed less than 4k arbitrary logic means a likely problem 
-            //if (CoreFleet.FleetTask == null && ship.fleet == null && CoreFleet.Speed < 4000 && !CoreFleetFull())
-            //{
-            //    CoreFleetAddShip(ship);
-            //    float strength = CoreFleet.GetStrength();
-            //    foreach (Ship waiting in ShipsWaitingForCoreFleet)
-            //    {
-            //        if (waiting.fleet != null)
-            //            continue;
-            //        strength += waiting.GetStrength();
-            //        if (ThreatLevel < strength) break;
-            //        CoreFleet.AddShip(waiting);
-            //        waiting.GetAI().OrderQueue.Clear();
-            //        waiting.GetAI().HasPriorityOrder = false;
-            //    }
-            //    CoreFleet.Position = CoreWorld.Position;
-            //    CoreFleet.AutoArrange();
-            //    CoreFleet.MoveToNow(Position, 0f, new Vector2(0f, -1f));
-            //    ShipsWaitingForCoreFleet.Clear();
-
-            //}
-            //else if (ship.fleet == null)
-            //{
-            //    ShipsWaitingForCoreFleet.Add(ship);
-            //    OffensiveForcePool.Add(ship);
-            //    return true;
-            //}
-            //return false;
+            return true;
         }
 
 
@@ -286,6 +267,7 @@ namespace Ship_Game.AI
                 }
                 TurnsToRelax = 1;
             }
+            AOFull = ThreatLevel < CoreFleet.GetStrength() && OffensiveForcePool.Count > 0;
         }
 
         public void Dispose()
