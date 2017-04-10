@@ -83,6 +83,10 @@ namespace Ship_Game
         }
 
 
+        public static float Dot(this Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
+        public static float Dot(this Vector3 a, Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
+
+
         public static Vector2 Normalized(this Vector2 v)
         {
             float len = (float)Sqrt(v.X * v.X + v.Y * v.Y);
@@ -213,13 +217,15 @@ namespace Ship_Game
         }
 
         // assuming this is a direction vector, gives the right side perpendicular vector
-        public static Vector2 RightVector(this Vector2 directionVector)
+        // @note This assumes that +Y is DOWNWARDS on the screen
+        public static Vector2 LeftVector(this Vector2 directionVector)
         {
             return new Vector2(directionVector.Y, -directionVector.X);
         }
 
         // assuming this is a direction vector, gives the left side perpendicular vector
-        public static Vector2 LeftVector(this Vector2 directionVector)
+        // @note This assumes that +Y is DOWNWARDS on the screen
+        public static Vector2 RightVector(this Vector2 directionVector)
         {
             return new Vector2(-directionVector.Y, directionVector.X);
         }
@@ -279,9 +285,9 @@ namespace Ship_Game
             // projectile inherits parent velocity
             Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
 
-            float a = Vector2.Dot(targetVelocity, targetVelocity) - projectileVelocity.LengthSquared();
-            float bm = -2 * Vector2.Dot(delta, targetVelocity);
-            float c = Vector2.Dot(delta, delta);
+            float a  = targetVelocity.Dot(targetVelocity) - projectileVelocity.LengthSquared();
+            float bm = -2 * delta.Dot(targetVelocity);
+            float c  = delta.Dot(delta);
 
             // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
             if (Abs(a) < 0.0001f)
@@ -351,9 +357,9 @@ namespace Ship_Game
             Vector2 d = rayEnd - rayStart;
             Vector2 f = rayStart - center;
 
-            float a = Vector2.Dot(d, d);
-            float b = 2 * Vector2.Dot(f, d);
-            float c = Vector2.Dot(f, f) - radius;
+            float a = d.Dot(d);
+            float b = 2 * f.Dot(d);
+            float c = f.Dot(f) - radius;
 
             float discriminant = b*b - 4*a*c;
             if (discriminant < 0f)
@@ -495,12 +501,12 @@ namespace Ship_Game
         {
             forward = new Vector2((float)Sin(origin.Rotation), -(float)Cos(origin.Rotation));
             right = new Vector2(-forward.Y, forward.X);
-            return (float)Acos(Vector2.Dot(target, forward));
+            return (float)Acos(target.Dot(forward));
         }
 
         public static float Facing(this Vector2 facingTo, Vector2 right)
         {
-            return Vector2.Dot(Vector2.Normalize(facingTo), right) > 0f ? 1f : -1f;
+            return Vector2.Normalize(facingTo).Dot(right) > 0f ? 1f : -1f;
         }
 
         // takes self and rotates it around the center pivot by some radians

@@ -406,7 +406,7 @@ namespace Ship_Game.Gameplay
 
             // if high module, use forward vector, if wide module, use right vector
             Vector2 dir = Rotation.AngleToDirection();
-            if (XSIZE > YSIZE) dir = dir.RightVector();
+            if (XSIZE > YSIZE) dir = dir.LeftVector();
 
             float offset = (larger*16.0f - diameter) * 0.5f;
             Vector2 startPos = Position - dir * offset;
@@ -440,12 +440,37 @@ namespace Ship_Game.Gameplay
             return dx*dx + dy*dy <= r2*r2;
         }
 
+        public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float minFalloff = 0.4f)
+        {
+            return Math.Min(1.0f, explosionCenter.Distance(affectedPoint) / damageRadius + minFalloff);
+        }
+
+        // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
+        public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
+        {
+            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius);
+            if (damage <= 0.001f)
+                return damageInOut <= 0f;
+
+            DamageWithDamageDone(damageSource, damage, out float damageDone);
+            damageInOut -= damageDone;
+            return damageInOut <= 0f;
+        }
+
 
         public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
             float health = Health + ShieldPower;
             bool result = Damage(source, damageAmount);
             damageRemainder = damageAmount - (health - Health - ShieldPower);
+            return result;
+        }
+
+        public bool DamageWithDamageDone(GameplayObject source, float damageAmount, out float damageDone)
+        {
+            float health = Health + ShieldPower;
+            bool result = Damage(source, damageAmount);
+            damageDone = health - Health - ShieldPower;
             return result;
         }
 
@@ -1075,11 +1100,6 @@ namespace Ship_Game.Gameplay
             if (healthPercent >= 0.15f) return Color.OrangeRed;
             if (healthPercent >  0.00f) return Color.Red;
             return Color.Black;
-        }
-
-        public override void Draw(UniverseScreen screen)
-        {
-
         }
 
         public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}";
