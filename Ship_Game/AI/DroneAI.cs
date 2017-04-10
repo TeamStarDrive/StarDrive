@@ -53,7 +53,7 @@ namespace Ship_Game.AI
 			if (DroneTarget == null)
 			{
 				Vector2 AimPosition = OrbitalPos;
-				Vector2 LeftStick = Owner.Center.FindVectorToTarget(AimPosition);
+				Vector2 LeftStick = Owner.Center.DirectionToTarget(AimPosition);
 				LeftStick.Y = LeftStick.Y * -1f;
 				Vector2 wantedForward = Vector2.Normalize(LeftStick);
 
@@ -66,7 +66,7 @@ namespace Ship_Game.AI
 				this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.VelocityMax;
 				return;
 			}
-			Vector2 wantedForward0 = Vector2.Normalize(-Owner.Center.FindVectorToTarget(DroneTarget.Center));
+			Vector2 wantedForward0 = Vector2.Normalize(-Owner.Center.DirectionToTarget(DroneTarget.Center));
 			float angleDiff0 = (float)Math.Acos((double)Vector2.Dot(wantedForward0, forward));
 			float facing0 = (Vector2.Dot(wantedForward0, right) > 0f ? 1f : -1f);
 			if (angleDiff0 > 0.2f)
@@ -119,7 +119,7 @@ namespace Ship_Game.AI
                 && this.DroneWeapon.timeToNextFire <= 0f
                 && this.DroneTarget != null && Vector2.Distance(this.Owner.Center, this.DroneTarget.Center) < 15000f )
 			{
-				Vector2 FireDirection = Owner.Center.FindVectorToTarget(DroneTarget.Center);
+				Vector2 FireDirection = Owner.Center.DirectionToTarget(DroneTarget.Center);
 				FireDirection.Y = -FireDirection.Y;
 				FireDirection = Vector2.Normalize(FireDirection);
 				this.DroneWeapon.FireDroneBeam(FireDirection, this.DroneTarget, this);
