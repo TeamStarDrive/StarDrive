@@ -330,85 +330,63 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        // find ShipModules that fall into hit radius (eg an explosion)
-        // results are sorted by distance
-        // @todo Optimize this with a new radial search
-        public Array<ShipModule> HitTestMulti(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
+        // Code gods, I pray for thy forgiveness for this copy-paste -T_T-
+        // This was done solely for performance reasons. This method gets called
+        // every time an exploding projectile hits a ship. So it gets called for every missile impact
+        public void DamageModulesInRange(GameplayObject damageSource, float damageAmount, 
+                                         Vector2 worldHitPos, float damageRadius, bool ignoreShields)
         {
-            var modules = new Array<ShipModule>();
+            float damageTracker = damageAmount;
             if (!ignoreShields)
             {
                 for (int i = 0; i < Shields.Length; ++i)
                 {
-                    ShipModule shield = Shields[i];
-                    if (shield.ShieldPower > 0f && shield.HitTestShield(worldHitPos, hitRadius))
-                        modules.Add(shield);
+                    ShipModule module = Shields[i];
+                    if (module.ShieldPower > 0f && module.HitTestShield(worldHitPos, damageRadius) && 
+                        module.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker))
+                            return; // no more damage to dish, exit early
                 }
             }
 
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (module.Health > 0f && module.HitTestNoShields(worldHitPos, hitRadius))
-                    modules.Add(module);
-            }
-
-            // make sure overlapping shields get put to the front!
-            modules.Sort(module =>
-            {
-                float radius = module.ShieldPower > 0f ? module.shield_radius+10f : module.Radius;
-                return worldHitPos.SqDist(module.Position) - radius*radius;
-            });
-            return modules;
-        }
-
-        // Generic shipmodule grid search
-        private ShipModule RadialSearch(Vector2 worldPos, float radius, ShipModule[] grid, int width, int height)
-        {
-            Point first = WorldToGridLocalPointClipped(worldPos - new Vector2(radius));
-            Point last  = WorldToGridLocalPointClipped(worldPos + new Vector2(radius));
-
+            Point first = WorldToGridLocalPointClipped(worldHitPos - new Vector2(damageRadius));
+            Point last  = WorldToGridLocalPointClipped(worldHitPos + new Vector2(damageRadius));
+            ShipModule[] grid = SparseModuleGrid;
             int minX = (first.X + last.X) / 2;
             int minY = (first.Y + last.Y) / 2;
-            int maxX = minX;
-            int maxY = minY;
-
+            int maxX = minX, maxY = minY;
+            int width = GridWidth;
             ShipModule m;
-            if ((m = grid[minX + minY*width]) != null && m.Active
-                && m.HitTestNoShields(worldPos, radius)) return m;
+            if ((m = grid[minX + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
+                && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
 
             for (;;)
             {
                 bool didExpand = false;
-                if (minX > first.X) // test all modules to the left
-                {
+                if (minX > first.X) { // test all modules to the left
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[minX + y*width]) != null && m.Active
-                            && m.HitTestNoShields(worldPos, radius)) return m;
+                        if ((m = grid[minX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
                 }
-                if (maxX < last.X) // test all modules to the right
-                {
+                if (maxX < last.X) { // test all modules to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[maxX + y*width]) != null && m.Active
-                            && m.HitTestNoShields(worldPos, radius)) return m;
+                        if ((m = grid[maxX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
                 }
-                if (minY > first.Y) // test all top modules
-                {
+                if (minY > first.Y) { // test all top modules
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + minY*width]) != null && m.Active
-                            && m.HitTestNoShields(worldPos, radius)) return m;
+                        if ((m = grid[x + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
                 }
-                if (maxY < last.Y) // test all bottom modules
-                {
+                if (maxY < last.Y) { // test all bottom modules
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + maxY*width]) != null && m.Active
-                            && m.HitTestNoShields(worldPos, radius)) return m;
+                        if ((m = grid[x + maxY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
                 }
-                if (!didExpand) return null; // aargh, looks like we didn't find any!
+                if (!didExpand) return; // wellll, looks like we're done here!
             }
         }
 

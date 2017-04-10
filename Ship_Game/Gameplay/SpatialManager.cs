@@ -419,7 +419,7 @@ namespace Ship_Game.Gameplay
                 if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && collidedWith != null && (
                     projectile.Touch(collidedWith) || collidedWith.Touch(projectile)))
                 {
-                    projectile.CollidedThisFrame = true;
+                    projectile.CollidedThisFrame   = true;
                     collidedWith.CollidedThisFrame = true;
                     return; // projectile collided (and died), no need to continue collisions
                 }
@@ -555,13 +555,15 @@ namespace Ship_Game.Gameplay
             return true; // thisProj died
         }
 
-        //Added by McShooterz: New way to distribute exploding projectile damage
+        // @note This is called every time an exploding projectile hits a target and dies
+        //       so everything nearby receives additional splash damage
+        //       usually the receipient is only 1 ship, but ships can overlap and cause more results
         public void ProjectileExplode(Projectile source, float damageAmount, float damageRadius)
         {
-            if (damageRadius <= 0.0)
+            if (damageRadius <= 0f)
                 return;
 
-            Ship[] ships = GetNearby<Ship>(source.Position, source.Radius).FilterBy(ship => ship.Active && !ship.dying);
+            Ship[] ships = GetNearby<Ship>(source.Center, damageRadius).FilterBy(ship => ship.Active && !ship.dying);
             ships.SortByDistance(source.Center);
 
             foreach (Ship ship in ships)
@@ -574,25 +576,12 @@ namespace Ship_Game.Gameplay
                 if (source.Owner?.loyalty == ship.loyalty)
                     continue;
 
+                // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
                 if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
                     modifiedRadius *= 1f - ship.loyalty.data.ExplosiveRadiusReduction;
 
-                Array<ShipModule> modules = ship.HitTestMulti(source.Center, modifiedRadius, source.IgnoresShields);
-
-                float damageTracker = damageAmount;
-                foreach (ShipModule module in modules)
-                {
-                    module.Damage(source, damageTracker, out damageTracker);
-                    if (damageTracker <= 0f)
-                        return;
-                }
-                // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
+                ship.DamageModulesInRange(source, damageAmount, source.Center, modifiedRadius, source.IgnoresShields);
             }
-        }
-
-        private static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float minFalloff = 0.4f)
-        {
-            return Math.Min(1.0f, explosionCenter.Distance(affectedPoint) / damageRadius + minFalloff);
         }
 
         // Refactored by RedFox
@@ -601,42 +590,14 @@ namespace Ship_Game.Gameplay
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
-            Ship parent = hitModule.GetParent();
-            if (parent.dying || !parent.Active)
+            Ship shipToDamage = hitModule.GetParent();
+            if (shipToDamage.dying || !shipToDamage.Active)
                 return;
 
-            // affected modules sorted by distance
-            Vector2 explosionCenter = hitModule.Center;
-            Array<ShipModule> hitModules = parent.HitTestMulti(explosionCenter, damageRadius, ignoreShields);
-
-            // start dishing out damage from inside out to first 8 modules
-            // since damage is internal, we can't explode with radial falloff
-            float damageTracker = damageAmount;
-            while (damageTracker > 0.0f)
-            {
-                float damage = damageTracker / 8;
-                int affected = 0;
-                for (int i = 0; i < hitModules.Count; ++i)
-                {
-                    ShipModule module = hitModules[i];
-                    if (module.Health <= 0.0f)
-                        continue;
-
-                    float damageFalloff = DamageFalloff(explosionCenter, module.Center, damageRadius);
-                    float health = module.Health;
-                    module.Damage(damageSource, damage * damageFalloff);
-                    float damageDone = health - module.Health;
-                    damageTracker -= damageDone;
-
-                    if (damageDone > 0.0f)
-                        ++affected;
-                }
-
-                if (affected == 0) // no damage was dished out, all modules seem to be dead
-                    break;
-            }
+            shipToDamage.DamageModulesInRange(damageSource, damageAmount, hitModule.Center, damageRadius, ignoreShields);
         }
 
+        // @note This is called quite rarely, so optimization is not a priority
         public void ShipExplode(Ship thisShip, float damageAmount, Vector2 position, float damageRadius)
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
@@ -663,7 +624,7 @@ namespace Ship_Game.Gameplay
                     if (reducedDamageRadius <= 0.0f)
                         continue;
 
-                    float damageFalloff = DamageFalloff(explosionCenter, nearest.Center, damageRadius);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Center, damageRadius);
                     ExplodeAtModule(thisShip, nearest, false, damageAmount * damageFalloff, reducedDamageRadius);
 
                     if (!otherShip.dying)
@@ -682,7 +643,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    float damageFalloff = DamageFalloff(explosionCenter, otherObj.Center, damageRadius, 0.25f);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherObj.Center, damageRadius, 0.25f);
                     otherObj.Damage(thisShip, damageAmount * damageFalloff);
                 }
             }
