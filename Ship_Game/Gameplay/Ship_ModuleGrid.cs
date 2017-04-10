@@ -245,6 +245,10 @@ namespace Ship_Game.Gameplay
             return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
         }
 
+
+
+
+
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
@@ -282,6 +286,7 @@ namespace Ship_Game.Gameplay
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
         }
+
 
         // find the first module that falls under the hit radius at given position
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
@@ -329,6 +334,7 @@ namespace Ship_Game.Gameplay
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
         }
+
 
         // Code gods, I pray for thy forgiveness for this copy-paste -T_T-
         // This was done solely for performance reasons. This method gets called
@@ -390,6 +396,9 @@ namespace Ship_Game.Gameplay
             }
         }
 
+
+
+
         // perform a raytrace from point a to point b, visiting all grid points between them!
         private static ShipModule RayTrace(Point a, Point b, ShipModule[] grid, int gridWidth, int gridHeight)
         {
@@ -421,7 +430,6 @@ namespace Ship_Game.Gameplay
             return null;
         }
 
-
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
         {
             if (!ignoreShields)
@@ -448,6 +456,7 @@ namespace Ship_Game.Gameplay
             return null;
         }
 
+
         // find ShipModules that collide with a this wide RAY
         // direction must be normalized!!
         // results are sorted by distance
@@ -469,85 +478,43 @@ namespace Ship_Game.Gameplay
         }
 
 
-        // @todo Redo all of this targeting code
-        private ShipModule ClosestExternalModuleSlot(Vector2 center, float maxRange=999999f)
+
+
+        // Refactor by RedFox: Picks a random internal module in search range (squared) of the projectile
+        // -- Higher crew level means the missile will pick the most optimal target module ;) --
+        private ShipModule TargetRandomInternalModule(Vector2 projPos, int level, float sqSearchRange)
         {
-            float nearest = maxRange*maxRange;
-            ShipModule closestModule = null;
-            for (int i = 0; i < ExternalModuleGrid.Length; ++i)
-            {
-                ShipModule slot = ExternalModuleGrid[i];
-                if (slot == null || !slot.Active || slot.quadrant < 1 || slot.Health <= 0f)
-                    continue;
-
-                float sqDist = center.SqDist(slot.Center);
-                if (sqDist >= nearest && closestModule != null)
-                    continue;
-                nearest       = sqDist;
-                closestModule = slot;
-            }
-            return closestModule;
-        }
-
-        private Array<ShipModule> FilterSlotsInDamageRange(ShipModule[] slots, ShipModule closestExtSlot)
-        {
-            Vector2 extSlotCenter = closestExtSlot.Center;
-            int quadrant          = closestExtSlot.quadrant;
-            float sqDamageRadius  = Center.SqDist(extSlotCenter);
-
-            var filtered = new Array<ShipModule>();
-            for (int i = 0; i < slots.Length; ++i)
-            {
-                ShipModule module = slots[i];
-                if (!module.Active || module.Health <= 0f || 
-                    (module.quadrant != quadrant && module.isExternal))
-                    continue;
-                if (module.Center.SqDist(extSlotCenter) < sqDamageRadius)
-                    filtered.Add(module);
-            }
-            return filtered;
-        }
-
-        // Refactor by RedFox: Picks a random internal module to target and updates targetting list if needed
-        private ShipModule TargetRandomInternalModule(ref Array<ShipModule> inAttackerTargetting, 
-                                                      Vector2 center, int level, float weaponRange=999999f)
-        {
-            ShipModule closestExtSlot = ClosestExternalModuleSlot(center, weaponRange);
-
-            if (closestExtSlot == null) // ship might be destroyed, no point in targeting it
+            ShipModule[] modules = ModuleSlotList.FilterBy(m => m.Health > 0f && projPos.SqDist(m.Center) < sqSearchRange);
+            if (modules.Length == 0)
                 return null;
 
-            if (inAttackerTargetting == null || !inAttackerTargetting.Contains(closestExtSlot))
+            if (level > 1)
             {
-                inAttackerTargetting = FilterSlotsInDamageRange(ModuleSlotList, closestExtSlot);
-                if (level > 1)
-                {
-                    // Sort Descending, so first element is the module with greatest TargettingValue
-                    inAttackerTargetting.Sort((sa, sb) => sb.ModuleTargettingValue 
-                                                        - sa.ModuleTargettingValue);
-                }
+                // Sort Descending (-), so first element is the module with greatest TargettingValue
+                modules.Sort(m => -m.ModuleTargettingValue);
             }
 
-            if (inAttackerTargetting.Count == 0)
-                return null;
             // higher levels lower the limit, which causes a better random pick
-            int limit = inAttackerTargetting.Count / (level + 1);
-            return inAttackerTargetting[RandomMath.InRange(limit)];
+            int limit = modules.Length / (level + 1);
+            return modules[RandomMath.InRange(limit)];
         }
 
+        // This is called for guided weapons to pick a new target
         public ShipModule GetRandomInternalModule(Weapon source)
         {
-            float searchRange = source.Range + 100;
             Vector2 center    = source.Owner?.Center ?? source.Center;
             int level         = source.Owner?.Level  ?? 0;
-            return TargetRandomInternalModule(ref source.AttackerTargetting, center, level, searchRange);
+            float searchRange = source.Range + 100;
+            return TargetRandomInternalModule(center, level, searchRange*searchRange);
         }
 
+        // This is called for initial missile guidance ChooseTarget(), so range is not that important
         public ShipModule GetRandomInternalModule(Projectile source)
         {
-            Vector2 center = source.Owner?.Center ?? source.Center;
-            int level      = source.Owner?.Level  ?? 0;
-            return TargetRandomInternalModule(ref source.Weapon.AttackerTargetting, center, level);
+            Vector2 projPos = source.Owner?.Center ?? source.Center;
+            int level       = source.Owner?.Level  ?? 0;
+            float searchRange = projPos.SqDist(Center) + 48*48; // only pick modules that are "visible" to the projectile
+            return TargetRandomInternalModule(projPos, level, searchRange);
         }
     }
 }
