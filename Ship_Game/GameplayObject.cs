@@ -51,35 +51,12 @@ namespace Ship_Game
             Active = false;
         }
 
-        // Draw self to UniverseScreen.
-        public virtual void Draw(UniverseScreen screen)
-        {
-        }
-
-        public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color)
-        {
-            if (sprite != null)
-                spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
-                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), 2f * Radius / Math.Min(sprite.Width, sprite.Height), SpriteEffects.None, 0f);
-        }
-
-        public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
-        {
-            if (sprite != null) spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
-                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), scaleFactor, SpriteEffects.None, 0f);
-        }
-
-        public virtual void DrawShield(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
-        {
-            if (sprite != null)
-                spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
-                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), scaleFactor + Radius / 10000f, SpriteEffects.None, 0f);
-        }
-
         public string SystemName => System?.Name ?? "Deep Space";
 
         public static SpatialManager SpatialManagerForSystem(SolarSystem system)
             => system?.spatialManager ?? UniverseScreen.DeepSpaceManager;
+
+        public SpatialManager ActiveSpatialManager => SpatialManagerForSystem(System);
 
         public T[] GetNearby<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, Radius);
 
@@ -111,10 +88,9 @@ namespace Ship_Game
         {
         }
 
-
         public virtual bool Touch(GameplayObject target)
         {
-            return true;
+            return false; // by default, objects can't be touched
         }
 
         public virtual void Update(float elapsedTime)

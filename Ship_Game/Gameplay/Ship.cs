@@ -651,14 +651,8 @@ namespace Ship_Game.Gameplay
 
         public bool doingRefit
         {
-            get
-            {
-                return AI.State == AIState.Refit;
-            }
-            set
-            {
-                Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
-            }
+            get => AI.State == AIState.Refit;
+            set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
         }
 
         public void ShipRecreate()
@@ -3494,17 +3488,6 @@ namespace Ship_Game.Gameplay
         {
             return TetheredTo != null;
         }
-
-        public override bool Touch(GameplayObject target)
-        {
-            return false;
-        }
-
-        public override bool Damage(GameplayObject source, float damageAmount)
-        {
-            return true;
-        }
-
 
         //added by Gremlin : active ship strength calculator
         public float GetStrength()

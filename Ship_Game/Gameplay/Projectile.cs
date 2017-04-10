@@ -128,7 +128,7 @@ namespace Ship_Game.Gameplay
                         Empire.Universe.ScreenManager.inter.LightManager.Remove(Light);
                     }
                 }
-                if (!string.IsNullOrEmpty(InFlightCue))
+                if (!InFlightCue.IsEmpty())
                 {
                     InFlight?.Stop(AudioStopOptions.Immediate);
                 }
@@ -139,9 +139,10 @@ namespace Ship_Game.Gameplay
                         DamageAmount += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageAmount;
                         DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
                     }
+
                     if (WeaponType == "Photon")
                     {
-                        if (!string.IsNullOrEmpty(DieCueName))
+                        if (!DieCueName.IsEmpty())
                         {
                             dieCue = AudioManager.GetCue(DieCueName);
                         }
@@ -155,16 +156,8 @@ namespace Ship_Game.Gameplay
                             ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f, 0.2f, Weapon.ExpColor);
                             Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                         }
-                        if (System == null)
-                        {
-                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
-                        }
-                        else
-                        {
-                            System.spatialManager.ProjectileExplode(this, DamageAmount, DamageRadius);
-                        }
                     }
-                    else if (!string.IsNullOrEmpty(DieCueName))
+                    else if (!DieCueName.IsEmpty())
                     {
                         if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                         {
@@ -183,23 +176,8 @@ namespace Ship_Game.Gameplay
                                 Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                             }
                         }
-                        if (System == null)
-                        {
-                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
-                        }
-                        else
-                        {
-                            System.spatialManager.ProjectileExplode(this, DamageAmount, DamageRadius);
-                        }
                     }
-                    else if (System == null)
-                    {
-                        UniverseScreen.DeepSpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
-                    }
-                    else
-                    {
-                        System.spatialManager.ProjectileExplode(this, DamageAmount, DamageRadius);
-                    }
+                    ActiveSpatialManager.ProjectileExplode(this, DamageAmount, DamageRadius);
                 }
                 else if (Weapon.FakeExplode && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
@@ -613,8 +591,8 @@ namespace Ship_Game.Gameplay
                 if (WeaponEffectType == "Plasma")
                 {
                     var center  = new Vector3(Center.X, Center.Y, -100f);
-                    var forward = new Vector2((float)Math.Sin(Rotation), -(float)Math.Cos(Rotation));
-                    var right   = new Vector2(-forward.Y, forward.X).Normalized();
+                    Vector2 forward = Rotation.RadiansToDirection();
+                    Vector2 right   = forward.RightVector();
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(250f) * new Vector3(right.X, right.Y, 1f);
@@ -624,11 +602,11 @@ namespace Ship_Game.Gameplay
                         Empire.Universe.flameParticles.AddParticleThreadA(center, random);
                     }
                 }
-                if (WeaponEffectType == "MuzzleBlast") // currently unused
+                else if (WeaponEffectType == "MuzzleBlast") // currently unused
                 {
                     var center  = new Vector3(Center.X, Center.Y, -100f);
-                    var forward = new Vector2((float)Math.Sin(Rotation), -(float)Math.Cos(Rotation));
-                    var right   = new Vector2(-forward.Y, forward.X).Normalized();
+                    Vector2 forward = Rotation.RadiansToDirection();
+                    Vector2 right   = forward.RightVector();
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(500f) * new Vector3(right.X, right.Y, 1f);
@@ -648,7 +626,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             DieNextFrame = true;
-            return base.Touch(target);
+            return true;
         }
 
         public override void Update(float elapsedTime)
