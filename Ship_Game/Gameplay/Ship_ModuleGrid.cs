@@ -226,6 +226,14 @@ namespace Ship_Game.Gameplay
             return new Point((int)(local.X / 16f), (int)(local.Y / 16f));
         }
 
+        public Point WorldToGridLocalPointClipped(Vector2 worldPoint)
+        {
+            Point pt = WorldToGridLocalPoint(worldPoint);
+            if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
+            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
+            return pt;
+        }
+
         public Vector2 GridLocalToWorld(Vector2 localPoint)
         {
             Vector2 centerLocal = GridOrigin + localPoint;
@@ -237,74 +245,89 @@ namespace Ship_Game.Gameplay
             return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
         }
 
-        private static Point ClipGridPointToBounds(Point pt, int width, int height)
-        {
-            if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
-            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
-            return pt;
-        }
-
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
         // @note Ignores shields !
         public ShipModule FindClosestUnshieldedModule(Vector2 worldPoint)
         {
-            if (NumExternalSlots == 0)
-                return null;
+            if (NumExternalSlots == 0) return null;
 
             ShipModule[] grid = ExternalModuleGrid;
-            int width = GridWidth;
-            int height = GridHeight;
-
-            Point pt = ClipGridPointToBounds(WorldToGridLocalPoint(worldPoint));
-
+            Point pt = WorldToGridLocalPointClipped(worldPoint);
+            int width = GridWidth, height = GridHeight;
             int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
             ShipModule m;
-            if ((m = grid[minX + minY * width]) != null && m.Active) return m;
+            if ((m = grid[minX + minY*width]) != null && m.Active) return m;
 
             for (;;)
             {
                 bool didExpand = false;
-                if (minX > 0f) // test all modules to the left
-                {
+                if (minX > 0f) { // test all modules to the left
                     --minX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[minX + y*width]) != null && m.Active) return m;
+                    for (int y = minY; y <= maxY; ++y) if ((m = grid[minX + y*width]) != null && m.Active) return m;
                 }
-                if (maxX < width) // test all modules to the right
-                {
+                if (maxX < width) { // test all modules to the right
                     ++maxX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[maxX + y*width]) != null && m.Active) return m;
+                    for (int y = minY; y <= maxY; ++y) if ((m = grid[maxX + y*width]) != null && m.Active) return m;
                 }
-                if (minY > 0f) // test all top modules
-                {
+                if (minY > 0f) { // test all top modules
                     --minY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + minY*width]) != null && m.Active) return m;
+                    for (int x = minX; x <= maxX; ++x) if ((m = grid[x + minY*width]) != null && m.Active) return m;
                 }
-                if (maxY < height) // test all bottom modules
-                {
+                if (maxY < height) { // test all bottom modules
                     ++maxY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + maxY*width]) != null && m.Active) return m;
+                    for (int x = minX; x <= maxX; ++x) if ((m = grid[x + maxY*width]) != null && m.Active) return m;
                 }
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
         }
 
-        // find the first module that falls under this
+        // find the first module that falls under the hit radius at given position
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
-            if (NumExternalSlots == 0)
-                return null;
+            if (NumExternalSlots == 0) return null;
             if (!ignoreShields)
             {
                 ShipModule shield = HitTestShields(worldHitPos, hitRadius);
                 if (shield != null) return shield;
             }
-            return RadialSearch(worldHitPos, hitRadius, SparseModuleGrid, GridWidth, GridHeight);
+
+            Point first = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));
+            Point last  = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
+            ShipModule[] grid = SparseModuleGrid;
+            int minX = (first.X + last.X) / 2;
+            int minY = (first.Y + last.Y) / 2;
+            int maxX = minX, maxY = minY;
+            int width = GridWidth;
+            ShipModule m;
+            if ((m = grid[minX + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+
+            for (;;)
+            {
+                bool didExpand = false;
+                if (minX > first.X) { // test all modules to the left
+                    --minX; didExpand = true;
+                    for (int y = minY; y <= maxY; ++y)
+                        if ((m = grid[minX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                }
+                if (maxX < last.X) { // test all modules to the right
+                    ++maxX; didExpand = true;
+                    for (int y = minY; y <= maxY; ++y)
+                        if ((m = grid[maxX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                }
+                if (minY > first.Y) { // test all top modules
+                    --minY; didExpand = true;
+                    for (int x = minX; x <= maxX; ++x)
+                        if ((m = grid[x + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                }
+                if (maxY < last.Y) { // test all bottom modules
+                    ++maxY; didExpand = true;
+                    for (int x = minX; x <= maxX; ++x)
+                        if ((m = grid[x + maxY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                }
+                if (!didExpand) return null; // aargh, looks like we didn't find any!
+            }
         }
 
         // find ShipModules that fall into hit radius (eg an explosion)
@@ -342,59 +365,48 @@ namespace Ship_Game.Gameplay
         // Generic shipmodule grid search
         private ShipModule RadialSearch(Vector2 worldPos, float radius, ShipModule[] grid, int width, int height)
         {
-            
+            Point first = WorldToGridLocalPointClipped(worldPos - new Vector2(radius));
+            Point last  = WorldToGridLocalPointClipped(worldPos + new Vector2(radius));
 
-            Vector2 center = WorldToGridLocal(worldPos);
-            int firstX = (int)((center.X - radius) / 16.0f);
-            int lastX  = (int)((center.X + radius) / 16.0f);
-            int firstY = (int)((center.Y - radius) / 16.0f);
-            int lastY  = (int)((center.Y + radius) / 16.0f);
-            if (firstX < 0) firstX = 0; else if (firstX >= width)  firstX = width - 1;
-            if (lastX  < 0) lastX  = 0; else if (lastX  >= width)  lastX  = width - 1;
-            if (firstY < 0) firstY = 0; else if (firstY >= height) firstY = height - 1;
-            if (lastY  < 0) lastY  = 0; else if (lastY  >= height) lastY  = height - 1;
-
-            int minX = (firstX + lastX) / 2;
-            int minY = (firstY + lastY) / 2;
+            int minX = (first.X + last.X) / 2;
+            int minY = (first.Y + last.Y) / 2;
             int maxX = minX;
             int maxY = minY;
 
             ShipModule m;
-            if ((m = grid[minX + minY * width]) != null && m.Active
-                    && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
+            if ((m = grid[minX + minY*width]) != null && m.Active
+                && m.HitTestNoShields(worldPos, radius)) return m;
 
             for (;;)
             {
                 bool didExpand = false;
-                if (minX > firstX) // test all modules to the left
+                if (minX > first.X) // test all modules to the left
                 {
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[minX + y * width]) != null && m.Active
-                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
+                        if ((m = grid[minX + y*width]) != null && m.Active
+                            && m.HitTestNoShields(worldPos, radius)) return m;
                 }
-                if (maxX < lastX) // test all modules to the right
+                if (maxX < last.X) // test all modules to the right
                 {
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[maxX + y * width]) != null && m.Active
-                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
+                        if ((m = grid[maxX + y*width]) != null && m.Active
+                            && m.HitTestNoShields(worldPos, radius)) return m;
                 }
-                if (minY > firstY) // test all top modules
+                if (minY > first.Y) // test all top modules
                 {
                     --minY; didExpand = true;
-                    int rowstart = minY * width;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[rowstart + x]) != null && m.Active
-                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
+                        if ((m = grid[x + minY*width]) != null && m.Active
+                            && m.HitTestNoShields(worldPos, radius)) return m;
                 }
-                if (maxY < lastY) // test all bottom modules
+                if (maxY < last.Y) // test all bottom modules
                 {
                     ++maxY; didExpand = true;
-                    int rowstart = maxY * width;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[rowstart + x]) != null && m.Active
-                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
+                        if ((m = grid[x + maxY*width]) != null && m.Active
+                            && m.HitTestNoShields(worldPos, radius)) return m;
                 }
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
