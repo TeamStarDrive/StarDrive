@@ -375,26 +375,26 @@ namespace Ship_Game.Gameplay
             Rotation = Parent.Rotation;
         }
 
+        private void UpdateModuleRadius()
+        {
+            // slightly bigger radius for better collision detection
+            Radius = 8f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+        }
         // Collision test with this ShipModule. Returns TRUE if point is inside this module's
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
         // are not accurately checked.
         // HitTest uses the World scene POSITION. Not module XML location
-        public bool HitTest(Vector2 point, float radius, bool ignoreShields = false)
+        public bool HitTestNoShields(Vector2 point, float radius)
         {
             ++GlobalStats.DistanceCheckTotal;
-
-            bool shields = !ignoreShields && ShieldPower > 0f;
-            float moduleRadius = shields ? shield_radius + 10f : Radius;
-
-            float r2 = radius + moduleRadius;
+            float r2 = radius + Radius;
             float dx = Center.X - point.X;
             float dy = Center.Y - point.Y;
-            if (dx * dx + dy * dy > r2 * r2)
+            if (dx*dx + dy*dy > r2*r2)
                 return false; // definitely out of radius for SQUARE and non-square modules
 
             // we are a Square module? since we're already inside radius, collision happened
-            // OR if module is shielded, then radius check is always circular
-            if (shields || XSIZE == YSIZE)
+            if (XSIZE == YSIZE)
                 return true; 
 
             int smaller = XSIZE <  YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
@@ -415,6 +415,12 @@ namespace Ship_Game.Gameplay
             return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
+        public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
+        {
+            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
+            return HitTestNoShields(point, rayRadius);
+        }
+
         public bool HitTestShield(Vector2 point, float radius)
         {
             ++GlobalStats.DistanceCheckTotal;
@@ -432,22 +438,6 @@ namespace Ship_Game.Gameplay
             float dx = Center.X - point.X;
             float dy = Center.Y - point.Y;
             return dx*dx + dy*dy <= r2*r2;
-        }
-
-        public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius)
-        {
-            ++GlobalStats.DistanceCheckTotal;
-            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
-            float r2 = rayRadius + Radius;
-            float dx = Center.X - point.X;
-            float dy = Center.Y - point.Y;
-            return dx*dx + dy*dy <= r2*r2;
-        }
-
-        private void UpdateModuleRadius()
-        {
-            // slightly bigger radius for better collision detection
-            Radius = 8f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
         }
 
 
