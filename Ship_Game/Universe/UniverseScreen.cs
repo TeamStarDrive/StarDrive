@@ -5159,32 +5159,41 @@ namespace Ship_Game
 
             foreach (Empire empire in EmpireManager.Empires)
             {
-                foreach (var kv in empire.GetFleetsDict())
+                var fleetdic = empire.GetFleetsDict().AtomicValuesArray(); //not sure if this is the right way to do this but its hitting a crash here on collection change when the fleet loop is a foreach
+                for (int i = 0; i < fleetdic.Length; i++)
                 {
-                    if (kv.Value.Ships.Count <= 0)
+                    var kv = fleetdic[i];
+                    if (kv.Ships.Count <= 0)
                         continue;
 
-                    Vector2 averagePosition = kv.Value.FindAveragePositionset();
+                    Vector2 averagePosition = kv.FindAveragePositionset();
                     bool flag = player.IsPointInSensors(averagePosition);
 
-                    if (flag || Debug || kv.Value.Owner == player)
+                    if (flag || Debug || kv.Owner == player)
                     {
-                        var icon = ResourceManager.TextureDict["FleetIcons/" + kv.Value.FleetIconIndex];
-                        Vector3 vector3_1 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(averagePosition, 0.0f), this.projection, this.view, Matrix.Identity);
+                        var icon = ResourceManager.TextureDict["FleetIcons/" + kv.FleetIconIndex];
+                        Vector3 vector3_1 =
+                            ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(averagePosition, 0.0f),
+                                projection, view, Matrix.Identity);
                         Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                        foreach (Ship ship in kv.Value.Ships)
+                        foreach (Ship ship in kv.Ships)
                         {
-                            Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center.X, ship.Center.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y), vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)20));
+                            Vector3 vector3_2 =
+                                ScreenManager.GraphicsDevice.Viewport.Project(
+                                    new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);
+                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y),
+                                vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 20));
                         }
                         ClickableFleetsList.Add(new ClickableFleet
                         {
-                            fleet = kv.Value,
+                            fleet = kv,
                             ScreenPos = vector2,
                             ClickRadius = 15f
                         });
-                        ScreenManager.SpriteBatch.Draw(icon, vector2, new Rectangle?(), empire.EmpireColor, 0.0f, icon.Center(), 0.35f, SpriteEffects.None, 1f);
-                        HelperFunctions.DrawDropShadowText(ScreenManager, kv.Value.Name, new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
+                        ScreenManager.SpriteBatch.Draw(icon, vector2, new Rectangle?(), empire.EmpireColor, 0.0f,
+                            icon.Center(), 0.35f, SpriteEffects.None, 1f);
+                        HelperFunctions.DrawDropShadowText(ScreenManager, kv.Name,
+                            new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                     }
                 }
             }
