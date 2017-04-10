@@ -19,6 +19,7 @@ namespace Ship_Game.Gameplay
         {
             float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
 
+            int numShields = 0;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
@@ -29,6 +30,9 @@ namespace Ship_Game.Gameplay
                 if (topLeft.Y  < minY) minY = topLeft.Y;
                 if (botRight.X > maxX) maxX = botRight.X;
                 if (botRight.Y > maxY) maxY = botRight.Y;
+
+                if (module.shield_power_max > 0f)
+                    ++numShields;
             }
 
             GridOrigin = new Vector2(minX, minY);
@@ -40,6 +44,16 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
+            }
+
+            // build active shields list
+            Shields = new ShipModule[numShields];
+            numShields = 0;
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule module = ModuleSlotList[i];
+                if (module.shield_power_max > 0f)
+                    Shields[numShields++] = module;
             }
         }
 
@@ -146,11 +160,11 @@ namespace Ship_Game.Gameplay
             UpdateGridSlot(sparseGrid, x, y, module, becameActive);
         }
 
-        private void SlotPointAt(Vector2 pos, out int x, out int y)
+        private void SlotPointAt(Vector2 moduleLocalPos, out int x, out int y)
         {
-            Vector2 offset = pos - GridOrigin;
-            x = (int)(offset.X / 16.0f);
-            y = (int)(offset.Y / 16.0f);
+            Vector2 offset = moduleLocalPos - GridOrigin;
+            x = (int)(offset.X / 16f);
+            y = (int)(offset.Y / 16f);
         }
 
         public bool TryGetModule(Vector2 pos, out ShipModule module)
@@ -166,91 +180,118 @@ namespace Ship_Game.Gameplay
             return module != null;
         }
 
-        // The simplest form of collision. This is handled in all other HitTest functions
-        private bool TryHitTestShields(Vector2 worldHitPos, float hitRadius, out ShipModule hit)
+        // The simplest form of collision against shields. This is handled in all other HitTest functions
+        private ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
-            // @todo Replace Shields Array<T> with T[]
-            ShipModule[] shields = Shields.GetInternalArrayItems();
-            int count = Shields.Count;
-            for (int i = 0; i < count; ++i)
+            for (int i = 0; i < Shields.Length; ++i)
             {
-                ShipModule shield = shields[i];
-                if (shield.ShieldPower <= 0f || !shield.HitTest(worldHitPos, hitRadius))
-                    continue;
-                hit = shield;
-                return true;
+                ShipModule shield = Shields[i];
+                if (shield.ShieldPower > 0f && shield.HitTestShield(worldHitPos, hitRadius))
+                    return shield;
             }
-            hit = null;
-            return false;
+            return null;
+        }
+
+        // Slightly more complicated ray-collision against shields
+        private ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius)
+        {
+            for (int i = 0; i < Shields.Length; ++i)
+            {
+                ShipModule shield = Shields[i];
+                if (shield.ShieldPower > 0f && shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius))
+                    return shield;
+            }
+            return null;
         }
 
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
-        // @note Ignore shields !
-        public ShipModule FindClosestExternalModule(Vector2 worldPoint)
+        // @note Ignores shields !
+        public ShipModule FindClosestUnshieldedModule(Vector2 worldPoint)
         {
             if (NumExternalSlots == 0)
                 return null;
-            return RadialSearch(worldPoint, 0f, false, ExternalModuleGrid, GridWidth, GridHeight);
+            return RadialSearch(worldPoint, 0f, ExternalModuleGrid, GridWidth, GridHeight);
         }
 
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
-            if (!ignoreShields && TryHitTestShields(worldHitPos, hitRadius, out ShipModule hit))
-                return hit;
             if (NumExternalSlots == 0)
                 return null;
-            return RadialSearch(worldHitPos, hitRadius, ignoreShields, ExternalModuleGrid, GridWidth, GridHeight);
-        }
-
-        public ShipModule FindUnshieldedExternalModule(int quadrant)
-        {
-            for (int i = 0; i < ExternalModuleGrid.Length; ++i)
+            if (!ignoreShields)
             {
-                ShipModule module = ExternalModuleGrid[i];
-                if (module != null && module.quadrant == quadrant && module.Health > 0f && module.ShieldPower <= 0f)
-                    return module;
+                ShipModule shield = HitTestShields(worldHitPos, hitRadius);
+                if (shield != null) return shield;
             }
-            return null; // aargghh ;(
+            return RadialSearch(worldHitPos, hitRadius, SparseModuleGrid, GridWidth, GridHeight);
         }
 
         // find ShipModules that fall into hit radius (eg an explosion)
         // results are sorted by distance
+        // @todo Optimize this with a new radial search
         public Array<ShipModule> HitTestMulti(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
             var modules = new Array<ShipModule>();
+            if (!ignoreShields)
+            {
+                for (int i = 0; i < Shields.Length; ++i)
+                {
+                    ShipModule shield = Shields[i];
+                    if (shield.ShieldPower > 0f && shield.HitTestShield(worldHitPos, hitRadius))
+                        modules.Add(shield);
+                }
+            }
+
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (!module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                if (module.HitTest(worldHitPos, hitRadius, ignoreShields))
+                if (module.Health > 0f && module.HitTestNoShields(worldHitPos, hitRadius))
                     modules.Add(module);
             }
-            modules.Sort(module => worldHitPos.SqDist(module.Position));
+
+            // make sure overlapping shields get put to the front!
+            modules.Sort(module =>
+            {
+                float radius = module.ShieldPower > 0f ? module.shield_radius+10f : module.Radius;
+                return worldHitPos.SqDist(module.Position) - radius*radius;
+            });
             return modules;
         }
 
         // Converts a world position to a grid local position (such as [16f,32f])
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
-            return (worldPoint - Center).RotateAroundPoint(Vector2.Zero, -Rotation) - GridOrigin;
+            Vector2 offset = worldPoint - Center;
+            Vector2 rotated = offset.RotateAroundPoint(Vector2.Zero, -Rotation);
+            return rotated - GridOrigin;
+        }
+
+        public Point WorldToGridLocalPoint(Vector2 worldPoint)
+        {
+            Vector2 local = WorldToGridLocal(worldPoint);
+            return new Point((int)(local.X / 16f), (int)(local.Y / 16f));
+        }
+
+        public Vector2 GridLocalToWorld(Vector2 localPoint)
+        {
+            Vector2 centerLocal = GridOrigin + localPoint;
+            return centerLocal.RotateAroundPoint(Vector2.Zero, Rotation) + Center;
+        }
+
+        public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
+        {
+            return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
         }
 
         // Generic shipmodule grid search with an optional predicate filter
-        private ShipModule RadialSearch(Vector2 worldPos, float radius, bool ignoreShields, ShipModule[] grid, int width, int height)
+        private ShipModule RadialSearch(Vector2 worldPos, float radius, ShipModule[] grid, int width, int height)
         {
             Vector2 center = WorldToGridLocal(worldPos);
             int firstX = (int)((center.X - radius) / 16.0f);
             int lastX  = (int)((center.X + radius) / 16.0f);
             int firstY = (int)((center.Y - radius) / 16.0f);
             int lastY  = (int)((center.Y + radius) / 16.0f);
-
-            // Luckily .NET can successfully optimize this into something faster than Math.Min/Max on 32-bit CLR
             if (firstX < 0) firstX = 0; else if (firstX >= width)  firstX = width - 1;
             if (lastX  < 0) lastX  = 0; else if (lastX  >= width)  lastX  = width - 1;
             if (firstY < 0) firstY = 0; else if (firstY >= height) firstY = height - 1;
@@ -263,7 +304,7 @@ namespace Ship_Game.Gameplay
 
             ShipModule m;
             if ((m = grid[minX + minY * width]) != null && m.Active
-                    && (radius <= 0f || m.HitTest(worldPos, radius, ignoreShields))) return m;
+                    && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
 
             for (;;)
             {
@@ -273,14 +314,14 @@ namespace Ship_Game.Gameplay
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[minX + y * width]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, ignoreShields))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (maxX < lastX) // test all modules to the right
                 {
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[maxX + y * width]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, ignoreShields))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (minY > firstY) // test all top modules
                 {
@@ -288,7 +329,7 @@ namespace Ship_Game.Gameplay
                     int rowstart = minY * width;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[rowstart + x]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, ignoreShields))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (maxY < lastY) // test all bottom modules
                 {
@@ -296,58 +337,76 @@ namespace Ship_Game.Gameplay
                     int rowstart = maxY * width;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[rowstart + x]) != null && m.Active
-                            && (radius <= 0f || m.HitTest(worldPos, radius, ignoreShields))) return m;
+                            && (radius <= 0f || m.HitTestNoShields(worldPos, radius))) return m;
                 }
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
         }
 
-
-        // @todo This needs optimization
-        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
+        // perform a raytrace from point a to point b, visiting all grid points between them!
+        private static ShipModule RayTrace(Point a, Point b, ShipModule[] grid, int gridWidth, int gridHeight)
         {
-            float closestDist = float.MaxValue;
-            ShipModule closest = null;
-
-            for (int i = 0; i < SparseModuleGrid.Length; ++i)
+            int dx = Math.Abs(b.X - a.X);
+            int dy = Math.Abs(b.Y - a.Y);
+            int x = a.X;
+            int y = a.Y;
+            int n = 1 + dx + dy;
+            int kx = (b.X > a.X) ? 1 : -1;
+            int ky = (b.Y > a.Y) ? 1 : -1;
+            int error = dx - dy;
+            dx *= 2;
+            dy *= 2;
+            for (; n > 0; --n)
             {
-                ShipModule module = SparseModuleGrid[i];
-                if (module == null || !module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                // @todo Because we don't have cool ray testing yet, we must pick the best ray result
-                // @todo OPTIMIZE THIS...
-                // @todo HitTestShield will probably get removed
-
-                Vector2 point = module.Center.FindClosestPointOnLine(startPos, endPos);
-                if (!ignoreShields && module.ShieldPower > 0f)
+                ShipModule module = grid[x + y*gridWidth];
+                if (module != null) return module;
+                if (error > 0)
                 {
-                    if (module.HitTestShield(point, rayRadius, out float sqDist) && sqDist < closestDist)
-                    {
-                        closestDist = sqDist;
-                        closest = module;
-                    }
+                    if (0 < x && x < gridWidth) x += kx;
+                    error -= dy;
                 }
-                else if (module.HitTest(point, rayRadius, ignoreShields))
+                else
                 {
-                    float sqdist = point.SqDist(startPos);
-                    if (sqdist < closestDist)
-                    {
-                        closestDist = sqdist;
-                        closest = module;
-                    }
+                    if (0 < y && y < gridHeight) y += ky;
+                    error += dx;
                 }
             }
-            return closest;
+            return null;
+        }
+
+
+        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
+        {
+            if (!ignoreShields)
+            {
+                ShipModule shield = RayHitTestShields(startPos, endPos, rayRadius);
+                if (shield != null) return shield;
+            }
+
+            Point a = WorldToGridLocalPoint(startPos);
+            Point b = WorldToGridLocalPoint(endPos);
+            if (MathExt.ClipLineWithBounds(GridWidth, GridHeight, a, b, ref a, ref b))
+            {
+                #if DEBUG
+                    if (Empire.Universe.Debug)
+                    {
+                        Vector2 localA = WorldToGridLocal(startPos);
+                        Vector2 localB = WorldToGridLocal(endPos);
+                        AddGridLocalDebugLine(5f, localA, localB);
+                    }
+                #endif
+                // @todo Make use of rayRadius to improve raytrace precision
+                return RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
+            }
+            return null;
         }
 
         // find ShipModules that collide with a this wide RAY
         // direction must be normalized!!
         // results are sorted by distance
+        // @note Don't bother optimizing this. It's only used during armour piercing, which is super rare.
         public Array<ShipModule> RayHitTestModules(
-            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields = false)
+            Vector2 startPos, Vector2 direction, float distance, float rayRadius)
         {
             Vector2 endPos = startPos + direction * distance;
 
@@ -355,20 +414,16 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (!module.Active || module.Health <= 0f)
-                    continue;
-
-                ++GlobalStats.DistanceCheckTotal;
-
-                Vector2 point = module.Position.FindClosestPointOnLine(startPos, endPos);
-                if (module.HitTest(point, rayRadius, ignoreShields))
+                if (module.Health > 0f && module.RayHitTestNoShield(startPos, endPos, rayRadius))
                     modules.Add(module);
             }
             modules.Sort(module => startPos.SqDist(module.Position));
             return modules;
         }
 
-        
+
+
+        // @todo Redo all of this targeting code
         private ShipModule ClosestExternalModuleSlot(Vector2 center, float maxRange=999999f)
         {
             float nearest = maxRange*maxRange;
