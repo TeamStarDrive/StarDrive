@@ -50,7 +50,8 @@ namespace Ship_Game.Gameplay
         public float ScuttleTimer = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
-        private Array<ShipModule> Shields = new Array<ShipModule>();
+
+        private ShipModule[] Shields;
         private Array<ShipModule> Hangars = new Array<ShipModule>();
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public bool shipStatusChanged;
@@ -1297,7 +1298,7 @@ namespace Ship_Game.Gameplay
         {
             ShipSO = so;
             ShipSO.Visibility = ObjectVisibility.Rendered;
-            Radius = ShipSO.WorldBoundingSphere.Radius * 2f;
+            Radius = ShipSO.WorldBoundingSphere.Radius;
         }
 
         public SceneObject GetSO()
@@ -1632,7 +1633,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             ShipSO.Visibility = ObjectVisibility.Rendered;
-            Radius = ShipSO.WorldBoundingSphere.Radius * 2f;
+            Radius = ShipSO.WorldBoundingSphere.Radius;
             ShipStatusChange();
             shipInitialized = true;
             RecalculateMaxHP();            //Fix for Ship Max health being greater than all modules combined (those damned haphazard engineers). -Gretman
@@ -2828,13 +2829,11 @@ namespace Ship_Game.Gameplay
 
         public void DamageShieldInvisible(Ship damageSource, float damageAmount)
         {
-            for (int i = 0; i < Shields.Count; ++i)
+            for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (!shield.Active || shield.ShieldPower <= 0f)
-                    continue;
-                shield.Damage(damageSource, damageAmount);
-                return;
+                if (shield.ShieldPower > 0f)
+                    shield.Damage(damageSource, damageAmount);
             }
         }
 
@@ -3337,7 +3336,6 @@ namespace Ship_Game.Gameplay
             Health = 0f;
             float sensorBonus = 0f;
             Hangars.Clear();
-            Shields.Clear();
             Transporters.Clear();
             Thrust                      = 0f;
             Mass                        = Size / 2f;
@@ -3411,7 +3409,7 @@ namespace Ship_Game.Gameplay
                             FixedTrackingPower = slot.FixedTracking;
                         if (slot.TargetTracking > 0)
                             TrackingPower += slot.TargetTracking;
-                        OrdinanceMax += (float)slot.OrdinanceCapacity;
+                        OrdinanceMax += slot.OrdinanceCapacity;
                         CargoSpaceMax += slot.Cargo_Capacity;
                         InhibitionRadius += slot.InhibitionRadius;
                         BonusEMP_Protection += slot.EMP_Protection;
@@ -3423,7 +3421,6 @@ namespace Ship_Game.Gameplay
                         {
                             shield_max += slot.GetShieldsMax();
                             ShieldPowerDraw += slot.PowerDraw;
-                            Shields.Add(slot);
                         }
                         else
                             ModulePowerDraw += slot.PowerDraw;
@@ -3835,9 +3832,9 @@ namespace Ship_Game.Gameplay
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
-            NumExternalSlots   = 0;
+            NumExternalSlots = 0;
+            Shields = Empty<ShipModule>.Array;
 
-            Shields.Clear();
             Hangars.Clear();
             BombBays.Clear();
             TroopList.Clear();
@@ -3878,10 +3875,8 @@ namespace Ship_Game.Gameplay
         public void UpdateShields()
         {
             float shieldPower = 0.0f;
-            for (int i = 0; i < Shields.Count; i++)
-            {                
+            for (int i = 0; i < Shields.Length; ++i)
                 shieldPower += Shields[i].ShieldPower;
-            }
             if (shieldPower > shield_max)
                 shieldPower = shield_max;
 
