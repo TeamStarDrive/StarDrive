@@ -9272,28 +9272,30 @@ namespace Ship_Game.AI
                 }
             }
             int num5 = 0;
-            for (int i = empire.GetShipsFromOffensePools().Count - 1; i >= 0; i--)
+            var offPool =empire.GetShipsFromOffensePools();
+            for (int i = offPool.Count - 1; i >= 0; i--)
             {
-                Ship ship = empire.GetShipsFromOffensePools()[i];
+                Ship ship = offPool[i];
                 if (num5 < 5)
                 {
                     int techScore = ship.GetTechScore();
-                    Array<string> list = new Array<string>();
-                    foreach (string index in empire.ShipsWeCanBuild)
-                    {
-                        if (ResourceManager.ShipsDict[index].GetShipData().Hull == ship.GetShipData().Hull &&
-                            ResourceManager.ShipsDict[index].GetTechScore() > techScore)
-                            list.Add(index);
-                    }
-                    if (list.Count > 0)
-                    {
-                        IOrderedEnumerable<string> orderedEnumerable = Enumerable.OrderByDescending<string, int>(
-                            (IEnumerable<string>) list,
-                            (Func<string, int>) (uid => ResourceManager.ShipsDict[uid].GetTechScore()));
-                        ship.AI.OrderRefitTo(Enumerable.First<string>((IEnumerable<string>) orderedEnumerable));
+                    string name = "";
 
-                        ++num5;
+                    foreach (string shipName in empire.ShipsWeCanBuild)
+                    {
+                        Ship shipTemplate = ResourceManager.GetShipTemplate(shipName);
+                        if (shipTemplate.GetShipData().Hull != ship.GetShipData().Hull)                                                        
+                            continue;
+                        int score =shipTemplate.GetTechScore();
+                        if(shipTemplate.GetTechScore() <= techScore) continue;
+                        name = shipName;
+                        techScore = score;
                     }
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        ship.AI.OrderRefitTo(name);
+                        ++num5;
+                    }                    
                 }
                 else
                     break;
