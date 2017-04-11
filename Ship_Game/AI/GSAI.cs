@@ -9199,102 +9199,44 @@ namespace Ship_Game.AI
 
         public void TriggerRefit()
         {
-            int num1 = 0;
-            int num2 = 0;
-            int num3 = 0;
-            int num4 = 0;
-            foreach (KeyValuePair<string, bool> keyValuePair in this.empire.GetMDict())
+
+            bool TechCompare(int[] original, int[] newTech)
             {
-                if (keyValuePair.Value)
-                {
-                    ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(keyValuePair.Key);
-                    switch (moduleTemplate.ModuleType)
-                    {
-                        case ShipModuleType.Turret:
-                            if ((int)moduleTemplate.TechLevel > num3)
-                            {
-                                num3 = (int)moduleTemplate.TechLevel;
-                                continue;
-                            }
-                            else
-                                continue;
-                        case ShipModuleType.MainGun:
-                            if ((int)moduleTemplate.TechLevel > num3)
-                            {
-                                num3 = (int)moduleTemplate.TechLevel;
-                                continue;
-                            }
-                            else
-                                continue;
-                        case ShipModuleType.PowerPlant:
-                            if ((int)moduleTemplate.TechLevel > num4)
-                            {
-                                num4 = (int)moduleTemplate.TechLevel;
-                                continue;
-                            }
-                            else
-                                continue;
-                        case ShipModuleType.Engine:
-                            if ((int)moduleTemplate.TechLevel > num2)
-                            {
-                                num2 = (int)moduleTemplate.TechLevel;
-                                continue;
-                            }
-                            else
-                                continue;
-                        case ShipModuleType.Shield:
-                            if ((int)moduleTemplate.TechLevel > num1)
-                            {
-                                num1 = (int)moduleTemplate.TechLevel;
-                                continue;
-                            }
-                            else
-                                continue;
-                        case ShipModuleType.MissileLauncher:
-                            if ((int)moduleTemplate.TechLevel > num3)
-                            {
-                                num3 = (int)moduleTemplate.TechLevel;
-                                continue;
-                            }
-                            else
-                                continue;
-                        case ShipModuleType.Bomb:
-                            if ((int)moduleTemplate.TechLevel > num3)
-                            {
-                                num3 = (int)moduleTemplate.TechLevel;
-                                continue;
-                            }
-                            else
-                                continue;
-                        default:
-                            continue;
-                    }
-                }
+                bool compare(int o, int n) => o > 0 && o > n;
+                
+                for (int x = 0; x < 4; x++)                
+                    if (!compare(original[x], newTech[x])) return false;
+                
+                return true;
             }
-            int num5 = 0;
+
+            int upgrades = 0;
             var offPool =empire.GetShipsFromOffensePools();
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
-                if (num5 < 5)
+                if (upgrades < 5)
                 {
-                    int techScore = ship.GetTechScore();
+                    int techScore = ship.GetTechScore(out int[] origTechs);
                     string name = "";
 
                     foreach (string shipName in empire.ShipsWeCanBuild)
                     {
-                        Ship shipTemplate = ResourceManager.GetShipTemplate(shipName);
-                        if (shipTemplate.GetShipData().Hull != ship.GetShipData().Hull)                                                        
+                        Ship newTemplate = ResourceManager.GetShipTemplate(shipName);
+                        if (newTemplate.GetShipData().Hull != ship.GetShipData().Hull)                                                        
                             continue;
-                        int score =shipTemplate.GetTechScore();
-                        if(shipTemplate.GetTechScore() <= techScore) continue;
-                        name = shipName;
-                        techScore = score;
+                        int newScore =newTemplate.GetTechScore(out int[] newTech);
+
+                        if(newScore <= techScore || !TechCompare(origTechs, newTech)) continue;                        
+
+                        name      = shipName;
+                        techScore = newScore;
+                        origTechs = newTech;
                     }
                     if (string.IsNullOrEmpty(name))
                     {
                         ship.AI.OrderRefitTo(name);
-                        ++num5;
+                        ++upgrades;
                     }                    
                 }
                 else
