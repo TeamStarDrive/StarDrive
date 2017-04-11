@@ -9233,7 +9233,7 @@ namespace Ship_Game.AI
                         techScore = newScore;
                         origTechs = newTech;
                     }
-                    if (string.IsNullOrEmpty(name))
+                    if (!string.IsNullOrEmpty(name))
                     {
                         ship.AI.OrderRefitTo(name);
                         ++upgrades;
