@@ -1481,27 +1481,29 @@ namespace Ship_Game.Gameplay
             return maint;
         }
 
-        public int GetTechScore()
+        public int GetTechScore(out int[] techScores)
         {
-            int shieldTechLvl = 0;
-            int engineTechLvl = 0;
-            int weaponTechLvl = 0;
-            int powerTechLvl  = 0;
+            int [] scores = new int[4];
+            scores[0] = 0;
+            scores[1] = 0;
+            scores[2] = 0;
+            scores[3] = 0;
             foreach (ShipModule module in ModuleSlotList)
             {
                 switch (module.ModuleType)
-                {
+                {                    
                     case ShipModuleType.Turret:
                     case ShipModuleType.MainGun:
                     case ShipModuleType.MissileLauncher:
-                    case ShipModuleType.Bomb:       weaponTechLvl = Math.Max(weaponTechLvl, module.TechLevel); continue;
-                    case ShipModuleType.PowerPlant: powerTechLvl  = Math.Max(powerTechLvl, module.TechLevel);  continue;
-                    case ShipModuleType.Engine:     engineTechLvl = Math.Max(engineTechLvl, module.TechLevel); continue;
-                    case ShipModuleType.Shield:     shieldTechLvl = Math.Max(shieldTechLvl, module.TechLevel); continue;
+                    case ShipModuleType.Bomb:       scores[2] = Math.Max(scores[2], module.TechLevel); continue;
+                    case ShipModuleType.PowerPlant: scores[3] = Math.Max(scores[3], module.TechLevel); continue;
+                    case ShipModuleType.Engine:     scores[1] = Math.Max(scores[1], module.TechLevel); continue;
+                    case ShipModuleType.Shield:     scores[0] = Math.Max(scores[0], module.TechLevel); continue;
                 }
             }
-            return engineTechLvl + powerTechLvl + shieldTechLvl + weaponTechLvl;
-        }
+            techScores = scores;
+            return scores[1] + scores[3] + scores[0] + scores[2];
+        }        
 
         public void DoEscort(Ship EscortTarget)
         {
