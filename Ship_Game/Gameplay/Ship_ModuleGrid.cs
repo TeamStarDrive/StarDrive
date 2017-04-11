@@ -259,7 +259,8 @@ namespace Ship_Game.Gameplay
 
             ShipModule[] grid = ExternalModuleGrid;
             Point pt = WorldToGridLocalPointClipped(worldPoint);
-            int width = GridWidth, height = GridHeight;
+            int width = GridWidth;
+            int lastX = width - 1, lastY = GridHeight - 1;
             int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
             ShipModule m;
             if ((m = grid[minX + minY*width]) != null && m.Active) return m;
@@ -271,7 +272,7 @@ namespace Ship_Game.Gameplay
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y) if ((m = grid[minX + y*width]) != null && m.Active) return m;
                 }
-                if (maxX < width) { // test all modules to the right
+                if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y) if ((m = grid[maxX + y*width]) != null && m.Active) return m;
                 }
@@ -279,7 +280,7 @@ namespace Ship_Game.Gameplay
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x) if ((m = grid[x + minY*width]) != null && m.Active) return m;
                 }
-                if (maxY < height) { // test all bottom modules
+                if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x) if ((m = grid[x + maxY*width]) != null && m.Active) return m;
                 }
