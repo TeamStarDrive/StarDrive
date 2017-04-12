@@ -2,6 +2,8 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -19,7 +21,7 @@ namespace Ship_Game
         //public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
         public Array<Ship> ShipList = new Array<Ship>();
-        public SpatialManager spatialManager = new SpatialManager();
+        [XmlIgnore][JsonIgnore] public SpatialManager spatialManager = new SpatialManager();
         public bool isVisible;
         public Vector2 Position;
         public Array<Planet> PlanetList = new Array<Planet>();
