@@ -13,6 +13,11 @@ namespace Ship_Game
         public static GraphicsDevice device;
         public static AudioListener audioListener { get; set; }
 
+        /**
+         *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
+         *        will be accidentally serialized! 
+         */
+
         [XmlIgnore][JsonIgnore] public bool Active = true;
         [XmlIgnore][JsonIgnore] protected Cue dieCue;
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
@@ -35,7 +40,7 @@ namespace Ship_Game
 
 
         private static int GameObjIds;
-        [XmlIgnore] [JsonIgnore] public int Id = ++GameObjIds;
+        [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
         protected GameplayObject()
         {
@@ -51,12 +56,14 @@ namespace Ship_Game
             Active = false;
         }
 
+        [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";
+
+        [XmlIgnore][JsonIgnore] 
+        public SpatialManager ActiveSpatialManager => SpatialManagerForSystem(System);
 
         public static SpatialManager SpatialManagerForSystem(SolarSystem system)
             => system?.spatialManager ?? UniverseScreen.DeepSpaceManager;
-
-        public SpatialManager ActiveSpatialManager => SpatialManagerForSystem(System);
 
         public T[] GetNearby<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, Radius);
 
