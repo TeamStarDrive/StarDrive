@@ -170,8 +170,10 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.Diplomacy.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.DiplomacyAnger.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.DiplomacyOffers.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.RunAgentManager.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunDiplomaticPlanner.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.RunEconomicPlanner.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.RunExpansionPlanner.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.RunGroundPlanner.cs" />
