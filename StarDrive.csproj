@@ -170,18 +170,18 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.DiplomacyAnger.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.DiplomacyOffers.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.FactionUpdate.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunAgentManager.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunDiplomaticPlanner.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunEconomicPlanner.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunExpansionPlanner.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunGroundPlanner.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunInfrastructurePlanner.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunMilitaryPlanner.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunResearchPlanner.cs" />
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunWarPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.FactionUpdate.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunAgentManager.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunDiplomaticPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunEconomicPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunExpansionPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunGroundPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunInfrastructurePlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunMilitaryPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunResearchPlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1109,7 +1109,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\AI\GSAI\GSAI.cs">
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
