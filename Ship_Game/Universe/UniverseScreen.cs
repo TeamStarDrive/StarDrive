@@ -2203,7 +2203,7 @@ namespace Ship_Game
                         if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
                         {
                             pickedSomethingThisFrame = true;
-                            SelectedShipList.Add(clickableShip.shipToClick);
+                            SelectedShipList.AddUnique(clickableShip.shipToClick);
 
                             foreach (ClickableShip ship in ClickableShipsList)
                             {
@@ -2211,7 +2211,7 @@ namespace Ship_Game
                                     ship.shipToClick.loyalty == clickableShip.shipToClick.loyalty &&
                                     ship.shipToClick.shipData.Role == clickableShip.shipToClick.shipData.Role)
                                 {
-                                    SelectedShipList.Add(ship.shipToClick);
+                                    SelectedShipList.AddUnique(ship.shipToClick);
                                 }
                             }
                             break;
@@ -2662,7 +2662,7 @@ namespace Ship_Game
                     {
                         Ship ship = SelectedFleet.Ships[j];
                         if (ship.inSensorRange)
-                            SelectedShipList.Add(ship);
+                            SelectedShipList.AddUnique(ship);
                     }
                     if (SelectedShipList.Count == 1)
                     {
@@ -3304,7 +3304,6 @@ namespace Ship_Game
                             lock (GlobalStats.ClickableSystemsLock)
                                 planet = CheckPlanetClick(startDrag);
                             if (ship1 != null || planet != null)
-                            #region Target Planet
                             {
                                 foreach (Ship ship2 in SelectedShipList)
                                 {
@@ -3337,7 +3336,6 @@ namespace Ship_Game
                                     }
                                 }
                             } 
-                            #endregion
                             else
                             {
                                 SelectedSomethingTimer = 3f;
@@ -3998,24 +3996,12 @@ namespace Ship_Game
                                     this.pickedSomethingThisFrame = true;
                                     AudioManager.GetCue("techy_affirm1").Play();
                                     //this.SelectedShip = clickableShip.shipToClick;  removed by fbedard
-                                    this.SelectedSomethingTimer = 3f;
-                                    if (!this.SelectedShipList.Contains(clickableShip.shipToClick))
+                                    SelectedSomethingTimer = 3f;
+                                    if (clickableShip.shipToClick?.inSensorRange == true)
                                     {
-                                        if (clickableShip.shipToClick != null)
-                                        {
-                                            if (clickableShip.shipToClick.inSensorRange)
-                                            {
-                                                this.SelectedShipList.Add(clickableShip.shipToClick);
-                                                break;
-                                            }
-                                            else
-                                                break;
-                                        }
-                                        else
-                                            break;
+                                        SelectedShipList.AddUnique(clickableShip.shipToClick);
                                     }
-                                    else
-                                        break;
+                                    break;
                                 }
                             }
                         }
