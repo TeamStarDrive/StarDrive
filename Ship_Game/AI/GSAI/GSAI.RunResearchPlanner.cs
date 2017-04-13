@@ -8,7 +8,7 @@ namespace Ship_Game.AI {
     {
         private GSAI.ResearchStrategy res_strat = GSAI.ResearchStrategy.Scripted;
         private int ScriptIndex = 0;
-
+        int hullScaler = 1;
         private string postResearchTopic = "";
         Ship BestCombatShip;
         private void RunResearchPlanner()
@@ -996,6 +996,15 @@ namespace Ship_Game.AI {
         {
             Random,
             Scripted
+        }
+
+        private float randomizer(float priority, float bonus)
+        {
+            float index=0;
+            index += RandomMath.RandomBetween(0, (priority + bonus));
+            index += RandomMath.RandomBetween(0, (priority + bonus));
+            index += RandomMath.RandomBetween(0, (priority + bonus));
+            return index ;
         }
     }
 }
