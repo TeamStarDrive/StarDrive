@@ -170,6 +170,15 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.Diplomacy.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunAgentManager.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunEconomicPlanner.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunExpansionPlanner.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunGroundPlanner.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunInfrastructurePlanner.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunMilitaryPlanner.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunResearchPlanner.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1097,7 +1106,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\AI\GSAI.cs">
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
