@@ -41,6 +41,7 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * Please join the [discord discussion](https://discord.gg/gnQQv5C).
 * Please join the [BlackBox Google Group](https://groups.google.com/forum/#!forum/blackboxmod) for automated bug reports. 
 * Please NOTE: if the **default** Release and Debug configurations *do not work* for you then your setup is incorrect. Contact us. 
+* A list of new guy tasks can be found here [new guy tasks](https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues?component=New+Guy+Tasks%3A+CleanUp&status=open&status=new) These are low priority low impact tasks. Where changes can be made without breaking the game and causing merge issues in most cases. 
 
 ### Contribution guidelines ###
 
