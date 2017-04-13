@@ -431,19 +431,19 @@ namespace Ship_Game
             Point start, Point end,            // Define the start and end points of the line.
             ref Point clippedStart, ref Point clippedEnd)  // The clipped points
         {
-
             float t0 = 0f, t1 = 1f;
             int dx = end.X - start.X;
             int dy = end.Y - start.Y;
             int p = 0, q = 0;
+            int lastX = boundsWidth - 1, lastY = boundsHeight - 1;
             for (int edge = 0; edge < 4; ++edge)
             {
                 switch (edge) // Traverse through left, right, bottom, top edges.
                 {
-                    case 0: p = -dx; q = start.X;                  break; // left  edge check
-                    case 1: p =  dx; q = (boundsWidth-1)  - start.X; break; // right edge check
-                    case 2: p = -dy; q = (boundsHeight-1) - start.Y; break; // bottom edge check
-                    case 3: p =  dy; q = start.Y;                  break; // top edge check
+                    case 0: p = -dx; q = start.X;         break; // left  edge check
+                    case 1: p =  dx; q = lastX - start.X; break; // right edge check
+                    case 2: p = -dy; q = lastY - start.Y; break; // bottom edge check
+                    case 3: p =  dy; q = start.Y;         break; // top edge check
                 }
                 if (p == 0 && q < 0)
                     return false;   // (parallel line outside)
@@ -459,10 +459,10 @@ namespace Ship_Game
                     if (r < t1) t1 = r;       // clip line from end towards start
                 }
             }
-            clippedStart.X = (int)(start.X + t0 * dx);
-            clippedStart.Y = (int)(start.Y + t0 * dy);
-            clippedEnd.X   = (int)(start.X + t1 * dx);
-            clippedEnd.Y   = (int)(start.Y + t1 * dy);
+            clippedStart.X = Max(0, Min((int)(start.X + t0 * dx), lastX));
+            clippedStart.Y = Max(0, Min((int)(start.Y + t0 * dy), lastY));
+            clippedEnd.X   = Max(0, Min((int)(start.X + t1 * dx), lastX));
+            clippedEnd.Y   = Max(0, Min((int)(start.Y + t1 * dy), lastY));
             return true;
         }
 

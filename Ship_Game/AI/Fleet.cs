@@ -80,7 +80,10 @@ namespace Ship_Game.AI
             this.HasRepair = HasRepair || shiptoadd.hasRepairBeam || (shiptoadd.HasRepairModule && shiptoadd.Ordinance > 0);        
             if (updateOnly) return;
             if (shiptoadd.fleet != null || Ships.Contains(shiptoadd))
+            {
                 Log.Error("ship already in a fleet");
+                return; // recover
+            }
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
                 return;
             this.Ships.Add(shiptoadd);

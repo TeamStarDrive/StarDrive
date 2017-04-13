@@ -415,8 +415,8 @@ namespace Ship_Game.Gameplay
             dy *= 2;
             for (; n > 0; --n)
             {
-                ShipModule module = grid[x + y*gridWidth];
-                if (module != null) return module;
+                ShipModule m = grid[x + y*gridWidth];
+                if (m != null && m.Active) return m;
                 if (error > 0)
                 {
                     if (0 < x && x < gridWidth) x += kx;
@@ -441,7 +441,7 @@ namespace Ship_Game.Gameplay
 
             Point a = WorldToGridLocalPoint(startPos);
             Point b = WorldToGridLocalPoint(endPos);
-            if (MathExt.ClipLineWithBounds(GridWidth, GridHeight, a, b, ref a, ref b))
+            if (MathExt.ClipLineWithBounds(GridWidth, GridHeight, a, b, ref a, ref b)) // guaranteed bounds safety
             {
                 #if DEBUG
                     if (Empire.Universe.Debug)
@@ -451,6 +451,13 @@ namespace Ship_Game.Gameplay
                         AddGridLocalDebugLine(5f, localA, localB);
                     }
                 #endif
+                // No need to actually raytrace. Lets just return the
+                if (a == b)
+                {
+                    ShipModule m = SparseModuleGrid[a.X + a.Y * GridWidth];
+                    return m != null && m.Active ? m : null;
+                }
+
                 // @todo Make use of rayRadius to improve raytrace precision
                 return RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
             }
