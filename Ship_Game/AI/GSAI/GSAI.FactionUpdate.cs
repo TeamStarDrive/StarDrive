@@ -1,0 +1,172 @@
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
+
+namespace Ship_Game.AI {
+    public sealed partial class GSAI
+    {
+        public void FactionUpdate()
+        {
+            string name = this.empire.data.Traits.Name;
+            switch (name)
+            {
+                case "The Remnant":
+                {
+                    bool HasPlanets = false; // this.empire.GetPlanets().Count > 0;
+                    foreach (Planet planet in this.empire.GetPlanets())
+                    {
+                        HasPlanets = true;
+
+                        foreach (QueueItem item in planet.ConstructionQueue)
+                        {
+                            {
+                                item.Cost = 0;
+                            }
+                        }
+                        planet.ApplyProductiontoQueue(1, 0);
+                    }
+                    foreach (Ship assimilate in this.empire.GetShips())
+                    {
+                        if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null)
+                        {
+                            if (HasPlanets)
+                            {
+                                if (assimilate.GetStrength() <= 0)
+                                {
+                                    Planet target = null;
+                                    if (assimilate.System != null)
+                                    {
+                                        target = assimilate.System.PlanetList
+                                            .Where(owner => owner.Owner != this.empire && owner.Owner != null)
+                                            .FirstOrDefault();
+                                    }
+                                    if (target != null)
+                                    {
+                                        assimilate.shipData.Role = ShipData.RoleName.troop;
+                                        assimilate.TroopList.Add(ResourceManager.CreateTroop("Remnant Defender",
+                                            assimilate.loyalty));
+
+                                        if (assimilate.GetStrength() <= 0)
+                                        {
+                                            assimilate.isColonyShip = true;
+
+                                            // @todo this looks like FindMinFiltered
+                                            Planet capture = Empire.Universe.PlanetsDict.Values
+                                                .Where(potentials => potentials.Owner == null && potentials.habitable)
+                                                .OrderBy(potentials => Vector2.Distance(assimilate.Center,
+                                                    potentials.Position))
+                                                .FirstOrDefault();
+                                            if (capture != null)
+                                                assimilate.AI.OrderColonization(capture);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (assimilate.Size < 50)
+                                        assimilate.AI.OrderRefitTo("Heavy Drone");
+                                    else if (assimilate.Size < 100)
+                                        assimilate.AI.OrderRefitTo("Remnant Slaver");
+                                    else if (assimilate.Size >= 100)
+                                        assimilate.AI.OrderRefitTo("Remnant Exterminator");
+                                }
+                            }
+                            else
+                            {
+                                if (assimilate.GetStrength() <= 0)
+                                {
+                                    assimilate.isColonyShip = true;
+
+
+                                    Planet capture = Empire.Universe.PlanetsDict.Values
+                                        .Where(potentials => potentials.Owner == null && potentials.habitable)
+                                        .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Position))
+                                        .FirstOrDefault();
+                                    if (capture != null)
+                                        assimilate.AI.OrderColonization(capture);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Planet target = null;
+                            if (assimilate.System != null && assimilate.AI.State == AIState.AwaitingOrders)
+                            {
+                                target = assimilate.System.PlanetList
+                                    .Where(owner => owner.Owner != this.empire && owner.Owner != null)
+                                    .FirstOrDefault();
+                                if (target != null && (assimilate.HasTroopBay || assimilate.hasAssaultTransporter))
+                                    if (assimilate.TroopList.Count > assimilate.GetHangars().Count)
+                                        assimilate.AI.OrderAssaultPlanet(target);
+                            }
+                        }
+                    }
+                }
+                    break;
+                case "Corsairs":
+                {
+                    bool AttackingSomeone = false;
+                    //lock (GlobalStats.TaskLocker)
+                    {
+                        this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
+                        {
+                            if (task.type != MilitaryTask.TaskType.CorsairRaid)
+                            {
+                                return;
+                            }
+                            AttackingSomeone = true;
+                        }, false, false, false);
+                    }
+                    if (!AttackingSomeone)
+                    {
+                        foreach (KeyValuePair<Empire, Relationship> r in this.empire.AllRelations)
+                        {
+                            if (!r.Value.AtWar || r.Key.GetPlanets().Count <= 0 || this.empire.GetShips().Count <= 0)
+                            {
+                                continue;
+                            }
+                            Vector2 center = new Vector2();
+                            foreach (Ship ship in this.empire.GetShips())
+                            {
+                                center = center + ship.Center;
+                            }
+                            center = center / (float) this.empire.GetShips().Count;
+                            IOrderedEnumerable<Planet> sortedList =
+                                from planet in r.Key.GetPlanets()
+                                orderby Vector2.Distance(planet.Position, center)
+                                select planet;
+                            MilitaryTask task = new MilitaryTask(this.empire);
+                            task.SetTargetPlanet(sortedList.First<Planet>());
+                            task.TaskTimer = 300f;
+                            task.type = MilitaryTask.TaskType.CorsairRaid;
+                            //  lock (GlobalStats.TaskLocker)
+                            {
+                                this.TaskList.Add(task);
+                            }
+                        }
+                    }
+                }
+                    break;
+                default:
+                    break;
+            }
+
+
+            //lock (GlobalStats.TaskLocker)
+            {
+                this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
+                {
+                    if (task.type != MilitaryTask.TaskType.Exploration)
+                    {
+                        task.Evaluate(this.empire);
+                    }
+                    else
+                    {
+                        task.EndTask();
+                    }
+                }, false, false, false);
+            }
+        }
+    }
+}

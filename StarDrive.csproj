@@ -172,6 +172,7 @@
   <ItemGroup>
     <Compile Include="Ship_Game\AI\GSAI\GSAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.DiplomacyOffers.cs" />
+    <Compile Include="Ship_Game\AI\GSAI\GSAI.FactionUpdate.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.RunAgentManager.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.RunDiplomaticPlanner.cs" />
     <Compile Include="Ship_Game\AI\GSAI\GSAI.RunEconomicPlanner.cs" />
