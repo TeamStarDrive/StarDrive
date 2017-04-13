@@ -590,25 +590,25 @@ namespace Ship_Game
                 Empire.Universe.SkipRightOnce = true;
                 if (this.SelectedShip !=null)
                 {                   
-                    Empire.Universe.SelectedFleet = (Fleet)null;
-                    Empire.Universe.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
-                    Empire.Universe.SelectedSystem = (SolarSystem)null;
-                    Empire.Universe.SelectedPlanet = (Planet)null;
+                    Empire.Universe.SelectedFleet = null;
+                    Empire.Universe.SelectedItem = null;
+                    Empire.Universe.SelectedSystem = null;
+                    Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip = false;
                     foreach (ScrollList.Entry sel in this.ShipSL.Entries)
                         if ((sel.item as ShipListScreenEntry).Selected)
-                            Empire.Universe.SelectedShipList.Add((sel.item as ShipListScreenEntry).ship);
+                            Empire.Universe.SelectedShipList.AddUnique((sel.item as ShipListScreenEntry).ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
                     {
                         if (Empire.Universe.SelectedShip != null && Empire.Universe.previousSelection != Empire.Universe.SelectedShip) //fbedard
                             Empire.Universe.previousSelection = Empire.Universe.SelectedShip;
-                        Empire.Universe.SelectedShip = this.SelectedShip;
-                        Empire.Universe.ShipInfoUIElement.SetShip(this.SelectedShip);
+                        Empire.Universe.SelectedShip = SelectedShip;
+                        Empire.Universe.ShipInfoUIElement.SetShip(SelectedShip);
                         Empire.Universe.SelectedShipList.Clear();
                     }
                     else if (Empire.Universe.SelectedShipList.Count > 1)
-                        Empire.Universe.shipListInfoUI.SetShipList((Array<Ship>)Empire.Universe.SelectedShipList, false);
+                        Empire.Universe.shipListInfoUI.SetShipList(Empire.Universe.SelectedShipList, false);
                 }
                 return;
             }
@@ -628,7 +628,7 @@ namespace Ship_Game
                     Empire.Universe.returnToShip = false;
                     foreach (ScrollList.Entry sel in this.ShipSL.Entries)
                         if ((sel.item as ShipListScreenEntry).Selected)
-                            Empire.Universe.SelectedShipList.Add((sel.item as ShipListScreenEntry).ship);
+                            Empire.Universe.SelectedShipList.AddUnique((sel.item as ShipListScreenEntry).ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
                     {
