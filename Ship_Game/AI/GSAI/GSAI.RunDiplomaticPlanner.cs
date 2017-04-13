@@ -890,5 +890,58 @@ namespace Ship_Game.AI {
                 }
             }
         }
+
+        private void AssessTeritorialConflicts(float weight)
+        {
+
+            weight *= .1f;
+            foreach (SystemCommander CheckBorders in this.DefensiveCoordinator.DefenseDict.Values)
+            {
+
+                if (CheckBorders.RankImportance > 5)
+                {
+                    foreach (SolarSystem closeenemies in CheckBorders.System.FiveClosestSystems)
+                    {
+                        foreach (Empire enemy in closeenemies.OwnerList)
+                        {
+#if PERF
+                            if (enemy.isPlayer)
+                                continue;
+#endif
+                            if (enemy.isFaction)
+                                continue;
+                            Relationship check = null;
+
+                            if (this.empire.TryGetRelations(enemy, out check))
+                            {
+                                if (!check.Known || check.Treaty_Alliance)
+                                    continue;
+
+                                weight *= (this.empire.currentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (this.empire.currentMilitaryStrength + 1);
+
+                                if (check.Treaty_OpenBorders)
+                                {
+                                    weight *= .5f;
+                                }
+                                if (check.Treaty_NAPact)
+                                    weight *= .5f;
+                                if (enemy.isPlayer)
+                                    weight *= ((int)Empire.Universe.GameDifficulty + 1);
+
+                                if (check.Anger_TerritorialConflict > 0)
+                                    check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);
+                                else
+                                    check.Anger_TerritorialConflict += CheckBorders.RankImportance * weight;
+
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+
+
     }
 }
