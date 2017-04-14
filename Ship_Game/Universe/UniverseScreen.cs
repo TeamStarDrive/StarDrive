@@ -910,7 +910,7 @@ namespace Ship_Game
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
             Empire.Universe                   = this;
-            ArtificialIntelligence.universeScreen = this;
+            ShipAI.universeScreen = this;
             FleetDesignScreen.screen              = this;
 
             CreateProjectionMatrix();
@@ -3289,7 +3289,7 @@ namespace Ship_Game
                                 else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
                                 {
                                     SelectedShip.AI.OrderMoveTowardsPosition(vector2_1, num2, vector2_2, true,null);
-                                    SelectedShip.AI.OrderQueue.Enqueue(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.HoldPosition, vector2_1, num2));
+                                    SelectedShip.AI.OrderQueue.Enqueue(new ShipAI.ShipGoal(ShipAI.Plan.HoldPosition, vector2_1, num2));
                                     SelectedShip.AI.HasPriorityOrder = true;
                                     SelectedShip.AI.IgnoreCombat = true;
                                 }
@@ -4413,7 +4413,7 @@ namespace Ship_Game
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                   = null;
-            ArtificialIntelligence.universeScreen = null;
+            ShipAI.universeScreen = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
             ExplosionManager.Universe             = null;
@@ -6266,7 +6266,7 @@ namespace Ship_Game
             Color color;
                 Vector2 start = ship.Center;
                 
-                ArtificialIntelligence.ShipGoal goal;
+                ShipAI.ShipGoal goal;
                 if (!ship.InCombat || ship.AI.HasPriorityOrder)
                 {
                     color = Colors.Orders(alpha); 

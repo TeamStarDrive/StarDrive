@@ -613,7 +613,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    if (ship.AI.OrderQueue.PeekLast.Plan == ArtificialIntelligence.Plan.DeployStructure)
+                    if (ship.AI.OrderQueue.PeekLast.Plan == ShipAI.Plan.DeployStructure)
                     {
                         return;
                     }

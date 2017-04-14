@@ -284,7 +284,7 @@ namespace Ship_Game
 					{
 						switch (ship.AI.OrderQueue.PeekLast.Plan)
 						{
-							case ArtificialIntelligence.Plan.PickupGoods:
+							case ShipAI.Plan.PickupGoods:
 							{
 								which = ship.AI.FoodOrProd;
 								if (which == "Prod")
@@ -300,7 +300,7 @@ namespace Ship_Game
 								text = string.Concat(strArrays);
 								break;
 							}
-							case ArtificialIntelligence.Plan.DropOffGoods:
+							case ShipAI.Plan.DropOffGoods:
 							{
 								which = ship.AI.FoodOrProd;
 								if (which == "Prod")
@@ -380,13 +380,13 @@ namespace Ship_Game
 						{
 							switch (ship.AI.OrderQueue.PeekLast.Plan)
 							{
-								case ArtificialIntelligence.Plan.PickupPassengers:
+								case ShipAI.Plan.PickupPassengers:
 								{
 									text = string.Concat(text, Localizer.Token(159), " ", ship.AI.start.Name);
 									text = string.Concat(text, "\n", Localizer.Token(166));
 									break;
 								}
-								case ArtificialIntelligence.Plan.DropoffPassengers:
+								case ShipAI.Plan.DropoffPassengers:
 								{
 									text = string.Concat(text, Localizer.Token(159), " ", ship.AI.end.Name);
 									text = string.Concat(text, "\n", Localizer.Token(167));
@@ -430,7 +430,7 @@ namespace Ship_Game
 							text = Localizer.Token(174);
 							break;
 						}
-						else if (ship.AI.OrderQueue.PeekLast.Plan != ArtificialIntelligence.Plan.DeployStructure)
+						else if (ship.AI.OrderQueue.PeekLast.Plan != ShipAI.Plan.DeployStructure)
 						{
 							IOrderedEnumerable<SolarSystem> sortedList = 
 								from system in UniverseScreen.SolarSystemList
