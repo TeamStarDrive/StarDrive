@@ -2514,29 +2514,17 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
-                    var source = Enumerable.Range(0, 0).ToArray();
-                    var rangePartitioner = Partitioner.Create(0, 1);
-                     
-
                     if (projectiles.Count > 0)
                     {
-                        //source = Enumerable.Range(0, this.projectiles.Count).ToArray();
-                        //rangePartitioner = Partitioner.Create(0, source.Length);
-                        //handle each weapon group in parallel
-                        //global::System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
-                        //Parallel.For(this.projectiles.Count, (start, end) =>
+                        //standard for loop through each weapon group.
+                        for (int i = projectiles.Count - 1; i >= 0; --i)
                         {
-                            //standard for loop through each weapon group.
-                            //for (int T = start; T < end; T++)
-                            for (int i = projectiles.Count - 1; i >= 0; i--)
-                            {
-                                Projectile projectile = projectiles[i];
-                                if ((bool)projectile?.Active)
-                                    projectiles[i].Update(elapsedTime);
-                                else
-                                    projectiles.RemoveRef(projectile);
-                            }
-                        }//); 
+                            Projectile projectile = projectiles[i];
+                            if (projectile?.Active == true)
+                                projectiles[i].Update(elapsedTime);
+                            else
+                                projectiles.RemoveAtSwapLast(i);
+                        }
                     }
 
                     if (beams.Count > 0)

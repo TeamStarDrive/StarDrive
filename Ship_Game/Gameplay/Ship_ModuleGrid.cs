@@ -163,8 +163,8 @@ namespace Ship_Game.Gameplay
         private void SlotPointAt(Vector2 moduleLocalPos, out int x, out int y)
         {
             Vector2 offset = moduleLocalPos - GridOrigin;
-            x = (int)(offset.X / 16f);
-            y = (int)(offset.Y / 16f);
+            x = (int)Math.Floor(offset.X / 16f);
+            y = (int)Math.Floor(offset.Y / 16f);
         }
 
         public bool TryGetModule(Vector2 pos, out ShipModule module)
@@ -223,7 +223,7 @@ namespace Ship_Game.Gameplay
         public Point WorldToGridLocalPoint(Vector2 worldPoint)
         {
             Vector2 local = WorldToGridLocal(worldPoint);
-            return new Point((int)(local.X / 16f), (int)(local.Y / 16f));
+            return new Point((int)Math.Floor(local.X / 16f), (int)Math.Floor(local.Y / 16f));
         }
 
         public Point WorldToGridLocalPointClipped(Vector2 worldPoint)
@@ -232,6 +232,19 @@ namespace Ship_Game.Gameplay
             if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
             if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
             return pt;
+        }
+
+        public Point ClipLocalPoint(Point pt)
+        {
+            if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
+            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
+            return pt;
+        }
+
+        private bool LocalPointInBounds(Point point)
+        {
+            return 0 <= point.X && point.X < GridWidth
+                && 0 <= point.Y && point.Y < GridHeight;
         }
 
         public Vector2 GridLocalToWorld(Vector2 localPoint)
@@ -255,16 +268,20 @@ namespace Ship_Game.Gameplay
         // @note Ignores shields !
         public ShipModule FindClosestUnshieldedModule(Vector2 worldPoint)
         {
-            if (NumExternalSlots == 0) return null;
+            if (NumExternalSlots == 0)
+                return null;
+
+            Point pt = WorldToGridLocalPoint(worldPoint);
+            if (!LocalPointInBounds(pt))
+                return null;
 
             ShipModule[] grid = ExternalModuleGrid;
-            Point pt = WorldToGridLocalPointClipped(worldPoint);
             int width = GridWidth;
-            int lastX = width - 1, lastY = GridHeight - 1;
-            int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
             ShipModule m;
-            if ((m = grid[minX + minY*width]) != null && m.Active) return m;
+            if ((m = grid[pt.X + pt.Y*width]) != null && m.Active) return m;
 
+            int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
+            int lastX = width - 1, lastY = GridHeight - 1;
             for (;;)
             {
                 bool didExpand = false;
@@ -299,41 +316,76 @@ namespace Ship_Game.Gameplay
                 if (shield != null) return shield;
             }
 
-            Point first = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));
-            Point last  = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
+            Point a  = WorldToGridLocalPoint(worldHitPos - new Vector2(hitRadius));
+            Point b  = WorldToGridLocalPoint(worldHitPos + new Vector2(hitRadius));
+            bool inA = LocalPointInBounds(a);
+            bool inB = LocalPointInBounds(b);
+            if (!inA && !inB)
+                return null;
+            if (!inA) a = ClipLocalPoint(a);
+            if (!inB) b = ClipLocalPoint(b);
+
             ShipModule[] grid = SparseModuleGrid;
-            int minX = (first.X + last.X) / 2;
-            int minY = (first.Y + last.Y) / 2;
-            int maxX = minX, maxY = minY;
             int width = GridWidth;
             ShipModule m;
-            if ((m = grid[minX + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+            if (a == b)
+            {
+                if ((m = grid[a.X + a.Y*width]) != null && m.Active 
+                    && m.HitTestNotNeeded(worldHitPos, hitRadius))
+                    return m;
+                return null;
+            }
+
+            int firstX = Math.Min(a.X, b.X);
+            int firstY = Math.Min(a.Y, b.Y);
+            int lastX  = Math.Max(a.X, b.X);
+            int lastY  = Math.Max(a.Y, b.Y);
+
+            Point cx = WorldToGridLocalPointClipped(worldHitPos);
+            int minX = cx.X, minY = cx.Y;
+            int maxX = cx.X, maxY = cx.Y;
+            if ((m = grid[minX + minY*width]) != null && m.Active 
+                && m.HitTestNotNeeded(worldHitPos, hitRadius)) return m;
 
             for (;;)
             {
                 bool didExpand = false;
-                if (minX > first.X) { // test all modules to the left
+                if (minX > firstX) { // test all modules to the left
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[minX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                        if ((m = grid[minX + y*width]) != null && m.Active 
+                            && m.HitTestNotNeeded(worldHitPos, hitRadius)) return m;
                 }
-                if (maxX < last.X) { // test all modules to the right
+                if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[maxX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                        if ((m = grid[maxX + y*width]) != null && m.Active 
+                            && m.HitTestNotNeeded(worldHitPos, hitRadius)) return m;
                 }
-                if (minY > first.Y) { // test all top modules
+                if (minY > firstY) { // test all top modules
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                        if ((m = grid[x + minY*width]) != null && m.Active 
+                            && m.HitTestNotNeeded(worldHitPos, hitRadius)) return m;
                 }
-                if (maxY < last.Y) { // test all bottom modules
+                if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + maxY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, hitRadius)) return m;
+                        if ((m = grid[x + maxY*width]) != null && m.Active 
+                            && m.HitTestNotNeeded(worldHitPos, hitRadius)) return m;
                 }
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
+        }
+
+        public ShipModule HitTestSingleDbg(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
+        {
+            ShipModule m = HitTestSingle(worldHitPos, hitRadius, ignoreShields);
+            #if DEBUG
+                if (Empire.Universe.Debug)
+                    AddGridLocalDebugCircle(5f, WorldToGridLocal(worldHitPos));
+            #endif
+            return m;
         }
 
 
@@ -341,7 +393,7 @@ namespace Ship_Game.Gameplay
         // This was done solely for performance reasons. This method gets called
         // every time an exploding projectile hits a ship. So it gets called for every missile impact
         public void DamageModulesInRange(GameplayObject damageSource, float damageAmount, 
-                                         Vector2 worldHitPos, float damageRadius, bool ignoreShields)
+                                         Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
             float damageTracker = damageAmount;
             if (!ignoreShields)
@@ -349,49 +401,71 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < Shields.Length; ++i)
                 {
                     ShipModule module = Shields[i];
-                    if (module.ShieldPower > 0f && module.HitTestShield(worldHitPos, damageRadius) && 
-                        module.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker))
+                    if (module.ShieldPower > 0f && module.HitTestShield(worldHitPos, hitRadius) && 
+                        module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
                 }
             }
 
-            Point first = WorldToGridLocalPointClipped(worldHitPos - new Vector2(damageRadius));
-            Point last  = WorldToGridLocalPointClipped(worldHitPos + new Vector2(damageRadius));
+            Point a = WorldToGridLocalPoint(worldHitPos - new Vector2(hitRadius));
+            Point b = WorldToGridLocalPoint(worldHitPos + new Vector2(hitRadius));
+            bool inA = LocalPointInBounds(a);
+            bool inB = LocalPointInBounds(b);
+            if (!inA && !inB)
+                return;
+            if (!inA) a = ClipLocalPoint(a);
+            if (!inB) b = ClipLocalPoint(b);
+
             ShipModule[] grid = SparseModuleGrid;
-            int minX = (first.X + last.X) / 2;
-            int minY = (first.Y + last.Y) / 2;
-            int maxX = minX, maxY = minY;
             int width = GridWidth;
             ShipModule m;
-            if ((m = grid[minX + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
-                && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
+            if (a == b)
+            {
+                if ((m = grid[a.X + a.Y*width]) != null && m.Active
+                    && m.HitTestNotNeeded(worldHitPos, hitRadius) 
+                    && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
+                    return;
+                return;
+            }
+
+            int firstX = Math.Min(a.X, b.X);
+            int firstY = Math.Min(a.Y, b.Y);
+            int lastX  = Math.Max(a.X, b.X);
+            int lastY  = Math.Max(a.Y, b.Y);
+
+            Point cx = WorldToGridLocalPoint(worldHitPos);
+            int minX = cx.X, minY = cx.Y;
+            int maxX = cx.X, maxY = cx.Y;
+            if ((m = grid[minX + minY*width]) != null && m.Active 
+                && m.HitTestNotNeeded(worldHitPos, hitRadius)
+                && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker)) return;
 
             for (;;)
             {
                 bool didExpand = false;
-                if (minX > first.X) { // test all modules to the left
+                if (minX > firstX) { // test all modules to the left
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[minX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
-                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
+                        if ((m = grid[minX + y*width]) != null && m.Active && m.HitTestNotNeeded(worldHitPos, hitRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker)) return;
                 }
-                if (maxX < last.X) { // test all modules to the right
+                if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[maxX + y*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
-                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
+                        if ((m = grid[maxX + y*width]) != null && m.Active && m.HitTestNotNeeded(worldHitPos, hitRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker)) return;
                 }
-                if (minY > first.Y) { // test all top modules
+                if (minY > firstY) { // test all top modules
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + minY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
-                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
+                        if ((m = grid[x + minY*width]) != null && m.Active && m.HitTestNotNeeded(worldHitPos, hitRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker)) return;
                 }
-                if (maxY < last.Y) { // test all bottom modules
+                if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + maxY*width]) != null && m.Active && m.HitTestNoShields(worldHitPos, damageRadius)
-                            && m.ApplyRadialDamage(damageSource, worldHitPos, damageRadius, ref damageTracker)) return;
+                        if ((m = grid[x + maxY*width]) != null && m.Active && m.HitTestNotNeeded(worldHitPos, hitRadius)
+                            && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker)) return;
                 }
                 if (!didExpand) return; // wellll, looks like we're done here!
             }
@@ -401,22 +475,41 @@ namespace Ship_Game.Gameplay
 
 
         // perform a raytrace from point a to point b, visiting all grid points between them!
-        private static ShipModule RayTrace(Point a, Point b, ShipModule[] grid, int gridWidth, int gridHeight)
+        private ShipModule RayTrace(Point a, Point b, ShipModule[] grid, int gridWidth, int gridHeight)
         {
             int dx = Math.Abs(b.X - a.X);
             int dy = Math.Abs(b.Y - a.Y);
-            int x = a.X;
-            int y = a.Y;
             int n = 1 + dx + dy;
             int kx = (b.X > a.X) ? 1 : -1;
             int ky = (b.Y > a.Y) ? 1 : -1;
+            int x = a.X;
+            int y = a.Y;
+
+            // move the starting point a little backwards if possible
+            //if (dx > 0)
+            //{
+            //    if (kx > 0) { if (x > 0) { --x; ++n; } }
+            //    else        { if (x < gridWidth - 1) { ++x; ++n; } }
+            //}
+            //if (dy > 0)
+            //{
+            //    if (ky > 0) { if (y > 0) { --y; ++n; } }
+            //    else        { if (y < gridHeight - 1) { ++y; ++n; } }
+            //}
+
             int error = dx - dy;
             dx *= 2;
             dy *= 2;
             for (; n > 0; --n)
             {
                 ShipModule m = grid[x + y*gridWidth];
-                if (m != null && m.Active) return m;
+                if (m != null && m.Active)
+                {
+#if DEBUG
+                    AddGridLocalHitIndicator(5f, x, y);
+#endif
+                    return m;
+                }
                 if (error > 0)
                 {
                     if (0 < x && x < gridWidth) x += kx;
@@ -433,35 +526,34 @@ namespace Ship_Game.Gameplay
 
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
         {
-            if (!ignoreShields)
-            {
-                ShipModule shield = RayHitTestShields(startPos, endPos, rayRadius);
-                if (shield != null) return shield;
-            }
+            ShipModule m = null;
+            if (!ignoreShields && (m = RayHitTestShields(startPos, endPos, rayRadius)) != null)
+                return m;
 
             Point a = WorldToGridLocalPoint(startPos);
             Point b = WorldToGridLocalPoint(endPos);
             if (MathExt.ClipLineWithBounds(GridWidth, GridHeight, a, b, ref a, ref b)) // guaranteed bounds safety
             {
-                #if DEBUG
-                    if (Empire.Universe.Debug)
-                    {
-                        Vector2 localA = WorldToGridLocal(startPos);
-                        Vector2 localB = WorldToGridLocal(endPos);
-                        AddGridLocalDebugLine(5f, localA, localB);
-                    }
-                #endif
-                // No need to actually raytrace. Lets just return the
                 if (a == b)
                 {
-                    ShipModule m = SparseModuleGrid[a.X + a.Y * GridWidth];
-                    return m != null && m.Active ? m : null;
+                    m = SparseModuleGrid[a.X + a.Y * GridWidth];
+                    m = m != null && m.Active ? m : null;
                 }
-
-                // @todo Make use of rayRadius to improve raytrace precision
-                return RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
+                else
+                {
+                    // @todo Make use of rayRadius to improve raytrace precision
+                    m = RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
+                }
+#if DEBUG
+                if (Empire.Universe.Debug && m != null)
+                {
+                    Vector2 localA = WorldToGridLocal(startPos);
+                    Vector2 localB = WorldToGridLocal(endPos);
+                    AddGridLocalDebugLine(5f, localA, localB);
+                }
+#endif
             }
-            return null;
+            return m;
         }
 
 

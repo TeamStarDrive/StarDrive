@@ -16,16 +16,35 @@ namespace Ship_Game.Gameplay
         private readonly Array<TimedDebugPoint> SparseGridDebug = new Array<TimedDebugPoint>();
         private void AddGridLocalDebugLine(float time, Vector2 localStart, Vector2 localEnd)
         {
-            SparseGridDebug.Add(new TimedDebugPoint
-            {
+            SparseGridDebug.Add(new TimedDebugPoint {
                 Time = time, Start = localStart, End = localEnd
+            });
+        }
+        private void AddGridLocalDebugCircle(float time, Vector2 localPoint)
+        {
+            SparseGridDebug.Add(new TimedDebugPoint {
+                Time = time, Start = localPoint, End = localPoint
+            });
+        }
+
+        private class TimedModuleDebug
+        {
+            public float Time;
+            public int X, Y;
+        }
+
+        private readonly Array<TimedModuleDebug> HitModuleDebug = new Array<TimedModuleDebug>();
+        private void AddGridLocalHitIndicator(float time, int x, int y)
+        {
+            HitModuleDebug.Add(new TimedModuleDebug {
+                Time = time, X = x, Y = y
             });
         }
     #endif
 
         private void DrawSparseModuleGrid(UniverseScreen us)
         {
-            if (SparseModuleGrid.Length == 0) // ship probably died
+            if (SparseModuleGrid.Length != 0) // ship probably died
             {
                 for (int y = 0; y < GridHeight; ++y)
                 {
@@ -39,17 +58,31 @@ namespace Ship_Game.Gameplay
                         us.DrawRectangleProjected(worldPos, new Vector2(16f, 16f), Rotation, color);
                     }
                 }
+
+                for (int i = 0; i < HitModuleDebug.Count; ++i)
+                {
+                    TimedModuleDebug tmd = HitModuleDebug[i];
+                    Vector2 worldPos = GridLocalToWorld(new Vector2(tmd.X * 16f + 8f, tmd.Y * 16f + 8f));
+                    us.DrawCircleProjected(worldPos, 10.0f, 20, Color.Cyan, 4f);
+                    if ((tmd.Time -= 1f / 60f) <= 0f) HitModuleDebug.RemoveAtSwapLast(i--);
+                }
             }
         #if DEBUG
             for (int i = 0; i < SparseGridDebug.Count; ++i)
             {
                 TimedDebugPoint tdp = SparseGridDebug[i];
-                Vector2 startPos = GridLocalToWorld(tdp.Start);
-                Vector2 endPos   = GridLocalToWorld(tdp.End);
-                us.DrawLineProjected(startPos, endPos, Color.Magenta);
-                us.DrawCircleProjected(endPos, 4f, 24, Color.Orange, 1.5f);
-                if ((tdp.Time -= 1f/60f) <= 0f) SparseGridDebug.RemoveAtSwapLast(i);
+                Vector2 endPos = GridLocalToWorld(tdp.End);
+                if (tdp.End != tdp.Start) {
+                    Vector2 startPos = GridLocalToWorld(tdp.Start);
+                    us.DrawLineProjected(startPos, endPos, Color.Magenta);
+                    us.DrawCircleProjected(endPos, 4f, 24, Color.Orange, 1.5f);
+                } else {
+                    us.DrawCircleProjected(endPos, 4f, 24, Color.Green, 1.5f);
+                }
+                if ((tdp.Time -= 1f/60f) <= 0f) SparseGridDebug.RemoveAtSwapLast(i--);
             }
+
+
         #endif
         }
 

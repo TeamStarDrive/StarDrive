@@ -522,21 +522,22 @@ namespace Ship_Game.Gameplay
                     return false;
 
                 // if projectile travels more than 16 units (module width) per frame, we need to do ray collision
-                float distPerFrame = thisProj.Speed / 60.0f;
-                if (thisProj.Center.OutsideRadius(otherShip.Center, otherShip.Radius + thisProj.Radius + distPerFrame))
+                if (thisProj.Center.OutsideRadius(otherShip.Center, otherShip.Radius + thisProj.Radius + 128f))
                     return false;
 
                 otherShip.MoveModulesTimer = 2f;
 
-                if (distPerFrame > 16.0f) // ray collision
+                // give a lot of leeway here; if we fall short, collisions wont work right
+                float maxDistPerFrame = thisProj.Velocity.Length() / 30.0f; // this actually depends on the framerate...
+                if (maxDistPerFrame > 15.0f) // ray collision
                 {
                     Vector2 dir = thisProj.Velocity.Normalized();
-                    collidedWith = otherShip.RayHitTestSingle(
-                        thisProj.Center, thisProj.Center + dir*distPerFrame*2, thisProj.Radius, thisProj.IgnoresShields);
+                    Vector2 prevPos = thisProj.Center - (dir*maxDistPerFrame);
+                    collidedWith = otherShip.RayHitTestSingle(prevPos, thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
                 }
                 else
                 {
-                    collidedWith = otherShip.HitTestSingle(thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
+                    collidedWith = otherShip.HitTestSingleDbg(thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
                 }
                 return collidedWith != null;
             }
