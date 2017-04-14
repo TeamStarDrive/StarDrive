@@ -249,6 +249,9 @@ namespace Ship_Game
         public int reducer          = 1;
         public float screenDelay    = 0f;
 
+        // for really specific debugging
+        public static int FrameId;
+
         public UniverseScreen(UniverseData data) : base(null)
         {
             Size                        = data.Size;
@@ -1060,6 +1063,8 @@ namespace Ship_Game
                     float deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
                     if (Paused)
                     {
+                        ++FrameId;
+
                         UpdateAllSystems(0.0f);
                         foreach (Ship ship in MasterShipList)
                         {
@@ -1103,7 +1108,11 @@ namespace Ship_Game
                         {
                             if (GameSpeed < 1.0f) // default to 0.5x,
                             {
-                                if (TurnFlip) ProcessTurnDelta(deltaTime);
+                                if (TurnFlip)
+                                {
+                                    ++FrameId;
+                                    ProcessTurnDelta(deltaTime);
+                                }
                                 TurnFlip = !TurnFlip;
                             }
                             else
@@ -1111,6 +1120,7 @@ namespace Ship_Game
                                 // With higher GameSpeed, we take more than 1 turn
                                 for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
                                 {
+                                    ++FrameId;
                                     ProcessTurnDelta(deltaTime);
                                     deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
                                 }

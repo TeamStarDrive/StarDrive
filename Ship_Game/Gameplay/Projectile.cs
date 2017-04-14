@@ -56,7 +56,7 @@ namespace Ship_Game.Gameplay
         public float Scale = 1f;
         private int AnimationFrame;
         private const string Fmt = "00000.##";
-        private bool DieNextFrame;
+        public bool DieNextFrame { get; private set; }
         public bool DieSound;
         private Cue InFlight;
         public string DieCueName = "";
@@ -692,7 +692,7 @@ namespace Ship_Game.Gameplay
                 FirstRun = false;
             }
             else
-                Center = new Vector2(Position.X, Position.Y);
+                Center = Position;
             Emitter.Position = new Vector3(Center, 0.0f);
             if (ProjSO != null && (InDeepSpace || System != null && System.isVisible) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
