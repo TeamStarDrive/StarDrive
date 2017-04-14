@@ -127,7 +127,7 @@ namespace Ship_Game.AI {
                     DoNonFleetArtillery(elapsedTime);
                     return;
                 }
-                aiNewDir += Owner.Center.DirectionToTarget(Target.Center + Target.Velocity) * 0.35f;
+                AINewDir += Owner.Center.DirectionToTarget(Target.Center + Target.Velocity) * 0.35f;
                 if (distanceToTarget < (Owner.Radius + Target.Radius) * 3f && !AttackRunStarted)
                 {
                     AttackRunStarted = true;
@@ -187,7 +187,7 @@ namespace Ship_Game.AI {
                     return;
                 }
             }
-            awaitClosest = null;
+            AwaitClosest = null;
             State = AIState.Combat;
             Owner.InCombat = true;
             Owner.InCombatTimer = 15f;
@@ -338,7 +338,7 @@ namespace Ship_Game.AI {
             if (shipgoal.goal.TetherTarget != Guid.Empty)
             {
                 if (target == null)
-                    universeScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
+                    UniverseScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
                 shipgoal.goal.BuildPosition = target.Position + shipgoal.goal.TetherOffset;
             }
             if (target != null && (target.Position + shipgoal.goal.TetherOffset).Distance(Owner.Center) > 200f)
@@ -368,7 +368,7 @@ namespace Ship_Game.AI {
             }
             if (shipgoal.goal.TetherTarget != Guid.Empty)
             {
-                platform.TetherToPlanet(universeScreen.PlanetsDict[shipgoal.goal.TetherTarget]);
+                platform.TetherToPlanet(UniverseScreen.PlanetsDict[shipgoal.goal.TetherTarget]);
                 platform.TetherOffset = shipgoal.goal.TetherOffset;
             }
             Owner.loyalty.GetGSAI().Goals.Remove(shipgoal.goal);
@@ -381,10 +381,10 @@ namespace Ship_Game.AI {
             var count = 0;
             foreach (ShipWeight ship in NearbyShips)
             {
-                if (ship.ship.loyalty == Owner.loyalty ||
-                    !ship.ship.loyalty.isFaction && !Owner.loyalty.GetRelations(ship.ship.loyalty).AtWar)
+                if (ship.Ship.loyalty == Owner.loyalty ||
+                    !ship.Ship.loyalty.isFaction && !Owner.loyalty.GetRelations(ship.Ship.loyalty).AtWar)
                     continue;
-                AverageDirection = AverageDirection + Owner.Center.DirectionToTarget(ship.ship.Center);
+                AverageDirection = AverageDirection + Owner.Center.DirectionToTarget(ship.Ship.Center);
                 count++;
             }
             if (count != 0)
@@ -471,13 +471,13 @@ namespace Ship_Game.AI {
             }
             else
             {
-                PatrolTarget = PatrolRoute[stopNumber];
+                PatrolTarget = PatrolRoute[StopNumber];
                 if (PatrolTarget.ExploredDict[Owner.loyalty])
                 {
-                    stopNumber += 1;
-                    if (stopNumber == PatrolRoute.Count)
+                    StopNumber += 1;
+                    if (StopNumber == PatrolRoute.Count)
                     {
-                        stopNumber = 0;
+                        StopNumber = 0;
                         PatrolRoute.Clear();
                         return true;
                     }
@@ -507,10 +507,10 @@ namespace Ship_Game.AI {
                         if (Distance < 500f)
                         {
                             PatrolTarget.ExploredDict[Owner.loyalty] = true;
-                            stopNumber += 1;
-                            if (stopNumber == PatrolRoute.Count)
+                            StopNumber += 1;
+                            if (StopNumber == PatrolRoute.Count)
                             {
-                                stopNumber = 0;
+                                StopNumber = 0;
                                 PatrolRoute.Clear();
                                 return true;
                             }
@@ -734,8 +734,8 @@ namespace Ship_Game.AI {
                 OrbitPos = orbitTarget.Position;
                 return;
             }
-            findNewPosTimer -= elapsedTime;
-            if (findNewPosTimer <= 0f)
+            FindNewPosTimer -= elapsedTime;
+            if (FindNewPosTimer <= 0f)
             {
                 float radius = orbitTarget.ObjectRadius + Owner.Radius + 1200f;
                 float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
@@ -745,7 +745,7 @@ namespace Ship_Game.AI {
                     if (OrbitalAngle >= 360f)
                         OrbitalAngle -= 360f;
                 }
-                findNewPosTimer = elapsedTime * 10f;
+                FindNewPosTimer = elapsedTime * 10f;
                 OrbitPos = orbitTarget.Position.PointOnCircle(OrbitalAngle, radius);
             }
 
@@ -806,7 +806,7 @@ namespace Ship_Game.AI {
             if (Owner.fleet != null)
             {
                 Goal refitgoal = new FleetRequisition(goal, this);
-                node.GoalGUID = refitgoal.guid;
+                Node.GoalGUID = refitgoal.guid;
                 Owner.loyalty.GetGSAI().Goals.Add(refitgoal);
                 qi.Goal = refitgoal;
             }
@@ -890,9 +890,9 @@ namespace Ship_Game.AI {
                 NearbyShips.FindMinFiltered(
                     filter:
                     Ship =>
-                        Ship.ship.loyalty != null && Ship.ship.loyalty != Owner.loyalty && Ship.ship.shield_power <= 0
-                        && Owner.Center.Distance(Ship.ship.Center) <= module.TransporterRange + 500f,
-                    selector: Ship => Owner.Center.SqDist(Ship.ship.Center));
+                        Ship.Ship.loyalty != null && Ship.Ship.loyalty != Owner.loyalty && Ship.Ship.shield_power <= 0
+                        && Owner.Center.Distance(Ship.Ship.Center) <= module.TransporterRange + 500f,
+                    selector: Ship => Owner.Center.SqDist(Ship.Ship.Center));
             if (ship != null)
             {
                 byte TroopCount = 0;
@@ -903,7 +903,7 @@ namespace Ship_Game.AI {
                         continue;
                     if (Owner.TroopList[i].GetOwner() == Owner.loyalty)
                     {
-                        ship.ship.TroopList.Add(Owner.TroopList[i]);
+                        ship.Ship.TroopList.Add(Owner.TroopList[i]);
                         Owner.TroopList.Remove(Owner.TroopList[i]);
                         TroopCount++;
                         Transported = true;
@@ -1004,7 +1004,7 @@ namespace Ship_Game.AI {
         private void DoSystemDefense(float elapsedTime)
         {
             SystemToDefend = SystemToDefend ?? Owner.System;
-            if (SystemToDefend == null || awaitClosest?.Owner == Owner.loyalty)
+            if (SystemToDefend == null || AwaitClosest?.Owner == Owner.loyalty)
                 AwaitOrders(elapsedTime);
             else
                 OrderSystemDefense(SystemToDefend);

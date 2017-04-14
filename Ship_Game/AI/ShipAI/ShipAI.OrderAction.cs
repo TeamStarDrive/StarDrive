@@ -148,7 +148,7 @@ namespace Ship_Game.AI {
             if (ExterminationTarget == null || ExterminationTarget.Owner == null)
             {
                 var plist = new Array<Planet>();
-                foreach (var planetsDict in universeScreen.PlanetsDict)
+                foreach (var planetsDict in UniverseScreen.PlanetsDict)
                 {
                     if (planetsDict.Value.Owner == null)
                         continue;
@@ -424,7 +424,7 @@ namespace Ship_Game.AI {
                 {
                     ActiveWayPoints.Clear();
                 }
-            if (universeScreen != null && Owner.loyalty == EmpireManager.Player)
+            if (UniverseScreen != null && Owner.loyalty == EmpireManager.Player)
                 HasPriorityOrder = true;
             State = AIState.MoveTo;
             MovePosition = position;
@@ -484,7 +484,7 @@ namespace Ship_Game.AI {
                 {
                     TargetPlanet = planet
                 };
-                resupplyTarget = planet;
+                ResupplyTarget = planet;
                 OrderQueue.Enqueue(orbit);
                 State = AIState.Orbit;
                 return;
@@ -501,7 +501,7 @@ namespace Ship_Game.AI {
                 {
                     TargetPlanet = item
                 };
-                resupplyTarget = item;
+                ResupplyTarget = item;
                 OrderQueue.Enqueue(orbit);
                 State = AIState.Orbit;
             }
@@ -532,7 +532,7 @@ namespace Ship_Game.AI {
                 {
                     TargetPlanet = item
                 };
-                resupplyTarget = item;
+                ResupplyTarget = item;
                 OrderQueue.Enqueue(orbit);
                 State = AIState.Flee;
             }
@@ -553,7 +553,7 @@ namespace Ship_Game.AI {
             {
                 TargetPlanet = p
             };
-            resupplyTarget = p;
+            ResupplyTarget = p;
             OrderQueue.Enqueue(orbit);
             State = AIState.Orbit;
         }
@@ -735,7 +735,7 @@ namespace Ship_Game.AI {
             }
             Target = null;
             OrbitTarget = toOrbit;
-            awaitClosest = toOrbit;
+            AwaitClosest = toOrbit;
             OrderMoveTowardsPosition(toOrbit.Position, 0f, Vector2.One, ClearOrders, toOrbit);
             State = AIState.Resupply;
             HasPriorityOrder = true;
@@ -878,8 +878,8 @@ namespace Ship_Game.AI {
 
             ShipGoal goal = OrderQueue.PeekLast;
 
-            if (SystemToDefend == null || SystemToDefend != system || awaitClosest == null ||
-                awaitClosest.Owner == null || awaitClosest.Owner != Owner.loyalty || Owner.System != system &&
+            if (SystemToDefend == null || SystemToDefend != system || AwaitClosest == null ||
+                AwaitClosest.Owner == null || AwaitClosest.Owner != Owner.loyalty || Owner.System != system &&
                 goal != null && OrderQueue.PeekLast.Plan != Plan.DefendSystem)
             {
 #if SHOWSCRUB
@@ -907,8 +907,8 @@ namespace Ship_Game.AI {
 
                     if (Potentials.Count > 0)
                     {
-                        awaitClosest = Potentials[UniverseRandom.InRange(Potentials.Count)];
-                        OrderMoveTowardsPosition(awaitClosest.Position, 0f, Vector2.One, true, null);
+                        AwaitClosest = Potentials[UniverseRandom.InRange(Potentials.Count)];
+                        OrderMoveTowardsPosition(AwaitClosest.Position, 0f, Vector2.One, true, null);
                         AddShipGoal(Plan.DefendSystem, Vector2.Zero, 0f);
                         State = AIState.SystemDefender;
                     }
@@ -981,9 +981,9 @@ namespace Ship_Game.AI {
         {
             if (State != AIState.Resupply)
                 HasPriorityOrder = false;
-            if (awaitClosest != null)
+            if (AwaitClosest != null)
             {
-                DoOrbit(awaitClosest, elapsedTime);
+                DoOrbit(AwaitClosest, elapsedTime);
                 return;
             }
             SolarSystem home = null;
@@ -992,7 +992,7 @@ namespace Ship_Game.AI {
                 if (SystemToDefend != null)
                 {
                     DoOrbit(SystemToDefend.PlanetList[0], elapsedTime);
-                    awaitClosest = SystemToDefend.PlanetList[0];
+                    AwaitClosest = SystemToDefend.PlanetList[0];
                     return;
                 }
 
@@ -1024,7 +1024,7 @@ namespace Ship_Game.AI {
                 float distance;
                 foreach (Planet p in home.PlanetList)
                 {
-                    if (awaitClosest == null) awaitClosest = p;
+                    if (AwaitClosest == null) AwaitClosest = p;
                     var ours = false;
                     if (Owner.loyalty.isFaction)
                         ours = p.Owner != null || p.habitable; //for factions it just has to be habitable
@@ -1041,7 +1041,7 @@ namespace Ship_Game.AI {
 
                     closestOurs = true;
                     closestD = distance;
-                    awaitClosest = p;
+                    AwaitClosest = p;
                 }
             }
         }
@@ -1062,16 +1062,16 @@ namespace Ship_Game.AI {
                 {
                     Planet p = Owner.loyalty.GetGSAI().DefensiveCoordinator.AssignIdleShips(Owner);
                     DoOrbit(p, elapsedTime);
-                    awaitClosest = p;
+                    AwaitClosest = p;
                     return;
                 }
                 else
-                if (awaitClosest != null)
+                if (AwaitClosest != null)
                 {
-                    DoOrbit(awaitClosest, elapsedTime);
+                    DoOrbit(AwaitClosest, elapsedTime);
                     return;
                 }
-                awaitClosest =
+                AwaitClosest =
                     Owner.loyalty.GetGSAI()
                         .GetKnownPlanets()
                         .FindMin(
