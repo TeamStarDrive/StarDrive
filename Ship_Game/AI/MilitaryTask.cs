@@ -91,8 +91,8 @@ namespace Ship_Game.AI
                     Log.Error("GetAvailableShips: a ship is in fleet {0} and not available for {1}", ship.fleet.Name, type.ToString());
                 if (area.GetWaitingShips().ContainsRef(ship))
                     Log.Error("ship is in waiting list and should not be");
-                if(UniverseScreen.debug)
-                foreach (AO ao in Empire.GetGSAI().AreasOfOperations)
+
+                if (Empire.Universe.Debug) foreach (AO ao in Empire.GetGSAI().AreasOfOperations)
                 {
                     if (ao == area) continue;
                     if (ao.GetOffensiveForcePool().Contains(ship))
