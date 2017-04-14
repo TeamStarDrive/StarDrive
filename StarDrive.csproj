@@ -183,6 +183,12 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunResearchPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.DoAction.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goals.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Movement.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderAction.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderTrade.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
