@@ -1,17 +1,13 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class YouWinScreen : GameScreen
+	public sealed class YouLoseScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
-
-		private string txt;
 
 		//private GameScreen caller;
 
@@ -37,7 +33,7 @@ namespace Ship_Game
 
 		private Cue Music;
 
-		//private Cue Ambience;
+		private Cue Ambience;
 
 		private Vector2 Origin = new Vector2(960f, 540f);
 
@@ -51,22 +47,16 @@ namespace Ship_Game
 
 		private bool ShowingReplay;
 
-		public YouWinScreen(GameScreen parent) : base(parent)
+		private string RememberedAs = "A footnote in a treatise on failed governance.";
+
+		//private float transitionElapsedTime;
+
+		public YouLoseScreen(GameScreen parent) : base(parent)
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(30);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
-
-		public YouWinScreen(GameScreen parent, string text) : base(parent)
-        {
-			this.txt = text;
-			this.txt = HelperFunctions.ParseText(Fonts.Arial20Bold, this.txt, 500f);
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(30);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
-
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -76,15 +66,11 @@ namespace Ship_Game
 			this.desaturateEffect.CurrentTechnique.Passes[0].Begin();
 			Rectangle? nullable = null;
 			base.ScreenManager.SpriteBatch.Draw(this.LoseTexture, new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)), nullable, new Color(255, 255, 255, (byte)this.Saturation), 0f, this.Origin, this.scale, SpriteEffects.None, 1f);
-			Vector2 Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 50));
+			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.RememberedAs).X / 2f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 + 50));
 			base.ScreenManager.SpriteBatch.End();
 			this.desaturateEffect.CurrentTechnique.Passes[0].End();
 			this.desaturateEffect.End();
 			base.ScreenManager.SpriteBatch.Begin();
-			if (this.txt != null)
-			{
-				HelperFunctions.DrawDropShadowText(base.ScreenManager, this.txt, Position, Fonts.Arial20Bold);
-			}
 			base.ScreenManager.SpriteBatch.Draw(this.Reason, this.ReasonRect, Color.White);
 			if (!base.IsExiting && this.ShowingReplay)
 			{
@@ -103,10 +89,10 @@ namespace Ship_Game
 				}
 			}
 			this.Music.Stop(AudioStopOptions.Immediate);
+			this.Ambience.Stop(AudioStopOptions.Immediate);
 			base.ScreenManager.AddScreen(new MainMenuScreen());
 			base.ExitScreen();
 		}
-
 
 
 		public override void HandleInput(InputState input)
@@ -143,13 +129,13 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
+            if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
 			{
 				this.LowRes = true;
 			}
 			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.LoseTexture = TransientContent.Load<Texture2D>("WinLose/launch");
-			this.Reason = TransientContent.Load<Texture2D>("WinLose/YouWin");
+			this.LoseTexture = TransientContent.Load<Texture2D>("WinLose/groundbattle_final");
+			this.Reason = TransientContent.Load<Texture2D>("WinLose/YouLose");
 			this.ReasonRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.Reason.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Reason.Height / 2 - 200, this.Reason.Width, this.Reason.Height);
 			this.desaturateEffect = TransientContent.Load<Effect>("Effects/desaturate");
 			this.Portrait = new Rectangle(0, 0, 1920, 1080);
@@ -164,8 +150,10 @@ namespace Ship_Game
 			base.ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
 			base.ScreenManager.musicCategory.SetVolume(0f);
 			base.ScreenManager.racialMusic.SetVolume(1f);
-			this.Music = AudioManager.GetCue("TitleTheme");
+			this.Music = AudioManager.GetCue("Female_02_loop");
 			this.Music.Play();
+			this.Ambience = AudioManager.GetCue("sd_battle_ambient");
+			this.Ambience.Play();
 			base.LoadContent();
 		}
 
