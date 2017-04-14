@@ -4,10 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
-using Ship_Game;
-using System.IO;
 using Microsoft.Xna.Framework.Input;
-using static Ship_Game.DrawRoutines;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -29,7 +26,6 @@ namespace Ship_Game.Debug
         private readonly ScreenManager ScreenManager;
         private readonly UniverseScreen Screen;
         private Rectangle Win;
-        private Array<Checkbox> Checkboxes = new Array<Checkbox>();
         public static int ShipsDied;
         public static int ProjDied;
         public static int ProjCreated;
@@ -101,11 +97,6 @@ namespace Ship_Game.Debug
         private Color   TextColor   = Color.White;
         private SpriteFont TextFont = Fonts.Arial12Bold;
 
-        private void SetTextCursor(Vector2 cursor, Color color)
-        {
-            TextCursor = cursor;
-            TextColor  = color;
-        }
         private void SetTextCursor(float x, float y, Color color)
         {
             TextCursor = new Vector2(x, y);
@@ -221,7 +212,7 @@ namespace Ship_Game.Debug
                     DrawString("Ships: " + Screen.SelectedFleet.Ships.Count);
                     DrawString("Strength: " + Screen.SelectedFleet.GetStrength());
 
-                    string shipAI = Screen.SelectedFleet.Ships?.FirstOrDefault().AI.State.ToString() ?? "";
+                    string shipAI = Screen.SelectedFleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
                     DrawString("Ship State: " + shipAI);
                 }
             }
@@ -358,12 +349,13 @@ namespace Ship_Game.Debug
                 for (int j = 0; j < e.GetGSAI().TaskList.Count; j++)
                 {
                     MilitaryTask task = e.GetGSAI().TaskList[j];
-                    if (task == null) continue;
+                    if (task == null)
+                        continue;
                     string sysName = "Deep Space";
                     for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
                     {
                         SolarSystem sys = UniverseScreen.SolarSystemList[i];
-                        if ((task?.AO.InRadius(sys.Position, 100000f)) ?? false)
+                        if (task.AO.InRadius(sys.Position, 100000f))
                             sysName = sys.Name;
                     }
                     NewLine();
@@ -492,13 +484,6 @@ namespace Ship_Game.Debug
                 }   
 
             }
-        }
-        private void HalloweenCursor( ref Vector2 halloweenCursor, string data,  Color color, SpriteFont font )
-        {
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-               data , halloweenCursor, color);
-            halloweenCursor.Y = halloweenCursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
-            
         }
 
         public bool HandleInput(InputState input)
