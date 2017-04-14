@@ -8,7 +8,7 @@ namespace Ship_Game.Commands
 {
     class FleetRequisition : Goal
     {
-        public FleetRequisition(ArtificialIntelligence.ShipGoal goal, ArtificialIntelligence ai)
+        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai)
         {
             return;
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);

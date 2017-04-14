@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Algorithms;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands;
@@ -11,7 +9,7 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
-    public sealed class ArtificialIntelligence : IDisposable
+    public sealed class ShipAI : IDisposable
     {       
         public bool UseSensorsForTargets =true;
         public bool ClearOrdersNext;
@@ -78,7 +76,7 @@ namespace Ship_Game.AI
         public Array<Projectile> TrackProjectiles = new Array<Projectile>();
         private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
                 
-        public ArtificialIntelligence(Ship owner)
+        public ShipAI(Ship owner)
         {
             Owner = owner;
             State = AIState.AwaitingOrders;
@@ -2004,11 +2002,11 @@ namespace Ship_Game.AI
             OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
             if (Vector2.Distance(OrbitPos, Owner.Center) < 1500f)
             {
-                ArtificialIntelligence orbitalAngle = this;
+                ShipAI orbitalAngle = this;
                 orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
                 if (OrbitalAngle >= 360f)
                 {
-                    ArtificialIntelligence artificialIntelligence = this;
+                    ShipAI artificialIntelligence = this;
                     artificialIntelligence.OrbitalAngle = artificialIntelligence.OrbitalAngle - 360f;
                 }
                 OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
@@ -2021,11 +2019,11 @@ namespace Ship_Game.AI
             OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
             if (Vector2.Distance(OrbitPos, Owner.Center) < 1500f)
             {
-                ArtificialIntelligence orbitalAngle = this;
+                ShipAI orbitalAngle = this;
                 orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle - 15f;
                 if (OrbitalAngle >= 360f)
                 {
-                    ArtificialIntelligence artificialIntelligence = this;
+                    ShipAI artificialIntelligence = this;
                     artificialIntelligence.OrbitalAngle = artificialIntelligence.OrbitalAngle - 360f;
                 }
                 OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
@@ -6111,7 +6109,7 @@ namespace Ship_Game.AI
             GC.SuppressFinalize(this);
         }
 
-        ~ArtificialIntelligence() { Dispose(false); }
+        ~ShipAI() { Dispose(false); }
 
         private void Dispose(bool disposing)
         {

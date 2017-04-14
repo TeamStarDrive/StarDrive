@@ -103,7 +103,7 @@ namespace Ship_Game.Gameplay
         public float Ordinance;
         public float OrdinanceMax;
         //public float scale;    //Not referenced in code, removing to save memory
-        public ArtificialIntelligence AI { get; private set; }
+        public ShipAI AI { get; private set; }
         public float speed;
         public float Thrust;
         public float velocityMaximum;
@@ -1551,7 +1551,7 @@ namespace Ship_Game.Gameplay
 
         public void InitializeAI()
         {
-            AI = new ArtificialIntelligence(this);
+            AI = new ShipAI(this);
             AI.State = AIState.AwaitingOrders;
             if (shipData == null)
                 return;

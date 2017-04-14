@@ -277,7 +277,7 @@ namespace Ship_Game.AI {
                             using (empire.GetShips().AcquireReadLock())
                                 foreach (Ship ship in this.empire.GetShips())
                                 {
-                                    ArtificialIntelligence.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
+                                    ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
 
                                     if (goal?.goal == null || goal.goal.type != GoalType.DeepSpaceConstruction ||
                                         goal.goal.BuildPosition != node.Position)

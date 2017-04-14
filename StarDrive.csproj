@@ -773,7 +773,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\AI\ArtificialIntelligence.cs">
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

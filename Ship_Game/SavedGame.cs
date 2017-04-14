@@ -440,7 +440,7 @@ namespace Ship_Game
                         sdata.AISave.ActiveWayPoints.Add(waypoint);
                     }
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
-                    foreach (ArtificialIntelligence.ShipGoal sgoal in ship.AI.OrderQueue)
+                    foreach (ShipAI.ShipGoal sgoal in ship.AI.OrderQueue)
                     {
                         var gsave = new ShipGoalSave()
                         {
@@ -844,7 +844,7 @@ namespace Ship_Game
 
         public struct ShipGoalSave
         {
-            [Serialize(0)] public ArtificialIntelligence.Plan Plan;
+            [Serialize(0)] public ShipAI.Plan Plan;
             [Serialize(1)] public Guid goalGuid;
             [Serialize(2)] public string VariableString;
             [Serialize(3)] public Guid fleetGuid;
