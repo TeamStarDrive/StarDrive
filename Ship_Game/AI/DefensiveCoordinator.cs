@@ -278,7 +278,7 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    ArtificialIntelligence troopAI = troop.AI;
+                    ShipAI troopAI = troop.AI;
                     if (troopAI == null)
                     {
                         troopShips.Remove(troop);

@@ -822,7 +822,7 @@ namespace Ship_Game
                         }
                         foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                         {
-                            var g = new ArtificialIntelligence.ShipGoal(sg.Plan, sg.MovePosition, sg.FacingVector);
+                            var g = new ShipAI.ShipGoal(sg.Plan, sg.MovePosition, sg.FacingVector);
                             foreach (SolarSystem s in data.SolarSystemsList)
                             {
                                 foreach (Planet p in s.PlanetList)
@@ -866,7 +866,7 @@ namespace Ship_Game
                                 g.goal = goal;
                             }
                             ship.AI.OrderQueue.Enqueue(g);
-                            if (g.Plan == ArtificialIntelligence.Plan.DeployStructure)
+                            if (g.Plan == ShipAI.Plan.DeployStructure)
                                 ship.isConstructor = true;
                         }
                     }

@@ -8,7 +8,7 @@ using Ship_Game;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
 using static Ship_Game.DrawRoutines;
-using static Ship_Game.AI.ArtificialIntelligence;
+using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
 {
@@ -472,7 +472,7 @@ namespace Ship_Game.Debug
 
                 foreach (Ship ship in e.GetShips())
                 {
-                    ArtificialIntelligence ai = ship.AI;
+                    ShipAI ai = ship.AI;
                     if (ai.State != AIState.SystemTrader) continue;
                     if (ai.OrderQueue.Count == 0) continue;
                     
