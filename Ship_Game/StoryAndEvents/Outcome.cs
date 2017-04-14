@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 

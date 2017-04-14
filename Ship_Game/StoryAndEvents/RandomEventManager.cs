@@ -1,8 +1,3 @@
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-
 namespace Ship_Game
 {
     public sealed class RandomEvent
