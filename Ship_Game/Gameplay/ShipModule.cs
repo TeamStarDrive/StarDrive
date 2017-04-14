@@ -415,6 +415,13 @@ namespace Ship_Game.Gameplay
             return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
+        public bool HitTestNotNeeded(Vector2 point, float radius)
+        {
+            if (!HitTestNoShields(point, radius))
+                return false; // debug breakpoint, if this ever hits, we should indeed do a hit test, if not, then we dont need it for ship grid stuff
+            return true;
+        }
+
         public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
         {
             Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
