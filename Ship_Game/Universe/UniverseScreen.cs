@@ -910,7 +910,7 @@ namespace Ship_Game
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
             Empire.Universe                   = this;
-            ShipAI.universeScreen = this;
+            ShipAI.UniverseScreen = this;
             FleetDesignScreen.screen              = this;
 
             CreateProjectionMatrix();
@@ -4413,7 +4413,7 @@ namespace Ship_Game
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                   = null;
-            ShipAI.universeScreen = null;
+            ShipAI.UniverseScreen = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
             ExplosionManager.Universe             = null;

@@ -95,7 +95,7 @@ namespace Ship_Game.AI {
                 //if (!BadSupply)
                 return timeTotarget * Effeciency; // (float)Math.Ceiling((double)timeTotarget);
             }
-            return timeTotarget + universeScreen.Size.X;
+            return timeTotarget + UniverseScreen.Size.X;
         }
 
         public void OrderTrade(float elapsedTime)
@@ -309,7 +309,7 @@ namespace Ship_Game.AI {
                             float cargoSpaceMax = p.MAX_STORAGE - p.ProductionHere;
                             var faster = true;
                             float thisTradeStr = TradeSort(Owner, p, "Production", Owner.CargoSpaceMax, true);
-                            if (thisTradeStr >= universeScreen.Size.X && p.ProductionHere >= 0)
+                            if (thisTradeStr >= UniverseScreen.Size.X && p.ProductionHere >= 0)
                                 continue;
 
                             using (Owner.loyalty.GetShips().AcquireReadLock())
@@ -404,7 +404,7 @@ namespace Ship_Game.AI {
                             float cargoSpaceMax = p.MAX_STORAGE - p.FoodHere;
                             var faster = true;
                             float mySpeed = TradeSort(Owner, p, "Food", Owner.CargoSpaceMax, true);
-                            if (mySpeed >= universeScreen.Size.X)
+                            if (mySpeed >= UniverseScreen.Size.X)
                                 continue;
                             cargoSpaceMax += p.NetFoodPerTurn * mySpeed;
                             cargoSpaceMax = cargoSpaceMax > p.MAX_STORAGE ? p.MAX_STORAGE : cargoSpaceMax;
@@ -655,7 +655,7 @@ namespace Ship_Game.AI {
                 }
                 else
                 {
-                    awaitClosest = start ?? end;
+                    AwaitClosest = start ?? end;
                     start = null;
                     end = null;
                     if (Owner.CargoSpaceUsed > 0)
@@ -755,7 +755,7 @@ namespace Ship_Game.AI {
             }
             else
             {
-                awaitClosest = start ?? end;
+                AwaitClosest = start ?? end;
                 start = null;
                 end = null;
             }

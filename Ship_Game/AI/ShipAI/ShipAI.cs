@@ -7,26 +7,26 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI : IDisposable
     {
-        private Vector2 aiNewDir;        
+        private Vector2 AINewDir;        
         private Goal ColonizeGoal;
-        private Planet awaitClosest;
+        private Planet AwaitClosest;
         private Planet PatrolTarget;
         private Vector2 OrbitPos;
-        private float findNewPosTimer;
+        private float FindNewPosTimer;
         private float DistanceLast;
         private float UtilityModuleCheckTimer;
         private SolarSystem SystemToPatrol;
         private readonly Array<Planet> PatrolRoute = new Array<Planet>();
-        private int stopNumber;        
-        private FleetDataNode node;        
+        private int StopNumber;        
+        private FleetDataNode Node;        
         private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
 
-        public static UniverseScreen universeScreen;
+        public static UniverseScreen UniverseScreen;
         public Ship Owner;
-        public AIState State = AIState.AwaitingOrders;
+        public AIState State;// = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;        
         public Planet ColonizeTarget;
-        public Planet resupplyTarget;
+        public Planet ResupplyTarget;
         public Guid SystemToDefendGuid;
         public SolarSystem SystemToDefend;        
         public SolarSystem ExplorationTarget;
@@ -103,7 +103,7 @@ namespace Ship_Game.AI
             }
             ColonizeTarget.TerraformPoints += Owner.loyalty.data.EmpireFertilityBonus;
             ColonizeTarget.Crippled_Turns = 0;
-            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, universeScreen);		
+            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, UniverseScreen);		
                 
             foreach (Goal g in Owner.loyalty.GetGSAI().Goals)
             {
@@ -150,9 +150,9 @@ namespace Ship_Game.AI
             toLaunch.Clear();
             if (TroopsRemoved)
                 if (PlayerTroopsRemoved)
-                    universeScreen.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
+                    UniverseScreen.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
                 else if (ColonizeTarget.Owner.isPlayer)
-                    universeScreen.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
+                    UniverseScreen.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
             Owner.QueueTotalRemoval();
         }
 
@@ -192,7 +192,7 @@ namespace Ship_Game.AI
             HasPriorityOrder = true;
             State = AIState.Rebase;
             OrbitTarget = p;
-            findNewPosTimer = 0f;
+            FindNewPosTimer = 0f;
             GotoStep = 0;
             HasPriorityOrder = true;
             MovePosition.X = p.Position.X;
@@ -269,7 +269,7 @@ namespace Ship_Game.AI
             {
                 OrderQueue.Clear();
                 ClearOrdersNext = false;
-                awaitClosest = null;
+                AwaitClosest = null;
                 State = AIState.AwaitingOrders;
             }
             var ToRemove = new Array<Ship>();
@@ -283,7 +283,7 @@ namespace Ship_Game.AI
                 TargetQueue.Remove(ship);
             if (!hasPriorityTarget)
                 TargetQueue.Clear();
-            if (Owner.loyalty == universeScreen.player &&
+            if (Owner.loyalty == UniverseScreen.player &&
                 (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f || State == AIState.Orbit ||
                  State == AIState.Bombard || State == AIState.AssaultPlanet || State == AIState.BombardTroops ||
                  State == AIState.Rebase || State == AIState.Scrap || State == AIState.Resupply || State == AIState.Refit ||
@@ -419,7 +419,7 @@ namespace Ship_Game.AI
                                 {
                                     case AIState.AwaitingOrders:
                                     {
-                                        if (Owner.loyalty != universeScreen.player)
+                                        if (Owner.loyalty != UniverseScreen.player)
                                             AwaitOrders(elapsedTime);
                                         else
                                             AwaitOrdersPlayer(elapsedTime);
@@ -742,7 +742,7 @@ namespace Ship_Game.AI
                         purge.SalvoTarget = null;
                     }
                 }
-                if (Owner.GetHangars().Count > 0 && Owner.loyalty != universeScreen.player)
+                if (Owner.GetHangars().Count > 0 && Owner.loyalty != UniverseScreen.player)
                     foreach (ShipModule hangar in Owner.GetHangars())
                     {
                         if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null
@@ -788,16 +788,6 @@ namespace Ship_Game.AI
             {
                 return;
             }
-        }
-
-        public class ShipWeight
-        {
-            public Ship ship;
-
-            public float weight;
-            public bool defendEscort;
-
-            public ShipWeight() {}
         }
 
         public void Dispose()
