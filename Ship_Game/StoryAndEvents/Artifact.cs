@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
-using static Ship_Game.EventPopup;
+
 namespace Ship_Game
 {
 	public sealed class Artifact
@@ -34,8 +32,8 @@ namespace Ship_Game
             outModifier += inModifier + inModifier * traits.Spiritual;
             if (popup != null)
             {
-                var drawpackage = new DrawPackage(text, Fonts.Arial12Bold, inModifier, Color.White, "%");
-                popup.DrawPackages[Packagetypes.Artifact].Add(drawpackage);
+                var drawpackage = new EventPopup.DrawPackage(text, Fonts.Arial12Bold, inModifier, Color.White, "%");
+                popup.DrawPackages[EventPopup.Packagetypes.Artifact].Add(drawpackage);
             }
             return true;            
         }
