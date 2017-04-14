@@ -468,7 +468,7 @@ namespace Ship_Game
 				}
 				case AIState.Resupply:
 				{
-                    Planet resupplyTarget = ship.AI.resupplyTarget;
+                    Planet resupplyTarget = ship.AI.ResupplyTarget;
                     if (resupplyTarget == null)
 					{
 						text = Localizer.Token(173);

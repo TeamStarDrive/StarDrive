@@ -383,7 +383,7 @@ namespace Ship_Game.AI {
                 ) //||((double)Vector2.Distance(Position, this.Target.Center) > (double)Radius ||
                 {
                     Target = (GameplayObject) null;
-                    if (!HasPriorityOrder && Owner.loyalty != universeScreen.player)
+                    if (!HasPriorityOrder && Owner.loyalty != UniverseScreen.player)
                         State = AIState.AwaitingOrders;
                     return (GameplayObject) null;
                 }
@@ -411,8 +411,8 @@ namespace Ship_Game.AI {
                 {
                     var sw = new ShipWeight
                     {
-                        ship = EscortTarget.AI.Target as Ship,
-                        weight = 2f
+                        Ship = EscortTarget.AI.Target as Ship,
+                        Weight = 2f
                     };
                     NearbyShips.Add(sw);
                 }
@@ -436,15 +436,15 @@ namespace Ship_Game.AI {
                         continue;
                     var sw = new ShipWeight
                     {
-                        ship = nearbyShip,
-                        weight = 1f
+                        Ship = nearbyShip,
+                        Weight = 1f
                     };
                     NearbyShips.Add(sw);
 
                     if (BadGuysNear && nearbyShip.AI.Target is Ship targetShip &&
                         targetShip == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                     {
-                        sw.weight = 3f;
+                        sw.Weight = 3f;
                     }
                 }
             }
@@ -569,92 +569,92 @@ namespace Ship_Game.AI {
                 // Doctor: I put modifiers for the ship roles Fighter and Bomber in here, so that when searching for targets they prioritise their targets based on their selected ship role.
                 // I'll additionally put a ScanForCombatTargets into the carrier fighter code such that they use this code to select their own weighted targets.
                 //Parallel.ForEach(this.NearbyShips, nearbyShip =>
-                if (nearbyShip.ship.loyalty != Owner.loyalty)
+                if (nearbyShip.Ship.loyalty != Owner.loyalty)
                 {
-                    if (Target as Ship == nearbyShip.ship)
-                        nearbyShip.weight += 3;
-                    if (nearbyShip.ship.Weapons.Count == 0)
+                    if (Target as Ship == nearbyShip.Ship)
+                        nearbyShip.Weight += 3;
+                    if (nearbyShip.Ship.Weapons.Count == 0)
                     {
                         ShipWeight vultureWeight = nearbyShip;
-                        vultureWeight.weight = vultureWeight.weight + CombatAI.PirateWeight;
+                        vultureWeight.Weight = vultureWeight.Weight + CombatAI.PirateWeight;
                     }
 
-                    if (nearbyShip.ship.Health / nearbyShip.ship.HealthMax < 0.5f)
+                    if (nearbyShip.Ship.Health / nearbyShip.Ship.HealthMax < 0.5f)
                     {
                         ShipWeight vultureWeight = nearbyShip;
-                        vultureWeight.weight = vultureWeight.weight + CombatAI.VultureWeight;
+                        vultureWeight.Weight = vultureWeight.Weight + CombatAI.VultureWeight;
                     }
-                    if (nearbyShip.ship.Size < 30)
+                    if (nearbyShip.Ship.Size < 30)
                     {
                         ShipWeight smallAttackWeight = nearbyShip;
-                        smallAttackWeight.weight = smallAttackWeight.weight + CombatAI.SmallAttackWeight;
+                        smallAttackWeight.Weight = smallAttackWeight.Weight + CombatAI.SmallAttackWeight;
                         if (Owner.shipData.ShipCategory == ShipData.Category.Fighter)
-                            smallAttackWeight.weight *= 2f;
+                            smallAttackWeight.Weight *= 2f;
                         if (Owner.shipData.ShipCategory == ShipData.Category.Bomber)
-                            smallAttackWeight.weight /= 2f;
+                            smallAttackWeight.Weight /= 2f;
                     }
-                    if (nearbyShip.ship.Size > 30 && nearbyShip.ship.Size < 100)
+                    if (nearbyShip.Ship.Size > 30 && nearbyShip.Ship.Size < 100)
                     {
                         ShipWeight mediumAttackWeight = nearbyShip;
-                        mediumAttackWeight.weight = mediumAttackWeight.weight + CombatAI.MediumAttackWeight;
+                        mediumAttackWeight.Weight = mediumAttackWeight.Weight + CombatAI.MediumAttackWeight;
                         if (Owner.shipData.ShipCategory == ShipData.Category.Bomber)
-                            mediumAttackWeight.weight *= 1.5f;
+                            mediumAttackWeight.Weight *= 1.5f;
                     }
-                    if (nearbyShip.ship.Size > 100)
+                    if (nearbyShip.Ship.Size > 100)
                     {
                         ShipWeight largeAttackWeight = nearbyShip;
-                        largeAttackWeight.weight = largeAttackWeight.weight + CombatAI.LargeAttackWeight;
+                        largeAttackWeight.Weight = largeAttackWeight.Weight + CombatAI.LargeAttackWeight;
                         if (Owner.shipData.ShipCategory == ShipData.Category.Fighter)
-                            largeAttackWeight.weight /= 2f;
+                            largeAttackWeight.Weight /= 2f;
                         if (Owner.shipData.ShipCategory == ShipData.Category.Bomber)
-                            largeAttackWeight.weight *= 2f;
+                            largeAttackWeight.Weight *= 2f;
                     }
-                    float rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, Owner.Center);
+                    float rangeToTarget = Vector2.Distance(nearbyShip.Ship.Center, Owner.Center);
                     if (rangeToTarget <= CombatAI.PreferredEngagementDistance)
                         // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ShipWeight shipWeight = nearbyShip;
-                        shipWeight.weight = (int) Math.Ceiling(shipWeight.weight + 5 *
+                        shipWeight.Weight = (int) Math.Ceiling(shipWeight.Weight + 5 *
                                                                ((CombatAI.PreferredEngagementDistance -
-                                                                 Vector2.Distance(Owner.Center, nearbyShip.ship.Center))
+                                                                 Vector2.Distance(Owner.Center, nearbyShip.Ship.Center))
                                                                 / CombatAI.PreferredEngagementDistance))
                             ;
                     }
                     else if (rangeToTarget > CombatAI.PreferredEngagementDistance + Owner.velocityMaximum * 5)
                     {
                         ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight -
+                        shipWeight1.Weight = shipWeight1.Weight -
                                              2.5f * (rangeToTarget /
                                                      (CombatAI.PreferredEngagementDistance +
                                                       Owner.velocityMaximum * 5));
                     }
                     if (Owner.Mothership != null)
                     {
-                        rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, Owner.Mothership.Center);
+                        rangeToTarget = Vector2.Distance(nearbyShip.Ship.Center, Owner.Mothership.Center);
                         if (rangeToTarget < CombatAI.PreferredEngagementDistance)
-                            nearbyShip.weight += 1;
+                            nearbyShip.Weight += 1;
                     }
                     if (EscortTarget != null)
                     {
-                        rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, EscortTarget.Center);
+                        rangeToTarget = Vector2.Distance(nearbyShip.Ship.Center, EscortTarget.Center);
                         if (rangeToTarget < 5000
                         ) // / (this.CombatAI.PreferredEngagementDistance +this.Owner.velocityMaximum ))
-                            nearbyShip.weight += 1;
+                            nearbyShip.Weight += 1;
                         else
-                            nearbyShip.weight -= 2;
-                        if (nearbyShip.ship.AI.Target == EscortTarget)
-                            nearbyShip.weight += 1;
+                            nearbyShip.Weight -= 2;
+                        if (nearbyShip.Ship.AI.Target == EscortTarget)
+                            nearbyShip.Weight += 1;
                     }
-                    if (nearbyShip.ship.Weapons.Count < 1)
-                        nearbyShip.weight -= 3;
+                    if (nearbyShip.Ship.Weapons.Count < 1)
+                        nearbyShip.Weight -= 3;
 
                     foreach (ShipWeight otherShip in NearbyShips)
-                        if (otherShip.ship.loyalty != Owner.loyalty)
+                        if (otherShip.Ship.loyalty != Owner.loyalty)
                         {
-                            if (otherShip.ship.AI.Target != Owner)
+                            if (otherShip.Ship.AI.Target != Owner)
                                 continue;
                             ShipWeight selfDefenseWeight = nearbyShip;
-                            selfDefenseWeight.weight = selfDefenseWeight.weight + 0.2f * CombatAI.SelfDefenseWeight;
+                            selfDefenseWeight.Weight = selfDefenseWeight.Weight + 0.2f * CombatAI.SelfDefenseWeight;
                         }
                     //else if (otherShip.ship.GetAI().Target != nearbyShip.ship)
                     //{
@@ -682,7 +682,7 @@ namespace Ship_Game.AI {
             NearbyShips.ApplyPendingRemovals();
             IEnumerable<ShipWeight> sortedList2 =
                 from potentialTarget in NearbyShips
-                orderby potentialTarget.weight
+                orderby potentialTarget.Weight
                 descending //, Vector2.Distance(potentialTarget.ship.Center,this.Owner.Center) 
                 select potentialTarget;
 
@@ -691,7 +691,7 @@ namespace Ship_Game.AI {
 
                 //trackprojectiles in scan for targets.
 
-                PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.ship));
+                PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
                 // .Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance));
             }
             if (Target != null && !Target.Active)
@@ -707,7 +707,7 @@ namespace Ship_Game.AI {
                 return Target;
             }
             if (sortedList2.Count<ShipWeight>() > 0)
-                Target = sortedList2.ElementAt<ShipWeight>(0).ship;
+                Target = sortedList2.ElementAt<ShipWeight>(0).Ship;
 
             if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0)
                 return Target;
@@ -800,7 +800,7 @@ namespace Ship_Game.AI {
                 {
                     if (datanode.Ship != Owner)
                         continue;
-                    node = datanode;
+                    Node = datanode;
                     break;
                 }
             if (Target != null && !Owner.InCombat)
@@ -862,7 +862,7 @@ namespace Ship_Game.AI {
                 {
                     if (datanode.Ship != Owner)
                         continue;
-                    node = datanode;
+                    Node = datanode;
                     break;
                 }
             if (Target != null && !Owner.InCombat)
@@ -915,7 +915,7 @@ namespace Ship_Game.AI {
                     {
                         Owner.Ordinance -= wepTemplate.OrdinanceRequiredToFire;
                         bomb.SetTarget(goal.TargetPlanet);
-                        universeScreen.BombList.Add(bomb);
+                        UniverseScreen.BombList.Add(bomb);
                         bombBay.BombTimer = wepTemplate.fireDelay;
                     }
                 }
@@ -923,5 +923,14 @@ namespace Ship_Game.AI {
         }
 
 
+        public class ShipWeight
+        {
+            public Ship Ship;
+
+            public float Weight;
+            public bool DefendEscort;
+
+            public ShipWeight() {}
+        }
     }
 }
