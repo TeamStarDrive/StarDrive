@@ -1,9 +1,9 @@
-using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
