@@ -1,9 +1,6 @@
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
