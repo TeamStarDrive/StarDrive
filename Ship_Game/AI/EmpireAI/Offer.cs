@@ -1,7 +1,3 @@
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-
 namespace Ship_Game
 {
 	public sealed class Offer

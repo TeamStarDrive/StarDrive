@@ -250,6 +250,13 @@
     <Compile Include="Ship_Game\Moon.cs" />
     <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen.Camera.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen.Draw.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen.HandleInput.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen.InputActions.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen.Menus.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen.Render.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen.UpdateGame.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen_DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Utils\MemoryPool.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
@@ -959,7 +966,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Offer.cs">
+    <Compile Include="Ship_Game\AI\EmpireAI\Offer.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
