@@ -1,20 +1,16 @@
+using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Particle3DSample;
+using Ship_Game.AI;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Collections.Concurrent;
-using Ship_Game.AI;
-using Ship_Game.Debug;
 
 namespace Ship_Game
 {
