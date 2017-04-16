@@ -31,9 +31,8 @@ namespace Ship_Game
 
 		private bool LowRes;
 
-		private Cue Music;
-
-		private Cue Ambience;
+		private AudioHandle Music;
+		private AudioHandle Ambience;
 
 		private Vector2 Origin = new Vector2(960f, 540f);
 
@@ -88,8 +87,8 @@ namespace Ship_Game
 					base.ScreenManager.screens[i].ExitScreen();
 				}
 			}
-			this.Music.Stop(AudioStopOptions.Immediate);
-			this.Ambience.Stop(AudioStopOptions.Immediate);
+			this.Music.Stop();
+			this.Ambience.Stop();
 			base.ScreenManager.AddScreen(new MainMenuScreen());
 			base.ExitScreen();
 		}
@@ -133,7 +132,6 @@ namespace Ship_Game
 			{
 				this.LowRes = true;
 			}
-			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
 			this.LoseTexture = TransientContent.Load<Texture2D>("WinLose/groundbattle_final");
 			this.Reason = TransientContent.Load<Texture2D>("WinLose/YouLose");
 			this.ReasonRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.Reason.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Reason.Height / 2 - 200, this.Reason.Width, this.Reason.Height);
@@ -147,13 +145,9 @@ namespace Ship_Game
 				this.Portrait.Height = this.Portrait.Height + 10;
 				this.Portrait.Y = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Portrait.Height / 2;
 			}
-			base.ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
-			base.ScreenManager.musicCategory.SetVolume(0f);
-			base.ScreenManager.racialMusic.SetVolume(1f);
-			this.Music = AudioManager.GetCue("Female_02_loop");
-			this.Music.Play();
-			this.Ambience = AudioManager.GetCue("sd_battle_ambient");
-			this.Ambience.Play();
+            GameAudio.SwitchToRacialMusic();
+			Music    = GameAudio.PlayMusic("Female_02_loop");
+			Ambience = GameAudio.PlayMusic("sd_battle_ambient");
 			base.LoadContent();
 		}
 
@@ -163,7 +157,7 @@ namespace Ship_Game
 			this.Saturation = 100f * (1f - base.TransitionPosition);
 			this.width = (int)MathHelper.Lerp((float)this.width, (float)((int)(960f + 960f * (1f - base.TransitionPosition))), 0.3f);
 			this.height = (int)MathHelper.Lerp((float)this.height, 540f + 540f * (1f - base.TransitionPosition), 0.3f);
-			base.ScreenManager.musicCategory.SetVolume(0f);
+		    GameAudio.MuteGenericMusic();
 			this.SourceRect = new Rectangle((int)MathHelper.Lerp((float)this.SourceRect.X, (float)(960 - this.width / 2), 0.3f), (int)MathHelper.Lerp((float)this.SourceRect.Y, (float)(540 - this.height / 2), 0.3f), this.width, this.height);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}

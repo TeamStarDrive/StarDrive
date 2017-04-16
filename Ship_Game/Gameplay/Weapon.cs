@@ -38,30 +38,30 @@ namespace Ship_Game.Gameplay
         private int TagBits;
         public bool this[WeaponTag tag]
         {
-            get { return (TagBits & (int)tag) != 0; }
-            set { TagBits = value ? TagBits|(int)tag : TagBits & ~(int)tag; }
+            get => (TagBits & (int)tag) != 0;
+            set => TagBits = value ? TagBits|(int)tag : TagBits & ~(int)tag;
         }
-        public bool Tag_Kinetic   { get { return this[WeaponTag.Kinetic]; }   set { this[WeaponTag.Kinetic]   = value; }}
-        public bool Tag_Energy    { get { return this[WeaponTag.Energy]; }    set { this[WeaponTag.Energy]    = value; }}
-        public bool Tag_Guided    { get { return this[WeaponTag.Guided]; }    set { this[WeaponTag.Guided]    = value; }}
-        public bool Tag_Missile   { get { return this[WeaponTag.Missile]; }   set { this[WeaponTag.Missile]   = value; }}
-        public bool Tag_Hybrid    { get { return this[WeaponTag.Hybrid]; }    set { this[WeaponTag.Hybrid]    = value; }}
-        public bool Tag_Beam      { get { return this[WeaponTag.Beam]; }      set { this[WeaponTag.Beam]      = value; }}
-        public bool Tag_Explosive { get { return this[WeaponTag.Explosive]; } set { this[WeaponTag.Explosive] = value; }}
-        public bool Tag_Intercept { get { return this[WeaponTag.Intercept]; } set { this[WeaponTag.Intercept] = value; }}
-        public bool Tag_Railgun   { get { return this[WeaponTag.Railgun]; }   set { this[WeaponTag.Railgun]   = value; }}
-        public bool Tag_Bomb      { get { return this[WeaponTag.Bomb]; }      set { this[WeaponTag.Bomb]      = value; }}
-        public bool Tag_SpaceBomb { get { return this[WeaponTag.SpaceBomb]; } set { this[WeaponTag.SpaceBomb] = value; }}
-        public bool Tag_BioWeapon { get { return this[WeaponTag.BioWeapon]; } set { this[WeaponTag.BioWeapon] = value; }}
-        public bool Tag_Drone     { get { return this[WeaponTag.Drone]; }     set { this[WeaponTag.Drone]     = value; }}
-        public bool Tag_Warp      { get { return this[WeaponTag.Warp]; }      set { this[WeaponTag.Warp]      = value; }}
-        public bool Tag_Torpedo   { get { return this[WeaponTag.Torpedo]; }   set { this[WeaponTag.Torpedo]   = value; }}
-        public bool Tag_Cannon    { get { return this[WeaponTag.Cannon]; }    set { this[WeaponTag.Cannon]    = value; }}
-        public bool Tag_Subspace  { get { return this[WeaponTag.Subspace]; }  set { this[WeaponTag.Subspace]  = value; }}
-        public bool Tag_PD        { get { return this[WeaponTag.PD]; }        set { this[WeaponTag.PD]        = value; }}
-        public bool Tag_Flak      { get { return this[WeaponTag.Flak]; }      set { this[WeaponTag.Flak]      = value; }}
-        public bool Tag_Array     { get { return this[WeaponTag.Array]; }     set { this[WeaponTag.Array]     = value; }}
-        public bool Tag_Tractor   { get { return this[WeaponTag.Tractor]; }   set { this[WeaponTag.Tractor]   = value; }}
+        public bool Tag_Kinetic   { get => this[WeaponTag.Kinetic];   set => this[WeaponTag.Kinetic]   = value; }
+        public bool Tag_Energy    { get => this[WeaponTag.Energy];    set => this[WeaponTag.Energy]    = value; }
+        public bool Tag_Guided    { get => this[WeaponTag.Guided];    set => this[WeaponTag.Guided]    = value; }
+        public bool Tag_Missile   { get => this[WeaponTag.Missile];   set => this[WeaponTag.Missile]   = value; }
+        public bool Tag_Hybrid    { get => this[WeaponTag.Hybrid];    set => this[WeaponTag.Hybrid]    = value; }
+        public bool Tag_Beam      { get => this[WeaponTag.Beam];      set => this[WeaponTag.Beam]      = value; }
+        public bool Tag_Explosive { get => this[WeaponTag.Explosive]; set => this[WeaponTag.Explosive] = value; }
+        public bool Tag_Intercept { get => this[WeaponTag.Intercept]; set => this[WeaponTag.Intercept] = value; }
+        public bool Tag_Railgun   { get => this[WeaponTag.Railgun];   set => this[WeaponTag.Railgun]   = value; }
+        public bool Tag_Bomb      { get => this[WeaponTag.Bomb];      set => this[WeaponTag.Bomb]      = value; }
+        public bool Tag_SpaceBomb { get => this[WeaponTag.SpaceBomb]; set => this[WeaponTag.SpaceBomb] = value; }
+        public bool Tag_BioWeapon { get => this[WeaponTag.BioWeapon]; set => this[WeaponTag.BioWeapon] = value; }
+        public bool Tag_Drone     { get => this[WeaponTag.Drone];     set => this[WeaponTag.Drone]     = value; }
+        public bool Tag_Warp      { get => this[WeaponTag.Warp];      set => this[WeaponTag.Warp]      = value; }
+        public bool Tag_Torpedo   { get => this[WeaponTag.Torpedo];   set => this[WeaponTag.Torpedo]   = value; }
+        public bool Tag_Cannon    { get => this[WeaponTag.Cannon];    set => this[WeaponTag.Cannon]    = value; }
+        public bool Tag_Subspace  { get => this[WeaponTag.Subspace];  set => this[WeaponTag.Subspace]  = value; }
+        public bool Tag_PD        { get => this[WeaponTag.PD];        set => this[WeaponTag.PD]        = value; }
+        public bool Tag_Flak      { get => this[WeaponTag.Flak];      set => this[WeaponTag.Flak]      = value; }
+        public bool Tag_Array     { get => this[WeaponTag.Array];     set => this[WeaponTag.Array]     = value; }
+        public bool Tag_Tractor   { get => this[WeaponTag.Tractor];   set => this[WeaponTag.Tractor]   = value; }
 
         [XmlIgnore][JsonIgnore]
         public Ship Owner { get; set; }
@@ -97,12 +97,9 @@ namespace Ship_Game.Gameplay
         public string AnimationPath;
         public string ExpColor;
         public string dieCue;
-        [XmlIgnore][JsonIgnore]
-        private Cue fireCue;
         public string ToggleSoundName = "";
-        private bool ToggleSoundOn;
         [XmlIgnore][JsonIgnore]
-        private Cue ToggleCue;
+        private AudioHandle ToggleCue;
         public string Light;
         public bool isTurret;
         public bool isMainGun;
@@ -168,9 +165,6 @@ namespace Ship_Game.Gameplay
         private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
         public GameplayObject SalvoTarget;
 
-        [XmlIgnore][JsonIgnore]
-        public static AudioListener audioListener { get; set; }
-
 
         // When ships are off-screen, we do cheap and dirty invisible damage calculation
         [XmlIgnore][JsonIgnore]
@@ -235,33 +229,24 @@ namespace Ship_Game.Gameplay
 
             if (Owner.InFrustum)
             {
+                PlayToggleAndFireSfx();
                 projectile.DieSound = true;
-                if (!string.IsNullOrEmpty(ToggleSoundName) && !ToggleSoundOn)
-                {
-                    ToggleSoundOn = true;
-                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    ToggleCue.Apply3D(audioListener, Owner.emitter);
-                    ToggleCue.Play();
-                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                }
-                if (ResourceManager.GetWeaponTemplate(UID).dieCue.NotEmpty())
-                {
-                    projectile.DieCueName = ResourceManager.GetWeaponTemplate(UID).dieCue;
-                }
-                if (!string.IsNullOrEmpty(InFlightCue))
-                {
-                    projectile.InFlightCue = InFlightCue;
-                }
-                if (ToggleCue == null)
-                {
-                    fireCue = AudioManager.GetCue(fireCueName);
-                    if (!Owner.isPlayerShip())
-                    {
-                        fireCue.Apply3D(audioListener, Owner.emitter);
-                    }
-                    fireCue?.Play();
-                }
+
+                string dieCueName = ResourceManager.GetWeaponTemplate(UID).dieCue;
+                if (dieCueName.NotEmpty())  projectile.DieCueName  = dieCueName;
+                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
             }
+        }
+
+        private void PlayToggleAndFireSfx(AudioEmitter emitter = null)
+        {
+            if (ToggleCue.IsPlaying)
+                return;
+
+            AudioEmitter soundEmitter = Owner.isPlayerShip() ? null : emitter ?? Owner.SoundEmitter;
+
+            GameAudio.PlaySfx(fireCueName, soundEmitter);
+            ToggleCue = GameAudio.PlaySfx(ToggleSoundName, soundEmitter);
         }
 
         private void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
@@ -278,25 +263,15 @@ namespace Ship_Game.Gameplay
                 Weapon           = this
             };
 
-
             if (!beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection))
             {
                 beam.Die(null, true);
                 return;
             } 
             source.Beams.Add(beam);
-            ToggleSoundOn = false;
+
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-            {
-                PlayFireCue(fireCueName, source.Owner.Emitter);
-                if (!string.IsNullOrEmpty(ToggleSoundName))
-                {
-                    ToggleSoundOn = true;
-                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    ToggleCue.Apply3D(audioListener, source.Owner.Emitter);
-                    ToggleCue.Play();
-                }
-            }
+                PlayToggleAndFireSfx(source.Owner.Emitter);
         }
 
         private void CreateTargetedBeam(GameplayObject target)
@@ -331,19 +306,10 @@ namespace Ship_Game.Gameplay
                 return;
             }
             moduleAttachedTo.GetParent().AddBeam(beam);
-            ToggleSoundOn = false;
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && moduleAttachedTo.GetParent().InFrustum)
             {
-                PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
-
-                if (!string.IsNullOrEmpty(ToggleSoundName))
-                {
-                    PlayFireCue(ToggleSoundName, Owner.emitter);
-                    //ToggleSoundOn = true;
-                    //ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    //ToggleCue?.Apply3D(audioListener, Owner.emitter);
-                    //ToggleCue?.Play();
-                }
+                ToggleCue = GameAudio.PlaySfx(ToggleSoundName, Owner.SoundEmitter);
+                GameAudio.PlaySfx(fireCueName, Owner.SoundEmitter);
             }
         }
 
@@ -367,18 +333,9 @@ namespace Ship_Game.Gameplay
                 return;
             }
             moduleAttachedTo.GetParent().AddBeam(beam);
-            ToggleSoundOn = false;
-            if ((Owner.System != null && Owner.System.isVisible || Owner.InDeepSpace) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-            {
-                PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                if (!string.IsNullOrEmpty(ToggleSoundName) && !ToggleSoundOn)
-                {
-                    ToggleSoundOn = true;
-                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    ToggleCue.Apply3D(audioListener, Owner.emitter);
-                    ToggleCue.Play();
-                }
-            }
+
+            if ((Owner.System?.isVisible == true || Owner.InDeepSpace) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                PlayToggleAndFireSfx();
         }
 
         private Projectile CreateProjectile(Ship owner, Vector2 direction, ShipModule attachedTo, GameplayObject target, bool playSound = true)
@@ -420,27 +377,12 @@ namespace Ship_Game.Gameplay
 
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
             {
+                PlayToggleAndFireSfx();
                 projectile.DieSound = true;
-                if (!string.IsNullOrEmpty(ToggleSoundName) && (ToggleCue == null || ToggleCue != null && !ToggleCue.IsPlaying))
-                {
-                    ToggleSoundOn = true;
-                    //ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    //ToggleCue.Apply3D(audioListener, Owner.emitter);
-                    //ToggleCue.Play();
-                    PlayFireCue(ToggleSoundName, Owner.emitter, true);
-                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                }
 
                 string dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
                 if (dieCueName.NotEmpty())  projectile.DieCueName  = dieCueName;
                 if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
-                if (ToggleCue == null && Owner.ProjectilesFired.Count < 30)
-                {
-                    // @todo This is horrible, we must remove it ASAP
-                    //  seems to be used for calculating "Projectiles Fired Per Second" or something?
-                    Owner.ProjectilesFired.Add(new ProjectileTracker());
-                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                }
             }
 
             Owner.AddProjectile(projectile);
@@ -459,22 +401,6 @@ namespace Ship_Game.Gameplay
             else
             {
                 CreateProjectile(Owner, direction, moduleAttachedTo, target);
-            }
-        }
-
-        // Use sounds from new sound dictionary
-        private void PlayFireCue(string cueName, AudioEmitter emitter, bool apply3D = true)
-        {
-            if (ResourceManager.SoundEffectDict.TryGetValue(cueName, out SoundEffect sfx))
-            {
-                AudioManager.PlaySoundEffect(sfx, audioListener, emitter, 0.5f);
-            }
-            else if (cueName.NotEmpty() && AudioManager.LimitOk)
-            {
-                fireCue = AudioManager.GetCue(cueName);
-                if (apply3D)
-                    fireCue?.Apply3D(audioListener, emitter);
-                fireCue?.Play();
             }
         }
 
@@ -511,34 +437,20 @@ namespace Ship_Game.Gameplay
                 projectile.TexturePath = AnimationPath + 0.ToString("00000.##");
             }
             p.Projectiles.Add(projectile);
-            planetEmitter = new AudioEmitter()
+            planetEmitter = new AudioEmitter
             {
                 Position = new Vector3(p.Position, 2500f)
             };
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
+                planetEmitter.Position = new Vector3(p.Position, -2500f);
+                PlayToggleAndFireSfx(planetEmitter);
+
                 projectile.DieSound = true;
-                if (!string.IsNullOrEmpty(ToggleSoundName) && !ToggleSoundOn)
-                {
-                    ToggleSoundOn = true;
-                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    ToggleCue.Apply3D(audioListener, planetEmitter);
-                    ToggleCue.Play();
-                    PlayFireCue(fireCueName, planetEmitter);
-                }
-                if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[UID].dieCue))
-                {
-                    projectile.DieCueName = ResourceManager.WeaponsDict[UID].dieCue;
-                }
-                if (!string.IsNullOrEmpty(InFlightCue))
-                {
-                    projectile.InFlightCue = InFlightCue;
-                }
-                if (ToggleCue == null)
-                {
-                    planetEmitter.Position = new Vector3(p.Position, -2500f);
-                    PlayFireCue(fireCueName, planetEmitter);
-                }
+
+                string dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
+                if (dieCueName.NotEmpty())  projectile.DieCueName  = dieCueName;
+                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
             }
         }
 
@@ -595,9 +507,7 @@ namespace Ship_Game.Gameplay
         {
             drowner = source.Owner;
             if (timeToNextFire > 0f)
-            {
                 return;
-            }
             timeToNextFire = fireDelay;
             CreateDroneBeam(direction, target, source);
         }
@@ -818,12 +728,8 @@ namespace Ship_Game.Gameplay
 
         public void ResetToggleSound()
         {
-            if (ToggleCue != null)
-            {
-                ToggleCue.Stop(AudioStopOptions.Immediate);
-                ToggleCue = null;
-            }
-            ToggleSoundOn = false;
+            if (ToggleCue.IsPlaying)
+                ToggleCue.Stop();
         }
 
         public void Update(float elapsedTime)

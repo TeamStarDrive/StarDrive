@@ -170,7 +170,7 @@ namespace Ship_Game
 			}
 			if (this.zIn.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfx("sd_ui_accept_alt3");
 				screen.AdjustCamTimer = 1f;
 				screen.transitionElapsedTime = 0f;
 				screen.transitionDestination.Z = 4500f;
@@ -184,7 +184,7 @@ namespace Ship_Game
 			}
 			if (this.zOut.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfx("sd_ui_accept_alt3");
 				screen.AdjustCamTimer = 1f;
 				screen.transitionElapsedTime = 0f;
 				screen.transitionDestination.X = screen.camPos.X;
@@ -198,7 +198,7 @@ namespace Ship_Game
 			}
 			if (this.DSB.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfx("sd_ui_accept_alt3");
 				if (screen.showingDSBW)
 				{
 					screen.showingDSBW = false;
@@ -216,7 +216,7 @@ namespace Ship_Game
 			}
 			if (this.pList.HandleInput(input))
 			{
-                AudioManager.PlayCue("sd_ui_accept_alt3");
+                GameAudio.PlaySfx("sd_ui_accept_alt3");
                 screen.ScreenManager.AddScreen(new PlanetListScreen(screen, screen.EmpireUI));
                 return true;
 			}
@@ -226,7 +226,7 @@ namespace Ship_Game
 			}
 			if (this.sList.HandleInput(input))
 			{                
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfx("sd_ui_accept_alt3");
                 if (screen.showingFTLOverlay)
                 {
                     screen.showingFTLOverlay = false;
@@ -243,7 +243,7 @@ namespace Ship_Game
 			}
 			if (this.Fleets.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfx("sd_ui_accept_alt3");
                 if (screen.showingRangeOverlay)
                 {
                     screen.showingRangeOverlay = false;
@@ -263,7 +263,7 @@ namespace Ship_Game
 			{
 				return false;
 			}
-			AudioManager.PlayCue("sd_ui_accept_alt3");
+			GameAudio.PlaySfx("sd_ui_accept_alt3");
 			screen.aw.isOpen = !screen.aw.isOpen;
 			return true;
 		}

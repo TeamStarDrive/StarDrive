@@ -73,7 +73,7 @@ namespace Ship_Game
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
 					if (this.IsToggle)
 					{
 						this.Toggled = !this.Toggled;

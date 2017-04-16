@@ -85,13 +85,13 @@ namespace Ship_Game
 			{
 				if (!this.Hover)
 				{
-					AudioManager.PlayCue("sd_ui_mouseover");
+					GameAudio.PlaySfx("sd_ui_mouseover");
 				}
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
 					
-                    AudioManager.PlayCue("mouse_over4");
+                    GameAudio.PlaySfx("mouse_over4");
                     if (this.saveButton != null)
                     {
                         this.saveButton.saved = true;

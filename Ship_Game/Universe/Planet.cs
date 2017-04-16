@@ -176,13 +176,9 @@ namespace Ship_Game
                 this.Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             if ((double)this.ShieldStrengthCurrent > 0.0)
             {
-                AudioEmitter emitter = new AudioEmitter();
-                emitter.Position = this.shield.Center;
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    Cue cue = AudioManager.GetCue("sd_impact_shield_01");
-                    cue.Apply3D(Empire.Universe.listener, emitter);
-                    cue.Play();
+                    GameAudio.PlaySfxAt("sd_impact_shield_01", shield.Center);
                 }
                 this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
                 this.shield.displacement = 0.0f;
@@ -216,13 +212,11 @@ namespace Ship_Game
                 if ((double)num1 < 75.0)
                     flag1 = false;
                 this.Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
-                AudioEmitter emitter = new AudioEmitter();
-                emitter.Position = bomb.Position;
+
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
                 {
-                    Cue cue = AudioManager.GetCue("sd_bomb_impact_01");
-                    cue.Apply3D(Empire.Universe.listener, emitter);
-                    cue.Play();
+                    GameAudio.PlaySfxAt("sd_bomb_impact_01", bomb.Position);
+
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int index = 0; index < 50; ++index)
@@ -286,7 +280,7 @@ namespace Ship_Game
                 }
                 if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
                 {
-                    AudioManager.PlayCue("Explo1");
+                    GameAudio.PlaySfx("Explo1");
                     CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(4);
                     smallExplosion.grid = orbitalDrop.Target.ClickRect;
                     lock (GlobalStats.ExplosionLocker)
@@ -362,15 +356,12 @@ namespace Ship_Game
                 {
                     hit = false;
                 }
-                Planet population = this;
-                population.Population = population.Population - 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
-                AudioEmitter e = new AudioEmitter();
-                e.Position = bomb.Position;
+                Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
+
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
                 {
-                    Cue Explode = AudioManager.GetCue("sd_bomb_impact_01");
-                    Explode.Apply3D(Empire.Universe.listener, e);
-                    Explode.Play();
+                    GameAudio.PlaySfxAt("sd_bomb_impact_01", bomb.Position);
+
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int i = 0; i < 50; i++)
@@ -492,7 +483,7 @@ namespace Ship_Game
                 }
                 if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
                 {
-                    AudioManager.PlayCue("Explo1");
+                    GameAudio.PlaySfx("Explo1");
                     CombatScreen.SmallExplosion exp1 = new CombatScreen.SmallExplosion(4);
                     exp1.grid = od.Target.ClickRect;
                     lock (GlobalStats.ExplosionLocker)
@@ -562,13 +553,9 @@ namespace Ship_Game
             }
             else
             {
-                AudioEmitter emitter = new AudioEmitter();
-                emitter.Position = this.shield.Center;
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
-                    shieldcue.Apply3D(Empire.Universe.listener, emitter);
-                    shieldcue.Play();
+                    GameAudio.PlaySfxAt("sd_impact_shield_01", shield.Center);
                 }
                 this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
                 this.shield.displacement = 0f;
@@ -1935,7 +1922,7 @@ namespace Ship_Game
                             }
                             if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
                             {
-                                AudioManager.PlayCue("sd_troop_attack_hit");
+                                GameAudio.PlaySfx("sd_troop_attack_hit");
                                 CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(1);
                                 smallExplosion.grid = combat.Defender.TroopClickRect;
                                 lock (GlobalStats.ExplosionLocker)
@@ -1948,7 +1935,7 @@ namespace Ship_Game
                                         this.TroopsHere.Remove(combat.Defender.TroopsHere[0]);
                                         combat.Defender.TroopsHere.Clear();
                                         this.ActiveCombats.QueuePendingRemoval(combat);
-                                        AudioManager.PlayCue("Explo1");
+                                        GameAudio.PlaySfx("Explo1");
                                         lock (GlobalStats.ExplosionLocker)
                                             (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(new CombatScreen.SmallExplosion(4)
                                             {
@@ -1972,7 +1959,7 @@ namespace Ship_Game
                                 }
                             }
                             else if (num4 == 0)
-                                AudioManager.PlayCue("sd_troop_attack_miss");
+                                GameAudio.PlaySfx("sd_troop_attack_miss");
                             combat.phase = 2;
                         }
                         else if (combat.phase == 2)

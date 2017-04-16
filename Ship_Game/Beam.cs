@@ -30,7 +30,7 @@ namespace Ship_Game
         private float BeamZ;
         private GameplayObject Target;
         public bool Infinite;
-        private Cue DamageToggleSound;
+        private AudioHandle DamageToggleSound;
         private bool DamageToggleOn;
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;
@@ -48,7 +48,7 @@ namespace Ship_Game
             Vector2 targetDir = Vector2.Normalize(target.Center);
             if (owner.InFrustum)
             {
-                DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+                DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
             }
 
             SetSystem(owner.System);
@@ -70,7 +70,7 @@ namespace Ship_Game
         public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Projectile owner, GameplayObject target) : this()
         {
             Target = target;
-            DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+            DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
             SetSystem(owner.System);
             Source          = srcCenter;
             BeamOffsetAngle = 0f;
@@ -97,7 +97,7 @@ namespace Ship_Game
             BeamZ             = 0f;
             Target            = null;
             Infinite          = false;
-            DamageToggleSound = null;
+            DamageToggleSound.Stop();
             DamageToggleOn    = false;
 
             ModuleAttachedTo = Weapon.moduleAttachedTo;
@@ -114,7 +114,7 @@ namespace Ship_Game
             Vector2 targetDir = Vector2.Normalize(target.Center);
             if (owner.InFrustum)
             {
-                DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+                DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
             }
             SetSystem(Owner.System);
             Source          = srcCenter;
@@ -137,7 +137,7 @@ namespace Ship_Game
             Owner = shipOwner;
             if (shipOwner.InFrustum)
             {
-                DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+                DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
             }
             SetSystem(Owner.System);
             Source = srcCenter;
@@ -158,11 +158,9 @@ namespace Ship_Game
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            if (DamageToggleSound != null)
-            {
-                DamageToggleSound.Stop(AudioStopOptions.Immediate);
-                DamageToggleSound = null;
-            }
+            if (DamageToggleSound.IsPlaying)
+                DamageToggleSound.Stop();
+
             if (Owner != null)
             {
                 Owner.RemoveBeam(this);
@@ -267,10 +265,6 @@ namespace Ship_Game
             {
                 DamageToggleOn = true;
             }
-            else if (DamageToggleOn && DamageToggleSound != null && DamageToggleSound.IsPrepared)
-            {
-                // @todo What's going on here?
-            }
 
             targetModule?.Damage(this, DamageAmount);
             return true;
@@ -281,12 +275,12 @@ namespace Ship_Game
             if (!CollidedThisFrame && DamageToggleOn)
             {
                 DamageToggleOn = false;
-                if (DamageToggleSound != null && DamageToggleSound.IsPlaying)
+                if (DamageToggleSound.IsPlaying)
                 {
-                    DamageToggleSound.Stop(AudioStopOptions.Immediate);
+                    DamageToggleSound.Stop();
                     if (Owner.InFrustum)
                     {
-                        DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+                        DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
                     }
                 }
             }
@@ -350,12 +344,12 @@ namespace Ship_Game
             if (!CollidedThisFrame && DamageToggleOn)
             {
                 DamageToggleOn = false;
-                if (DamageToggleSound != null && DamageToggleSound.IsPlaying)
+                if (DamageToggleSound.IsPlaying)
                 {
-                    DamageToggleSound.Stop(AudioStopOptions.Immediate);
-                    if (base.Owner.InFrustum)
+                    DamageToggleSound.Stop();
+                    if (Owner.InFrustum)
                     {
-                        DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+                        DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
                     }
                 }
             }

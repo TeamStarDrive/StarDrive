@@ -12,8 +12,6 @@ namespace Ship_Game
 
 		private int selectedEntry;
 
-		private Cue beep;
-
 		protected IList<string> MenuEntries => menuEntries;
 
 	    protected MenuScreen(GameScreen parent) : base(parent)
@@ -62,25 +60,15 @@ namespace Ship_Game
 		{
 			if (input.MenuUp)
 			{
-				this.beep = AudioManager.GetCue("blip_click");
-				this.beep.Play();
-				MenuScreen menuScreen = this;
-				menuScreen.selectedEntry = menuScreen.selectedEntry - 1;
-				if (this.selectedEntry < 0)
-				{
-					this.selectedEntry = this.menuEntries.Count - 1;
-				}
+                GameAudio.PlaySfx("blip_click");
+				if (--selectedEntry < 0)
+					selectedEntry = menuEntries.Count - 1;
 			}
 			if (input.MenuDown)
 			{
-				this.beep = AudioManager.GetCue("blip_click");
-				this.beep.Play();
-				MenuScreen menuScreen1 = this;
-				menuScreen1.selectedEntry = menuScreen1.selectedEntry + 1;
-				if (this.selectedEntry >= this.menuEntries.Count)
-				{
-					this.selectedEntry = 0;
-				}
+			    GameAudio.PlaySfx("blip_click");
+				if (++selectedEntry >= menuEntries.Count)
+					selectedEntry = 0;
 			}
 			if (input.MenuSelect)
 			{

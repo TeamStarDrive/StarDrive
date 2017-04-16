@@ -31,13 +31,7 @@ namespace Ship_Game
 		public SceneInterface buffer1;
 		public SceneInterface buffer2;
 		public SceneInterface renderBuffer;
-		public Cue Music;
-		public AudioCategory musicCategory;
-		public AudioCategory racialMusic;
-		public AudioCategory combatMusic;
-		public AudioCategory weaponsCategory;
-        public AudioCategory defaultCategory;
-        public AudioCategory GlobalCategory;
+		public AudioHandle Music;
 		public GraphicsDevice GraphicsDevice;
 		public SpriteBatch SpriteBatch;
 
@@ -125,16 +119,6 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			if (AudioManager.AudioEngine!= null)
-			{
-				musicCategory   = AudioManager.AudioEngine.GetCategory("Music");
-				racialMusic     = AudioManager.AudioEngine.GetCategory("RacialMusic");
-				combatMusic     = AudioManager.AudioEngine.GetCategory("CombatMusic");
-				weaponsCategory = AudioManager.AudioEngine.GetCategory("Weapons");
-				weaponsCategory.SetVolume(0.5f);
-                defaultCategory = AudioManager.AudioEngine.GetCategory("Default");
-                GlobalCategory  = AudioManager.AudioEngine.GetCategory("Global");
-			}
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
             blankTexture = ResourceManager.LoadTexture("blank");
 			foreach (GameScreen screen in screens)

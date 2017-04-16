@@ -59,7 +59,7 @@ namespace Ship_Game
         public static Map<string, ShipData> HullsDict             = new Map<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 
         public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
-        public static Map<string, SoundEffect> SoundEffectDict    = new Map<string, SoundEffect>();
+        private static Map<string, SoundEffect> SoundEffectDict    = new Map<string, SoundEffect>();
 
         // Added by McShooterz
         public static HostileFleets HostileFleets                 = new HostileFleets();
@@ -1356,11 +1356,22 @@ namespace Ship_Game
             TryDeserialize("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
             TryDeserialize("AgentMissions/AgentMissionData.xml", ref AgentMissionData);
 
-            foreach (FileInfo info in GatherFilesUnified("SoundEffects", "xnb"))
+            FileInfo[] sfxFiles = GatherFilesUnified("SoundEffects", "xnb");
+            if (sfxFiles.Length != 0)
             {
-                SoundEffect se = ContentManager.Load<SoundEffect>(info.CleanResPath());
-                SoundEffectDict[info.NameNoExt()] = se;
+                SoundEffectDict = new Map<string, SoundEffect>();
+                foreach (FileInfo info in sfxFiles)
+                {
+                    var se = ContentManager.Load<SoundEffect>(info.CleanResPath());
+                    SoundEffectDict[info.NameNoExt()] = se;
+                }
             }
+        }
+
+        public static bool GetModSoundEffect(string cueName, out SoundEffect sfx)
+        {
+            sfx = null;
+            return SoundEffectDict?.TryGetValue(cueName, out sfx) == true;
         }
 
         public static void Reset()
@@ -1375,7 +1386,7 @@ namespace Ship_Game
             TechTree.Clear();
             ArtifactsDict.Clear();
             ShipsDict.Clear();
-            SoundEffectDict.Clear();
+            SoundEffectDict = null;
             TextureDict.Clear();
             ToolTips.Clear();
             GoodsDict.Clear();

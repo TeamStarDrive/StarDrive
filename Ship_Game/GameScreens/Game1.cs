@@ -116,7 +116,7 @@ namespace Ship_Game
 				splashScreenGameComponent = new SplashScreenGameComponent(this, Graphics)
 			};
             Components.Add(ScreenManager.splashScreenGameComponent);
-            AudioManager.Initialize(this, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+            GameAudio.Initialize("Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
             
 			Instance = this;
 			base.Initialize();
@@ -203,13 +203,15 @@ namespace Ship_Game
 
 		protected override void Update(GameTime gameTime)
 		{
-			ScreenManager.Update(gameTime);
+		    GameAudio.Update();
+            ScreenManager.Update(gameTime);
 			base.Update(gameTime);
 		}
 
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
+            GameAudio.Destroy();
             Instance = null;
             Log.Info("Game Instance Disposed");
         }

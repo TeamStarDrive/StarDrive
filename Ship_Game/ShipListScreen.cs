@@ -82,7 +82,7 @@ namespace Ship_Game
 		public ShipListScreen(GameScreen parent, EmpireUIOverlay empUI, string audioCue = "") : base(parent)
 		{
 		    if (!string.IsNullOrEmpty(audioCue))
-		        AudioManager.PlayCue(audioCue);
+		        GameAudio.PlaySfx(audioCue);
             this.empUI = empUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -330,7 +330,7 @@ namespace Ship_Game
 					}
 					if (this.SelectedShip != entry.ship)
 					{
-						AudioManager.PlayCue("sd_ui_accept_alt3");
+						GameAudio.PlaySfx("sd_ui_accept_alt3");
                         if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
                         {
                             foreach (ScrollList.Entry sel in this.ShipSL.Entries)
@@ -355,7 +355,7 @@ namespace Ship_Game
 				
 				//if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
                     this.SB_FTL.Ascending = !this.SB_FTL.Ascending;
                     this.StrSorted = this.SB_FTL.Ascending;
                     if (!this.SB_FTL.Ascending)
@@ -383,7 +383,7 @@ namespace Ship_Game
 				
 				//if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
                     this.SB_STL.Ascending = !this.SB_STL.Ascending;
                     this.StrSorted = this.SB_STL.Ascending;
                     if (!this.SB_STL.Ascending)
@@ -413,7 +413,7 @@ namespace Ship_Game
                 {
                     //reduntant maintenance check no longer needed.
                     {
-                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        GameAudio.PlaySfx("sd_ui_accept_alt3");
                         this.Maint.Ascending = !this.Maint.Ascending;
                         this.StrSorted = this.Maint.Ascending;
                         if (!this.Maint.Ascending)
@@ -442,7 +442,7 @@ namespace Ship_Game
 				
 				//if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
 					//this.StrSorted = !this.StrSorted;
                     this.SB_Troop.Ascending = !this.SB_Troop.Ascending;
                     if (!this.SB_Troop.Ascending)
@@ -470,7 +470,7 @@ namespace Ship_Game
 				
 				//if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
                     this.SB_STR.Ascending = !this.SB_STR.Ascending;
                     this.StrSorted = this.SB_STR.Ascending ;
 					if (!this.StrSorted)
@@ -495,7 +495,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip("Indicates Ship Strength; sortable", base.ScreenManager);
 			if (this.SortName.HandleInput(input))
 			{
-				AudioManager.PlayCue("blip_click");
+				GameAudio.PlaySfx("blip_click");
 				this.SortName.Ascending = !this.SortName.Ascending;
 				if (!this.SortName.Ascending)
 				{
@@ -517,7 +517,7 @@ namespace Ship_Game
 			}
 			if (this.SortRole.HandleInput(input))
 			{
-				AudioManager.PlayCue("blip_click");
+				GameAudio.PlaySfx("blip_click");
 				this.SortRole.Ascending = !this.SortRole.Ascending;
 				if (!this.SortRole.Ascending)
 				{
@@ -539,7 +539,7 @@ namespace Ship_Game
 			}
             if (this.SortOrder.HandleInput(input))  //fbedard
             {
-                AudioManager.PlayCue("blip_click");
+                GameAudio.PlaySfx("blip_click");
                 this.SortOrder.Ascending = !this.SortOrder.Ascending;
                 if (!this.SortOrder.Ascending)
                 {
@@ -561,7 +561,7 @@ namespace Ship_Game
             }
 			if (this.SortSystem.HandleInput(input))
 			{
-				AudioManager.PlayCue("blip_click");
+				GameAudio.PlaySfx("blip_click");
 				this.SortSystem.Ascending = !this.SortSystem.Ascending;
 				if (!this.SortSystem.Ascending)
 				{
@@ -582,7 +582,7 @@ namespace Ship_Game
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.K) && !input.LastKeyboardState.IsKeyDown(Keys.K) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.ExitScreen();
 
                 Empire.Universe.SelectedShipList.Clear();

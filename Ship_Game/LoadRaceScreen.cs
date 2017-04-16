@@ -29,7 +29,7 @@ namespace Ship_Game
             }
             else
             {
-                AudioManager.PlayCue("UI_Misc20");
+                GameAudio.PlaySfx("UI_Misc20");
             }
             this.ExitScreen();
         }

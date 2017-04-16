@@ -846,7 +846,7 @@ namespace Ship_Game
 
         public void Go()
         {
-            ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
+            GameAudio.StopGenericMusic(immediate: false);
             us = new UniverseScreen(Data)
             {
                 player         = PlayerEmpire,
