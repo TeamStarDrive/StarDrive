@@ -2471,8 +2471,8 @@ namespace Ship_Game.Gameplay
                             if (Vector2.Distance(Center, new Vector2(Empire.Universe.camPos.X, Empire.Universe.camPos.Y)) < 100000.0 && (Jump == null || Jump != null && !Jump.IsPlaying) && Empire.Universe.camHeight < 250000)
                             {
                                 Jump = AudioManager.GetCue(GetStartWarpCue());
-                                Jump.Apply3D(GameplayObject.audioListener, emitter);
-                                Jump.Play();
+                                Jump?.Apply3D(GameplayObject.audioListener, emitter);
+                                Jump?.Play();
                                 
                             }
                         }
