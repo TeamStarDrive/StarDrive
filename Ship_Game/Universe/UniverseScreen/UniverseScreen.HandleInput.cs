@@ -8,56 +8,47 @@ using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 
-namespace Ship_Game {
+namespace Ship_Game
+{
     public sealed partial class UniverseScreen
     {
         private bool HandleGUIClicks(InputState input)
         {
-            bool flag = false;
-            if (this.dsbw != null && this.showingDSBW && this.dsbw.HandleInput(input))
-                flag = true;
-            if (this.aw.isOpen && this.aw.HandleInput(input))
+            bool flag = dsbw != null && showingDSBW && dsbw.HandleInput(input);
+            if (aw.isOpen && aw.HandleInput(input))
                 return true;
-            if (HelperFunctions.CheckIntersection(this.MinimapDisplayRect, input.CursorPosition) &&
-                !this.SelectingWithBox)
+            if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
-                this.HandleScrolls(input);
+                HandleScrolls(input);
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                 {
-                    Vector2 vector2 = input.CursorPosition -
-                                      new Vector2((float) this.MinimapDisplayRect.X, (float) this.MinimapDisplayRect.Y);
-                    float num = (float) this.MinimapDisplayRect.Width / (this.Size.X * 2);
-                    this.transitionDestination.X =
-                        -this.Size.X +
-                        (vector2.X /
-                         num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
-                    this.transitionDestination.Y = -this.Size.X + (vector2.Y / num);
-                    this.snappingToShip = false;
-                    this.ViewingShip = false;
+                    Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
+                    float num = MinimapDisplayRect.Width / (Size.X * 2);
+                    transitionDestination.X = -Size.X + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
+                    transitionDestination.Y = -Size.X + (pos.Y / num);
+                    snappingToShip = false;
+                    ViewingShip = false;
                 }
                 flag = true;
             }
-            if (this.SelectedShip != null && this.ShipInfoUIElement.HandleInput(input) && !this.LookingAtPlanet)
-                flag = true;
-            if (this.SelectedPlanet != null && this.pInfoUI.HandleInput(input) && !this.LookingAtPlanet)
-                flag = true;
-            if (this.SelectedShipList != null && this.shipListInfoUI.HandleInput(input) && !this.LookingAtPlanet)
-                flag = true;
-            if (this.SelectedSystem != null)
+
+            // @note Make sure HandleInputs are called here
+            flag |= SelectedShip     != null && ShipInfoUIElement.HandleInput(input) && !LookingAtPlanet;
+            flag |= SelectedPlanet   != null && pInfoUI.HandleInput(input) && !LookingAtPlanet;
+            flag |= SelectedShipList != null && shipListInfoUI.HandleInput(input) && !LookingAtPlanet;
+
+            if (SelectedSystem != null)
             {
-                if (this.sInfoUI.HandleInput(input) && !this.LookingAtPlanet)
-                    flag = true;
+                flag |= sInfoUI.HandleInput(input) && !LookingAtPlanet;
             }
-            else
-                this.sInfoUI.SelectionTimer = 0.0f;
-            if (this.minimap.HandleInput(input, this))
-                flag = true;
-            if (this.NotificationManager.HandleInput(input))
-                flag = true;
-            if (HelperFunctions.CheckIntersection(this.ShipsInCombat.Rect, input.CursorPosition)) //fbedard
-                flag = true;
-            if (HelperFunctions.CheckIntersection(this.PlanetsInCombat.Rect, input.CursorPosition)) //fbedard
-                flag = true;
+            else sInfoUI.SelectionTimer = 0.0f;
+
+            flag |= minimap.HandleInput(input, this);
+            flag |= NotificationManager.HandleInput(input);
+
+            // @todo Why are these needed??
+            flag |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
+            flag |= PlanetsInCombat.Rect.HitTest(input.CursorPosition);
 
             return flag;
         }
@@ -93,6 +84,11 @@ namespace Ship_Game {
 
                 if (SelectedShip != null)
                 {
+                    //#if DEBUG
+                    //    if (SelectedShip.Center.InRadius(mouseWorldPos, SelectedShip.Radius*2) && input.RightMouseClick)
+                    //        SelectedShip.ShowGridLocalDebugPoint(mouseWorldPos);
+                    //#endif
+
                     if (input.EmpireToggle && input.KillThis)
                     {
                         foreach (ShipModule mod in SelectedShip.ModuleSlotList)
@@ -102,7 +98,9 @@ namespace Ship_Game {
                         SelectedShip.Health = SelectedShip.ModuleSlotList.Length;
                     }
                     else if (input.KillThis)
+                    {
                         SelectedShip.Die(null, false);
+                    }
                 }
                 else if (SelectedPlanet != null && Debug && (input.KillThis))
                 {
@@ -113,10 +111,8 @@ namespace Ship_Game {
 
                 if (input.SpawnRemnantShip)
                 {
-                    if (input.EmpireToggle)
-                        Ship.CreateShipAtPoint("Remnant Mothership", EmpireManager.Remnants, mouseWorldPos);
-                    else
-                        Ship.CreateShipAtPoint("Target Dummy", EmpireManager.Remnants, mouseWorldPos);
+                    Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy",
+                        EmpireManager.Remnants, mouseWorldPos);
                 }
 
                 //This little sections added to stress-test the resource manager, and load lots of models into memory.      -Gretman
@@ -128,96 +124,96 @@ namespace Ship_Game {
 
                     if (DebugInfoScreen.Loadmodels == 4) //Capital and Carrier
                     {
-                        Ship.CreateShipAtPoint("Mordaving L", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Revenant-Class Dreadnought", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Draylok Warbird", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Archangel-Class Dreadnought", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Zanbato-Class Mk IV Battleship", player, mouseWorldPos); //Kulrathi
-                        Ship.CreateShipAtPoint("Tarantula-Class Mk V Battleship", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Black Widow-Class Dreadnought", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Corpse Flower III", player, mouseWorldPos); //Pollops
+                        Ship.CreateShipAtPoint("Mordaving L"                      , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Revenant-Class Dreadnought"       , player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Draylok Warbird"                  , player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Archangel-Class Dreadnought"      , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Zanbato-Class Mk IV Battleship"   , player, mouseWorldPos); //Kulrathi
+                        Ship.CreateShipAtPoint("Tarantula-Class Mk V Battleship"  , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Black Widow-Class Dreadnought"    , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Corpse Flower III"                , player, mouseWorldPos); //Pollops
                         Ship.CreateShipAtPoint("Wolfsbane-Class Mk III Battleship", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Sceptre Torp", player, mouseWorldPos); //Rayleh
-                        Ship.CreateShipAtPoint("Devourer-Class Mk V Battleship", player, mouseWorldPos); //Vulfen
-                        Ship.CreateShipAtPoint("SS-Fighter Base Alpha", player, mouseWorldPos); //Station
+                        Ship.CreateShipAtPoint("Sceptre Torp"                     , player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Devourer-Class Mk V Battleship"   , player, mouseWorldPos); //Vulfen
+                        Ship.CreateShipAtPoint("SS-Fighter Base Alpha"            , player, mouseWorldPos); //Station
                         ++DebugInfoScreen.Loadmodels;
                     }
 
                     if (DebugInfoScreen.Loadmodels == 3) //Cruiser
                     {
-                        Ship.CreateShipAtPoint("Storving Laser", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Draylok Bird of Prey", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Terran Torpedo Cruiser", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Terran Inhibitor", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Mauler Carrier", player, mouseWorldPos); //Kulrathi
-                        Ship.CreateShipAtPoint("Chitin Cruiser Zero L", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Doom Flower", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Missile Acolyte II", player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Storving Laser"         , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Draylok Bird of Prey"   , player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Terran Torpedo Cruiser" , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Terran Inhibitor"       , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Mauler Carrier"         , player, mouseWorldPos); //Kulrathi
+                        Ship.CreateShipAtPoint("Chitin Cruiser Zero L"  , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Doom Flower"            , player, mouseWorldPos); //Pollops
+                        Ship.CreateShipAtPoint("Missile Acolyte II"     , player, mouseWorldPos); //Rayleh
                         Ship.CreateShipAtPoint("Ancient Torpedo Cruiser", player, mouseWorldPos); //Remnant
-                        Ship.CreateShipAtPoint("Type X Artillery", player, mouseWorldPos); //Vulfen
+                        Ship.CreateShipAtPoint("Type X Artillery"       , player, mouseWorldPos); //Vulfen
                         ++DebugInfoScreen.Loadmodels;
                     }
 
                     if (DebugInfoScreen.Loadmodels == 2) //Frigate
                     {
-                        Ship.CreateShipAtPoint("Owlwok Beamer", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Scythe Torpedo", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Laser Frigate", player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Owlwok Beamer"   , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Scythe Torpedo"  , player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Laser Frigate"   , player, mouseWorldPos); //Human
                         Ship.CreateShipAtPoint("Missile Corvette", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Kulrathi Railer", player, mouseWorldPos); //Kulrathi
-                        Ship.CreateShipAtPoint("Stormsoldier", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Fern Artillery", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Adv Zion Railer", player, mouseWorldPos); //Rayleh
-                        Ship.CreateShipAtPoint("Corsair", player, mouseWorldPos); //Remnant
-                        Ship.CreateShipAtPoint("Type VII Laser", player, mouseWorldPos); //Vulfen
+                        Ship.CreateShipAtPoint("Kulrathi Railer" , player, mouseWorldPos); //Kulrathi
+                        Ship.CreateShipAtPoint("Stormsoldier"    , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Fern Artillery"  , player, mouseWorldPos); //Pollops
+                        Ship.CreateShipAtPoint("Adv Zion Railer" , player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Corsair"         , player, mouseWorldPos); //Remnant
+                        Ship.CreateShipAtPoint("Type VII Laser"  , player, mouseWorldPos); //Vulfen
                         ++DebugInfoScreen.Loadmodels;
                     }
 
                     if (DebugInfoScreen.Loadmodels == 1) //Corvette
                     {
-                        Ship.CreateShipAtPoint("Laserlitving I", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Crescent Rocket", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Missile Hunter", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Razor RS", player, mouseWorldPos); //Kulrathi
-                        Ship.CreateShipAtPoint("Armored Worker", player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Laserlitving I"        , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Crescent Rocket"       , player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Missile Hunter"        , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Razor RS"              , player, mouseWorldPos); //Kulrathi
+                        Ship.CreateShipAtPoint("Armored Worker"        , player, mouseWorldPos); //Opteris
                         Ship.CreateShipAtPoint("Thicket Attack Fighter", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Ralyeh Railship", player, mouseWorldPos); //Rayleh
-                        Ship.CreateShipAtPoint("Heavy Drone", player, mouseWorldPos); //Remnant
-                        Ship.CreateShipAtPoint("Grinder", player, mouseWorldPos); //Vulfen
-                        Ship.CreateShipAtPoint("Stalker III Hvy Laser", player, mouseWorldPos); //Vulfen
-                        Ship.CreateShipAtPoint("Listening Post", player, mouseWorldPos); //Platform
+                        Ship.CreateShipAtPoint("Ralyeh Railship"       , player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Heavy Drone"           , player, mouseWorldPos); //Remnant
+                        Ship.CreateShipAtPoint("Grinder"               , player, mouseWorldPos); //Vulfen
+                        Ship.CreateShipAtPoint("Stalker III Hvy Laser" , player, mouseWorldPos); //Vulfen
+                        Ship.CreateShipAtPoint("Listening Post"        , player, mouseWorldPos); //Platform
                         ++DebugInfoScreen.Loadmodels;
                     }
 
                     if (DebugInfoScreen.Loadmodels == 0) //Fighters and freighters
                     {
-                        Ship.CreateShipAtPoint("Laserving", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Owlwok Freighter S", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Owlwok Freighter M", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Owlwok Freighter L", player, mouseWorldPos); //Cordrazine
-                        Ship.CreateShipAtPoint("Laserwisp", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Draylok Transporter", player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Laserving"           , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Owlwok Freighter S"  , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Owlwok Freighter M"  , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Owlwok Freighter L"  , player, mouseWorldPos); //Cordrazine
+                        Ship.CreateShipAtPoint("Laserwisp"           , player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Draylok Transporter" , player, mouseWorldPos); //Draylock
                         Ship.CreateShipAtPoint("Draylok Medium Trans", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Draylok Mobilizer", player, mouseWorldPos); //Draylock
-                        Ship.CreateShipAtPoint("Rocket Scout", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Small Transport", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Medium Transport", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Large Transport", player, mouseWorldPos); //Human
-                        Ship.CreateShipAtPoint("Flak Fang", player, mouseWorldPos); //Kulrathi
-                        Ship.CreateShipAtPoint("Drone Railer", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Creeper Transport", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Crawler Transport", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Trawler Transport", player, mouseWorldPos); //Opteris
-                        Ship.CreateShipAtPoint("Rocket Thorn", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Seeder Transport", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Sower Transport", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Grower Transport", player, mouseWorldPos); //Pollops
-                        Ship.CreateShipAtPoint("Ralyeh Interceptor", player, mouseWorldPos); //Rayleh
-                        Ship.CreateShipAtPoint("Vessel S", player, mouseWorldPos); //Rayleh
-                        Ship.CreateShipAtPoint("Vessel M", player, mouseWorldPos); //Rayleh
-                        Ship.CreateShipAtPoint("Vessel L", player, mouseWorldPos); //Rayleh
-                        Ship.CreateShipAtPoint("Xeno Fighter", player, mouseWorldPos); //Remnant
-                        Ship.CreateShipAtPoint("Type I Vulcan", player, mouseWorldPos); //Vulfen
+                        Ship.CreateShipAtPoint("Draylok Mobilizer"   , player, mouseWorldPos); //Draylock
+                        Ship.CreateShipAtPoint("Rocket Scout"        , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Small Transport"     , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Medium Transport"    , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Large Transport"     , player, mouseWorldPos); //Human
+                        Ship.CreateShipAtPoint("Flak Fang"           , player, mouseWorldPos); //Kulrathi
+                        Ship.CreateShipAtPoint("Drone Railer"        , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Creeper Transport"   , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Crawler Transport"   , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Trawler Transport"   , player, mouseWorldPos); //Opteris
+                        Ship.CreateShipAtPoint("Rocket Thorn"        , player, mouseWorldPos); //Pollops
+                        Ship.CreateShipAtPoint("Seeder Transport"    , player, mouseWorldPos); //Pollops
+                        Ship.CreateShipAtPoint("Sower Transport"     , player, mouseWorldPos); //Pollops
+                        Ship.CreateShipAtPoint("Grower Transport"    , player, mouseWorldPos); //Pollops
+                        Ship.CreateShipAtPoint("Ralyeh Interceptor"  , player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Vessel S"            , player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Vessel M"            , player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Vessel L"            , player, mouseWorldPos); //Rayleh
+                        Ship.CreateShipAtPoint("Xeno Fighter"        , player, mouseWorldPos); //Remnant
+                        Ship.CreateShipAtPoint("Type I Vulcan"       , player, mouseWorldPos); //Vulfen
                         ++DebugInfoScreen.Loadmodels;
                     }
                 }
@@ -234,40 +230,41 @@ namespace Ship_Game {
         {
             if (input.Tab)
                 ShowShipNames = !ShowShipNames;
-            if ((input.Escaped || input.RightMouseClick || workersPanel is ColonyScreen
-                 && (workersPanel as ColonyScreen).close.HandleInput(input)) &&
-                (!(workersPanel is ColonyScreen) || !(workersPanel as ColonyScreen).ClickedTroop))
+
+            var colonyScreen = workersPanel as ColonyScreen;
+            if (colonyScreen?.ClickedTroop == true ||
+                (!input.Escaped && !input.RightMouseClick && colonyScreen?.close.HandleInput(input) != true))
+                return;
+
+            if (colonyScreen != null && colonyScreen.p.Owner == null)
             {
-                if (workersPanel is ColonyScreen && (workersPanel as ColonyScreen).p.Owner == null)
+                AdjustCamTimer = 1f;
+                if (returnToShip)
                 {
-                    AdjustCamTimer = 1f;
-                    if (returnToShip)
-                    {
-                        ViewingShip = true;
-                        returnToShip = false;
-                        snappingToShip = true;
-                        transitionDestination.Z = transitionStartPosition.Z;
-                    }
-                    else
-                        transitionDestination = transitionStartPosition;
-                    transitionElapsedTime = 0.0f;
-                    LookingAtPlanet = false;
+                    ViewingShip = true;
+                    returnToShip = false;
+                    snappingToShip = true;
+                    transitionDestination.Z = transitionStartPosition.Z;
                 }
                 else
+                    transitionDestination = transitionStartPosition;
+                transitionElapsedTime = 0.0f;
+                LookingAtPlanet = false;
+            }
+            else
+            {
+                AdjustCamTimer = 1f;
+                if (returnToShip)
                 {
-                    AdjustCamTimer = 1f;
-                    if (returnToShip)
-                    {
-                        ViewingShip = true;
-                        returnToShip = false;
-                        snappingToShip = true;
-                        transitionDestination.Z = transitionStartPosition.Z;
-                    }
-                    else
-                        transitionDestination = transitionStartPosition;
-                    transitionElapsedTime = 0.0f;
-                    LookingAtPlanet = false;
+                    ViewingShip = true;
+                    returnToShip = false;
+                    snappingToShip = true;
+                    transitionDestination.Z = transitionStartPosition.Z;
                 }
+                else
+                    transitionDestination = transitionStartPosition;
+                transitionElapsedTime = 0.0f;
+                LookingAtPlanet = false;
             }
         }
 

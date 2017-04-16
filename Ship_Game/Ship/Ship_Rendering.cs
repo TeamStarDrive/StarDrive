@@ -7,22 +7,22 @@ namespace Ship_Game.Gameplay
     public sealed partial class Ship
     {
     #if DEBUG
-        private class TimedDebugPoint
+        private class TimedDebugLine
         {
             public float Time;
             public Vector2 Start;
             public Vector2 End;
         }
-        private readonly Array<TimedDebugPoint> SparseGridDebug = new Array<TimedDebugPoint>();
+        private readonly Array<TimedDebugLine> SparseGridDebug = new Array<TimedDebugLine>();
         private void AddGridLocalDebugLine(float time, Vector2 localStart, Vector2 localEnd)
         {
-            SparseGridDebug.Add(new TimedDebugPoint {
+            SparseGridDebug.Add(new TimedDebugLine {
                 Time = time, Start = localStart, End = localEnd
             });
         }
         private void AddGridLocalDebugCircle(float time, Vector2 localPoint)
         {
-            SparseGridDebug.Add(new TimedDebugPoint {
+            SparseGridDebug.Add(new TimedDebugLine {
                 Time = time, Start = localPoint, End = localPoint
             });
         }
@@ -32,7 +32,6 @@ namespace Ship_Game.Gameplay
             public float Time;
             public int X, Y;
         }
-
         private readonly Array<TimedModuleDebug> HitModuleDebug = new Array<TimedModuleDebug>();
         private void AddGridLocalHitIndicator(float time, int x, int y)
         {
@@ -40,11 +39,35 @@ namespace Ship_Game.Gameplay
                 Time = time, X = x, Y = y
             });
         }
+
+        //private readonly Array<TimedModuleDebug> GridRayTraceDebug = new Array<TimedModuleDebug>();
+        //private void AddGridRayTraceDebug(float time, int x, int y)
+        //{
+        //    GridRayTraceDebug.Add(new TimedModuleDebug {
+        //        Time = time, X = x, Y = y
+        //    });
+        //}
+
+        //private class TimedDebugPoint
+        //{
+        //    public float Time;
+        //    public Point GridPoint;  // grid local point
+        //    public Vector2 LocalPos; // shiplocal position
+        //}
+        //private readonly Array<TimedDebugPoint> GridLocalDebugPoints = new Array<TimedDebugPoint>();
+        //public void ShowGridLocalDebugPoint(Vector2 worldPos)
+        //{
+        //    Point gridPoint = WorldToGridLocalPoint(worldPos);
+        //    Vector2 localPos = WorldToGridLocal(worldPos);
+        //    GridLocalDebugPoints.Add(new TimedDebugPoint {
+        //        Time = 5f, GridPoint = gridPoint, LocalPos = localPos
+        //    });
+        //}
     #endif
 
         private void DrawSparseModuleGrid(UniverseScreen us)
         {
-            if (SparseModuleGrid.Length != 0) // ship probably died
+            if (false && SparseModuleGrid.Length != 0)
             {
                 for (int y = 0; y < GridHeight; ++y)
                 {
@@ -54,23 +77,14 @@ namespace Ship_Game.Gameplay
                         if    (ExternalModuleGrid[x + y * GridWidth] != null) color = Color.Blue;
                         else if (SparseModuleGrid[x + y * GridWidth] != null) color = Color.Yellow;
 
-                        Vector2 worldPos = GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
-                        us.DrawRectangleProjected(worldPos, new Vector2(16f, 16f), Rotation, color);
+                        us.DrawRectangleProjected(GridSquareToWorld(x, y), new Vector2(16f, 16f), Rotation, color);
                     }
-                }
-
-                for (int i = 0; i < HitModuleDebug.Count; ++i)
-                {
-                    TimedModuleDebug tmd = HitModuleDebug[i];
-                    Vector2 worldPos = GridLocalToWorld(new Vector2(tmd.X * 16f + 8f, tmd.Y * 16f + 8f));
-                    us.DrawCircleProjected(worldPos, 10.0f, 20, Color.Cyan, 4f);
-                    if ((tmd.Time -= 1f / 60f) <= 0f) HitModuleDebug.RemoveAtSwapLast(i--);
                 }
             }
         #if DEBUG
             for (int i = 0; i < SparseGridDebug.Count; ++i)
             {
-                TimedDebugPoint tdp = SparseGridDebug[i];
+                TimedDebugLine tdp = SparseGridDebug[i];
                 Vector2 endPos = GridLocalToWorld(tdp.End);
                 if (tdp.End != tdp.Start) {
                     Vector2 startPos = GridLocalToWorld(tdp.Start);
@@ -82,7 +96,31 @@ namespace Ship_Game.Gameplay
                 if ((tdp.Time -= 1f/60f) <= 0f) SparseGridDebug.RemoveAtSwapLast(i--);
             }
 
+            for (int i = 0; i < HitModuleDebug.Count; ++i)
+            {
+                TimedModuleDebug tmd = HitModuleDebug[i];
+                us.DrawCircleProjected(GridSquareToWorld(tmd.X, tmd.Y), 10.0f, 20, Color.Cyan, 4f);
+                if ((tmd.Time -= 1f / 60f) <= 0f) HitModuleDebug.RemoveAtSwapLast(i--);
+            }
 
+            //for (int i = 0; i < GridRayTraceDebug.Count; ++i)
+            //{
+            //    TimedModuleDebug tmd = GridRayTraceDebug[i];
+            //    us.DrawRectangleProjected(GridSquareToWorld(tmd.X, tmd.Y), new Vector2(16f, 16f), Rotation, Color.Gold);
+            //    if ((tmd.Time -= 1f / 60f) <= 0f) GridRayTraceDebug.RemoveAtSwapLast(i--);
+            //}
+
+            //for (int i = 0; i < GridLocalDebugPoints.Count; ++i)
+            //{
+            //    TimedDebugPoint tdp = GridLocalDebugPoints[i];
+
+            //    Vector2 worldPos = GridSquareToWorld(tdp.GridPoint);
+            //    us.DrawRectangleProjected(worldPos, new Vector2(16f, 16f), Rotation, Color.Maroon);
+            //    us.DrawCircleProjected(GridLocalToWorld(tdp.LocalPos), 4.0f, 24, Color.DarkRed, 4f);
+            //    us.DrawStringProjected(worldPos, Rotation, 350f / us.camHeight, Color.Magenta, $"X {tdp.GridPoint.X}, Y {tdp.GridPoint.Y}");
+
+            //    if ((tdp.Time -= 1f / 60f) <= 0f) GridLocalDebugPoints.RemoveAtSwapLast(i--);
+            //}
         #endif
         }
 
@@ -130,10 +168,10 @@ namespace Ship_Game.Gameplay
                     Texture2D moduleTex = ResourceManager.Texture(slot.IconTexturePath);
                     us.DrawTextureSized(moduleTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColorWhite());
 
-                    if (enableModuleDebug)
-                    {
-                        us.DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
-                    }
+                    //if (enableModuleDebug)
+                    //{
+                    //    us.DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
+                    //}
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
                     {
                         if (slot.Powered)
@@ -154,7 +192,8 @@ namespace Ship_Game.Gameplay
                     }
                     if (enableModuleDebug)
                     {
-                        us.DrawString(posOnScreen, shipRotation, 350f / us.camHeight, Color.Red, $"{slot.LocalCenter}");
+                        ModulePosToGridPoint(slot.Position, out int x, out int y);
+                        us.DrawString(posOnScreen, shipRotation, 350f / us.camHeight, Color.Magenta, $"X {x}, Y {y}");
                     }
                 }
 

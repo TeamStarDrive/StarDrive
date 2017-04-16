@@ -6,7 +6,8 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
-namespace Ship_Game {
+namespace Ship_Game
+{
     public sealed partial class UniverseScreen
     {
         private void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)
@@ -43,7 +44,7 @@ namespace Ship_Game {
             renderState.DestinationBlend = Blend.InverseSourceAlpha;
             renderState.DepthBufferWriteEnable = false;
             renderState.CullMode = CullMode.CullClockwiseFace;
-            ModelMesh modelMesh = ((ReadOnlyCollection<ModelMesh>) model.Meshes)[0];
+            ModelMesh modelMesh = model.Meshes[0];
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
@@ -70,9 +71,7 @@ namespace Ship_Game {
 
         private void DrawAtmo1(Matrix world, Matrix view, Matrix projection)
         {
-            world = Matrix.CreateScale(3.83f) * world;
-            Matrix matrix = world * view * projection;
-            this.AtmoEffect.Parameters["World"].SetValue(world);
+            this.AtmoEffect.Parameters["World"].SetValue(Matrix.CreateScale(3.83f) * world);
             this.AtmoEffect.Parameters["Projection"].SetValue(projection);
             this.AtmoEffect.Parameters["View"].SetValue(view);
             this.AtmoEffect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
@@ -122,17 +121,6 @@ namespace Ship_Game {
             }
             modelMesh.Draw();
             renderState.DepthBufferWriteEnable = true;
-        }
-
-        private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect)
-        {
-            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
-            effect.Begin();
-            effect.CurrentTechnique.Passes[0].Begin();
-            this.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
-            this.ScreenManager.SpriteBatch.End();
-            effect.CurrentTechnique.Passes[0].End();
-            effect.End();
         }
 
         private void DrawToolTip()
@@ -854,185 +842,6 @@ namespace Ship_Game {
             }
         }
 
-        private void DrawSelectedShipGroup(Array<Circle> CircleList, Color color, float Thickness)
-        {
-            for (int i = 0; i < CircleList.Count; ++i)
-            {
-                Circle c = CircleList[i];
-                var rect = new Rectangle((int) c.Center.X - (int) c.Radius, (int) c.Center.Y - (int) c.Radius,
-                    (int) c.Radius * 2, (int) c.Radius * 2);
-                if (i < CircleList.Count - 1)
-                    Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, rect,
-                        new Color(color.R, color.G, color.B, 100), 3);
-                else
-                    Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, rect, color, 3);
-            }
-        }
-
-        private void DrawPlanetInfoForUI()
-        {
-            this.stuffSelector = new Selector(this.ScreenManager, this.SelectedStuffRect,
-                new Color((byte) 0, (byte) 0, (byte) 0, (byte) 80));
-            Planet planet = this.SelectedPlanet;
-            if (planet.Owner != null)
-                planet.UpdateIncomes(false);
-            this.stuffSelector.Draw();
-            if (this.SelectedPlanet.ExploredDict[this.player])
-            {
-                Rectangle destinationRectangle1 = new Rectangle(this.SelectedStuffRect.X + 30,
-                    this.SelectedStuffRect.Y + 60, this.SelectedStuffRect.Height - 80,
-                    this.SelectedStuffRect.Height - 80);
-                this.ScreenManager.SpriteBatch.Draw(
-                    ResourceManager.TextureDict["Planets/" + (object) planet.planetType], destinationRectangle1,
-                    Color.White);
-                Vector2 position1 = new Vector2((float) (this.stuffSelector.Menu.X + 40),
-                    (float) (this.stuffSelector.Menu.Y + 20));
-                if (planet.Owner != null)
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                        this.SelectedPlanet.Name + " - " + planet.Owner.data.Traits.Name, position1,
-                        new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                else
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.SelectedPlanet.Name, position1,
-                        new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                position1.X += 135f;
-                position1.Y += (float) (Fonts.Arial20Bold.LineSpacing + 5);
-                string format = "0.#";
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(384) + ":", position1,
-                    Color.Orange);
-                Vector2 position2 = new Vector2(position1.X + 80f, position1.Y);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, planet.GetTypeTranslation(), position2,
-                    new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                position1.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                position2 = new Vector2(position1.X + 80f, position1.Y);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(385) + ":", position1,
-                    Color.Orange);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    (planet.Population / 1000f).ToString(format) + " / " +
-                    ((float) (((double) planet.MaxPopulation + (double) planet.MaxPopBonus) / 1000.0)).ToString(format),
-                    position2, new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                position1.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                position2 = new Vector2(position1.X + 80f, position1.Y);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(386) + ":", position1,
-                    Color.Orange);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, planet.Fertility.ToString(format),
-                    position2, new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                position1.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                position2 = new Vector2(position1.X + 80f, position1.Y);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(387) + ":", position1,
-                    Color.Orange);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, planet.MineralRichness.ToString(format),
-                    position2, new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                position1.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                position1.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                Vector2 position3 = position1;
-                if (planet.Owner == null)
-                    return;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                    (planet.NetFoodPerTurn - planet.consumption).ToString(UniverseScreen.fmt2), position3,
-                    (double) planet.NetFoodPerTurn - (double) planet.consumption > 0.0
-                        ? new Color(byte.MaxValue, (byte) 239, (byte) 208)
-                        : Color.LightPink);
-                position3.X += Fonts.Arial20Bold
-                                   .MeasureString(
-                                       (planet.NetFoodPerTurn - planet.consumption).ToString(UniverseScreen.fmt2))
-                                   .X + 4f;
-                Rectangle destinationRectangle2 = new Rectangle((int) position3.X, (int) position3.Y,
-                    ResourceManager.TextureDict["NewUI/icon_food"].Width,
-                    ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"],
-                    destinationRectangle2, Color.White);
-                position3.X += (float) ResourceManager.TextureDict["NewUI/icon_food"].Width;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, " / ", position3, Color.Gray);
-                position3.X += Fonts.Arial20Bold.MeasureString(" / ").X;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                    planet.Owner.data.Traits.Cybernetic > 0
-                        ? (planet.NetProductionPerTurn - planet.consumption).ToString(UniverseScreen.fmt2)
-                        : planet.NetProductionPerTurn.ToString(UniverseScreen.fmt2), position3,
-                    planet.Owner.data.Traits.Cybernetic > 0
-                        ? ((double) planet.NetProductionPerTurn - (double) planet.consumption > 0.0
-                            ? new Color(byte.MaxValue, (byte) 239, (byte) 208)
-                            : Color.LightPink)
-                        : new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                position3.X += Fonts.Arial20Bold.MeasureString(planet.Owner.data.Traits.Cybernetic > 0
-                                       ? (planet.NetProductionPerTurn - planet.consumption)
-                                       .ToString(UniverseScreen.fmt2)
-                                       : planet.NetProductionPerTurn.ToString(UniverseScreen.fmt2))
-                                   .X + 4f;
-                Rectangle destinationRectangle3 = new Rectangle((int) position3.X, (int) position3.Y,
-                    ResourceManager.TextureDict["NewUI/icon_food"].Width,
-                    ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"],
-                    destinationRectangle3, Color.White);
-                position3.X += (float) ResourceManager.TextureDict["NewUI/icon_food"].Width;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, " / ", position3, Color.Gray);
-                position3.X += Fonts.Arial20Bold.MeasureString(" / ").X;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                    planet.NetResearchPerTurn.ToString(UniverseScreen.fmt2), position3,
-                    new Color(byte.MaxValue, (byte) 239, (byte) 208));
-                position3.X += Fonts.Arial20Bold.MeasureString(planet.NetResearchPerTurn.ToString(UniverseScreen.fmt2))
-                                   .X + 4f;
-                Rectangle destinationRectangle4 = new Rectangle((int) position3.X, (int) position3.Y,
-                    ResourceManager.TextureDict["NewUI/icon_food"].Width,
-                    ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"],
-                    destinationRectangle4, Color.White);
-                position1.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                position1.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                Vector2 vector2 = position1;
-                if (planet.ConstructionQueue.Count <= 0)
-                    return;
-                QueueItem queueItem = planet.ConstructionQueue[0];
-                if (queueItem.isBuilding)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(
-                        ResourceManager.TextureDict["Buildings/icon_" + queueItem.Building.Icon + "_48x48"],
-                        new Rectangle((int) vector2.X, (int) vector2.Y, 29, 30), Color.White);
-                    Vector2 position4 = new Vector2(vector2.X + 40f, vector2.Y);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, queueItem.Building.Name, position4,
-                        Color.White);
-                    position4.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                    new ProgressBar(new Rectangle((int) position4.X, (int) position4.Y, 150, 18))
-                    {
-                        Max = queueItem.Cost,
-                        Progress = queueItem.productionTowards
-                    }.Draw(this.ScreenManager.SpriteBatch);
-                }
-                if (queueItem.isShip)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Icons/icon_structure_placeholder"],
-                        new Rectangle((int) vector2.X, (int) vector2.Y, 29, 30), Color.White);
-                    Vector2 position4 = new Vector2(vector2.X + 40f, vector2.Y);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, queueItem.sData.Name, position4,
-                        Color.White);
-                    position4.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                    new ProgressBar(new Rectangle((int) position4.X, (int) position4.Y, 150, 18))
-                    {
-                        Max = queueItem.Cost,
-                        Progress = queueItem.productionTowards
-                    }.Draw(this.ScreenManager.SpriteBatch);
-                }
-                if (queueItem.isTroop)
-                {
-                    Troop template = ResourceManager.GetTroopTemplate(queueItem.troopType);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Troops/" + template.TexturePath],
-                        new Rectangle((int) vector2.X, (int) vector2.Y, 29, 30), Color.White);
-                    Vector2 position5 = new Vector2(vector2.X + 40f, vector2.Y);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, queueItem.troopType, position5,
-                        Color.White);
-                    position5.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                    new ProgressBar(new Rectangle((int) position5.X, (int) position5.Y, 150, 18))
-                    {
-                        Max = queueItem.Cost,
-                        Progress = queueItem.productionTowards
-                    }.Draw(this.ScreenManager.SpriteBatch);
-                }
-            }
-            else
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(1408),
-                    new Vector2((float) (this.stuffSelector.Menu.X + 40), (float) (this.stuffSelector.Menu.Y + 20)),
-                    new Color(byte.MaxValue, (byte) 239, (byte) 208));
-        }
-
         private void DrawItemInfoForUI()
         {
             var goal = SelectedItem?.AssociatedGoal;
@@ -1499,48 +1308,8 @@ namespace Ship_Game {
             ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
         }
 
-        private void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix viewMat, Matrix projMat,
-            Texture2D projTex, float scale)
-            => DrawModelMesh(model, world, viewMat, new Vector3(1f, 1f, 1f), projMat, projTex);
-
-        private void DrawTransparentModelAdditive(Model model, Matrix world, Matrix view, Matrix projection,
-            Texture2D projTex, float scale)
-            => DrawModelMesh(model, world, view, new Vector3(1f, 1f, 1f), projection, projTex, camHeight / 3500000);
-
         public void DrawSunModel(Matrix world, Texture2D texture, float scale)
             => DrawTransparentModel(SunModel, world, view, projection, texture, scale);
 
-        private void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
-        {
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.InverseSourceAlpha;
-            renderState.CullMode = CullMode.None;
-            renderState.DepthBufferWriteEnable = false;
-            DrawModelMesh(model, Matrix.CreateScale(50f) * world, viewMat, new Vector3(1f, 1f, 1f), projMat, projTex);
-            renderState.DepthBufferWriteEnable = true;
-        }
-
-        private void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex,
-            float scale, Vector3 Color)
-        {
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.InverseSourceAlpha;
-            renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
-            DrawModelMesh(model, Matrix.CreateScale(50f) * Matrix.CreateScale(scale) * world, view, Color, projection,
-                projTex);
-
-            renderState.DepthBufferWriteEnable = true;
-        }
     }
 }

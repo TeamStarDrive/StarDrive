@@ -4,7 +4,6 @@ using Particle3DSample;
 using System;
 using Ship_Game.AI;
 using Ship_Game.Debug;
-using System.Diagnostics;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
@@ -413,13 +412,6 @@ namespace Ship_Game.Gameplay
             Vector2 endPos   = Position + dir * offset;
             float rayWidth   = diameter * 1.125f; // approx 18.0x instead of 16.0x
             return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
-        }
-
-        public bool HitTestNotNeeded(Vector2 point, float radius)
-        {
-            if (!HitTestNoShields(point, radius))
-                return false; // debug breakpoint, if this ever hits, we should indeed do a hit test, if not, then we dont need it for ship grid stuff
-            return true;
         }
 
         public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
