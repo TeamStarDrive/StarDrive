@@ -352,7 +352,7 @@ namespace Ship_Game
 			}
 			if (this.gridbutton.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfx("sd_ui_accept_alt3");
 				this.ShowModules = !this.ShowModules;
 				if (!this.ShowModules)
 				{
@@ -381,7 +381,7 @@ namespace Ship_Game
 						}
 						if (input.InGameSelect)
 						{
-							AudioManager.PlayCue("sd_ui_accept_alt3");
+							GameAudio.PlaySfx("sd_ui_accept_alt3");
 							string action = button.Action;
 							string str = action;
 							if (action != null)
@@ -625,7 +625,7 @@ namespace Ship_Game
 						{
 							if (this.HoveredShipLast != (Ship)button.ReferenceObject)
 							{
-								AudioManager.PlayCue("sd_ui_mouseover");
+								GameAudio.PlaySfx("sd_ui_mouseover");
 							}
 							button.Hover = true;
 							this.HoveredShip = (Ship)button.ReferenceObject;

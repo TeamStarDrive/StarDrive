@@ -874,13 +874,11 @@ namespace Ship_Game.AI {
                 module.GetParent().Ordinance -= TransferAmount;
                 module.GetParent().PowerCurrent -= module.TransporterPower *
                                                    (TransferAmount / module.TransporterOrdnance);
-                if (Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
+
+                if (Owner.InFrustum)
                 {
-                    GameplayObject.audioListener.Position = Empire.Universe.camPos;
-                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"],
-                        GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
+                    GameAudio.PlaySfx("transporter", module.GetParent().SoundEmitter);
                 }
-                return;
             }
         }
 
@@ -914,13 +912,8 @@ namespace Ship_Game.AI {
                 if (Transported) //@todo audio should not be here
                 {
                     module.TransporterTimer = module.TransporterTimerConstant;
-                    if (Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
-                    {
-                        GameplayObject.audioListener.Position = Empire.Universe.camPos;
-                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"],
-                            GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
-                    }
-                    return;
+                    if (Owner.InFrustum)
+                        GameAudio.PlaySfx("transporter");
                 }
             }
         }

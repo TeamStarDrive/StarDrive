@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using NAudio.Wave;
@@ -55,11 +54,6 @@ namespace Ship_Game
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
         }
 
-        private static Color Alpha(float alpha)
-        {
-            return new Color(255, 255, 255, (byte)alpha);
-        }
-
         public override void Draw(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -95,9 +89,9 @@ namespace Ship_Game
                 ScreenManager.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
                 Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
                 Vector3 mp = viewport.Project(this.MoonObj.WorldBoundingSphere.Center, this.Projection, this.View, Matrix.Identity);
-                Vector2 MoonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
-                Vector2 origin = new Vector2(184f, 184f);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_flare"], MoonFlarePos, null, Color.White, 0f, origin, 0.95f, SpriteEffects.None, 1f);
+                var moonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
+                var origin = new Vector2(184f, 184f);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_flare"], moonFlarePos, null, Color.White, 0f, origin, 0.95f, SpriteEffects.None, 1f);
                 ScreenManager.SpriteBatch.End();
                 ScreenManager.SpriteBatch.Begin();
                 if (AnimationFrame >= 41 && AnimationFrame < 52)
@@ -108,93 +102,93 @@ namespace Ship_Game
                     {
                         alpha = 220f;
                     }
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 220, (int)MoonFlarePos.Y - 130, 201, 78);
+                    Rectangle moon1 = new Rectangle((int)moonFlarePos.X - 220, (int)moonFlarePos.Y - 130, 201, 78);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)alpha));
                 }
                 if (this.AnimationFrame >= 52 && this.AnimationFrame <= 67)
                 {
                     float Alpha = 220f;
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 220, (int)MoonFlarePos.Y - 130, 201, 78);
+                    Rectangle moon1 = new Rectangle((int)moonFlarePos.X - 220, (int)moonFlarePos.Y - 130, 201, 78);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
                 }
                 if (this.AnimationFrame > 67 && this.AnimationFrame <= 95)
                 {
-                    float alphaStep = (float)(255 / 28);
-                    float Alpha = 255f - (float)(this.AnimationFrame - 67) * alphaStep;
-                    if (Alpha < 0f)
+                    float alphaStep = (255f / 28);
+                    float alpha = 255f - (AnimationFrame - 67) * alphaStep;
+                    if (alpha < 0f)
                     {
-                        Alpha = 0f;
+                        alpha = 0f;
                     }
-                    if (Alpha > 220f)
+                    if (alpha > 220f)
                     {
-                        Alpha = 220f;
+                        alpha = 220f;
                     }
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 220, (int)MoonFlarePos.Y - 130, 201, 78);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
+                    var moon1 = new Rectangle((int)moonFlarePos.X - 220, (int)moonFlarePos.Y - 130, 201, 78);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)alpha));
                 }
-                if (this.AnimationFrame >= 161 && this.AnimationFrame < 172)
+                if (AnimationFrame >= 161 && AnimationFrame < 172)
                 {
-                    float alphaStep = (float)(255 / 12);
-                    float Alpha = (float)(this.AnimationFrame - 161) * alphaStep;
-                    if (Alpha > 220f)
+                    float alphaStep = (255f / 12);
+                    float alpha = (AnimationFrame - 161) * alphaStep;
+                    if (alpha > 220f)
                     {
-                        Alpha = 220f;
+                        alpha = 220f;
                     }
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 250, (int)MoonFlarePos.Y + 60, 254, 82);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
+                    var moon1 = new Rectangle((int)moonFlarePos.X - 250, (int)moonFlarePos.Y + 60, 254, 82);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)alpha));
                 }
-                if (this.AnimationFrame >= 172 && this.AnimationFrame <= 187)
+                if (AnimationFrame >= 172 && AnimationFrame <= 187)
                 {
-                    float Alpha = 220f;
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 250, (int)MoonFlarePos.Y + 60, 254, 82);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
+                    const float alpha = 220f;
+                    var moon1 = new Rectangle((int)moonFlarePos.X - 250, (int)moonFlarePos.Y + 60, 254, 82);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)alpha));
                 }
                 if (this.AnimationFrame > 187 && this.AnimationFrame <= 215)
                 {
-                    float alphaStep = (float)(255 / 28);
-                    float Alpha = 255f - (float)(this.AnimationFrame - 187) * alphaStep;
-                    if (Alpha < 0f)
+                    float alphaStep = (255f / 28);
+                    float alpha = 255f - (AnimationFrame - 187) * alphaStep;
+                    if (alpha < 0f)
                     {
-                        Alpha = 0f;
+                        alpha = 0f;
                     }
-                    if (Alpha > 220f)
+                    if (alpha > 220f)
                     {
-                        Alpha = 220f;
+                        alpha = 220f;
                     }
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 250, (int)MoonFlarePos.Y + 60, 254, 82);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
+                    Rectangle moon1 = new Rectangle((int)moonFlarePos.X - 250, (int)moonFlarePos.Y + 60, 254, 82);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)alpha));
                 }
                 if (this.AnimationFrame >= 232 && this.AnimationFrame < 243)
                 {
-                    float alphaStep = (float)(255 / 12);
-                    float Alpha = (float)(this.AnimationFrame - 232) * alphaStep;
-                    if (Alpha > 220f)
+                    float alphaStep = (255f / 12);
+                    float alpha = (AnimationFrame - 232) * alphaStep;
+                    if (alpha > 220f)
                     {
-                        Alpha = 220f;
+                        alpha = 220f;
                     }
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X + 60, (int)MoonFlarePos.Y + 80, 156, 93);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
+                    var moon1 = new Rectangle((int)moonFlarePos.X + 60, (int)moonFlarePos.Y + 80, 156, 93);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)alpha));
                 }
                 if (this.AnimationFrame >= 243 && this.AnimationFrame <= 258)
                 {
-                    float Alpha = 220f;
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X + 60, (int)MoonFlarePos.Y + 80, 156, 93);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
+                    const float alpha = 220f;
+                    var moon1 = new Rectangle((int)moonFlarePos.X + 60, (int)moonFlarePos.Y + 80, 156, 93);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)alpha));
                 }
                 if (this.AnimationFrame > 258 && this.AnimationFrame <= 286)
                 {
-                    float alphaStep = (float)(255 / 28);
-                    float Alpha = 255f - (float)(this.AnimationFrame - 258) * alphaStep;
-                    if (Alpha < 0f)
+                    float alphaStep = (255f / 28);
+                    float alpha = 255f - (AnimationFrame - 258) * alphaStep;
+                    if (alpha < 0f)
                     {
-                        Alpha = 0f;
+                        alpha = 0f;
                     }
-                    if (Alpha > 220f)
+                    if (alpha > 220f)
                     {
-                        Alpha = 220f;
+                        alpha = 220f;
                     }
-                    Rectangle moon1 = new Rectangle((int)MoonFlarePos.X + 60, (int)MoonFlarePos.Y + 80, 156, 93);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
+                    var moon1 = new Rectangle((int)moonFlarePos.X + 60, (int)moonFlarePos.Y + 80, 156, 93);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)alpha));
                 }
                 ScreenManager.SpriteBatch.End();
                 ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
@@ -225,7 +219,7 @@ namespace Ship_Game
                 foreach (UIButton b in this.Buttons)
                 {
                     Rectangle r = b.Rect;
-                    float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * (float)k / (float)numEntries) / 0.5f, 0f, 1f);
+                    float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * k / numEntries) / 0.5f, 0f, 1f);
                     k--;
                     if (ScreenState != ScreenState.TransitionOn)
                     {
@@ -234,9 +228,9 @@ namespace Ship_Game
                     else
                     {
                         r.X = r.X + (int)(transitionOffset * 512f);
-                        if (transitionOffset == 0f)
+                        if (transitionOffset.AlmostEqual(0f))
                         {
-                            AudioManager.PlayCue("blip_click");
+                            GameAudio.PlaySfx("blip_click");
                         }
                     }
                     b.Draw(ScreenManager.SpriteBatch, r);
@@ -392,9 +386,9 @@ namespace Ship_Game
             if (FlareFrames > 31 && FlareFrames <= 62)
             {
                 float alphaStep = 35f / 31f;
-                float Alpha = 220f + (FlareFrames - 31) * alphaStep;
-                Rectangle SolarFlare = new Rectangle(0, height - 784, 1024, 784);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], SolarFlare, new Color((byte)Alpha, (byte)Alpha, (byte)Alpha, 255));
+                float alpha = 220f + (FlareFrames - 31) * alphaStep;
+                var solarFlare = new Rectangle(0, height - 784, 1024, 784);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
             }
             if (Flip)
             {
@@ -440,20 +434,17 @@ namespace Ship_Game
             if (input.InGameSelect)
             {
                 Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
-                Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), this.Projection, this.View, Matrix.Identity);
-                Viewport viewport1 = ScreenManager.GraphicsDevice.Viewport;
-                Vector3 farPoint = viewport1.Unproject(new Vector3(input.CursorPosition, 1f), this.Projection, this.View, Matrix.Identity);
+                Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, Matrix.Identity);
+                Vector3 farPoint  = viewport.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, Matrix.Identity);
                 Vector3 direction = farPoint - nearPoint;
                 direction.Normalize();
-                Ray pickRay = new Ray(nearPoint, direction);
+
+                var pickRay = new Ray(nearPoint, direction);
                 float k = -pickRay.Position.Z / pickRay.Direction.Z;
-                Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-                if (Vector3.Distance(pickedPosition, this.MoonObj.WorldBoundingSphere.Center) < this.MoonObj.WorldBoundingSphere.Radius)
+                var pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
+                if (pickedPosition.InRadius(MoonObj.WorldBoundingSphere.Center, MoonObj.WorldBoundingSphere.Radius))
                 {
-                    AudioManager.PlayCue("sd_bomb_impact_01");
-                    Vector3 VectorToCenter = pickedPosition - this.MoonObj.WorldBoundingSphere.Center;
-                    VectorToCenter = Vector3.Normalize(VectorToCenter);
-                    VectorToCenter = this.MoonObj.WorldBoundingSphere.Center + (VectorToCenter * this.MoonObj.WorldBoundingSphere.Radius);
+                    GameAudio.PlaySfx("sd_bomb_impact_01");
                 }
             }
             CurrentMouse = input.CurrentMouseState;
@@ -468,7 +459,7 @@ namespace Ship_Game
                 {
                     okcomet = false;
                     if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-                        AudioManager.PlayCue("mouse_over4");
+                        GameAudio.PlaySfx("mouse_over4");
 
                     b.State = UIButton.PressState.Hover;
                     if (CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed)
@@ -481,15 +472,15 @@ namespace Ship_Game
                     switch (b.Launches)
                     {
                         case "New Campaign":
-                            AudioManager.PlayCue("sd_ui_tactical_pause");
+                            GameAudio.PlaySfx("sd_ui_tactical_pause");
                             OnPlayGame();
                             break;
                         case "Tutorials":
-                            AudioManager.PlayCue("sd_ui_tactical_pause");
+                            GameAudio.PlaySfx("sd_ui_tactical_pause");
                             ScreenManager.AddScreen(new TutorialScreen(this));
                             break;
                         case "Load Game":
-                            AudioManager.PlayCue("sd_ui_tactical_pause");
+                            GameAudio.PlaySfx("sd_ui_tactical_pause");
                             ScreenManager.AddScreen(new LoadSaveScreen(this));
                             break;
                         case "Options":
@@ -532,16 +523,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             base.LoadContent();
-
-            ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
-            ScreenManager.racialMusic.SetVolume(GlobalStats.MusicVolume);
-            ScreenManager.combatMusic.SetVolume(GlobalStats.MusicVolume);
-            ScreenManager.weaponsCategory.SetVolume(GlobalStats.EffectsVolume);
-            ScreenManager.defaultCategory.SetVolume(GlobalStats.EffectsVolume *.5f);
-
-            if (GlobalStats.EffectsVolume > 0 || GlobalStats.MusicVolume > 0)
-                ScreenManager.GlobalCategory.SetVolume(1);
-            else ScreenManager.GlobalCategory.SetVolume(0);
+            GameAudio.ConfigureAudioSettings();
 
             var para = ScreenManager.GraphicsDevice.PresentationParameters;
             var size = new Vector2(para.BackBufferWidth, para.BackBufferHeight);
@@ -550,7 +532,7 @@ namespace Ship_Game
             for (int i = 0; i < 81; i++)
             {
                 string remainder = i.ToString("00000.##");
-                Texture2D logo = TransientContent.Load<Texture2D>(
+                var logo = TransientContent.Load<Texture2D>(
                     "MainMenu/Stardrive logo/" + basepath + remainder);
                 LogoAnimation.Add(logo);
             }
@@ -585,16 +567,8 @@ namespace Ship_Game
                 Portrait.X = (int)size.X / 2 - Portrait.Width  / 2;
                 Portrait.Y = (int)size.Y / 2 - Portrait.Height / 2;
             }
-            if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
-            {
-                PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
-            }
-            else if (ScreenManager.Music == null || ScreenManager.Music != null && ScreenManager.Music.IsStopped)
-            {
-                ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
-                ScreenManager.Music = AudioManager.GetCue("SD_Theme_Reprise_06");
-                ScreenManager.Music.Play();
-            }
+
+            ResetMusic();
 
             LogoRect = new Rectangle((int)size.X - 600, 128, 512, 128);
             MoonPosition = new Vector3(size.X / 2 - 300, LogoRect.Y + 70 - size.Y / 2, 0f);
@@ -662,21 +636,17 @@ namespace Ship_Game
 
         public void ResetMusic()
         {
-            if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
+            if (WaveOut != null)
+                OnPlaybackStopped(null, null);
+
+            if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
             {
                 PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
-                ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
-                return;
+                GameAudio.StopGenericMusic();
             }
-            if (WaveOut != null)
+            else if (ScreenManager.Music.NotPlaying)
             {
-                OnPlaybackStopped(null, null);
-            }
-            if (ScreenManager.Music == null || ScreenManager.Music != null && ScreenManager.Music.IsStopped)
-            {
-                ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
-                ScreenManager.Music = AudioManager.GetCue("SD_Theme_Reprise_06");
-                ScreenManager.Music.Play();
+                ScreenManager.Music = GameAudio.PlayMusic("SD_Theme_Reprise_06");
             }
         }
 
@@ -764,24 +734,18 @@ namespace Ship_Game
             }
 
             ScreenManager.inter.Update(gameTime);
-            if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music != null)
+
+            if (!GlobalStats.HasMod || GlobalStats.ActiveMod.MainMenuMusic.IsEmpty())
             {
-                ScreenManager.Music.Stop(AudioStopOptions.Immediate);
-                ScreenManager.Music = null;
-                ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
+                if (ScreenManager.Music.NotPlaying)
+                    ResetMusic();
             }
-            if (GlobalStats.ActiveMod == null || string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
+
+            if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {
-                if (ScreenManager.Music == null || ScreenManager.Music != null && ScreenManager.Music.IsStopped)
-                {
-                    ScreenManager.Music = AudioManager.GetCue("SD_Theme_Reprise_06");
-                    ScreenManager.Music.Play();
-                }
-                else
-                {
-                    ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
-                }
+                ScreenManager.Music.Stop();
             }
+
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

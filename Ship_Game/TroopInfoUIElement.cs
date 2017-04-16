@@ -191,10 +191,10 @@ namespace Ship_Game
 				{
 					if ((this.screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
 					{
-						AudioManager.PlayCue("UI_Misc20");                        
+						GameAudio.PlaySfx("UI_Misc20");                        
 						return true;
 					}
-					AudioManager.PlayCue("sd_troop_takeoff");
+					GameAudio.PlaySfx("sd_troop_takeoff");
                     
                     using (pgs.TroopsHere.AcquireWriteLock())
                         if (pgs.TroopsHere.Count > 0) pgs.TroopsHere[0].Launch();

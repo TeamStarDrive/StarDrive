@@ -211,7 +211,7 @@ namespace Ship_Game
 			currentMouse = input.CurrentMouseState;
             if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 ExitScreen();
                 return;
             }

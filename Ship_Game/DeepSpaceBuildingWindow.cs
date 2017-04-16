@@ -290,7 +290,7 @@ namespace Ship_Game
 					this.selector = new Selector(this.ScreenManager, e.clickRect);
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfx("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
@@ -329,7 +329,7 @@ namespace Ship_Game
 				buildstuff.TetherTarget = this.TargetPlanet;
 			}
 			EmpireManager.Player.GetGSAI().Goals.Add(buildstuff);
-			AudioManager.PlayCue("echo_affirm");
+			GameAudio.PlaySfx("echo_affirm");
 			lock (GlobalStats.ClickableItemLocker)
 			{
 				this.screen.UpdateClickableItems();

@@ -378,7 +378,7 @@ namespace Ship_Game
                 }
             }
             us.MasterShipList.ApplyPendingRemovals();
-            ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
+            GameAudio.StopGenericMusic(immediate: false);
             us.EmpireUI.empire = us.player;
             ScreenManager.AddScreenNoLoad(us);
             ExitScreen();

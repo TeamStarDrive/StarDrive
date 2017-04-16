@@ -105,7 +105,7 @@ namespace Ship_Game
 			if (this.VideoPlayer != null && this.VideoPlayer.State != MediaState.Playing)
 			{
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.ActiveTopic.Title, this.TitlePosition, Color.Orange);
-				base.ScreenManager.musicCategory.Resume();
+				GameAudio.ResumeGenericMusic();
 			}
 			else if (this.VideoPlayer == null)
 			{
@@ -121,7 +121,7 @@ namespace Ship_Game
 				this.VideoPlayer.Stop();
 				this.VideoPlayer = null;
 				this.ActiveVideo = null;
-				base.ScreenManager.musicCategory.Resume();
+			    GameAudio.ResumeGenericMusic();
 			}
 			base.ExitScreen();
 		}
@@ -139,7 +139,7 @@ namespace Ship_Game
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.ExitScreen();
             }
 			this.CategoriesSL.HandleInput(input);
@@ -158,7 +158,7 @@ namespace Ship_Game
 						if (input.InGameSelect)
 						{
 							this.VideoPlayer.Play(this.ActiveVideo);
-							base.ScreenManager.musicCategory.Pause();
+						    GameAudio.PauseGenericMusic();
 						}
 					}
 				}
@@ -168,7 +168,7 @@ namespace Ship_Game
 					if (HelperFunctions.CheckIntersection(this.BigViewer, input.CursorPosition) && input.InGameSelect)
 					{
 						this.VideoPlayer.Pause();
-						base.ScreenManager.musicCategory.Resume();
+					    GameAudio.ResumeGenericMusic();
 					}
 				}
 			}
@@ -187,7 +187,7 @@ namespace Ship_Game
 				{
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfx("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && e.item is HelpTopic)

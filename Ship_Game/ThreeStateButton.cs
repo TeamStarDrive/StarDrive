@@ -64,7 +64,7 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(string.Concat(ResourceManager.GoodsDict[this.Good].Name, " storage. \n\n Click to change Import/Export settings"), screenManager);
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
 					ThreeStateButton threeStateButton = this;
 					threeStateButton.state = (ThreeStateButton.State)((int)threeStateButton.state + (int)ThreeStateButton.State.Out);
 					if (this.state > ThreeStateButton.State.Store)

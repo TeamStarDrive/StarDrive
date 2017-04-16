@@ -156,14 +156,14 @@ namespace Ship_Game
 				{
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfx("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					selector = new Selector(ScreenManager, e.clickRect);
 					if (!input.InGameSelect)
 						continue;
 
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
                     SelectedMod = e.item as ModEntry;
 					EnterNameArea.Text = SelectedMod.ModName;
 

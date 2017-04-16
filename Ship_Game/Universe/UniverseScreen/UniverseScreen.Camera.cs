@@ -349,7 +349,7 @@ namespace Ship_Game {
 
         private void InputZoomToShip()
         {
-            AudioManager.PlayCue("sd_ui_accept_alt3");
+            GameAudio.PlaySfx("sd_ui_accept_alt3");
             AdjustCamTimer = 1f;
             transitionElapsedTime = 0.0f;
             transitionDestination.Z = 4500f;
@@ -359,7 +359,7 @@ namespace Ship_Game {
 
         private void InputZoomOut()
         {
-            AudioManager.PlayCue("sd_ui_accept_alt3");
+            GameAudio.PlaySfx("sd_ui_accept_alt3");
             AdjustCamTimer = 1f;
             transitionElapsedTime = 0.0f;
             transitionDestination.X = camPos.X;

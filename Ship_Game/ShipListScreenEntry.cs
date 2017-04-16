@@ -600,7 +600,7 @@ namespace Ship_Game
             }
             if (this.RefitButton.HandleInput(input))
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
             }
 
@@ -614,7 +614,7 @@ namespace Ship_Game
 				{
 					this.Status_Text = GetStatusText(this.ship);
 				}
-				AudioManager.PlayCue("echo_affirm");
+				GameAudio.PlaySfx("echo_affirm");
 				if (!this.isScuttle)
 				{
 					if (this.ship.AI.State == AIState.Scrap)

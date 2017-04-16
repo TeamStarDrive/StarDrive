@@ -43,7 +43,7 @@ namespace Ship_Game
                 if (popup != null)
                 {
                     screen.ScreenManager.AddScreen(popup);
-                    AudioManager.PlayCue("sd_notify_alert");
+                    GameAudio.PlaySfx("sd_notify_alert");
                 }
             }
         }

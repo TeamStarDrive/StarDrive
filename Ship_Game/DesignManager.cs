@@ -134,13 +134,13 @@ namespace Ship_Game
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfx("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 					{
 						this.EnterNameArea.Text = (e.item as Ship).Name;
-						AudioManager.PlayCue("sd_ui_accept_alt3");
+						GameAudio.PlaySfx("sd_ui_accept_alt3");
 					}
 				}
 			}
@@ -154,7 +154,7 @@ namespace Ship_Game
 				{
 					if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
 					{
-						AudioManager.PlayCue("mouse_over4");
+						GameAudio.PlaySfx("mouse_over4");
 					}
 					b.State = UIButton.PressState.Hover;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
@@ -170,7 +170,7 @@ namespace Ship_Game
 					{
 						continue;
 					}
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfx("sd_ui_accept_alt3");
 					GlobalStats.TakingInput = false;
 					this.EnterNameArea.HandlingInput = false;
 					this.TrySave();
@@ -241,7 +241,7 @@ namespace Ship_Game
 
 		private void OverWriteAccepted(object sender, EventArgs e)
 		{
-			AudioManager.PlayCue("echo_affirm1");
+			GameAudio.PlaySfx("echo_affirm1");
 			if (this.screen != null)
 			{
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);
@@ -302,7 +302,7 @@ namespace Ship_Game
 			}
 			if (Reserved && !Empire.Universe.Debug)
 			{
-				AudioManager.PlayCue("UI_Misc20");
+				GameAudio.PlaySfx("UI_Misc20");
 				MessageBoxScreen messageBox = new MessageBoxScreen(this, EnterNameArea.Text + " is a reserved ship name and you cannot overwrite this design");
 				base.ScreenManager.AddScreen(messageBox);
 				return;
@@ -317,7 +317,7 @@ namespace Ship_Game
 				}
 				return;
 			}
-			AudioManager.PlayCue("echo_affirm1");
+			GameAudio.PlaySfx("echo_affirm1");
 			if (this.screen != null)
 			{
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);

@@ -32,7 +32,6 @@ namespace Ship_Game
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public static bool DisableClicks = false;
         //private static string fmt = "00000.##";
-        private static string fmt2 = "0.#";
         public float GamePace = 1f;
         public float GameScale = 1f;
         public float GameSpeed = 1f;
@@ -131,7 +130,7 @@ namespace Ship_Game
         private Model NebModel;
         public Model xnaPlanetModel;
         public Texture2D RingTexture;
-        public AudioListener listener;
+        public AudioListener Listener;
         public Effect ThrusterEffect;
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
@@ -366,9 +365,6 @@ namespace Ship_Game
             bg3d = new Background3D(this);
             starfield = new Starfield(Vector2.Zero, ScreenManager.GraphicsDevice, TransientContent);
             starfield.LoadContent();
-            GameplayObject.audioListener = listener;
-            Weapon.audioListener         = listener;
-            GameplayObject.audioListener = listener;
 
             CreateProjectionMatrix();
             SetLighting(UseRealLights);
@@ -606,7 +602,7 @@ namespace Ship_Game
             LoadMenu();
 
             anomalyManager = new AnomalyManager();
-            listener       = new AudioListener();
+            Listener       = new AudioListener();
             MuzzleFlashManager.flashModel   = content.Load<Model>("Model/Projectiles/muzzleEnergy");
             MuzzleFlashManager.FlashTexture = content.Load<Texture2D>("Model/Projectiles/Textures/MuzzleFlash_01");
             xnaPlanetModel                  = content.Load<Model>("Model/SpaceObjects/planet");
@@ -677,15 +673,12 @@ namespace Ship_Game
             MusicCheckTimer -= num;
             if (MusicCheckTimer <= 0.0f)
             {
-                if (ScreenManager.Music == null || ScreenManager.Music != null && ScreenManager.Music.IsStopped)
-                {
-                    ScreenManager.Music = AudioManager.GetCue("AmbientMusic");
-                    ScreenManager.Music.Play();
-                }
                 MusicCheckTimer = 2f;
+                if (ScreenManager.Music.NotPlaying)
+                    ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
-            AudioManager.AudioEngine.Update();
-            listener.Position = new Vector3(camPos.X, camPos.Y, 0.0f);
+
+            Listener.Position = new Vector3(camPos.X, camPos.Y, 0.0f);
             lock (GlobalStats.ObjectManagerLocker)
                 ScreenManager.inter.Update(gameTime);
 
@@ -709,23 +702,19 @@ namespace Ship_Game
             pieMenu.ScaleFactor = 1f;
         }
 
-        public void PlayNegativeSound()
-        {
-            AudioManager.GetCue("UI_Misc20").Play();
-        }
+        public void PlayNegativeSound() => GameAudio.PlaySfx("UI_Misc20");
 
         private void ReportManual(string reportType, bool kudos) //@TODO this should be mostly moved to a exception tracker constructor i think. 
         {
             bool switchedmode = false;
-#if RELEASE //only switch screens in release
-                
+            #if RELEASE //only switch screens in release
                 if (Game1.Instance.graphics.IsFullScreen)
                 {
                     switchedmode = true;
                     Game1.Instance.graphics.ToggleFullScreen();
                 }
-#endif
-            Exception ex = new Exception(reportType);
+            #endif
+            var ex = new Exception(reportType);
             ExceptionTracker.TrackException(ex);
             ExceptionTracker.Kudos = kudos;
             bool wasPaused = Paused;
@@ -752,7 +741,7 @@ namespace Ship_Game
             EmpireUI.empire = null;
             EmpireUI = null;
             DeepSpaceManager.Destroy();
-            ScreenManager.Music.Stop(AudioStopOptions.Immediate);
+            ScreenManager.Music.Stop();
             NebulousShit.Clear();
             bloomComponent = null;
             bg3d.BGItems.Clear();

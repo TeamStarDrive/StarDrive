@@ -51,8 +51,6 @@ namespace Ship_Game
 
         private MouseState mouseStatePrevious;
 
-        private Cue click;
-
         public string TestTexture = "Textures/Modules/Armor";
 
         private Array<Ship> StartingShipList = new Array<Ship>();
@@ -392,7 +390,7 @@ namespace Ship_Game
                 {
                     if (!button.Hover)
                     {
-                        AudioManager.PlayCue("sd_ui_mouseover");
+                        GameAudio.PlaySfx("sd_ui_mouseover");
                     }
                     button.Hover = true;
                     if (button.HasToolTip)
@@ -401,7 +399,7 @@ namespace Ship_Game
                     }
                     if (input.InGameSelect)
                     {
-                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        GameAudio.PlaySfx("sd_ui_accept_alt3");
                         this.SetRestrictionFromText(button.Action);
                     }
                 }
@@ -508,8 +506,7 @@ namespace Ship_Game
             if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Released && this.mousePos.X > (float)this.RbBox.X && this.mousePos.Y > (float)this.RbBox.Y && this.mousePos.X < (float)(this.RbBox.X + this.RbBox.Width) && this.mousePos.Y < (float)(this.RbBox.Y + this.RbBox.Height))
             {
                 this.ShowOverlay = !this.ShowOverlay;
-                this.click = AudioManager.GetCue("analogue_click2");
-                this.click.Play();
+                GameAudio.PlaySfx("analogue_click2");
             }
             this.mouseStatePrevious = this.mouseStateCurrent;
         }
@@ -668,7 +665,7 @@ namespace Ship_Game
 
         public void SetActiveModule(ShipModule mod)
         {
-            AudioManager.GetCue("smallservo").Play();
+            GameAudio.PlaySfx("smallservo");
             ActiveModule = mod;
         }
 

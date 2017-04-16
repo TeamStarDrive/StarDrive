@@ -78,7 +78,7 @@ namespace Ship_Game
 			Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
             if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.ExitScreen();
             }
 			if (input.Escaped || input.RightMouseClick)
@@ -120,7 +120,7 @@ namespace Ship_Game
 					    case "Save":
 					        if (SavedGame.NotSaving)
 					            ScreenManager.AddScreen(new SaveGameScreen(Empire.Universe));
-					        else AudioManager.PlayCue("UI_Misc20");
+					        else GameAudio.PlaySfx("UI_Misc20");
 					        break;
 					    case "Load Game":
 					        if (SavedGame.NotSaving)
@@ -128,7 +128,7 @@ namespace Ship_Game
 					            ScreenManager.AddScreen(new LoadSaveScreen(Empire.Universe));
 					            ExitScreen();
 					        }
-					        else AudioManager.PlayCue("UI_Misc20");
+					        else GameAudio.PlaySfx("UI_Misc20");
 					        break;
 					    case "Options":
 					        ScreenManager.AddScreen(new OptionsScreen(screen, this, new Rectangle(0, 0, 600, 600))
@@ -146,7 +146,7 @@ namespace Ship_Game
 					        break;
 					    case "Exit to Windows":
 					        if (SavedGame.NotSaving) Game1.Instance.Exit();
-					        else AudioManager.PlayCue("UI_Misc20");
+					        else GameAudio.PlaySfx("UI_Misc20");
 					        break;
 					}
 				}
