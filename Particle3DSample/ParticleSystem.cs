@@ -127,7 +127,7 @@ namespace Particle3DSample
             if (FirstActiveParticle != FirstFreeParticle)
             {
                 SetParticleRenderStates(device.RenderState);
-                EffectViewportHeightParameter.SetValue(device.Viewport.Height);
+                EffectViewportHeightParameter.SetValue(Game1.Instance.Viewport.Height);
                 EffectTimeParameter.SetValue(CurrentTime);
                 device.Vertices[0].SetSource(VertexBuffer, 0, 32);
                 device.VertexDeclaration = VertexDeclaration;

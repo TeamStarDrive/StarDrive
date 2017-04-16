@@ -1,23 +1,15 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Ship_Game
 {
 	public sealed class ScreenManager : IDisposable
 	{
-		public Array<GameScreen> screens = new Array<GameScreen>();
-		private readonly Array<GameScreen> screensToUpdate = new Array<GameScreen>();
-		private readonly Array<GameScreen> screensToDraw = new Array<GameScreen>();
+		private readonly Array<GameScreen> Screens = new Array<GameScreen>();
 		public InputState input = new InputState();
 		private readonly IGraphicsDeviceService graphicsDeviceService;
 	    private Texture2D blankTexture;
@@ -37,9 +29,9 @@ namespace Ship_Game
 
         public float exitScreenTimer;
 
-		//public GameContentManager Content { get; private set; }
 	    public Rectangle TitleSafeArea { get; private set; }
-	    public bool TraceEnabled { get; set; }
+
+        public int NumScreens => Screens.Count;
 
 	    public ScreenManager(Game1 game, GraphicsDeviceManager graphics)
 		{
@@ -60,73 +52,79 @@ namespace Ship_Game
 			this.inter.AddManager(this.editor);
 		}
 
+        public void UpdateViewports()
+        {
+            for (int i = 0; i < Screens.Count; ++i)
+                Screens[i].UpdateViewport();
+        }
+
 		public void AddScreen(GameScreen screen)
 		{
-            foreach (GameScreen gs in screens)
-			{
+            foreach (GameScreen gs in Screens)
 				if (gs is DiplomacyScreen)
 				    return;
-			}
 			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.LoadContent();
-			screens.Add(screen);
+			Screens.Add(screen);
 		}
 
 		public void AddScreenNoLoad(GameScreen screen)
 		{
-			foreach (GameScreen gs in screens)
-			{
+			foreach (GameScreen gs in Screens)
 				if (gs is DiplomacyScreen)
 			    	return;
-			}
-			screens.Add(screen);
+			Screens.Add(screen);
 		}
 
 		public void Draw(GameTime gameTime)
 		{
-			screensToDraw.Clear();
-			foreach (GameScreen screen in screens)
-				screensToDraw.Add(screen);
-
-			foreach (GameScreen screen in screensToDraw)
+            for (int i = 0; i < Screens.Count; ++i)
 			{
-			    if (screen.ScreenState != ScreenState.Hidden)
+                GameScreen screen = Screens[i];
+                if (screen.ScreenState != ScreenState.Hidden)
 			        screen.Draw(gameTime);
 			}
 		}
 
 		public void ExitAll()
 		{
-		    foreach (GameScreen screen in screens.ToArray())
+		    foreach (GameScreen screen in Screens.ToArray())
 		        screen.ExitScreen();
 		}
 
+        public void ExitAllExcept(GameScreen except)
+        {
+            foreach (GameScreen screen in Screens.ToArray())
+                if (screen != except)
+                    screen.ExitScreen();
+        }
+
 		public void FadeBackBufferToBlack(int alpha, SpriteBatch spriteBatch)
 		{
-			Viewport viewport = GraphicsDevice.Viewport;
+			Viewport viewport = Game1.Instance.Viewport;
 			spriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
 		}
 
 		public void FadeBackBufferToBlack(int alpha)
 		{
-			Viewport viewport = GraphicsDevice.Viewport;
+			Viewport viewport = Game1.Instance.Viewport;
 			SpriteBatch.Begin();
 			SpriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
 			SpriteBatch.End();
 		}
 
-        public int ScreenCount => screens.Count;
+        public int ScreenCount => Screens.Count;
 
 		public void LoadContent()
 		{
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
             blankTexture = ResourceManager.LoadTexture("blank");
-			foreach (GameScreen screen in screens)
+			foreach (GameScreen screen in Screens)
 			{
 				screen.LoadContent();
 			}
 
-			Viewport viewport = GraphicsDevice.Viewport;
+			Viewport viewport = Game1.Instance.Viewport;
 			TitleSafeArea = new Rectangle(
                 (int)(viewport.X + viewport.Width  * 0.05f),
                 (int)(viewport.Y + viewport.Height * 0.05f),
@@ -138,51 +136,32 @@ namespace Ship_Game
 		{
 			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.UnloadContent();
-			screens.Remove(screen);
-			screensToUpdate.Remove(screen);
+			Screens.Remove(screen);
             exitScreenTimer = .025f;
-		}
-
-		public void SetupSunburn()
-		{
-		}
-
-		private void TraceScreens()
-		{
-			var screenNames = new Array<string>();
-			foreach (GameScreen screen in screens)
-				screenNames.Add(screen.GetType().Name);
-			Trace.WriteLine(string.Join(", ", screenNames.ToArray()));
 		}
 
 		public void Update(GameTime gameTime)
 		{
-			input.Update(gameTime);
-			screensToUpdate.Clear();
-			foreach (GameScreen screen in screens)
-			{
-				screensToUpdate.Add(screen);
-			}
+            input.Update(gameTime);
+
 			bool otherScreenHasFocus = !Game1.Instance.IsActive;
 			bool coveredByOtherScreen = false;
-			while (screensToUpdate.Count > 0)
-			{
-				GameScreen screen = screensToUpdate[screensToUpdate.Count - 1];
-				screensToUpdate.RemoveAt(screensToUpdate.Count - 1);
-				screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-				if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
-					continue;
-				if (!otherScreenHasFocus)
-				{
-					screen.HandleInput(input);
-					otherScreenHasFocus = true;
-				}
-				if (screen.IsPopup)
-					continue;
-				coveredByOtherScreen = true;
-			}
-			if (TraceEnabled)
-				TraceScreens();
+
+            for (int i = Screens.Count-1; i >= 0; --i)
+            {
+                GameScreen screen = Screens[i];
+                screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+                if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
+                    continue;
+                if (!otherScreenHasFocus)
+                {
+                    screen.HandleInput(input);
+                    otherScreenHasFocus = true;
+                }
+                if (screen.IsPopup)
+                    continue;
+                coveredByOtherScreen = true;
+            }
 		}
 	    public bool UpdateExitTimeer(bool stopFurtherInput)
 	    {

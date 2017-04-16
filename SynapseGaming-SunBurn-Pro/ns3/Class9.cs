@@ -12,20 +12,15 @@ namespace ns3
 {
   internal class Class9<T>
   {
-    private static PooledObjectFactory<Class9<T>> pooledObjectFactory_0 = new PooledObjectFactory<Class9<T>>();
+    private static readonly PooledObjectFactory<Class9<T>> PooledObjectFactory0 = new PooledObjectFactory<Class9<T>>();
     private static float[] float_0 = new float[3];
     private List<T> list_0 = new List<T>();
     private int int_0;
     private BoundingBox boundingBox_0;
-    private Class9<T>.Enum2 enum2_0;
+    private Enum2 enum2_0;
     private Plane plane_0;
     private Class9<T> class9_0;
     private Class9<T> class9_1;
-
-    public Class9(BoundingBox containervolume, int maxdepth)
-    {
-      this.method_0(ref containervolume, maxdepth);
-    }
 
     public Class9()
     {
@@ -70,14 +65,14 @@ namespace ns3
       if (this.class9_0 != null)
       {
         this.class9_0.method_1();
-        Class9<T>.pooledObjectFactory_0.Free(this.class9_0);
-        this.class9_0 = (Class9<T>) null;
+        PooledObjectFactory0.Free(this.class9_0);
+        this.class9_0 = null;
       }
       if (this.class9_1 == null)
         return;
       this.class9_1.method_1();
-      Class9<T>.pooledObjectFactory_0.Free(this.class9_1);
-      this.class9_1 = (Class9<T>) null;
+      PooledObjectFactory0.Free(this.class9_1);
+      this.class9_1 = null;
     }
 
     public void method_2(BoundingBox boundingBox_1, T gparam_0)
@@ -103,7 +98,9 @@ namespace ns3
 
     private bool method_5(T gparam_0)
     {
-      return this.list_0.Remove(gparam_0) || this.class9_0 != null && this.class9_0.method_5(gparam_0) || this.class9_1 != null && this.class9_1.method_5(gparam_0);
+      return list_0.Remove(gparam_0) 
+                || class9_0 != null && class9_0.method_5(gparam_0) 
+                || class9_1 != null && class9_1.method_5(gparam_0);
     }
 
     private Class9<T> method_6(ref BoundingBox boundingBox_1, T gparam_0, int int_1, bool bool_0)
@@ -120,7 +117,7 @@ namespace ns3
             return this;
           BoundingBox boundingBox0 = this.boundingBox_0;
           boundingBox0.Min = Class13.smethod_3(boundingBox0.Min, (int) this.enum2_0, -this.plane_0.D);
-          this.class9_0 = Class9<T>.pooledObjectFactory_0.New();
+          this.class9_0 = Class9<T>.PooledObjectFactory0.New();
           this.class9_0.method_0(ref boundingBox0, this.int_0);
         }
         return this.class9_0.method_6(ref boundingBox_1, gparam_0, int_1 + 1, bool_0);
@@ -131,7 +128,7 @@ namespace ns3
           return this;
         BoundingBox boundingBox0 = this.boundingBox_0;
         boundingBox0.Max = Class13.smethod_3(boundingBox0.Max, (int) this.enum2_0, -this.plane_0.D);
-        this.class9_1 = Class9<T>.pooledObjectFactory_0.New();
+        this.class9_1 = Class9<T>.PooledObjectFactory0.New();
         this.class9_1.method_0(ref boundingBox0, this.int_0);
       }
       return this.class9_1.method_6(ref boundingBox_1, gparam_0, int_1 + 1, bool_0);

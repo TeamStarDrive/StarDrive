@@ -422,9 +422,9 @@ namespace Ship_Game
 		{
 			this.camera = new Camera2d();
 			Camera2d vector2 = this.camera;
-			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport = base.Viewport;
 			float width = (float)viewport.Width / 2f;
-			Viewport viewport1 = base.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport1 = base.Viewport;
 			vector2.Pos = new Vector2(width, (float)viewport1.Height / 2f);
 			Rectangle main = new Rectangle(0, 0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
 			this.MainMenu = new Menu2(base.ScreenManager, main);

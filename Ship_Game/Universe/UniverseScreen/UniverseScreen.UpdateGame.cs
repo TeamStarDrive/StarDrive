@@ -668,7 +668,7 @@ namespace Ship_Game {
                     if (system.combatTimer <= 0.0)
                         system.CombatInSystem = false;
                     bool viewing = false;
-                    this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f),
+                    this.Viewport.Project(new Vector3(system.Position, 0.0f),
                         this.projection, this.view, Matrix.Identity);
                     if (this.Frustum.Contains(new BoundingSphere(new Vector3(system.Position, 0.0f), 100000f)) !=
                         ContainmentType.Disjoint)
@@ -678,10 +678,10 @@ namespace Ship_Game {
                         Rectangle rect = new Rectangle((int) system.Position.X - 100000,
                             (int) system.Position.Y - 100000, 200000, 200000);
                         Vector3 position =
-                            this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
+                            this.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
                                 this.projection, this.view, Matrix.Identity);
                         Vector3 direction =
-                            this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 1f),
+                            this.Viewport.Unproject(new Vector3(500f, 500f, 1f),
                                 this.projection, this.view, Matrix.Identity) - position;
                         direction.Normalize();
                         Ray ray = new Ray(position, direction);
@@ -827,10 +827,10 @@ namespace Ship_Game {
                     Rectangle rect = new Rectangle((int) system.Position.X - 100000, (int) system.Position.Y - 100000,
                         200000, 200000);
                     Vector3 position =
-                        this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
+                        this.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
                             this.projection, this.view, Matrix.Identity);
                     Vector3 direction =
-                        this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 1f),
+                        this.Viewport.Unproject(new Vector3(500f, 500f, 1f),
                             this.projection, this.view, Matrix.Identity) - position;
                     direction.Normalize();
                     Ray ray = new Ray(position, direction);

@@ -58,8 +58,8 @@ namespace Ship_Game
 			this.starTexture.SetData<Color>(new Color[] { Color.White });
 			this.spriteBatch = new SpriteBatch(this.graphicsDevice);
 			this.InitializeStars();
-			int width = this.graphicsDevice.Viewport.Width;
-			Viewport viewport = this.graphicsDevice.Viewport;
+		    Viewport viewport = Game1.Instance.Viewport;
+            int width = viewport.Width;
 			this.starfieldRectangle = new Rectangle(0, 0, width, viewport.Height);
 		}
 
