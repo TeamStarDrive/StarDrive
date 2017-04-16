@@ -62,76 +62,76 @@ namespace Ship_Game
 
     // Whole StarDrive game audio state is managed here
     public static class GameAudio
-	{
-		private static AudioEngine AudioEngine;
-		private static SoundBank SoundBank;
-		private static WaveBank WaveBank;
+    {
+        private static AudioEngine AudioEngine;
+        private static SoundBank SoundBank;
+        private static WaveBank WaveBank;
 
-	    private static bool AudioDisabled;
-	    private static bool EffectsDisabled;
-	    private static bool MusicDisabled;
+        private static bool AudioDisabled;
+        private static bool EffectsDisabled;
+        private static bool MusicDisabled;
 
         private static AudioCategory Global;
         private static AudioCategory Default;
-	    private static AudioCategory Weapons;
-	    private static AudioCategory Music;
-	    private static AudioCategory RacialMusic;
-	    private static AudioCategory CombatMusic;
+        private static AudioCategory Weapons;
+        private static AudioCategory Music;
+        private static AudioCategory RacialMusic;
+        private static AudioCategory CombatMusic;
 
         private static Array<AudioHandle> AudioHandles;
 
         private static int ThisFrameCueCount;// Limit the number of Cues that can be loaded per frame. 
-	    private static bool FrameCueLimitExceeded => ThisFrameCueCount > 7;
+        private static bool FrameCueLimitExceeded => ThisFrameCueCount > 7;
 
-		public static void Initialize(string settingsFile, string waveBankFile, string soundBankFile)
-		{
-			try
-			{
+        public static void Initialize(string settingsFile, string waveBankFile, string soundBankFile)
+        {
+            try
+            {
                 AudioHandles = new Array<AudioHandle>();
-				AudioEngine = new AudioEngine(settingsFile);
-				WaveBank    = new WaveBank(AudioEngine, waveBankFile, 0, 16);
-				SoundBank   = new SoundBank(AudioEngine, soundBankFile);
+                AudioEngine = new AudioEngine(settingsFile);
+                WaveBank    = new WaveBank(AudioEngine, waveBankFile, 0, 16);
+                SoundBank   = new SoundBank(AudioEngine, soundBankFile);
 
                 while (!WaveBank.IsPrepared)
                     AudioEngine.Update();
 
                 // these are specific to "Audio/ShipGameProject.xgs"
-			    Global      = AudioEngine.GetCategory("Global");
+                Global      = AudioEngine.GetCategory("Global");
                 Default     = AudioEngine.GetCategory("Default");
-			    Music       = AudioEngine.GetCategory("Music");
-			    Weapons     = AudioEngine.GetCategory("Weapons");
-			    RacialMusic = AudioEngine.GetCategory("RacialMusic");
-			    CombatMusic = AudioEngine.GetCategory("CombatMusic");
+                Music       = AudioEngine.GetCategory("Music");
+                Weapons     = AudioEngine.GetCategory("Weapons");
+                RacialMusic = AudioEngine.GetCategory("RacialMusic");
+                CombatMusic = AudioEngine.GetCategory("CombatMusic");
             }
-			catch (Exception ex)
-			{
+            catch (Exception ex)
+            {
                 AudioEngine = null;
                 WaveBank    = null;
                 SoundBank   = null;
                 Log.Error(ex, "AudioEngine init failed");
             }
-		}
+        }
 
         // called from Game1 Dispose()
         public static void Destroy()
-		{
+        {
             for (int i = 0; i < AudioHandles.Count; ++i)
                 AudioHandles[i].Destroy();
 
             SoundBank?.Dispose(ref SoundBank);
             WaveBank?.Dispose(ref WaveBank);
             AudioEngine?.Dispose(ref AudioEngine);
-		}
+        }
 
 
         // this is called from Game1.Update() every frame
-		public static void Update()
-		{
+        public static void Update()
+        {
             ThisFrameCueCount = 0;
             DisposeStoppedHandles();
 
-		    AudioEngine?.Update();
-		}
+            AudioEngine?.Update();
+        }
 
         // Configures GameAudio from GlobalStats MusicVolume and EffectsVolume
         public static void ConfigureAudioSettings()
@@ -156,10 +156,10 @@ namespace Ship_Game
             Music.Stop(immediate ? AudioStopOptions.Immediate : AudioStopOptions.AsAuthored);
         }
 
-	    public static void PauseGenericMusic()  => Music.Pause();
+        public static void PauseGenericMusic()  => Music.Pause();
         public static void ResumeGenericMusic() => Music.Resume();
         public static void MuteGenericMusic()   => Music.SetVolume(0f);
-	    public static void UnmuteGenericMusic() => Music.SetVolume(GlobalStats.MusicVolume);
+        public static void UnmuteGenericMusic() => Music.SetVolume(GlobalStats.MusicVolume);
         public static void MuteRacialMusic()    => RacialMusic.SetVolume(0f);
         public static void UnmuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
 
@@ -207,14 +207,14 @@ namespace Ship_Game
             return handle;
         }
 
-	    public static AudioHandle PlaySfxAt(string cueName, Vector3 position)
-	    {
+        public static AudioHandle PlaySfxAt(string cueName, Vector3 position)
+        {
             if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
                 return default(AudioHandle); // avoid creating emitter
 
             var emitter = new AudioEmitter { Position = position };
             return PlaySfx(cueName, emitter);
-	    }
+        }
 
         public static AudioHandle PlayMusic(string cueName)
         {
@@ -238,5 +238,5 @@ namespace Ship_Game
                 }
             }
         }
-	}
+    }
 }
