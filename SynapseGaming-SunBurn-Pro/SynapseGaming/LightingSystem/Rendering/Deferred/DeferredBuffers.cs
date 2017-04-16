@@ -28,7 +28,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private DetailPreference detailPreference_0;
     private DetailPreference detailPreference_1;
     private IGraphicsDeviceService igraphicsDeviceService_0;
-    private Class14 class14_0;
+    private GraphicsDeviceMonitor GraphicsDeviceMonitor0;
     private DepthStencilBuffer depthStencilBuffer_0;
     private RenderTarget2D renderTarget2D_0;
     private RenderTarget2D renderTarget2D_1;
@@ -98,7 +98,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       this.int_1 = customheight;
       this.detailPreference_0 = precisionmode;
       this.detailPreference_1 = lightingrange;
-      this.class14_0 = new Class14(this.igraphicsDeviceService_0);
+      this.GraphicsDeviceMonitor0 = new GraphicsDeviceMonitor(this.igraphicsDeviceService_0);
     }
 
     /// <summary>
@@ -203,7 +203,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     /// <param name="scenestate"></param>
     public void BeginFrameRendering(ISceneState scenestate)
     {
-      if (this.class14_0.Changed)
+      if (this.GraphicsDeviceMonitor0.Changed)
         this.Unload();
       if (this.deferredBufferSizing_0 != DeferredBufferSizing.ResizeToBackBuffer)
         return;

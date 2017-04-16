@@ -34,7 +34,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     private const int int_0 = 67108864;
     private const int int_1 = 2048;
     private const int int_2 = 32;
-    private Class14 class14_0;
+    private GraphicsDeviceMonitor GraphicsDeviceMonitor0;
     private ShadowMapCache shadowMapCache_0;
     private RenderTarget2D renderTarget2D_0;
 
@@ -165,7 +165,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     public BaseShadowMapManager(IGraphicsDeviceService graphicsdevicemanager, int pagesize, int maxmemoryusage, bool preferhalffloat)
       : base(graphicsdevicemanager)
     {
-      this.class14_0 = new Class14(graphicsdevicemanager);
+      this.GraphicsDeviceMonitor0 = new GraphicsDeviceMonitor(graphicsdevicemanager);
       this.shadowMapCache_0 = new ShadowMapCache(graphicsdevicemanager, pagesize, maxmemoryusage, preferhalffloat);
     }
 
@@ -175,7 +175,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     public BaseShadowMapManager(IGraphicsDeviceService graphicsdevicemanager, ShadowMapCache shadowmapcache)
       : base(graphicsdevicemanager)
     {
-      this.class14_0 = new Class14(graphicsdevicemanager);
+      this.GraphicsDeviceMonitor0 = new GraphicsDeviceMonitor(graphicsdevicemanager);
       this.shadowMapCache_0 = shadowmapcache;
     }
 
@@ -184,7 +184,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     public BaseShadowMapManager(IGraphicsDeviceService graphicsdevicemanager)
       : base(graphicsdevicemanager)
     {
-      this.class14_0 = new Class14(graphicsdevicemanager);
+      this.GraphicsDeviceMonitor0 = new GraphicsDeviceMonitor(graphicsdevicemanager);
       this.shadowMapCache_0 = new ShadowMapCache(graphicsdevicemanager, 2048, 67108864, false);
     }
 
@@ -327,7 +327,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public override void BeginFrameRendering(ISceneState scenestate)
     {
-      if (this.class14_0.Changed)
+      if (this.GraphicsDeviceMonitor0.Changed)
         this.Unload();
       base.BeginFrameRendering(scenestate);
     }
