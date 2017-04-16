@@ -79,7 +79,7 @@ namespace Ship_Game.Gameplay
             Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Buckets.Count);
         }
 
-        public void SetupForSystem(float gameScale, SolarSystem system, float cellSize = 25000f)
+        public void SetupForSystem(float gameScale, SolarSystem system, float cellSize = 5000f)
         {
             System = system;
             Setup(200000f * gameScale, 200000f * gameScale, cellSize * gameScale, system.Position.X, system.Position.Y);
@@ -109,9 +109,9 @@ namespace Ship_Game.Gameplay
                 return; // not a supported spatial manager type. just ignore it
 
             if (obj is Ship ship)              Ships.Add(ship);
+            else if (obj is Beam beam)         Beams.Add(beam);
             else if (obj is Projectile proj)   Projectiles.Add(proj);
             else if (obj is Asteroid asteroid) Asteroids.Add(asteroid);
-            else if (obj is Beam beam)         Beams.Add(beam);
 
             int idx = AllObjects.Count;
             if (idx >= ushort.MaxValue)
@@ -147,9 +147,9 @@ namespace Ship_Game.Gameplay
         private void RemoveByIndex(GameplayObject obj, int index)
         {
             if (obj is Ship ship)              Ships.RemoveSwapLast(ship);
+            else if (obj is Beam beam)         Beams.RemoveSwapLast(beam);
             else if (obj is Projectile proj)   Projectiles.RemoveSwapLast(proj);
             else if (obj is Asteroid asteroid) Asteroids.RemoveSwapLast(asteroid);
-            else if (obj is Beam beam)         Beams.RemoveSwapLast(beam);
 
             AllObjects[index] = null;
             obj.SpatialIndex  = -1;
@@ -320,8 +320,8 @@ namespace Ship_Game.Gameplay
 
                 if (objs.Length != numItems)
                     Log.Warning("SpatialManager bucket modified during GetNearby() !!");
-                if (objs.Length > 512)
-                    Log.Warning("SpatialManager GetNearby returned {0} items. Seems a bit inefficient.", objs.Length);
+                //if (objs.Length > 512)
+                //    Log.Warning("SpatialManager GetNearby returned {0} items. Seems a bit inefficient.", objs.Length);
                 return objs;
             }
 
@@ -363,8 +363,8 @@ namespace Ship_Game.Gameplay
 
             if (unique.Length != numUnique)
                 Log.Warning("SpatialManager allObjects array modified during GetNearby() !!");
-            if (unique.Length > 64)
-                Log.Warning("SpatialManager GetNearby returned {0} items. Seems a bit inefficient.", unique.Length);
+            //if (unique.Length > 64)
+            //    Log.Warning("SpatialManager GetNearby returned {0} items. Seems a bit inefficient.", unique.Length);
             return unique;
         }
 
@@ -537,7 +537,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    collidedWith = otherShip.HitTestSingleDbg(thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
+                    collidedWith = otherShip.HitTestSingle(thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
                 }
                 return collidedWith != null;
             }
