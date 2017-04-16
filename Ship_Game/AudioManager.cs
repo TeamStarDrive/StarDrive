@@ -13,7 +13,7 @@ namespace Ship_Game
 		private WaveBank waveBank;
 
         private readonly Array<SoundEffectInstance> SoundEffectInstances;
-
+        private static int CueSize;// Limit the number of Cues that can be loaded per frame. 
 	    public static bool LimitOk => audioManager.SoundEffectInstances.Count < 7;
 
 	    private AudioManager(Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
@@ -63,19 +63,22 @@ namespace Ship_Game
 
         public static Cue GetCue(string cueName)
 		{
-			return Manager?.soundBank.GetCue(cueName);
+            if (++CueSize > 7) return null; //dont load a cue if we already have a bunch loaded else this will load a cue for each and every weapon and impact sometimes more than once per frame. 
+         //a better solution is likely needed. Like why do we need to load the same shield cue for every shield same for each projectile. 
+            return Manager?.soundBank.GetCue(cueName);
 		}
 
         // @todo Why is this class a singleton? Singletons suck.
 		public static void Initialize(Game game, string settingsFile, string waveBankFile, string soundBankFile)
 		{
-			audioManager = new AudioManager(game, settingsFile, waveBankFile, soundBankFile);
+            CueSize = 0;
+            audioManager = new AudioManager(game, settingsFile, waveBankFile, soundBankFile);
 		    game?.Components.Add(audioManager);
 		}
 
 		public static void PlayCue(string cueName)
-		{
-			if (audioManager?.audioEngine != null 
+		{            
+            if (audioManager?.audioEngine != null 
                 && audioManager.soundBank != null 
                 && audioManager.waveBank != null 
                 && audioManager.SoundEffectInstances.Count < 7 )
@@ -85,6 +88,7 @@ namespace Ship_Game
 		}
         public static void PlayCue(string cueName, Vector3 listener, Vector3 emitter)
         {
+            
             if (audioManager?.audioEngine != null 
                 && audioManager.soundBank != null 
                 && audioManager.waveBank != null)
@@ -96,14 +100,16 @@ namespace Ship_Game
 
         public static Cue PlayCue(string cueName, AudioListener listener, AudioEmitter emitter)
         {
+            //if (CueSize > 7) return null;
             Cue cue = GetCue(cueName);
-            cue.Apply3D(listener, emitter);
-            cue.Play();
+            cue?.Apply3D(listener, emitter);
+            cue?.Play();
             return cue;
         }
 
 		public override void Update(GameTime gameTime)
 		{
+            CueSize = 0;
             DisposeSoundEffectInstances();
 		    audioEngine?.Update();
 		    base.Update(gameTime);

@@ -699,9 +699,7 @@ namespace Ship_Game.Gameplay
                     }
                     else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
                     {
-                        Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
-                        shieldcue.Apply3D(Empire.Universe.listener, Parent.emitter);
-                        shieldcue.Play();
+                        AudioManager.PlayCue("sd_impact_shield_01", Empire.Universe.listener, Parent.emitter);                        
                         shield.Radius       = shield_radius + 10f;
                         shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         shield.texscale     = 2.8f;

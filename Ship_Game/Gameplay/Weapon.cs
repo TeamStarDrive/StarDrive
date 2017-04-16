@@ -338,10 +338,11 @@ namespace Ship_Game.Gameplay
 
                 if (!string.IsNullOrEmpty(ToggleSoundName))
                 {
-                    ToggleSoundOn = true;
-                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    ToggleCue.Apply3D(audioListener, Owner.emitter);
-                    ToggleCue.Play();
+                    PlayFireCue(ToggleSoundName, Owner.emitter);
+                    //ToggleSoundOn = true;
+                    //ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    //ToggleCue?.Apply3D(audioListener, Owner.emitter);
+                    //ToggleCue?.Play();
                 }
             }
         }
@@ -423,9 +424,10 @@ namespace Ship_Game.Gameplay
                 if (!string.IsNullOrEmpty(ToggleSoundName) && (ToggleCue == null || ToggleCue != null && !ToggleCue.IsPlaying))
                 {
                     ToggleSoundOn = true;
-                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                    ToggleCue.Apply3D(audioListener, Owner.emitter);
-                    ToggleCue.Play();
+                    //ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    //ToggleCue.Apply3D(audioListener, Owner.emitter);
+                    //ToggleCue.Play();
+                    PlayFireCue(ToggleSoundName, Owner.emitter, true);
                     PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
                 }
 

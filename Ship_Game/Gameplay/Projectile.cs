@@ -662,8 +662,8 @@ namespace Ship_Game.Gameplay
             if (!string.IsNullOrEmpty(InFlightCue) && InFlight == null)
             {
                 InFlight = AudioManager.GetCue(InFlightCue);
-                InFlight.Apply3D(Empire.Universe.listener, Emitter);
-                InFlight.Play();
+                InFlight?.Apply3D(Empire.Universe.listener, Emitter);
+                InFlight?.Play();
             }
             ParticleDelay -= elapsedTime;
             if (Duration > 0f)
