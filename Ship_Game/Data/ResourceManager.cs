@@ -59,7 +59,7 @@ namespace Ship_Game
         public static Map<string, ShipData> HullsDict             = new Map<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 
         public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
-        private static Map<string, SoundEffect> SoundEffectDict    = new Map<string, SoundEffect>();
+        private static Map<string, SoundEffect> SoundEffectDict;
 
         // Added by McShooterz
         public static HostileFleets HostileFleets                 = new HostileFleets();
@@ -1398,12 +1398,13 @@ namespace Ship_Game
             ProjTextDict.Clear();
 
             HostileFleets.Fleets.Clear();
-            ShipNames.EmpireEntries.Clear();
+            ShipNames.Clear();
             MainMenuShipList.ModelPaths.Clear();
             AgentMissionData = new AgentMissionData();
 
             // @todo Make this work properly:
             // Game1.GameContent.Unload();
+            HelperFunctions.CollectMemory();
         }
 
         public static Array<string> FindPreviousTechs(Technology target, Array<string> alreadyFound)
