@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         public Planet[] GetPlanets()                       => OurPlanetsInAo;
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
         public IReadOnlyList<Ship> GetWaitingShips()       => ShipsWaitingForCoreFleet;
-        public bool AOFull { get; private set; }           = true;
+        [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
 
         public AO()
         {
