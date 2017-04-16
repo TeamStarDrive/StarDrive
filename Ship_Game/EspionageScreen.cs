@@ -415,7 +415,7 @@ namespace Ship_Game
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.ExitScreen();
                 return;
             }
@@ -432,7 +432,7 @@ namespace Ship_Game
 					}
 					this.SelectedEmpire = race.e;
 					GotRace = true;
-					AudioManager.PlayCue("echo_affirm");
+					GameAudio.PlaySfx("echo_affirm");
 					for (int j = this.OperationsSL.indexAtTop; j < this.OperationsSL.Entries.Count && j < this.OperationsSL.indexAtTop + this.OperationsSL.entriesToDisplay; j++)
 					{
 						ScrollList.Entry f = this.OperationsSL.Entries[j];
@@ -532,14 +532,13 @@ namespace Ship_Game
 			{
 				amount = 0f
 			};
-			base.ScreenManager.racialMusic.SetVolume(0f);
+			GameAudio.MuteRacialMusic();
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			EspionageScreen transitionElapsedTime = this;
-			transitionElapsedTime.TransitionElapsedTime = transitionElapsedTime.TransitionElapsedTime + elapsedTime;
+			TransitionElapsedTime += elapsedTime;
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 

@@ -104,7 +104,7 @@ namespace Ship_Game
 
         protected virtual void DeleteFile(object sender, EventArgs e)
         {
-            AudioManager.PlayCue("echo_affirm");
+            GameAudio.PlaySfx("echo_affirm");
             
             try
             {
@@ -184,7 +184,7 @@ namespace Ship_Game
             if( SLMode.Load == this.mode )
                 this.selectedFile = (e.item as FileData);
 
-            AudioManager.PlayCue("sd_ui_accept_alt3");
+            GameAudio.PlaySfx("sd_ui_accept_alt3");
             this.EnterNameArea.Text = (e.item as FileData).FileName;
         }
 
@@ -206,7 +206,7 @@ namespace Ship_Game
                 {
                     if (e.clickRectHover == 0)
                     {
-                        AudioManager.PlayCue("sd_ui_mouseover");
+                        GameAudio.PlaySfx("sd_ui_mouseover");
                     }
                     e.clickRectHover = 1;
                     this.selector = new Selector(base.ScreenManager, e.clickRect);
@@ -250,7 +250,7 @@ namespace Ship_Game
                     }
                     if (text == "DoBtn")
                     {
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                         if(mode == SLMode.Save)
                             this.TrySave();
                         else if (mode == SLMode.Load)

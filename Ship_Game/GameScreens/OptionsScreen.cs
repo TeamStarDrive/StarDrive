@@ -369,19 +369,11 @@ namespace Ship_Game
             if (!ResolutionDropDown.Open)// && !AntiAliasingDD.Open)
 			{
 				MusicVolumeSlider.HandleInput(input);
-				GlobalStats.MusicVolume = MusicVolumeSlider.amount;
-				ScreenManager.musicCategory.SetVolume(MusicVolumeSlider.amount);
-                ScreenManager.racialMusic.SetVolume(MusicVolumeSlider.amount);
-                ScreenManager.combatMusic.SetVolume(MusicVolumeSlider.amount);
-				EffectsVolumeSlider.HandleInput(input);
-				GlobalStats.EffectsVolume = EffectsVolumeSlider.amount;
-				ScreenManager.weaponsCategory.SetVolume(EffectsVolumeSlider.amount);
-                ScreenManager.defaultCategory.SetVolume(EffectsVolumeSlider.amount *.5f);
+			    EffectsVolumeSlider.HandleInput(input);
 
-                if (EffectsVolumeSlider.amount > 0 || MusicVolumeSlider.amount > 0)
-                    ScreenManager.GlobalCategory.SetVolume(1);
-                else
-                    ScreenManager.GlobalCategory.SetVolume(0);
+                GlobalStats.MusicVolume   = MusicVolumeSlider.amount;
+			    GlobalStats.EffectsVolume = EffectsVolumeSlider.amount;
+			    GameAudio.ConfigureAudioSettings();
 			}
 			if (!ResolutionDropDown.Open)
 			{
@@ -393,12 +385,12 @@ namespace Ship_Game
 				{
 					if (!FullScreen.highlighted)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfx("sd_ui_mouseover");
 					}
 					FullScreen.highlighted = true;
                     if (input.InGameSelect)
                     {
-                        AudioManager.PlayCue("blip_click");
+                        GameAudio.PlaySfx("blip_click");
                         ++ModeToSet;
                         if (ModeToSet > WindowMode.Borderless)
                             ModeToSet = WindowMode.Fullscreen;

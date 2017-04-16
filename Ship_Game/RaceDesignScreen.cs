@@ -1303,7 +1303,7 @@ namespace Ship_Game
                 {
                     if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
                     {
-                        AudioManager.PlayCue("mouse_over4");
+                        GameAudio.PlaySfx("mouse_over4");
                     }
                     b.State = UIButton.PressState.Hover;
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
@@ -1322,17 +1322,17 @@ namespace Ship_Game
                     }
                     if (str == "Engage")
                     {
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                         this.OnEngage();
                     }
                     else if (str == "Rule Options")
                     {
                         base.ScreenManager.AddScreen(new RuleOptionsScreen(this));
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                     }
                     else if (str == "Abort")
                     {
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                         this.ExitScreen();
                     }
                     else if (str == "Clear")
@@ -1346,22 +1346,22 @@ namespace Ship_Game
                     else if (str == "LoadRace")
                     {
                         base.ScreenManager.AddScreen(new LoadRaceScreen(this));
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                     }
                     else if (str == "SaveRace")
                     {
                         base.ScreenManager.AddScreen(new SaveRaceScreen(this, this.GetRacialTraits()));
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                     }
                     else if (str == "LoadSetup")
                     {
                         base.ScreenManager.AddScreen(new LoadSetupScreen(this));
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                     }
                     else if (str == "SaveSetup")
                     {
                         base.ScreenManager.AddScreen(new SaveSetupScreen(this, this.difficulty, this.StarEnum, this.Galaxysize, this.Pacing, this.ExtraRemnant, this.numOpponents, this.mode));
-                        AudioManager.PlayCue("echo_affirm");
+                        GameAudio.PlaySfx("echo_affirm");
                     }
                 }
             }
@@ -1376,7 +1376,7 @@ namespace Ship_Game
                         continue;
                     }
                     this.SelectedData = e.item as EmpireData;
-                    AudioManager.PlayCue("echo_affirm");
+                    GameAudio.PlaySfx("echo_affirm");
                     this.SetEmpireData(this.SelectedData.Traits);
                 }
                 this.RaceArchetypeSL.HandleInput(input);
@@ -1457,7 +1457,7 @@ namespace Ship_Game
                     {
                         if (f.clickRectHover == 0)
                         {
-                            AudioManager.PlayCue("sd_ui_mouseover");
+                            GameAudio.PlaySfx("sd_ui_mouseover");
                         }
                         this.selector = new Selector(base.ScreenManager, f.clickRect);
                         f.clickRectHover = 1;
@@ -1469,7 +1469,7 @@ namespace Ship_Game
                                 t.Selected = !t.Selected;
                                 RaceDesignScreen totalPointsUsed = this;
                                 totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
-                                AudioManager.GetCue("blip_click").Play();
+                                GameAudio.PlaySfx("blip_click");
                                 int excludes = t.trait.Excludes;
                                 foreach (TraitEntry ex in this.AllTraits)
                                 {
@@ -1482,7 +1482,7 @@ namespace Ship_Game
                             }
                             else if (this.TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
                             {
-                                AudioManager.PlayCue("UI_Misc20");
+                                GameAudio.PlaySfx("UI_Misc20");
                             }
                             else
                             {
@@ -1501,7 +1501,7 @@ namespace Ship_Game
                                     t.Selected = true;
                                     RaceDesignScreen raceDesignScreen = this;
                                     raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
-                                    AudioManager.GetCue("blip_click").Play();
+                                    GameAudio.PlaySfx("blip_click");
                                     int excludes1 = t.trait.Excludes;
                                     foreach (TraitEntry ex in this.AllTraits)
                                     {
@@ -1519,7 +1519,7 @@ namespace Ship_Game
                 }
                 if (HelperFunctions.CheckIntersection(this.GalaxySizeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
-                    AudioManager.GetCue("blip_click").Play();
+                    GameAudio.PlaySfx("blip_click");
                     RaceDesignScreen galaxysize = this;
                     galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
                     if (this.Galaxysize > RaceDesignScreen.GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map Size -Gretman
@@ -1529,7 +1529,7 @@ namespace Ship_Game
                 }
                 if (HelperFunctions.CheckIntersection(this.GameModeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
-                    AudioManager.GetCue("blip_click").Play();
+                    GameAudio.PlaySfx("blip_click");
                     //RaceDesignScreen gamemode = this;
                     this.mode = (RaceDesignScreen.GameMode)this.mode + 1;
                     if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3;
@@ -1540,7 +1540,7 @@ namespace Ship_Game
                 }
                 if (HelperFunctions.CheckIntersection(this.NumberStarsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
-                    AudioManager.GetCue("blip_click").Play();
+                    GameAudio.PlaySfx("blip_click");
                     RaceDesignScreen starEnum = this;
                     starEnum.StarEnum = (RaceDesignScreen.StarNum)((int)starEnum.StarEnum + (int)RaceDesignScreen.StarNum.Rare);
                     if (this.StarEnum > RaceDesignScreen.StarNum.SuperPacked)
@@ -1550,7 +1550,7 @@ namespace Ship_Game
                 }
                 if (HelperFunctions.CheckIntersection(this.NumOpponentsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
-                    AudioManager.GetCue("blip_click").Play();
+                    GameAudio.PlaySfx("blip_click");
                     //RaceDesignScreen raceDesignScreen1 = this;
                     this.numOpponents = this.numOpponents + 1;
                     if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3; // Added by Gretman to enfoce 4 total players for corners game
@@ -1564,7 +1564,7 @@ namespace Ship_Game
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         RaceDesignScreen gameScale = this;
                         gameScale.GameScale = gameScale.GameScale + 1;
                         if (this.GameScale > 6)
@@ -1574,7 +1574,7 @@ namespace Ship_Game
                     }
                     if (input.RightMouseClick)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         RaceDesignScreen gameScale1 = this;
                         gameScale1.GameScale = gameScale1.GameScale - 1;
                         if (this.GameScale < 1)
@@ -1587,7 +1587,7 @@ namespace Ship_Game
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         RaceDesignScreen pacing = this;
                         pacing.Pacing = pacing.Pacing + 25;
                         if (this.Pacing > 400)
@@ -1597,7 +1597,7 @@ namespace Ship_Game
                     }
                     if (input.RightMouseClick)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         RaceDesignScreen pacing1 = this;
                         pacing1.Pacing = pacing1.Pacing - 25;
                         if (this.Pacing < 100)
@@ -1610,7 +1610,7 @@ namespace Ship_Game
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         RaceDesignScreen raceDesignScreen2 = this;
                         raceDesignScreen2.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen2.difficulty + (int)UniverseData.GameDifficulty.Normal);
                         if (this.difficulty > UniverseData.GameDifficulty.Brutal)
@@ -1620,7 +1620,7 @@ namespace Ship_Game
                     }
                     if (input.RightMouseClick)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         RaceDesignScreen raceDesignScreen3 = this;
                         raceDesignScreen3.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen3.difficulty - (int)UniverseData.GameDifficulty.Normal);
                         if (this.difficulty < UniverseData.GameDifficulty.Easy)
@@ -1635,7 +1635,7 @@ namespace Ship_Game
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         this.ExtraRemnant = this.ExtraRemnant + 1;
                         if ((int)this.ExtraRemnant > 4)
                         {
@@ -1644,7 +1644,7 @@ namespace Ship_Game
                     }
                     if (input.RightMouseClick)
                     {
-                        AudioManager.GetCue("blip_click").Play();
+                        GameAudio.PlaySfx("blip_click");
                         this.ExtraRemnant = this.ExtraRemnant - 1;
                         if ((int)this.ExtraRemnant < 0)
                         {
@@ -1668,7 +1668,7 @@ namespace Ship_Game
                         RaceDesignScreen flagIndex = this;
                         flagIndex.FlagIndex = flagIndex.FlagIndex + 1;
                     }
-                    AudioManager.GetCue("blip_click").Play();
+                    GameAudio.PlaySfx("blip_click");
                 }
                 if (HelperFunctions.CheckIntersection(this.FlagLeft, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
@@ -1681,7 +1681,7 @@ namespace Ship_Game
                         RaceDesignScreen flagIndex1 = this;
                         flagIndex1.FlagIndex = flagIndex1.FlagIndex - 1;
                     }
-                    AudioManager.GetCue("blip_click").Play();
+                    GameAudio.PlaySfx("blip_click");
                 }
             }
             else if (!HelperFunctions.CheckIntersection(this.ColorSelector, input.CursorPosition))

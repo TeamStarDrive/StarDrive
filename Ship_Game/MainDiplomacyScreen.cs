@@ -973,7 +973,7 @@ namespace Ship_Game
 		{
             if (input.CurrentKeyboardState.IsKeyDown(Keys.I) && !input.LastKeyboardState.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.ExitScreen();
                 return;
             }
@@ -1018,7 +1018,7 @@ namespace Ship_Game
 							entry = new ArtifactEntry();
 						}
 					}
-					AudioManager.PlayCue("echo_affirm");
+					GameAudio.PlaySfx("echo_affirm");
 				}
 				else
 				{
@@ -1144,14 +1144,13 @@ namespace Ship_Game
 				re.container = new Rectangle((int)Cursor.X + 10 + j * 148, leftRect.Y + 40, 124, 148);
 				j++;
 			}
-			base.ScreenManager.racialMusic.SetVolume(0f);
+			GameAudio.MuteRacialMusic();
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			MainDiplomacyScreen transitionElapsedTime = this;
-			transitionElapsedTime.TransitionElapsedTime = transitionElapsedTime.TransitionElapsedTime + elapsedTime;
+			TransitionElapsedTime += elapsedTime;
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}

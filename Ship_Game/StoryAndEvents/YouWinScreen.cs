@@ -33,7 +33,7 @@ namespace Ship_Game
 
 		private bool LowRes;
 
-		private Cue Music;
+		private AudioHandle Music;
 
 		//private Cue Ambience;
 
@@ -58,8 +58,8 @@ namespace Ship_Game
 
 		public YouWinScreen(GameScreen parent, string text) : base(parent)
         {
-			this.txt = text;
-			this.txt = HelperFunctions.ParseText(Fonts.Arial20Bold, this.txt, 500f);
+            txt = text;
+            txt = HelperFunctions.ParseText(Fonts.Arial20Bold, txt, 500f);
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(30);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -70,23 +70,23 @@ namespace Ship_Game
 		{
 			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
 			base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
-			this.desaturateEffect.Begin();
-			this.desaturateEffect.CurrentTechnique.Passes[0].Begin();
+            desaturateEffect.Begin();
+            desaturateEffect.CurrentTechnique.Passes[0].Begin();
 			Rectangle? nullable = null;
-			base.ScreenManager.SpriteBatch.Draw(this.LoseTexture, new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)), nullable, new Color(255, 255, 255, (byte)this.Saturation), 0f, this.Origin, this.scale, SpriteEffects.None, 1f);
-			Vector2 Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 50));
+			base.ScreenManager.SpriteBatch.Draw(LoseTexture, new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)), nullable, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
+			Vector2 pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 50));
 			base.ScreenManager.SpriteBatch.End();
-			this.desaturateEffect.CurrentTechnique.Passes[0].End();
-			this.desaturateEffect.End();
+            desaturateEffect.CurrentTechnique.Passes[0].End();
+            desaturateEffect.End();
 			base.ScreenManager.SpriteBatch.Begin();
-			if (this.txt != null)
+			if (txt != null)
 			{
-				HelperFunctions.DrawDropShadowText(base.ScreenManager, this.txt, Position, Fonts.Arial20Bold);
+				HelperFunctions.DrawDropShadowText(base.ScreenManager, txt, pos, Fonts.Arial20Bold);
 			}
-			base.ScreenManager.SpriteBatch.Draw(this.Reason, this.ReasonRect, Color.White);
-			if (!base.IsExiting && this.ShowingReplay)
+			base.ScreenManager.SpriteBatch.Draw(Reason, ReasonRect, Color.White);
+			if (!base.IsExiting && ShowingReplay)
 			{
-				this.replay.Draw(base.ScreenManager);
+                replay.Draw(base.ScreenManager);
 			}
 			base.ScreenManager.SpriteBatch.End();
 		}
@@ -100,7 +100,7 @@ namespace Ship_Game
 					base.ScreenManager.screens[i].ExitScreen();
 				}
 			}
-			this.Music.Stop(AudioStopOptions.Immediate);
+            Music.Stop();
 			base.ScreenManager.AddScreen(new MainMenuScreen());
 			base.ExitScreen();
 		}
@@ -109,72 +109,70 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			if (input.InGameSelect && !this.ShowingReplay)
+			if (input.InGameSelect && !ShowingReplay)
 			{
-				if (this.replay == null)
+				if (replay == null)
 				{
-					if (!this.LowRes)
+					if (!LowRes)
 					{
-						this.replay = new ReplayElement(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 376, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 376, 752, 752));
+                        replay = new ReplayElement(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 376, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 376, 752, 752));
 					}
 					else
 					{
-						this.replay = new ReplayElement(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 290, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 354, 580, 580));
+                        replay = new ReplayElement(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 290, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 354, 580, 580));
 					}
 				}
-				this.ShowingReplay = true;
+                ShowingReplay = true;
 			}
-			else if (this.ShowingReplay)
+			else if (ShowingReplay)
 			{
-				this.replay.HandleInput(input);
+                replay.HandleInput(input);
 			}
-			if (input.RightMouseClick && this.ShowingReplay)
+			if (input.RightMouseClick && ShowingReplay)
 			{
-				this.ShowingReplay = false;
+                ShowingReplay = false;
 			}
 			if (input.Escaped)
 			{
-				this.ExitScreen();
+                ExitScreen();
 			}
 			base.HandleInput(input);
 		}
 
 		public override void LoadContent()
 		{
-			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
+		    GameAudio.SwitchToRacialMusic();
+		    Music = GameAudio.PlayMusic("TitleTheme");
+
+            if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
 			{
-				this.LowRes = true;
+                LowRes = true;
 			}
-			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.LoseTexture = TransientContent.Load<Texture2D>("WinLose/launch");
-			this.Reason = TransientContent.Load<Texture2D>("WinLose/YouWin");
-			this.ReasonRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.Reason.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Reason.Height / 2 - 200, this.Reason.Width, this.Reason.Height);
-			this.desaturateEffect = TransientContent.Load<Effect>("Effects/desaturate");
-			this.Portrait = new Rectangle(0, 0, 1920, 1080);
-			this.SourceRect = new Rectangle(864, 486, 192, 108);
-			while (this.Portrait.Width < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth && this.Portrait.Height < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
+            LoseTexture = TransientContent.Load<Texture2D>("WinLose/launch");
+            Reason = TransientContent.Load<Texture2D>("WinLose/YouWin");
+            ReasonRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Reason.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - Reason.Height / 2 - 200, Reason.Width, Reason.Height);
+            desaturateEffect = TransientContent.Load<Effect>("Effects/desaturate");
+            Portrait = new Rectangle(0, 0, 1920, 1080);
+            SourceRect = new Rectangle(864, 486, 192, 108);
+			while (Portrait.Width < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth && Portrait.Height < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
 			{
-				this.Portrait.Width = this.Portrait.Width + 19;
-				this.Portrait.X = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.Portrait.Width / 2;
-				this.Portrait.Height = this.Portrait.Height + 10;
-				this.Portrait.Y = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Portrait.Height / 2;
+                Portrait.Width = Portrait.Width + 19;
+                Portrait.X = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Portrait.Width / 2;
+                Portrait.Height = Portrait.Height + 10;
+                Portrait.Y = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - Portrait.Height / 2;
 			}
-			base.ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
-			base.ScreenManager.musicCategory.SetVolume(0f);
-			base.ScreenManager.racialMusic.SetVolume(1f);
-			this.Music = AudioManager.GetCue("TitleTheme");
-			this.Music.Play();
 			base.LoadContent();
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			this.scale = 1f + 2f * base.TransitionPosition;
-			this.Saturation = 100f * (1f - base.TransitionPosition);
-			this.width = (int)MathHelper.Lerp((float)this.width, (float)((int)(960f + 960f * (1f - base.TransitionPosition))), 0.3f);
-			this.height = (int)MathHelper.Lerp((float)this.height, 540f + 540f * (1f - base.TransitionPosition), 0.3f);
-			base.ScreenManager.musicCategory.SetVolume(0f);
-			this.SourceRect = new Rectangle((int)MathHelper.Lerp((float)this.SourceRect.X, (float)(960 - this.width / 2), 0.3f), (int)MathHelper.Lerp((float)this.SourceRect.Y, (float)(540 - this.height / 2), 0.3f), this.width, this.height);
+		    GameAudio.MuteGenericMusic();
+
+            scale = 1f + 2f * base.TransitionPosition;
+            Saturation = 100f * (1f - base.TransitionPosition);
+            width = (int)MathHelper.Lerp((float)width, (float)((int)(960f + 960f * (1f - base.TransitionPosition))), 0.3f);
+            height = (int)MathHelper.Lerp((float)height, 540f + 540f * (1f - base.TransitionPosition), 0.3f);
+            SourceRect = new Rectangle((int)MathHelper.Lerp((float)SourceRect.X, (float)(960 - width / 2), 0.3f), (int)MathHelper.Lerp((float)SourceRect.Y, (float)(540 - height / 2), 0.3f), width, height);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}

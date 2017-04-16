@@ -681,7 +681,7 @@ namespace Ship_Game
 				{
 					if (this.SelectedPlanet != entry.p)
 					{
-						AudioManager.PlayCue("sd_ui_accept_alt3");
+						GameAudio.PlaySfx("sd_ui_accept_alt3");
 						this.SelectedPlanet = entry.p;
 						this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
 						if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.SelectedPlanet.colonyType)
@@ -737,7 +737,7 @@ namespace Ship_Game
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.U) && !input.LastKeyboardState.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.ExitScreen();
             }                
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))

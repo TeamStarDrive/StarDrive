@@ -58,7 +58,7 @@ namespace Ship_Game.Gameplay
         private const string Fmt = "00000.##";
         public bool DieNextFrame { get; private set; }
         public bool DieSound;
-        private Cue InFlight;
+        private AudioHandle InFlight;
         public string DieCueName = "";
         private bool WasAddedToSceneGraph;
         private bool LightWasAddedToSceneGraph;
@@ -128,10 +128,8 @@ namespace Ship_Game.Gameplay
                         Empire.Universe.ScreenManager.inter.LightManager.Remove(Light);
                     }
                 }
-                if (!InFlightCue.IsEmpty())
-                {
-                    InFlight?.Stop(AudioStopOptions.Immediate);
-                }
+                InFlight.Stop();
+
                 if (Explodes)
                 {
                     if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
@@ -140,43 +138,19 @@ namespace Ship_Game.Gameplay
                         DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
                     }
 
-                    if (WeaponType == "Photon")
+                    if (!cleanupOnly && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                     {
-                        if (!DieCueName.IsEmpty())
-                        {
-                            dieCue = AudioManager.GetCue(DieCueName);
-                        }
-                        if (dieCue != null)
-                        {
-                            dieCue.Apply3D(audioListener, Emitter);
-                            dieCue.Play();
-                        }
-                        if (!cleanupOnly && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                        {
+                        GameAudio.PlaySfx(DieCueName, Emitter);
+
+                        if (WeaponType == "Photon")
                             ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f, 0.2f, Weapon.ExpColor);
-                            Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
-                        }
-                    }
-                    else if (!DieCueName.IsEmpty())
-                    {
-                        if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                        {
-                            dieCue = AudioManager.GetCue(DieCueName);
-                            if (dieCue != null)
-                            {
-                                dieCue.Apply3D(audioListener, Emitter);
-                                dieCue.Play();
-                            }
-                        }
-                        if (!cleanupOnly && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                        {
+                        else
                             ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, 0.2f);
-                            if (FlashExplode)
-                            {
-                                Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
-                            }
-                        }
+
+                        if (FlashExplode)
+                            Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                     }
+
                     ActiveSpatialManager.ProjectileExplode(this, DamageAmount, DamageRadius);
                 }
                 else if (Weapon.FakeExplode && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -622,7 +596,7 @@ namespace Ship_Game.Gameplay
                 else if (WeaponType == "Ballistic Cannon")
                 {
                     if (target is ShipModule shipModule && shipModule.ModuleType != ShipModuleType.Shield)
-                        AudioManager.PlayCue("sd_impact_bullet_small_01", Empire.Universe.listener, Emitter);
+                        GameAudio.PlaySfx("sd_impact_bullet_small_01", Emitter);
                 }
             }
             DieNextFrame = true;
@@ -659,12 +633,9 @@ namespace Ship_Game.Gameplay
                 }
                 TexturePath = Weapon.AnimationPath + AnimationFrame.ToString(Fmt);
             }
-            if (!string.IsNullOrEmpty(InFlightCue) && InFlight == null)
-            {
-                InFlight = AudioManager.GetCue(InFlightCue);
-                InFlight?.Apply3D(Empire.Universe.listener, Emitter);
-                InFlight?.Play();
-            }
+            if (InFlight.NotPlaying)
+                InFlight = GameAudio.PlaySfx(InFlightCue, Emitter);
+
             ParticleDelay -= elapsedTime;
             if (Duration > 0f)
             {
@@ -753,7 +724,7 @@ namespace Ship_Game.Gameplay
             }
             if (ModuleAttachedTo != null)
             {
-                if (Owner.ProjectilesFired.Count < 30 && System != null && System.isVisible && MuzzleFlash == null && 
+                if (System != null && System.isVisible && MuzzleFlash == null && 
                     ModuleAttachedTo.InstalledWeapon.MuzzleFlash != null && Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView && !MuzzleFlashAdded)
                 {
                     MuzzleFlashAdded = true;

@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
@@ -11,7 +10,6 @@ namespace Ship_Game
     public abstract class GameplayObject
     {
         public static GraphicsDevice device;
-        public static AudioListener audioListener { get; set; }
 
         /**
          *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
@@ -19,7 +17,7 @@ namespace Ship_Game
          */
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] protected Cue dieCue;
+        [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx;
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
 
         [Serialize(0)] public Vector2 Position;

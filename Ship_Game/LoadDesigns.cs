@@ -65,7 +65,7 @@ namespace Ship_Game
         
 		private void DeleteAccepted(object sender, EventArgs e)
 		{
-			AudioManager.PlayCue("echo_affirm");
+			GameAudio.PlaySfx("echo_affirm");
 			ResourceManager.ShipsDict[this.ShipToDelete].Deleted = true;
 			this.Buttons.Clear();
 			this.ShipsToLoad.Clear();
@@ -76,7 +76,7 @@ namespace Ship_Game
 
 		private void DeleteDataAccepted(object sender, EventArgs e)
 		{
-			AudioManager.PlayCue("echo_affirm");
+			GameAudio.PlaySfx("echo_affirm");
 			this.Buttons.Clear();
 			this.ShipsToLoad.Clear();
 			this.ShipDesigns.Reset();
@@ -242,14 +242,14 @@ namespace Ship_Game
 						this.selector = new Selector(base.ScreenManager, e.clickRect);
 						if (e.clickRectHover == 0)
 						{
-							AudioManager.PlayCue("sd_ui_mouseover");
+							GameAudio.PlaySfx("sd_ui_mouseover");
 						}
 						e.clickRectHover = 1;
 						if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
 						{
 							this.EnterNameArea.Text = (e.item as ShipData).Name;
 							this.selectedWIP = e.item as ShipData;
-							AudioManager.PlayCue("sd_ui_accept_alt3");
+							GameAudio.PlaySfx("sd_ui_accept_alt3");
 						}
 					}
 				}
@@ -269,19 +269,19 @@ namespace Ship_Game
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfx("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
 					{
 						this.EnterNameArea.Text = (e.item as Ship).Name;
-						AudioManager.PlayCue("sd_ui_accept_alt3");
+						GameAudio.PlaySfx("sd_ui_accept_alt3");
 					}
 				}
 			}
 			if (this.playerDesignsToggle.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfx("sd_ui_accept_alt3");
 				this.ShowAllDesigns = !this.ShowAllDesigns;
 				if (this.ShowAllDesigns)
 				{

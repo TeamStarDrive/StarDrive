@@ -67,7 +67,7 @@ namespace Ship_Game
             : base(parent)
         {
             if(!string.IsNullOrEmpty(audioCue))
-                AudioManager.PlayCue(audioCue);
+                GameAudio.PlaySfx(audioCue);
             this.EmpireUI = empireUi;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -253,7 +253,7 @@ namespace Ship_Game
             if (this.sb_Sys.HandleInput(input))
             {
                 this.LastSorted = this.sb_Sys;
-                AudioManager.PlayCue("blip_click");
+                GameAudio.PlaySfx("blip_click");
                 this.sb_Sys.Ascending = !this.sb_Sys.Ascending;
                 this.PlanetSL.Entries.Clear();
                 this.PlanetSL.Copied.Clear();
@@ -293,7 +293,7 @@ namespace Ship_Game
             if (this.sb_Name.HandleInput(input))
             {
                 this.LastSorted = this.sb_Name;
-                AudioManager.PlayCue("blip_click");
+                GameAudio.PlaySfx("blip_click");
                 this.sb_Name.Ascending = !this.sb_Name.Ascending;
                 this.PlanetSL.Entries.Clear();
                 this.PlanetSL.Copied.Clear();
@@ -333,7 +333,7 @@ namespace Ship_Game
             if (this.sb_Fert.HandleInput(input))
             {
                 this.LastSorted = this.sb_Fert;
-                AudioManager.PlayCue("blip_click");
+                GameAudio.PlaySfx("blip_click");
                 this.sb_Fert.Ascending = !this.sb_Fert.Ascending;
                 this.PlanetSL.Entries.Clear();
                 this.PlanetSL.Copied.Clear();
@@ -373,7 +373,7 @@ namespace Ship_Game
             if (this.sb_Rich.HandleInput(input))
             {
                 this.LastSorted = this.sb_Rich;
-                AudioManager.PlayCue("blip_click");
+                GameAudio.PlaySfx("blip_click");
                 this.sb_Rich.Ascending = !this.sb_Rich.Ascending;
                 this.PlanetSL.Entries.Clear();
                 this.PlanetSL.Copied.Clear();
@@ -413,7 +413,7 @@ namespace Ship_Game
             if (this.sb_Pop.HandleInput(input))
             {
                 //this.LastSorted = this.sb_Pop;
-                AudioManager.PlayCue("blip_click");
+                GameAudio.PlaySfx("blip_click");
                 this.sb_Pop.Ascending = !this.sb_Pop.Ascending;
                 this.PlanetSL.Entries.Clear();
                 this.PlanetSL.Copied.Clear();
@@ -453,7 +453,7 @@ namespace Ship_Game
             if (this.sb_Owned.HandleInput(input))
             {
                 this.LastSorted = this.sb_Owned;
-                AudioManager.PlayCue("blip_click");
+                GameAudio.PlaySfx("blip_click");
                 this.sb_Owned.Ascending = !this.sb_Owned.Ascending;
                 this.PlanetSL.Entries.Clear();
                 this.PlanetSL.Copied.Clear();
@@ -506,7 +506,7 @@ namespace Ship_Game
                     else 
                     {
                         this.ExitScreen();
-                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        GameAudio.PlaySfx("sd_ui_accept_alt3");
                         Empire.Universe.SelectedPlanet = entry.planet;
                         Empire.Universe.ViewingShip = false;
                         Empire.Universe.returnToShip = false;
@@ -516,7 +516,7 @@ namespace Ship_Game
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.L) && !input.LastKeyboardState.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfx("echo_affirm");
                 this.ExitScreen();
                 return;
             }
@@ -625,7 +625,7 @@ namespace Ship_Game
                 }
                 if (this.sb_Fert.Text == this.LastSorted.Text)
                 {
-                    AudioManager.PlayCue("blip_click");
+                    GameAudio.PlaySfx("blip_click");
                     
                     this.PlanetSL.Entries.Clear();
                     this.PlanetSL.Copied.Clear();
@@ -665,7 +665,7 @@ namespace Ship_Game
                 if (this.LastSorted.Text == this.sb_Rich.Text   )//1this.sb_Rich == this.LastSorted)
                 {
                     this.LastSorted = this.sb_Rich;
-                    AudioManager.PlayCue("blip_click");
+                    GameAudio.PlaySfx("blip_click");
                     //this.sb_Rich.Ascending = !this.sb_Rich.Ascending;
                     this.PlanetSL.Entries.Clear();
                     this.PlanetSL.Copied.Clear();
@@ -705,7 +705,7 @@ namespace Ship_Game
                 if (this.sb_Pop.Text == this.LastSorted.Text)
                 {
                     this.LastSorted = this.sb_Pop;
-                    AudioManager.PlayCue("blip_click");
+                    GameAudio.PlaySfx("blip_click");
                     //this.sb_Pop.Ascending = !this.sb_Pop.Ascending;
                     this.PlanetSL.Entries.Clear();
                     this.PlanetSL.Copied.Clear();
@@ -745,7 +745,7 @@ namespace Ship_Game
                 if (this.sb_Owned.Text == this.LastSorted.Text)
                 {
                     this.LastSorted = this.sb_Owned;
-                    AudioManager.PlayCue("blip_click");
+                    GameAudio.PlaySfx("blip_click");
                     //this.sb_Owned.Ascending = !this.sb_Owned.Ascending;
                     this.PlanetSL.Entries.Clear();
                     this.PlanetSL.Copied.Clear();

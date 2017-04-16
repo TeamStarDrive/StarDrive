@@ -634,12 +634,12 @@ namespace Ship_Game
 				{
 					if (text.Length >= this.MaxCharacters)
 					{
-						AudioManager.PlayCue("UI_Misc20");
+						GameAudio.PlaySfx("UI_Misc20");
 					}
 					else
 					{
 						this.AddKeyToText(ref text, key);
-						AudioManager.PlayCue("blip_click");
+						GameAudio.PlaySfx("blip_click");
 						break;
 					}
 				}
@@ -680,7 +680,7 @@ namespace Ship_Game
 				else
 				{
 					this.AddKeyToText(ref text, key);
-					AudioManager.PlayCue("blip_click");
+					GameAudio.PlaySfx("blip_click");
 					break;
 				}
 			}

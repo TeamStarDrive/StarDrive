@@ -380,7 +380,7 @@ namespace Ship_Game
 					t.Hover = true;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 					{
-						AudioManager.PlayCue("sd_ui_accept_alt3");
+						GameAudio.PlaySfx("sd_ui_accept_alt3");
 						t.Selected = true;
 						foreach (Submenu.Tab t1 in this.Tabs)
 						{

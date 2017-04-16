@@ -69,7 +69,7 @@ namespace Ship_Game
 				{
 					if (this.DoMission.State != UIButton.PressState.Hover && this.DoMission.State != UIButton.PressState.Pressed)
 					{
-						AudioManager.PlayCue("mouse_over4");
+						GameAudio.PlaySfx("mouse_over4");
 					}
 					this.DoMission.State = UIButton.PressState.Hover;
 					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
@@ -98,7 +98,7 @@ namespace Ship_Game
                 {
                     if (this.DoMission.State != UIButton.PressState.Hover && this.DoMission.State != UIButton.PressState.Pressed)
                     {
-                        AudioManager.PlayCue("mouse_over4");
+                        GameAudio.PlaySfx("mouse_over4");
                     }
                     this.DoMission.State = UIButton.PressState.Hover;
                     if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
