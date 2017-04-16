@@ -639,10 +639,10 @@ namespace Ship_Game
                     startDragWorld = UnprojectToWorldPosition(startDrag);
                     ProjectedPosition = UnprojectToWorldPosition(startDrag);
                     Vector3 position =
-                        ScreenManager.GraphicsDevice.Viewport.Unproject(
+                        Viewport.Unproject(
                             new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0.0f), this.projection,
                             this.view, Matrix.Identity);
-                    viewport = ScreenManager.GraphicsDevice.Viewport;
+                    viewport = Viewport;
                     Vector3 direction = viewport.Unproject(
                                             new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 1f),
                                             projection, view, Matrix.Identity) - position;
@@ -658,11 +658,11 @@ namespace Ship_Game
                 if (input.CurrentMouseState.RightButton == ButtonState.Released &&
                     input.LastMouseState.RightButton == ButtonState.Pressed)
                 {
-                    viewport = ScreenManager.GraphicsDevice.Viewport;
+                    viewport = Viewport;
                     Vector3 position = viewport.Unproject(
                         new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0.0f), projection, view,
                         Matrix.Identity);
-                    viewport = ScreenManager.GraphicsDevice.Viewport;
+                    viewport = Viewport;
                     Vector3 direction = viewport.Unproject(
                                             new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 1f),
                                             projection, view, Matrix.Identity) - position;
@@ -1693,9 +1693,9 @@ namespace Ship_Game
                 if (goal.GoalName == "BuildConstructionShip")
                 {
                     float radius = 100f;
-                    Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), this.projection, this.view, Matrix.Identity);
+                    Vector3 vector3_1 = this.Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), this.projection, this.view, Matrix.Identity);
                     Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                    Vector3 vector3_2 = this.Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
                     float num = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2) + 10f;
                     ClickableItemUnderConstruction underConstruction = new ClickableItemUnderConstruction
                     {
@@ -1725,8 +1725,8 @@ namespace Ship_Game
                     this.DefiningAO = false;
                     return;
                 }
-                Vector3 position = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                Vector3 direction = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.projection, this.view, Matrix.Identity) - position;
+                Vector3 position = this.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                Vector3 direction = this.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.projection, this.view, Matrix.Identity) - position;
                 direction.Normalize();
                 Ray ray = new Ray(position, direction);
                 float num = -ray.Position.Z / ray.Direction.Z;

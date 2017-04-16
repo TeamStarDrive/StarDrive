@@ -238,7 +238,7 @@ namespace Ship_Game
 
         public static void DrawExplosions(ScreenManager screen, Matrix view, Matrix projection)
         {
-            var vp = screen.GraphicsDevice.Viewport;
+            var vp = Game1.Instance.Viewport;
             using (ExplosionList.AcquireReadLock())
             {
                 foreach (Explosion exp in ExplosionList)

@@ -74,14 +74,12 @@ namespace Ship_Game
 		public Vector2 GetScreenSpaceFromWorldSpace(Vector2 worldCoordinate)
 		{
 			Matrix transform = (Matrix.CreateTranslation(new Vector3(-this._pos.X, -this._pos.Y, 0f)) * Matrix.CreateScale(new Vector3(this.Zoom, this.Zoom, 1f))) * Matrix.CreateTranslation(new Vector3((float)Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, (float)Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f, 0f));
-			Matrix matrix = Matrix.CreateRotationY(3.14159274f) * Matrix.CreateRotationX(3.14159274f);
 			return Vector2.Transform(worldCoordinate, transform);
 		}
 
 		public void Move(Vector2 amount)
 		{
-			Camera2d camera2d = this;
-			camera2d._pos = camera2d._pos + amount;
+			_pos += amount;
 		}
 	}
 }

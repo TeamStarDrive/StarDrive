@@ -335,7 +335,7 @@ namespace Ship_Game
 
         private void CreateProjectionMatrix()
         {
-            float aspect = (float)ScreenManager.GraphicsDevice.Viewport.Width / ScreenManager.GraphicsDevice.Viewport.Height;
+            float aspect = (float)Viewport.Width / Viewport.Height;
             projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f);
         }
 
@@ -475,9 +475,9 @@ namespace Ship_Game
             {
                 Vector2 vector2_1 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
                 Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) * Matrix.CreateRotationX(0.0f.ToRadians()) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
-                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, view, Matrix.Identity);
+                Vector3 vector3_1 = this.Viewport.Project(Vector3.Zero, this.projection, view, Matrix.Identity);
                 Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size, 0.0f), this.projection, view, Matrix.Identity);
+                Vector3 vector3_2 = this.Viewport.Project(new Vector3(this.Size, 0.0f), this.projection, view, Matrix.Identity);
                 num = new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X;
                 if ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
                     this.MaxCamHeight -= 0.1f * this.MaxCamHeight;
@@ -696,7 +696,7 @@ namespace Ship_Game
 
         private void ProjectPieMenu(Vector2 position, float z)
         {
-            var proj = ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(z), projection, view, Matrix.Identity);
+            var proj = Viewport.Project(position.ToVec3(z), projection, view, Matrix.Identity);
             pieMenu.Position    = proj.ToVec2();
             pieMenu.Radius      = 75f;
             pieMenu.ScaleFactor = 1f;

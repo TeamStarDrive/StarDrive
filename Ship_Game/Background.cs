@@ -88,15 +88,11 @@ namespace Ship_Game
 
 		public void Draw(Vector2 camPos, Starfield starfield, Ship_Game.ScreenManager ScreenManager)
 		{
-			Vector2 vector2 = -1f * (camPos - lastCamPos);
-			int width = ScreenManager.GraphicsDevice.Viewport.Width;
-			Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
-			Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
+			Rectangle blackRect = new Rectangle(0, 0, Empire.Universe.Viewport.Width, Empire.Universe.Viewport.Height);
 			ScreenManager.SpriteBatch.Begin();
-			Color c = new Color(255, 255, 255, 160);
-			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
-			Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
+			var c = new Color(255, 255, 255, 160);
+			ScreenManager.SpriteBatch.FillRectangle(blackRect, new Color(12, 17, 24));
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, blackRect, c);
 			float percentX = camPos.X / 500000f;
 			float percentY = camPos.Y / 500000f;
 			float xDiff = (float)blackRect.Width / 10f;
@@ -106,15 +102,11 @@ namespace Ship_Game
 			starfield.Draw(cam.Pos, ScreenManager.SpriteBatch);
 			ScreenManager.SpriteBatch.End();
 			float x = cam.Pos.X;
-			Viewport viewport1 = ScreenManager.GraphicsDevice.Viewport;
-			Rectangle bgRect = new Rectangle((int)(x - (float)(viewport1.Width / 2) - cam.Pos.X / 30f - 200f), (int)(cam.Pos.Y - (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - cam.Pos.Y / 30f) - 200, 2048, 2048);
-			Vector2 vector22 = new Vector2(200f, 50f);
+			var bgRect = new Rectangle((int)(x - Empire.Universe.Viewport.Width / 2f - cam.Pos.X / 30f - 200f), 
+                (int)(cam.Pos.Y - (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2f) - cam.Pos.Y / 30f) - 200, 2048, 2048);
 			ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, cam.get_transformation(ScreenManager.GraphicsDevice));
 			ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
 			ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
-			float single = cam.Pos.X;
-			Viewport viewport2 = ScreenManager.GraphicsDevice.Viewport;
-			bgRect = new Rectangle((int)(single - (float)(viewport2.Width / 2) - cam.Pos.X / 15f - 200f), (int)(cam.Pos.Y - (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - cam.Pos.Y / 15f) - 200, 2500, 2500);
 			ScreenManager.SpriteBatch.End();
 			lastCamPos = camPos;
 		}
@@ -122,8 +114,8 @@ namespace Ship_Game
 	    public void Draw(UniverseScreen universe, Starfield starfield)
 	    {
             Vector2 camPos = universe.camPos.ToVec2();	        
-	        int width = universe.ScreenManager.GraphicsDevice.Viewport.Width;
-	        Viewport viewport = universe.ScreenManager.GraphicsDevice.Viewport;
+	        int width = universe.Viewport.Width;
+	        Viewport viewport = universe.Viewport;
 	        Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
 	        universe.ScreenManager.SpriteBatch.Begin();
 	        Color c = new Color(255, 255, 255, 160);
@@ -144,18 +136,16 @@ namespace Ship_Game
 	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
 	        {
 	            float x = cam.Pos.X;
-	            Viewport viewport1 = universe.ScreenManager.GraphicsDevice.Viewport;
-	            bgRect = new Rectangle((int) (x - viewport1.Width / 2 - cam.Pos.X / 30f - 200f),
+	            bgRect = new Rectangle((int) (x - universe.Viewport.Width / 2f - cam.Pos.X / 30f - 200f),
 	                (int) (cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
-	                       2 - cam.Pos.Y / 30f) - 200, 2600, 2600);
+	                       2f - cam.Pos.Y / 30f) - 200, 2600, 2600);
 	        }
 	        else
 	        {
 	            float single = cam.Pos.X;
-	            Viewport viewport2 = universe.ScreenManager.GraphicsDevice.Viewport;
-	            bgRect = new Rectangle((int) (single - viewport2.Width / 2 - cam.Pos.X / 30f - 200f),
+	            bgRect = new Rectangle((int) (single - universe.Viewport.Width / 2f - cam.Pos.X / 30f - 200f),
 	                (int) (cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
-	                       2 - cam.Pos.Y / 30f) - 200, 2048, 2048);
+	                       2f - cam.Pos.Y / 30f) - 200, 2048, 2048);
 	        }
 	        universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
 	            SaveStateMode.None, cam.get_transformation(universe.ScreenManager.GraphicsDevice));
@@ -164,15 +154,15 @@ namespace Ship_Game
 	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
 	        {
 	            float x1 = cam.Pos.X;
-	            Viewport viewport3 = universe.ScreenManager.GraphicsDevice.Viewport;
-	            bgRect = new Rectangle((int) (x1 - viewport3.Width / 2 - cam.Pos.X / 15f - 200f),
+	            Viewport viewport3 = universe.Viewport;
+	            bgRect = new Rectangle((int) (x1 - universe.Viewport.Width / 2f - cam.Pos.X / 15f - 200f),
 	                (int) (cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
-	                       2 - cam.Pos.Y / 15f) - 200, 2600, 2600);
+	                       2f - cam.Pos.Y / 15f) - 200, 2600, 2600);
 	        }
 	        else
 	        {
 	            float single1 = cam.Pos.X;
-	            Viewport viewport4 = universe.ScreenManager.GraphicsDevice.Viewport;
+	            Viewport viewport4 = universe.Viewport;
 	            bgRect = new Rectangle((int) (single1 - viewport4.Width / 2 - cam.Pos.X / 15f - 200f),
 	                (int) (cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
 	                       2 - cam.Pos.Y / 15f) - 200, 2500, 2500);
@@ -185,8 +175,8 @@ namespace Ship_Game
 		{
 			Vector2 camPos = Vector2.Zero;
 			Vector2 vector2 = -1f * (camPos - lastCamPos);
-			int width = universe.ScreenManager.GraphicsDevice.Viewport.Width;
-			Viewport viewport = universe.ScreenManager.GraphicsDevice.Viewport;
+			int width = universe.Viewport.Width;
+			Viewport viewport = universe.Viewport;
 			Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
 			universe.ScreenManager.SpriteBatch.Begin();
 			Color c = new Color(255, 255, 255, 160);
@@ -202,14 +192,14 @@ namespace Ship_Game
 			starfield.Draw(cam.Pos, universe.ScreenManager.SpriteBatch);
 			universe.ScreenManager.SpriteBatch.End();
 			float x = cam.Pos.X;
-			Viewport viewport1 = universe.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport1 = universe.Viewport;
 			Rectangle bgRect = new Rectangle((int)(x - (float)(viewport1.Width / 2) - cam.Pos.X / 30f - 200f), (int)(cam.Pos.Y - (float)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - cam.Pos.Y / 30f) - 200, 2048, 2048);
 			Vector2 vector22 = new Vector2(200f, 50f);
 			universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, cam.get_transformation(universe.ScreenManager.GraphicsDevice));
 			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
 			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
 			float single = cam.Pos.X;
-			Viewport viewport2 = universe.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport2 = universe.Viewport;
 			bgRect = new Rectangle((int)(single - (float)(viewport2.Width / 2) - cam.Pos.X / 15f - 200f), (int)(cam.Pos.Y - (float)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - cam.Pos.Y / 15f) - 200, 2500, 2500);
 			universe.ScreenManager.SpriteBatch.End();
 		}
@@ -218,20 +208,20 @@ namespace Ship_Game
 		{
 			Vector2 camPos = new Vector2(universe.camPos.X, universe.camPos.Y);
 			Vector2 vector2 = -1f * (camPos - lastCamPos);
-			int width = universe.ScreenManager.GraphicsDevice.Viewport.Width;
-			Viewport viewport = universe.ScreenManager.GraphicsDevice.Viewport;
+			int width = universe.Viewport.Width;
+			Viewport viewport = universe.Viewport;
 			Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
-			Viewport viewport1 = universe.ScreenManager.GraphicsDevice.Viewport;
-			Viewport viewport2 = universe.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport1 = universe.Viewport;
+			Viewport viewport2 = universe.Viewport;
 			Rectangle rectangle = new Rectangle(0, 0, viewport1.Width * 2, viewport2.Height * 2);
 			universe.ScreenManager.SpriteBatch.Begin();
 			Color color = new Color(255, 255, 255, 160);
 			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, Color.Black);
-			Viewport viewport3 = universe.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport3 = universe.Viewport;
             Vector3 UpperLeft = viewport3.Project(Vector3.Zero, universe.projection, universe.view, Matrix.Identity);
-			Viewport viewport4 = universe.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport4 = universe.Viewport;
 			Vector3 LowerRight = viewport4.Project(new Vector3(universe.Size.X, universe.Size.Y, 0f), universe.projection, universe.view, Matrix.Identity);
-			Viewport viewport5 = universe.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport5 = universe.Viewport;
 			viewport5.Project(new Vector3(universe.Size.X / 2f, universe.Size.Y / 2f, 0f), universe.projection, universe.view, Matrix.Identity);
 			Rectangle drawRect = new Rectangle((int)UpperLeft.X, (int)UpperLeft.Y, (int)LowerRight.X - (int)UpperLeft.X, (int)LowerRight.Y - (int)UpperLeft.Y);
 			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["galaxy"], drawRect, Color.White);

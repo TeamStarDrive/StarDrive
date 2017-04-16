@@ -22,6 +22,7 @@ namespace Ship_Game
         public bool IsExiting { get; protected set; }
         public bool IsPopup   { get; protected set; }
 
+        public Viewport Viewport { get; private set; }
         public ScreenManager ScreenManager { get; internal set; }
         public ScreenState   ScreenState   { get; protected set; }
         public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
@@ -29,7 +30,6 @@ namespace Ship_Game
         public float TransitionPosition   { get; protected set; } = 1f;
 
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
-
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -39,7 +39,10 @@ namespace Ship_Game
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
+            UpdateViewport();
         }
+
+        public void UpdateViewport() => Viewport = Game1.Instance.Viewport;
 
         public abstract void Draw(GameTime gameTime);
 

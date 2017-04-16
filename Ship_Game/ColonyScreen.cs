@@ -1351,22 +1351,11 @@ namespace Ship_Game
                 }
             }
 
-            if (this.ScreenManager.screens.Count == 2)
+            if (this.ScreenManager.NumScreens == 2)
                 popup = true;
 
             this.close.Draw(this.ScreenManager);
-            /* Should no longer be needed.
-      this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MoneyRect, Color.White);
 
-
-            
-       float num6 = (float) ((double) this.p.GrossMoneyPT + (double) this.p.Owner.data.Traits.TaxMod * (double) this.p.GrossMoneyPT - ((double) this.p.TotalMaintenanceCostsPerTurn + (double) this.p.TotalMaintenanceCostsPerTurn * (double) this.p.Owner.data.Traits.MaintMod));
-          
-     
-      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, num6.ToString("#.00"), new Vector2((float) (this.MoneyRect.X + this.MoneyRect.Width + 5), (float) (this.MoneyRect.Y + this.MoneyRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), (double) num6 > 0.0 ? Color.LightGreen : Color.LightPink);
-      if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
-        ToolTip.CreateTooltip(142, this.ScreenManager);
-           */
             if (HelperFunctions.CheckIntersection(this.foodStorageIcon, pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(73, this.ScreenManager);
             if (!HelperFunctions.CheckIntersection(this.profStorageIcon, pos) || !Empire.Universe.IsActive)

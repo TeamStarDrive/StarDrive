@@ -5476,19 +5476,19 @@ namespace Ship_Game
                 this.AvailableHulls.Add(Ship_Game.ResourceManager.HullsDict[hull.Key]);
             }
             PrimitiveQuad.graphicsDevice = base.ScreenManager.GraphicsDevice;
-            float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
-            Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+            float width = (float)base.Viewport.Width;
+            Viewport viewport = base.Viewport;
             float aspectRatio = width / (float)viewport.Height;
             this.offset = new Vector2();
-            Viewport viewport1 = base.ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport1 = base.Viewport;
             this.offset.X = (float)(viewport1.Width / 2 - 256);
-            Viewport viewport2 = base.ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport2 = base.Viewport;
             this.offset.Y = (float)(viewport2.Height / 2 - 256);
             this.camera = new Camera2d();
             Camera2d vector2 = this.camera;
-            Viewport viewport3 = base.ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport3 = base.Viewport;
             float single = (float)viewport3.Width / 2f;
-            Viewport viewport4 = base.ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport4 = base.Viewport;
             vector2.Pos = new Vector2(single, (float)viewport4.Height / 2f);
             Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
             this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
@@ -5528,11 +5528,11 @@ namespace Ship_Game
             }
             float xDistance = this.HighestX - this.LowestX;
             BoundingSphere bs = this.shipSO.WorldBoundingSphere;
-            Viewport viewport5 = base.ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport5 = base.Viewport;
             Vector3 pScreenSpace = viewport5.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
             Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
             Vector2 radialPos = MathExt.PointOnCircle(90f, xDistance);
-            Viewport viewport6 = base.ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport6 = base.Viewport;
             Vector3 insetRadialPos = viewport6.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
             Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
             float Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
@@ -5543,11 +5543,11 @@ namespace Ship_Game
                     camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
                     this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
                     bs = this.shipSO.WorldBoundingSphere;
-                    Viewport viewport7 = base.ScreenManager.GraphicsDevice.Viewport;
+                    Viewport viewport7 = base.Viewport;
                     pScreenSpace = viewport7.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     radialPos = MathExt.PointOnCircle(90f, xDistance);
-                    Viewport viewport8 = base.ScreenManager.GraphicsDevice.Viewport;
+                    Viewport viewport8 = base.Viewport;
                     insetRadialPos = viewport8.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
@@ -5561,11 +5561,11 @@ namespace Ship_Game
                     camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
                     this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
                     bs = this.shipSO.WorldBoundingSphere;
-                    Viewport viewport9 = base.ScreenManager.GraphicsDevice.Viewport;
+                    Viewport viewport9 = base.Viewport;
                     pScreenSpace = viewport9.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     radialPos = MathExt.PointOnCircle(90f, xDistance);
-                    Viewport viewport10 = base.ScreenManager.GraphicsDevice.Viewport;
+                    Viewport viewport10 = base.Viewport;
                     insetRadialPos = viewport10.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;

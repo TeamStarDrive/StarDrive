@@ -61,8 +61,8 @@ namespace Ship_Game
 				World = worldMatrix
 			};
 			base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
-			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
-			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+			float width = (float)base.Viewport.Width;
+			Viewport viewport = base.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
 			Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
 			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));

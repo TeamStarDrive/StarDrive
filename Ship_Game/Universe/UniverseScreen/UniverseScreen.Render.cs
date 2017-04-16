@@ -194,10 +194,10 @@ namespace Ship_Game {
             this.ScreenManager.SpriteBatch.Begin();
             for (int index = 0; index < 41; ++index)
             {
-                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+                Vector3 vector3_1 = this.Viewport.Project(
                     new Vector3((float) ((double) index * (double) this.Size.X / 40.0), 0.0f, 0.0f), this.projection,
                     this.view, Matrix.Identity);
-                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+                Vector3 vector3_2 = this.Viewport.Project(
                     new Vector3((float) ((double) index * (double) this.Size.X / 40.0), this.Size.Y, 0.0f),
                     this.projection, this.view, Matrix.Identity);
                 Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y),
@@ -205,10 +205,10 @@ namespace Ship_Game {
             }
             for (int index = 0; index < 41; ++index)
             {
-                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+                Vector3 vector3_1 = this.Viewport.Project(
                     new Vector3(0.0f, (float) ((double) index * (double) this.Size.Y / 40.0), 40f), this.projection,
                     this.view, Matrix.Identity);
-                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+                Vector3 vector3_2 = this.Viewport.Project(
                     new Vector3(this.Size.X, (float) ((double) index * (double) this.Size.Y / 40.0), 0.0f),
                     this.projection, this.view, Matrix.Identity);
                 Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y),
@@ -220,11 +220,11 @@ namespace Ship_Game {
         private void RenderOverFog(GameTime gameTime)
         {
             Vector3 vector3_1 =
-                this.ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, this.view,
+                this.Viewport.Project(Vector3.Zero, this.projection, this.view,
                     Matrix.Identity);
-            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+            Vector3 vector3_2 = this.Viewport.Project(
                 new Vector3(this.Size.X, this.Size.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-            this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X / 2f, this.Size.Y / 2f, 0.0f),
+            this.Viewport.Project(new Vector3(this.Size.X / 2f, this.Size.Y / 2f, 0.0f),
                 this.projection, this.view, Matrix.Identity);
             Rectangle rectangle1 = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                 (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
@@ -249,11 +249,11 @@ namespace Ship_Game {
                     if (this.Frustum.Contains(vector3_3) != ContainmentType.Disjoint)
                     {
                         Vector3 vector3_4 =
-                            this.ScreenManager.GraphicsDevice.Viewport.Project(vector3_3, this.projection, this.view,
+                            this.Viewport.Project(vector3_3, this.projection, this.view,
                                 Matrix.Identity);
                         Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
                         Vector3 vector3_5 =
-                            this.ScreenManager.GraphicsDevice.Viewport.Project(
+                            this.Viewport.Project(
                                 new Vector3(solarSystem.Position.PointOnCircle(90f, 25000f), 0.0f), this.projection,
                                 this.view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
@@ -267,7 +267,7 @@ namespace Ship_Game {
                                     planet.ExploredDict[this.player] = true;
                             }
                             Vector3 vector3_6 =
-                                this.ScreenManager.GraphicsDevice.Viewport.Project(
+                                this.Viewport.Project(
                                     new Vector3(
                                         new Vector2(100000f * UniverseScreen.GameScaleStatic, 0.0f) +
                                         solarSystem.Position, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -466,7 +466,7 @@ namespace Ship_Game {
                     float scale = 0.05f;
                     Vector3 vector3_3 = new Vector3(solarSystem.Position, 0.0f);
                     Vector3 vector3_4 =
-                        this.ScreenManager.GraphicsDevice.Viewport.Project(vector3_3, this.projection, this.view,
+                        this.Viewport.Project(vector3_3, this.projection, this.view,
                             Matrix.Identity);
                     Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath],

@@ -87,7 +87,7 @@ namespace Ship_Game
                 ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.InverseDestinationColor;
                 ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
                 ScreenManager.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
-                Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
+                Viewport viewport = Viewport;
                 Vector3 mp = viewport.Project(this.MoonObj.WorldBoundingSphere.Center, this.Projection, this.View, Matrix.Identity);
                 var moonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
                 var origin = new Vector2(184f, 184f);
@@ -433,7 +433,7 @@ namespace Ship_Game
 
             if (input.InGameSelect)
             {
-                Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
+                Viewport viewport = Viewport;
                 Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, Matrix.Identity);
                 Vector3 farPoint  = viewport.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, Matrix.Identity);
                 Vector3 direction = farPoint - nearPoint;
