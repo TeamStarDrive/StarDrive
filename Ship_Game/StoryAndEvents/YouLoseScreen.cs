@@ -80,13 +80,7 @@ namespace Ship_Game
 
 		public override void ExitScreen()
 		{
-			for (int i = 0; i < base.ScreenManager.screens.Count; i++)
-			{
-				if (base.ScreenManager.screens[i] != this)
-				{
-					base.ScreenManager.screens[i].ExitScreen();
-				}
-			}
+            ScreenManager.ExitAllExcept(this);
 			this.Music.Stop();
 			this.Ambience.Stop();
 			base.ScreenManager.AddScreen(new MainMenuScreen());

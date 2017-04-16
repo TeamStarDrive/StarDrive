@@ -424,7 +424,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             lock (GlobalStats.ExplosionLocker)
             {
-                foreach (CombatScreen.SmallExplosion exp in this.Explosions)
+                foreach (SmallExplosion exp in this.Explosions)
                 {
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[exp.AnimationTexture], exp.grid, Color.White);
                 }
@@ -432,7 +432,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.End();
             this.ScreenManager.SpriteBatch.Begin();
 
-            if (this.ScreenManager.screens.Count == 2)
+            if (this.ScreenManager.NumScreens == 2)
                 popup = true;
         }
 

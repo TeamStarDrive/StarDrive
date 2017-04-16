@@ -35,6 +35,7 @@ namespace Ship_Game
 		{
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
+
 			int WindowWidth = 320;
 			this.win = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth, 260, WindowWidth, 225);
 			Rectangle rectangle = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth + 20, 225, WindowWidth - 40, 455);
@@ -242,10 +243,8 @@ namespace Ship_Game
 				{
 					scale = 0.15f;
 				}
-				Viewport viewport = this.ScreenManager.GraphicsDevice.Viewport;
-				Vector3 nearPoint = viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
-				Viewport viewport1 = this.ScreenManager.GraphicsDevice.Viewport;
-				Vector3 farPoint = viewport1.Unproject(new Vector3(MousePos.X, MousePos.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
+				Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
+				Vector3 farPoint = screen.Viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
 				Vector3 direction = farPoint - nearPoint;
 				direction.Normalize();
 				Ray pickRay = new Ray(nearPoint, direction);
@@ -313,10 +312,8 @@ namespace Ship_Game
 				this.screen.showingDSBW = false;
 				return true;
 			}
-			Viewport viewport = this.ScreenManager.GraphicsDevice.Viewport;
-			Vector3 nearPoint = viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
-			Viewport viewport1 = this.ScreenManager.GraphicsDevice.Viewport;
-			Vector3 farPoint = viewport1.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
+			Vector3 nearPoint = screen.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
+			Vector3 farPoint = screen.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
 			Vector3 direction = farPoint - nearPoint;
 			direction.Normalize();
 			Ray pickRay = new Ray(nearPoint, direction);

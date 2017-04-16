@@ -3,7 +3,8 @@ using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
-namespace Ship_Game {
+namespace Ship_Game
+{
     public sealed partial class UniverseScreen
     {
         private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
@@ -13,10 +14,10 @@ namespace Ship_Game {
                                            2),
                 MousePosition.Y -
                 (float) (this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-            Vector3 position1 = this.ScreenManager.GraphicsDevice.Viewport.Unproject(
+            Vector3 position1 = this.Viewport.Unproject(
                 new Vector3(MousePosition.X, MousePosition.Y, 0.0f), this.projection, this.view, Matrix.Identity);
             Vector3 direction1 =
-                this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
+                this.Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
                     this.projection, this.view, Matrix.Identity) - position1;
             direction1.Normalize();
             Ray ray = new Ray(position1, direction1);
@@ -28,13 +29,13 @@ namespace Ship_Game {
                           Matrix.CreateLookAt(new Vector3(this.camPos.X, this.camPos.Y, DesiredCamHeight),
                               new Vector3(this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Vector3 vector3 =
-                this.ScreenManager.GraphicsDevice.Viewport.Project(source, this.projection, view, Matrix.Identity);
+                this.Viewport.Project(source, this.projection, view, Matrix.Identity);
             Vector2 vector2_2 = new Vector2((float) (int) vector3.X - vector2_1.X,
                 (float) (int) vector3.Y - vector2_1.Y);
-            Vector3 position2 = this.ScreenManager.GraphicsDevice.Viewport.Unproject(
+            Vector3 position2 = this.Viewport.Unproject(
                 new Vector3(vector2_2.X, vector2_2.Y, 0.0f), this.projection, view, Matrix.Identity);
             Vector3 direction2 =
-                this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
+                this.Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
                     this.projection, view, Matrix.Identity) - position2;
             direction2.Normalize();
             ray = new Ray(position2, direction2);

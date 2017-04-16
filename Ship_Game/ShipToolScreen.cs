@@ -540,8 +540,8 @@ namespace Ship_Game
             LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
             rig.AssignTo(this);
             base.ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
-            float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
-            Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+            float width = (float)base.Viewport.Width;
+            Viewport viewport = base.Viewport;
             float aspectRatio = width / (float)viewport.Height;
             Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
             this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));

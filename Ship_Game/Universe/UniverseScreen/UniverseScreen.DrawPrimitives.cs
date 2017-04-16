@@ -10,8 +10,8 @@ namespace Ship_Game
         // this does some magic to convert a game position/coordinate to a drawable screen position
         public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
-            //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
-            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
+            //return Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
+            return Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
@@ -54,8 +54,8 @@ namespace Ship_Game
 
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
         {
-            Vector3 position = ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(screenSpace, 0.0f), projection, view, Matrix.Identity);
-            Vector3 direction = ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(screenSpace, 1f), projection, view, Matrix.Identity) - position;
+            Vector3 position = Viewport.Unproject(new Vector3(screenSpace, 0.0f), projection, view, Matrix.Identity);
+            Vector3 direction = Viewport.Unproject(new Vector3(screenSpace, 1f), projection, view, Matrix.Identity) - position;
             direction.Normalize();
             var ray = new Ray(position, direction);
             float num = -ray.Position.Z / ray.Direction.Z;

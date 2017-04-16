@@ -955,8 +955,8 @@ namespace Ship_Game.Gameplay
                     MouseState state = Mouse.GetState();
                     if (state.RightButton == ButtonState.Pressed)
                     {
-                        Vector3 position = Empire.Universe.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(state.X, state.Y, 0.0f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity);
-                        Vector3 direction = Empire.Universe.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(state.X, state.Y, 1f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity) - position;
+                        Vector3 position = Empire.Universe.Viewport.Unproject(new Vector3(state.X, state.Y, 0.0f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity);
+                        Vector3 direction = Empire.Universe.Viewport.Unproject(new Vector3(state.X, state.Y, 1f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity) - position;
                         direction.Normalize();
                         var ray = new Ray(position, direction);
                         float num = -ray.Position.Z / ray.Direction.Z;

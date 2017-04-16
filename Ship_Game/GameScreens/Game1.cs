@@ -6,8 +6,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using System.Reflection;
-using System.Linq;
 
 namespace Ship_Game
 {
@@ -17,7 +15,8 @@ namespace Ship_Game
 		public GraphicsDeviceManager Graphics;
 		public static Game1 Instance;
 		public ScreenManager ScreenManager;
-		public bool IsLoaded;
+        public Viewport Viewport { get; private set; }
+		public bool IsLoaded { get; private set; }
 
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Instance.Content;
@@ -92,7 +91,9 @@ namespace Ship_Game
         public void ApplySettings()
 		{
 			Graphics.ApplyChanges();
-		}
+		    Viewport = GraphicsDevice.Viewport;
+            ScreenManager?.UpdateViewports();
+        }
 
 		protected override void Draw(GameTime gameTime)
 		{
@@ -184,7 +185,8 @@ namespace Ship_Game
             {
                 Graphics.ToggleFullScreen();
             }
-            Graphics.ApplyChanges();
+
+            ApplySettings();
 
             if (mode != WindowMode.Fullscreen)
             {
@@ -203,7 +205,7 @@ namespace Ship_Game
 
 		protected override void Update(GameTime gameTime)
 		{
-		    GameAudio.Update();
+            GameAudio.Update();
             ScreenManager.Update(gameTime);
 			base.Update(gameTime);
 		}

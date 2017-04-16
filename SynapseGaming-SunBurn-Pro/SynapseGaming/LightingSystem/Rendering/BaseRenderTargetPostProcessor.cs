@@ -30,7 +30,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     private IGraphicsDeviceService igraphicsDeviceService_0;
     private RenderTarget2D renderTarget2D_0;
     private RenderTarget2D renderTarget2D_1;
-    private Viewport viewport_0;
+    private Viewport Viewport;
     private ISceneState isceneState_0;
 
     /// <summary>
@@ -86,7 +86,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
       get
       {
-        return this.viewport_0;
+        return this.Viewport;
       }
     }
 
@@ -120,7 +120,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     public virtual void BeginFrameRendering(ISceneState scenestate)
     {
       GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
-      this.viewport_0 = graphicsDevice.Viewport;
+      this.Viewport = graphicsDevice.Viewport;
       this.renderTarget2D_1 = (RenderTarget2D) graphicsDevice.GetRenderTarget(0);
       graphicsDevice.SetRenderTarget(0, this.renderTarget2D_0);
       this.isceneState_0 = scenestate;
@@ -138,7 +138,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
       GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
       graphicsDevice.SetRenderTarget(0, this.renderTarget2D_1);
-      graphicsDevice.Viewport = this.viewport_0;
+      graphicsDevice.Viewport = this.Viewport;
       return this.renderTarget2D_0.GetTexture();
     }
 

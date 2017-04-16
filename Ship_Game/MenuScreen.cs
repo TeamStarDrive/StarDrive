@@ -22,7 +22,7 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport = base.Viewport;
 			Vector2 viewportSize = new Vector2((float)viewport.Width, (float)viewport.Height);
 			Vector2 position = new Vector2(0f, viewportSize.Y * 0.65f);
 			float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);

@@ -48,8 +48,8 @@ namespace Ship_Game
 		{
 			this.Mesh = TransientContent.Load<Model>("Model/sphere");
 			this.effect = TransientContent.Load<Effect>("Effects/PlanetHalo");
-			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
-			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+			float width = (float)base.Viewport.Width;
+			Viewport viewport = base.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
 			Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
 			this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) 

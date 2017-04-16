@@ -128,10 +128,10 @@ namespace Ship_Game
             if (this.SelectedSystem != null && !this.LookingAtPlanet)
             {
                 float num = 4500f;
-                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+                Vector3 vector3_1 = this.Viewport.Project(
                     new Vector3(this.SelectedSystem.Position, 0.0f), this.projection, this.view, Matrix.Identity);
                 Vector2 Position = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+                Vector3 vector3_2 = this.Viewport.Project(
                     new Vector3(new Vector2(this.SelectedSystem.Position.X + num, this.SelectedSystem.Position.Y),
                         0.0f), this.projection, this.view, Matrix.Identity);
                 float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Position);
@@ -145,10 +145,10 @@ namespace Ship_Game
                 this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
                 return;
             float radius = this.SelectedPlanet.SO.WorldBoundingSphere.Radius;
-            Vector3 vector3_3 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+            Vector3 vector3_3 = this.Viewport.Project(
                 new Vector3(this.SelectedPlanet.Position, 2500f), this.projection, this.view, Matrix.Identity);
             Vector2 Position1 = new Vector2(vector3_3.X, vector3_3.Y);
-            Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(
+            Vector3 vector3_4 = this.Viewport.Project(
                 new Vector3(SelectedPlanet.Position.PointOnCircle(90f, radius), 2500f), this.projection, this.view,
                 Matrix.Identity);
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
@@ -187,7 +187,7 @@ namespace Ship_Game
         private void DrawFogNodes()
         {
             var uiNode = ResourceManager.TextureDict["UI/node"];
-            var viewport = ScreenManager.GraphicsDevice.Viewport;
+            var viewport = Viewport;
 
             foreach (FogOfWarNode fogOfWarNode in FogNodes)
             {
@@ -211,7 +211,7 @@ namespace Ship_Game
         private void DrawInfluenceNodes()
         {
             var uiNode = ResourceManager.TextureDict["UI/node"];
-            var viewport = ScreenManager.GraphicsDevice.Viewport;
+            var viewport = Viewport;
 
             foreach (Empire.InfluenceNode influ in player.SensorNodes.AtomicCopy())
             {
@@ -333,16 +333,16 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.LightsTarget);
             this.ScreenManager.GraphicsDevice.Clear(Color.White);
 
-            this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X / 2f, this.Size.Y / 2f, 0.0f),
+            this.Viewport.Project(new Vector3(this.Size.X / 2f, this.Size.Y / 2f, 0.0f),
                 this.projection, this.view, Matrix.Identity);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
             {
                 Vector3 vector3_1 =
-                    ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, this.view,
+                    Viewport.Project(Vector3.Zero, this.projection, this.view,
                         Matrix.Identity);
                 Vector3 vector3_2 =
-                    ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X, this.Size.Y, 0.0f),
+                    Viewport.Project(new Vector3(this.Size.X, this.Size.Y, 0.0f),
                         this.projection, this.view, Matrix.Identity);
 
 
@@ -757,13 +757,13 @@ namespace Ship_Game
                     {
                         var icon = ResourceManager.TextureDict["FleetIcons/" + kv.FleetIconIndex];
                         Vector3 vector3_1 =
-                            ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(averagePosition, 0.0f),
+                            Viewport.Project(new Vector3(averagePosition, 0.0f),
                                 projection, view, Matrix.Identity);
                         Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
                         foreach (Ship ship in kv.Ships)
                         {
                             Vector3 vector3_2 =
-                                ScreenManager.GraphicsDevice.Viewport.Project(
+                                Viewport.Project(
                                     new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);
                             Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y),
                                 vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 20));
@@ -798,7 +798,7 @@ namespace Ship_Game
                         if (planet.Owner != null)
                         {
                             Vector3 vector3 =
-                                this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f),
+                                this.Viewport.Project(new Vector3(planet.Position, 2500f),
                                     this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
@@ -824,7 +824,7 @@ namespace Ship_Game
                         else
                         {
                             Vector3 vector3 =
-                                this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f),
+                                this.Viewport.Project(new Vector3(planet.Position, 2500f),
                                     this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
