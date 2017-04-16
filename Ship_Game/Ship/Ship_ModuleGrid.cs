@@ -281,6 +281,8 @@ namespace Ship_Game.Gameplay
             if (NumExternalSlots == 0)
                 return null;
 
+            ++GlobalStats.DistanceCheckTotal;
+
             Point pt = WorldToGridLocalPoint(worldPoint);
             if (!LocalPointInBounds(pt))
                 return null;
@@ -325,6 +327,8 @@ namespace Ship_Game.Gameplay
                 ShipModule shield = HitTestShields(worldHitPos, hitRadius);
                 if (shield != null) return shield;
             }
+
+            ++GlobalStats.DistanceCheckTotal;
 
             Point a  = WorldToGridLocalPoint(worldHitPos - new Vector2(hitRadius));
             Point b  = WorldToGridLocalPoint(worldHitPos + new Vector2(hitRadius));
@@ -381,17 +385,6 @@ namespace Ship_Game.Gameplay
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
         }
-
-        public ShipModule HitTestSingleDbg(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
-        {
-            ShipModule m = HitTestSingle(worldHitPos, hitRadius, ignoreShields);
-            #if DEBUG
-                if (Empire.Universe.Debug)
-                    AddGridLocalDebugCircle(5f, WorldToGridLocal(worldHitPos));
-            #endif
-            return m;
-        }
-
 
         // Code gods, I pray for thy forgiveness for this copy-paste -T_T-
         // This was done solely for performance reasons. This method gets called
@@ -504,6 +497,8 @@ namespace Ship_Game.Gameplay
             ShipModule m = null;
             if (!ignoreShields && (m = RayHitTestShields(startPos, endPos, rayRadius)) != null)
                 return m;
+
+            ++GlobalStats.DistanceCheckTotal;
 
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
