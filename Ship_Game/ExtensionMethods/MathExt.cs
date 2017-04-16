@@ -89,7 +89,7 @@ namespace Ship_Game
 
         public static Vector2 Normalized(this Vector2 v)
         {
-            float len = (float)Sqrt(v.X * v.X + v.Y * v.Y);
+            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y);
             return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
         }
 
@@ -442,8 +442,8 @@ namespace Ship_Game
                 {
                     case 0: p = -dx; q = start.X;         break; // left  edge check
                     case 1: p =  dx; q = lastX - start.X; break; // right edge check
-                    case 2: p = -dy; q = lastY - start.Y; break; // bottom edge check
-                    case 3: p =  dy; q = start.Y;         break; // top edge check
+                    case 2: p =  dy; q = lastY - start.Y; break; // bottom edge check
+                    case 3: p = -dy; q = start.Y;         break; // top edge check
                 }
                 if (p == 0 && q < 0)
                     return false;   // (parallel line outside)
@@ -463,6 +463,52 @@ namespace Ship_Game
             clippedStart.Y = Max(0, Min((int)(start.Y + t0 * dy), lastY));
             clippedEnd.X   = Max(0, Min((int)(start.X + t1 * dx), lastX));
             clippedEnd.Y   = Max(0, Min((int)(start.Y + t1 * dy), lastY));
+            return true;
+        }
+
+        // Liang-Barsky line clipping algorithm
+        // @note This algorithm relies on Y down !! It will not work with Y up
+        // Takes an axis aligned bounding rect (0..boundsWidth)x(0..boundsHeight)
+        // and two points that form a line [start, end]
+        // If result is true (which means line [start,end] intersects bounds) then
+        // output is [clippedStart, clippedEnd]. Otherwise no result is written.
+        // http://www.skytopia.com/project/articles/compsci/clipping.html
+        public static bool ClipLineWithBounds(
+            float boundsWidth, float boundsHeight,     // Define the x/y clipping values for the border.
+            Vector2 start, Vector2 end,            // Define the start and end points of the line.
+            ref Vector2 clippedStart, ref Vector2 clippedEnd)  // The clipped points
+        {
+            float t0 = 0f, t1 = 1f;
+            float dx = end.X - start.X;
+            float dy = end.Y - start.Y;
+            float p = 0, q = 0;
+            for (int edge = 0; edge < 4; ++edge)
+            {
+                switch (edge) // Traverse through left, right, bottom, top edges.
+                {
+                    case 0: p = -dx; q = start.X; break; // left  edge check
+                    case 1: p =  dx; q = boundsWidth  - start.X; break; // right edge check
+                    case 2: p =  dy; q = boundsHeight - start.Y; break; // bottom edge check
+                    case 3: p = -dy; q = start.Y; break; // top edge check
+                }
+                if (q < 0f && p.AlmostEqual(0f))
+                    return false;   // (parallel line outside)
+                float r = q / p;
+                if (p < 0)
+                {
+                    if (r > t1) return false; // line will clip too far, we're out of bounds
+                    if (r > t0) t0 = r;       // clip line from start towards end
+                }
+                else if (p > 0)
+                {
+                    if (r < t0) return false; // line will clip too far, we're out of bounds
+                    if (r < t1) t1 = r;       // clip line from end towards start
+                }
+            }
+            clippedStart.X = Max(0, Min(start.X + t0 * dx, boundsWidth  - 0.1f));
+            clippedStart.Y = Max(0, Min(start.Y + t0 * dy, boundsHeight - 0.1f));
+            clippedEnd.X   = Max(0, Min(start.X + t1 * dx, boundsWidth  - 0.1f));
+            clippedEnd.Y   = Max(0, Min(start.Y + t1 * dy, boundsHeight - 0.1f));
             return true;
         }
 

@@ -89,8 +89,7 @@ namespace Ship_Game.Gameplay
             if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
             {
                 var stackTrace = new Exception();
-                MessageBox.Show($"Failed to create new ship '{shipName}'. " +
-                                $"This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
+                MessageBox.Show($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
                                  "Ship spawn failed!", MessageBoxButtons.OK);
                 return null;
             }

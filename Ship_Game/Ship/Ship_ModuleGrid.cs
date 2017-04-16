@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
@@ -98,7 +96,7 @@ namespace Ship_Game.Gameplay
             if (!GetModuleAt(SparseModuleGrid, x, y, out ShipModule module))
                 return false;
 
-            SlotPointAt(module.Position, out x, out y); // now get the true topleft root coordinates of module
+            ModulePosToGridPoint(module.Position, out x, out y); // now get the true topleft root coordinates of module
             bool shouldBeExternal = module.Active &&
                                     IsModuleInactiveAt(x, y - 1) ||
                                     IsModuleInactiveAt(x - 1, y) ||
@@ -134,7 +132,7 @@ namespace Ship_Game.Gameplay
         // updates the isExternal status of a module, depending on whether it died or resurrected
         public void UpdateExternalSlots(ShipModule module, bool becameActive)
         {
-            SlotPointAt(module.Position, out int x, out int y);
+            ModulePosToGridPoint(module.Position, out int x, out int y);
 
             if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
                 AddExternalModule(module, x, y, GetQuadrantEstimate(x, y));
@@ -156,20 +154,20 @@ namespace Ship_Game.Gameplay
         }
         private void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
         {
-            SlotPointAt(module.Position, out int x, out int y);
+            ModulePosToGridPoint(module.Position, out int x, out int y);
             UpdateGridSlot(sparseGrid, x, y, module, becameActive);
         }
 
-        private void SlotPointAt(Vector2 moduleLocalPos, out int x, out int y)
+        private void ModulePosToGridPoint(Vector2 moduleLocalPos, out int x, out int y)
         {
             Vector2 offset = moduleLocalPos - GridOrigin;
             x = (int)Math.Floor(offset.X / 16f);
             y = (int)Math.Floor(offset.Y / 16f);
         }
 
-        public bool TryGetModule(Vector2 pos, out ShipModule module)
+        public bool TryGetModule(Vector2 modulePos, out ShipModule module)
         {
-            SlotPointAt(pos, out int x, out int y);
+            ModulePosToGridPoint(modulePos, out int x, out int y);
             return GetModuleAt(SparseModuleGrid, x, y, out module);
         }
 
@@ -226,6 +224,11 @@ namespace Ship_Game.Gameplay
             return new Point((int)Math.Floor(local.X / 16f), (int)Math.Floor(local.Y / 16f));
         }
 
+        public Point GridLocalToPoint(Vector2 localPos)
+        {
+            return new Point((int)Math.Floor(localPos.X / 16f), (int)Math.Floor(localPos.Y / 16f));
+        }
+
         public Point WorldToGridLocalPointClipped(Vector2 worldPoint)
         {
             Point pt = WorldToGridLocalPoint(worldPoint);
@@ -247,6 +250,12 @@ namespace Ship_Game.Gameplay
                 && 0 <= point.Y && point.Y < GridHeight;
         }
 
+        private bool InLocalBounds(Vector2 localPos)
+        {
+            return 0f <= localPos.X && localPos.X < GridWidth*16f
+                && 0f <= localPos.Y && localPos.Y < GridHeight*16f;
+        }
+
         public Vector2 GridLocalToWorld(Vector2 localPoint)
         {
             Vector2 centerLocal = GridOrigin + localPoint;
@@ -258,7 +267,8 @@ namespace Ship_Game.Gameplay
             return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
         }
 
-
+        public Vector2 GridSquareToWorld(int x, int y) => GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
+        public Vector2 GridSquareToWorld(Point pt) => GridLocalToWorld(new Vector2(pt.X * 16f + 8f, pt.Y * 16f + 8f));
 
 
 
@@ -463,54 +473,27 @@ namespace Ship_Game.Gameplay
             }
         }
 
-
-
-
         // perform a raytrace from point a to point b, visiting all grid points between them!
-        private ShipModule RayTrace(Point a, Point b, ShipModule[] grid, int gridWidth, int gridHeight)
+        private ShipModule RayTrace(Vector2 a, Vector2 b, ShipModule[] grid, int gridWidth, int gridHeight)
         {
-            int dx = Math.Abs(b.X - a.X);
-            int dy = Math.Abs(b.Y - a.Y);
-            int n = 1 + dx + dy;
-            int kx = (b.X > a.X) ? 1 : -1;
-            int ky = (b.Y > a.Y) ? 1 : -1;
-            int x = a.X;
-            int y = a.Y;
-
-            // move the starting point a little backwards if possible
-            //if (dx > 0)
-            //{
-            //    if (kx > 0) { if (x > 0) { --x; ++n; } }
-            //    else        { if (x < gridWidth - 1) { ++x; ++n; } }
-            //}
-            //if (dy > 0)
-            //{
-            //    if (ky > 0) { if (y > 0) { --y; ++n; } }
-            //    else        { if (y < gridHeight - 1) { ++y; ++n; } }
-            //}
-
-            int error = dx - dy;
-            dx *= 2;
-            dy *= 2;
-            for (; n > 0; --n)
+            Vector2 pos   = a;
+            Vector2 delta = b - a;
+            Vector2 step  = delta.Normalized() * 16f;
+            int n = (int)Math.Ceiling(delta.Length() / 16f);
+            for (; n > 0; --n, pos += step)
             {
-                ShipModule m = grid[x + y*gridWidth];
+                Point p = GridLocalToPoint(pos);
+                //#if DEBUG
+                //    AddGridRayTraceDebug(3f, p.X, p.Y);
+                //#endif
+
+                ShipModule m = grid[p.X + p.Y*gridWidth];
                 if (m != null && m.Active)
                 {
-#if DEBUG
-                    AddGridLocalHitIndicator(5f, x, y);
-#endif
+                    #if DEBUG
+                        AddGridLocalHitIndicator(3f, p.X, p.Y);
+                    #endif
                     return m;
-                }
-                if (error > 0)
-                {
-                    if (0 < x && x < gridWidth) x += kx;
-                    error -= dy;
-                }
-                else
-                {
-                    if (0 < y && y < gridHeight) y += ky;
-                    error += dx;
                 }
             }
             return null;
@@ -522,29 +505,27 @@ namespace Ship_Game.Gameplay
             if (!ignoreShields && (m = RayHitTestShields(startPos, endPos, rayRadius)) != null)
                 return m;
 
-            Point a = WorldToGridLocalPoint(startPos);
-            Point b = WorldToGridLocalPoint(endPos);
-            if (MathExt.ClipLineWithBounds(GridWidth, GridHeight, a, b, ref a, ref b)) // guaranteed bounds safety
+            Vector2 a = WorldToGridLocal(startPos);
+            Vector2 b = WorldToGridLocal(endPos);
+            if (MathExt.ClipLineWithBounds(GridWidth*16f, GridHeight*16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
-                if (a == b)
-                {
-                    m = SparseModuleGrid[a.X + a.Y * GridWidth];
-                    m = m != null && m.Active ? m : null;
-                }
-                else
-                {
-                    // @todo Make use of rayRadius to improve raytrace precision
-                    m = RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
-                }
-#if DEBUG
-                if (Empire.Universe.Debug && m != null)
-                {
-                    Vector2 localA = WorldToGridLocal(startPos);
-                    Vector2 localB = WorldToGridLocal(endPos);
-                    AddGridLocalDebugLine(5f, localA, localB);
-                }
-#endif
+                // @todo Make use of rayRadius to improve raytrace precision
+                m = RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
+
+                #if DEBUG
+                    if (Empire.Universe.Debug && m != null)
+                    {
+                        Vector2 localA = WorldToGridLocal(startPos);
+                        Vector2 localB = WorldToGridLocal(endPos);
+                        AddGridLocalDebugLine(5f, localA, localB);
+                    }
+                #endif
             }
+            //else
+            //{
+            //    if (InLocalBounds(a) || InLocalBounds(b))
+            //        Log.Warning("ClipLine bug");
+            //}
             return m;
         }
 

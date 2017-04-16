@@ -491,7 +491,7 @@ namespace Ship_Game.Gameplay
 
                 ShipModule hit = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
                 if (!beam.Touch(hit)) // dish out damage if we can
-                    continue;
+                    continue; // we couldn't :(
 
                 ship.MoveModulesTimer = 2f;
 
