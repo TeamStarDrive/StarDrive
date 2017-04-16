@@ -210,10 +210,10 @@
     <Compile Include="Ship_Game\FGPathing\PathFinder.cs" />
     <Compile Include="Ship_Game\FGPathing\PathFinderFast.cs" />
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
-    <Compile Include="Ship_Game\Gameplay\Ship_Cargo.cs" />
-    <Compile Include="Ship_Game\Gameplay\Ship_Initialize.cs" />
-    <Compile Include="Ship_Game\Gameplay\Ship_ModuleGrid.cs" />
-    <Compile Include="Ship_Game\Gameplay\Ship_Rendering.cs" />
+    <Compile Include="Ship_Game\Ship\Ship_Cargo.cs" />
+    <Compile Include="Ship_Game\Ship\Ship_Initialize.cs" />
+    <Compile Include="Ship_Game\Ship\Ship_ModuleGrid.cs" />
+    <Compile Include="Ship_Game\Ship\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
     <Compile Include="Ship_Game\GameScreens\DrawRoutines.cs" />
     <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
@@ -257,7 +257,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Menus.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Render.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
-    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen_DrawPrimitives.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Utils\MemoryPool.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\PlanetEdict.cs">
@@ -518,7 +518,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ShipModule.cs">
+    <Compile Include="Ship_Game\Ship\ShipModule.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -774,7 +774,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\Ship.cs">
+    <Compile Include="Ship_Game\Ship\Ship.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
