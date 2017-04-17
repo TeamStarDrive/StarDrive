@@ -58,7 +58,7 @@ namespace Ship_Game.Gameplay
         private const string Fmt = "00000.##";
         public bool DieNextFrame { get; private set; }
         public bool DieSound;
-        private AudioHandle InFlight;
+        private AudioHandle InFlightSfx;
         public string DieCueName = "";
         private bool WasAddedToSceneGraph;
         private bool LightWasAddedToSceneGraph;
@@ -128,7 +128,9 @@ namespace Ship_Game.Gameplay
                         Empire.Universe.ScreenManager.inter.LightManager.Remove(Light);
                     }
                 }
-                InFlight.Stop();
+
+                if (InFlightSfx.IsPlaying)
+                    InFlightSfx.Stop();
 
                 if (Explodes)
                 {
@@ -140,7 +142,7 @@ namespace Ship_Game.Gameplay
 
                     if (!cleanupOnly && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                     {
-                        GameAudio.PlaySfx(DieCueName, Emitter);
+                        GameAudio.PlaySfxAsync(DieCueName, Emitter);
 
                         if (WeaponType == "Photon")
                             ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f, 0.2f, Weapon.ExpColor);
@@ -596,7 +598,7 @@ namespace Ship_Game.Gameplay
                 else if (WeaponType == "Ballistic Cannon")
                 {
                     if (target is ShipModule shipModule && shipModule.ModuleType != ShipModuleType.Shield)
-                        GameAudio.PlaySfx("sd_impact_bullet_small_01", Emitter);
+                        GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
                 }
             }
             DieNextFrame = true;
@@ -633,8 +635,9 @@ namespace Ship_Game.Gameplay
                 }
                 TexturePath = Weapon.AnimationPath + AnimationFrame.ToString(Fmt);
             }
-            if (InFlight.NotPlaying)
-                InFlight = GameAudio.PlaySfx(InFlightCue, Emitter);
+
+            if (InFlightSfx.NotPlaying)
+                InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
 
             ParticleDelay -= elapsedTime;
             if (Duration > 0f)

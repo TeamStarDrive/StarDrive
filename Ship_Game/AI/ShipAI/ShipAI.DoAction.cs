@@ -877,7 +877,7 @@ namespace Ship_Game.AI {
 
                 if (Owner.InFrustum)
                 {
-                    GameAudio.PlaySfx("transporter", module.GetParent().SoundEmitter);
+                    GameAudio.PlaySfxAsync("transporter", module.GetParent().SoundEmitter);
                 }
             }
         }

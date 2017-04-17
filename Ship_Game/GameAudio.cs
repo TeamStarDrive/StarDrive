@@ -1,62 +1,97 @@
 using System;
-using Microsoft.Xna.Framework;
+using System.Threading;
 using Microsoft.Xna.Framework.Audio;
 
 namespace Ship_Game
 {
-    public struct AudioHandle
+    public class AudioHandleState
     {
         private Cue CueInst;
         private SoundEffectInstance SfxInst;
-
-        public AudioHandle(Cue cue)
+        private bool Loading;
+        public AudioHandleState(Cue cue, SoundEffectInstance sfx)
         {
             CueInst = cue;
-            SfxInst = null;
-        }
-        public AudioHandle(SoundEffectInstance sfx)
-        {
-            CueInst = null;
             SfxInst = sfx;
         }
-        public bool IsPlaying  => CueInst?.IsPlaying ?? SfxInst?.State == SoundState.Playing;
-        public bool IsPaused   => CueInst?.IsPaused  ?? SfxInst?.State == SoundState.Paused;
+        public bool IsPlaying => Loading || (CueInst?.IsPlaying ?? SfxInst?.State == SoundState.Playing);
+        public bool IsPaused => CueInst?.IsPaused ?? SfxInst?.State == SoundState.Paused;
         public bool NotPlaying
         {
             get
             {
+                if (Loading) return false; // if it's loading, it's almost playing
                 if (CueInst != null) return CueInst.IsStopped;
                 if (SfxInst != null) return SfxInst.State == SoundState.Stopped;
                 return true;
             }
-        }
-        public void Stop()
-        {
-            if (SfxInst != null)
-            {
-                SfxInst.Stop(immediate:true);
-                SfxInst = null;
-            }
-            else if (CueInst != null)
-            {
-                CueInst.Stop(AudioStopOptions.Immediate);
-                CueInst = null;
-            }
-        }
-        public void Resume()
-        {
-            SfxInst?.Resume();
-            CueInst?.Resume();
         }
         public void Pause()
         {
             SfxInst?.Pause();
             CueInst?.Pause();
         }
+        public void Resume()
+        {
+            SfxInst?.Resume();
+            CueInst?.Resume();
+        }
+        public void Stop()
+        {
+            SfxInst?.Stop(immediate: true);
+            CueInst?.Stop(AudioStopOptions.Immediate);
+            SfxInst = null;
+            CueInst = null;
+            Loading = false;
+        }
         public void Destroy()
         {
             SfxInst?.Dispose();
             CueInst?.Dispose();
+            SfxInst = null;
+            CueInst = null;
+            Loading = false;
+        }
+        public void Completed(Cue cue, SoundEffectInstance sfx)
+        {
+            CueInst = cue;
+            SfxInst = sfx;
+            Loading = false;
+        }
+        public void PlaySfxAsync(string cueName, AudioEmitter emitter = null)
+        {
+            if (Loading) return;
+            Loading = true;
+            GameAudio.PlaySfxAsync(cueName, emitter, this);
+        }
+    }
+
+    public struct AudioHandle
+    {
+        private AudioHandleState State;
+
+        public AudioHandle(Cue cue, SoundEffectInstance sfx) => State = new AudioHandleState(cue, sfx);
+        public bool IsPlaying  => State != null && State.IsPlaying;
+        public bool IsPaused   => State != null && State.IsPaused;
+        public bool NotPlaying => State != null && State.NotPlaying;
+        public void Pause()    => State?.Pause();
+        public void Resume()   => State?.Resume();
+        public void Stop()
+        {
+            if (State != null) { State.Stop(); State = null; }
+        }
+        public void Destroy()
+        {
+            if (State != null) { State.Destroy(); State = null; }
+        }
+        public void PlaySfxAsync(string cueName, AudioEmitter emitter = null)
+        {
+            if (GameAudio.CantPlaySfx(cueName))
+                return;
+
+            if (State == null)
+                State = new AudioHandleState(null, null);
+            State.PlaySfxAsync(cueName, emitter);
         }
     }
 
@@ -78,19 +113,27 @@ namespace Ship_Game
         private static AudioCategory RacialMusic;
         private static AudioCategory CombatMusic;
 
-        private static Array<AudioHandle> AudioHandles;
+        private static Array<AudioHandleState> AudioHandles;
+        private static int ThisFrameSfxCount; // Limit the number of Cues that can be loaded per frame. 
 
-        private static int ThisFrameCueCount; // Limit the number of Cues that can be loaded per frame. 
-        private static bool FrameCueLimitExceeded => ThisFrameCueCount > 2; // @ 60fps, this is max 120 samples per minute
+        private struct EnqueuedSfx
+        {
+            public string CueName;
+            public AudioEmitter Emitter;
+            public AudioHandleState State;
+        }
+
+        private static Array<EnqueuedSfx> SfxQueue;
+        private static Thread SfxThread;
 
         public static void Initialize(string settingsFile, string waveBankFile, string soundBankFile)
         {
             try
             {
-                AudioHandles = new Array<AudioHandle>();
-                AudioEngine = new AudioEngine(settingsFile);
-                WaveBank    = new WaveBank(AudioEngine, waveBankFile, 0, 16);
-                SoundBank   = new SoundBank(AudioEngine, soundBankFile);
+                AudioHandles = new Array<AudioHandleState>();
+                AudioEngine  = new AudioEngine(settingsFile);
+                WaveBank     = new WaveBank(AudioEngine, waveBankFile, 0, 16);
+                SoundBank    = new SoundBank(AudioEngine, soundBankFile);
 
                 while (!WaveBank.IsPrepared)
                     AudioEngine.Update();
@@ -102,6 +145,10 @@ namespace Ship_Game
                 Weapons     = AudioEngine.GetCategory("Weapons");
                 RacialMusic = AudioEngine.GetCategory("RacialMusic");
                 CombatMusic = AudioEngine.GetCategory("CombatMusic");
+
+                SfxQueue  = new Array<EnqueuedSfx>(16);
+                SfxThread = new Thread(SfxEnqueueThread) {Name = "GameAudioSfx"};
+                SfxThread.Start();
             }
             catch (Exception ex)
             {
@@ -115,6 +162,10 @@ namespace Ship_Game
         // called from Game1 Dispose()
         public static void Destroy()
         {
+            SfxThread = null;
+            SfxQueue.Clear();
+            SfxQueue = null;
+
             lock (AudioHandles)
             {
                 for (int i = 0; i < AudioHandles.Count; ++i)
@@ -130,7 +181,7 @@ namespace Ship_Game
         // this is called from Game1.Update() every frame
         public static void Update()
         {
-            ThisFrameCueCount = 0;
+            ThisFrameSfxCount = 0;
             DisposeStoppedHandles();
 
             AudioEngine?.Update();
@@ -181,62 +232,89 @@ namespace Ship_Game
             RacialMusic.Stop(AudioStopOptions.Immediate);
         }
 
-
-        private static AudioHandle Play(string cueName, AudioEmitter emitter = null)
+        private static void SfxEnqueueThread()
         {
-            AudioHandle handle;
+            for (;;)
+            {
+                Thread.Sleep(1);
+                if (SfxThread == null)
+                    break;
+                if (SfxQueue.IsEmpty)
+                    continue;
 
+                EnqueuedSfx[] items;
+                lock (SfxQueue)
+                {
+                    items = SfxQueue.ToArray();
+                    SfxQueue.Clear();
+                }
+                for (int i = 0; i < items.Length; ++i)
+                {
+                    PlaySfx(items[i].CueName, items[i].Emitter, items[i].State);
+                }
+            }
+        }
+
+        private static void PlaySfx(string cueName, AudioEmitter emitter, AudioHandleState state)
+        {
             if (ResourceManager.GetModSoundEffect(cueName, out SoundEffect sfx))
             {
                 SoundEffectInstance sfxi = sfx.CreateInstance();
-                handle = new AudioHandle(sfxi);
                 if (emitter != null)
                     sfxi.Apply3D(Empire.Universe.Listener, emitter);
-
                 sfxi.Volume = GlobalStats.EffectsVolume;
                 sfxi.Play();
+
+                state?.Completed(null, sfxi);
+                lock (AudioHandles) AudioHandles.Add(state ?? new AudioHandleState(null, sfxi));
             }
             else
             {
                 Cue cue = SoundBank.GetCue(cueName);
-                handle = new AudioHandle(cue);
                 if (emitter != null)
                     cue.Apply3D(Empire.Universe.Listener, emitter);
                 cue.Play();
-                ThisFrameCueCount++;
+
+                state?.Completed(cue, null);
+                lock (AudioHandles) AudioHandles.Add(state ?? new AudioHandleState(cue, null));
             }
-
-            lock (AudioHandles) AudioHandles.Add(handle);
-            return handle;
         }
 
-        public static AudioHandle PlaySfx(string cueName, AudioEmitter emitter = null)
+        public static bool CantPlaySfx(string cueName)
         {
-            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
-                return default(AudioHandle);
-            return Play(cueName, emitter);
+            const int frameSfxLimit = 2; // @ 60fps, this is max 120 samples per minute
+            return AudioDisabled || EffectsDisabled || ThisFrameSfxCount > frameSfxLimit || cueName.IsEmpty();
         }
 
-        public static void PlaySfxAsync(string cueName)
+        public static void PlaySfxAsync(string cueName, AudioEmitter emitter = null)
         {
-            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
+            if (CantPlaySfx(cueName))
                 return;
-            Parallel.Run(() => Play(cueName));
+            ++ThisFrameSfxCount;
+            lock (SfxQueue)
+            {
+                SfxQueue.Add(new EnqueuedSfx
+                {
+                    CueName = cueName,
+                    Emitter = emitter
+                });
+            }
         }
 
-        public static void PlaySfxAsync(string cueName, Action<AudioHandle> complete)
+        public static void PlaySfxAsync(string cueName, AudioEmitter emitter, AudioHandleState state)
         {
-            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
+            if (CantPlaySfx(cueName))
                 return;
-            Parallel.Run(() => complete(Play(cueName)));
-        }
-
-        public static void PlaySfxAt(string cueName, Vector3 position)
-        {
-            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
-                return; // avoid creating emitter
-
-            Parallel.Run(() => Play(cueName, new AudioEmitter { Position = position }));
+            ++ThisFrameSfxCount;
+            lock (SfxQueue)
+            {
+                SfxQueue.Add(new EnqueuedSfx
+                {
+                    CueName = cueName,
+                    Emitter = emitter,
+                    State = state
+                });
+            }
         }
 
         public static AudioHandle PlayMusic(string cueName)
@@ -246,7 +324,7 @@ namespace Ship_Game
 
             Cue cue = SoundBank.GetCue(cueName);
             cue.Play();
-            return new AudioHandle(cue);
+            return new AudioHandle(cue, null);
         }
 
         private static void DisposeStoppedHandles()
@@ -255,7 +333,7 @@ namespace Ship_Game
             {
                 for (int i = 0; i < AudioHandles.Count; i++)
                 {
-                    AudioHandle handle = AudioHandles[i];
+                    AudioHandleState handle = AudioHandles[i];
                     if (handle.NotPlaying)
                     {
                         handle.Destroy();

@@ -34,7 +34,7 @@ namespace Ship_Game
         public Guid guid = Guid.NewGuid();
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         public string Special = "None";
-        public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
+        public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public GoodState fs = GoodState.STORE;
         public GoodState ps = GoodState.STORE;
         public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
@@ -147,6 +147,8 @@ namespace Ship_Game
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
 
+        private AudioEmitter Emitter;
+
         private float InvisibleRadius;
         public float ObjectRadius
         {
@@ -167,6 +169,14 @@ namespace Ship_Game
             return explored;
         }
 
+        private void PlayPlanetSfx(string sfx, Vector3 position)
+        {
+            if (Emitter == null)
+                Emitter = new AudioEmitter();
+            Emitter.Position = position;
+            GameAudio.PlaySfxAsync(sfx, Emitter);
+        }
+
         public void DropBombORIG(Bomb bomb)
         {
             
@@ -178,7 +188,7 @@ namespace Ship_Game
             {
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    GameAudio.PlaySfxAt("sd_impact_shield_01", shield.Center);
+                    PlayPlanetSfx("sd_impact_shield_01", shield.Center);
                 }
                 this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
                 this.shield.displacement = 0.0f;
@@ -215,7 +225,7 @@ namespace Ship_Game
 
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
                 {
-                    GameAudio.PlaySfxAt("sd_bomb_impact_01", bomb.Position);
+                    PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
 
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
@@ -360,7 +370,7 @@ namespace Ship_Game
 
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
                 {
-                    GameAudio.PlaySfxAt("sd_bomb_impact_01", bomb.Position);
+                    PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
 
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
@@ -555,7 +565,7 @@ namespace Ship_Game
             {
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    GameAudio.PlaySfxAt("sd_impact_shield_01", shield.Center);
+                    PlayPlanetSfx("sd_impact_shield_01", shield.Center);
                 }
                 this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
                 this.shield.displacement = 0f;

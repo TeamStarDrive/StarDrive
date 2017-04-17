@@ -127,7 +127,7 @@ namespace Ship_Game.Gameplay
         //protected SolarSystem JumpTarget;   //Not referenced in code, removing to save memory
         //protected Cue hyperspace;           //Removed to save space, because this is set to null in ship initilizer, and never reassigned. -Gretman
         //protected Cue hyperspace_return;    //Not referenced in code, removing to save memory
-        private AudioHandle Jump;
+        private AudioHandle JumpSfx;
         public float InhibitedTimer;
         public int Level;
         public bool PlayerShip;
@@ -1789,13 +1789,13 @@ namespace Ship_Game.Gameplay
         {
             if (Empire.Universe == null || engineState == MoveState.Sublight)
                 return;
-            if (Jump.IsPlaying)
-                Jump.Stop();
+            if (JumpSfx.IsPlaying)
+                JumpSfx.Stop();
 
             if (engineState == MoveState.Warp && 
                 Center.InRadius(Empire.Universe.camPos.ToVec2(), 100000f) && Empire.Universe.camHeight < 250000)
             {
-                GameAudio.PlaySfx(GetEndWarpCue(), SoundEmitter);
+                GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                 FTLManager.AddFTL(Center);
             }
             engineState = MoveState.Sublight;
@@ -2235,13 +2235,13 @@ namespace Ship_Game.Gameplay
             {
                 ThrusterList.Clear();
                 dietimer -= elapsedTime;
-                if (dietimer <= 1.89999997615814 && DeathSfx.NotPlaying && InFrustum)
+                if (dietimer <= 1.9f && DeathSfx.NotPlaying && InFrustum)
                 {
                     string cueName;
                     if      (Size < 80)  cueName = "sd_explosion_ship_warpdet_small";
                     else if (Size < 250) cueName = "sd_explosion_ship_warpdet_medium";
                     else                 cueName = "sd_explosion_ship_warpdet_large";
-                    DeathSfx = GameAudio.PlaySfx(cueName, SoundEmitter);
+                    DeathSfx.PlaySfxAsync(cueName, SoundEmitter);
                 }
                 if (dietimer <= 0.0)
                 {
@@ -2458,20 +2458,20 @@ namespace Ship_Game.Gameplay
 
                         if (JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                         {
-                            if (Empire.Universe.camHeight < 250000 && Jump.NotPlaying && Empire.Universe.camPos.InRadius(Center, 100000f))
+                            if (Empire.Universe.camHeight < 250000 && Empire.Universe.camPos.InRadius(Center, 100000f)
+                                && JumpSfx.NotPlaying)
                             {
-                                Jump = GameAudio.PlaySfx(GetStartWarpCue(), SoundEmitter);
+                                JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
                             }
                         }
                         if (JumpTimer <= 0.1)
                         {
-                            if (engineState == Ship.MoveState.Sublight )//&& (!this.Inhibited && this.GetmaxFTLSpeed > this.velocityMaximum))
+                            if (engineState == MoveState.Sublight)
                             {
                                 FTLManager.AddFTL(Center);
-                                engineState = Ship.MoveState.Warp;
+                                engineState = MoveState.Warp;
                             }
-                            else
-                                engineState = Ship.MoveState.Sublight;
+                            else engineState = MoveState.Sublight;
                             isSpooling = false;
                             ResetJumpTimer();
                         }
@@ -2482,9 +2482,9 @@ namespace Ship_Game.Gameplay
                         {
                             Afterburner.Stop();
                         }
-                        if (isThrusting && DroneSfx.NotPlaying && AI.State == AIState.ManualControl)
+                        if (isThrusting && AI.State == AIState.ManualControl && DroneSfx.NotPlaying)
                         {
-                            DroneSfx = GameAudio.PlaySfx("starcruiser_drone01");
+                            DroneSfx.PlaySfxAsync("starcruiser_drone01", SoundEmitter);
                         }
                         else if ((!isThrusting || !Active) && DroneSfx.IsPlaying)
                         {
@@ -3680,7 +3680,7 @@ namespace Ship_Game.Gameplay
                 if (Size < 80)       dieSoundEffect = "sd_explosion_ship_det_small";
                 else if (Size < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
                 else                 dieSoundEffect = "sd_explosion_ship_det_large";
-                GameAudio.PlaySfx(dieSoundEffect, SoundEmitter);
+                GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
             for (int index = 0; index < EmpireManager.Empires.Count; index++)
             {
