@@ -203,6 +203,7 @@ namespace Ship_Game
                 if (emitter != null)
                     cue.Apply3D(Empire.Universe.Listener, emitter);
                 cue.Play();
+                ThisFrameCueCount++;
             }
 
             lock (AudioHandles) AudioHandles.Add(handle);
