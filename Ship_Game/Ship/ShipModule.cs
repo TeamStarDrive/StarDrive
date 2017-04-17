@@ -699,7 +699,7 @@ namespace Ship_Game.Gameplay
                     }
                     else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
                     {
-                        GameAudio.PlaySfx("sd_impact_shield_01", Parent.SoundEmitter);                        
+                        GameAudio.PlaySfxAsync("sd_impact_shield_01", Parent.SoundEmitter);                        
                         shield.Radius       = shield_radius + 10f;
                         shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         shield.texscale     = 2.8f;
@@ -748,7 +748,7 @@ namespace Ship_Game.Gameplay
             {
                 if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
                 {
-                    GameAudio.PlaySfx("sd_explosion_module_small", Parent.SoundEmitter);
+                    GameAudio.PlaySfxAsync("sd_explosion_module_small", Parent.SoundEmitter);
                 }
                 if (explodes)
                 {

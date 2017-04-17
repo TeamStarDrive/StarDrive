@@ -245,8 +245,8 @@ namespace Ship_Game.Gameplay
 
             AudioEmitter soundEmitter = Owner.isPlayerShip() ? null : emitter ?? Owner.SoundEmitter;
 
-            GameAudio.PlaySfx(fireCueName, soundEmitter);
-            ToggleCue = GameAudio.PlaySfx(ToggleSoundName, soundEmitter);
+            GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
+            ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
 
         private void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
@@ -307,10 +307,7 @@ namespace Ship_Game.Gameplay
             }
             moduleAttachedTo.GetParent().AddBeam(beam);
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && moduleAttachedTo.GetParent().InFrustum)
-            {
-                ToggleCue = GameAudio.PlaySfx(ToggleSoundName, Owner.SoundEmitter);
-                GameAudio.PlaySfx(fireCueName, Owner.SoundEmitter);
-            }
+                PlayToggleAndFireSfx(Owner.SoundEmitter);
         }
 
         private void CreateMouseBeam(Vector2 destination)
@@ -708,7 +705,7 @@ namespace Ship_Game.Gameplay
             projectile.DamageAmount      += wepTags[tag].Damage * projectile.DamageAmount;
             projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
             projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
-            //Shield Penetration
+            // Shield Penetration
             float actualShieldPenChance = moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
             actualShieldPenChance += wepTags[tag].ShieldPenetration;
             actualShieldPenChance += ShieldPenChance;
