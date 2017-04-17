@@ -45,7 +45,7 @@ namespace Ship_Game
             notify.DestinationRect = DefaultNotificationRect;
             
             foreach (string cue in soundCueStrings)
-                GameAudio.PlaySfx(cue);
+                GameAudio.PlaySfxAsync(cue);
 
             lock (NotificationLocker)
                 NotificationList.Add(notify);
@@ -476,7 +476,7 @@ namespace Ship_Game
                         }
                         if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released && n.Action != "LoadEvent")
                         {
-                            GameAudio.PlaySfx("sub_bass_whoosh");
+                            GameAudio.PlaySfxAsync("sub_bass_whoosh");
                             NotificationList.QueuePendingRemoval(n);
                             recalculate = true;
                             retValue = true;
@@ -504,7 +504,7 @@ namespace Ship_Game
 
         public void SnapToCombat(Planet p)
         {
-            GameAudio.PlaySfx("sub_bass_whoosh");
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
@@ -515,7 +515,7 @@ namespace Ship_Game
 
         public void SnapToPlanet(Planet p)
         {
-            GameAudio.PlaySfx("sub_bass_whoosh");
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
@@ -525,7 +525,7 @@ namespace Ship_Game
         }
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
         {
-            GameAudio.PlaySfx("sub_bass_whoosh");
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
             if (p != null) Screen.SelectedPlanet = p;
             Screen.SelectedSystem = system;
            // Screen.mouseWorldPos = p == null ? system.Position : p.Position;
@@ -534,7 +534,7 @@ namespace Ship_Game
 
         public void SnapToSystem(SolarSystem system)
         {
-            GameAudio.PlaySfx("sub_bass_whoosh");
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
         }
 

@@ -134,13 +134,13 @@ namespace Ship_Game
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
 					if (e.clickRectHover == 0)
 					{
-						GameAudio.PlaySfx("sd_ui_mouseover");
+						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 					{
 						this.EnterNameArea.Text = (e.item as Ship).Name;
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
 			}
@@ -154,7 +154,7 @@ namespace Ship_Game
 				{
 					if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
 					{
-						GameAudio.PlaySfx("mouse_over4");
+						GameAudio.PlaySfxAsync("mouse_over4");
 					}
 					b.State = UIButton.PressState.Hover;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
@@ -170,7 +170,7 @@ namespace Ship_Game
 					{
 						continue;
 					}
-					GameAudio.PlaySfx("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					GlobalStats.TakingInput = false;
 					this.EnterNameArea.HandlingInput = false;
 					this.TrySave();
@@ -241,7 +241,7 @@ namespace Ship_Game
 
 		private void OverWriteAccepted(object sender, EventArgs e)
 		{
-			GameAudio.PlaySfx("echo_affirm1");
+			GameAudio.PlaySfxAsync("echo_affirm1");
 			if (this.screen != null)
 			{
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);
@@ -302,7 +302,7 @@ namespace Ship_Game
 			}
 			if (Reserved && !Empire.Universe.Debug)
 			{
-				GameAudio.PlaySfx("UI_Misc20");
+				GameAudio.PlaySfxAsync("UI_Misc20");
 				MessageBoxScreen messageBox = new MessageBoxScreen(this, EnterNameArea.Text + " is a reserved ship name and you cannot overwrite this design");
 				base.ScreenManager.AddScreen(messageBox);
 				return;
@@ -317,7 +317,7 @@ namespace Ship_Game
 				}
 				return;
 			}
-			GameAudio.PlaySfx("echo_affirm1");
+			GameAudio.PlaySfxAsync("echo_affirm1");
 			if (this.screen != null)
 			{
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);

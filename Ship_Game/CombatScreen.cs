@@ -700,7 +700,7 @@ namespace Ship_Game
                     this.LandAll.State = UIButton.PressState.Hover;
                     if (input.InGameSelect)
                     {
-                        GameAudio.PlaySfx("sd_troop_land");
+                        GameAudio.PlaySfxAsync("sd_troop_land");
                         for (int i = 0; i < this.OrbitSL.Entries.Count; i++)
                         {
                             ScrollList.Entry e = this.OrbitSL.Entries[i];
@@ -757,7 +757,7 @@ namespace Ship_Game
                         }
                         if (play)
                         {
-                            GameAudio.PlaySfx("sd_troop_takeoff");
+                            GameAudio.PlaySfxAsync("sd_troop_takeoff");
                             this.ResetNextFrame = true;
 
                         }
@@ -800,7 +800,7 @@ namespace Ship_Game
                         }
                         try
                         {
-                            GameAudio.PlaySfx("sd_troop_land");
+                            GameAudio.PlaySfxAsync("sd_troop_land");
                             pgs.TroopsHere.Add(this.draggedTroop.item as Troop);
                             pgs.TroopsHere[0].AvailableAttackActions = 0;
                             pgs.TroopsHere[0].AvailableMoveActions = 0;
@@ -828,7 +828,7 @@ namespace Ship_Game
                         }
                         try
                         {
-                            GameAudio.PlaySfx("sd_troop_land");
+                            GameAudio.PlaySfxAsync("sd_troop_land");
                             pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                             pgs.TroopsHere[0].AvailableAttackActions = 0;
                             pgs.TroopsHere[0].AvailableMoveActions = 0;
@@ -856,7 +856,7 @@ namespace Ship_Game
                 if (!foundPlace)
                 {
                     draggedTroop = null;
-                    GameAudio.PlaySfx("UI_Misc20");
+                    GameAudio.PlaySfxAsync("UI_Misc20");
                 }
             }
             foreach (PlanetGridSquare pgs in this.p.TilesList)
@@ -869,7 +869,7 @@ namespace Ship_Game
                 {
                     if (!pgs.highlighted)
                     {
-                        GameAudio.PlaySfx("sd_ui_mouseover");
+                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
                     pgs.highlighted = true;
                 }
@@ -990,7 +990,7 @@ namespace Ship_Game
                     pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
                     pgs.TroopsHere[0].MovingTimer = 0.75f;
                     pgs.TroopsHere[0].SetFromRect(this.ActiveTroop.TroopClickRect);
-                    GameAudio.PlaySfx(pgs.TroopsHere[0].MovementCue);
+                    GameAudio.PlaySfxAsync(pgs.TroopsHere[0].MovementCue);
                     this.ActiveTroop.TroopsHere.Clear();
                     this.ActiveTroop = null;
                     this.ActiveTroop = pgs;
@@ -1063,13 +1063,13 @@ namespace Ship_Game
             };
             if (Attacker.TroopsHere.Count <= 0)
             {
-                GameAudio.PlaySfx("sd_weapon_bigcannon_01");
-                GameAudio.PlaySfx("uzi_loop");
+                GameAudio.PlaySfxAsync("sd_weapon_bigcannon_01");
+                GameAudio.PlaySfxAsync("uzi_loop");
             }
             else
             {
                 Attacker.TroopsHere[0].DoAttack();
-                GameAudio.PlaySfx(Attacker.TroopsHere[0].sound_attack);
+                GameAudio.PlaySfxAsync(Attacker.TroopsHere[0].sound_attack);
             }
             c.Defender = Defender;
             this.p.ActiveCombats.Add(c);

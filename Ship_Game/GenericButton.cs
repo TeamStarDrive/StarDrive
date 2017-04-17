@@ -127,7 +127,7 @@ namespace Ship_Game
 				this.Hover = true;
 				if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
 				{
-					GameAudio.PlaySfx("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					return true;
 				}
 			}

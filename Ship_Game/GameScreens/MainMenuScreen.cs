@@ -230,7 +230,7 @@ namespace Ship_Game
                         r.X = r.X + (int)(transitionOffset * 512f);
                         if (transitionOffset.AlmostEqual(0f))
                         {
-                            GameAudio.PlaySfx("blip_click");
+                            GameAudio.PlaySfxAsync("blip_click");
                         }
                     }
                     b.Draw(ScreenManager.SpriteBatch, r);
@@ -444,7 +444,7 @@ namespace Ship_Game
                 var pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
                 if (pickedPosition.InRadius(MoonObj.WorldBoundingSphere.Center, MoonObj.WorldBoundingSphere.Radius))
                 {
-                    GameAudio.PlaySfx("sd_bomb_impact_01");
+                    GameAudio.PlaySfxAsync("sd_bomb_impact_01");
                 }
             }
             CurrentMouse = input.CurrentMouseState;
@@ -459,7 +459,7 @@ namespace Ship_Game
                 {
                     okcomet = false;
                     if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-                        GameAudio.PlaySfx("mouse_over4");
+                        GameAudio.PlaySfxAsync("mouse_over4");
 
                     b.State = UIButton.PressState.Hover;
                     if (CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed)
@@ -472,15 +472,15 @@ namespace Ship_Game
                     switch (b.Launches)
                     {
                         case "New Campaign":
-                            GameAudio.PlaySfx("sd_ui_tactical_pause");
+                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
                             OnPlayGame();
                             break;
                         case "Tutorials":
-                            GameAudio.PlaySfx("sd_ui_tactical_pause");
+                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
                             ScreenManager.AddScreen(new TutorialScreen(this));
                             break;
                         case "Load Game":
-                            GameAudio.PlaySfx("sd_ui_tactical_pause");
+                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
                             ScreenManager.AddScreen(new LoadSaveScreen(this));
                             break;
                         case "Options":

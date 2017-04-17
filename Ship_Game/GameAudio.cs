@@ -80,8 +80,8 @@ namespace Ship_Game
 
         private static Array<AudioHandle> AudioHandles;
 
-        private static int ThisFrameCueCount;// Limit the number of Cues that can be loaded per frame. 
-        private static bool FrameCueLimitExceeded => ThisFrameCueCount > 7;
+        private static int ThisFrameCueCount; // Limit the number of Cues that can be loaded per frame. 
+        private static bool FrameCueLimitExceeded => ThisFrameCueCount > 2; // @ 60fps, this is max 120 samples per minute
 
         public static void Initialize(string settingsFile, string waveBankFile, string soundBankFile)
         {
@@ -115,9 +115,12 @@ namespace Ship_Game
         // called from Game1 Dispose()
         public static void Destroy()
         {
-            for (int i = 0; i < AudioHandles.Count; ++i)
-                AudioHandles[i].Destroy();
-
+            lock (AudioHandles)
+            {
+                for (int i = 0; i < AudioHandles.Count; ++i)
+                    AudioHandles[i].Destroy();
+                AudioHandles.Clear();
+            }
             SoundBank?.Dispose(ref SoundBank);
             WaveBank?.Dispose(ref WaveBank);
             AudioEngine?.Dispose(ref AudioEngine);
@@ -179,11 +182,9 @@ namespace Ship_Game
         }
 
 
-        public static AudioHandle PlaySfx(string cueName, AudioEmitter emitter = null)
+        private static AudioHandle Play(string cueName, AudioEmitter emitter = null)
         {
-            AudioHandle handle = default(AudioHandle);
-            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
-                return handle;
+            AudioHandle handle;
 
             if (ResourceManager.GetModSoundEffect(cueName, out SoundEffect sfx))
             {
@@ -203,17 +204,38 @@ namespace Ship_Game
                     cue.Apply3D(Empire.Universe.Listener, emitter);
                 cue.Play();
             }
-            AudioHandles.Add(handle);
+
+            lock (AudioHandles) AudioHandles.Add(handle);
             return handle;
         }
 
-        public static AudioHandle PlaySfxAt(string cueName, Vector3 position)
+        public static AudioHandle PlaySfx(string cueName, AudioEmitter emitter = null)
         {
             if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
-                return default(AudioHandle); // avoid creating emitter
+                return default(AudioHandle);
+            return Play(cueName, emitter);
+        }
 
-            var emitter = new AudioEmitter { Position = position };
-            return PlaySfx(cueName, emitter);
+        public static void PlaySfxAsync(string cueName)
+        {
+            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
+                return;
+            Parallel.Run(() => Play(cueName));
+        }
+
+        public static void PlaySfxAsync(string cueName, Action<AudioHandle> complete)
+        {
+            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
+                return;
+            Parallel.Run(() => complete(Play(cueName)));
+        }
+
+        public static void PlaySfxAt(string cueName, Vector3 position)
+        {
+            if (AudioDisabled || EffectsDisabled || FrameCueLimitExceeded || cueName.IsEmpty())
+                return; // avoid creating emitter
+
+            Parallel.Run(() => Play(cueName, new AudioEmitter { Position = position }));
         }
 
         public static AudioHandle PlayMusic(string cueName)
@@ -228,13 +250,16 @@ namespace Ship_Game
 
         private static void DisposeStoppedHandles()
         {
-            for (int i = 0; i < AudioHandles.Count; i++)
+            lock (AudioHandles)
             {
-                AudioHandle handle = AudioHandles[i];
-                if (handle.NotPlaying)
+                for (int i = 0; i < AudioHandles.Count; i++)
                 {
-                    handle.Destroy();
-                    AudioHandles.RemoveAtSwapLast(i--);
+                    AudioHandle handle = AudioHandles[i];
+                    if (handle.NotPlaying)
+                    {
+                        handle.Destroy();
+                        AudioHandles.RemoveAtSwapLast(i--);
+                    }
                 }
             }
         }

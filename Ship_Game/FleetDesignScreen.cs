@@ -159,7 +159,7 @@ namespace Ship_Game
 		public FleetDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI, string audioCue ="") : base(parent)
 		{
 		    if (!string.IsNullOrEmpty(audioCue))
-		        GameAudio.PlaySfx(audioCue);
+		        GameAudio.PlaySfxAsync(audioCue);
             this.fleet = new Fleet();
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
@@ -452,7 +452,7 @@ namespace Ship_Game
 					r.X = r.X - (int)(transitionOffset * 256f);
 					if (transitionOffset == 0f)
 					{
-						GameAudio.PlaySfx("blip_click");
+						GameAudio.PlaySfxAsync("blip_click");
 					}
 				}
 				Selector sel = new Selector(base.ScreenManager, r, Color.TransparentBlack);
@@ -917,7 +917,7 @@ namespace Ship_Game
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.J) && !input.LastKeyboardState.IsKeyDown(Keys.J) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfx("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
                 return;
             }
@@ -950,47 +950,47 @@ namespace Ship_Game
 			}
 			if (input.CurrentKeyboardState.IsKeyDown(Keys.D1) && input.LastKeyboardState.IsKeyUp(Keys.D1))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(1);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D2) && input.LastKeyboardState.IsKeyUp(Keys.D2))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(2);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D3) && input.LastKeyboardState.IsKeyUp(Keys.D3))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(3);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D4) && input.LastKeyboardState.IsKeyUp(Keys.D4))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(4);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D5) && input.LastKeyboardState.IsKeyUp(Keys.D5))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(5);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D6) && input.LastKeyboardState.IsKeyUp(Keys.D6))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(6);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D7) && input.LastKeyboardState.IsKeyUp(Keys.D7))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(7);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D8) && input.LastKeyboardState.IsKeyUp(Keys.D8))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(8);
 			}
 			else if (input.CurrentKeyboardState.IsKeyDown(Keys.D9) && input.LastKeyboardState.IsKeyUp(Keys.D9))
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.ChangeFleet(9);
 			}
 			foreach (KeyValuePair<int, Rectangle> rect in this.FleetsRects)
@@ -999,7 +999,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
 				this.FleetToEdit = rect.Key;
 				this.ChangeFleet(this.FleetToEdit);
 			}
@@ -1097,7 +1097,7 @@ namespace Ship_Game
 							}
 							this.SelectedNodeList[0].Ship.AI.CombatState = this.SelectedNodeList[0].CombatState;
 							button.Active = true;
-							GameAudio.PlaySfx("echo_affirm");
+							GameAudio.PlaySfxAsync("echo_affirm");
 							break;
 						}
 					}
@@ -1152,7 +1152,7 @@ namespace Ship_Game
 							{
 								b.Active = false;
 							}
-							GameAudio.PlaySfx("echo_affirm");
+							GameAudio.PlaySfxAsync("echo_affirm");
 							button.Active = true;
 							foreach (FleetDataNode node in this.SelectedNodeList)
 							{
@@ -1470,7 +1470,7 @@ namespace Ship_Game
 					{
 						this.SelectedNodeList.Clear();
 					}
-					GameAudio.PlaySfx("techy_affirm1");
+					GameAudio.PlaySfxAsync("techy_affirm1");
 					hitsomething = true;
 					if (!this.SelectedNodeList.Contains(node.nodeToClick))
 					{
@@ -1549,7 +1549,7 @@ namespace Ship_Game
 						this.SelectedNodeList.Clear();
 					}
 					hitsomething = true;
-				    GameAudio.PlaySfx("techy_affirm1");
+				    GameAudio.PlaySfxAsync("techy_affirm1");
                     this.SelectedNodeList.Clear();
 					foreach (FleetDataNode node in this.SelectedSquad.DataNodes)
 					{

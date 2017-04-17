@@ -415,7 +415,7 @@ namespace Ship_Game
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfx("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
                 return;
             }
@@ -432,7 +432,7 @@ namespace Ship_Game
 					}
 					this.SelectedEmpire = race.e;
 					GotRace = true;
-					GameAudio.PlaySfx("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					for (int j = this.OperationsSL.indexAtTop; j < this.OperationsSL.Entries.Count && j < this.OperationsSL.indexAtTop + this.OperationsSL.entriesToDisplay; j++)
 					{
 						ScrollList.Entry f = this.OperationsSL.Entries[j];

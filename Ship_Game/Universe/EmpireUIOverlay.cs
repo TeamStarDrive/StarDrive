@@ -537,42 +537,42 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
             if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
                 Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
                 Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !input.LastKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
                 Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.U) && !input.LastKeyboardState.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
                 Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.I) && !input.LastKeyboardState.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
                 Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
 			{
-				GameAudio.PlaySfx("echo_affirm");
+				GameAudio.PlaySfxAsync("echo_affirm");
                 Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfx("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
             }
 			if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
 			{
-				GameAudio.PlaySfx("sd_ui_tactical_pause");
+				GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
 				InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
 				{
 					TitleText = Localizer.Token(2304),
@@ -650,7 +650,7 @@ namespace Ship_Game
 					}
 					if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
 					{
-						GameAudio.PlaySfx("mouse_over4");
+						GameAudio.PlaySfxAsync("mouse_over4");
 					}
 					b.State = EmpireUIOverlay.PressState.Hover;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
@@ -667,12 +667,12 @@ namespace Ship_Game
 					{
 						if (str3 == "Research")
 						{
-							GameAudio.PlaySfx("echo_affirm");
+							GameAudio.PlaySfxAsync("echo_affirm");
                             Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
 						}
 						else if (str3 == "Budget")
 						{
-							GameAudio.PlaySfx("echo_affirm");
+							GameAudio.PlaySfxAsync("echo_affirm");
                             Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 						}
 					}
@@ -684,42 +684,42 @@ namespace Ship_Game
 					}
 					if (str5 == "Main Menu")
 					{
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 						Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
 					}
 					else if (str5 == "Shipyard")
 					{
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
                         Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
 					}
                     else if (str5 == "Fleets")
                     {
-                        GameAudio.PlaySfx("echo_affirm");
+                        GameAudio.PlaySfxAsync("echo_affirm");
                         Empire.Universe.ScreenManager.AddScreen(new FleetDesignScreen(Empire.Universe, this));
                     }
                     else if (str5 == "ShipList")
                     {
-                        GameAudio.PlaySfx("echo_affirm");
+                        GameAudio.PlaySfxAsync("echo_affirm");
                         Empire.Universe.ScreenManager.AddScreen(new ShipListScreen(Empire.Universe, this));
                     }
 					else if (str5 == "Empire")
 					{
                         Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 					}
 					else if (str5 == "Diplomacy")
 					{
                         Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 					}
                     else if (str5 == "Espionage")
                     {
                         Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
-                        GameAudio.PlaySfx("echo_affirm");
+                        GameAudio.PlaySfxAsync("echo_affirm");
                     }
 					else if (str5 == "?")
 					{
-						GameAudio.PlaySfx("sd_ui_tactical_pause");
+						GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
 						InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
 						{
 							TitleText = Localizer.Token(2304),
@@ -747,7 +747,7 @@ namespace Ship_Game
                     
                     if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
 					{
-						GameAudio.PlaySfx("mouse_over4");
+						GameAudio.PlaySfxAsync("mouse_over4");
 					}
 					b.State = EmpireUIOverlay.PressState.Hover;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
@@ -785,7 +785,7 @@ namespace Ship_Game
 					{
 						if (str1 == "Research")
 						{
-							GameAudio.PlaySfx("echo_affirm");
+							GameAudio.PlaySfxAsync("echo_affirm");
 							if (!(caller is ResearchScreenNew))
 							{
                                 Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
@@ -793,7 +793,7 @@ namespace Ship_Game
 						}
 						else if (str1 == "Budget")
 						{
-							GameAudio.PlaySfx("echo_affirm");
+							GameAudio.PlaySfxAsync("echo_affirm");
 							if (!(caller is BudgetScreen))
 							{
                                 Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
@@ -808,7 +808,7 @@ namespace Ship_Game
 					}
 					if (str3 == "Main Menu")
 					{
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
                         Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe, caller));
 					}
 					else if (str3 == "Shipyard")
@@ -817,7 +817,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
                         Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
 					}
                     else if (str3 == "Fleets")
@@ -826,22 +826,22 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        GameAudio.PlaySfx("echo_affirm");
+                        GameAudio.PlaySfxAsync("echo_affirm");
                         Empire.Universe.ScreenManager.AddScreen(new FleetDesignScreen(Empire.Universe, this));
                     }
 					else if (str3 == "Empire")
 					{
                         Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 					}
 					else if (str3 == "Diplomacy")
 					{
                         Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 					}
 					else if (str3 == "?")
 					{
-						GameAudio.PlaySfx("sd_ui_tactical_pause");
+						GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
 						InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
 						{
 							TitleText = "StarDrive Help",

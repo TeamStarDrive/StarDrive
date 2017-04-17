@@ -135,7 +135,7 @@ namespace Ship_Game
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
 					if (input.InGameSelect)
 					{
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						this.RefitTo = e.item as string;
 					}
 				}
@@ -148,7 +148,7 @@ namespace Ship_Game
 					if (input.InGameSelect)
 					{
 						this.shiptorefit.AI.OrderRefitTo(this.RefitTo);
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
 					}
 				}
@@ -165,7 +165,7 @@ namespace Ship_Game
 							}
 							ship.AI.OrderRefitTo(this.RefitTo);
 						}
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
 					}
 				}

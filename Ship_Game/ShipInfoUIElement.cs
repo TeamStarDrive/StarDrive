@@ -458,7 +458,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(Localizer.Token(2204), this.ScreenManager);
                 if (this.gridbutton.HandleInput(input))
                 {
-                    GameAudio.PlaySfx("sd_ui_accept_alt3");
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     this.ShowModules = !this.ShowModules;
                     this.gridbutton.Active = this.ShowModules;
                     return true;
@@ -491,7 +491,7 @@ namespace Ship_Game
                                     ToolTip.CreateTooltip(toggleButton.WhichToolTip, this.ScreenManager);
                                 if (input.InGameSelect)
                                 {
-                                    GameAudio.PlaySfx("sd_ui_accept_alt3");
+                                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                                     switch (toggleButton.Action)
                                     {
                                         case "attack":

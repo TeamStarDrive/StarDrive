@@ -105,7 +105,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						GameAudio.PlaySfx("UI_Misc20");
+						GameAudio.PlaySfxAsync("UI_Misc20");
 					}
 					this.ExitScreen();
 				}
@@ -121,7 +121,7 @@ namespace Ship_Game
 				{
 					if (e.clickRectHover == 0)
 					{
-						GameAudio.PlaySfx("sd_ui_mouseover");
+						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
@@ -136,7 +136,7 @@ namespace Ship_Game
 							continue;
 						}
 						this.activeFile = (e.item as ModelData).FileInfo;
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         //Added by McShooterz: Temp fix for ship tool
 						//this.EnterNameArea.Text = Path.GetFileNameWithoutExtension(this.activeFile.Name);
 						this.screen.LoadModel((e.item as ModelData).model, Path.GetFileNameWithoutExtension((e.item as ModelData).FileInfo.Name));

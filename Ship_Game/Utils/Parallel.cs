@@ -11,10 +11,11 @@ namespace Ship_Game
         private AutoResetEvent EvtNewTask = new AutoResetEvent(false);
         private AutoResetEvent EvtEndTask = new AutoResetEvent(false);
         private Thread Thread;
-        private RangeAction Task;
+        private Action SimpleTask;
+        private RangeAction RangeTask;
         private int LoopStart;
         private int LoopEnd;
-        public bool Running => Task != null;
+        public bool Running => RangeTask != null || SimpleTask != null;
         private Exception Error;
         private volatile bool Killed;
 
@@ -24,18 +25,27 @@ namespace Ship_Game
         }
         public void Start(int start, int end, RangeAction taskBody)
         {
-            if (Task != null)
+            if (Running)
                 throw new InvalidOperationException("ParallelTask is still running");
-            Task      = taskBody;
+            RangeTask = taskBody;
             LoopStart = start;
             LoopEnd   = end;
             EvtNewTask.Set();
             if (!Thread.IsAlive)
                 Thread.Start();
         }
+        public void Start(Action taskBody)
+        {
+            if (Running)
+                throw new InvalidOperationException("ParallelTask is still running");
+            SimpleTask = taskBody;
+            EvtNewTask.Set();
+            if (!Thread.IsAlive)
+                Thread.Start();
+        }
         public Exception Wait()
         {
-            while (Task != null)
+            while (Running)
             {
                 EvtEndTask.WaitOne();
             }
@@ -50,18 +60,22 @@ namespace Ship_Game
             while (!Killed)
             {
                 EvtNewTask.WaitOne();
-                if (Task == null)
+                if (!Running)
                     continue;
                 try
                 {
                     Error = null;
-                    Task(LoopStart, LoopEnd);
+                    if (RangeTask != null)
+                        RangeTask(LoopStart, LoopEnd);
+                    else
+                        SimpleTask?.Invoke();
                 }
                 catch (Exception ex)
                 {
                     Error = ex;
                 }
-                Task = null;
+                RangeTask  = null;
+                SimpleTask = null;
                 if (Killed)
                     break;
                 EvtEndTask.Set();
@@ -77,7 +91,8 @@ namespace Ship_Game
             if (EvtNewTask == null)
                 return;
             Killed = true;
-            Task   = null;
+            RangeTask  = null;
+            SimpleTask = null;
             EvtNewTask.Set();
             Thread.Join(100);
 
@@ -93,17 +108,19 @@ namespace Ship_Game
 
     public static class Parallel
     {
-        static Parallel()
-        {
-            AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
-        }
-
         public static void ClearPool()
         {
             lock (Pool) Pool.ClearAndDispose();
         }
 
         private static readonly Array<ParallelTask> Pool = new Array<ParallelTask>();
+        private static readonly bool Initialized = InitThreadPool();
+
+        private static bool InitThreadPool()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
+            return true;
+        }
 
         /// <summary>TRUE if another Parallel.For loop is already running </summary>
         public static bool Running { get; private set; }
@@ -222,5 +239,13 @@ namespace Ship_Game
         }
 
         public static void For(int rangeLength, RangeAction body) => For(0, rangeLength, body);
+
+        public static ParallelTask Run(Action action)
+        {
+            int poolIndex = 0;
+            ParallelTask task = NextTask(ref poolIndex);
+            task.Start(action);
+            return task;
+        }
     }
 }

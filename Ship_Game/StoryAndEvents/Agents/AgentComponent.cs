@@ -311,7 +311,7 @@ namespace Ship_Game
 			{
 				if (EmpireManager.Player.Money < 250f)
 				{
-					GameAudio.PlaySfx("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 				else
 				{
@@ -343,7 +343,7 @@ namespace Ship_Game
 							{
 								(entry.item as MissionEntry).Initialize();
 							}
-							GameAudio.PlaySfx("sd_ui_accept_alt3");
+							GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						}
 					}
 				}
@@ -394,7 +394,7 @@ namespace Ship_Game
             {
                 if (EmpireManager.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) || spyLimitCount <= 0)//EmpireManager.Player.data.AgentList.Count >= EmpireManager.Player.GetPlanets().Count)
                 {
-                    GameAudio.PlaySfx("UI_Misc20");
+                    GameAudio.PlaySfxAsync("UI_Misc20");
                 }
                 else
                 {
@@ -430,7 +430,7 @@ namespace Ship_Game
                             {
                                 (entry.item as MissionEntry).Initialize();
                             }
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                 }

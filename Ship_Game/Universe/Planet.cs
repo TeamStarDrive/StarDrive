@@ -280,7 +280,7 @@ namespace Ship_Game
                 }
                 if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
                 {
-                    GameAudio.PlaySfx("Explo1");
+                    GameAudio.PlaySfxAsync("Explo1");
                     CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(4);
                     smallExplosion.grid = orbitalDrop.Target.ClickRect;
                     lock (GlobalStats.ExplosionLocker)
@@ -483,7 +483,7 @@ namespace Ship_Game
                 }
                 if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
                 {
-                    GameAudio.PlaySfx("Explo1");
+                    GameAudio.PlaySfxAsync("Explo1");
                     CombatScreen.SmallExplosion exp1 = new CombatScreen.SmallExplosion(4);
                     exp1.grid = od.Target.ClickRect;
                     lock (GlobalStats.ExplosionLocker)
@@ -1922,7 +1922,7 @@ namespace Ship_Game
                             }
                             if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
                             {
-                                GameAudio.PlaySfx("sd_troop_attack_hit");
+                                GameAudio.PlaySfxAsync("sd_troop_attack_hit");
                                 CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(1);
                                 smallExplosion.grid = combat.Defender.TroopClickRect;
                                 lock (GlobalStats.ExplosionLocker)
@@ -1935,7 +1935,7 @@ namespace Ship_Game
                                         this.TroopsHere.Remove(combat.Defender.TroopsHere[0]);
                                         combat.Defender.TroopsHere.Clear();
                                         this.ActiveCombats.QueuePendingRemoval(combat);
-                                        GameAudio.PlaySfx("Explo1");
+                                        GameAudio.PlaySfxAsync("Explo1");
                                         lock (GlobalStats.ExplosionLocker)
                                             (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(new CombatScreen.SmallExplosion(4)
                                             {
@@ -1959,7 +1959,7 @@ namespace Ship_Game
                                 }
                             }
                             else if (num4 == 0)
-                                GameAudio.PlaySfx("sd_troop_attack_miss");
+                                GameAudio.PlaySfxAsync("sd_troop_attack_miss");
                             combat.phase = 2;
                         }
                         else if (combat.phase == 2)

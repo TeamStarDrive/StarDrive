@@ -634,12 +634,12 @@ namespace Ship_Game
 				{
 					if (text.Length >= this.MaxCharacters)
 					{
-						GameAudio.PlaySfx("UI_Misc20");
+						GameAudio.PlaySfxAsync("UI_Misc20");
 					}
 					else
 					{
 						this.AddKeyToText(ref text, key);
-						GameAudio.PlaySfx("blip_click");
+						GameAudio.PlaySfxAsync("blip_click");
 						break;
 					}
 				}
@@ -680,7 +680,7 @@ namespace Ship_Game
 				else
 				{
 					this.AddKeyToText(ref text, key);
-					GameAudio.PlaySfx("blip_click");
+					GameAudio.PlaySfxAsync("blip_click");
 					break;
 				}
 			}
