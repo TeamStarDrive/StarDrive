@@ -521,7 +521,7 @@ namespace Ship_Game
 				}
 				if (marked)
 				{
-					GameAudio.PlaySfx("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					if (markedGoal.GetColonyShip() != null)
 					{
 						lock (markedGoal.GetColonyShip())
@@ -535,7 +535,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					GameAudio.PlaySfx("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					Goal g = new Goal(this.p, EmpireManager.Player);
 					EmpireManager.Player.GetGSAI().Goals.Add(g);
 				}
@@ -549,7 +549,7 @@ namespace Ship_Game
                 Array<Planet> planetTroops = new Array<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
                 if (troopShips.Count > 0)
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     troopShips.First().AI.OrderAssaultPlanet(this.p);
 
                 }
@@ -560,14 +560,14 @@ namespace Ship_Game
                             Ship troop = planetTroops.First().TroopsHere.First().Launch();
                             if (troop != null)
                             {
-                                GameAudio.PlaySfx("echo_affirm");                              
+                                GameAudio.PlaySfxAsync("echo_affirm");                              
                                 troop.AI.OrderAssaultPlanet(this.p);
                             }
                         }
                     }
                     else
                     {
-                        GameAudio.PlaySfx("blip_click");
+                        GameAudio.PlaySfxAsync("blip_click");
                     }
                 
 

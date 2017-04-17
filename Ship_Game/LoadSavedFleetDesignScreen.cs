@@ -34,7 +34,7 @@ namespace Ship_Game
             }
             else
             {
-                GameAudio.PlaySfx("UI_Misc20");
+                GameAudio.PlaySfxAsync("UI_Misc20");
             }
             this.ExitScreen();
         }

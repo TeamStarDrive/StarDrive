@@ -2137,7 +2137,7 @@ namespace Ship_Game
                     if (play)
                     {
 
-                        GameAudio.PlaySfx("sd_troop_takeoff");
+                        GameAudio.PlaySfxAsync("sd_troop_takeoff");
                     }
                 }
             }
@@ -2164,7 +2164,7 @@ namespace Ship_Game
 
                     if (troopShips.Count > 0)
                     {
-                        GameAudio.PlaySfx("echo_affirm");
+                        GameAudio.PlaySfxAsync("echo_affirm");
                         troopShips.First().AI.OrderRebase(this.p,true);
                     }
                     else if (planetTroops.Count > 0)
@@ -2175,14 +2175,14 @@ namespace Ship_Game
                             Ship troop = troops.First().Launch();
                             if (troop != null)
                             {
-                                GameAudio.PlaySfx("echo_affirm");
+                                GameAudio.PlaySfxAsync("echo_affirm");
                                 troop.AI.OrderRebase(this.p,true);
                             }
                         }
                     }
                     else
                     {
-                        GameAudio.PlaySfx("blip_click");
+                        GameAudio.PlaySfxAsync("blip_click");
                     }
                 }
             }
@@ -2262,7 +2262,7 @@ namespace Ship_Game
                 }
                 if (this.playerDesignsToggle.HandleInput(input))
                 {
-                    GameAudio.PlaySfx("sd_ui_accept_alt3");
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
                     if (GlobalStats.ShowAllDesigns)
                     {
@@ -2296,7 +2296,7 @@ namespace Ship_Game
                         {
                             this.p.FoodLocked = false;
                             this.FoodLock.Locked = false;
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     else
@@ -2306,7 +2306,7 @@ namespace Ship_Game
                         {
                             this.p.FoodLocked = true;
                             this.FoodLock.Locked = true;
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     ToolTip.CreateTooltip(69, this.ScreenManager);
@@ -2324,7 +2324,7 @@ namespace Ship_Game
                         {
                             this.p.ProdLocked = false;
                             this.ProdLock.Locked = false;
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     else
@@ -2334,7 +2334,7 @@ namespace Ship_Game
                         {
                             this.p.ProdLocked = true;
                             this.ProdLock.Locked = true;
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     ToolTip.CreateTooltip(69, this.ScreenManager);
@@ -2352,7 +2352,7 @@ namespace Ship_Game
                         {
                             this.p.ResLocked = false;
                             this.ResLock.Locked = false;
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     else
@@ -2362,7 +2362,7 @@ namespace Ship_Game
                         {
                             this.p.ResLocked = true;
                             this.ResLock.Locked = true;
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     ToolTip.CreateTooltip(69, this.ScreenManager);
@@ -2380,7 +2380,7 @@ namespace Ship_Game
                 {
                     if (!pgs.highlighted)
                     {
-                        GameAudio.PlaySfx("sd_ui_mouseover");
+                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
                     pgs.highlighted = true;
                 }
@@ -2391,7 +2391,7 @@ namespace Ship_Game
                 this.detailInfo = pgs.TroopsHere[0];
                 if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
                 {
-                    GameAudio.PlaySfx("sd_troop_takeoff");
+                    GameAudio.PlaySfxAsync("sd_troop_takeoff");
                     Ship.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
                     this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                     pgs.TroopsHere[0].SetPlanet(null);
@@ -2440,12 +2440,12 @@ namespace Ship_Game
                     {
                         this.p.fs = Planet.GoodState.STORE;
                     }
-                    GameAudio.PlaySfx("sd_ui_accept_alt3");
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
                 if (HelperFunctions.CheckIntersection(this.prodDropDown.r, MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     this.prodDropDown.Toggle();
-                    GameAudio.PlaySfx("sd_ui_accept_alt3");
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     Planet planet1 = this.p;
                     planet1.ps = (Planet.GoodState)((int)planet1.ps + (int)Planet.GoodState.IMPORT);
                     if (this.p.ps > Planet.GoodState.EXPORT)
@@ -2475,7 +2475,7 @@ namespace Ship_Game
                         this.selector = new Selector(this.ScreenManager, e.clickRect);
                         if (e.clickRectHover == 0)
                         {
-                            GameAudio.PlaySfx("sd_ui_mouseover");
+                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
                         }
                         e.clickRectHover = 1;
                     }
@@ -2489,7 +2489,7 @@ namespace Ship_Game
                                 object tmp = this.p.ConstructionQueue[i - 1];
                                 this.p.ConstructionQueue[i - 1] = this.p.ConstructionQueue[i];
                                 this.p.ConstructionQueue[i] = tmp as QueueItem;
-                                GameAudio.PlaySfx("sd_ui_accept_alt3");
+                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                             }
                         }
                         else if (i > 0)
@@ -2497,7 +2497,7 @@ namespace Ship_Game
                             var item = p.ConstructionQueue[i];
                             p.ConstructionQueue.Remove(item);
                             p.ConstructionQueue.Insert(0, item);
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                             break;
                         }
                     }
@@ -2511,7 +2511,7 @@ namespace Ship_Game
                                 object tmp = this.p.ConstructionQueue[i + 1];
                                 this.p.ConstructionQueue[i + 1] = this.p.ConstructionQueue[i];
                                 this.p.ConstructionQueue[i] = tmp as QueueItem;
-                                GameAudio.PlaySfx("sd_ui_accept_alt3");
+                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                             }
                         }
                         else if (i + 1 < this.QSL.Copied.Count)
@@ -2519,7 +2519,7 @@ namespace Ship_Game
                             var item = p.ConstructionQueue[i];
                             p.ConstructionQueue.Remove(item);
                             p.ConstructionQueue.Insert(0, item);
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                             break;
                         }
                     }
@@ -2532,11 +2532,11 @@ namespace Ship_Game
                                 
                                 if (this.p.ApplyStoredProduction(i))
                                 {
-                                    GameAudio.PlaySfx("sd_ui_accept_alt3");
+                                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                                 }
                                 else
                                 {
-                                    GameAudio.PlaySfx("UI_Misc20");
+                                    GameAudio.PlaySfxAsync("UI_Misc20");
                                 }
                             }
                         }
@@ -2546,12 +2546,12 @@ namespace Ship_Game
                         //}
                         else if (this.p.ProductionHere == 0f)
                         {
-                            GameAudio.PlaySfx("UI_Misc20");
+                            GameAudio.PlaySfxAsync("UI_Misc20");
                         }
                         else
                         {
                             this.p.ApplyAllStoredProduction(i);
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
@@ -2579,7 +2579,7 @@ namespace Ship_Game
 
                         }
                         this.p.ConstructionQueue.Remove(e.item as QueueItem);
-                        GameAudio.PlaySfx("sd_ui_accept_alt3");
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     }
                 }
                 catch
@@ -2613,7 +2613,7 @@ namespace Ship_Game
                     }
                     else if (pgs.Habitable || pgs.Biosphere || pgs.QItem != null || !(this.ActiveBuildingEntry.item as Building).CanBuildAnywhere)
                     {
-                        GameAudio.PlaySfx("UI_Misc20");
+                        GameAudio.PlaySfxAsync("UI_Misc20");
                         this.ActiveBuildingEntry = null;
                         break;
                     }
@@ -2673,7 +2673,7 @@ namespace Ship_Game
                     this.selector = new Selector(this.ScreenManager, e.clickRect);
                     if (e.clickRectHover == 0)
                     {
-                        GameAudio.PlaySfx("sd_ui_mouseover");
+                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
                     e.clickRectHover = 1;
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed && e.item is Building && this.ActiveBuildingEntry == null)
@@ -2699,7 +2699,7 @@ namespace Ship_Game
                                     qi.Cost = (e.item as Ship).GetCost(this.p.Owner);
                                     qi.productionTowards = 0f;
                                     this.p.ConstructionQueue.Add(qi);
-                                    GameAudio.PlaySfx("sd_ui_mouseover");
+                                    GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                                 else if (e.item is Troop troop)
                                 {
@@ -2708,14 +2708,14 @@ namespace Ship_Game
                                     qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                                     qi.productionTowards = 0f;
                                     this.p.ConstructionQueue.Add(qi);
-                                    GameAudio.PlaySfx("sd_ui_mouseover");
+                                    GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                                 else if (e.item is Building)
                                 {
                                     //Building waitaddstuff = ResourceManager.GetBuilding((e.item as Building).Name);
                                     //waitaddstuff.IsPlayerAdded=true;
                                     this.p.AddBuildingToCQ(e.item as Building,true);
-                                    GameAudio.PlaySfx("sd_ui_mouseover");
+                                    GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                             }
                         }

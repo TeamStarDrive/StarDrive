@@ -145,7 +145,7 @@ namespace Ship_Game
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
-					GameAudio.PlaySfx("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					if (this.IsToggle)
 					{
 						this.Toggled = !this.Toggled;

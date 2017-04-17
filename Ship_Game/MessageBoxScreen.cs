@@ -197,7 +197,7 @@ namespace Ship_Game
 				{
 					if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
 					{
-						GameAudio.PlaySfx("mouse_over4");
+						GameAudio.PlaySfxAsync("mouse_over4");
 					}
 					b.State = UIButton.PressState.Hover;
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
@@ -220,7 +220,7 @@ namespace Ship_Game
 						{
 							this.Accepted(this, EventArgs.Empty);
 						}
-						GameAudio.PlaySfx("echo_affirm1");
+						GameAudio.PlaySfxAsync("echo_affirm1");
 						this.ExitScreen();
 					}
 					else if (str == "Cancel")

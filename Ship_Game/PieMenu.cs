@@ -196,30 +196,30 @@ namespace Ship_Game
 					if (!rootNode.Children[selectionIndex].IsLeaf)
 					{
 						ChangeTo(rootNode.Children[selectionIndex]);
-						GameAudio.PlaySfx("sub_bass_whoosh");
+						GameAudio.PlaySfxAsync("sub_bass_whoosh");
 					}
 					else
 					{
 						rootNode.Children[selectionIndex].Select();
 						ChangeTo(null);
-					    GameAudio.PlaySfx("sub_bass_whoosh");
+					    GameAudio.PlaySfxAsync("sub_bass_whoosh");
                     }
 				}
 				else if (this.selectionIndex != -2)
 				{
 					ChangeTo(rootNode.parent);
-				    GameAudio.PlaySfx("sub_bass_whoosh");
+				    GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }
 				else
 				{
 					ChangeTo(null);
-				    GameAudio.PlaySfx("sub_bass_whoosh");
+				    GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }
 			}
 			if (input.MenuCancel)
 			{
 				ChangeTo(null);
-			    GameAudio.PlaySfx("sub_bass_whoosh");
+			    GameAudio.PlaySfxAsync("sub_bass_whoosh");
             }
 			return true;
 		}

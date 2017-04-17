@@ -356,7 +356,7 @@ namespace Ship_Game
 
                     if (troopShips.Count > 0)
                     {
-                        GameAudio.PlaySfx("echo_affirm");
+                        GameAudio.PlaySfxAsync("echo_affirm");
                         troopShips.First().AI.OrderAssaultPlanet(this.planet);
                     }
                     else
@@ -366,14 +366,14 @@ namespace Ship_Game
                                 Ship troop = planetTroops.First().TroopsHere.First().Launch();
                                 if (troop != null)
                                 {
-                                    GameAudio.PlaySfx("echo_affirm");
+                                    GameAudio.PlaySfxAsync("echo_affirm");
                                     troop.AI.OrderAssaultPlanet(this.planet);
                                 }
                             }
                         }
                         else
                         {
-                            GameAudio.PlaySfx("blip_click");
+                            GameAudio.PlaySfxAsync("blip_click");
                         }
                 }
             }
@@ -388,7 +388,7 @@ namespace Ship_Game
 				{
 					if (!this.marked)
 					{
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 						Goal g = new Goal(this.planet, Empire.Universe.player);
 						Empire.Universe.player.GetGSAI().Goals.Add(g);
 						this.Colonize.Text = "Cancel Colonize";
@@ -404,7 +404,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						GameAudio.PlaySfx("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 						if (g.GetColonyShip() != null)
 						{
 							g.GetColonyShip().AI.OrderOrbitNearest(true);

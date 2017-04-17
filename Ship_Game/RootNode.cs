@@ -119,7 +119,7 @@ namespace Ship_Game
 				{
 					if (this.nodeState != NodeState.Hover)
 					{
-						GameAudio.PlaySfx("mouse_over4");
+						GameAudio.PlaySfxAsync("mouse_over4");
 					}
 					this.nodeState = NodeState.Hover;
 				}

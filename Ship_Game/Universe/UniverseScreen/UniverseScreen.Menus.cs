@@ -105,7 +105,7 @@ namespace Ship_Game {
 
         private void ToggleUIComponent(string audioCue, ref bool toggle)
         {
-            GameAudio.PlaySfx(audioCue);
+            GameAudio.PlaySfxAsync(audioCue);
             toggle = !toggle;
         }
 
@@ -117,7 +117,7 @@ namespace Ship_Game {
                 return;
             }
             dsbw = new DeepSpaceBuildingWindow(ScreenManager, this);
-            GameAudio.PlaySfx(audioCue);
+            GameAudio.PlaySfxAsync(audioCue);
             showingDSBW = true;
         }
     }

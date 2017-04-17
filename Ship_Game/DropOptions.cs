@@ -159,7 +159,7 @@ namespace Ship_Game
 				}
 				if (Open)
 				{
-					GameAudio.PlaySfx("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				}
                 Reset();
 			}
@@ -176,7 +176,7 @@ namespace Ship_Game
                         Options[ActiveIndex].clickRect = e.clickRect;
 						e.clickRect = new Rectangle();
                         ActiveIndex = Options.IndexOf(e);
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         Open = false;
                         Reset();
 						return;

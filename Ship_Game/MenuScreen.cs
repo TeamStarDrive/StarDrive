@@ -60,13 +60,13 @@ namespace Ship_Game
 		{
 			if (input.MenuUp)
 			{
-                GameAudio.PlaySfx("blip_click");
+                GameAudio.PlaySfxAsync("blip_click");
 				if (--selectedEntry < 0)
 					selectedEntry = menuEntries.Count - 1;
 			}
 			if (input.MenuDown)
 			{
-			    GameAudio.PlaySfx("blip_click");
+			    GameAudio.PlaySfxAsync("blip_click");
 				if (++selectedEntry >= menuEntries.Count)
 					selectedEntry = 0;
 			}
