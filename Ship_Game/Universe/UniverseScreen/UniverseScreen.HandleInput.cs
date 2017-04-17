@@ -565,7 +565,7 @@ namespace Ship_Game
                     if (fleet.Ships.Count > 0)
                     {
                         SelectedFleet = fleet;
-                        GameAudio.PlaySfx("techy_affirm1");
+                        GameAudio.PlaySfxAsync("techy_affirm1");
                     }
                     else
                         SelectedFleet = null;
@@ -679,7 +679,7 @@ namespace Ship_Game
                     {
                         if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
                         {
-                            GameAudio.PlaySfx("echo_affirm1");
+                            GameAudio.PlaySfxAsync("echo_affirm1");
                             SelectedSomethingTimer = 3f;
                             float num3 = SelectedFleet.Position.RadiansToTarget(vector2_1);
                             Vector2 vectorToTarget =
@@ -732,12 +732,12 @@ namespace Ship_Game
                                 if (SelectedShip.isConstructor ||
                                     SelectedShip.shipData.Role == ShipData.RoleName.supply)
                                 {
-                                    GameAudio.PlaySfx("UI_Misc20");
+                                    GameAudio.PlaySfxAsync("UI_Misc20");
                                     return;
                                 }
                                 else
                                 {
-                                    GameAudio.PlaySfx("echo_affirm1");
+                                    GameAudio.PlaySfxAsync("echo_affirm1");
                                     if (ship.loyalty == player)
                                     {
                                         if (SelectedShip.shipData.Role == ShipData.RoleName.troop)
@@ -781,12 +781,12 @@ namespace Ship_Game
                             else if (SelectedShip.isConstructor ||
                                      SelectedShip.shipData.Role == ShipData.RoleName.supply)
                             {
-                                GameAudio.PlaySfx("UI_Misc20");
+                                GameAudio.PlaySfxAsync("UI_Misc20");
                                 return;
                             }
                             else
                             {
-                                GameAudio.PlaySfx("echo_affirm1");
+                                GameAudio.PlaySfxAsync("echo_affirm1");
                                 if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 {
                                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
@@ -818,11 +818,11 @@ namespace Ship_Game
                                 if (ship.loyalty != player || ship.isConstructor ||
                                     ship.shipData.Role == ShipData.RoleName.supply)
                                 {
-                                    GameAudio.PlaySfx("UI_Misc20");
+                                    GameAudio.PlaySfxAsync("UI_Misc20");
                                     return;
                                 }
                             }
-                            GameAudio.PlaySfx("echo_affirm1");
+                            GameAudio.PlaySfxAsync("echo_affirm1");
                             Ship ship1 = CheckShipClick(startDrag, input);
                             Planet planet;
                             lock (GlobalStats.ClickableSystemsLock)
@@ -867,11 +867,11 @@ namespace Ship_Game
                                     if (ship2.isConstructor || ship2.shipData.Role == ShipData.RoleName.supply)
                                     {
                                         SelectedShipList.Clear();
-                                        GameAudio.PlaySfx("UI_Misc20");
+                                        GameAudio.PlaySfxAsync("UI_Misc20");
                                         return;
                                     }
                                 }
-                                GameAudio.PlaySfx("echo_affirm1");
+                                GameAudio.PlaySfxAsync("echo_affirm1");
                                 endDragWorld = UnprojectToWorldPosition(input.CursorPosition);
                                 SelectedShipList.OrderBy(ship => ship.Center.X);
                                 Vector2 fVec = new Vector2(-vector2_2.Y, vector2_2.X);
@@ -974,7 +974,7 @@ namespace Ship_Game
                                 SelectedFleet.FormationWarpTo(ProjectedPosition, num2, vector2_2, true);
                             else
                                 SelectedFleet.FormationWarpTo(ProjectedPosition, num2, vector2_2);
-                            GameAudio.PlaySfx("echo_affirm1");
+                            GameAudio.PlaySfxAsync("echo_affirm1");
                             foreach (Ship ship in SelectedFleet.Ships)
                                 player.GetGSAI().DefensiveCoordinator.Remove(ship);
                         }
@@ -987,12 +987,12 @@ namespace Ship_Game
                                 if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                                     previousSelection = SelectedShip;
                                 SelectedShip = null;
-                                GameAudio.PlaySfx("UI_Misc20");
+                                GameAudio.PlaySfxAsync("UI_Misc20");
                                 return;
                             }
                             else
                             {
-                                GameAudio.PlaySfx("echo_affirm1");
+                                GameAudio.PlaySfxAsync("echo_affirm1");
                                 if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 {
                                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
@@ -1020,11 +1020,11 @@ namespace Ship_Game
                                 if (ship.isConstructor || ship.shipData.Role == ShipData.RoleName.supply)
                                 {
                                     SelectedShipList.Clear();
-                                    GameAudio.PlaySfx("UI_Misc20");
+                                    GameAudio.PlaySfxAsync("UI_Misc20");
                                     return;
                                 }
                             }
-                            GameAudio.PlaySfx("echo_affirm1");
+                            GameAudio.PlaySfxAsync("echo_affirm1");
                             endDragWorld = UnprojectToWorldPosition(input.CursorPosition);
                             Vector2 fVec = new Vector2(-vector2_2.Y, vector2_2.X);
                             float num3 = Vector2.Distance(endDragWorld, startDragWorld);
@@ -1113,7 +1113,7 @@ namespace Ship_Game
                             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                                 previousSelection = SelectedShip;
                             SelectedShip = null;
-                            GameAudio.PlaySfx("UI_Misc20");
+                            GameAudio.PlaySfxAsync("UI_Misc20");
                         }
                         else
                         {
@@ -1226,7 +1226,7 @@ namespace Ship_Game
                             if ((double) Vector2.Distance(input.CursorPosition, local_3.ScreenPos) <=
                                 (double) local_3.Radius)
                             {
-                                GameAudio.PlaySfx("mouse_over4");
+                                GameAudio.PlaySfxAsync("mouse_over4");
                                 this.SelectedSystem = local_3.systemToClick;
                                 this.sInfoUI.SetSystem(this.SelectedSystem);
                                 flag1 = true;
@@ -1246,7 +1246,7 @@ namespace Ship_Game
                             this.SelectedFleet = clickableFleet.fleet;
                             flag2 = true;
                             this.pickedSomethingThisFrame = true;
-                            GameAudio.PlaySfx("techy_affirm1");
+                            GameAudio.PlaySfxAsync("techy_affirm1");
                             SelectedShipList.AddRange(SelectedFleet.Ships);
                             break;
                         }
@@ -1264,7 +1264,7 @@ namespace Ship_Game
                                 {
                                     this.SelectedShipList.Remove(clickableShip.shipToClick);
                                     this.pickedSomethingThisFrame = true;
-                                    GameAudio.PlaySfx("techy_affirm1");
+                                    GameAudio.PlaySfxAsync("techy_affirm1");
                                     break;
                                 }
                                 else
@@ -1274,7 +1274,7 @@ namespace Ship_Game
                                         !this.pickedSomethingThisFrame)
                                         this.SelectedShipList.Clear();
                                     this.pickedSomethingThisFrame = true;
-                                    GameAudio.PlaySfx("techy_affirm1");
+                                    GameAudio.PlaySfxAsync("techy_affirm1");
                                     //this.SelectedShip = clickableShip.shipToClick;  removed by fbedard
                                     SelectedSomethingTimer = 3f;
                                     if (clickableShip.shipToClick?.inSensorRange == true)
@@ -1319,7 +1319,7 @@ namespace Ship_Game
                                         }
                                         else
                                         {
-                                            GameAudio.PlaySfx("techy_affirm1");
+                                            GameAudio.PlaySfxAsync("techy_affirm1");
                                             this.SelectedPlanet = item_2.planetToClick;
                                             this.pInfoUI.SetPlanet(this.SelectedPlanet);
                                             this.SelectedSomethingTimer = 3f;
@@ -1342,7 +1342,7 @@ namespace Ship_Game
                                         (double) Vector2.Distance(input.CursorPosition, local_18.ScreenPos) <=
                                         (double) local_18.Radius)
                                     {
-                                        GameAudio.PlaySfx("techy_affirm1");
+                                        GameAudio.PlaySfxAsync("techy_affirm1");
                                         this.SelectedItem = local_18;
                                     }
                                 }
@@ -1603,12 +1603,12 @@ namespace Ship_Game
             {
                 if (!audio)
                     return;
-                GameAudio.PlaySfx("UI_Misc20");
+                GameAudio.PlaySfxAsync("UI_Misc20");
             }
             else
             {
                 if (audio)
-                    GameAudio.PlaySfx("echo_affirm1");
+                    GameAudio.PlaySfxAsync("echo_affirm1");
                 if (ship.isColonyShip)
                 {
                     if (planet.Owner == null && planet.habitable)
@@ -1747,7 +1747,7 @@ namespace Ship_Game
                     this.AORect.Height = Math.Abs(this.AORect.Height);
                     if (this.AORect.Width > 100 && this.AORect.Height > 100)
                     {
-                        GameAudio.PlaySfx("echo_affirm");
+                        GameAudio.PlaySfxAsync("echo_affirm");
                         this.SelectedShip.AreaOfOperation.Add(this.AORect);
                     }
                 }
@@ -1777,7 +1777,7 @@ namespace Ship_Game
                 {
                     if (input.CursorPosition.InRadius(clickablePlanets.ScreenPos, clickablePlanets.Radius))
                     {
-                        GameAudio.PlaySfx("sub_bass_whoosh");
+                        GameAudio.PlaySfxAsync("sub_bass_whoosh");
                         SelectedPlanet = clickablePlanets.planetToClick;
                         if (!SnapBackToSystem)
                             HeightOnSnap = camHeight;
@@ -1813,7 +1813,7 @@ namespace Ship_Game
                     {
                         if (system.systemToClick.ExploredDict[player])
                         {
-                            GameAudio.PlaySfx("sub_bass_whoosh");
+                            GameAudio.PlaySfxAsync("sub_bass_whoosh");
                             HeightOnSnap = camHeight;
                             ViewSystem(system.systemToClick);
                         }
@@ -1854,7 +1854,7 @@ namespace Ship_Game
             {
                 if (player.empireShipCombat > 0)
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     int nbrship = 0;
                     if (lastshipcombat >= player.empireShipCombat)
                         lastshipcombat = 0;
@@ -1880,7 +1880,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    GameAudio.PlaySfx("blip_click");
+                    GameAudio.PlaySfxAsync("blip_click");
                 }
             }
         }
@@ -1893,7 +1893,7 @@ namespace Ship_Game
             {
                 if (player.empirePlanetCombat > 0)
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     Planet PlanetToView = (Planet)null;
                     int nbrplanet = 0;
                     if (lastplanetcombat >= player.empirePlanetCombat)
@@ -1960,7 +1960,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    GameAudio.PlaySfx("blip_click");
+                    GameAudio.PlaySfxAsync("blip_click");
                 }
             }
         }
@@ -2021,7 +2021,7 @@ namespace Ship_Game
                     if (local_11.BuildPos == SelectedItem.BuildPos)
                     {
                         ItemsToBuild.QueuePendingRemoval(local_11);
-                        GameAudio.PlaySfx("blip_click");
+                        GameAudio.PlaySfxAsync("blip_click");
                     }
                 }
                 ItemsToBuild.ApplyPendingRemovals();
@@ -2045,7 +2045,7 @@ namespace Ship_Game
             if (fleet.Ships.Count > 0)
             {
                 SelectedFleet = fleet;
-                GameAudio.PlaySfx("techy_affirm1");
+                GameAudio.PlaySfxAsync("techy_affirm1");
             }
             else
                 SelectedFleet = (Fleet)null;

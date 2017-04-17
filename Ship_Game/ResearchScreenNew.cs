@@ -256,7 +256,7 @@ namespace Ship_Game
 		{
             if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfx("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
                 return;
             }
@@ -350,7 +350,7 @@ namespace Ship_Game
 					continue;
 				}
 				this.PopulateNodesFromRoot(tech.Value as RootNode);
-				GameAudio.PlaySfx("sd_ui_research_select");
+				GameAudio.PlaySfxAsync("sd_ui_research_select");
 			}
 			this.RightClicked = false;
 			foreach (KeyValuePair<string, Node> tech in this.SubNodes)
@@ -363,22 +363,22 @@ namespace Ship_Game
 				}
 				if (EmpireManager.Player.GetTDict()[tech.Key].Unlocked)
 				{
-					GameAudio.PlaySfx("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 				else if (EmpireManager.Player.HavePreReq(tech.Key))
 				{
 					this.qcomponent.SetVisible();
 					this.qcomponent.AddToQueue(tech.Value as TreeNode);
-					GameAudio.PlaySfx("sd_ui_research_select");
+					GameAudio.PlaySfxAsync("sd_ui_research_select");
 				}
 				else if (EmpireManager.Player.HavePreReq(tech.Key))
 				{
-					GameAudio.PlaySfx("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 				else
 				{
 					this.qcomponent.SetVisible();
-					GameAudio.PlaySfx("sd_ui_research_select");
+					GameAudio.PlaySfxAsync("sd_ui_research_select");
 					string techToCheck = tech.Key;
 					Array<string> TechsToAdd = new Array<string>()
 					{

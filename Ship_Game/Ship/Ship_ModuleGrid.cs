@@ -476,18 +476,9 @@ namespace Ship_Game.Gameplay
             for (; n > 0; --n, pos += step)
             {
                 Point p = GridLocalToPoint(pos);
-                //#if DEBUG
-                //    AddGridRayTraceDebug(3f, p.X, p.Y);
-                //#endif
-
                 ShipModule m = grid[p.X + p.Y*gridWidth];
                 if (m != null && m.Active)
-                {
-                    #if DEBUG
-                        AddGridLocalHitIndicator(3f, p.X, p.Y);
-                    #endif
                     return m;
-                }
             }
             return null;
         }
@@ -507,20 +498,15 @@ namespace Ship_Game.Gameplay
                 // @todo Make use of rayRadius to improve raytrace precision
                 m = RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
 
-                #if DEBUG
-                    if (Empire.Universe.Debug && m != null)
-                    {
-                        Vector2 localA = WorldToGridLocal(startPos);
-                        Vector2 localB = WorldToGridLocal(endPos);
-                        AddGridLocalDebugLine(5f, localA, localB);
-                    }
-                #endif
+                //#if DEBUG
+                //    if (Empire.Universe.Debug && m != null)
+                //    {
+                //        Vector2 localA = WorldToGridLocal(startPos);
+                //        Vector2 localB = WorldToGridLocal(endPos);
+                //        AddGridLocalDebugLine(5f, localA, localB);
+                //    }
+                //#endif
             }
-            //else
-            //{
-            //    if (InLocalBounds(a) || InLocalBounds(b))
-            //        Log.Warning("ClipLine bug");
-            //}
             return m;
         }
 

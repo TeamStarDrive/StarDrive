@@ -139,7 +139,7 @@ namespace Ship_Game
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfx("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
             }
 			this.CategoriesSL.HandleInput(input);
@@ -187,7 +187,7 @@ namespace Ship_Game
 				{
 					if (e.clickRectHover == 0)
 					{
-						GameAudio.PlaySfx("sd_ui_mouseover");
+						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && e.item is HelpTopic)

@@ -702,7 +702,7 @@ namespace Ship_Game
             pieMenu.ScaleFactor = 1f;
         }
 
-        public void PlayNegativeSound() => GameAudio.PlaySfx("UI_Misc20");
+        public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
         private void ReportManual(string reportType, bool kudos) //@TODO this should be mostly moved to a exception tracker constructor i think. 
         {

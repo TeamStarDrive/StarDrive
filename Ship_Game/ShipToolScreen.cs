@@ -390,7 +390,7 @@ namespace Ship_Game
                 {
                     if (!button.Hover)
                     {
-                        GameAudio.PlaySfx("sd_ui_mouseover");
+                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
                     button.Hover = true;
                     if (button.HasToolTip)
@@ -399,7 +399,7 @@ namespace Ship_Game
                     }
                     if (input.InGameSelect)
                     {
-                        GameAudio.PlaySfx("sd_ui_accept_alt3");
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         this.SetRestrictionFromText(button.Action);
                     }
                 }
@@ -506,7 +506,7 @@ namespace Ship_Game
             if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Released && this.mousePos.X > (float)this.RbBox.X && this.mousePos.Y > (float)this.RbBox.Y && this.mousePos.X < (float)(this.RbBox.X + this.RbBox.Width) && this.mousePos.Y < (float)(this.RbBox.Y + this.RbBox.Height))
             {
                 this.ShowOverlay = !this.ShowOverlay;
-                GameAudio.PlaySfx("analogue_click2");
+                GameAudio.PlaySfxAsync("analogue_click2");
             }
             this.mouseStatePrevious = this.mouseStateCurrent;
         }
@@ -665,7 +665,7 @@ namespace Ship_Game
 
         public void SetActiveModule(ShipModule mod)
         {
-            GameAudio.PlaySfx("smallservo");
+            GameAudio.PlaySfxAsync("smallservo");
             ActiveModule = mod;
         }
 

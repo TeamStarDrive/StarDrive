@@ -973,7 +973,7 @@ namespace Ship_Game
 		{
             if (input.CurrentKeyboardState.IsKeyDown(Keys.I) && !input.LastKeyboardState.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfx("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
                 return;
             }
@@ -1018,7 +1018,7 @@ namespace Ship_Game
 							entry = new ArtifactEntry();
 						}
 					}
-					GameAudio.PlaySfx("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 				}
 				else
 				{

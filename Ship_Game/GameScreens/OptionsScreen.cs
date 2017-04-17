@@ -385,12 +385,12 @@ namespace Ship_Game
 				{
 					if (!FullScreen.highlighted)
 					{
-						GameAudio.PlaySfx("sd_ui_mouseover");
+						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					FullScreen.highlighted = true;
                     if (input.InGameSelect)
                     {
-                        GameAudio.PlaySfx("blip_click");
+                        GameAudio.PlaySfxAsync("blip_click");
                         ++ModeToSet;
                         if (ModeToSet > WindowMode.Borderless)
                             ModeToSet = WindowMode.Fullscreen;

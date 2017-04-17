@@ -2215,7 +2215,7 @@ namespace Ship_Game
                     {
                         if (e.clickRectHover == 0)
                         {
-                            GameAudio.PlaySfx("sd_ui_mouseover");
+                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
                         }
                         e.clickRectHover = 1;
                     }
@@ -2282,7 +2282,7 @@ namespace Ship_Game
                     {
                         if (e.clickRectHover == 0)
                         {
-                            GameAudio.PlaySfx("sd_ui_mouseover");
+                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
                         }
                         e.clickRectHover = 1;
                     }
@@ -4731,7 +4731,7 @@ namespace Ship_Game
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !input.LastKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfx("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
             }
             if (this.close.HandleInput(input))
@@ -4844,7 +4844,7 @@ namespace Ship_Game
                         this.selector = new Selector(this.ScreenManager, e.clickRect);
                         if (input.InGameSelect)
                         {
-                            GameAudio.PlaySfx("sd_ui_accept_alt3");
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                             if (!this.ShipSaved && !this.CheckDesign())
                             {
                                 MessageBoxScreen messageBoxScreen = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "No");
@@ -4883,7 +4883,7 @@ namespace Ship_Game
                                 {
                                     this.ActiveModule.hangarShipUID = (entry.item as Ship).Name;
                                     this.HangarShipUIDLast = (entry.item as Ship).Name;
-                                    GameAudio.PlaySfx("sd_ui_accept_alt3");
+                                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                                     return;
                                 }
                             }
@@ -4905,7 +4905,7 @@ namespace Ship_Game
                             {
                                 this.HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
                                 this.HangarShipUIDLast = (entry.item as Ship).Name;
-                                GameAudio.PlaySfx("sd_ui_accept_alt3");
+                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                                 return;
                             }
                         }
@@ -4991,7 +4991,7 @@ namespace Ship_Game
                                 this.HoveredModule = slotStruct.module;
                             if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                             {
-                                GameAudio.PlaySfx("simple_beep");
+                                GameAudio.PlaySfxAsync("simple_beep");
                                 if (this.Debug)
                                 {
                                     this.DebugAlterSlot(slotStruct.slotReference.Position, this.operation);
@@ -5006,14 +5006,14 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(this.upArrow, vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && (this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.scrollPosition > 0))
                 {
                     --this.scrollPosition;
-                    GameAudio.PlaySfx("blip_click");
+                    GameAudio.PlaySfxAsync("blip_click");
                     foreach (ModuleButton moduleButton in this.ModuleButtons)
                         moduleButton.moduleRect.Y += 128;
                 }
                 if (HelperFunctions.CheckIntersection(this.downArrow, vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
                 {
                     ++this.scrollPosition;
-                    GameAudio.PlaySfx("blip_click");
+                    GameAudio.PlaySfxAsync("blip_click");
                     foreach (ModuleButton moduleButton in this.ModuleButtons)
                         moduleButton.moduleRect.Y -= 128;
                 }
@@ -5022,14 +5022,14 @@ namespace Ship_Game
                     if (input.ScrollIn && this.scrollPosition > 0)
                     {
                         --this.scrollPosition;
-                        GameAudio.PlaySfx("blip_click");
+                        GameAudio.PlaySfxAsync("blip_click");
                         foreach (ModuleButton moduleButton in this.ModuleButtons)
                             moduleButton.moduleRect.Y += 128;
                     }
                     if (input.ScrollOut)
                     {
                         ++this.scrollPosition;
-                        GameAudio.PlaySfx("blip_click");
+                        GameAudio.PlaySfxAsync("blip_click");
                         foreach (ModuleButton moduleButton in this.ModuleButtons)
                             moduleButton.moduleRect.Y -= 128;
                     }
@@ -5055,7 +5055,7 @@ namespace Ship_Game
                             designAction.clickedSS.module        = parent.module;
                             designAction.clickedSS.slotReference = parent.slotReference;
                             DesignStack.Push(designAction);
-                            GameAudio.PlaySfx("sub_bass_whoosh");
+                            GameAudio.PlaySfxAsync("sub_bass_whoosh");
                             ClearParentSlot(parent);
                             RecalculatePower();
                         }
@@ -5082,7 +5082,7 @@ namespace Ship_Game
                         Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.pq.enclosingRect.X, (float)slot.pq.enclosingRect.Y));
                         if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
                         {
-                            GameAudio.PlaySfx("sub_bass_mouseover");
+                            GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
                             if (slot.pq.X != this.lastDesignActionPos.X || slot.pq.Y != this.lastDesignActionPos.Y || ActiveModule.UID != this.lastActiveUID)
                             {
@@ -5152,7 +5152,7 @@ namespace Ship_Game
                             switch (uiButton.Launches)
                             {
                                 case "Toggle Overlay":
-                                    GameAudio.PlaySfx("blip_click");
+                                    GameAudio.PlaySfxAsync("blip_click");
                                     this.ToggleOverlay = !this.ToggleOverlay;
                                     continue;
                                 case "Save As...":
@@ -5163,7 +5163,7 @@ namespace Ship_Game
                                     }
                                     else
                                     {
-                                        GameAudio.PlaySfx("UI_Misc20");
+                                        GameAudio.PlaySfxAsync("UI_Misc20");
                                         this.ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
                                         continue;
                                     }
@@ -5188,7 +5188,7 @@ namespace Ship_Game
                                 ToolTip.CreateTooltip(toggleButton.WhichToolTip, this.ScreenManager);
                             if (input.InGameSelect)
                             {
-                                GameAudio.PlaySfx("sd_ui_accept_alt3");
+                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                                 switch (toggleButton.Action)
                                 {
                                     case "attack":
@@ -5385,12 +5385,12 @@ namespace Ship_Game
             {
                 if (str1 == "Research")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
                 }
                 else if (str1 == "Budget")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
                 }
             }
@@ -5400,26 +5400,26 @@ namespace Ship_Game
             {
                 if (str3 == "Main Menu")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
                 }
                 else if (str3 == "Shipyard")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                 }
                 else if (str3 == "Empire")
                 {
                     ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this.EmpireUI));
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                 }
                 else if (str3 == "Diplomacy")
                 {
                     ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                 }
                 else if (str3 == "?")
                 {
-                    GameAudio.PlaySfx("sd_ui_tactical_pause");
+                    GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
                     InGameWiki wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
                     {
                         TitleText = "StarDrive Help",
@@ -5780,7 +5780,7 @@ namespace Ship_Game
             return string.Concat(returnString, line);
         }
 
-        public void PlayNegativeSound() => GameAudio.PlaySfx("UI_Misc20");
+        public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
         private void ReallyExit()
         {
@@ -6041,12 +6041,12 @@ namespace Ship_Game
             {
                 if (str1 == "Research")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     base.ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
                 }
                 else if (str1 == "Budget")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     base.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
                 }
             }
@@ -6056,26 +6056,26 @@ namespace Ship_Game
             {
                 if (str3 == "Main Menu")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                     ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
                 }
                 else if (str3 == "Shipyard")
                 {
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                 }
                 else if (str3 == "Empire")
                 {
                     ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, EmpireUI));
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                 }
                 else if (str3 == "Diplomacy")
                 {
                     ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
-                    GameAudio.PlaySfx("echo_affirm");
+                    GameAudio.PlaySfxAsync("echo_affirm");
                 }
                 else if (str3 == "?")
                 {
-                    GameAudio.PlaySfx("sd_ui_tactical_pause");
+                    GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
                     InGameWiki wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
                     {
                         TitleText = "StarDrive Help",
@@ -6088,7 +6088,7 @@ namespace Ship_Game
 
         public void SetActiveModule(ShipModule mod)
         {
-            GameAudio.PlaySfx("smallservo");
+            GameAudio.PlaySfxAsync("smallservo");
             mod.SetAttributesNoParent();
             this.ActiveModule = mod;
             this.ResetModuleState();

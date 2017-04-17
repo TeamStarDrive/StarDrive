@@ -112,13 +112,13 @@ namespace Ship_Game
 					}
 					else
 					{
-						GameAudio.PlaySfx("sd_ui_research_select");
+						GameAudio.PlaySfxAsync("sd_ui_research_select");
 						break;
 					}
 				}
 				if (this.CurrentResearch != null && this.CurrentResearch.HandleInput(input))
 				{
-					GameAudio.PlaySfx("sd_ui_research_select");
+					GameAudio.PlaySfxAsync("sd_ui_research_select");
 				}
 				if (this.ShowQueue.HandleInput(input))
 				{

@@ -913,7 +913,7 @@ namespace Ship_Game.AI {
                 {
                     module.TransporterTimer = module.TransporterTimerConstant;
                     if (Owner.InFrustum)
-                        GameAudio.PlaySfx("transporter");
+                        GameAudio.PlaySfxAsync("transporter");
                 }
             }
         }

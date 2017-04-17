@@ -538,25 +538,25 @@ namespace Ship_Game
                     bool flag=true;
                     while (this.p.ApplyStoredProduction(0))
                     {
-                        GameAudio.PlaySfx("sd_ui_accept_alt3");
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         if(flag)
                         flag = false;
 
                     }
                     
                     if(flag)
-						GameAudio.PlaySfx("UI_Misc20");
+						GameAudio.PlaySfxAsync("UI_Misc20");
 
 
 				}
 				else if (this.p.ApplyStoredProduction(0))
 				{
 
-					GameAudio.PlaySfx("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				}
 				else 
 				{
-					GameAudio.PlaySfx("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 
 			}
@@ -575,7 +575,7 @@ namespace Ship_Game
 						{
 							this.p.FoodLocked = false;
 							this.FoodLock.Locked = false;
-							GameAudio.PlaySfx("sd_ui_accept_alt3");
+							GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						}
 					}
 					else
@@ -585,7 +585,7 @@ namespace Ship_Game
 						{
 							this.p.FoodLocked = true;
 							this.FoodLock.Locked = true;
-							GameAudio.PlaySfx("sd_ui_accept_alt3");
+							GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						}
 					}
 					ToolTip.CreateTooltip(69, ScreenManager);
@@ -604,7 +604,7 @@ namespace Ship_Game
 					{
 						this.p.ProdLocked = false;
 						this.ProdLock.Locked = false;
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
 				else
@@ -614,7 +614,7 @@ namespace Ship_Game
 					{
 						this.p.ProdLocked = true;
 						this.ProdLock.Locked = true;
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
 				ToolTip.CreateTooltip(69, ScreenManager);
@@ -632,7 +632,7 @@ namespace Ship_Game
 					{
 						this.p.ResLocked = false;
 						this.ResLock.Locked = false;
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
 				else
@@ -642,7 +642,7 @@ namespace Ship_Game
 					{
 						this.p.ResLocked = true;
 						this.ResLock.Locked = true;
-						GameAudio.PlaySfx("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
 				ToolTip.CreateTooltip(69, ScreenManager);
@@ -656,12 +656,12 @@ namespace Ship_Game
 				{
 					this.p.fs = Planet.GoodState.STORE;
 				}
-				GameAudio.PlaySfx("sd_ui_accept_alt3");
+				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 			}
 			if (HelperFunctions.CheckIntersection(this.prodDropDown.r, input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 			{
 				this.prodDropDown.Toggle();
-				GameAudio.PlaySfx("sd_ui_accept_alt3");
+				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				Planet planet2 = this.p;
 				planet2.ps = (Planet.GoodState)((int)planet2.ps + (int)Planet.GoodState.IMPORT);
 				if (this.p.ps > Planet.GoodState.EXPORT)

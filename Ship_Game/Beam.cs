@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 
@@ -30,10 +29,11 @@ namespace Ship_Game
         private float BeamZ;
         private GameplayObject Target;
         public bool Infinite;
-        private AudioHandle DamageToggleSound;
-        private bool DamageToggleOn;
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;
+
+        private AudioHandle DamageToggleSound;
+        private float DamageSoundTimer;
 
         public Beam()
         {
@@ -46,11 +46,6 @@ namespace Ship_Game
             Target = target;
             Owner = owner;
             Vector2 targetDir = Vector2.Normalize(target.Center);
-            if (owner.InFrustum)
-            {
-                DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
-            }
-
             SetSystem(owner.System);
             Source = srcCenter;
             BeamOffsetAngle = owner.Rotation - srcCenter.AngleToTarget(targetDir).ToRadians();
@@ -70,7 +65,6 @@ namespace Ship_Game
         public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Projectile owner, GameplayObject target) : this()
         {
             Target = target;
-            DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
             SetSystem(owner.System);
             Source          = srcCenter;
             BeamOffsetAngle = 0f;
@@ -98,7 +92,7 @@ namespace Ship_Game
             Target            = null;
             Infinite          = false;
             DamageToggleSound.Stop();
-            DamageToggleOn    = false;
+            DamageSoundTimer = 0f;
 
             ModuleAttachedTo = Weapon.moduleAttachedTo;
             PowerCost        = Weapon.BeamPowerCostPerSecond;
@@ -112,10 +106,6 @@ namespace Ship_Game
             Target = target;
             Owner = owner;
             Vector2 targetDir = Vector2.Normalize(target.Center);
-            if (owner.InFrustum)
-            {
-                DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
-            }
             SetSystem(Owner.System);
             Source          = srcCenter;
             BeamOffsetAngle = owner.Rotation - srcCenter.RadiansToTarget(targetDir);
@@ -135,10 +125,6 @@ namespace Ship_Game
         public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Ship shipOwner)
         {
             Owner = shipOwner;
-            if (shipOwner.InFrustum)
-            {
-                DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
-            }
             SetSystem(Owner.System);
             Source = srcCenter;
             Thickness       = thickness;
@@ -158,8 +144,7 @@ namespace Ship_Game
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            if (DamageToggleSound.IsPlaying)
-                DamageToggleSound.Stop();
+            DamageToggleSound.Stop();
 
             if (Owner != null)
             {
@@ -258,32 +243,33 @@ namespace Ship_Game
                 return false;
 
             var targetModule = target as ShipModule;
-            if (DamageAmount < 0f && targetModule?.ShieldPower > 0f)
+            if (DamageAmount < 0f && targetModule?.ShieldPower > 0f) // @todo Repair beam??
                 return false;
 
-            if (!DamageToggleOn && targetModule != null)
-            {
-                DamageToggleOn = true;
-            }
+            if (DamageSoundTimer <= 0f && targetModule != null)
+                DamageSoundTimer = ShieldSfxTime; // trigger shield static sfx at next Update()
 
             targetModule?.Damage(this, DamageAmount);
             return true;
         }
 
-        public void Update(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
+        private const float ShieldSfxTime = 3f;
+        private void UpdateShieldHitSfx()
         {
-            if (!CollidedThisFrame && DamageToggleOn)
+            if (!CollidedThisFrame && DamageSoundTimer >= ShieldSfxTime)
             {
-                DamageToggleOn = false;
-                if (DamageToggleSound.IsPlaying)
-                {
-                    DamageToggleSound.Stop();
-                    if (Owner.InFrustum)
-                    {
-                        DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
-                    }
-                }
+                DamageToggleSound.Stop();
+
+                if (Owner.InFrustum)
+                    GameAudio.PlaySfxAsync("sd_shield_static_1", sfx => DamageToggleSound=sfx);
             }
+            DamageSoundTimer -= 0.0166f;
+        }
+
+        public void Update(Vector2 srcCenter, Vector2 dstCenter, int thickness, Matrix view, Matrix projection, float elapsedTime)
+        {
+            UpdateShieldHitSfx();
+
             Owner.PowerCurrent = Owner.PowerCurrent - PowerCost * elapsedTime;
             if (Owner.PowerCurrent < 0f)
             {
@@ -302,15 +288,15 @@ namespace Ship_Game
             Duration -= elapsedTime;
             Source = srcCenter;
 
-            //Modified by Gretman
-            if (Target == null)// If current target sucks, use "destination" instead
+            // Modified by Gretman
+            if (Target == null) // If current target sucks, use "destination" instead
             {
                 Log.Info("Beam assigned alternate destination at update");
                 Destination = Source.PointFromRadians(Owner.Rotation - BeamOffsetAngle, Range);
             }
-            else if (!Owner.isPlayerShip() && Vector2.Distance(Destination, Source) > Range + Owner.Radius) //So beams at the back of a ship can hit too!
+            else if (!Owner.isPlayerShip() && Destination.OutsideRadius(Source, Range + Owner.Radius)) // So beams at the back of a ship can hit too!
             {
-                Log.Info("Beam killed because of distance: Dist = " + Vector2.Distance(Destination, Source) + "  Beam Range = " + (Range).ToString());
+                Log.Info($"Beam killed because of distance: Dist = {Destination.Distance(Source)}  Beam Range = {Range}");
                 Die(null, true);
                 return;
             }
@@ -325,7 +311,7 @@ namespace Ship_Game
                 Destination = Target.Center;
             }// Done messing with stuff - Gretman
 
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, ActualHitDestination, Thickness, new Vector2[4], 0, BeamZ);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, ActualHitDestination, thickness, new Vector2[4], 0, BeamZ);
             UpperLeft = points[0];
             UpperRight = points[1];
             LowerLeft = points[2];
@@ -338,25 +324,13 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
+        public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, Matrix view, Matrix projection, float elapsedTime)
         {
-        
-            if (!CollidedThisFrame && DamageToggleOn)
-            {
-                DamageToggleOn = false;
-                if (DamageToggleSound.IsPlaying)
-                {
-                    DamageToggleSound.Stop();
-                    if (Owner.InFrustum)
-                    {
-                        DamageToggleSound = GameAudio.PlaySfx("sd_shield_static_1");
-                    }
-                }
-            }
+            UpdateShieldHitSfx();
             Duration -= elapsedTime;
             Source = srcCenter;
             Destination = dstCenter;
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, Destination, (float)Thickness, new Vector2[4], 0, BeamZ);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, Destination, thickness, new Vector2[4], 0, BeamZ);
             UpperLeft = points[0];
             UpperRight = points[1];
             LowerLeft = points[2];
