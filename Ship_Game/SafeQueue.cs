@@ -23,7 +23,7 @@ namespace Ship_Game
         public int Count { get; private set; }
         private ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-        private static readonly T[] Empty = new T[0];
+        private static readonly T[] Empty = Empty<T>.Array;
 
         // This is relatively atomic, no reason to lock on this
         // as it wouldn't provide any benefits or thread safety

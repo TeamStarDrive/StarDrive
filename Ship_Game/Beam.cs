@@ -246,30 +246,19 @@ namespace Ship_Game
             if (DamageAmount < 0f && targetModule?.ShieldPower > 0f) // @todo Repair beam??
                 return false;
 
-            if (DamageSoundTimer <= 0f && targetModule != null)
-                DamageSoundTimer = ShieldSfxTime; // trigger shield static sfx at next Update()
+            //// trigger shield static sfx.... @todo BUT WHY?
+            //if (targetModule != null && targetModule.ShieldPower > 0f)
+            //{
+            //    if (Owner.InFrustum && DamageToggleSound.NotPlaying)
+            //        DamageToggleSound.PlaySfxAsync("sd_shield_static_1");
+            //}
 
             targetModule?.Damage(this, DamageAmount);
             return true;
         }
 
-        private const float ShieldSfxTime = 3f;
-        private void UpdateShieldHitSfx()
-        {
-            if (!CollidedThisFrame && DamageSoundTimer >= ShieldSfxTime)
-            {
-                DamageToggleSound.Stop();
-
-                if (Owner.InFrustum)
-                    GameAudio.PlaySfxAsync("sd_shield_static_1", sfx => DamageToggleSound=sfx);
-            }
-            DamageSoundTimer -= 0.0166f;
-        }
-
         public void Update(Vector2 srcCenter, Vector2 dstCenter, int thickness, Matrix view, Matrix projection, float elapsedTime)
         {
-            UpdateShieldHitSfx();
-
             Owner.PowerCurrent = Owner.PowerCurrent - PowerCost * elapsedTime;
             if (Owner.PowerCurrent < 0f)
             {
@@ -326,7 +315,6 @@ namespace Ship_Game
 
         public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, Matrix view, Matrix projection, float elapsedTime)
         {
-            UpdateShieldHitSfx();
             Duration -= elapsedTime;
             Source = srcCenter;
             Destination = dstCenter;
