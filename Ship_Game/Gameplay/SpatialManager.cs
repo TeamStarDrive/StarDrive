@@ -1,8 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Ship_Game.Gameplay
 {
@@ -20,7 +18,6 @@ namespace Ship_Game.Gameplay
         private Vector2 UpperLeftBound;
         private PoolArrayGridU16 Buckets;
         private int CellSize;
-        private bool FineDetail;
         private DynamicMemoryPool MemoryPool;
         private SolarSystem System;
 
@@ -79,8 +76,9 @@ namespace Ship_Game.Gameplay
             Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Buckets.Count);
         }
 
-        public void SetupForSystem(float gameScale, SolarSystem system, float cellSize = 5000f)
+        public void SetupForSystem(float gameScale, SolarSystem system)
         {
+            const float cellSize = 5000f;
             System = system;
             Setup(200000f * gameScale, 200000f * gameScale, cellSize * gameScale, system.Position.X, system.Position.Y);
         }
@@ -179,24 +177,6 @@ namespace Ship_Game.Gameplay
             if (BucketUpdateTimer >= 0.5f) // update all buckets
             {
                 BucketUpdateTimer = 0.0f;
-
-                if (system != null) // this is a System.spatialManager
-                {
-                    if (system.CombatInSystem && system.ShipList.Count > 10)
-                    {
-                        if (!FineDetail && Buckets.Count < 20 && Projectiles.Count > 0)
-                        {
-                            SetupForSystem(Empire.Universe.GameScale, system, 5000f);
-                            FineDetail = true;
-                        }
-                    }
-                    else if (FineDetail && Buckets.Count > 20 || Projectiles.Count == 0)
-                    {
-                        SetupForSystem(Empire.Universe.GameScale, system);
-                        FineDetail = false;
-                    }
-                }
-
                 RebuildBuckets();
             }
 
@@ -262,6 +242,10 @@ namespace Ship_Game.Gameplay
         // @note All of the code is inlined by hand to maximize performance
         public T[] GetNearby<T>(Vector2 position, float radius) where T : GameplayObject
         {
+            PoolArrayU16** allBuckets = Buckets.Items;
+            if (allBuckets == null) // destroyed
+                return Empty<T>.Array;
+
             float posX   = position.X - UpperLeftBound.X;
             float posY   = position.Y - UpperLeftBound.Y;
             int cellSize = CellSize;
@@ -272,10 +256,8 @@ namespace Ship_Game.Gameplay
             int maxX = (int)((posX + radius) / cellSize);
             int minY = (int)((posY - radius) / cellSize);
             int maxY = (int)((posY + radius) / cellSize);
-
-            // Luckily .NET can successfully inline Min/Max
-            if (minX < 0) minX = 0; else if (minX >= width)  minX = width - 1;
-            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width - 1;
+            if (minX < 0) minX = 0; else if (minX >= width)  minX = width  - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width  - 1;
             if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
             if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
 
@@ -284,9 +266,7 @@ namespace Ship_Game.Gameplay
             int maxSelection = spanX * spanY;
 
             int numBuckets = 0;
-            PoolArrayU16** allBuckets = Buckets.Items;
             PoolArrayU16** buckets = stackalloc PoolArrayU16*[maxSelection];
-
             for (int y = minY; y <= maxY; ++y)
             {
                 for (int x = minX; x <= maxX; ++x)
@@ -416,8 +396,8 @@ namespace Ship_Game.Gameplay
             GameplayObject[] nearby = GetNearby<GameplayObject>(projectile.Position, 100f);
             foreach (GameplayObject otherObj in nearby)
             {
-                if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && collidedWith != null && (
-                    projectile.Touch(collidedWith) || collidedWith.Touch(projectile)))
+                if (CollideWith(projectile, otherObj, out GameplayObject collidedWith)
+                    && ( projectile.Touch(collidedWith) || collidedWith.Touch(projectile) ))
                 {
                     projectile.CollidedThisFrame   = true;
                     collidedWith.CollidedThisFrame = true;
