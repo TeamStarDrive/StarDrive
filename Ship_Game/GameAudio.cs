@@ -14,13 +14,13 @@ namespace Ship_Game
             CueInst = cue;
             SfxInst = sfx;
         }
-        public bool IsPlaying => Loading || (CueInst?.IsPlaying ?? SfxInst?.State == SoundState.Playing);
-        public bool IsPaused => CueInst?.IsPaused ?? SfxInst?.State == SoundState.Paused;
-        public bool NotPlaying
+        public bool IsPlaying =>  Loading || (CueInst?.IsPlaying ?? SfxInst?.State == SoundState.Playing);
+        public bool IsPaused  => !Loading && (CueInst?.IsPaused  ?? SfxInst?.State == SoundState.Paused);
+        public bool IsStopped
         {
             get
             {
-                if (Loading) return false; // if it's loading, it's almost playing
+                if (Loading) return false; // we consider loading playing, thus IsStopped is false
                 if (CueInst != null) return CueInst.IsStopped;
                 if (SfxInst != null) return SfxInst.State == SoundState.Stopped;
                 return true;
@@ -71,11 +71,11 @@ namespace Ship_Game
         private AudioHandleState State;
 
         public AudioHandle(Cue cue, SoundEffectInstance sfx) => State = new AudioHandleState(cue, sfx);
-        public bool IsPlaying  => State != null && State.IsPlaying;
-        public bool IsPaused   => State != null && State.IsPaused;
-        public bool NotPlaying => State == null || State.NotPlaying;
-        public void Pause()    => State?.Pause();
-        public void Resume()   => State?.Resume();
+        public bool IsPlaying => State != null && State.IsPlaying;
+        public bool IsPaused  => State != null && State.IsPaused;
+        public bool IsStopped => State == null || State.IsStopped;
+        public void Pause()   => State?.Pause();
+        public void Resume()  => State?.Resume();
         public void Stop()
         {
             if (State != null) { State.Stop(); State = null; }
@@ -334,7 +334,7 @@ namespace Ship_Game
                 for (int i = 0; i < AudioHandles.Count; i++)
                 {
                     AudioHandleState handle = AudioHandles[i];
-                    if (handle.NotPlaying)
+                    if (handle.IsStopped)
                     {
                         handle.Destroy();
                         AudioHandles.RemoveAtSwapLast(i--);

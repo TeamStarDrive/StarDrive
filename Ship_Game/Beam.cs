@@ -249,7 +249,7 @@ namespace Ship_Game
             //// trigger shield static sfx.... @todo BUT WHY?
             //if (targetModule != null && targetModule.ShieldPower > 0f)
             //{
-            //    if (Owner.InFrustum && DamageToggleSound.NotPlaying)
+            //    if (Owner.InFrustum && DamageToggleSound.IsStopped)
             //        DamageToggleSound.PlaySfxAsync("sd_shield_static_1");
             //}
 
