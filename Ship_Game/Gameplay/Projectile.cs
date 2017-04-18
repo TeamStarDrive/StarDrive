@@ -636,7 +636,7 @@ namespace Ship_Game.Gameplay
                 TexturePath = Weapon.AnimationPath + AnimationFrame.ToString(Fmt);
             }
 
-            if (InFlightSfx.NotPlaying)
+            if (InFlightSfx.NotLoaded)
                 InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
 
             ParticleDelay -= elapsedTime;
