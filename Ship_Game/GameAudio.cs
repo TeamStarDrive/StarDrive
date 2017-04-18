@@ -16,7 +16,7 @@ namespace Ship_Game
         }
         public bool IsPlaying => Loading || (CueInst?.IsPlaying ?? SfxInst?.State == SoundState.Playing);
         public bool IsPaused => CueInst?.IsPaused ?? SfxInst?.State == SoundState.Paused;
-        public bool NotLoaded
+        public bool NotPlaying
         {
             get
             {
@@ -73,7 +73,7 @@ namespace Ship_Game
         public AudioHandle(Cue cue, SoundEffectInstance sfx) => State = new AudioHandleState(cue, sfx);
         public bool IsPlaying  => State != null && State.IsPlaying;
         public bool IsPaused   => State != null && State.IsPaused;
-        public bool NotLoaded  => State == null || State.NotLoaded;
+        public bool NotPlaying => State == null || State.NotPlaying;
         public void Pause()    => State?.Pause();
         public void Resume()   => State?.Resume();
         public void Stop()
@@ -334,7 +334,7 @@ namespace Ship_Game
                 for (int i = 0; i < AudioHandles.Count; i++)
                 {
                     AudioHandleState handle = AudioHandles[i];
-                    if (handle.NotLoaded)
+                    if (handle.NotPlaying)
                     {
                         handle.Destroy();
                         AudioHandles.RemoveAtSwapLast(i--);
