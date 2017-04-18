@@ -9,6 +9,7 @@ namespace Ship_Game
     {
         public int Id;
         public float X, Y, LastX, LastY;
+        public int Loyalty;
     }
 
     public sealed unsafe class Quadtree : IDisposable
