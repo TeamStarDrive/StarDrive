@@ -163,8 +163,11 @@ namespace Ship_Game
         public static void Destroy()
         {
             SfxThread = null;
-            SfxQueue.Clear();
-            SfxQueue = null;
+            lock (SfxQueue)
+            {
+                SfxQueue.Clear();
+                SfxQueue = null;
+            }
 
             lock (AudioHandles)
             {
