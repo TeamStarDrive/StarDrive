@@ -645,7 +645,7 @@ namespace Ship_Game
                 PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
                 GameAudio.StopGenericMusic();
             }
-            else if (ScreenManager.Music.NotLoaded)
+            else if (ScreenManager.Music.IsStopped)
             {
                 ScreenManager.Music = GameAudio.PlayMusic("SD_Theme_Reprise_06");
             }
@@ -738,7 +738,7 @@ namespace Ship_Game
 
             if (!GlobalStats.HasMod || GlobalStats.ActiveMod.MainMenuMusic.IsEmpty())
             {
-                if (ScreenManager.Music.NotLoaded)
+                if (ScreenManager.Music.IsStopped)
                     ResetMusic();
             }
 
