@@ -602,6 +602,7 @@ namespace Ship_Game
         private void LoadTestContent()
         {
             //var atlas = TextureAtlas.Load(ScreenManager.Content, "Explosions/smaller/shipExplosion");
+            ResetMusic();
         }
 
         public void OnPlaybackStopped(object sender, EventArgs e)
@@ -644,7 +645,7 @@ namespace Ship_Game
                 PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
                 GameAudio.StopGenericMusic();
             }
-            else if (ScreenManager.Music.NotPlaying)
+            else if (ScreenManager.Music.NotLoaded)
             {
                 ScreenManager.Music = GameAudio.PlayMusic("SD_Theme_Reprise_06");
             }
@@ -737,7 +738,7 @@ namespace Ship_Game
 
             if (!GlobalStats.HasMod || GlobalStats.ActiveMod.MainMenuMusic.IsEmpty())
             {
-                if (ScreenManager.Music.NotPlaying)
+                if (ScreenManager.Music.NotLoaded)
                     ResetMusic();
             }
 

@@ -2235,7 +2235,7 @@ namespace Ship_Game.Gameplay
             {
                 ThrusterList.Clear();
                 dietimer -= elapsedTime;
-                if (dietimer <= 1.9f && DeathSfx.NotPlaying && InFrustum)
+                if (dietimer <= 1.9f && DeathSfx.NotLoaded && InFrustum)
                 {
                     string cueName;
                     if      (Size < 80)  cueName = "sd_explosion_ship_warpdet_small";
@@ -2459,7 +2459,7 @@ namespace Ship_Game.Gameplay
                         if (JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                         {
                             if (Empire.Universe.camHeight < 250000 && Empire.Universe.camPos.InRadius(Center, 100000f)
-                                && JumpSfx.NotPlaying)
+                                && JumpSfx.NotLoaded)
                             {
                                 JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
                             }
@@ -2482,7 +2482,7 @@ namespace Ship_Game.Gameplay
                         {
                             Afterburner.Stop();
                         }
-                        if (isThrusting && AI.State == AIState.ManualControl && DroneSfx.NotPlaying)
+                        if (isThrusting && AI.State == AIState.ManualControl && DroneSfx.NotLoaded)
                         {
                             DroneSfx.PlaySfxAsync("starcruiser_drone01", SoundEmitter);
                         }

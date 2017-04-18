@@ -2083,7 +2083,7 @@ namespace Ship_Game
                     {
                         music.Resume();
                     }
-                    else if (music.NotPlaying)
+                    else if (music.NotLoaded)
                     {
                         if (them.data.MusicCue.NotEmpty())
                         {
