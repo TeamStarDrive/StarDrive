@@ -674,7 +674,7 @@ namespace Ship_Game
             if (MusicCheckTimer <= 0.0f)
             {
                 MusicCheckTimer = 2f;
-                if (ScreenManager.Music.NotLoaded)
+                if (ScreenManager.Music.IsStopped)
                     ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
 
