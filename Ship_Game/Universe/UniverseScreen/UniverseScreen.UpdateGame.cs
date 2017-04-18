@@ -8,7 +8,8 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 
-namespace Ship_Game {
+namespace Ship_Game
+{
     public sealed partial class UniverseScreen
     {
         private void ProcessTurns()
