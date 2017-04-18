@@ -73,7 +73,7 @@ namespace Ship_Game
         public AudioHandle(Cue cue, SoundEffectInstance sfx) => State = new AudioHandleState(cue, sfx);
         public bool IsPlaying  => State != null && State.IsPlaying;
         public bool IsPaused   => State != null && State.IsPaused;
-        public bool NotLoaded => State == null || State.NotLoaded;
+        public bool NotLoaded  => State == null || State.NotLoaded;
         public void Pause()    => State?.Pause();
         public void Resume()   => State?.Resume();
         public void Stop()
