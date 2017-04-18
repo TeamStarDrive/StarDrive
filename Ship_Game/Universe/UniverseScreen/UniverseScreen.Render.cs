@@ -6,7 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 
-namespace Ship_Game {
+namespace Ship_Game
+{
     public sealed partial class UniverseScreen
     {
         private void RenderParticles()
