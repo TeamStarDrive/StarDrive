@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -164,6 +159,31 @@ namespace Ship_Game
             }
             return grid;
         }
+
+        public void ArrayAdd(PoolArraySpatialObj* array, SpatialObj* obj)
+        {
+            if (array->Items == null)
+            {
+                array->Count    = 0;
+                array->Capacity = Quadtree.CellThreshold;
+                array->Items    = (SpatialObj**)Alloc(sizeof(SpatialObj*) * Quadtree.CellThreshold);
+            }
+            else if (array->Count == array->Capacity)
+            {
+                array->Capacity *= 2;
+
+                var oldItems = array->Items;
+                var newItems = (SpatialObj**)Alloc(sizeof(SpatialObj*) * array->Capacity);
+
+                int count = array->Count;
+                for (int i = 0; i < count; ++i)
+                    newItems[i] = oldItems[i];
+
+                array->Items = newItems;
+            }
+
+            array->Items[array->Count++] = obj;
+        }
     }
 
     // custom dynamic array for ushort values, this is an 'inline array', memory layout:
@@ -201,6 +221,26 @@ namespace Ship_Game
             get
             {
                 var items = new PoolArrayU16*[Count];
+                for (int i = 0; i < items.Length; ++i)
+                    items[i] = Items[i];
+                return items;
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [DebuggerDisplay("Count = {Count}")]
+    public unsafe struct PoolArraySpatialObj
+    {
+        public int Count;
+        public int Capacity;
+        public SpatialObj** Items;
+
+        public SpatialObj*[] ItemsArray
+        {
+            get
+            {
+                var items = new SpatialObj*[Count];
                 for (int i = 0; i < items.Length; ++i)
                     items[i] = Items[i];
                 return items;
