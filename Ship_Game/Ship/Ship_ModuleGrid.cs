@@ -432,6 +432,19 @@ namespace Ship_Game.Gameplay
             Point cx = WorldToGridLocalPoint(worldHitPos);
             int minX = cx.X, minY = cx.Y;
             int maxX = cx.X, maxY = cx.Y;
+            /*To Continue testing past this error I put in this hack.
+             * I see both values less than 0 and greater than max.
+             * This is of course undersirable and should be fixed and removed.
+             * But it can take some time and i need to get some of the AI working properly.
+             * This purposefully left in an unoptimized state for easy removal.
+             */
+            int gridPoint = minX + minY * width;
+            if(gridPoint > grid.Length -1 || gridPoint < 0)
+            {
+                Log.Warning("Collision Outside Bounds x:{0} y:{1} grid:{2} Ship:{3}", minX, minY, grid.Length, Name);
+                return;
+            }
+            //end of hack
             if ((m = grid[minX + minY*width]) != null && m.Active
                 && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker)) return;
 
