@@ -834,7 +834,7 @@ namespace Ship_Game.Gameplay
             {
                 if (hangarShip.AI.State == AIState.ReturnToHangar 
                     || hangarShip.AI.HasPriorityOrder 
-                    || hangarShip.AI.hasPriorityTarget
+                    || hangarShip.AI.HasPriorityTarget
                     || hangarShip.AI.IgnoreCombat 
                     || hangarShip.AI.Target != null
                     || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)

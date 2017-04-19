@@ -1138,12 +1138,12 @@ namespace Ship_Game.AI {
 
             #endregion
 
-            if (hasPriorityTarget &&
+            if (HasPriorityTarget &&
                 Distance < Owner.maxWeaponsRange * 0.85f) //If chasing something, and within weapons range
             {
                 if (Owner.engineState == Ship.MoveState.Warp) Owner.HyperspaceReturn();
             }
-            else if (!HasPriorityOrder && !hasPriorityTarget && Distance < 1000f && ActiveWayPoints.Count <= 1 &&
+            else if (!HasPriorityOrder && !HasPriorityTarget && Distance < 1000f && ActiveWayPoints.Count <= 1 &&
                      Owner.engineState == Ship.MoveState.Warp)
             {
                 Owner.HyperspaceReturn();
@@ -1345,12 +1345,12 @@ namespace Ship_Game.AI {
 
                 #endregion
 
-                if (hasPriorityTarget && Distance < Owner.maxWeaponsRange)
+                if (HasPriorityTarget && Distance < Owner.maxWeaponsRange)
                 {
                     if (Owner.engineState == Ship.MoveState.Warp)
                         Owner.HyperspaceReturn();
                 }
-                else if (!HasPriorityOrder && !hasPriorityTarget && Distance < 1000f && ActiveWayPoints.Count <= 1 &&
+                else if (!HasPriorityOrder && !HasPriorityTarget && Distance < 1000f && ActiveWayPoints.Count <= 1 &&
                          Owner.engineState == Ship.MoveState.Warp)
                 {
                     Owner.HyperspaceReturn();

@@ -113,7 +113,7 @@ namespace Ship_Game.AI {
 
             if (distanceToTarget > spacerdistance && distanceToTarget > adjustedWeaponRange)
             {
-                runTimer = 0f;
+                RunTimer = 0f;
                 AttackRunStarted = false;
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.speed);
                 return;
@@ -121,8 +121,8 @@ namespace Ship_Game.AI {
 
             if (distanceToTarget < adjustedWeaponRange)
             {
-                runTimer += elapsedTime;
-                if (runTimer > 7f)
+                RunTimer += elapsedTime;
+                if (RunTimer > 7f)
                 {
                     DoNonFleetArtillery(elapsedTime);
                     return;
@@ -138,7 +138,7 @@ namespace Ship_Game.AI {
                 }
                 AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
                 MoveInDirection(AttackVector, elapsedTime);
-                if (runTimer > 2)
+                if (RunTimer > 2)
                 {
                     DoNonFleetArtillery(elapsedTime);
                     return;
@@ -148,7 +148,7 @@ namespace Ship_Game.AI {
 
         private void DoBoardShip(float elapsedTime)
         {
-            hasPriorityTarget = true;
+            HasPriorityTarget = true;
             State = AIState.Boarding;
             if ((!EscortTarget?.Active ?? true)
                 || EscortTarget.loyalty == Owner.loyalty)
@@ -204,7 +204,7 @@ namespace Ship_Game.AI {
                 }
 
             if (State != AIState.Resupply && Owner.OrdinanceMax > 0f && Owner.OrdinanceMax * 0.05 > Owner.Ordinance &&
-                !hasPriorityTarget)
+                !HasPriorityTarget)
                 if (!FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
                 {
                     OrderResupplyNearest(false);
@@ -238,7 +238,7 @@ namespace Ship_Game.AI {
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.speed);
                 return;
             }
-            if (!HasPriorityOrder && !hasPriorityTarget && Owner.Weapons.Count == 0 && Owner.GetHangars().Count == 0)
+            if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && Owner.GetHangars().Count == 0)
                 CombatState = CombatState.Evade;
             if (!Owner.loyalty.isFaction && Owner.System != null && Owner.TroopsOut == false &&
                 Owner.GetHangars().Any(troops => troops.IsTroopBay) || Owner.hasTransporter)

@@ -59,7 +59,7 @@ namespace Ship_Game.AI {
                     OrderQueue.Clear();
                     IgnoreCombat = false;
                     TargetQueue.Add(toAttack);
-                    hasPriorityTarget = true;
+                    HasPriorityTarget = true;
                     HasPriorityOrder = false;
                     var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
                     OrderQueue.Enqueue(combat);
@@ -197,7 +197,7 @@ namespace Ship_Game.AI {
             }
             State = AIState.Intercept;
             Target = toIntercept;
-            hasPriorityTarget = true;
+            HasPriorityTarget = true;
             HasPriorityOrder = false;
             OrderQueue.Clear();
         }
@@ -232,7 +232,7 @@ namespace Ship_Game.AI {
             bool ClearOrders)
         {
             Target = null;
-            hasPriorityTarget = false;
+            HasPriorityTarget = false;
             Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
             var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
                 -(float) Math.Cos((double) Owner.Rotation));
@@ -301,7 +301,7 @@ namespace Ship_Game.AI {
             bool ClearOrders, float speedLimit)
         {
             Target = null;
-            hasPriorityTarget = false;
+            HasPriorityTarget = false;
             Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
             var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
                 -(float) Math.Cos((double) Owner.Rotation));
@@ -411,7 +411,7 @@ namespace Ship_Game.AI {
         {
             DistanceLast = 0f;
             Target = null;
-            hasPriorityTarget = false;
+            HasPriorityTarget = false;
             //   Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
             //         Vector2 forward       = Owner.Rotation.RotationToForwardVec();
             //float angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
@@ -593,7 +593,7 @@ namespace Ship_Game.AI {
                     }
                     State = AIState.AttackTarget;
                     TargetQueue.Add(toAttack);
-                    hasPriorityTarget = true;
+                    HasPriorityTarget = true;
                     HasPriorityOrder = false;
                     return;
                 }
@@ -1095,7 +1095,7 @@ namespace Ship_Game.AI {
             OrderQueue.Clear();
             HasPriorityOrder = true;
             Intercepting = false;
-            hasPriorityTarget = false;
+            HasPriorityTarget = false;
         }
     }
 }
