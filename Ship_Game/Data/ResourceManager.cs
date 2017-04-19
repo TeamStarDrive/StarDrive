@@ -998,8 +998,12 @@ namespace Ship_Game
                         ShipData shipData = ShipData.Parse(info);
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
-
-                        Ship newShip = Ship.CreateShipFromShipData(shipData, fromSave: false);
+                        /* @TODO Investigate module and ship initialization in the shipsDictionary
+                         * addToShieldManager is a hack to prevent shields from being created and added to the shieldmanager. 
+                         * Need to investigate this process to see if we really need to intialize modules in the ships dictionary
+                         * or to what degree they need to be initialized. 
+                         */
+                        Ship newShip = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
                         if (newShip == null) // happens if module creation failed
                             continue;
                         newShip.SetShipData(shipData);
