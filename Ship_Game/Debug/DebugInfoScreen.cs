@@ -264,7 +264,7 @@ namespace Ship_Game.Debug
                 }
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
                     ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
-                DrawString(ship.AI.hasPriorityTarget ? "Priority Target" : "No Priority Target");
+                DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
                 DrawString("AI State: "+ship.AI.State);
 

@@ -281,7 +281,7 @@ namespace Ship_Game.AI
             }
             foreach (Ship ship in ToRemove)
                 TargetQueue.Remove(ship);
-            if (!hasPriorityTarget)
+            if (!HasPriorityTarget)
                 TargetQueue.Clear();
             if (Owner.loyalty == UniverseScreen.player &&
                 (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f || State == AIState.Orbit ||
@@ -757,7 +757,7 @@ namespace Ship_Game.AI
                             || hangar.IsSupplyBay
                             || hangar.GetHangarShip() == null
                             || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar
-                            || hangar.GetHangarShip().AI.hasPriorityTarget
+                            || hangar.GetHangarShip().AI.HasPriorityTarget
                             || hangar.GetHangarShip().AI.HasPriorityOrder
 
                         )
