@@ -844,7 +844,7 @@ namespace Ship_Game.AI
                 {                    
                     if (planet.Owner != Empire) continue;
                     if (planet.RecentCombat) continue;
-                    int extra = rank -1;
+                    int extra = rank /2;
                     foreach(Troop troop in planet.TroopsHere)
                     {
                         if (troop.GetOwner() != Empire) continue;                        
@@ -1284,12 +1284,12 @@ namespace Ship_Game.AI
                 return;
             }
             EnemyStrength = 0f;
-            EnemyStrength = Empire.GetGSAI().ThreatMatrix.PingRadarStr(AO, AORadius, Empire);            
+            EnemyStrength = Empire.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Empire);            
 
             MinimumTaskForceStrength = EnemyStrength + 0.35f * EnemyStrength;
 
-            if (MinimumTaskForceStrength <1f)
-                MinimumTaskForceStrength = closestAO.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) * .2f;
+            if (MinimumTaskForceStrength < 1f)
+                MinimumTaskForceStrength = 1;
             
             
             Array<Troop> potentialTroops = new Array<Troop>();
@@ -1302,7 +1302,7 @@ namespace Ship_Game.AI
                     Troop troop = potentialTroops[i];
                     NeededTroopStrength -= (int) troop.Strength;
                     if (NeededTroopStrength > 0)
-                        return;
+                        continue;
                 }
 
                 NeededTroopStrength = 0;

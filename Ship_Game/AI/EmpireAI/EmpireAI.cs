@@ -194,7 +194,8 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.AddShip(toAdd);
                 return;
             }
-            AO area = AreasOfOperations.FindMinFiltered(ao => !ao.AOFull, ao => toAdd.Position.SqDist(ao.Position));
+            //need to rework this better divide the ships. 
+            AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Position));
             if (!area?.AddShip(toAdd) ?? false )
                 empire.GetForcePool().Add(toAdd);
 
