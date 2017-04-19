@@ -288,7 +288,7 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                if (!(OrdinanceMax > 0f) || !(Ordinance / OrdinanceMax < 0.05f) || AI.hasPriorityTarget)
+                if (!(OrdinanceMax > 0f) || !(Ordinance / OrdinanceMax < 0.05f) || AI.HasPriorityTarget)
                     return false;
                 return !AI.FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100);
             }
@@ -816,7 +816,7 @@ namespace Ship_Game.Gameplay
             AI.State             = AIState.AttackTarget;
             AI.Target            = target;
             AI.HasPriorityOrder  = false;
-            AI.hasPriorityTarget = true;
+            AI.HasPriorityTarget = true;
             InCombatTimer        = 15f;
         }
 

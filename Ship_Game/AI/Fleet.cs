@@ -806,7 +806,7 @@ namespace Ship_Game.AI
                                                 if (num4 >= toAttack.GetStrength() * 1.5f)
                                                     break;
                                             }
-                                            ship.AI.hasPriorityTarget = true;
+                                            ship.AI.HasPriorityTarget = true;
                                             ship.AI.Intercepting = true;
                                             list3.Remove(ship);
                                             ship.AI.OrderAttackSpecificTarget(toAttack);
