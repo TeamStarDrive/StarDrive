@@ -548,17 +548,20 @@ namespace Ship_Game.Gameplay
                             var projectedModules = parent.RayHitTestModules(Center, projectileDir, 100f, Radius);
 
                             // now pierce through all of the modules while we can still pierce and damage:
-                            foreach (ShipModule impactModule in projectedModules)
+                            if (projectedModules != null)
                             {
-                                if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
+                                foreach (ShipModule impactModule in projectedModules)
                                 {
-                                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
-                                    continue; // SKIP/Phase through this armor module (yikes!)
-                                }
+                                    if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
+                                    {
+                                        ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                                        continue; // SKIP/Phase through this armor module (yikes!)
+                                    }
 
-                                impactModule.Damage(this, DamageAmount, out DamageAmount);
-                                if (DamageAmount <= 0f)
-                                    break;
+                                    impactModule.Damage(this, DamageAmount, out DamageAmount);
+                                    if (DamageAmount <= 0f)
+                                        break;
+                                }
                             }
                         }
                     }

@@ -96,9 +96,9 @@ namespace Ship_Game.AI {
                     //Parallel.For(Owner.Weapons.Count, (start, end) =>
                     {
                         //standard for loop through each weapon group.
-                        for (int T = 0; T < Owner.Weapons.Count; T++)
+                        for (int j = 0; j < Owner.Weapons.Count; j++)
                         {
-                            Weapon weapon = Owner.Weapons[T];
+                            Weapon weapon = Owner.Weapons[j];
                             weapon.TargetChangeTimer -= 0.0167f;
                             //Reasons for this weapon not to fire 
                             if (!weapon.moduleAttachedTo.Active
