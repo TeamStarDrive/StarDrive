@@ -210,12 +210,12 @@ namespace Ship_Game.Gameplay
             return new ShipModule(template);
         }
 
-        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing)
+        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, bool addToShieldManager = true)
         {
             ShipModule module = CreateNoParent(uid);
             module.SetParent(parent);
             module.Facing = facing;
-            module.Initialize(xmlPos);
+            module.Initialize(xmlPos, addToShieldManager);
             return module;
         }
 
@@ -307,7 +307,7 @@ namespace Ship_Game.Gameplay
 
         public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
 
-        private void Initialize(Vector2 pos)
+        private void Initialize(Vector2 pos, bool addToShieldManager = true)
         {
             ++DebugInfoScreen.ModulesCreated;
 
@@ -323,7 +323,7 @@ namespace Ship_Game.Gameplay
             Center.Y = Position.Y + YSIZE * 8f;
 
             UpdateModuleRadius();
-            SetAttributesByType();
+            SetAttributesByType(addToShieldManager);
 
             if (Parent?.loyalty != null)
             {
@@ -866,7 +866,7 @@ namespace Ship_Game.Gameplay
             Parent.Ordinance -= hangarShip.Mass / 5f;
         }
 
-        public void SetAttributesByType()
+        public void SetAttributesByType(bool addToShieldManager = true)
         {
             switch (ModuleType)
             {
@@ -895,7 +895,7 @@ namespace Ship_Game.Gameplay
                     break;
             }
             Health = HealthMax;
-            if (shield_power_max > 0.0)
+            if (shield_power_max > 0.0 && addToShieldManager)
                 shield = ShieldManager.AddShield(this, Rotation, Center);
             if (IsSupplyBay)
                 Parent.IsSupplyShip = true;
