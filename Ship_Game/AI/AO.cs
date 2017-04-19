@@ -88,7 +88,7 @@ namespace Ship_Game.AI
             if (ship.fleet != null)
                 Log.Error("corefleet ship in {0}" , ship.fleet.Name);
             Owner.GetGSAI().RemoveShipFromForce(ship);
-            if (IsCoreFleetFull()) // )
+            if (IsCoreFleetFull() || OffensiveForcePool.Count < 4) // )
             {
                 OffensiveForcePool.Add(ship);
 
@@ -251,6 +251,16 @@ namespace Ship_Game.AI
             
                 TurnsToRelax +=  1;
             }
+            else
+            {
+                foreach(Ship ship in ShipsWaitingForCoreFleet)
+                {
+                    OffensiveForcePool.AddUnique(ship);
+
+                }
+                ShipsWaitingForCoreFleet.Clear();
+            }
+
             if (ThreatLevel * (1 - (TurnsToRelax / 10)) < CoreFleet.GetStrength())
             {
                 if (CoreFleet.FleetTask == null && !CoreWorld.Owner.isPlayer)

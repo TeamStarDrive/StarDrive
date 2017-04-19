@@ -124,8 +124,7 @@ namespace Ship_Game
         }
 
         public static Shield AddShield(GameplayObject owner, float rotation, Vector2 center)
-        {
-            if (!owner.Active) return null;
+        {            
             var shield = new Shield
             {
                 Owner         = owner,
