@@ -5,32 +5,33 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
-	public sealed class SystemCommander
-	{
-		public SolarSystem System;
-		public float ValueToUs;
-		public int IdealTroopCount;
-		public float TroopStrengthNeeded;
-		public int IdealShipStrength;
+    public sealed class SystemCommander
+    {
+        public SolarSystem System;
+        public float ValueToUs;
+        public int IdealTroopCount;
+        public float TroopStrengthNeeded;
+        public int IdealShipStrength;
         public bool IsEnoughShipStrength => GetOurStrength() >= IdealShipStrength;
         public bool IsEnoughTroopStrength => IdealTroopCount >= TroopCount;
         public float PercentageOfValue;
-        public int CurrentShipStr =0;
+        public int CurrentShipStr;
         public float SystemDevelopmentlevel;
         public float RankImportance;
         public int TroopCount;
-        public int TroopsWanted => IdealTroopCount - TroopCount;
-		public Map<Guid, Ship> ShipsDict = new Map<Guid, Ship>();
-		public Map<Ship, Ship[]> EnemyClumpsDict = new Map<Ship, Ship[]>();
-		private readonly Empire Us;
+        public int TroopsWanted                  => IdealTroopCount - TroopCount;
+        public Map<Guid, Ship> ShipsDict         = new Map<Guid, Ship>();
+        public Map<Ship, Ship[]> EnemyClumpsDict = new Map<Ship, Ship[]>();
+        public Ship[] GetShipList                => ShipsDict.Values.ToArray();
+        private readonly Empire Us;
         public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
-        public Ship[] GetShipList => ShipsDict.Values.ToArray();
+        
 
         public SystemCommander(Empire e, SolarSystem system)
-		{
-			System = system;
-			Us = e;
-		}
+        {
+            System = system;
+            Us = e;
+        }
         
         public float UpdateSystemValue()
         {            
@@ -190,13 +191,13 @@ namespace Ship_Game.AI
             }
         }
 
-		public float GetOurStrength()
-		{
-			float str = 0f;
+        public float GetOurStrength()
+        {
+            float str = 0f;
             foreach (var kv in ShipsDict)
                 str = str + kv.Value.GetStrength();
-			return str;
-		}
+            return str;
+        }
 
         public void CalculateTroopNeeds()
         {
@@ -222,22 +223,9 @@ namespace Ship_Game.AI
         }
         public void CalculateShipneeds()
         {
-            float predicted = Us.GetGSAI().ThreatMatrix.PingRadarStr(System.Position, 300000, Us);
-            int min = (int)ValueToUs; 
-            AO closestAO = Us.GetGSAI().AreasOfOperations.FindMin(ao => ao.Position.SqDist(System.Position));
-            float pool = closestAO?.GetOffensiveForcePool().Sum(ship => ship.GetStrength()) * .10f ?? 1000f;            
-            foreach (var system in System.FiveClosestSystems)
-            {
-                if (!Us.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(system, out SystemCommander syscom)
-                    || syscom == null && Us.GetGSAI().ThreatMatrix.PingRadarAny(System.Position, 100000, Us) > 0)
-                {
-                    predicted += pool;
-                    continue;
-                }
-                min += Us.data.DiplomaticPersonality?.Territorialism ?? 50;
-            }
-
-            IdealShipStrength = (int)(predicted * (10f / RankImportance)) +min;
+            int predicted = (int)Us.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 300000, Us);
+            int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
+            IdealShipStrength = Math.Max(predicted, min);
             
         }
         public void UpdatePlanetTracker()
