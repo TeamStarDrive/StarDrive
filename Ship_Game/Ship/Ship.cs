@@ -1165,47 +1165,38 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        //Added by McShooterz
+        // Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Ship ship)
         {           
             Vector2 pickedPos = ship.Center;
             float radius = ship.Radius;
             ++GlobalStats.WeaponArcChecks;
-            float modifyRangeAR = 50f;
-            float distance =Vector2.Distance(w.moduleAttachedTo.Center, pickedPos) ;
+            float modifyRangeAr = 50f;
+            float distance = w.moduleAttachedTo.Center.Distance(pickedPos);
 
             if (w.MassDamage > 0 || w.RepulsionDamage > 0)
             {
-                Ship shiptarget = ship;
-                if (shiptarget != null && (shiptarget.EnginesKnockedOut || shiptarget.IsTethered() ))
-                {
+                if (ship.EnginesKnockedOut || ship.IsTethered())
                     return false;
-                }
             }
             
             if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.speed) //&& this.maxWeaponsRange < 2000
             {
-                modifyRangeAR = speed * w.SalvoTimer;
-
-                if (modifyRangeAR < 50)
-                    modifyRangeAR = 50;
-
+                modifyRangeAr = Math.Max(speed * w.SalvoTimer, 50f);
             }
-            if (distance > w.GetModifiedRange() + modifyRangeAR + radius)
-            {
+            if (distance > w.GetModifiedRange() + modifyRangeAr + radius)
                 return false;
-            }
+
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 toTarget = pickedPos - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.moduleAttachedTo.Facing + MathHelper.ToDegrees(base.Rotation);
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
+            float angleToMouse = 180f - radians.ToDegrees();
+            float facing = w.moduleAttachedTo.Facing + Rotation.ToDegrees();
             if (facing > 360f)
             {
                 facing = facing - 360f;
             }
-            float difference = 0f;
-            difference = Math.Abs(angleToMouse - facing);
+            float difference = Math.Abs(angleToMouse - facing);
             if (difference > halfArc)
             {
                 if (angleToMouse > 180f)
@@ -1218,34 +1209,25 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
-            //float modifyRangeAR = 50f;
-            //if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
-            //{
-            //    modifyRangeAR = this.speed * w.SalvoTimer;
-            //}
-            if (difference < halfArc )//&& Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + modifyRangeAR)
-            {
-                return true;
-            }
-            return false;
+            return difference < halfArc;
         }
 
-        //Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
+        // Added by McShooterz
+        public bool CheckIfInsideFireArc(Weapon w, Vector2 pickedPos, float rotation)
         {
-            if(w.moduleAttachedTo.Center.OutsideRadius(PickedPos, w.GetModifiedRange() + 50f)) return false;
+            if (w.moduleAttachedTo.Center.OutsideRadius(pickedPos, w.GetModifiedRange() + 50f))
+                return false;
             
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
-            Vector2 toTarget = PickedPos - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.moduleAttachedTo.Facing + MathHelper.ToDegrees(Rotation);
+            Vector2 toTarget = pickedPos - w.Center;
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
+            float angleToMouse = 180f - radians.ToDegrees();
+            float facing = w.moduleAttachedTo.Facing + rotation.ToDegrees();
             if (facing > 360f)
             {
                 facing = facing - 360f;
             }
-            float difference = 0f;
-            difference = Math.Abs(angleToMouse - facing);
+            float difference = Math.Abs(angleToMouse - facing);
             if (difference > halfArc)
             {
                 if (angleToMouse > 180f)
@@ -1258,11 +1240,7 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
-            if (difference < halfArc )//&& Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + 50f)
-            {
-                return true;
-            }
-            return false;
+            return difference < halfArc;
         }
 
         public Array<Thruster> GetTList()
