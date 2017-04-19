@@ -395,10 +395,11 @@ namespace Ship_Game.Gameplay
             float damageTracker = damageAmount;
             if (!ignoreShields)
             {
+                // @todo This may accidentally absorb all of the damage, 
                 for (int i = 0; i < Shields.Length; ++i)
                 {
                     ShipModule module = Shields[i];
-                    if (module.ShieldPower > 0f &&
+                    if (module.ShieldPower > 0f && module.HitTestShield(worldHitPos, hitRadius) &&
                         module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
                 }
@@ -424,27 +425,14 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            int firstX = Math.Min(a.X, b.X);
+            int firstX = Math.Min(a.X, b.X); // this is the max bounding box range of the scan
             int firstY = Math.Min(a.Y, b.Y);
             int lastX  = Math.Max(a.X, b.X);
             int lastY  = Math.Max(a.Y, b.Y);
 
-            Point cx = WorldToGridLocalPoint(worldHitPos);
+            Point cx = WorldToGridLocalPointClipped(worldHitPos); // clip the start, because it's often near an edge
             int minX = cx.X, minY = cx.Y;
             int maxX = cx.X, maxY = cx.Y;
-            /*To Continue testing past this error I put in this hack.
-             * I see both values less than 0 and greater than max.
-             * This is of course undersirable and should be fixed and removed.
-             * But it can take some time and i need to get some of the AI working properly.
-             * This purposefully left in an unoptimized state for easy removal.
-             */
-            int gridPoint = minX + minY * width;
-            if(gridPoint > grid.Length -1 || gridPoint < 0)
-            {
-                Log.Warning("Collision Outside Bounds x:{0} y:{1} grid:{2} Ship:{3}", minX, minY, grid.Length, Name);
-                return;
-            }
-            //end of hack
             if ((m = grid[minX + minY*width]) != null && m.Active
                 && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker)) return;
 
@@ -479,28 +467,10 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        // perform a raytrace from point a to point b, visiting all grid points between them!
-        private ShipModule RayTrace(Vector2 a, Vector2 b, ShipModule[] grid, int gridWidth, int gridHeight)
-        {
-            Vector2 pos   = a;
-            Vector2 delta = b - a;
-            Vector2 step  = delta.Normalized() * 16f;
-            int n = (int)Math.Ceiling(delta.Length() / 16f);
-            for (; n > 0; --n, pos += step)
-            {
-                Point p = GridLocalToPoint(pos);
-                ShipModule m = grid[p.X + p.Y*gridWidth];
-                if (m != null && m.Active)
-                    return m;
-            }
-            return null;
-        }
-
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
         {
-            ShipModule m = null;
-            if (!ignoreShields && (m = RayHitTestShields(startPos, endPos, rayRadius)) != null)
-                return m;
+            // first we find the shield overlap, however, a module might be overlapping just before the shield border
+            ShipModule shield = ignoreShields ? null : RayHitTestShields(startPos, endPos, rayRadius);
 
             ++GlobalStats.DistanceCheckTotal;
 
@@ -509,7 +479,23 @@ namespace Ship_Game.Gameplay
             if (MathExt.ClipLineWithBounds(GridWidth*16f, GridHeight*16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
                 // @todo Make use of rayRadius to improve raytrace precision
-                m = RayTrace(a, b, SparseModuleGrid, GridWidth, GridHeight);
+                ShipModule module = null;
+
+                // perform a raytrace from point a to point b, visiting all grid points between them!
+                Vector2 pos   = a;
+                Vector2 delta = b - a;
+                Vector2 step  = delta.Normalized() * 16f;
+                int n = (int)(delta.Length() / 16f);
+                for (; n > 0; --n, pos += step)
+                {
+                    Point p = GridLocalToPoint(pos);
+                    ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
+                    if (m != null && m.Active) { module = m; break; }
+                }
+
+                if (module == null) return shield;
+                if (shield == null || module.SqDistanceTo(startPos) < shield.SqDistanceToShields(startPos))
+                    return module; // module was closer, so should be hit first
 
                 //#if DEBUG
                 //    if (Empire.Universe.Debug && m != null)
@@ -520,28 +506,38 @@ namespace Ship_Game.Gameplay
                 //    }
                 //#endif
             }
-            return m;
+            return shield;
         }
 
 
         // find ShipModules that collide with a this wide RAY
         // direction must be normalized!!
         // results are sorted by distance
+        // @warning Ignores shields!!
         // @note Don't bother optimizing this. It's only used during armour piercing, which is super rare.
         public Array<ShipModule> RayHitTestModules(
             Vector2 startPos, Vector2 direction, float distance, float rayRadius)
         {
             Vector2 endPos = startPos + direction * distance;
+            var path = new Array<ShipModule>();
 
-            var modules = new Array<ShipModule>();
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            Vector2 a = WorldToGridLocal(startPos);
+            Vector2 b = WorldToGridLocal(endPos);
+            if (MathExt.ClipLineWithBounds(GridWidth * 16f, GridHeight * 16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
-                ShipModule module = ModuleSlotList[i];
-                if (module.Health > 0f && module.RayHitTestNoShield(startPos, endPos, rayRadius))
-                    modules.Add(module);
+                Vector2 pos = a;
+                Vector2 delta = b - a;
+                Vector2 step = delta.Normalized() * 16f;
+                int n = (int)(delta.Length() / 16f);
+                for (; n > 0; --n, pos += step)
+                {
+                    Point p = GridLocalToPoint(pos);
+                    ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
+                    if (m != null && m.Active)
+                        path.Add(m);
+                }
             }
-            modules.Sort(module => startPos.SqDist(module.Position));
-            return modules;
+            return path;
         }
 
 

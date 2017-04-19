@@ -383,12 +383,12 @@ namespace Ship_Game.Gameplay
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
         // are not accurately checked.
         // HitTest uses the World scene POSITION. Not module XML location
-        public bool HitTestNoShields(Vector2 point, float radius)
+        public bool HitTestNoShields(Vector2 worldPos, float radius)
         {
             ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + Radius;
-            float dx = Center.X - point.X;
-            float dy = Center.Y - point.Y;
+            float dx = Center.X - worldPos.X;
+            float dy = Center.Y - worldPos.Y;
             if (dx*dx + dy*dy > r2*r2)
                 return false; // definitely out of radius for SQUARE and non-square modules
 
@@ -411,7 +411,7 @@ namespace Ship_Game.Gameplay
             Vector2 startPos = Position - dir * offset;
             Vector2 endPos   = Position + dir * offset;
             float rayWidth   = diameter * 1.125f; // approx 18.0x instead of 16.0x
-            return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
+            return worldPos.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
         public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
@@ -420,12 +420,12 @@ namespace Ship_Game.Gameplay
             return HitTestNoShields(point, rayRadius);
         }
 
-        public bool HitTestShield(Vector2 point, float radius)
+        public bool HitTestShield(Vector2 worldPos, float radius)
         {
             ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + shield_radius + 10f;
-            float dx = Center.X - point.X;
-            float dy = Center.Y - point.Y;
+            float dx = Center.X - worldPos.X;
+            float dy = Center.Y - worldPos.Y;
             return dx*dx + dy*dy <= r2*r2;
         }
 
@@ -439,6 +439,24 @@ namespace Ship_Game.Gameplay
             return dx*dx + dy*dy <= r2*r2;
         }
 
+        public float SqDistanceToShields(Vector2 worldPos)
+        {
+            ++GlobalStats.DistanceCheckTotal;
+            float r2 = shield_radius + 10f;
+            float dx = Center.X - worldPos.X;
+            float dy = Center.Y - worldPos.Y;
+            return dx*dx + dy*dy - r2*r2;
+        }
+
+        public float SqDistanceTo(Vector2 worldPos)
+        {
+            ++GlobalStats.DistanceCheckTotal;
+            float r2 = Radius;
+            float dx = Center.X - worldPos.X;
+            float dy = Center.Y - worldPos.Y;
+            return dx*dx + dy*dy - r2*r2;
+        }
+
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float minFalloff = 0.4f)
         {
             return Math.Min(1.0f, explosionCenter.Distance(affectedPoint) / damageRadius + minFalloff);
@@ -447,7 +465,7 @@ namespace Ship_Game.Gameplay
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
-            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius);
+            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, 0f);
             if (damage <= 0.001f)
                 return damageInOut <= 0f;
 

@@ -1168,11 +1168,11 @@ namespace Ship_Game.Gameplay
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Ship ship)
         {           
-            Vector2 PickedPos = ship.Center;
+            Vector2 pickedPos = ship.Center;
             float radius = ship.Radius;
-            GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
+            ++GlobalStats.WeaponArcChecks;
             float modifyRangeAR = 50f;
-            float distance =Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) ;
+            float distance =Vector2.Distance(w.moduleAttachedTo.Center, pickedPos) ;
 
             if (w.MassDamage > 0 || w.RepulsionDamage > 0)
             {
@@ -1185,8 +1185,6 @@ namespace Ship_Game.Gameplay
             
             if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.speed) //&& this.maxWeaponsRange < 2000
             {
-                
-                
                 modifyRangeAR = speed * w.SalvoTimer;
 
                 if (modifyRangeAR < 50)
@@ -1198,7 +1196,7 @@ namespace Ship_Game.Gameplay
                 return false;
             }
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
-            Vector2 toTarget = PickedPos - w.Center;
+            Vector2 toTarget = pickedPos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
             float facing = w.moduleAttachedTo.Facing + MathHelper.ToDegrees(base.Rotation);
