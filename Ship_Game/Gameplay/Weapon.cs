@@ -763,32 +763,39 @@ namespace Ship_Game.Gameplay
             Center = moduleAttachedTo.Center;
         }
 
+        private float CachedModifiedRange;
         public float GetModifiedRange()
         {
             if (Owner == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
                 return Range;
-            float modifiedRange = Range;
+
+            if (CachedModifiedRange > 0f)
+                return CachedModifiedRange;
+
+            float modifier = 1.0f;
             EmpireData loyaltyData = Owner.loyalty.data;
-            if (Tag_Beam)      modifiedRange += Range * loyaltyData.WeaponTags["Beam"].Range;
-            if (Tag_Energy)    modifiedRange += Range * loyaltyData.WeaponTags["Energy"].Range;
-            if (Tag_Explosive) modifiedRange += Range * loyaltyData.WeaponTags["Explosive"].Range;
-            if (Tag_Guided)    modifiedRange += Range * loyaltyData.WeaponTags["Guided"].Range;
-            if (Tag_Hybrid)    modifiedRange += Range * loyaltyData.WeaponTags["Hybrid"].Range;
-            if (Tag_Intercept) modifiedRange += Range * loyaltyData.WeaponTags["Intercept"].Range;
-            if (Tag_Kinetic)   modifiedRange += Range * loyaltyData.WeaponTags["Kinetic"].Range;
-            if (Tag_Missile)   modifiedRange += Range * loyaltyData.WeaponTags["Missile"].Range;
-            if (Tag_Railgun)   modifiedRange += Range * loyaltyData.WeaponTags["Railgun"].Range;
-            if (Tag_Cannon)    modifiedRange += Range * loyaltyData.WeaponTags["Cannon"].Range;
-            if (Tag_PD)        modifiedRange += Range * loyaltyData.WeaponTags["PD"].Range;
-            if (Tag_SpaceBomb) modifiedRange += Range * loyaltyData.WeaponTags["Spacebomb"].Range;
-            if (Tag_BioWeapon) modifiedRange += Range * loyaltyData.WeaponTags["BioWeapon"].Range;
-            if (Tag_Drone)     modifiedRange += Range * loyaltyData.WeaponTags["Drone"].Range;
-            if (Tag_Subspace)  modifiedRange += Range * loyaltyData.WeaponTags["Subspace"].Range;
-            if (Tag_Warp)      modifiedRange += Range * loyaltyData.WeaponTags["Warp"].Range;
-            if (Tag_Array)     modifiedRange += Range * loyaltyData.WeaponTags["Array"].Range;
-            if (Tag_Flak)      modifiedRange += Range * loyaltyData.WeaponTags["Flak"].Range;
-            if (Tag_Tractor)   modifiedRange += Range * loyaltyData.WeaponTags["Tractor"].Range;
-            return modifiedRange;            
+            if (Tag_Beam)      modifier *= loyaltyData.WeaponTags["Beam"].Range;
+            if (Tag_Energy)    modifier *= loyaltyData.WeaponTags["Energy"].Range;
+            if (Tag_Explosive) modifier *= loyaltyData.WeaponTags["Explosive"].Range;
+            if (Tag_Guided)    modifier *= loyaltyData.WeaponTags["Guided"].Range;
+            if (Tag_Hybrid)    modifier *= loyaltyData.WeaponTags["Hybrid"].Range;
+            if (Tag_Intercept) modifier *= loyaltyData.WeaponTags["Intercept"].Range;
+            if (Tag_Kinetic)   modifier *= loyaltyData.WeaponTags["Kinetic"].Range;
+            if (Tag_Missile)   modifier *= loyaltyData.WeaponTags["Missile"].Range;
+            if (Tag_Railgun)   modifier *= loyaltyData.WeaponTags["Railgun"].Range;
+            if (Tag_Cannon)    modifier *= loyaltyData.WeaponTags["Cannon"].Range;
+            if (Tag_PD)        modifier *= loyaltyData.WeaponTags["PD"].Range;
+            if (Tag_SpaceBomb) modifier *= loyaltyData.WeaponTags["Spacebomb"].Range;
+            if (Tag_BioWeapon) modifier *= loyaltyData.WeaponTags["BioWeapon"].Range;
+            if (Tag_Drone)     modifier *= loyaltyData.WeaponTags["Drone"].Range;
+            if (Tag_Subspace)  modifier *= loyaltyData.WeaponTags["Subspace"].Range;
+            if (Tag_Warp)      modifier *= loyaltyData.WeaponTags["Warp"].Range;
+            if (Tag_Array)     modifier *= loyaltyData.WeaponTags["Array"].Range;
+            if (Tag_Flak)      modifier *= loyaltyData.WeaponTags["Flak"].Range;
+            if (Tag_Tractor)   modifier *= loyaltyData.WeaponTags["Tractor"].Range;
+
+            CachedModifiedRange = modifier * Range;
+            return CachedModifiedRange;            
         }
 
         public bool TargetValid(ShipData.RoleName role)
