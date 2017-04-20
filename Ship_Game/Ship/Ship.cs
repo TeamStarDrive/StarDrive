@@ -3641,8 +3641,7 @@ namespace Ship_Game.Gameplay
             else reallyDie = true;
 
             if (dying && !reallyDie)
-                return;
-
+                return;            
             if (psource?.Owner != null)
             {
                 float amount = 1f;
@@ -3677,6 +3676,7 @@ namespace Ship_Game.Gameplay
 
             if (Active)
             {
+                Active = false;
                 switch (shipData.Role)
                 {
                     case ShipData.RoleName.freighter:   ExplodeShip(500f, cleanupOnly); break;
@@ -3705,9 +3705,8 @@ namespace Ship_Game.Gameplay
                     SpaceJunk.SpawnJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
                 }
             }
-            var ship = ResourceManager.ShipsDict[Name];
-            var hullData = ship.GetShipData();
-            if (hullData.EventOnDeath != null)
+            var hullData = shipData.HullData;
+            if (hullData?.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[hullData.EventOnDeath];
                 Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));

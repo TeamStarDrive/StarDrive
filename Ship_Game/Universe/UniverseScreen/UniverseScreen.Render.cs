@@ -574,33 +574,35 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
             {
                 using (player.KnownShips.AcquireReadLock())
-                    for (int index = player.KnownShips.Count - 1; index >= 0; index--)
+                    for (int j = player.KnownShips.Count - 1; j >= 0; j--)
                     {
-                        Ship ship = player.KnownShips[index];
+                        Ship ship = player.KnownShips[j];
                         if (!ship.InFrustum) continue;
 
-                        for (int i = ship.Projectiles.Count - 1; i >= 0; i--)
+                        var renderProj = ship.Projectiles;
+                        for (int i = renderProj.Count - 1; i >= 0; i--)
                         {
-                            Projectile projectile = ship.Projectiles[i];
+                            //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
+                            Projectile projectile = renderProj[i];
                             if (projectile.Weapon.IsRepairDrone && projectile.GetDroneAI() != null)
                             {
-                                for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
-                                    projectile.GetDroneAI().Beams[j].Draw(ScreenManager);
+                                for (int k = 0; k < projectile.GetDroneAI().Beams.Count; ++k)
+                                    projectile.GetDroneAI().Beams[k].Draw(ScreenManager);
                             }
                         }
 
+
+                        for (int i = ship.Beams.Count - 1;
+                            i >= 0;
+                            --i) // regular FOR to mitigate multi-threading issues
                         {
-                            for (int i = ship.Beams.Count - 1;
-                                i >= 0;
-                                --i) // regular FOR to mitigate multi-threading issues
-                            {
-                                Beam beam = ship.Beams[i];
-                                if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
-                                    beam.Draw(ScreenManager);
-                                else
-                                    beam.Die(null, true);
-                            }
+                            Beam beam = ship.Beams[i];
+                            if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
+                                beam.Draw(ScreenManager);
+                            else
+                                beam.Die(null, true);
                         }
+
                     }
             }
 
