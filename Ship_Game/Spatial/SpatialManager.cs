@@ -290,7 +290,7 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < count; ++i)
                 {
                     var obj = allObjects[objectIds[i]];
-                    if (obj.Active && obj is T)
+                    if (obj != null && obj.Active && obj is T)
                         ++numItems;
                 }
 
@@ -299,7 +299,7 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < count; ++i) {
                     {
                         var obj = allObjects[objectIds[i]];
-                        if (obj.Active && obj is T item)
+                        if (obj != null && obj.Active && obj is T item)
                         objs[numItems++] = item;
                     }
                 }
