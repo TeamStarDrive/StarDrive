@@ -243,7 +243,7 @@ namespace Ship_Game.Gameplay
             if (ToggleCue.IsPlaying)
                 return;
 
-            AudioEmitter soundEmitter = Owner.isPlayerShip() ? null : emitter ?? Owner.SoundEmitter;
+            AudioEmitter soundEmitter = (Owner?.isPlayerShip() ?? false) ? null : emitter ?? Owner.SoundEmitter;
 
             GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);

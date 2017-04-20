@@ -78,12 +78,20 @@ namespace Ship_Game
 
 		public void Draw(GameTime gameTime)
 		{
-            for (int i = 0; i < Screens.Count; ++i)
-			{
-                GameScreen screen = Screens[i];
-                if (screen.ScreenState != ScreenState.Hidden)
-			        screen.Draw(gameTime);
-			}
+            try
+            {
+                for (int i = 0; i < Screens.Count; ++i)
+                {
+                    GameScreen screen = Screens[i];
+                    if (screen.ScreenState != ScreenState.Hidden)
+                        screen.Draw(gameTime);
+                }
+            }
+            catch(Exception e)
+            {
+                Log.Warning("DrawLoop Crashed : {0}", e.InnerException);
+                SpriteBatch.End();
+            }
 		}
 
 		public void ExitAll()

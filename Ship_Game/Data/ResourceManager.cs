@@ -31,7 +31,7 @@ namespace Ship_Game
         public static Map<string, Building> BuildingsDict         = new Map<string, Building>();
         public static Map<string, Good> GoodsDict                 = new Map<string, Good>();
         public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
-        private static Map<string, ShipModule> ShipModulesDict     = new Map<string, ShipModule>();
+        private static Map<string, ShipModule> ShipModulesDict    = new Map<string, ShipModule>();
         public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
         public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
         public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
