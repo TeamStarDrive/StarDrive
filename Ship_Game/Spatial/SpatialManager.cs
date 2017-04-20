@@ -288,14 +288,20 @@ namespace Ship_Game.Gameplay
                 ushort* objectIds = bucket->Items;
                 int numItems = 0; // probe number of valid items first
                 for (int i = 0; i < count; ++i)
-                    if (allObjects[objectIds[i]] is T)
+                {
+                    var obj = allObjects[objectIds[i]];
+                    if (obj.Active && obj is T)
                         ++numItems;
+                }
 
                 var objs = new T[numItems]; // we only want to allocate once, to reduce memory pressure
                 numItems = 0;
                 for (int i = 0; i < count; ++i) {
-                    if (allObjects[objectIds[i]] is T item)
+                    {
+                        var obj = allObjects[objectIds[i]];
+                        if (obj.Active && obj is T item)
                         objs[numItems++] = item;
+                    }
                 }
 
                 if (objs.Length != numItems)
