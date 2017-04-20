@@ -45,7 +45,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>StarDrive\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>DEBUG;STEAM</DefineConstants>
+    <DefineConstants>STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>pdbonly</DebugType>
