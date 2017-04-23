@@ -149,7 +149,7 @@ namespace Ship_Game
 
         private AudioEmitter Emitter;
         private float InvisibleRadius;
-        public float GravityWellRadius { get; }
+        public float GravityWellRadius { get; private set; }
 
         public float ObjectRadius
         {
@@ -161,8 +161,7 @@ namespace Ship_Game
         {
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 AddGood(keyValuePair.Key, 0);
-            HasShipyard = false;
-            GravityWellRadius = (float)((Math.Log(scale)) / 1.5);
+            HasShipyard = false;            
         }
 
         public bool IsExploredBy(Empire empire)
@@ -5973,8 +5972,7 @@ output = maxp * take10 = 5
             this.SO.ObjectType = ObjectType.Dynamic;
             this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
             this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(this.ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
-            
-            //this.initializing = false;
+            GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(scale)) / 1.5)));
         }
 
         public void AddGood(string goodId, int Amount)

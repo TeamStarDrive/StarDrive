@@ -372,7 +372,7 @@ namespace Ship_Game
                 {
                     foreach (Ship_Game.Planet p in this.ship.System.PlanetList)
                     {
-                        if (Vector2.Distance(p.Position, this.ship.Position) >= (GlobalStats.GravityWellRange * (1 + ((Math.Log(p.scale)) / 1.5))))
+                        if (p.Position.OutsideRadius(ship.Position, p.GravityWellRadius))
                         {
                             continue;
                         }
