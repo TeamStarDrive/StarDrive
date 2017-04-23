@@ -697,26 +697,31 @@ namespace Ship_Game
                     {
                         system.isVisible = viewState <= UnivScreenState.SectorView;
                     }
-                    if (system.isVisible && viewState <= UnivScreenState.SystemView)
+                    if (system.isVisible && viewState <= UnivScreenState.SystemView )
                     {
-                        for (int i = 0; i < system.AsteroidsList.Count; i++)
+                        if (!system.VisibilityUpdated)
                         {
-                            Asteroid asteroid = system.AsteroidsList[i];
-                            asteroid.So.Visibility = ObjectVisibility.Rendered;
-                            asteroid.Update(elapsedTime);
-                        }
-                        for (int i = 0; i < system.MoonList.Count; i++)
-                        {
-                            Moon moon = system.MoonList[i];
-                            moon.So.Visibility = ObjectVisibility.Rendered;
-                            moon.UpdatePosition(elapsedTime);
+                            system.VisibilityUpdated = true;
+                            for (int i = 0; i < system.AsteroidsList.Count; i++)
+                            {
+                                Asteroid asteroid = system.AsteroidsList[i];
+                                asteroid.So.Visibility = ObjectVisibility.Rendered;
+                                asteroid.Update(elapsedTime);
+                            }
+                            for (int i = 0; i < system.MoonList.Count; i++)
+                            {
+                                Moon moon = system.MoonList[i];
+                                moon.So.Visibility = ObjectVisibility.Rendered;
+                                moon.UpdatePosition(elapsedTime);
+                            }
                         }
                     }
-                    else
+                    else if(system.VisibilityUpdated)
                     {
+                        system.VisibilityUpdated = false;
                         for (int i = 0; i < system.AsteroidsList.Count; i++)
                         {
-                            Asteroid asteroid = system.AsteroidsList[i];
+                            Asteroid asteroid = system.AsteroidsList[i];                            
                             asteroid.So.Visibility = ObjectVisibility.None;
                         }
                         for (int i = 0; i < system.MoonList.Count; i++)
