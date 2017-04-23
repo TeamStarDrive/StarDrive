@@ -203,6 +203,8 @@ namespace Ship_Game.Gameplay
 
         public float FTLModifier { get; private set; } = 1f;
 
+        public T[] GetObjectsInSensors<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, SensorRange);
+
         public bool IsInNeutralSpace
         {
             get
@@ -711,9 +713,11 @@ namespace Ship_Game.Gameplay
             {
                 if (Empire.Universe.GravityWells && System != null && !IsInFriendlySpace)
                 {
-                    foreach (Planet planet in System.PlanetList)
+                    for (int i = 0; i < System.PlanetList.Count; i++)
                     {
-                        if (Vector2.Distance(Position, planet.Position) < (GlobalStats.GravityWellRange * (1 + ((Math.Log(planet.scale)) / 1.5))))
+                        Planet planet = System.PlanetList[i];
+                        if (Position.InRadius(planet.Position,
+                            GlobalStats.GravityWellRange * planet.GravityWellRadius))
                         {
                             InhibitedTimer = .3f;
                             break;
@@ -2837,8 +2841,9 @@ namespace Ship_Game.Gameplay
                     weapon.Update(elapsedTime);
             }
             TroopBoardingDefense = 0.0f;
-            foreach (Troop troop in TroopList)
+            for (int i = 0; i < TroopList.Count; i++)
             {
+                Troop troop = TroopList[i];
                 troop.SetShip(this);
                 if (troop.GetOwner() == loyalty)
                     TroopBoardingDefense += troop.Strength;
@@ -2864,53 +2869,54 @@ namespace Ship_Game.Gameplay
                             maxWeaponsRange = weapon.GetModifiedRange();
                             if (!weapon.Tag_PD) flag = true;
                         }
-
-                        weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
+                        Weapon weaponTemplate = ResourceManager.GetWeaponTemplate(weapon.UID);
+                        weapon.fireDelay = weaponTemplate.fireDelay;
                         //Added by McShooterz: weapon tag modifiers with check if mod uses them
                         if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useWeaponModifiers)
-                        {
+                        {                            
+
                             if (weapon.Tag_Beam)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Beam"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Beam"].Rate;
                             if (weapon.Tag_Energy)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Energy"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Energy"].Rate;
                             if (weapon.Tag_Explosive)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Explosive"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Explosive"].Rate;
                             if (weapon.Tag_Guided)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Guided"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Guided"].Rate;
                             if (weapon.Tag_Hybrid)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Hybrid"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Hybrid"].Rate;
                             if (weapon.Tag_Intercept)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Intercept"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Intercept"].Rate;
                             if (weapon.Tag_Kinetic)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Kinetic"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Kinetic"].Rate;
                             if (weapon.Tag_Missile)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Missile"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Missile"].Rate;
                             if (weapon.Tag_Railgun)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Railgun"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Railgun"].Rate;
                             if (weapon.Tag_Torpedo)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Torpedo"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Torpedo"].Rate;
                             if (weapon.Tag_Cannon)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Cannon"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Cannon"].Rate;
                             if (weapon.Tag_Subspace)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Subspace"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Subspace"].Rate;
                             if (weapon.Tag_PD)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["PD"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["PD"].Rate;
                             if (weapon.Tag_Bomb)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Bomb"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Bomb"].Rate;
                             if (weapon.Tag_SpaceBomb)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Spacebomb"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Spacebomb"].Rate;
                             if (weapon.Tag_BioWeapon)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["BioWeapon"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["BioWeapon"].Rate;
                             if (weapon.Tag_Drone)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Drone"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Drone"].Rate;
                             if (weapon.Tag_Warp)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Warp"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Warp"].Rate;
                             if (weapon.Tag_Array)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Array"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Array"].Rate;
                             if (weapon.Tag_Flak)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Flak"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Flak"].Rate;
                             if (weapon.Tag_Tractor)
-                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Tractor"].Rate;
+                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Tractor"].Rate;
                         }
                         //Added by McShooterz: Hull bonus Fire Rate
                         if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -2953,10 +2959,10 @@ namespace Ship_Game.Gameplay
                     inSensorRange = true;
                 else if (!inSensorRange)
                 {
-                    Ship[] nearby = GetNearby<Ship>();
+                    Ship[] nearby = GetObjectsInSensors<Ship>();
                     foreach (Ship ship in nearby)
                     {
-                        if (ship.loyalty == EmpireManager.Player && (Center.Distance(ship.Position) <= ship.SensorRange || Empire.Universe.Debug))
+                        if (ship.loyalty == EmpireManager.Player && (Center.InRadius(ship.Position, ship.SensorRange) || Empire.Universe.Debug))
                         {
                             inSensorRange = true;
                             break;

@@ -40,7 +40,7 @@ namespace Ship_Game
         public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
         public Array<Building> BuildingList = new Array<Building>();
         public SpaceStation Station = new SpaceStation();
-        public ConcurrentDictionary<Guid, Ship> Shipyards = new ConcurrentDictionary<Guid, Ship>();
+        public Dictionary<Guid, Ship> Shipyards = new Dictionary<Guid, Ship>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         private float ZrotateAmount = 0.03f;
@@ -148,8 +148,9 @@ namespace Ship_Game
         public float ExportFSWeight = 0;
 
         private AudioEmitter Emitter;
-
         private float InvisibleRadius;
+        public float GravityWellRadius { get; }
+
         public float ObjectRadius
         {
             get { return SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius; }
@@ -161,6 +162,7 @@ namespace Ship_Game
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 AddGood(keyValuePair.Key, 0);
             HasShipyard = false;
+            GravityWellRadius = (float)((Math.Log(scale)) / 1.5);
         }
 
         public bool IsExploredBy(Empire empire)
@@ -176,176 +178,7 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-
-        public void DropBombORIG(Bomb bomb)
-        {
-            
-            if (bomb.Owner == this.Owner)
-                return;
-            if (this.Owner != null && !this.Owner.GetRelations(bomb.Owner).AtWar && (this.TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.Owner))
-                this.Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
-            if ((double)this.ShieldStrengthCurrent > 0.0)
-            {
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                {
-                    PlayPlanetSfx("sd_impact_shield_01", shield.Center);
-                }
-                this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
-                this.shield.displacement = 0.0f;
-                this.shield.texscale = 2.8f;
-                this.shield.Radius = this.SO.WorldBoundingSphere.Radius + 100f;
-                this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                this.shield.texscale = 2.8f;
-                this.shield.texscale = (float)(2.79999995231628 - 0.185000002384186 * (double)RandomMath.RandomBetween(1f, 10f));
-                this.shield.Center = new Vector3(this.Position.X, this.Position.Y, 2500f);
-                this.shield.pointLight.World = bomb.World;
-                this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                this.shield.pointLight.Radius = 50f;
-                this.shield.pointLight.Intensity = 8f;
-                this.shield.pointLight.Enabled = true;
-                Vector3 vector3 = Vector3.Normalize(bomb.Position - this.shield.Center);
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                {
-                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
-                    for (int index = 0; index < 200; ++index)
-                        Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vector3 * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
-                }
-                this.ShieldStrengthCurrent -= (float)ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max;
-                if ((double)this.ShieldStrengthCurrent >= 0.0)
-                    return;
-                this.ShieldStrengthCurrent = 0.0f;
-            }
-            else
-            {
-                float num1 = RandomMath.RandomBetween(0.0f, 100f);
-                bool flag1 = true;
-                if ((double)num1 < 75.0)
-                    flag1 = false;
-                this.Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
-
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
-                {
-                    PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
-
-                    ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
-                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
-                    for (int index = 0; index < 50; ++index)
-                        Empire.Universe.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
-                }
-                Planet.OrbitalDrop orbitalDrop = new Planet.OrbitalDrop();
-                Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-                if (flag1)
-                {
-                    foreach (PlanetGridSquare planetGridSquare in this.TilesList)
-                    {
-                        if (planetGridSquare.building != null || planetGridSquare.TroopsHere.Count > 0)
-                            list.Add(planetGridSquare);
-                    }
-                    if (list.Count > 0)
-                    {
-                        int index = (int)RandomMath.RandomBetween(0.0f, (float)list.Count + 1f);
-                        if (index > list.Count - 1)
-                            index = list.Count - 1;
-                        orbitalDrop.Target = list[index];
-                    }
-                    else
-                        flag1 = false;
-                }
-                if (!flag1)
-                {
-                    int num2 = (int)RandomMath.RandomBetween(0.0f, 5f);
-                    int num3 = (int)RandomMath.RandomBetween(0.0f, 7f);
-                    if (num2 > 4)
-                        num2 = 4;
-                    if (num3 > 6)
-                        num3 = 6;
-                    foreach (PlanetGridSquare planetGridSquare in this.TilesList)
-                    {
-                        if (planetGridSquare.x == num3 && planetGridSquare.y == num2)
-                        {
-                            orbitalDrop.Target = planetGridSquare;
-                            break;
-                        }
-                    }
-                }
-                if (orbitalDrop.Target.TroopsHere.Count > 0)
-                {
-                    orbitalDrop.Target.TroopsHere[0].Strength -= (int)RandomMath.RandomBetween((float)ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Min, (float)ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max);
-                    if (orbitalDrop.Target.TroopsHere[0].Strength <= 0)
-                    {
-                        this.TroopsHere.Remove(orbitalDrop.Target.TroopsHere[0]);
-                        orbitalDrop.Target.TroopsHere.Clear();
-                    }
-                }
-                else if (orbitalDrop.Target.building != null)
-                {
-                    orbitalDrop.Target.building.Strength -= (int)RandomMath.RandomBetween((float)ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMin, (float)ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax);
-                    if (orbitalDrop.Target.building.CombatStrength > 0)
-                        orbitalDrop.Target.building.CombatStrength = orbitalDrop.Target.building.Strength;
-                    if (orbitalDrop.Target.building.Strength <= 0)
-                    {
-                        this.BuildingList.Remove(orbitalDrop.Target.building);
-                        orbitalDrop.Target.building = (Building)null;
-                    }
-                }
-                if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
-                {
-                    GameAudio.PlaySfxAsync("Explo1");
-                    CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(4);
-                    smallExplosion.grid = orbitalDrop.Target.ClickRect;
-                    lock (GlobalStats.ExplosionLocker)
-                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
-                }
-                if ((double)this.Population <= 0.0)
-                {
-                    this.Population = 0.0f;
-                    if (this.Owner != null)
-                    {
-                        this.Owner.RemovePlanet(this);
-                        if (this.ExploredDict[Empire.Universe.PlayerEmpire])
-                        {
-                            Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
-                            bool flag2 = true;
-                            if (this.Owner != null)
-                            {
-                                foreach (Planet planet in this.system.PlanetList)
-                                {
-                                    if (planet.Owner == this.Owner && planet != this)
-                                        flag2 = false;
-                                }
-                                if (flag2)
-                                    this.system.OwnerList.Remove(this.Owner);
-                            }
-                            this.ConstructionQueue.Clear();
-                            this.Owner = (Empire)null;
-                            return;
-                        }
-                    }
-                }
-                if (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction == null)
-                    return;
-                switch (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction)
-                {
-                    case "Free Owlwoks":
-                        if (this.Owner == null || this.Owner != EmpireManager.Cordrazine)
-                            break;
-                        for (int index = 0; index < this.TroopsHere.Count; ++index)
-                        {
-                            if (this.TroopsHere[index].GetOwner() == EmpireManager.Cordrazine && this.TroopsHere[index].TargetType == "Soft")
-                            {
-#if STEAM
-                                if (SteamManager.SetAchievement("Owlwoks_Freed"))
-                                    SteamManager.SaveAllStatAndAchievementChanges();
-#endif
-                                this.TroopsHere[index].SetOwner(bomb.Owner);
-                                this.TroopsHere[index].Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
-                                this.TroopsHere[index].Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);
-                            }
-                        }
-                        break;
-                }
-            }
-        }
+        
         //added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb)
         {
@@ -2607,7 +2440,7 @@ namespace Ship_Game
             }
             Ship remove;
             foreach (Guid key in list)
-                this.Shipyards.TryRemove(key,out remove);
+                this.Shipyards.Remove(key);
             if (!Empire.Universe.Paused)
             {
                 
@@ -5738,7 +5571,7 @@ output = maxp * take10 = 5
                         shipAt.Position = this.Position + MathExt.PointOnCircle((float)(this.Shipyards.Count * 40), (float)(2000 + 2000 * num * this.scale));
                         shipAt.Center = shipAt.Position;
                         shipAt.TetherToPlanet(this);
-                        this.Shipyards.TryAdd(shipAt.guid, shipAt);
+                        this.Shipyards.Add(shipAt.guid, shipAt);
                     }
                     if (queueItem.Goal != null)
                     {
@@ -5883,7 +5716,7 @@ output = maxp * take10 = 5
             foreach (Guid key in list)
             {
                 
-                this.Shipyards.TryRemove(key, out remove);
+                this.Shipyards.Remove(key);
             }
             this.PlusCreditsPerColonist = 0f;
             this.MaxPopBonus = 0f;
