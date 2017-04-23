@@ -524,7 +524,7 @@ namespace Ship_Game
             return item;
         }
 
-        
+
 
         // Gets a loaded texture using the given abstract texture path
         public static Texture2D Texture(string texturePath)

@@ -39,10 +39,13 @@ namespace Ship_Game.Gameplay
         //private static int LogicFlip = 0;
         public override void Update(float elapsedTime)
         {
-            if (!Active 
-                ||  Empire.Universe.viewState > UniverseScreen.UnivScreenState.SystemView 
-                || !Empire.Universe.Frustum.Contains(Position, 10f))
+            if (!Active
+                || Empire.Universe.viewState > UniverseScreen.UnivScreenState.SystemView
+                || !Empire.Universe.Frustum.Contains(Position, 10f)
+                )
+            {
                 return;
+            }
 
             RotationRadians += Spin * elapsedTime;
             So.AffineTransform(Position3D, RotationRadians, Scale);

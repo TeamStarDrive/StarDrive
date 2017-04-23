@@ -63,7 +63,7 @@ namespace Ship_Game
         public static SpatialManager SpatialManagerForSystem(SolarSystem system)
             => system?.spatialManager ?? UniverseScreen.DeepSpaceManager;
 
-        public T[] GetNearby<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, Radius);
+        public T[] GetNearby<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, Radius);        
 
         public void SetSystem(SolarSystem system)
         {
