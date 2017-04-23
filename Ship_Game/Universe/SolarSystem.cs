@@ -39,6 +39,7 @@ namespace Ship_Game
         public bool isStartingSystem;
         public Array<string> DefensiveFleets = new Array<string>();
         public Map<Empire,PredictionTimeout> predictionTimeout =new Map<Empire,PredictionTimeout>();
+        [XmlIgnore] [JsonIgnore] public bool VisibilityUpdated = false;
 
         public class PredictionTimeout
         {

@@ -81,7 +81,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug - Auto Fast|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM PERF AUTOTIME xPLAYERONLY </DefineConstants>
+    <DefineConstants>DEBUG;STEAM PERF AUTOTIME xPLAYERONLY </DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
