@@ -25,7 +25,7 @@ namespace Ship_Game
         public bool isVisible;
         public Vector2 Position;
         public Array<Planet> PlanetList = new Array<Planet>();
-        public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
+        public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
         public string SunPath;
         public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
@@ -849,7 +849,7 @@ namespace Ship_Game
         private void Dispose(bool disposing)
         {
             ShipList = null;
-            AsteroidsList?.Dispose(ref AsteroidsList);
+            AsteroidsList = null;
             spatialManager?.Dispose(ref spatialManager);
         }
 

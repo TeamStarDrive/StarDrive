@@ -89,7 +89,10 @@ namespace SynapseGaming.LightingSystem.Rendering
             }
             set
             {
-                objectVisibility_0 = value;
+                if (objectVisibility_0 == value)
+                    return;
+
+                objectVisibility_0 = value;                
                 CastShadows = (objectVisibility_0 & ObjectVisibility.CastShadows) != ObjectVisibility.None;
                 Visible = (objectVisibility_0 & ObjectVisibility.Rendered) != ObjectVisibility.None;
             }

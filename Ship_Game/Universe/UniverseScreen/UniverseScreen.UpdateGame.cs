@@ -699,30 +699,35 @@ namespace Ship_Game
                     }
                     if (system.isVisible && viewState <= UnivScreenState.SystemView)
                     {
-                        foreach (Asteroid asteroid in system.AsteroidsList)
+                        for (int i = 0; i < system.AsteroidsList.Count; i++)
                         {
+                            Asteroid asteroid = system.AsteroidsList[i];
                             asteroid.So.Visibility = ObjectVisibility.Rendered;
                             asteroid.Update(elapsedTime);
                         }
-                        foreach (Moon moon in system.MoonList)
+                        for (int i = 0; i < system.MoonList.Count; i++)
                         {
+                            Moon moon = system.MoonList[i];
                             moon.So.Visibility = ObjectVisibility.Rendered;
                             moon.UpdatePosition(elapsedTime);
                         }
                     }
                     else
                     {
-                        foreach (Asteroid asteroid in system.AsteroidsList)
+                        for (int i = 0; i < system.AsteroidsList.Count; i++)
                         {
+                            Asteroid asteroid = system.AsteroidsList[i];
                             asteroid.So.Visibility = ObjectVisibility.None;
                         }
-                        foreach (Moon moon in system.MoonList)
+                        for (int i = 0; i < system.MoonList.Count; i++)
                         {
+                            Moon moon = system.MoonList[i];
                             moon.So.Visibility = ObjectVisibility.None;
                         }
                     }
-                    foreach (Planet planet in system.PlanetList)
+                    for (int i = 0; i < system.PlanetList.Count; i++)
                     {
+                        Planet planet = system.PlanetList[i];
                         planet.Update(elapsedTime);
                         if (planet.HasShipyard && system.isVisible)
                             planet.Station.Update(elapsedTime);
@@ -752,7 +757,7 @@ namespace Ship_Game
                     }
                     if (!Paused && IsActive)
                         system.spatialManager.Update(elapsedTime, system);
-                    system.AsteroidsList.ApplyPendingRemovals();
+                   // system.AsteroidsList.ApplyPendingRemovals();
                 } //);
                 // this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
             }
@@ -881,7 +886,7 @@ namespace Ship_Game
                     foreach (Asteroid asteroid in system.AsteroidsList)
                         asteroid.Update(elapsedTime);
                 }
-                system.AsteroidsList.ApplyPendingRemovals();
+                //system.AsteroidsList.ApplyPendingRemovals();
             }
         }
 

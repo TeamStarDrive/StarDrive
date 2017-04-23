@@ -189,7 +189,7 @@ namespace Ship_Game.AI
             if (Owner.TrackingPower > 0 && hasPointDefense) // update projectile list                         
             {
                 // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
-                foreach (Projectile missile in Owner.GetNearby<Projectile>())
+                foreach (Projectile missile in Owner.GetObjectsInSensors<Projectile>())
                 {
                     if (missile.Loyalty != Owner.loyalty && missile.Weapon.Tag_Intercept)
                         TrackProjectiles.Add(missile);
@@ -375,20 +375,11 @@ namespace Ship_Game.AI
             CombatAI.PreferredEngagementDistance = Owner.maxWeaponsRange * 0.75f;
             SolarSystem thisSystem = Owner.System;
             if (thisSystem != null)
-                foreach (Planet p in thisSystem.PlanetList)
+                for (int i = 0; i < thisSystem.PlanetList.Count; i++)
                 {
+                    Planet p = thisSystem.PlanetList[i];
                     BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) &&
-                                  Owner.Center.InRadius(p.Position, Radius);
-                    //@TODO remove below once new logic is checked
-                    //Empire emp = p.Owner;
-                    //if (emp !=null && emp != Owner.loyalty)
-                    //{
-                    //    Relationship test = null;
-                    //    Owner.loyalty.TryGetRelations(emp, out test);
-                    //    if (!test.Treaty_OpenBorders || !test.Treaty_NAPact || Vector2.Distance(Owner.Center, p.Position) >Radius)
-                    //        BadGuysNear = true;
-                    //    break;
-                    //}
+                                  Owner.Center.InRadius(p.Position, Radius);             
                 }
             {
                 if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
@@ -400,7 +391,7 @@ namespace Ship_Game.AI
                     };
                     NearbyShips.Add(sw);
                 }
-                Ship[] nearbyShips = Owner.GetNearby<Ship>();
+                Ship[] nearbyShips = Owner.GetObjectsInSensors<Ship>();
                 foreach (Ship nearbyShip in nearbyShips)
                 {
                     if (!nearbyShip.Active || nearbyShip.dying
@@ -441,7 +432,7 @@ namespace Ship_Game.AI
             {
                 IOrderedEnumerable<Ship> sortedList = null;
                 {
-                    sortedList = FriendliesNearby.Where(ship => ship != Owner
+                    sortedList = FriendliesNearby.FilterBy(ship => ship != Owner
                                                                 && ship.engineState != Ship.MoveState.Warp
                                                                 && ship.AI.State != AIState.Scrap
                                                                 && ship.AI.State != AIState.Resupply
@@ -455,7 +446,7 @@ namespace Ship_Game.AI
 //                      .OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
                 }
 
-                if (sortedList.Count() > 0)
+                if (sortedList.Any() )
                 {
                     var skip = 0;
                     var inboundOrdinance = 0f;
@@ -549,10 +540,9 @@ namespace Ship_Game.AI
             #endregion
 
             //}           
-            foreach (ShipWeight nearbyShip in NearbyShips)
-                // Doctor: I put modifiers for the ship roles Fighter and Bomber in here, so that when searching for targets they prioritise their targets based on their selected ship role.
-                // I'll additionally put a ScanForCombatTargets into the carrier fighter code such that they use this code to select their own weighted targets.
-                //Parallel.ForEach(this.NearbyShips, nearbyShip =>
+            for (int i = 0; i < NearbyShips.Count; i++)
+            {
+                ShipWeight nearbyShip = NearbyShips[i];
                 if (nearbyShip.Ship.loyalty != Owner.loyalty)
                 {
                     if (Target as Ship == nearbyShip.Ship)
@@ -649,20 +639,8 @@ namespace Ship_Game.AI
                 {
                     NearbyShips.QueuePendingRemoval(nearbyShip);
                 }
-            //this.PotentialTargets = this.NearbyShips.Where(loyalty=> loyalty.ship.loyalty != this.Owner.loyalty) .OrderBy(weight => weight.weight).Select(ship => ship.ship).ToList();
-            //if (this.Owner.Role == ShipData.RoleName.platform)
-            //{
-            //    this.NearbyShips.ApplyPendingRemovals();
-            //    IEnumerable<ArtificialIntelligence.ShipWeight> sortedList =
-            //        from potentialTarget in this.NearbyShips
-            //        orderby Vector2.Distance(this.Owner.Center, potentialTarget.ship.Center)
-            //        select potentialTarget;
-            //    if (sortedList.Count<ArtificialIntelligence.ShipWeight>() > 0)
-            //    {
-            //        this.Target = sortedList.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
-            //    }
-            //    return this.Target;
-            //}
+            }
+
             NearbyShips.ApplyPendingRemovals();
             IEnumerable<ShipWeight> sortedList2 =
                 from potentialTarget in NearbyShips
