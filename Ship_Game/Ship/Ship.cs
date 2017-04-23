@@ -717,7 +717,7 @@ namespace Ship_Game.Gameplay
                     {
                         Planet planet = System.PlanetList[i];
                         if (Position.InRadius(planet.Position,
-                            GlobalStats.GravityWellRange * planet.GravityWellRadius))
+                             planet.GravityWellRadius))
                         {
                             InhibitedTimer = .3f;
                             break;
