@@ -23,178 +23,91 @@ namespace Ship_Game
     public sealed class ShipDesignScreen : GameScreen
     {
         private Matrix worldMatrix = Matrix.Identity;
-
         private Matrix view;
-
         private Matrix projection;
-
         public Camera2d camera;
-
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
-
         public bool Debug;
-
         public ShipData ActiveHull;
-
         public EmpireUIOverlay EmpireUI;
-
         private Menu1 ModuleSelectionMenu;
-
         private Model ActiveModel;
-
         private SceneObject shipSO;
-
         private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
-
         public Array<SlotStruct> Slots = new Array<SlotStruct>();
-
         private Vector2 offset;
-
         private CombatState CombatState = CombatState.AttackRuns;
-
         private bool ShipSaved = true;
-
         private Array<ShipData> AvailableHulls = new Array<ShipData>();
-
-        //private UIButton HullLeft;
-
-        //private UIButton HullRight;
-
         private UIButton ToggleOverlayButton;
-
         private UIButton SaveButton;
-
         private UIButton LoadButton;
-
         private Submenu modSel;
-
         private Submenu statsSub;
-
         private Menu1 ShipStats;
-
         private Menu1 activeModWindow;
-
         private Submenu activeModSubMenu;
-
         private ScrollList weaponSL;
-
         private bool Reset = true;
-
         private Submenu ChooseFighterSub;
-
         private ScrollList ChooseFighterSL;
-
         private bool LowRes;
-
         private float LowestX;
-
         private float HighestX;
-
         private GenericButton ArcsButton;
-
         private CloseButton close;
-
         private float OriginalZ;
-
         private Rectangle choosefighterrect;
-
         private Rectangle SearchBar;
-
         private Rectangle bottom_sep;
-
         private ScrollList hullSL;
-
         private Rectangle HullSelectionRect;
-
         private Submenu hullSelectionSub;
-
         private Rectangle BlackBar;
-
         private Rectangle SideBar;
-
         private Vector2 SelectedCatTextPos;
-
         private SkinnableButton wpn;
-
         private SkinnableButton pwr;
-
         private SkinnableButton def;
-
         private SkinnableButton spc;
-
         private Rectangle ModuleSelectionArea = new Rectangle();
-
         private Array<ShipDesignScreen.ModuleCatButton> ModuleCatButtons = new Array<ShipDesignScreen.ModuleCatButton>();
-
         private Array<ModuleButton> ModuleButtons = new Array<ModuleButton>();
-
         private Rectangle upArrow;
-
         private Rectangle downArrow;
-
         private MouseState mouseStateCurrent;
-
         private MouseState mouseStatePrevious;
-
         private ShipModule HighlightedModule;
-
         private Vector2 cameraVelocity = Vector2.Zero;
-
         private Vector2 StartDragPos = new Vector2();
-
         private ShipData changeto;
-
         private string screenToLaunch;
-
         private bool ShowAllArcs;
-
         private ShipModule HoveredModule;
-
         private float TransitionZoom = 1f;
-
         private ShipDesignScreen.SlotModOperation operation;
-
         //private ShipDesignScreen.Colors sColor;
-
         private int HullIndex;
-
         private ShipModule ActiveModule;
         private ShipModule ActiveHangarModule;
-
         private ShipDesignScreen.ActiveModuleState ActiveModState;
-
         private Selector selector;
-
         public bool ToggleOverlay = true;
-
         private Vector2 starfieldPos = Vector2.Zero;
-
         private int scrollPosition;
-
         private DropOptions CategoryList;
-
         private Rectangle dropdownRect;
-
         private Vector2 classifCursor;
-
         public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
         private string lastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
         private Vector2 lastDesignActionPos = Vector2.Zero;
-
         private Vector2 COBoxCursor;
-
         private Checkbox CarrierOnlyBox;
-
         private bool fml = false;
-
         private bool fmlevenmore = false;
-
         public bool CarrierOnly;
-
         private ShipData.Category LoadCategory;
-
         public string HangarShipUIDLast = "Undefined";
-
         private float HoldTimer = .50f;
         private HashSet<string> techs = new HashSet<string>();
 
@@ -211,6 +124,7 @@ namespace Ship_Game
             Debug = true;
 #endif
         }
+
         private void AddToTechList(HashSet<string> techlist)
         {
             foreach (string tech in techlist)
@@ -343,7 +257,7 @@ namespace Ship_Game
                 case ActiveModuleState.Left:
                 {
                     this.ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    this.ActiveModule.YSIZE = x;
+                    this.ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
                     this.ActiveModState = ActiveModuleState.Left;
                     this.ActiveModule.Facing = 270f;
                     return;
@@ -351,7 +265,7 @@ namespace Ship_Game
                 case ActiveModuleState.Right:
                 {
                     this.ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    this.ActiveModule.YSIZE = x;
+                    this.ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
                     this.ActiveModState = ActiveModuleState.Right;
                     this.ActiveModule.Facing = 90f;
                     return;
@@ -441,6 +355,7 @@ namespace Ship_Game
                 }
             }
         }
+
         private void ClearDestinationSlotsNoStack(SlotStruct slot) => ClearDestinationSlots(slot, false);
 
         // @todo This is all broken. Redo everything.
@@ -636,24 +551,23 @@ namespace Ship_Game
             base.Dispose(disposing);
         }
 
-
         private void DoExit(object sender, EventArgs e)
         {
             ReallyExit();
         }
 
-        private void DoExitToFleetsList(object sender, EventArgs e)
+        private void DoExitToFleetsList(object sender, EventArgs e) //Unused
         {
             ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI));
             ReallyExit();
         }
 
-        private void DoExitToShipList(object sender, EventArgs e)
+        private void DoExitToShipList(object sender, EventArgs e)   //Unused
         {
             ReallyExit();
         }
 
-        private void DoExitToShipsList(object sender, EventArgs e)
+        private void DoExitToShipsList(object sender, EventArgs e) //Unused
         {
             ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI));
             ReallyExit();

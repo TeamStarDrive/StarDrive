@@ -173,6 +173,8 @@ namespace Ship_Game.Gameplay
                                 || ModuleType == ShipModuleType.Drone 
                                 || ModuleType == ShipModuleType.Bomb;
 
+        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+
         private ShipModule()
         {
             Flyweight = ShipModuleFlyweight.Empty;
@@ -266,6 +268,7 @@ namespace Ship_Game.Gameplay
         }
 
         // @todo Why isn't this used? A bug?
+        // Nah, this was added by The Doctor a few centries ago, and to my knowledge was never completed.
         private float ApplyShieldResistances(Weapon weapon, float damage)
         {
             if (weapon.Tag_Kinetic)   damage -= damage * shield_kinetic_resist;
@@ -304,8 +307,6 @@ namespace Ship_Game.Gameplay
             if (weapon.Tag_Flak)      damage -= damage * FlakResist;
             return damage;
         }
-
-        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
 
         private void Initialize(Vector2 pos, bool addToShieldManager = true)
         {
@@ -377,7 +378,8 @@ namespace Ship_Game.Gameplay
         private void UpdateModuleRadius()
         {
             // slightly bigger radius for better collision detection
-            Radius = 8f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+            //Replaced [8f * 1.125f] with 9f. This is calculated for every module on every call of update() so this might add up -Gretman
+            Radius = 9f * (XSIZE > YSIZE ? XSIZE : YSIZE);
         }
         // Collision test with this ShipModule. Returns TRUE if point is inside this module's
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
