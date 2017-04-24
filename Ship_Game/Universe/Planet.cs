@@ -40,7 +40,7 @@ namespace Ship_Game
         public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
         public Array<Building> BuildingList = new Array<Building>();
         public SpaceStation Station = new SpaceStation();
-        public Dictionary<Guid, Ship> Shipyards = new Dictionary<Guid, Ship>();
+        public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         private float ZrotateAmount = 0.03f;
