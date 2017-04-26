@@ -213,42 +213,41 @@ namespace Ship_Game
 			MapRect.Width = buildingsRect.Width;
 			int xsize = buildingsRect.Width / 7;
 			int ysize = buildingsRect.Height / 5;
-			Array<PlanetGridSquare> localPgsList = new Array<PlanetGridSquare>();
-			foreach (PlanetGridSquare pgs in this.SelectedPlanet.TilesList)
+			PlanetGridSquare pgs = new PlanetGridSquare();
+			foreach (PlanetGridSquare realPgs in this.SelectedPlanet.TilesList)
 			{
-				PlanetGridSquare pgnew = new PlanetGridSquare()
-				{
-					Biosphere = pgs.Biosphere,
-					building = pgs.building,
-					ClickRect = new Rectangle(buildingsRect.X + pgs.x * xsize, buildingsRect.Y + pgs.y * ysize, xsize, ysize),
-					foodbonus = pgs.foodbonus,
-					Habitable = pgs.Habitable,
-					prodbonus = pgs.prodbonus,
-					TroopsHere = pgs.TroopsHere,
-					resbonus = pgs.resbonus
-				};
-				localPgsList.Add(pgnew);
-			}
+                pgs.Biosphere  = realPgs.Biosphere;
+                pgs.building   = realPgs.building;
+                pgs.ClickRect  = new Rectangle(buildingsRect.X + realPgs.x * xsize, buildingsRect.Y + realPgs.y * ysize, xsize, ysize);
+                pgs.foodbonus  = realPgs.foodbonus;
+                pgs.Habitable  = realPgs.Habitable;
+                pgs.prodbonus  = realPgs.prodbonus;
+                pgs.TroopsHere = realPgs.TroopsHere;
+                pgs.resbonus   = realPgs.resbonus;
+				
+
+                pgs.ClickRect = new Rectangle(buildingsRect.X + pgs.x * xsize, buildingsRect.Y + pgs.y * ysize, xsize, ysize);
+
+
+                if (!pgs.Habitable)
+			    {
+			        Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, pgs.ClickRect, new Color(0, 0, 0, 200));
+			    }
+			    Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
+			    if (pgs.building != null)
+			    {
+			        Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 24, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 24, 48, 48);
+			        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.building.Icon, "_48x48")], bRect, Color.White);
+			    }
+			    else if (pgs.QItem != null)
+			    {
+			        Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 24, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 24, 48, 48);
+			        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.QItem.Building.Icon, "_48x48")], bRect, new Color(255, 255, 255, 128));
+			    }
+			    this.DrawPGSIcons(pgs);
+            }
 			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("PlanetTiles/", this.SelectedPlanet.GetTile())], buildingsRect, Color.White);
-			foreach (PlanetGridSquare pgs in localPgsList)
-			{
-				if (!pgs.Habitable)
-				{
-					Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, pgs.ClickRect, new Color(0, 0, 0, 200));
-				}
-				Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
-				if (pgs.building != null)
-				{
-					Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 24, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 24, 48, 48);
-					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.building.Icon, "_48x48")], bRect, Color.White);
-				}
-				else if (pgs.QItem != null)
-				{
-					Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 24, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 24, 48, 48);
-					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.QItem.Building.Icon, "_48x48")], bRect, new Color(255, 255, 255, 128));
-				}
-				this.DrawPGSIcons(pgs);
-			}
+	
 			int xpos = (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - MapRect.Width) / 2;
 			int ypos = (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - MapRect.Height) / 2;
 			Rectangle rectangle = new Rectangle(xpos, ypos, MapRect.Width, MapRect.Height);
