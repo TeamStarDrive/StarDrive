@@ -512,305 +512,222 @@ namespace Ship_Game
             switch (planetType)
             {
                 case 1:
-                    this.Type = "Terran";
-                    this.planetComposition = Localizer.Token(1700);
-                    this.hasEarthLikeClouds = true;
-                    this.habitable = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(4000f, 8000f);
-                    this.Fertility = RandomMath.RandomBetween(0.1f, 0.2f);
+                    Type = "Terran";
+                    planetComposition = Localizer.Token(1700);
+                    hasEarthLikeClouds = true;
+                    habitable = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(4000f, 8000f);
+                    Fertility = RandomMath.RandomBetween(0.1f, 0.2f);
                     break;
                 case 2:
-                    this.Type = "Gas Giant";
-                    this.planetComposition = Localizer.Token(1701);
+                    Type = "Gas Giant";
+                    planetComposition = Localizer.Token(1701);
                     break;
                 case 3:
-                    this.Type = "Barren";
-                    this.planetComposition = Localizer.Token(1702);
-                    this.habitable = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
+                    Type = "Barren";
+                    planetComposition = Localizer.Token(1702);
+                    habitable = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
                     break;
                 case 4:
-                    this.Type = "Barren";
-                    this.planetComposition = Localizer.Token(1703);
-                    this.habitable = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
+                    Type = "Barren";
+                    planetComposition = Localizer.Token(1703);
+                    habitable = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
                     break;
                 case 5:
-                    this.Type = "Barren";
-                    this.planetComposition = Localizer.Token(1704);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
-                    this.habitable = true;
+                    Type = "Barren";
+                    planetComposition = Localizer.Token(1704);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
+                    habitable = true;
                     break;
                 case 6:
-                    this.Type = "Gas Giant";
-                    this.planetComposition = Localizer.Token(1701);
+                    Type = "Gas Giant";
+                    planetComposition = Localizer.Token(1701);
                     break;
                 case 7:
-                    this.Type = "Barren";
-                    this.planetComposition = Localizer.Token(1704);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
-                    this.habitable = true;
+                    Type = "Barren";
+                    planetComposition = Localizer.Token(1704);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
+                    habitable = true;
                     break;
                 case 8:
-                    this.Type = "Barren";
-                    this.planetComposition = Localizer.Token(1703);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
-                    this.habitable = true;
+                    Type = "Barren";
+                    planetComposition = Localizer.Token(1703);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
+                    habitable = true;
                     break;
                 case 9:
-                    this.Type = "Volcanic";
-                    this.planetComposition = Localizer.Token(1705);
+                    Type = "Volcanic";
+                    planetComposition = Localizer.Token(1705);
                     break;
                 case 10:
-                    this.Type = "Gas Giant";
-                    this.planetComposition = Localizer.Token(1706);
+                    Type = "Gas Giant";
+                    planetComposition = Localizer.Token(1706);
                     break;
                 case 11:
-                    this.Type = "Tundra";
-                    this.planetComposition = Localizer.Token(1707);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(4000f, 8000f);
-                    this.Fertility = RandomMath.RandomBetween(0.5f, 0.9f);
-                    this.hasEarthLikeClouds = true;
-                    this.habitable = true;
+                    Type = "Tundra";
+                    planetComposition = Localizer.Token(1707);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(4000f, 8000f);
+                    Fertility = RandomMath.RandomBetween(0.5f, 0.9f);
+                    hasEarthLikeClouds = true;
+                    habitable = true;
                     break;
                 case 12:
-                    this.Type = "Gas Giant";
-                    this.habitable = false;
-                    this.planetComposition = Localizer.Token(1708);
+                    Type = "Gas Giant";
+                    habitable = false;
+                    planetComposition = Localizer.Token(1708);
                     break;
                 case 13:
-                    this.Type = "Terran";
-                    this.planetComposition = Localizer.Token(1709);
-                    this.habitable = true;
-                    this.hasEarthLikeClouds = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
-                    this.Fertility = RandomMath.RandomBetween(0.8f, 3f);
+                    Type = "Terran";
+                    planetComposition = Localizer.Token(1709);
+                    habitable = true;
+                    hasEarthLikeClouds = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
+                    Fertility = RandomMath.RandomBetween(0.8f, 3f);
                     break;
                 case 14:
-                    this.Type = "Desert";
-                    this.planetComposition = Localizer.Token(1710);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(1000f, 3000f);
-                    this.Fertility = RandomMath.RandomBetween(0.2f, 0.8f);
-                    this.habitable = true;
+                    Type = "Desert";
+                    planetComposition = Localizer.Token(1710);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(1000f, 3000f);
+                    Fertility = RandomMath.RandomBetween(0.2f, 0.8f);
+                    habitable = true;
                     double num2 = (double)RandomMath.RandomBetween(0.0f, 100f);
                     break;
                 case 15:
-                    this.Type = "Gas Giant";
-                    this.planetComposition = Localizer.Token(1711);
-                    this.planetType = 26;
+                    Type = "Gas Giant";
+                    planetComposition = Localizer.Token(1711);
+                    planetType = 26;
                     break;
                 case 16:
-                    this.Type = "Barren";
-                    this.planetComposition = Localizer.Token(1712);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
-                    this.habitable = true;
+                    Type = "Barren";
+                    planetComposition = Localizer.Token(1712);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
+                    habitable = true;
                     break;
                 case 17:
-                    this.Type = "Ice";
-                    this.planetComposition = Localizer.Token(1713);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
-                    this.habitable = true;
+                    Type = "Ice";
+                    planetComposition = Localizer.Token(1713);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
+                    habitable = true;
                     break;
                 case 18:
-                    this.Type = "Steppe";
-                    this.planetComposition = Localizer.Token(1714);
-                    this.Fertility = RandomMath.RandomBetween(0.4f, 1.4f);
-                    this.hasEarthLikeClouds = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(2000f, 4000f);
-                    this.habitable = true;
+                    Type = "Steppe";
+                    planetComposition = Localizer.Token(1714);
+                    Fertility = RandomMath.RandomBetween(0.4f, 1.4f);
+                    hasEarthLikeClouds = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(2000f, 4000f);
+                    habitable = true;
                     break;
                 case 19:
-                    this.Type = "Swamp";
-                    this.habitable = true;
-                    this.planetComposition = Localizer.Token(1715);
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(1000f, 3000f);
-                    this.Fertility = RandomMath.RandomBetween(0.8f, 2f);
-                    this.hasEarthLikeClouds = true;
+                    Type = "Swamp";
+                    habitable = true;
+                    planetComposition = Localizer.Token(1715);
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(1000f, 3000f);
+                    Fertility = RandomMath.RandomBetween(0.8f, 2f);
+                    hasEarthLikeClouds = true;
                     break;
                 case 20:
-                    this.Type = "Gas Giant";
-                    this.planetComposition = Localizer.Token(1711);
+                    Type = "Gas Giant";
+                    planetComposition = Localizer.Token(1711);
                     break;
                 case 21:
-                    this.Type = "Oceanic";
-                    this.planetComposition = Localizer.Token(1716);
-                    this.habitable = true;
-                    this.hasEarthLikeClouds = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(3000f, 6000f);
-                    this.Fertility = RandomMath.RandomBetween(2f, 5f);
+                    Type = "Oceanic";
+                    planetComposition = Localizer.Token(1716);
+                    habitable = true;
+                    hasEarthLikeClouds = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(3000f, 6000f);
+                    Fertility = RandomMath.RandomBetween(2f, 5f);
                     break;
                 case 22:
-                    this.Type = "Terran";
-                    this.planetComposition = Localizer.Token(1717);
-                    this.habitable = true;
-                    this.hasEarthLikeClouds = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
-                    this.Fertility = RandomMath.RandomBetween(1f, 3f);
+                    Type = "Terran";
+                    planetComposition = Localizer.Token(1717);
+                    habitable = true;
+                    hasEarthLikeClouds = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
+                    Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
                 case 23:
-                    this.Type = "Volcanic";
-                    this.planetComposition = Localizer.Token(1718);
+                    Type = "Volcanic";
+                    planetComposition = Localizer.Token(1718);
                     break;
                 case 24:
-                    this.Type = "Barren";
-                    this.planetComposition = Localizer.Token(1719);
-                    this.habitable = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
-                    this.Fertility = 0.0f;
+                    Type = "Barren";
+                    planetComposition = Localizer.Token(1719);
+                    habitable = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(100f, 500f);
+                    Fertility = 0.0f;
                     break;
                 case 25:
-                    this.Type = "Terran";
-                    this.planetComposition = Localizer.Token(1720);
-                    this.habitable = true;
-                    this.hasEarthLikeClouds = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
-                    this.Fertility = RandomMath.RandomBetween(1f, 3f);
+                    Type = "Terran";
+                    planetComposition = Localizer.Token(1720);
+                    habitable = true;
+                    hasEarthLikeClouds = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
+                    Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
                 case 26:
-                    this.Type = "Gas Giant";
-                    this.planetComposition = Localizer.Token(1711);
+                    Type = "Gas Giant";
+                    planetComposition = Localizer.Token(1711);
                     break;
                 case 27:
-                    this.Type = "Terran";
-                    this.planetComposition = Localizer.Token(1721);
-                    this.habitable = true;
-                    this.hasEarthLikeClouds = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
-                    this.Fertility = RandomMath.RandomBetween(1f, 3f);
+                    Type = "Terran";
+                    planetComposition = Localizer.Token(1721);
+                    habitable = true;
+                    hasEarthLikeClouds = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
+                    Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
                 case 29:
-                    this.Type = "Terran";
-                    this.planetComposition = Localizer.Token(1722);
-                    this.habitable = true;
-                    this.hasEarthLikeClouds = true;
-                    this.MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
-                    this.Fertility = RandomMath.RandomBetween(1f, 3f);
+                    Type = "Terran";
+                    planetComposition = Localizer.Token(1722);
+                    habitable = true;
+                    hasEarthLikeClouds = true;
+                    MaxPopulation = (float)(int)RandomMath.RandomBetween(12000f, 20000f);
+                    Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
             }
             if (!habitable)
                 MineralRichness = 0.0f;
 
-            if (UniqueHab)
+            void populateTiles(int habChance)
             {
+                if (UniqueHab)
+                {
+                    habChance = uniqueHabPercent;
+
+                }
+                bool habitable = false;
                 for (int x = 0; x < 7; ++x)
                 {
                     for (int y = 0; y < 5; ++y)
                     {
-                        int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, num3 < uniqueHabPercent));
+                        if (habChance >0)                        
+                            habitable = RandomMath.RandomBetween(0, 100) < habChance;
+                            
+                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitable));
                     }
                 }
+                
             }
-            else
-            {
-                if (this.Type == "Barren")
-                {
-                    for (int x = 0; x < 7; ++x)
-                    {
-                        for (int y = 0; y < 5; ++y)
-                        {
-                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                            if (GlobalStats.ActiveMod != null)
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.BarrenHab));
-                            }
-                            else
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, false));
-                            }
-                        }
-                    }
-                }
-                if (this.Type == "Ice")
-                {
-                    for (int x = 0; x < 7; ++x)
-                    {
-                        for (int y = 0; y < 5; ++y)
-                        {
-                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                            if (GlobalStats.ActiveMod != null)
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.IceHab));
-                            }
-                            else
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < 15));
-                            }
-                        }
-                    }
-                }
-                if (this.Type == "Terran")
-                {
-                    for (int x = 0; x < 7; ++x)
-                    {
-                        for (int y = 0; y < 5; ++y)
-                        {
-                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                            if (GlobalStats.ActiveMod != null)
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.TerranHab));
-                            }
-                            else
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 25));
-                            }
-                        }
-                    }
-                }
-                if (this.Type == "Oceanic" || this.Type == "Desert" || this.Type == "Tundra")
-                {
-                    for (int x = 0; x < 7; ++x)
-                    {
-                        for (int y = 0; y < 5; ++y)
-                        {
-                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                            if (GlobalStats.ActiveMod != null)
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.OceanHab));
-                            }
-                            else
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 50));
-                            }
-                        }
-                    }
-                }
-                if (this.Type == "Steppe" || this.Type == "Swamp")
-                {
-                    for (int x = 0; x < 7; ++x)
-                    {
-                        for (int y = 0; y < 5; ++y)
-                        {
-                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                            if (GlobalStats.ActiveMod != null)
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.SteppeHab));
-                            }
-                            else
-                            {
-                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 33));
-                            }
-                        }
-                    }
-                }
-            }
+            
 
-            if ((double)RandomMath.RandomBetween(0.0f, 100f) <= 15.0 && this.habitable)
+            if (RandomMath.RandomBetween(0.0f, 100f) <= 15 && habitable)
             {
                 Array<string> list = new Array<string>();
-                foreach (KeyValuePair<string, Building> keyValuePair in ResourceManager.BuildingsDict)
+                foreach (var kv in ResourceManager.BuildingsDict)
                 {
-                    if (!string.IsNullOrEmpty(keyValuePair.Value.EventTriggerUID) && !keyValuePair.Value.NoRandomSpawn)
-                        list.Add(keyValuePair.Key);
+                    if (!string.IsNullOrEmpty(kv.Value.EventTriggerUID) && !kv.Value.NoRandomSpawn)
+                        list.Add(kv.Key);
                 }
-                int index = (int)RandomMath.RandomBetween(0.0f, (float)list.Count + 0.85f);
+                int index = (int)RandomMath.RandomBetween(0f, list.Count + 0.85f);
                 if (index >= list.Count)
                     index = list.Count - 1;
                 AssignBuildingToRandomTile(ResourceManager.CreateBuilding(list[index]));
@@ -819,27 +736,35 @@ namespace Ship_Game
             switch (Type)
             {
                 case "Terran":
+                    populateTiles(GlobalStats.ActiveModInfo?.TerranHab ?? 25);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TerranChance, item.TerranInstanceMax);
                     break;
                 case "Steppe":
+                    populateTiles(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SteppeChance, item.SteppeInstanceMax);
                     break;
                 case "Ice":
+                    populateTiles(GlobalStats.ActiveModInfo?.IceHab ?? 15);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.IceChance, item.IceInstanceMax);
                     break;
                 case "Barren":
+                    populateTiles(GlobalStats.ActiveModInfo?.BarrenHab ?? 0);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.BarrenChance, item.BarrenInstanceMax);
                     break;
                 case "Tundra":
+                    populateTiles(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TundraChance, item.TundraInstanceMax);
                     break;
                 case "Desert":
+                    populateTiles(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.DesertChance, item.DesertInstanceMax);
                     break;
                 case "Oceanic":
+                    populateTiles(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.OceanicChance, item.OceanicInstanceMax);
                     break;
                 case "Swamp":
+                    populateTiles(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
                     foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SwampChance, item.SwampInstanceMax);
                     break;
             }
@@ -861,12 +786,12 @@ namespace Ship_Game
         public void SetPlanetAttributes(float mrich)
         {
             float num1 = mrich;
-            if ((double)num1 >= 87.5)
+            if (num1 >= 87.5f)
             {
                 //this.richness = Planet.Richness.UltraRich;
                 this.MineralRichness = 2.5f;
             }
-            else if ((double)num1 >= 75.0)
+            else if (num1 >= 75f)
             {
                 //this.richness = Planet.Richness.Rich;
                 this.MineralRichness = 1.5f;
