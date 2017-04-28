@@ -22,6 +22,14 @@ namespace Ship_Game
         public const int CellThreshold = 4;
         private Node* Root;
 
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        private struct Node
+        {
+            public float X, Y, LastX, LastY;
+            public Node* Parent, NW, NE, SE, SW;
+            public PoolArraySpatialObj Items;
+        }
+
         // Create a quadtree to fit the universe
         public Quadtree(float universeSize, float smallestCell = 512f)
         {
@@ -53,14 +61,6 @@ namespace Ship_Game
             Root = CreateNode(null, -half, -half, +half, +half);
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        private struct Node
-        {
-            public float X, Y, LastX, LastY;
-            public Node* Parent, NW, NE, SE, SW;
-            public PoolArraySpatialObj Items;
-        }
-
         private static bool Overlaps(Node* n, ref SpatialObj b)
         {
             return n->X <= b.LastX && n->LastX > b.X
@@ -73,13 +73,36 @@ namespace Ship_Game
                 && a->Y <= b->LastY && a->LastY > b->Y;
         }
 
+        // squared distance; if negative, we have a collision
+        private static float DistanceTo(SpatialObj* a, SpatialObj* b)
+        {
+            float ra = (a->LastX - a->X) / 2;
+            float rb = (b->LastX - b->X) / 2;
+            float acx = a->X + ra, acy = a->Y + ra;
+            float bcx = b->X + rb, bcy = b->Y + rb;
+            float dx = acx - bcx;
+            float dy = acy - bcy;
+            return (dx*dx + dy*dy) - (ra*ra + rb*rb);
+        }
+
+        private static bool HitTest(SpatialObj* a, SpatialObj* b)
+        {
+            float ra = (a->LastX - a->X) / 2;
+            float rb = (b->LastX - b->X) / 2;
+            float acx = a->X + ra, acy = a->Y + ra;
+            float bcx = b->X + rb, bcy = b->Y + rb;
+            float dx = acx - bcx;
+            float dy = acy - bcy;
+            return (dx*dx + dy*dy) < (ra*ra + rb*rb);
+        }
+
         private Node* CreateNode(Node* parent, float x, float y, float lastX, float lastY)
         {
             var node = (Node*)Pool.Alloc(sizeof(Node));
-            node->X     = x;
-            node->Y     = y;
-            node->LastX = lastX;
-            node->LastY = lastY;
+            node->X      = x;
+            node->Y      = y;
+            node->LastX  = lastX;
+            node->LastY  = lastY;
             node->Parent = parent;
             node->NW = node->NE = node->SE = node->SW = null;
             node->Items = default(PoolArraySpatialObj);
@@ -104,7 +127,7 @@ namespace Ship_Game
                 InsertAt(node, level, arr.Items[i]);
         }
 
-        private static Node* GetQuadrant(Node* node, SpatialObj* obj)
+        private static Node* PickSubQuadrant(Node* node, SpatialObj* obj)
         {
             float midX = (node->X + node->LastX) / 2;
             float midY = (node->Y + node->LastY) / 2;
@@ -132,7 +155,7 @@ namespace Ship_Game
                     return;
                 }
 
-                Node* quad = GetQuadrant(node, obj);
+                Node* quad = PickSubQuadrant(node, obj);
                 if (quad != null)
                 {
                     node = quad; // go deeper!
@@ -161,7 +184,8 @@ namespace Ship_Game
             InsertAt(Root, Levels, obj);
         }
 
-        private Node* FindNode(SpatialObj* obj)
+        // finds the node that fully encloses this spatial object
+        private Node* FindEnclosingNode(SpatialObj* obj)
         {
             int level = Levels;
             Node* node = Root;
@@ -170,7 +194,7 @@ namespace Ship_Game
                 if (level <= 1) // no more subdivisions possible
                     break;
 
-                Node* quad = GetQuadrant(node, obj);
+                Node* quad = PickSubQuadrant(node, obj);
                 if (quad == null)
                     break;
 
@@ -180,16 +204,50 @@ namespace Ship_Game
             return node;
         }
 
-        // finds the nearest collision
-        public bool CheckCollision(Vector2 pos, float radius, Func<int, bool> collisionCheck)
+        private static SpatialObj* CollideAtNode(Node* node, SpatialObj* obj)
         {
-            SpatialObj obj;
+            for (;;)
+            {
+                PoolArraySpatialObj arr = node->Items;
+                for (int i = 0; i < arr.Count; ++i)
+                {
+                    SpatialObj* item = arr.Items[i];
+                    // ignore friendly fire:
+                    if (item->Loyalty != obj->Loyalty && HitTest(item, obj))
+                        return item;
+                }
+
+                if (node->NW == null)
+                    return null;
+                SpatialObj* result;
+                if ((result = CollideAtNode(node->NW, obj)) != null) return result;
+                if ((result = CollideAtNode(node->NE, obj)) != null) return result;
+                if ((result = CollideAtNode(node->SE, obj)) != null) return result;
+                if ((result = CollideAtNode(node->SW, obj)) != null) return result;
+            }
+        }
+
+        // finds the nearest collision
+        public bool CheckCollision(Vector2 pos, float radius, int loyalty, out int collidedWith)
+        {
+            SpatialObj obj; // dummy object to simplify our search interface
             obj.X     = pos.X - radius;
             obj.Y     = pos.Y - radius;
             obj.LastX = pos.X + radius;
             obj.LastY = pos.Y + radius;
+            obj.Loyalty = loyalty;
 
-
+            Node* node = FindEnclosingNode(&obj);
+            if (node != null) // aha! we overlap with something
+            {
+                SpatialObj* collided = CollideAtNode(node, &obj);
+                if (collided != null)
+                {
+                    collidedWith = collided->Id;
+                    return true;
+                }
+            }
+            collidedWith = -1;
             return false;
         }
 
@@ -203,8 +261,8 @@ namespace Ship_Game
             obj.LastX = pos.X + radius;
             obj.LastY = pos.Y + radius;
 
-            // find the deepest node
-            Node* node = FindNode(&obj);
+            // find the deepest enclosing node
+            Node* node = FindEnclosingNode(&obj);
 
             // now work back upwards
             while (node != null)
