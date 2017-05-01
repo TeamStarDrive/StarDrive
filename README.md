@@ -56,6 +56,6 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 
 ### Who do I talk to? ###
 
-* Crunchy Gremlin is the current owner of the repository, Gretman and RedFox can provide additional source guidance.
+* @CrunchyGremlin is the current owner of the repository, Gretman and RedFox can provide additional source guidance.
 * If you have a bug report, post an issue.
 * For other feature ideas, you can join our Discord chat and talk with the team!
