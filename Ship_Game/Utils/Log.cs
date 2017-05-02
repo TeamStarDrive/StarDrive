@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -20,6 +19,11 @@ namespace Ship_Game
         private static readonly RavenClient Raven = new RavenClient("https://3e16bcf9f97d4af3b3fb4f8d4ba1830b:1f0e6d3598e14584877e0c0e87554966@sentry.io/123180");
         private static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
 
+        // prevent flooding Raven with 2000 error messages if we fall into an exception loop
+        // instead, we count identical exceptions and resend them only over a certain threshold 
+        private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
+        private const int ErrorThreshold = 100;
+
         static Log()
         {
             string init = "\r\n\r\n";
@@ -28,7 +32,7 @@ namespace Ship_Game
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
             LogFile.Write(init);
-            Raven.Release     = GlobalStats.ExtendedVersion;
+            Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)
             {
                 Raven.Environment = "Staging";
@@ -100,6 +104,29 @@ namespace Ship_Game
             Console.WriteLine(text);
         }
 
+        private static ulong Fnv64(string text)
+        {
+            ulong hash = 0xcbf29ce484222325UL;
+            for (int i = 0; i < text.Length; ++i)
+            {
+                hash ^= text[i];
+                hash *= 0x100000001b3UL;
+            }
+            return hash;
+        }
+
+        private static bool ShouldIgnoreErrorText(string error)
+        {
+            ulong hash = Fnv64(error);
+            if (ReportedErrors.TryGetValue(hash, out int count)) // already seen this error?
+            {
+                ReportedErrors[hash] = ++count;
+                return (count % ErrorThreshold) != 0; // only log error when we reach threshold
+            }
+            ReportedErrors[hash] = 1;
+            return false; // log error
+        }
+
         // write an error to logfile, sentry.io and debug console
         // plus trigger a Debugger.Break
         public static void Error(string format, params object[] args)
@@ -108,6 +135,9 @@ namespace Ship_Game
         }
         public static void Error(string error)
         {
+            if (!HasDebugger && ShouldIgnoreErrorText(error))
+                return;
+
             string text = "!! Error: " + error;
             LogFile.WriteLine(text);
 
@@ -131,6 +161,9 @@ namespace Ship_Game
         public static void Error(Exception ex, string error = null)
         {
             string text = CurryExceptionMessage(ex, error);
+            if (!HasDebugger && ShouldIgnoreErrorText(text))
+                return;
+
             string withStack = text + "\n" + CleanStackTrace(ex.StackTrace);
             LogFile.WriteLine(withStack);
             
