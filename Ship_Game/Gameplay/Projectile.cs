@@ -71,11 +71,11 @@ namespace Ship_Game.Gameplay
         public Ship Owner { get; protected set; }
         public Planet Planet { get; private set; }
 
-        public Projectile()
+        public Projectile() : base(GameObjectType.Projectile)
         {
         }
 
-        public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
+        public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo) : this()
         {
             Init(owner, direction, moduleAttachedTo);
         }
@@ -89,7 +89,7 @@ namespace Ship_Game.Gameplay
             Emitter.Position = new Vector3(Position, 0f);
         }
 
-        public Projectile(Planet p, Vector2 direction)
+        public Projectile(Planet p, Vector2 direction) : this()
         {
             SetSystem(p.system);
             Position = p.Position;
@@ -100,7 +100,7 @@ namespace Ship_Game.Gameplay
             Emitter.Position = new Vector3(p.Position, 0f);
         }
 
-        public Projectile(Ship owner, Vector2 direction)
+        public Projectile(Ship owner, Vector2 direction) : this()
         {
             this.Owner = owner;
             Loyalty = owner.loyalty;

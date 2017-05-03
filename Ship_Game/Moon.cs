@@ -19,7 +19,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public SceneObject So;
         [XmlIgnore][JsonIgnore] private Planet OrbitPlanet;
 
-        public Moon()
+        public Moon() : base(GameObjectType.Moon)
         {
         }
 

@@ -16,7 +16,7 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore][JsonIgnore] public SceneObject So;
 
-        public Asteroid()
+        public Asteroid() : base(GameObjectType.Asteroid)
         {
             Spin            = RandomMath.Vector3D(0.01f, 0.2f);
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);

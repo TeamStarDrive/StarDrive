@@ -691,13 +691,6 @@ namespace Ship_Game.Gameplay
             TetheredTo = null;
         }
 
-        public Ship(Vector2 pos, Vector2 dim, float rot)
-        {
-            Position = pos;
-            Rotation = rot;
-            Dimensions = dim;
-        }
-
         public void SetAnimationController(AnimationController ac, SkinnedModel model)
         {
             animationController = ac;

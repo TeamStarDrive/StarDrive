@@ -2362,7 +2362,6 @@ namespace Ship_Game
                     )
                     list.Add(keyValuePair.Key);
             }
-            Ship remove;
             foreach (Guid key in list)
                 this.Shipyards.Remove(key);
             if (!Empire.Universe.Paused)
@@ -5636,7 +5635,6 @@ output = maxp * take10 = 5
                     list.Add(keyValuePair.Key);
             }
             this.ShipBuildingModifier = shipbuildingmodifier;
-            Ship remove;
             foreach (Guid key in list)
             {
                 
