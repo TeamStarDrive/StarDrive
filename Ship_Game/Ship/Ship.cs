@@ -3688,7 +3688,8 @@ namespace Ship_Game.Gameplay
                     case ShipData.RoleName.station:     ExplodeShip(1200f, true);       break;
                     default:                            ExplodeShip(600f, cleanupOnly); break;
                 }
-                System?.spatialManager.ShipExplode(this, Size * 50, Center, Radius);
+
+                SpatialManagerForSystem(System).ShipExplode(this, Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {

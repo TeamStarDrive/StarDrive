@@ -760,11 +760,7 @@ namespace Ship_Game
                                 ship.ProcessInput(elapsedTime);
                         }
                     }
-                    if (!Paused && IsActive)
-                        system.spatialManager.Update(elapsedTime, system);
-                   // system.AsteroidsList.ApplyPendingRemovals();
-                } //);
-                // this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
+                }
             }
         }
 
@@ -827,9 +823,6 @@ namespace Ship_Game
                 if (system.combatTimer <= 0.0f)
                     system.CombatInSystem = false;
 
-                if (elapsedTime > 0.0f)
-                    system.spatialManager.Update(elapsedTime, system);
-
                 bool inFrustrum = false;
                 if (Frustum.Contains(system.Position, 100000f))
                     inFrustrum = true;
@@ -891,7 +884,6 @@ namespace Ship_Game
                     foreach (Asteroid asteroid in system.AsteroidsList)
                         asteroid.Update(elapsedTime);
                 }
-                //system.AsteroidsList.ApplyPendingRemovals();
             }
         }
 

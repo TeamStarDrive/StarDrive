@@ -242,7 +242,7 @@ namespace Ship_Game
         public int reducer          = 1;
         public float screenDelay    = 0f;
 
-        // for really specific debugging
+        // for really specific debuggingD
         public static int FrameId;
 
         public UniverseScreen(UniverseData data) : base(null)
@@ -753,8 +753,6 @@ namespace Ship_Game
             MasterShipList.Clear();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                solarSystem.spatialManager.Destroy();
-                solarSystem.spatialManager = null;
                 solarSystem.FiveClosestSystems.Clear();
                 foreach (Planet planet in solarSystem.PlanetList)
                 {
