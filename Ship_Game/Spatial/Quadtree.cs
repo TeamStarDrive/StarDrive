@@ -9,6 +9,12 @@ namespace Ship_Game
         public float X, Y, LastX, LastY;
         public int Loyalty; // if loyalty == 0, then this is a STATIC world object !!!
         public int LastCollided;
+        public int TypeFlags;
+
+        public void UpdateBounds()
+        {
+            
+        }
     }
 
     public struct SpatialCollision // two spatial objects that collided

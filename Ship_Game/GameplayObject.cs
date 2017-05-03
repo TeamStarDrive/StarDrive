@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,6 +8,18 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
+    [Flags]
+    public enum GameObjectType
+    {
+        None       = 0,
+        Ship       = 1,
+        ShipModule = 2,
+        Projectile = 4,
+        Beam       = 8,
+        Asteroid   = 16,
+        Moon       = 32,
+    }
+
     public abstract class GameplayObject
     {
         public static GraphicsDevice device;
@@ -30,6 +43,8 @@ namespace Ship_Game
         [Serialize(6)] public float Mass = 1f;
         [Serialize(7)] public float Health;
 
+        [Serialize(8)] public GameObjectType Type;
+
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
         [XmlIgnore][JsonIgnore] public bool CollidedThisFrame;
 
@@ -40,8 +55,9 @@ namespace Ship_Game
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
-        protected GameplayObject()
+        protected GameplayObject(GameObjectType typeFlags)
         {
+            Type = typeFlags;
         }
 
         public virtual bool Damage(GameplayObject source, float damageAmount)

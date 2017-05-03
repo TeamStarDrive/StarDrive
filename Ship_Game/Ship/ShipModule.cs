@@ -175,12 +175,12 @@ namespace Ship_Game.Gameplay
 
         public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
 
-        private ShipModule()
+        private ShipModule() : base(GameObjectType.ShipModule)
         {
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        private ShipModule(ShipModule_Deserialize s)
+        private ShipModule(ShipModule_Deserialize s) : base(GameObjectType.ShipModule)
         {
             Flyweight = new ShipModuleFlyweight(s);
             XSIZE                = s.XSIZE;
