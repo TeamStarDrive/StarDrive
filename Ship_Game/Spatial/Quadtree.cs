@@ -396,7 +396,7 @@ namespace Ship_Game
             return results.Count > 0;
         }
 
-        public GameplayObject[] FindNearby(Vector2 pos, float radius)
+        public GameplayObject[] FindNearby(Vector2 pos, float radius, GameObjectType filter = GameObjectType.None)
         {
             // assume most results will be either empty, or only from a single quadrant
             // this means using a dynamic Array will be way more wasteful
@@ -426,8 +426,15 @@ namespace Ship_Game
 
                     SpatialObj[] items = node.Items;
                     for (int i = 0; i < count; ++i)
-                        if (HitTest(ref obj, ref items[i]))
-                            nearby[numNearby++] = items[i].Obj;
+                    {
+                        ref SpatialObj so = ref items[i];
+                        if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
+                            continue; // no filter match
+
+                        if (HitTest(ref obj, ref so))
+                            nearby[numNearby++] = so.Obj;
+                    }
+
                 }
 
                 node = node.Parent;
