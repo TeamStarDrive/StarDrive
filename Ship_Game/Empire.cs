@@ -124,6 +124,10 @@ namespace Ship_Game
 
         public string Name => data.Traits.Name;
 
+        // Empire unique ID. If this is 0, then this empire is invalid!
+        // Set in EmpireManager.cs
+        public int Id;
+
         public Empire()
         {
         }
