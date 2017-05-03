@@ -48,7 +48,7 @@ namespace Ship_Game
         private Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
         public Background bg            = new Background();
-        public Vector2 Size             = new Vector2(5000000f, 5000000f);
+        public Vector2 Size             = new Vector2(5000000f, 5000000f); // universe size in world units
         public float FTLModifier        = 1f;
         public float EnemyFTLModifier   = 1f;
         public bool FTLInNuetralSystems = true;
@@ -80,7 +80,6 @@ namespace Ship_Game
         private AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
         private ManualResetEvent EmpireDone             = new ManualResetEvent(false);
         private Array<Ship> DeepSpaceShips  = new Array<Ship>();
-        private object thislock             = new object();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
         private float SectorMiniMapHeight = 20000f;
