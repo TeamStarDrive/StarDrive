@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
@@ -19,7 +20,6 @@ namespace Ship_Game.Gameplay
         private PoolArrayGridU16 Buckets;
         private int CellSize;
         private DynamicMemoryPool MemoryPool;
-        private SolarSystem System;
 
         private void Setup(float sceneWidth, float sceneHeight, float cellSize, float centerX, float centerY)
         {
@@ -72,15 +72,56 @@ namespace Ship_Game.Gameplay
             // assuming universe size uses radius...
             float universeWidth  = universeRadiusX * 2;
             float universeHeight = universeRadiusY * 2;
-            Setup(universeWidth, universeHeight, 150000f * gameScale, 0f, 0f);
+            const float cellSize = 5000f;
+            Setup(universeWidth, universeHeight, cellSize * gameScale, 0f, 0f);
             Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Buckets.Count);
         }
 
-        public void SetupForSystem(float gameScale, SolarSystem system)
+        public void DebugVisualize(UniverseScreen screen)
         {
-            const float cellSize = 5000f;
-            System = system;
-            Setup(200000f * gameScale, 200000f * gameScale, cellSize * gameScale, system.Position.X, system.Position.Y);
+            PoolArrayU16** allBuckets = Buckets.Items;
+            if (allBuckets == null) // destroyed
+                return;
+
+            var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
+            Vector2 topleft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
+            Vector2 botright = screen.UnprojectToWorldPosition(screenSize);
+
+            int cellSize = CellSize;
+            int width    = Width;
+            int height   = Height;
+            int minX = (int)((topleft.X  - UpperLeftBound.X) / cellSize);
+            int maxX = (int)((botright.X - UpperLeftBound.X) / cellSize);
+            int minY = (int)((topleft.Y  - UpperLeftBound.Y) / cellSize);
+            int maxY = (int)((botright.Y - UpperLeftBound.Y) / cellSize);
+            if (minX < 0) minX = 0; else if (minX >= width)  minX = width  - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width  - 1;
+            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+
+            Vector2 cellrect   = new Vector2(cellSize, cellSize);
+            Vector2 celloffset = UpperLeftBound + cellrect*0.5f;
+
+            for (int y = minY; y <= maxY; ++y)
+            {
+                for (int x = minX; x <= maxX; ++x)
+                {
+                    PoolArrayU16* bucket = allBuckets[y * width + x];
+                    if (bucket == null)
+                        continue;
+
+                    Vector2 cellpos = celloffset + new Vector2(x,y)*cellSize;
+                    screen.DrawRectangleProjected(cellpos, cellrect, 0f, Color.SandyBrown, 2f);
+
+                    for (int i = 0; i < bucket->Count; ++i)
+                    {
+                        GameplayObject go = AllObjects[bucket->Items[i]];
+                        if (go == null) // this is allowed by object removal rules
+                            continue;
+                        screen.DrawRectangleProjected(go.Center, new Vector2(go.Radius*2, go.Radius*2), 0f, Color.MediumVioletRed);
+                    }
+                }
+            }
         }
 
         private static bool IsSpatialType(GameplayObject obj)
@@ -388,12 +429,10 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            // this can happen if a ship is performing FTL, so it jumps out of the Solar system
-            // best course of action is to just ignore it and not insert into buckets
+            // best course of action is to just ignore it and not insert into buckets... ?
             if (numInsertions == 0)
             {
-                if (System != null && System.Position.InRadius(obj.Position, 100000f))
-                    Log.Error("SpatialManager logic error: object {0} is outside of system grid {1}", obj, System);
+                Log.Error("SpatialManager logic error: object {0} is outside of grid", obj);
             }
         }
 

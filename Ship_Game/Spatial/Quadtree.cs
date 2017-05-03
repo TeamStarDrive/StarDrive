@@ -503,14 +503,14 @@ namespace Ship_Game
         {
             var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
             var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
-            screen.DrawRectangleProjected(center, size, 0f, Color.RosyBrown, 2f);
+            screen.DrawRectangleProjected(center, size, 0f, Color.SandyBrown, 2f);
 
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
                 var ocenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
                 var osize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
-                screen.DrawRectangleProjected(ocenter, osize, 0f, Color.PaleVioletRed);
+                screen.DrawRectangleProjected(ocenter, osize, 0f, Color.MediumVioletRed);
             }
             if (node.NW != null)
             {
@@ -523,8 +523,9 @@ namespace Ship_Game
 
         public void DebugVisualize(UniverseScreen screen)
         {
+            var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
             Vector2 topleft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
-            Vector2 botright = screen.UnprojectToWorldPosition(new Vector2(screen.Viewport.Width, screen.Viewport.Height));
+            Vector2 botright = screen.UnprojectToWorldPosition(screenSize);
             DebugVisualize(screen, ref topleft, ref botright, Root);
         }
     }
