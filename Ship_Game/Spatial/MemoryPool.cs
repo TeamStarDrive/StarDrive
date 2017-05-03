@@ -227,25 +227,4 @@ namespace Ship_Game
             }
         }
     }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    [DebuggerDisplay("Count = {Count}")]
-    public unsafe struct PoolArraySpatialObj
-    {
-        public int Count;
-        public int Capacity;
-        public SpatialObj** Items;
-
-        public SpatialObj*[] ItemsArray
-        {
-            get
-            {
-                var items = new SpatialObj*[Count];
-                for (int i = 0; i < items.Length; ++i)
-                    items[i] = Items[i];
-                return items;
-            }
-        }
-    }
-
 }
