@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -11,10 +12,17 @@ namespace Ship_Game
         public int Loyalty; // if loyalty == 0, then this is a STATIC world object !!!
         public int LastCollided;
 
+        public float Cx, Cy, Radius;
+        public GameObjectType Type;
+
+        public bool Is(GameObjectType flags) => (Type & flags) != 0;
+
         public SpatialObj(GameplayObject go)
         {
-            Obj = go;
-            if (go.Is(GameObjectType.Beam))
+            Obj    = go;
+            Type   = go.Type;
+
+            if ((Type & GameObjectType.Beam) != 0)
             {
                 var beam = (Beam)go;
                 Vector2 source = beam.Source;
@@ -23,24 +31,27 @@ namespace Ship_Game
                 Y     = Math.Min(source.Y, target.Y);
                 LastX = Math.Max(source.X, target.X);
                 LastY = Math.Max(source.Y, target.Y);
+                Cx = Cy = Radius = 0f;
             }
             else
             {
-                X     = Obj.Center.X - Obj.Radius;
-                Y     = Obj.Center.Y - Obj.Radius;
-                LastX = Obj.Center.X + Obj.Radius;
-                LastY = Obj.Center.Y + Obj.Radius;
+                Cx = Obj.Center.X;
+                Cy = Obj.Center.Y;
+                Radius   = Obj.Radius;
+                X        = Cx - Radius;
+                Y        = Cy - Radius;
+                LastX    = Cx + Radius;
+                LastY    = Cy + Radius;
             }
-
-            if      (go.Is(GameObjectType.Ship))       Loyalty = ((Ship)go).loyalty.Id;
-            else if (go.Is(GameObjectType.Projectile)) Loyalty = ((Projectile)go).Loyalty.Id;
-            else                                       Loyalty = 0;
+            if ((Type & GameObjectType.Projectile) != 0) Loyalty = ((Projectile)go).Loyalty.Id;
+            else if ((Type & GameObjectType.Ship) != 0)  Loyalty = ((Ship)go).loyalty.Id;
+            else                                         Loyalty = 0;
             LastCollided = 0;
         }
 
         public void UpdateBounds() // Update SpatialObj bounding box
         {
-            if ((Obj.Type & GameObjectType.Beam) != 0)
+            if ((Type & GameObjectType.Beam) != 0)
             {
                 var beam = (Beam)Obj;
                 Vector2 source = beam.Source;
@@ -52,11 +63,51 @@ namespace Ship_Game
             }
             else
             {
-                X     = Obj.Center.X - Obj.Radius;
-                Y     = Obj.Center.Y - Obj.Radius;
-                LastX = Obj.Center.X + Obj.Radius;
-                LastY = Obj.Center.Y + Obj.Radius;
+                Cx = Obj.Center.X;
+                Cy = Obj.Center.Y;
+                Radius   = Obj.Radius;
+                X        = Cx - Radius;
+                Y        = Cy - Radius;
+                LastX    = Cx + Radius;
+                LastY    = Cy + Radius;
             }
+        }
+
+        private bool Overlaps(ref SpatialObj b)
+        {
+            return X <= b.LastX && LastX > b.X
+                && Y <= b.LastY && LastY > b.Y;
+        }
+
+        private bool BeamHitTest(ref SpatialObj target)
+        {
+            if (!this.Overlaps(ref target))
+                return false;
+            var obj = (Beam)Obj;
+            return new Vector2(target.Cx, target.Cy)
+                .RayHitTestCircle(target.Radius, obj.Source, obj.Destination, rayWidth: 8.0f);
+        }
+
+        private bool HitTestBeams(ref SpatialObj beam)
+        {
+            // @todo Add Beam <-> Beam redirected collision in the future
+            return false;
+        }
+
+        public bool HitTest(ref SpatialObj b)
+        {
+            bool beamA = Is(GameObjectType.Beam);
+            bool beamB = b.Is(GameObjectType.Beam);
+            if (beamA || beamB)
+            {
+                if (beamA && beamB)
+                    return false; // HitTestBeams(ref b);
+                return beamA ? BeamHitTest(ref b) : b.BeamHitTest(ref this);
+            }
+            float dx = Cx - b.Cx;
+            float dy = Cy - b.Cy;
+            float ra = Radius, rb = b.Radius;
+            return (dx*dx + dy*dy) < (ra*ra + rb*rb);
         }
     }
 
@@ -108,6 +159,12 @@ namespace Ship_Game
                 last.Obj = null;
                 if (Count == 0) Items = NoObjects;
             }
+
+            public bool Overlaps(ref Vector2 topleft, ref Vector2 topright)
+            {
+                return X <= topright.X && LastX > topleft.X
+                    && Y <= topright.Y && LastY > topleft.Y;
+            }
         }
 
         // Create a quadtree to fit the universe
@@ -136,17 +193,6 @@ namespace Ship_Game
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
             Root = new Node(null, -half, -half, +half, +half);
-        }
-
-        private static bool HitTest(ref SpatialObj a, ref SpatialObj b)
-        {
-            float ra  = (a.LastX - a.X) / 2;
-            float rb  = (b.LastX - b.X) / 2;
-            float acx = a.X + ra, acy = a.Y + ra;
-            float bcx = b.X + rb, bcy = b.Y + rb;
-            float dx  = acx - bcx;
-            float dy  = acy - bcy;
-            return (dx*dx + dy*dy) < (ra*ra + rb*rb);
         }
 
         private static void SplitNode(Node node, int level)
@@ -331,7 +377,7 @@ namespace Ship_Game
                     if (frameId      != item.LastCollided && // already collided this frame
                         item.Loyalty != obj.Loyalty       && // friendlies don't collide
                         item.Obj     != obj.Obj           && // ignore self
-                        HitTest(ref item, ref obj)) // actual radial distance check
+                        item.HitTest(ref obj)) // actual collision test
                     {
                         collided = item.Obj;
                         item.LastCollided = frameId;
@@ -437,7 +483,7 @@ namespace Ship_Game
                         if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
                             continue; // no filter match
 
-                        if (HitTest(ref nearbyDummy, ref so))
+                        if (nearbyDummy.HitTest(ref so))
                             nearby[numNearby++] = so.Obj;
                     }
 
@@ -453,9 +499,33 @@ namespace Ship_Game
             return nearby;
         }
 
+        private static void DebugVisualize(UniverseScreen screen, ref Vector2 topleft, ref Vector2 botright, Node node)
+        {
+            var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
+            var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
+            screen.DrawRectangleProjected(center, size, 0f, Color.RosyBrown, 2f);
+
+            for (int i = 0; i < node.Count; ++i)
+            {
+                ref SpatialObj so = ref node.Items[i];
+                var ocenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
+                var osize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
+                screen.DrawRectangleProjected(ocenter, osize, 0f, Color.PaleVioletRed);
+            }
+            if (node.NW != null)
+            {
+                if (node.NW.Overlaps(ref topleft, ref botright)) DebugVisualize(screen, ref topleft, ref botright, node.NW);
+                if (node.NE.Overlaps(ref topleft, ref botright)) DebugVisualize(screen, ref topleft, ref botright, node.NE);
+                if (node.SE.Overlaps(ref topleft, ref botright)) DebugVisualize(screen, ref topleft, ref botright, node.SE);
+                if (node.SW.Overlaps(ref topleft, ref botright)) DebugVisualize(screen, ref topleft, ref botright, node.SW);
+            }
+        }
+
         public void DebugVisualize(UniverseScreen screen)
         {
-            
+            Vector2 topleft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
+            Vector2 botright = screen.UnprojectToWorldPosition(new Vector2(screen.Viewport.Width, screen.Viewport.Height));
+            DebugVisualize(screen, ref topleft, ref botright, Root);
         }
     }
 }
