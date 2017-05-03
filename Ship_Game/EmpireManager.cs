@@ -30,8 +30,11 @@ namespace Ship_Game
         public static void Add(Empire e)
         {
             // avoid duplicate entries, due to some bad design code structuring...
-            if (!EmpireList.Contains(e)) 
+            if (!EmpireList.Contains(e))
+            {
                 EmpireList.Add(e);
+                e.Id = EmpireList.Count;
+            }
         }
         public static void Clear()
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -59,6 +60,9 @@ namespace Ship_Game
         {
             Type = typeFlags;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
         public virtual bool Damage(GameplayObject source, float damageAmount)
         {

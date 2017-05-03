@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -9,11 +10,53 @@ namespace Ship_Game
         public float X, Y, LastX, LastY;
         public int Loyalty; // if loyalty == 0, then this is a STATIC world object !!!
         public int LastCollided;
-        public int TypeFlags;
 
-        public void UpdateBounds()
+        public SpatialObj(GameplayObject go)
         {
-            
+            Obj = go;
+            if (go.Is(GameObjectType.Beam))
+            {
+                var beam = (Beam)go;
+                Vector2 source = beam.Source;
+                Vector2 target = beam.Destination;
+                X     = Math.Min(source.X, target.X);
+                Y     = Math.Min(source.Y, target.Y);
+                LastX = Math.Max(source.X, target.X);
+                LastY = Math.Max(source.Y, target.Y);
+            }
+            else
+            {
+                X     = Obj.Center.X - Obj.Radius;
+                Y     = Obj.Center.Y - Obj.Radius;
+                LastX = Obj.Center.X + Obj.Radius;
+                LastY = Obj.Center.Y + Obj.Radius;
+            }
+
+            if      (go.Is(GameObjectType.Ship))       Loyalty = ((Ship)go).loyalty.Id;
+            else if (go.Is(GameObjectType.Projectile)) Loyalty = ((Projectile)go).Loyalty.Id;
+            else                                       Loyalty = 0;
+            LastCollided = 0;
+        }
+
+        public void UpdateBounds() // Update SpatialObj bounding box
+        {
+            if ((Obj.Type & GameObjectType.Beam) != 0)
+            {
+                var beam = (Beam)Obj;
+                Vector2 source = beam.Source;
+                Vector2 target = beam.Destination;
+                X     = Math.Min(source.X, target.X);
+                Y     = Math.Min(source.Y, target.Y);
+                LastX = Math.Max(source.X, target.X);
+                LastY = Math.Max(source.Y, target.Y);
+            }
+            else
+            {
+                X     = Obj.Center.X - Obj.Radius;
+                Y     = Obj.Center.Y - Obj.Radius;
+                LastX = Obj.Center.X + Obj.Radius;
+                LastY = Obj.Center.Y + Obj.Radius;
+            }
         }
     }
 
@@ -95,30 +138,6 @@ namespace Ship_Game
             Root = new Node(null, -half, -half, +half, +half);
         }
 
-        private static bool Overlaps(Node n, ref SpatialObj b)
-        {
-            return n.X <= b.LastX && n.LastX > b.X
-                && n.Y <= b.LastY && n.LastY > b.Y;
-        }
-
-        private static bool Overlaps(ref SpatialObj a, ref SpatialObj b)
-        {
-            return a.X <= b.LastX && a.LastX > b.X
-                && a.Y <= b.LastY && a.LastY > b.Y;
-        }
-
-        // squared distance; if negative, we have a collision
-        private static float DistanceTo(ref SpatialObj a, ref SpatialObj b)
-        {
-            float ra  = (a.LastX - a.X) / 2;
-            float rb  = (b.LastX - b.X) / 2;
-            float acx = a.X + ra, acy = a.Y + ra;
-            float bcx = b.X + rb, bcy = b.Y + rb;
-            float dx  = acx - bcx;
-            float dy  = acy - bcy;
-            return (dx*dx + dy*dy) - (ra*ra + rb*rb);
-        }
-
         private static bool HitTest(ref SpatialObj a, ref SpatialObj b)
         {
             float ra  = (a.LastX - a.X) / 2;
@@ -197,15 +216,7 @@ namespace Ship_Game
 
         public void Insert(GameplayObject go)
         {
-            var obj = new SpatialObj
-            {
-                Obj   = go,
-                X     = go.Center.X - go.Radius,
-                Y     = go.Center.Y - go.Radius,
-                LastX = go.Center.X + go.Radius,
-                LastY = go.Center.Y + go.Radius,
-                Loyalty = 0,
-            };
+            var obj = new SpatialObj(go);
             InsertAt(Root, Levels, ref obj);
         }
 
@@ -238,18 +249,13 @@ namespace Ship_Game
                     if (obj.Loyalty == 0)
                         continue; // seems to be a static world object, so don't bother updating
 
-                    GameplayObject go = obj.Obj;
-                    if (go.Active == false)
+                    if (obj.Obj.Active == false)
                     {
                         node.RemoveAtSwapLast(i--);
                         continue;
                     }
 
-                    // Update SpatialObj bounding box
-                    obj.X     = go.Center.X - go.Radius;
-                    obj.Y     = go.Center.Y - go.Radius;
-                    obj.LastX = go.Center.X + go.Radius;
-                    obj.LastY = go.Center.Y + go.Radius;
+                    obj.UpdateBounds();
 
                     if (obj.X < nx || obj.Y < ny || // out of Node bounds??
                         obj.LastX > nlastX || obj.LastY > nlastY)
@@ -345,22 +351,22 @@ namespace Ship_Game
             }
         }
 
-        // finds the nearest collision
-        public bool CheckCollision(Vector2 pos, float radius, int loyalty, out GameplayObject collided)
-        {
-            var obj = new SpatialObj // dummy object to simplify our search interface
-            {
-                X     = pos.X - radius,
-                Y     = pos.Y - radius,
-                LastX = pos.X + radius,
-                LastY = pos.Y + radius,
-                Loyalty = loyalty,
-            };
-            Node node = FindEnclosingNode(ref obj);
-            if (node != null) return CollideAtNode(node, FrameId, ref obj, out collided);
-            collided = null;
-            return false;
-        }
+        //// finds the nearest collision
+        //public bool CheckCollision(Vector2 pos, float radius, int loyalty, out GameplayObject collided)
+        //{
+        //    var nearbyDummy = new SpatialObj // dummy object to simplify our search interface
+        //    {
+        //        X     = pos.X - radius,
+        //        Y     = pos.Y - radius,
+        //        LastX = pos.X + radius,
+        //        LastY = pos.Y + radius,
+        //        Loyalty = loyalty,
+        //    };
+        //    Node node = FindEnclosingNode(ref nearbyDummy);
+        //    if (node != null) return CollideAtNode(node, FrameId, ref nearbyDummy, out collided);
+        //    collided = null;
+        //    return false;
+        //}
 
         private static void CollideAllAt(Node node, int frameId, Array<SpatialCollision> results)
         {
@@ -403,7 +409,7 @@ namespace Ship_Game
             int numNearby = 0;
             GameplayObject[] nearby = Empty<GameplayObject>.Array;
 
-            var obj = new SpatialObj // dummy object to simplify our search interface
+            var nearbyDummy = new SpatialObj // dummy object to simplify our search interface
             {
                 X     = pos.X - radius,
                 Y     = pos.Y - radius,
@@ -412,7 +418,7 @@ namespace Ship_Game
             };
 
             // find the deepest enclosing node
-            Node node = FindEnclosingNode(ref obj);
+            Node node = FindEnclosingNode(ref nearbyDummy);
 
             // now work back upwards
             while (node != null)
@@ -431,7 +437,7 @@ namespace Ship_Game
                         if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
                             continue; // no filter match
 
-                        if (HitTest(ref obj, ref so))
+                        if (HitTest(ref nearbyDummy, ref so))
                             nearby[numNearby++] = so.Obj;
                     }
 
