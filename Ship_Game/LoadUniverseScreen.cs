@@ -980,7 +980,6 @@ namespace Ship_Game
                 return;
 
             SolarSystem system = data.SolarSystemsList[systemToMake];
-            system.spatialManager.SetupForSystem(GameScale, system);
             percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
             foreach (Planet p in system.PlanetList)
             {
