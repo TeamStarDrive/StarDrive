@@ -159,31 +159,6 @@ namespace Ship_Game
             }
             return grid;
         }
-
-        public void ArrayAdd(PoolArraySpatialObj* array, SpatialObj* obj)
-        {
-            if (array->Items == null)
-            {
-                array->Count    = 0;
-                array->Capacity = Quadtree.CellThreshold;
-                array->Items    = (SpatialObj**)Alloc(sizeof(SpatialObj*) * Quadtree.CellThreshold);
-            }
-            else if (array->Count == array->Capacity)
-            {
-                array->Capacity *= 2;
-
-                var oldItems = array->Items;
-                var newItems = (SpatialObj**)Alloc(sizeof(SpatialObj*) * array->Capacity);
-
-                int count = array->Count;
-                for (int i = 0; i < count; ++i)
-                    newItems[i] = oldItems[i];
-
-                array->Items = newItems;
-            }
-
-            array->Items[array->Count++] = obj;
-        }
     }
 
     // custom dynamic array for ushort values, this is an 'inline array', memory layout:

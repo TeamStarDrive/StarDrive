@@ -238,6 +238,10 @@ namespace Ship_Game.Gameplay
     [XmlType("ShipModule")]
     public sealed class ShipModule_Deserialize : GameplayObject
     {
+        public ShipModule_Deserialize() : base(GameObjectType.ShipModule)
+        {
+        }
+
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
         public int XSIZE = 1;

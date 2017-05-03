@@ -12,7 +12,7 @@ namespace Ship_Game.Gameplay
     public sealed partial class Ship
     {
         // The only way to spawn instances of Ship is to call Ship.CreateShip... overloads
-        private Ship()
+        private Ship() : base(GameObjectType.Ship)
         {
         }
 
