@@ -69,34 +69,31 @@ namespace Ship_Game
             return false;
         }
 
+        public virtual void Initialize()
+        {
+            if (SpatialIndex == -1) // not assigned to a SpatialManager yet?
+                ActiveSpatialManager.Add(this);
+        }
+
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
+            if (SpatialIndex != -1)
+                ActiveSpatialManager.Remove(this);
         }
 
         [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";
 
         [XmlIgnore][JsonIgnore] 
-        public SpatialManager ActiveSpatialManager => SpatialManagerForSystem(System);
+        public SpatialManager ActiveSpatialManager => UniverseScreen.DeepSpaceManager;
 
-        public static SpatialManager SpatialManagerForSystem(SolarSystem system)
-            => UniverseScreen.DeepSpaceManager;
-
-        public T[] GetNearby<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, Radius);        
+        public T[] GetNearby<T>() where T : GameplayObject => ActiveSpatialManager.GetNearby<T>(Position, Radius);        
 
         public void SetSystem(SolarSystem system)
         {
             if (System == system)
-            {
-                if (SpatialIndex == -1) // not assigned to a SpatialManager yet?
-                    SpatialManagerForSystem(system).Add(this);
                 return;
-            }
-
-            // remove from old manager if it's assigned to a SpatialManager
-            if (SpatialIndex != -1)
-                SpatialManagerForSystem(System).Remove(this);
 
             if (this is Ship ship)
             {
@@ -104,14 +101,8 @@ namespace Ship_Game
                 system?.ShipList.AddUnique(ship);
             }
             System = system;
-
-            // insert to new system OR deep space spatial managers:
-            SpatialManagerForSystem(system).Add(this);
         }
 
-        public virtual void Initialize()
-        {
-        }
 
         public virtual bool Touch(GameplayObject target)
         {
@@ -121,10 +112,6 @@ namespace Ship_Game
         public virtual void Update(float elapsedTime)
         {
             CollidedThisFrame = false;
-        }
-
-        public void UpdateSystem(float elapsedTime)
-        {
         }
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
