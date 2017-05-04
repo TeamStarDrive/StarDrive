@@ -203,7 +203,7 @@ namespace Ship_Game.Gameplay
 
         public float FTLModifier { get; private set; } = 1f;
 
-        public T[] GetObjectsInSensors<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, SensorRange);
+        public T[] GetObjectsInSensors<T>() where T : GameplayObject => ActiveSpatialManager.GetNearby<T>(Position, SensorRange);
 
         public bool IsInNeutralSpace
         {
@@ -1632,7 +1632,6 @@ namespace Ship_Game.Gameplay
                 InitializeAI();
             AI.CombatState = template.shipData.CombatState;
             InitExternalSlots();
-            //this.hyperspace = (Cue)null;   //Removed to save space, because this is set to null in ship initilizers, and never reassigned. -Gretman
             base.Initialize();
             foreach (ShipModule module in ModuleSlotList)
             {
@@ -3689,7 +3688,7 @@ namespace Ship_Game.Gameplay
                     default:                            ExplodeShip(600f, cleanupOnly); break;
                 }
 
-                SpatialManagerForSystem(System).ShipExplode(this, Size * 50, Center, Radius);
+                ActiveSpatialManager.ShipExplode(this, Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {
