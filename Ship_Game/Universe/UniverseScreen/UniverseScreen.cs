@@ -245,6 +245,10 @@ namespace Ship_Game
         // for really specific debuggingD
         public static int FrameId;
 
+        private UniverseScreen() : base(null)
+        {
+        }
+
         public UniverseScreen(UniverseData data) : base(null)
         {
             Size                        = data.Size;
@@ -258,6 +262,7 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
             PlayerEmpire.isPlayer       = true;
+            DeepSpaceManager.Setup(Size.X, Size.Y);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
@@ -275,6 +280,7 @@ namespace Ship_Game
             ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
+            DeepSpaceManager.Setup(Size.X, Size.Y);
         }
 
         public void SetLighting(bool real)
@@ -292,14 +298,14 @@ namespace Ship_Game
                 return;
             }
 
-            LightRig rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
+            var rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
             lock (GlobalStats.ObjectManagerLocker)
                 ScreenManager.inter.LightManager.Submit(rig);
         }
 
         private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
         {
-            PointLight light = new PointLight
+            var light = new PointLight
             {
                 DiffuseColor = new Vector3(1f, 1f, 0.85f),
                 Intensity    = intensity,
@@ -357,8 +363,6 @@ namespace Ship_Game
                 Stars.Add(nebulousOverlay);
             }
             LoadGraphics();
-
-            DeepSpaceManager.Setup(Size.X, Size.Y);
 
             DoParticleLoad();
             bg3d = new Background3D(this);

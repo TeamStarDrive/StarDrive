@@ -39,20 +39,15 @@ namespace Ship_Game.Gameplay
             Log.Info("SpatialManager universeSize: {0}x{1}  grid: {2}x{3}  size: {4}",
                 universeWidth, universeHeight, Width, Height, Buckets.Count);
 
-            if (UseQuadTree)
-            {
-                float universeSize = Math.Max(universeWidth, universeHeight);
-                QuadTree = new Quadtree(universeSize);
-            }
-            else
-            {
-                if (MemoryPool == null)
-                    MemoryPool = new DynamicMemoryPool();
-                else
-                    MemoryPool.Reset();
+            float universeSize = Math.Max(universeWidth, universeHeight);
+            QuadTree = new Quadtree(universeSize);
 
-                Buckets = MemoryPool.NewArrayGrid(Width * Height);
-            }
+            if (MemoryPool == null)
+                MemoryPool = new DynamicMemoryPool();
+            else
+                MemoryPool.Reset();
+
+            Buckets = MemoryPool.NewArrayGrid(Width * Height);
         }
 
         public void Destroy()
@@ -86,6 +81,9 @@ namespace Ship_Game.Gameplay
 
         public void DebugVisualize(UniverseScreen screen)
         {
+            //QuadTree.DebugVisualize(screen);
+            //return;
+
             PoolArrayU16** allBuckets = Buckets.Items;
             if (allBuckets == null) // destroyed
                 return;
@@ -166,7 +164,7 @@ namespace Ship_Game.Gameplay
             obj.SpatialIndex = idx;
             AllObjects.Add(obj);
 
-            QuadTree.Insert(obj);
+            //QuadTree.Insert(obj);
             if (Buckets.Count > 0) PlaceIntoBucket(obj, idx);
         }
 
@@ -182,7 +180,7 @@ namespace Ship_Game.Gameplay
             if (idx == -1)
                 return; // not in any SpatialManagers, so Remove is no-op
 
-            QuadTree.Remove(obj);
+            //QuadTree.Remove(obj);
             RemoveByIndex(obj, idx);
         }
 
@@ -224,7 +222,7 @@ namespace Ship_Game.Gameplay
             {
                 BucketUpdateTimer = 0.0f;
 
-                QuadTree.UpdateAll();
+                //QuadTree.UpdateAll();
                 RebuildBuckets();
             }
 
