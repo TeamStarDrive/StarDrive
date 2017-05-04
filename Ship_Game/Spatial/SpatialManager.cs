@@ -2,6 +2,8 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+#pragma warning disable 162
 
 namespace Ship_Game.Gameplay
 {
@@ -21,20 +23,35 @@ namespace Ship_Game.Gameplay
         private int CellSize;
         private DynamicMemoryPool MemoryPool;
 
-        private void Setup(float sceneWidth, float sceneHeight, float cellSize, float centerX, float centerY)
+        private const bool UseQuadTree = false;
+        private Quadtree QuadTree;
+        private readonly Array<SpatialCollision> Collisions = new Array<SpatialCollision>();
+
+        public void Setup(float universeWidth, float universeHeight)
         {
-            UpperLeftBound.X = centerX - (sceneWidth  / 2f);
-            UpperLeftBound.Y = centerY - (sceneHeight / 2f);
-            Width            = (int)sceneWidth  / (int)cellSize;
-            Height           = (int)sceneHeight / (int)cellSize;
+            const float cellSize = 4000f;
+            Log.Info("SpatialManager universeSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Buckets.Count);
+
+            UpperLeftBound.X = 0f - (universeWidth  / 2f);
+            UpperLeftBound.Y = 0f - (universeHeight / 2f);
+            Width            = (int)universeWidth  / (int)cellSize;
+            Height           = (int)universeHeight / (int)cellSize;
             CellSize         = (int)cellSize;
 
-            if (MemoryPool == null)
-                MemoryPool = new DynamicMemoryPool();
+            if (UseQuadTree)
+            {
+                float universeSize = Math.Max(universeWidth, universeHeight);
+                QuadTree = new Quadtree(universeSize);
+            }
             else
-                MemoryPool.Reset();
+            {
+                if (MemoryPool == null)
+                    MemoryPool = new DynamicMemoryPool();
+                else
+                    MemoryPool.Reset();
 
-            Buckets = MemoryPool.NewArrayGrid(Width * Height);
+                Buckets = MemoryPool.NewArrayGrid(Width * Height);
+            }
         }
 
         public void Destroy()
@@ -47,6 +64,7 @@ namespace Ship_Game.Gameplay
             MemoryPool?.Dispose(ref MemoryPool);
             Buckets.Count = 0;
             Buckets.Items = null;
+            Collisions.Clear();
         }
 
         private void ClearBuckets()
@@ -63,18 +81,6 @@ namespace Ship_Game.Gameplay
         ~SpatialManager()
         {
             Destroy();
-        }
-
-        public void SetupForDeepSpace(float universeRadiusX, float universeRadiusY)
-        {
-            float gameScale = Empire.Universe.GameScale;
-
-            // assuming universe size uses radius...
-            float universeWidth  = universeRadiusX * 2;
-            float universeHeight = universeRadiusY * 2;
-            const float cellSize = 5000f;
-            Setup(universeWidth, universeHeight, cellSize * gameScale, 0f, 0f);
-            Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Buckets.Count);
         }
 
         public void DebugVisualize(UniverseScreen screen)
@@ -159,7 +165,14 @@ namespace Ship_Game.Gameplay
             obj.SpatialIndex = idx;
             AllObjects.Add(obj);
 
-            if (Buckets.Count > 0) PlaceIntoBucket(obj, idx);
+            if (UseQuadTree)
+            {
+                QuadTree.Insert(obj);
+            }
+            else
+            {
+                if (Buckets.Count > 0) PlaceIntoBucket(obj, idx);
+            }
         }
 
         public void Remove(GameplayObject obj)
@@ -174,13 +187,14 @@ namespace Ship_Game.Gameplay
             if (idx == -1)
                 return; // not in any SpatialManagers, so Remove is no-op
 
-            if (idx != -1 && !Contains(obj))
+            if (UseQuadTree)
             {
-                Log.Error("SpatialManager cannot remove object {0} because it's in another SpatialManager", obj);
-                return;
+                QuadTree.Remove(obj);
             }
-
-            RemoveByIndex(obj, idx);
+            else
+            {
+                RemoveByIndex(obj, idx);
+            }
         }
 
         private void RemoveByIndex(GameplayObject obj, int index)
@@ -215,24 +229,45 @@ namespace Ship_Game.Gameplay
         public void Update(float elapsedTime, SolarSystem system)
         {
             BucketUpdateTimer += elapsedTime;
+
+
             if (BucketUpdateTimer >= 0.5f) // update all buckets
             {
                 BucketUpdateTimer = 0.0f;
-                RebuildBuckets();
+
+                if (UseQuadTree)
+                {
+                    QuadTree.UpdateAll();
+                }
+                else
+                {
+                    RebuildBuckets();
+                }
             }
 
-            // move and collide projectiles/beams:
-            for (int i = 0; i < Projectiles.Count; ++i)
+
+            if (UseQuadTree)
             {
-                Projectile projectile = Projectiles[i];
-                if (projectile.Active)
-                    MoveAndCollide(projectile);
+                if (QuadTree.CollideAll(Collisions))
+                {
+                    HandleCollisions(Collisions.GetInternalArrayItems(), Collisions.Count);
+                }
             }
-            for (int i = 0; i < Beams.Count; ++i)
+            else
             {
-                Beam beam = Beams[i];
-                if (beam.Active)
-                    CollideBeam(beam);
+                // move and collide projectiles/beams:
+                for (int i = 0; i < Projectiles.Count; ++i)
+                {
+                    Projectile projectile = Projectiles[i];
+                    if (projectile.Active)
+                        MoveAndCollide(projectile);
+                }
+                for (int i = 0; i < Beams.Count; ++i)
+                {
+                    Beam beam = Beams[i];
+                    if (beam.Active)
+                        CollideBeam(beam);
+                }
             }
         }
 
@@ -433,6 +468,27 @@ namespace Ship_Game.Gameplay
             if (numInsertions == 0)
             {
                 Log.Error("SpatialManager logic error: object {0} is outside of grid", obj);
+            }
+        }
+
+        private static void HandleCollisions(SpatialCollision[] collisions, int count)
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                SpatialCollision co = collisions[i];
+                GameplayObject a = co.Obj1, b = co.Obj2;
+                if (b is Projectile)
+                {
+                    var c = a; // swap to prefer A as a projectile
+                    a = b;
+                    b = c;
+                }
+
+                if (a.Touch(b) || b.Touch(a))
+                {
+                    a.CollidedThisFrame = true;
+                    b.CollidedThisFrame = true;
+                }
             }
         }
 

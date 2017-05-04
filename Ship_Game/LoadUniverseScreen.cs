@@ -366,7 +366,6 @@ namespace Ship_Game
                     continue;
                 }
 
-                ship.UpdateSystem(0f);
                 if (ship.loyalty != EmpireManager.Player)
                 {
                     if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);

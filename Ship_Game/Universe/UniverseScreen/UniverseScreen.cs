@@ -358,7 +358,7 @@ namespace Ship_Game
             }
             LoadGraphics();
 
-            DeepSpaceManager.SetupForDeepSpace(Size.X, Size.Y);
+            DeepSpaceManager.Setup(Size.X, Size.Y);
 
             DoParticleLoad();
             bg3d = new Background3D(this);

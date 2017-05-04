@@ -32,6 +32,7 @@ namespace Ship_Game.Gameplay
                 World = Matrix.CreateScale(scale)*Matrix.CreateTranslation(new Vector3(Position, 2500f))
             };
             Radius = So.ObjectBoundingSphere.Radius * scale * 0.65f;
+            base.Initialize();
         }
 
         public void UpdatePosition(float elapsedTime)
