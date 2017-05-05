@@ -71,7 +71,7 @@ namespace Ship_Game
 
         public virtual void Initialize()
         {
-            if (SpatialIndex == -1) // not assigned to a SpatialManager yet?
+            if (SpatialIndex == -1 && Empire.Universe != null) // not assigned to a SpatialManager yet?
                 ActiveSpatialManager.Add(this);
         }
 
@@ -112,6 +112,8 @@ namespace Ship_Game
         public virtual void Update(float elapsedTime)
         {
             CollidedThisFrame = false;
+            if (SpatialIndex == -1 && Active && Empire.Universe != null)
+                ActiveSpatialManager.Add(this);
         }
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
