@@ -218,10 +218,10 @@ namespace Ship_Game.Gameplay
             {
                 BucketUpdateTimer = 0.0f;
 
-                QuadTree.UpdateAll();
                 RebuildBuckets();
             }
 
+            QuadTree.UpdateAll();
 
             if (UseQuadTree)
             {

@@ -285,7 +285,7 @@ namespace Ship_Game
 
         public static bool CantPlaySfx(string cueName)
         {
-            const int frameSfxLimit = 2; // @ 60fps, this is max 120 samples per minute
+            const int frameSfxLimit = 1; // @ 60fps, this is max 60 samples per second
             return AudioDisabled || EffectsDisabled || ThisFrameSfxCount > frameSfxLimit || cueName.IsEmpty();
         }
 
