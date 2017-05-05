@@ -85,7 +85,7 @@ namespace SynapseGaming.LightingSystem.Core
       foreach (KeyValuePair<TKey, OcclusionQueryHelper<TKey>.Class20> keyValuePair in this.dictionary_0)
       {
         BoundingBox boundingBox0 = keyValuePair.Value.boundingBox_0;
-        BoundingBox boundingBox = Class13.smethod_7(boundingBox0, detectionpadding);
+        BoundingBox boundingBox = CoreUtils.smethod_7(boundingBox0, detectionpadding);
         keyValuePair.Value.bool_0 = boundingBox.Intersects(near) == PlaneIntersectionType.Intersecting;
         if (!keyValuePair.Value.bool_0)
         {

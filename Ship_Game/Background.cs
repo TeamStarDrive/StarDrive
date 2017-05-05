@@ -220,9 +220,9 @@ namespace Ship_Game
 			Viewport viewport3 = universe.Viewport;
             Vector3 UpperLeft = viewport3.Project(Vector3.Zero, universe.projection, universe.view, Matrix.Identity);
 			Viewport viewport4 = universe.Viewport;
-			Vector3 LowerRight = viewport4.Project(new Vector3(universe.Size.X, universe.Size.Y, 0f), universe.projection, universe.view, Matrix.Identity);
+			Vector3 LowerRight = viewport4.Project(new Vector3(universe.UniverseRadius, universe.UniverseRadius, 0f), universe.projection, universe.view, Matrix.Identity);
 			Viewport viewport5 = universe.Viewport;
-			viewport5.Project(new Vector3(universe.Size.X / 2f, universe.Size.Y / 2f, 0f), universe.projection, universe.view, Matrix.Identity);
+			viewport5.Project(new Vector3(universe.UniverseRadius / 2f, universe.UniverseRadius / 2f, 0f), universe.projection, universe.view, Matrix.Identity);
 			Rectangle drawRect = new Rectangle((int)UpperLeft.X, (int)UpperLeft.Y, (int)LowerRight.X - (int)UpperLeft.X, (int)LowerRight.Y - (int)UpperLeft.Y);
 			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["galaxy"], drawRect, Color.White);
 			universe.ScreenManager.SpriteBatch.End();

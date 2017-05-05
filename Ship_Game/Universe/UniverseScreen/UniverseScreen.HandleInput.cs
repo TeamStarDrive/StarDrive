@@ -23,9 +23,9 @@ namespace Ship_Game
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                 {
                     Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
-                    float num = MinimapDisplayRect.Width / (Size.X * 2);
-                    transitionDestination.X = -Size.X + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
-                    transitionDestination.Y = -Size.X + (pos.Y / num);
+                    float num = MinimapDisplayRect.Width / (UniverseRadius * 2);
+                    transitionDestination.X = -UniverseRadius + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
+                    transitionDestination.Y = -UniverseRadius + (pos.Y / num);
                     snappingToShip = false;
                     ViewingShip = false;
                 }
@@ -58,8 +58,8 @@ namespace Ship_Game
             mouseWorldPos = UnprojectToWorldPosition(input.MouseScreenPos);
             if (input.DeepSpaceBuildWindow) InputOpenDeepSpaceBuildWindow();
 
-            if (input.FTLOverlay) ToggleUIComponent("sd_ui_accept_alt3", ref showingFTLOverlay);
-            if (input.RangeOverlay) ToggleUIComponent("sd_ui_accept_alt3", ref showingRangeOverlay);
+            if (input.FTLOverlay)       ToggleUIComponent("sd_ui_accept_alt3", ref showingFTLOverlay);
+            if (input.RangeOverlay)     ToggleUIComponent("sd_ui_accept_alt3", ref showingRangeOverlay);
             if (input.AutomationWindow) ToggleUIComponent("sd_ui_accept_alt3", ref aw.isOpen);
             if (input.PlanetListScreen)
                 ScreenManager.AddScreen(new PlanetListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
@@ -315,8 +315,8 @@ namespace Ship_Game
                     AdjustCamTimer = 0.5f;
                     transitionDestination = SelectedFleet.FindAveragePosition().ToVec3();
 
-                    if (viewState < UniverseScreen.UnivScreenState.SystemView)
-                        transitionDestination.Z = GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
+                    if (viewState < UnivScreenState.SystemView)
+                        transitionDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
                     return;
                 }
             }
@@ -2090,35 +2090,39 @@ namespace Ship_Game
         {
             if (this.LookingAtPlanet || ViewingShip )
                 return;
-            PresentationParameters presentationParameters = this.ScreenManager.GraphicsDevice.PresentationParameters;
-            Vector2 spaceFromScreenSpace1 = this.UnprojectToWorldPosition(new Vector2(0.0f, 0.0f));
-            float num = this.UnprojectToWorldPosition(new Vector2((float)presentationParameters.BackBufferWidth, (float)presentationParameters.BackBufferHeight)).X - spaceFromScreenSpace1.X;
+            PresentationParameters p = ScreenManager.GraphicsDevice.PresentationParameters;
+            Vector2 spaceFromScreenSpace1 = UnprojectToWorldPosition(new Vector2(0.0f, 0.0f));
+            float num = UnprojectToWorldPosition(new Vector2(p.BackBufferWidth, p.BackBufferHeight)).X - spaceFromScreenSpace1.X;
             input.Repeat = true;
-            if (input.CursorPosition.X <= 1f || input.Left )
+            if (input.CursorPosition.X <= 1f || input.Left)
             {
-                this.transitionDestination.X -= 0.008f * num;
-                this.snappingToShip = false;
-                this.ViewingShip = false;
+                transitionDestination.X -= 0.008f * num;
+                snappingToShip = false;
+                ViewingShip    = false;
             }
-            if (input.CursorPosition.X >= (presentationParameters.BackBufferWidth - 1) || input.Right )
+            if (input.CursorPosition.X >= (p.BackBufferWidth - 1) || input.Right )
             {
-                this.transitionDestination.X += 0.008f * num;
-                this.snappingToShip = false;
-                this.ViewingShip = false;
+                transitionDestination.X += 0.008f * num;
+                snappingToShip = false;
+                ViewingShip    = false;
             }
             if (input.CursorPosition.Y <= 0.0f || input.Up )
             {
-                this.snappingToShip = false;
-                this.ViewingShip = false;
-                this.transitionDestination.Y -= 0.008f * num;
+                transitionDestination.Y -= 0.008f * num;
+                snappingToShip = false;
+                ViewingShip    = false;
             }
-            if (input.CursorPosition.Y >= (presentationParameters.BackBufferHeight - 1) || input.Down )
+            if (input.CursorPosition.Y >= (p.BackBufferHeight - 1) || input.Down )
             {
-                this.transitionDestination.Y += 0.008f * num;
-                this.snappingToShip = false;
-                this.ViewingShip = false;
+                transitionDestination.Y += 0.008f * num;
+                snappingToShip = false;
+                ViewingShip    = false;
             }
             input.Repeat = false;
+
+            transitionDestination.X = transitionDestination.X.Clamp(-UniverseRadius, UniverseRadius);
+            transitionDestination.Y = transitionDestination.Y.Clamp(-UniverseRadius, UniverseRadius);
+
             //fbedard: remove middle button scrolling
             //if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
             //{

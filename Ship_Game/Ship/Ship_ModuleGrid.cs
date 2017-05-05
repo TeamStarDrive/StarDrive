@@ -250,12 +250,6 @@ namespace Ship_Game.Gameplay
                 && 0 <= point.Y && point.Y < GridHeight;
         }
 
-        private bool InLocalBounds(Vector2 localPos)
-        {
-            return 0f <= localPos.X && localPos.X < GridWidth*16f
-                && 0f <= localPos.Y && localPos.Y < GridHeight*16f;
-        }
-
         public Vector2 GridLocalToWorld(Vector2 localPoint)
         {
             Vector2 centerLocal = GridOrigin + localPoint;

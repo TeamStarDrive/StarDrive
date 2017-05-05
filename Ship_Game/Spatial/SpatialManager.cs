@@ -1,6 +1,9 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+#pragma warning disable 162
 
 namespace Ship_Game.Gameplay
 {
@@ -13,28 +16,35 @@ namespace Ship_Game.Gameplay
         private readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
 
         private float BucketUpdateTimer;
-        private int Width;
-        private int Height;
+        private int Size;
         private Vector2 UpperLeftBound;
         private PoolArrayGridU16 Buckets;
         private int CellSize;
         private DynamicMemoryPool MemoryPool;
-        private SolarSystem System;
 
-        private void Setup(float sceneWidth, float sceneHeight, float cellSize, float centerX, float centerY)
+        private const bool UseQuadTree = false;
+        private Quadtree QuadTree;
+        private readonly Array<SpatialCollision> Collisions = new Array<SpatialCollision>();
+
+        public void Setup(float universeRadius)
         {
-            UpperLeftBound.X = centerX - (sceneWidth  / 2f);
-            UpperLeftBound.Y = centerY - (sceneHeight / 2f);
-            Width            = (int)sceneWidth  / (int)cellSize;
-            Height           = (int)sceneHeight / (int)cellSize;
-            CellSize         = (int)cellSize;
+            float universeWidth = universeRadius * 2f;
+            const float cellSize = 15000f;
+            UpperLeftBound.X = 0f - universeRadius;
+            UpperLeftBound.Y = 0f - universeRadius;
+            Size     = (int)universeWidth / (int)cellSize;
+            CellSize = (int)cellSize;
+
+            QuadTree = new Quadtree(universeWidth);
 
             if (MemoryPool == null)
                 MemoryPool = new DynamicMemoryPool();
             else
                 MemoryPool.Reset();
 
-            Buckets = MemoryPool.NewArrayGrid(Width * Height);
+            Buckets = MemoryPool.NewArrayGrid(Size * Size);
+
+            Log.Info($"SpatialManager universeWidth: {universeWidth}  grid: {Size}x{Size}  gridbuckets: {Buckets.Count}");
         }
 
         public void Destroy()
@@ -47,12 +57,13 @@ namespace Ship_Game.Gameplay
             MemoryPool?.Dispose(ref MemoryPool);
             Buckets.Count = 0;
             Buckets.Items = null;
+            Collisions.Clear();
         }
 
         private void ClearBuckets()
         {
             MemoryPool.Reset(); // reset the pools to their default max-available state
-            Buckets = MemoryPool.NewArrayGrid(Width * Height);
+            Buckets = MemoryPool.NewArrayGrid(Size * Size);
         }
 
         public void Dispose()
@@ -65,22 +76,53 @@ namespace Ship_Game.Gameplay
             Destroy();
         }
 
-        public void SetupForDeepSpace(float universeRadiusX, float universeRadiusY)
+        public void DebugVisualize(UniverseScreen screen)
         {
-            float gameScale = Empire.Universe.GameScale;
+            QuadTree.DebugVisualize(screen);
+            return;
 
-            // assuming universe size uses radius...
-            float universeWidth  = universeRadiusX * 2;
-            float universeHeight = universeRadiusY * 2;
-            Setup(universeWidth, universeHeight, 150000f * gameScale, 0f, 0f);
-            Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Buckets.Count);
-        }
+            PoolArrayU16** allBuckets = Buckets.Items;
+            if (allBuckets == null) // destroyed
+                return;
 
-        public void SetupForSystem(float gameScale, SolarSystem system)
-        {
-            const float cellSize = 5000f;
-            System = system;
-            Setup(200000f * gameScale, 200000f * gameScale, cellSize * gameScale, system.Position.X, system.Position.Y);
+            var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
+            Vector2 topleft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
+            Vector2 botright = screen.UnprojectToWorldPosition(screenSize);
+
+            int cellSize = CellSize;
+            int size = Size;
+            int minX = (int)((topleft.X  - UpperLeftBound.X) / cellSize);
+            int maxX = (int)((botright.X - UpperLeftBound.X) / cellSize);
+            int minY = (int)((topleft.Y  - UpperLeftBound.Y) / cellSize);
+            int maxY = (int)((botright.Y - UpperLeftBound.Y) / cellSize);
+            if (minX < 0) minX = 0; else if (minX >= size) minX = size - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= size) maxX = size - 1;
+            if (minY < 0) minY = 0; else if (minY >= size) minY = size - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= size) maxY = size - 1;
+
+            Vector2 cellrect   = new Vector2(cellSize, cellSize);
+            Vector2 celloffset = UpperLeftBound + cellrect*0.5f;
+
+            for (int y = minY; y <= maxY; ++y)
+            {
+                for (int x = minX; x <= maxX; ++x)
+                {
+                    PoolArrayU16* bucket = allBuckets[y * size + x];
+                    if (bucket == null)
+                        continue;
+
+                    Vector2 cellpos = celloffset + new Vector2(x,y)*cellSize;
+                    screen.DrawRectangleProjected(cellpos, cellrect, 0f, Color.SaddleBrown, 1f);
+
+                    for (int i = 0; i < bucket->Count; ++i)
+                    {
+                        GameplayObject go = AllObjects[bucket->Items[i]];
+                        if (go == null) // this is allowed by object removal rules
+                            continue;
+                        screen.DrawRectangleProjected(go.Center, new Vector2(go.Radius*2, go.Radius*2), 0f, Color.MediumVioletRed);
+                    }
+                }
+            }
         }
 
         private static bool IsSpatialType(GameplayObject obj)
@@ -118,6 +160,7 @@ namespace Ship_Game.Gameplay
             obj.SpatialIndex = idx;
             AllObjects.Add(obj);
 
+            QuadTree.Insert(obj);
             if (Buckets.Count > 0) PlaceIntoBucket(obj, idx);
         }
 
@@ -133,12 +176,7 @@ namespace Ship_Game.Gameplay
             if (idx == -1)
                 return; // not in any SpatialManagers, so Remove is no-op
 
-            if (idx != -1 && !Contains(obj))
-            {
-                Log.Error("SpatialManager cannot remove object {0} because it's in another SpatialManager", obj);
-                return;
-            }
-
+            QuadTree.Remove(obj);
             RemoveByIndex(obj, idx);
         }
 
@@ -174,24 +212,39 @@ namespace Ship_Game.Gameplay
         public void Update(float elapsedTime, SolarSystem system)
         {
             BucketUpdateTimer += elapsedTime;
+
+
             if (BucketUpdateTimer >= 0.5f) // update all buckets
             {
                 BucketUpdateTimer = 0.0f;
+
                 RebuildBuckets();
             }
 
-            // move and collide projectiles/beams:
-            for (int i = 0; i < Projectiles.Count; ++i)
+            QuadTree.UpdateAll();
+
+            if (UseQuadTree)
             {
-                Projectile projectile = Projectiles[i];
-                if (projectile.Active)
-                    MoveAndCollide(projectile);
+                if (QuadTree.CollideAll(Collisions))
+                {
+                    HandleCollisions(Collisions.GetInternalArrayItems(), Collisions.Count);
+                }
             }
-            for (int i = 0; i < Beams.Count; ++i)
+            else
             {
-                Beam beam = Beams[i];
-                if (beam.Active)
-                    CollideBeam(beam);
+                // move and collide projectiles/beams:
+                for (int i = 0; i < Projectiles.Count; ++i)
+                {
+                    Projectile projectile = Projectiles[i];
+                    if (projectile.Active)
+                        MoveAndCollide(projectile);
+                }
+                for (int i = 0; i < Beams.Count; ++i)
+                {
+                    Beam beam = Beams[i];
+                    if (beam.Active)
+                        CollideBeam(beam);
+                }
             }
         }
 
@@ -249,17 +302,16 @@ namespace Ship_Game.Gameplay
             float posX   = position.X - UpperLeftBound.X;
             float posY   = position.Y - UpperLeftBound.Y;
             int cellSize = CellSize;
-            int width    = Width;
-            int height   = Height;
+            int size     = Size;
 
             int minX = (int)((posX - radius) / cellSize);
             int maxX = (int)((posX + radius) / cellSize);
             int minY = (int)((posY - radius) / cellSize);
             int maxY = (int)((posY + radius) / cellSize);
-            if (minX < 0) minX = 0; else if (minX >= width)  minX = width  - 1;
-            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width  - 1;
-            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
-            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+            if (minX < 0) minX = 0; else if (minX >= size) minX = size - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= size) maxX = size - 1;
+            if (minY < 0) minY = 0; else if (minY >= size) minY = size - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= size) maxY = size - 1;
 
             int spanX = maxX - minX + 1;
             int spanY = maxY - minY + 1;
@@ -271,7 +323,7 @@ namespace Ship_Game.Gameplay
             {
                 for (int x = minX; x <= maxX; ++x)
                 {
-                    PoolArrayU16* bucket = allBuckets[y * width + x];
+                    PoolArrayU16* bucket = allBuckets[y * size + x];
                     if (bucket != null) // null bucket means 0 objects, so we can exclude this bucket from search
                         buckets[numBuckets++] = bucket;
                 }
@@ -361,20 +413,17 @@ namespace Ship_Game.Gameplay
             float posX   = obj.Position.X - UpperLeftBound.X;
             float posY   = obj.Position.Y - UpperLeftBound.Y;
             int cellSize = CellSize;
-            int width    = Width;
-            int height   = Height;
+            int size     = Size;
             float radius = obj.Radius;
 
             int minX = (int)((posX - radius) / cellSize);
             int maxX = (int)((posX + radius) / cellSize);
             int minY = (int)((posY - radius) / cellSize);
             int maxY = (int)((posY + radius) / cellSize);
-
-            // Luckily .NET can successfully optimize these to Min/Max
-            if (minX < 0) minX = 0; else if (minX >= width)  minX = width - 1;
-            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width - 1;
-            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
-            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+            if (minX < 0) minX = 0; else if (minX >= size) minX = size - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= size) maxX = size - 1;
+            if (minY < 0) minY = 0; else if (minY >= size) minY = size - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= size) maxY = size - 1;
 
             int numInsertions = 0;
             PoolArrayU16** allBuckets = Buckets.Items;
@@ -382,18 +431,37 @@ namespace Ship_Game.Gameplay
             {
                 for (int x = minX; x <= maxX; ++x)
                 {
-                    PoolArrayU16** bucketRef = &allBuckets[y * width + x];
+                    PoolArrayU16** bucketRef = &allBuckets[y * size + x];
                     MemoryPool.ArrayAdd(bucketRef, (ushort)objId);
                     ++numInsertions;
                 }
             }
 
-            // this can happen if a ship is performing FTL, so it jumps out of the Solar system
-            // best course of action is to just ignore it and not insert into buckets
+            // best course of action is to just ignore it and not insert into buckets... ?
             if (numInsertions == 0)
             {
-                if (System != null && System.Position.InRadius(obj.Position, 100000f))
-                    Log.Error("SpatialManager logic error: object {0} is outside of system grid {1}", obj, System);
+                Log.Error("SpatialManager logic error: object {0} is outside of grid", obj);
+            }
+        }
+
+        private static void HandleCollisions(SpatialCollision[] collisions, int count)
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                SpatialCollision co = collisions[i];
+                GameplayObject a = co.Obj1, b = co.Obj2;
+                if (b is Projectile)
+                {
+                    var c = a; // swap to prefer A as a projectile
+                    a = b;
+                    b = c;
+                }
+
+                if (a.Touch(b) || b.Touch(a))
+                {
+                    a.CollidedThisFrame = true;
+                    b.CollidedThisFrame = true;
+                }
             }
         }
 

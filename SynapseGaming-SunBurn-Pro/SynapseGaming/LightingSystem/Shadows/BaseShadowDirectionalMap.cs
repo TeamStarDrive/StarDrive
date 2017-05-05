@@ -122,9 +122,9 @@ namespace SynapseGaming.LightingSystem.Shadows
       {
         Vector3 vector3_1 = this.vector3_0[index];
         Vector3 vector3_2 = this.vector3_0[index + 4];
-        if (Class13.smethod_10(vector3_1, vector3_2, plane_0_1, ref vector3_3))
+        if (CoreUtils.smethod_10(vector3_1, vector3_2, plane_0_1, ref vector3_3))
           this.vector3_0[index] = vector3_3;
-        if (Class13.smethod_10(vector3_1, vector3_2, plane_0_2, ref vector3_3))
+        if (CoreUtils.smethod_10(vector3_1, vector3_2, plane_0_2, ref vector3_3))
           this.vector3_0[index + 4] = vector3_3;
       }
       Vector3 vector3_4 = this.vector3_0[0];
@@ -140,7 +140,7 @@ namespace SynapseGaming.LightingSystem.Shadows
       for (int index = 0; index < 8; ++index)
         this.vector3_0[index] = Vector3.Transform(this.vector3_0[index], matrix2);
       float num = Math.Max(Vector3.Distance(this.vector3_0[0], this.vector3_0[2]), Vector3.Distance(this.vector3_0[0], this.vector3_0[6]));
-      Class13.smethod_11(this.vector3_0);
+      CoreUtils.smethod_11(this.vector3_0);
       shadowMapSurface.WorldToSurfaceView = matrix1;
       shadowMapSurface.Projection = Matrix.CreateOrthographic(num, num, float3 * 0.25f, float3 * 1.75f) * Matrix.CreateScale(-1f, 1f, 1f);
       int width = location.Width;

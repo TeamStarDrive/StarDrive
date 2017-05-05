@@ -549,7 +549,7 @@ namespace Ship_Game
             string path = Dir.ApplicationData;
             SaveData.path       = path;
             SaveData.SaveAs     = saveAs;
-            SaveData.Size       = screenToSave.Size;
+            SaveData.Size       = new Vector2(screenToSave.UniverseRadius);
             SaveData.FogMapName = saveAs + "fog";
             screenToSave.FogMap.Save(path + "/StarDrive/Saved Games/Fog Maps/" + saveAs + "fog.png", ImageFileFormat.Png);
             SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};

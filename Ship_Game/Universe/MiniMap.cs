@@ -50,7 +50,7 @@ namespace Ship_Game
 		public void Draw(ScreenManager screenManager, UniverseScreen screen)
 		{
 			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
-			float scale = (float)this.ActualMap.Width / (screen.Size.X * 2);        //Updated to play nice with the new negative map values
+			float scale = (float)this.ActualMap.Width / (screen.UniverseRadius * 2);        //Updated to play nice with the new negative map values
 			Vector2 minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
             var uiNode  = ResourceManager.TextureDict["UI/node"];
             var uiNode1 = ResourceManager.TextureDict["UI/node1"];

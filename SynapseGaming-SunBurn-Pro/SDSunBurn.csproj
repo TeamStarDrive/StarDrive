@@ -246,7 +246,7 @@
     <Compile Include="ns3\Class10.cs" />
     <Compile Include="ns3\Class11.cs" />
     <Compile Include="ns3\Class12.cs" />
-    <Compile Include="ns3\Class13.cs" />
+    <Compile Include="ns3\CoreUtils.cs" />
     <Compile Include="ns3\GraphicsDeviceMonitor.cs" />
     <Compile Include="ns3\Interface0.cs" />
     <Compile Include="ns3\Class16.cs" />

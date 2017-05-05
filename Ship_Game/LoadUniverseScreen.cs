@@ -366,7 +366,6 @@ namespace Ship_Game
                     continue;
                 }
 
-                ship.UpdateSystem(0f);
                 if (ship.loyalty != EmpireManager.Player)
                 {
                     if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
@@ -979,8 +978,22 @@ namespace Ship_Game
             if (!GateKeeper.WaitOne(0) || ready || !Loaded)
                 return;
 
+            if (us == null)
+            {
+                us = new UniverseScreen(data, PlayerLoyalty)
+                {
+                    GamePace       = GamePace,
+                    GameScale      = GameScale,
+                    GameDifficulty = data.difficulty,
+                    StarDate       = savedData.StarDate,
+                    ScreenManager  = ScreenManager,
+                    camPos         = new Vector3(savedData.campos.X, savedData.campos.Y, savedData.camheight),
+                    camHeight      = savedData.camheight,
+                    player         = EmpireManager.Player
+                };
+            }
+
             SolarSystem system = data.SolarSystemsList[systemToMake];
-            system.spatialManager.SetupForSystem(GameScale, system);
             percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
             foreach (Planet p in system.PlanetList)
             {
@@ -998,7 +1011,7 @@ namespace Ship_Game
             {
                 foreach (Ship ship in data.MasterShipList)
                 {
-                    ship.LoadFromSave();
+                    ship.CreateSceneObject();
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0f));
                     ship.InitializeFromSave();
                     if (ship.Name == "Brimstone")
@@ -1123,17 +1136,6 @@ namespace Ship_Game
                         sys.FiveClosestSystems.Add(sp.System);
                     }
                 }
-                us = new UniverseScreen(data, PlayerLoyalty)
-                {
-                    GamePace       = GamePace,
-                    GameScale      = GameScale,
-                    GameDifficulty = data.difficulty,
-                    StarDate       = savedData.StarDate,
-                    ScreenManager  = ScreenManager,
-                    camPos         = new Vector3(savedData.campos.X, savedData.campos.Y, savedData.camheight),
-                    camHeight      = savedData.camheight,
-                    player         = EmpireManager.Player
-                };
 
                 // Finally fucking fixes the 'LOOK AT ME PA I'M ZOOMED RIGHT IN' vanilla bug when loading a saved game: the universe screen uses camheight separately to the campos z vector to actually do zoom.
                 us.LoadContent();

@@ -17,7 +17,9 @@ namespace Ship_Game.Debug
         DefenseCo,
         Trade,
         AO,
-        ThreatMatrix
+        ThreatMatrix,
+        SpatialManager,
+        Last, // dummy value
     }
 
     public sealed class DebugInfoScreen 
@@ -51,7 +53,6 @@ namespace Ship_Game.Debug
         private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
         private static DebugModes Mode;
-        static DebugInfoScreen() { }
 
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen)
         {
@@ -59,37 +60,29 @@ namespace Ship_Game.Debug
             this.Screen = screen;
             this.ScreenManager = screenManager;
             Win = new Rectangle(30, 200, 1200, 700);
-            try
+
+            foreach (Empire empire in EmpireManager.Empires)
             {
-                foreach (Empire empire in EmpireManager.Empires)
+                if (empire == Empire.Universe.player || empire.isFaction || empire.MinorRace)
+                    continue;
+                bool flag = false;
+                foreach (Ship ship in empire.GetShips())
                 {
-                    if (empire == Empire.Universe.player || empire.isFaction || empire.MinorRace)
-                        continue;
-                    bool flag = false;
-                    foreach (Ship ship in empire.GetShips())
-                        if (!empire.GetForcePool().Contains(ship))
-                        {
-                            foreach (AO ao in empire.GetGSAI().AreasOfOperations)
-                                if (ao.GetOffensiveForcePool().Contains(ship))
-                                    if (ship?.shipData.Role != ShipData.RoleName.troop && ship?.BaseStrength > 0)
+                    if (!empire.GetForcePool().Contains(ship))
+                    {
+                        foreach (AO ao in empire.GetGSAI().AreasOfOperations)
+                            if (ao.GetOffensiveForcePool().Contains(ship) && ship?.shipData.Role != ShipData.RoleName.troop && ship?.BaseStrength > 0)
+                                flag = true;
+                        if (flag)
+                            continue;
 
-                                        flag = true;
-
-                            if (flag) continue;
-                            if (empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship) )
-                            {
-                                    ++ShipsinDefforcepool;
-                            }
-                            else
-                            {
-                                if (ship != null
-                                    && (!ship.loyalty.GetForcePool().Contains(ship)))
-                                    ++Shipsnotinforcepool;
-                            }
-                        }
+                        if (empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship) )
+                            ++ShipsinDefforcepool;
+                        else if (ship != null && (!ship.loyalty.GetForcePool().Contains(ship)))
+                            ++Shipsnotinforcepool;
+                    }
                 }
             }
-            catch { }
         }
 
 
@@ -153,6 +146,7 @@ namespace Ship_Game.Debug
                 case DebugModes.Pathing:      PathingInfo();      break;
                 case DebugModes.Trade:        TradeInfo();        break;
                 case DebugModes.Targeting:    Targeting();        break;
+                case DebugModes.SpatialManager: SpatialManagement(); break;
             }
             ShipInfo();
         }
@@ -257,10 +251,6 @@ namespace Ship_Game.Debug
                 else
                 {
                     DrawString(ship.System.Name+" system");
-                    if (!ship.System.spatialManager.Contains(ship))
-                        DrawString(Color.LightPink, "ERROR -SM CO");
-                    else
-                        DrawString("Manager OK");
                 }
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
                     ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
@@ -391,10 +381,6 @@ namespace Ship_Game.Debug
                     }
 
                     SetTextCursor(Win.X + 300, 600f, Color.White);
-                    foreach (Ship ship in Screen.SelectedSystem.spatialManager.ShipsList)
-                    {
-                        DrawString(ship.Name + " ");
-                    }
                 }
             }
 
@@ -448,7 +434,7 @@ namespace Ship_Game.Debug
                     {
                         if (e.grid[x, y] != 1)
                             continue;
-                        Vector2 translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
+                        var translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
                         Screen.DrawCircleProjectedZ(translated, Screen.reducer * .001f , e.EmpireColor, 4);
                     }
         }
@@ -486,14 +472,21 @@ namespace Ship_Game.Debug
             }
         }
 
+        private void SpatialManagement()
+        {
+            UniverseScreen.DeepSpaceManager.DebugVisualize(Screen);
+            //foreach (SolarSystem system in Screen.SolarSystemDict.Values)
+            //{
+            //    system.spatialManager.DebugVisualize(Screen);
+            //}
+        }
+
         public bool HandleInput(InputState input)
         {
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.Left) && input.LastKeyboardState.IsKeyUp(Keys.Left))
-                Mode--;
-            else if (input.CurrentKeyboardState.IsKeyDown(Keys.Right) && input.LastKeyboardState.IsKeyUp(Keys.Right))
-                Mode++;
-            if (Mode > DebugModes.ThreatMatrix || Mode < DebugModes.Normal)
-                Mode = DebugModes.Normal;
+            if      (input.WasKeyPressed(Keys.Left))  --Mode;
+            else if (input.WasKeyPressed(Keys.Right)) ++Mode;
+            if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
+            else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
             return false;
         }
     }

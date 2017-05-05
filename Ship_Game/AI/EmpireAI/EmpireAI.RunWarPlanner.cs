@@ -609,7 +609,7 @@ namespace Ship_Game.AI {
             foreach (KeyValuePair<Empire, Relationship> r in this.empire.AllRelations.OrderByDescending(anger =>
                 {
                     float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(), this.empire.GetWeightedCenter());
-                    angerMod = (Empire.Universe.Size.X - angerMod) / UniverseData.UniverseWidth;
+                    angerMod = (Empire.Universe.UniverseRadius - angerMod) / UniverseData.UniverseWidth;
                     if (anger.Value.AtWar)
                         angerMod *= 100;
                     return anger.Value.TotalAnger * angerMod;
