@@ -545,7 +545,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       {
         this.class38_0.WorldClippingSphere = BoundingSphere.CreateFromBoundingBox(shadowGroup_0.BoundingBox);
         this.class38_0.SetWorldAndWorldToObject(this.class10_0.method_0(shadowGroup_0.BoundingBox), Matrix.Identity);
-        if (Class13.smethod_7(shadowGroup_0.BoundingBox, 1.2f).Intersects(this.SceneState.ViewFrustum.Near) == PlaneIntersectionType.Intersecting)
+        if (CoreUtils.smethod_7(shadowGroup_0.BoundingBox, 1.2f).Intersects(this.SceneState.ViewFrustum.Near) == PlaneIntersectionType.Intersecting)
         {
           graphicsDevice.RenderState.CullMode = !invertedWindings ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace;
           graphicsDevice.RenderState.DepthBufferFunction = CompareFunction.Greater;
@@ -604,7 +604,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         {
           BoundingBox worldBoundingBox = light.WorldBoundingBox;
           BoundingSphere fromBoundingBox = BoundingSphere.CreateFromBoundingBox(worldBoundingBox);
-          if (Class13.smethod_7(worldBoundingBox, 1.2f).Intersects(near) == PlaneIntersectionType.Intersecting)
+          if (CoreUtils.smethod_7(worldBoundingBox, 1.2f).Intersects(near) == PlaneIntersectionType.Intersecting)
           {
             graphicsDevice.RenderState.CullMode = !invertedWindings ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace;
             graphicsDevice.RenderState.DepthBufferFunction = CompareFunction.Greater;
@@ -627,7 +627,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         else
         {
           BoundingSphere worldBoundingSphere = light.WorldBoundingSphere;
-          BoundingSphere sphere = Class13.smethod_8(worldBoundingSphere, 1.2f);
+          BoundingSphere sphere = CoreUtils.smethod_8(worldBoundingSphere, 1.2f);
           if (near.Intersects(sphere) == PlaneIntersectionType.Intersecting)
           {
             graphicsDevice.RenderState.CullMode = !invertedWindings ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace;

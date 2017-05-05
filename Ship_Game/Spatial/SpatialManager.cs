@@ -16,8 +16,7 @@ namespace Ship_Game.Gameplay
         private readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
 
         private float BucketUpdateTimer;
-        private int Width;
-        private int Height;
+        private int Size;
         private Vector2 UpperLeftBound;
         private PoolArrayGridU16 Buckets;
         private int CellSize;
@@ -27,27 +26,25 @@ namespace Ship_Game.Gameplay
         private Quadtree QuadTree;
         private readonly Array<SpatialCollision> Collisions = new Array<SpatialCollision>();
 
-        public void Setup(float universeWidth, float universeHeight)
+        public void Setup(float universeRadius)
         {
+            float universeWidth = universeRadius * 2f;
             const float cellSize = 15000f;
-            UpperLeftBound.X = 0f - (universeWidth  / 2f);
-            UpperLeftBound.Y = 0f - (universeHeight / 2f);
-            Width            = (int)universeWidth  / (int)cellSize;
-            Height           = (int)universeHeight / (int)cellSize;
-            CellSize         = (int)cellSize;
+            UpperLeftBound.X = 0f - universeRadius;
+            UpperLeftBound.Y = 0f - universeRadius;
+            Size     = (int)universeWidth / (int)cellSize;
+            CellSize = (int)cellSize;
 
-            Log.Info("SpatialManager universeSize: {0}x{1}  grid: {2}x{3}  size: {4}",
-                universeWidth, universeHeight, Width, Height, Buckets.Count);
-
-            float universeSize = Math.Max(universeWidth, universeHeight);
-            QuadTree = new Quadtree(universeSize);
+            QuadTree = new Quadtree(universeWidth);
 
             if (MemoryPool == null)
                 MemoryPool = new DynamicMemoryPool();
             else
                 MemoryPool.Reset();
 
-            Buckets = MemoryPool.NewArrayGrid(Width * Height);
+            Buckets = MemoryPool.NewArrayGrid(Size * Size);
+
+            Log.Info($"SpatialManager universeWidth: {universeWidth}  grid: {Size}x{Size}  gridbuckets: {Buckets.Count}");
         }
 
         public void Destroy()
@@ -66,7 +63,7 @@ namespace Ship_Game.Gameplay
         private void ClearBuckets()
         {
             MemoryPool.Reset(); // reset the pools to their default max-available state
-            Buckets = MemoryPool.NewArrayGrid(Width * Height);
+            Buckets = MemoryPool.NewArrayGrid(Size * Size);
         }
 
         public void Dispose()
@@ -81,8 +78,8 @@ namespace Ship_Game.Gameplay
 
         public void DebugVisualize(UniverseScreen screen)
         {
-            //QuadTree.DebugVisualize(screen);
-            //return;
+            QuadTree.DebugVisualize(screen);
+            return;
 
             PoolArrayU16** allBuckets = Buckets.Items;
             if (allBuckets == null) // destroyed
@@ -93,16 +90,15 @@ namespace Ship_Game.Gameplay
             Vector2 botright = screen.UnprojectToWorldPosition(screenSize);
 
             int cellSize = CellSize;
-            int width    = Width;
-            int height   = Height;
+            int size = Size;
             int minX = (int)((topleft.X  - UpperLeftBound.X) / cellSize);
             int maxX = (int)((botright.X - UpperLeftBound.X) / cellSize);
             int minY = (int)((topleft.Y  - UpperLeftBound.Y) / cellSize);
             int maxY = (int)((botright.Y - UpperLeftBound.Y) / cellSize);
-            if (minX < 0) minX = 0; else if (minX >= width)  minX = width  - 1;
-            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width  - 1;
-            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
-            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+            if (minX < 0) minX = 0; else if (minX >= size) minX = size - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= size) maxX = size - 1;
+            if (minY < 0) minY = 0; else if (minY >= size) minY = size - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= size) maxY = size - 1;
 
             Vector2 cellrect   = new Vector2(cellSize, cellSize);
             Vector2 celloffset = UpperLeftBound + cellrect*0.5f;
@@ -111,12 +107,12 @@ namespace Ship_Game.Gameplay
             {
                 for (int x = minX; x <= maxX; ++x)
                 {
-                    PoolArrayU16* bucket = allBuckets[y * width + x];
+                    PoolArrayU16* bucket = allBuckets[y * size + x];
                     if (bucket == null)
                         continue;
 
                     Vector2 cellpos = celloffset + new Vector2(x,y)*cellSize;
-                    screen.DrawRectangleProjected(cellpos, cellrect, 0f, Color.SandyBrown, 2f);
+                    screen.DrawRectangleProjected(cellpos, cellrect, 0f, Color.SaddleBrown, 1f);
 
                     for (int i = 0; i < bucket->Count; ++i)
                     {
@@ -164,7 +160,7 @@ namespace Ship_Game.Gameplay
             obj.SpatialIndex = idx;
             AllObjects.Add(obj);
 
-            //QuadTree.Insert(obj);
+            QuadTree.Insert(obj);
             if (Buckets.Count > 0) PlaceIntoBucket(obj, idx);
         }
 
@@ -180,7 +176,7 @@ namespace Ship_Game.Gameplay
             if (idx == -1)
                 return; // not in any SpatialManagers, so Remove is no-op
 
-            //QuadTree.Remove(obj);
+            QuadTree.Remove(obj);
             RemoveByIndex(obj, idx);
         }
 
@@ -222,7 +218,7 @@ namespace Ship_Game.Gameplay
             {
                 BucketUpdateTimer = 0.0f;
 
-                //QuadTree.UpdateAll();
+                QuadTree.UpdateAll();
                 RebuildBuckets();
             }
 
@@ -306,17 +302,16 @@ namespace Ship_Game.Gameplay
             float posX   = position.X - UpperLeftBound.X;
             float posY   = position.Y - UpperLeftBound.Y;
             int cellSize = CellSize;
-            int width    = Width;
-            int height   = Height;
+            int size     = Size;
 
             int minX = (int)((posX - radius) / cellSize);
             int maxX = (int)((posX + radius) / cellSize);
             int minY = (int)((posY - radius) / cellSize);
             int maxY = (int)((posY + radius) / cellSize);
-            if (minX < 0) minX = 0; else if (minX >= width)  minX = width  - 1;
-            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width  - 1;
-            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
-            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+            if (minX < 0) minX = 0; else if (minX >= size) minX = size - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= size) maxX = size - 1;
+            if (minY < 0) minY = 0; else if (minY >= size) minY = size - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= size) maxY = size - 1;
 
             int spanX = maxX - minX + 1;
             int spanY = maxY - minY + 1;
@@ -328,7 +323,7 @@ namespace Ship_Game.Gameplay
             {
                 for (int x = minX; x <= maxX; ++x)
                 {
-                    PoolArrayU16* bucket = allBuckets[y * width + x];
+                    PoolArrayU16* bucket = allBuckets[y * size + x];
                     if (bucket != null) // null bucket means 0 objects, so we can exclude this bucket from search
                         buckets[numBuckets++] = bucket;
                 }
@@ -418,20 +413,17 @@ namespace Ship_Game.Gameplay
             float posX   = obj.Position.X - UpperLeftBound.X;
             float posY   = obj.Position.Y - UpperLeftBound.Y;
             int cellSize = CellSize;
-            int width    = Width;
-            int height   = Height;
+            int size     = Size;
             float radius = obj.Radius;
 
             int minX = (int)((posX - radius) / cellSize);
             int maxX = (int)((posX + radius) / cellSize);
             int minY = (int)((posY - radius) / cellSize);
             int maxY = (int)((posY + radius) / cellSize);
-
-            // Luckily .NET can successfully optimize these to Min/Max
-            if (minX < 0) minX = 0; else if (minX >= width)  minX = width - 1;
-            if (maxX < 0) maxX = 0; else if (maxX >= width)  maxX = width - 1;
-            if (minY < 0) minY = 0; else if (minY >= height) minY = height - 1;
-            if (maxY < 0) maxY = 0; else if (maxY >= height) maxY = height - 1;
+            if (minX < 0) minX = 0; else if (minX >= size) minX = size - 1;
+            if (maxX < 0) maxX = 0; else if (maxX >= size) maxX = size - 1;
+            if (minY < 0) minY = 0; else if (minY >= size) minY = size - 1;
+            if (maxY < 0) maxY = 0; else if (maxY >= size) maxY = size - 1;
 
             int numInsertions = 0;
             PoolArrayU16** allBuckets = Buckets.Items;
@@ -439,7 +431,7 @@ namespace Ship_Game.Gameplay
             {
                 for (int x = minX; x <= maxX; ++x)
                 {
-                    PoolArrayU16** bucketRef = &allBuckets[y * width + x];
+                    PoolArrayU16** bucketRef = &allBuckets[y * size + x];
                     MemoryPool.ArrayAdd(bucketRef, (ushort)objId);
                     ++numInsertions;
                 }

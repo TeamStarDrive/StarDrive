@@ -126,7 +126,7 @@ namespace SynapseGaming.LightingSystem.Shadows
               vector3 -= plane2.Normal * num2;
           }
           float float_3 = (vector3 - translation).Length();
-          float num3 = Class13.smethod_22(radius, float_3, this.SceneState.Projection);
+          float num3 = CoreUtils.smethod_22(radius, float_3, this.SceneState.Projection);
           shadowMapSurface.LevelOfDetail = MathHelper.Clamp(num3, 0.0f, 1f);
           val1 = Math.Max(val1, shadowMapSurface.LevelOfDetail);
         }

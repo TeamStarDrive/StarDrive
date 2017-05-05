@@ -1011,7 +1011,7 @@ namespace Ship_Game
             {
                 foreach (Ship ship in data.MasterShipList)
                 {
-                    ship.LoadFromSave();
+                    ship.CreateSceneObject();
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0f));
                     ship.InitializeFromSave();
                     if (ship.Name == "Brimstone")
