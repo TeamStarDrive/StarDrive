@@ -598,12 +598,12 @@ namespace Ship_Game.Gameplay
             //    if (!this.Treaty_NAPact)
             //    {
             //        Relationship angerFromShipsInOurBorders1 = this;
-            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.Size / 150f;
+            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.UniverseRadius / 150f;
             //    }
             //    else
             //    {
             //        Relationship angerFromShipsInOurBorders2 = this;
-            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.Size / 300f;
+            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.UniverseRadius / 300f;
             //    }
             //}
 
@@ -639,13 +639,13 @@ namespace Ship_Game.Gameplay
             //    if (!this.Treaty_NAPact)
             //    {
             //        Relationship angerFromShipsInOurBorders1 = this;
-            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 150f;
+            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.UniverseRadius / 150f;
             //        shipsInOurBorder.isDecloaking = true;
             //    }
             //    else
             //    {
             //        Relationship angerFromShipsInOurBorders2 = this;
-            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 300f;
+            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.UniverseRadius / 300f;
             //    }
             //}
 

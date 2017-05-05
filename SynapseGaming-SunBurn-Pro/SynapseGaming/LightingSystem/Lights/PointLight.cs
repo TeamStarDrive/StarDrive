@@ -450,7 +450,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <returns></returns>
     public override string ToString()
     {
-      return Class13.smethod_2((INamedObject) this);
+      return CoreUtils.NamedObject((INamedObject) this);
     }
 
     /// <summary>

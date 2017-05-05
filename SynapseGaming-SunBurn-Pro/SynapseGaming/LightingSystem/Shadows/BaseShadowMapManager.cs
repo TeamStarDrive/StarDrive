@@ -274,7 +274,7 @@ namespace SynapseGaming.LightingSystem.Shadows
               BaseShadowMapManager.list_1.Clear();
               foreach (ShadowMapSurface surface in shadowMap.Surfaces)
               {
-                int num4 = (int) MathHelper.Clamp((float) Math.Pow(2.0, (double) ((float) Math.Floor((double) Class13.smethod_0(num3 * num2 * surface.LevelOfDetail) * 2.0) * 0.5f)), 32f, (float) this._MaxShadowLOD);
+                int num4 = (int) MathHelper.Clamp((float) Math.Pow(2.0, (double) ((float) Math.Floor((double) CoreUtils.smethod_0(num3 * num2 * surface.LevelOfDetail) * 2.0) * 0.5f)), 32f, (float) this._MaxShadowLOD);
                 rectangle.Width = num4;
                 rectangle.Height = num4;
                 BaseShadowMapManager.list_1.Add(rectangle);

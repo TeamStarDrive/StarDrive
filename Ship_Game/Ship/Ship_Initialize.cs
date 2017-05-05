@@ -64,8 +64,7 @@ namespace Ship_Game.Gameplay
                 Name       = data.Name,
                 Level      = data.Level,
                 experience = data.experience,
-                shipData   = data,
-                ModelPath  = data.ModelPath
+                shipData   = data
             };
 
             if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, addToShieldManager))
@@ -114,17 +113,7 @@ namespace Ship_Game.Gameplay
             foreach (Thruster t in template.ThrusterList)
                 ship.AddThruster(t);
 
-            if (!template.shipData.Animated)
-            {
-                ship.SetSO(new SceneObject(ResourceManager.GetModel(template.ModelPath).Meshes[0])
-                { ObjectType = ObjectType.Dynamic });
-            }
-            else
-            {
-                SkinnedModel model = ResourceManager.GetSkinnedModel(template.ModelPath);
-                ship.SetSO(new SceneObject(model.Model) { ObjectType = ObjectType.Dynamic });
-                ship.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-            }
+            ship.CreateSceneObject();
 
             // Added by McShooterz: add automatic ship naming
             if (GlobalStats.HasMod)

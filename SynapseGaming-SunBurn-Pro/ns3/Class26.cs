@@ -73,7 +73,7 @@ namespace ns3
     {
       Vector3 vector3_2;
       Vector3 vector3_3;
-      Class13.smethod_1(ilight_0.CompositeColorAndIntensity, float_9, 0.75f, out vector3_2, out vector3_3);
+      CoreUtils.smethod_1(ilight_0.CompositeColorAndIntensity, float_9, 0.75f, out vector3_2, out vector3_3);
       this.method_5(vector3_2, vector3_0, float_8);
       this.method_5(vector3_3, -vector3_0, float_8);
     }

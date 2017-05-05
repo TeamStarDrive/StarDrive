@@ -396,7 +396,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
       bool flag3 = false;
       if (flag1)
       {
-        Rectangle rectangle = Class13.smethod_27(shadowGroup_0.BoundingBox, graphicsDevice.Viewport, this.SceneState.ViewProjection, this.SceneState.ViewToWorld);
+        Rectangle rectangle = CoreUtils.smethod_27(shadowGroup_0.BoundingBox, graphicsDevice.Viewport, this.SceneState.ViewProjection, this.SceneState.ViewToWorld);
         if ((double) rectangle.Width <= 0.0 || (double) rectangle.Height <= 0.0)
           return;
         graphicsDevice.RenderState.ScissorTestEnable = true;

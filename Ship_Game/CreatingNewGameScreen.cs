@@ -377,7 +377,6 @@ namespace Ship_Game
 
 
                 SolarSystem wipSystem = Data.SolarSystemsList[systemToMake];
-                wipSystem.spatialManager.SetupForSystem(Scale, wipSystem);
 
                 PercentLoaded = (counter + systemToMake) / (float)(Data.SolarSystemsList.Count * 2);
                 foreach (Empire key in Data.EmpireList)

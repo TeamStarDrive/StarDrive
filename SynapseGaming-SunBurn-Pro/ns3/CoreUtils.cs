@@ -1,5 +1,5 @@
 ﻿// Decompiled with JetBrains decompiler
-// Type: ns3.Class13
+// Type: ns3.CoreUtils
 // Assembly: SynapseGaming-SunBurn-Pro, Version=1.3.2.8, Culture=neutral, PublicKeyToken=c23c60523565dbfd
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
@@ -11,7 +11,7 @@ using System;
 
 namespace ns3
 {
-  internal class Class13
+  internal class CoreUtils
   {
     private static float[] float_0 = new float[4];
     private static BoundingFrustum boundingFrustum_0 = new BoundingFrustum(Matrix.Identity);
@@ -20,7 +20,7 @@ namespace ns3
 
     public static float smethod_0(float float_2)
     {
-      return (float) Math.Log((double) float_2) * Class13.float_1;
+      return (float) Math.Log((double) float_2) * CoreUtils.float_1;
     }
 
     public static void smethod_1(Vector3 vector3_1, float float_2, float float_3, out Vector3 vector3_2, out Vector3 vector3_3)
@@ -31,47 +31,46 @@ namespace ns3
       vector3_3 = vector3_1 * 2f * new Vector3(num2, 1f, num1) * (1f - float_3);
     }
 
-    public static string smethod_2(INamedObject inamedObject_0)
+    public static string NamedObject(INamedObject obj)
     {
-      Type type = inamedObject_0.GetType();
-      return string.Format("\"{0}\" - {1}", (object) (inamedObject_0.Name ?? string.Empty), (object) type.Name);
+      return $"\"{obj.Name ?? ""}\" - {obj.GetType().Name}";
     }
 
     public static Vector3 smethod_3(Vector3 vector3_1, int int_0, float float_2)
     {
-      Class13.float_0[0] = vector3_1.X;
-      Class13.float_0[1] = vector3_1.Y;
-      Class13.float_0[2] = vector3_1.Z;
-      Class13.float_0[int_0] = float_2;
-      return new Vector3(Class13.float_0[0], Class13.float_0[1], Class13.float_0[2]);
+      CoreUtils.float_0[0] = vector3_1.X;
+      CoreUtils.float_0[1] = vector3_1.Y;
+      CoreUtils.float_0[2] = vector3_1.Z;
+      CoreUtils.float_0[int_0] = float_2;
+      return new Vector3(CoreUtils.float_0[0], CoreUtils.float_0[1], CoreUtils.float_0[2]);
     }
 
     public static Vector3 smethod_4(Vector3 vector3_1, int int_0, int int_1, int int_2)
     {
-      Class13.float_0[0] = vector3_1.X;
-      Class13.float_0[1] = vector3_1.Y;
-      Class13.float_0[2] = vector3_1.Z;
-      return new Vector3(Class13.float_0[int_0], Class13.float_0[int_1], Class13.float_0[int_2]);
+      CoreUtils.float_0[0] = vector3_1.X;
+      CoreUtils.float_0[1] = vector3_1.Y;
+      CoreUtils.float_0[2] = vector3_1.Z;
+      return new Vector3(CoreUtils.float_0[int_0], CoreUtils.float_0[int_1], CoreUtils.float_0[int_2]);
     }
 
     public static BoundingBox smethod_5(BoundingBox boundingBox_0, Matrix matrix_0)
     {
-      boundingBox_0.GetCorners(Class13.vector3_0);
-      for (int index = 0; index < Class13.vector3_0.Length; ++index)
-        Class13.vector3_0[index] = Vector3.Transform(Class13.vector3_0[index], matrix_0);
-      return Class13.smethod_11(Class13.vector3_0);
+      boundingBox_0.GetCorners(CoreUtils.vector3_0);
+      for (int index = 0; index < CoreUtils.vector3_0.Length; ++index)
+        CoreUtils.vector3_0[index] = Vector3.Transform(CoreUtils.vector3_0[index], matrix_0);
+      return CoreUtils.smethod_11(CoreUtils.vector3_0);
     }
 
-    public static BoundingSphere smethod_6(BoundingSphere boundingSphere_0, Matrix matrix_0)
+    public static BoundingSphere TransformSphere(BoundingSphere boundingSphere, Matrix transform)
     {
       Vector3 scale;
       Quaternion rotation;
       Vector3 translation;
-      matrix_0.Decompose(out scale, out rotation, out translation);
-      float num = Math.Max(Math.Abs(scale.X), Math.Max(Math.Abs(scale.Y), Math.Abs(scale.Z)));
-      boundingSphere_0.Center = Vector3.Transform(boundingSphere_0.Center, matrix_0);
-      boundingSphere_0.Radius *= num;
-      return boundingSphere_0;
+      transform.Decompose(out scale, out rotation, out translation);
+      float largestScale = Math.Max(Math.Abs(scale.X), Math.Max(Math.Abs(scale.Y), Math.Abs(scale.Z)));
+      boundingSphere.Center = Vector3.Transform(boundingSphere.Center, transform);
+      boundingSphere.Radius *= largestScale;
+      return boundingSphere;
     }
 
     public static BoundingBox smethod_7(BoundingBox boundingBox_0, float float_2)
@@ -234,7 +233,7 @@ namespace ns3
 
     public static float smethod_24(Matrix matrix_0, Matrix matrix_1, Matrix matrix_2)
     {
-      float num = Class13.smethod_23(200f, matrix_0, matrix_1, matrix_2);
+      float num = CoreUtils.smethod_23(200f, matrix_0, matrix_1, matrix_2);
       if ((double) num > 0.0)
         return 1f / num;
       return 0.0f;
@@ -245,15 +244,15 @@ namespace ns3
       if ((double) vector3_1.X < (double) viewport_0.X || (double) vector3_1.X - (double) viewport_0.X > (double) viewport_0.Width || ((double) vector3_1.Y < (double) viewport_0.Y || (double) vector3_1.Y - (double) viewport_0.Y > (double) viewport_0.Height))
         return false;
       vector3_2 = viewport_0.Unproject(vector3_1, matrix_3, matrix_1, matrix_0);
-      Class13.boundingFrustum_0.Matrix = matrix_1 * matrix_3;
-      if ((double) Class13.boundingFrustum_0.Near.DotCoordinate(vector3_2) > 0.0)
+      CoreUtils.boundingFrustum_0.Matrix = matrix_1 * matrix_3;
+      if ((double) CoreUtils.boundingFrustum_0.Near.DotCoordinate(vector3_2) > 0.0)
         vector3_2 = matrix_2.Translation - vector3_2 - matrix_2.Translation;
       return true;
     }
 
     public static bool smethod_26(Vector3 vector3_1, Viewport viewport_0, Matrix matrix_0, Matrix matrix_1, Matrix matrix_2, Matrix matrix_3, ref Vector3 vector3_2)
     {
-      if ((double) Class13.smethod_12(matrix_2.Forward, matrix_2.Translation).DotCoordinate(vector3_1) <= 0.0)
+      if ((double) CoreUtils.smethod_12(matrix_2.Forward, matrix_2.Translation).DotCoordinate(vector3_1) <= 0.0)
         return false;
       vector3_2 = viewport_0.Project(vector3_1, matrix_3, matrix_1, matrix_0);
       return true;
@@ -263,10 +262,10 @@ namespace ns3
     {
       if (boundingBox_0.Contains(matrix_1.Translation) == ContainmentType.Contains)
         return new Rectangle(viewport_0.X, viewport_0.Y, viewport_0.Width, viewport_0.Height);
-      boundingBox_0.GetCorners(Class13.vector3_0);
+      boundingBox_0.GetCorners(CoreUtils.vector3_0);
       for (int index = 0; index < 8; ++index)
       {
-        Vector4 vector4 = Vector4.Transform(Class13.vector3_0[index], matrix_0);
+        Vector4 vector4 = Vector4.Transform(CoreUtils.vector3_0[index], matrix_0);
         if ((double) vector4.W == 0.0)
           return new Rectangle(viewport_0.X, viewport_0.Y, viewport_0.Width, viewport_0.Height);
         if ((double) vector4.W < 0.0)
@@ -275,9 +274,9 @@ namespace ns3
           vector4 /= vector4.W;
         vector4.Y *= -1f;
         vector4 = vector4 * 0.5f + Vector4.One * 0.5f;
-        Class13.vector3_0[index] = Vector3.Clamp(new Vector3(vector4.X, vector4.Y, vector4.Z), Vector3.Zero, Vector3.One) * new Vector3((float) viewport_0.Width, (float) viewport_0.Height, 0.0f);
+        CoreUtils.vector3_0[index] = Vector3.Clamp(new Vector3(vector4.X, vector4.Y, vector4.Z), Vector3.Zero, Vector3.One) * new Vector3((float) viewport_0.Width, (float) viewport_0.Height, 0.0f);
       }
-      BoundingBox boundingBox = Class13.smethod_11(Class13.vector3_0);
+      BoundingBox boundingBox = CoreUtils.smethod_11(CoreUtils.vector3_0);
       return new Rectangle(viewport_0.X + (int) boundingBox.Min.X, viewport_0.Y + (int) boundingBox.Min.Y, (int) boundingBox.Max.X - (int) boundingBox.Min.X, (int) boundingBox.Max.Y - (int) boundingBox.Min.Y);
     }
 
