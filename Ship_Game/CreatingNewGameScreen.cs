@@ -59,7 +59,7 @@ namespace Ship_Game
         //private bool loading;
         private Thread WorkerThread;
         private UniverseScreen us;
-        private bool ready;
+        private bool AllSystemsGenerated;
         private float PercentLoaded;
         private int systemToMake;
         //private float Zrotate;
@@ -152,7 +152,6 @@ namespace Ship_Game
             string adviceString  = ResourceManager.LoadRandomAdvice();
             text = HelperFunctions.ParseText(Fonts.Arial12Bold, adviceString, 500f);
 
-            ResourceManager.ScreenManager = ScreenManager;
             var present = ScreenManager.GraphicsDevice.PresentationParameters;
             ScreenCenter = 0.5f * new Vector2(present.BackBufferWidth, present.BackBufferHeight);
             WorkerThread = new Thread(Worker) { IsBackground = true };
@@ -160,416 +159,428 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        private void Worker()
+        private void FinalizeEmpires()
         {
-            while (!ready)
+            foreach (Empire empire in Data.EmpireList)
             {
-                if (firstRun)
+                if (empire.isFaction || empire.MinorRace)
+                    continue;
+
+                foreach (Planet planet in empire.GetPlanets())
                 {
-                    var removalCollection = new BatchRemovalCollection<EmpireData>();
-                    foreach (EmpireData empireData in ResourceManager.Empires)
-                    {
-                        if (empireData.Traits.Name != EmpireToRemoveName && empireData.Faction == 0 && !empireData.MinorRace)
-                            removalCollection.Add(empireData);                        
-                    }
-                    int num = removalCollection.Count - NumOpponents;
-                    float spaceSaved = GC.GetTotalMemory(true);
-                    for (int opponents = 0; opponents < num; ++opponents)
-                    {
-                        //Intentionally using too high of a value here, because of the truncated decimal. -Gretman
-                        int index = RandomMath.InRange(removalCollection.Count);
+                    planet.MineralRichness += GlobalStats.StartingPlanetRichness;
+                    planet.system.ExploredDict[empire] = true;
+                    planet.ExploredDict[empire] = true;
 
-                        Log.Info("Race excluded from game: {0}  (Index {1} of {2})",  removalCollection[index].PortraitName, index, removalCollection.Count-1);
-                        removalCollection.RemoveAt(index);
-                    }
+                    foreach (Planet p in planet.system.PlanetList)
+                        p.ExploredDict[empire] = true;
 
-                    Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
-                                           
-                    foreach (EmpireData data in removalCollection)
-                    {                        
-                        Empire empireFromEmpireData = CreateEmpireFromEmpireData(data);
-                        Data.EmpireList.Add(empireFromEmpireData);
-                        var traits = empireFromEmpireData.data.Traits;
-                        switch (Difficulty)
-                        {
-                            case UniverseData.GameDifficulty.Easy:
-                                traits.ProductionMod -= 0.25f;
-                                traits.ResearchMod   -= 0.25f;
-                                traits.TaxMod        -= 0.25f;
-                                traits.ModHpModifier -= 0.25f;
-                                break;
-                            case UniverseData.GameDifficulty.Hard:
-                                empireFromEmpireData.data.FlatMoneyBonus += 10;
-                                traits.ProductionMod  += 0.5f;
-                                traits.ResearchMod    += 0.75f;
-                                traits.TaxMod         += 0.5f;
-                                traits.ShipCostMod    -= 0.2f;
-                                break;
-                            case UniverseData.GameDifficulty.Brutal:
-                                empireFromEmpireData.data.FlatMoneyBonus += 50; // cheaty cheat
-                                traits.ProductionMod += 1.0f;
-                                traits.ResearchMod    = 2.0f;
-                                traits.TaxMod        += 1.0f;
-                                traits.ShipCostMod   -= 0.5f;
-                                break;
-                        }
-                        EmpireManager.Add(empireFromEmpireData);
-                    }
-                    
-                    foreach (EmpireData data in ResourceManager.Empires)
+                    if (planet.system.OwnerList.Count == 0)
                     {
-                        if (data.Faction == 0 && !data.MinorRace)
-                            continue;
-                        Empire empireFromEmpireData = CreateEmpireFromEmpireData(data);
-                        Data.EmpireList.Add(empireFromEmpireData);
-                        EmpireManager.Add(empireFromEmpireData);
+                        planet.system.OwnerList.Add(empire);
+                        foreach (Planet planet2 in planet.system.PlanetList)
+                            planet2.ExploredDict[empire] = true;
                     }
-                   
-                    foreach (Empire empire in Data.EmpireList)
+                    if (planet.HasShipyard)
                     {
-                        foreach (Empire e in Data.EmpireList)
-                        {
-                            if (empire == e)
-                                continue;
-                            Relationship r = new Relationship(e.data.Traits.Name);
-                            empire.AddRelationships(e, r);
-                            if (PlayerEmpire != e)
-                                continue;
-
-                            float angerMod = (int)Difficulty * (90-empire.data.DiplomaticPersonality.Trustworthiness);
-                            r.Anger_DiplomaticConflict = angerMod;
-                            r.Anger_MilitaryConflict = 1;
-                        }
-                    }
-                    ResourceManager.MarkShipDesignsUnlockable();                    
-                    
-                    Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
-
-                    foreach (Empire empire in Data.EmpireList)
-                    {
-                        if (empire.isFaction || empire.MinorRace)
-                            continue;                    
-                        SolarSystem solarSystem;
-                        SolarSystemData systemData = ResourceManager.LoadSolarSystemData(empire.data.Traits.HomeSystemName);
-                        if (systemData == null)
-                        {
-                            solarSystem = new SolarSystem();
-                            solarSystem.GenerateStartingSystem(empire.data.Traits.HomeSystemName, empire, Scale);
-                        }
-                        else solarSystem = SolarSystem.GenerateSystemFromData(systemData, empire);                        
-                        solarSystem.isStartingSystem = true;
-                        Data.SolarSystemsList.Add(solarSystem);
-                        if (empire == PlayerEmpire)
-                            PlayerSystem = solarSystem;
-                    }
-                    int systemCount = 0;
-                    foreach (var systemData in ResourceManager.LoadRandomSolarSystems())
-                    {
-                        if (systemCount > NumSystems)
-                            break;
-                        SolarSystem solarSystem = SolarSystem.GenerateSystemFromData(systemData, null);
-                        solarSystem.DontStartNearPlayer = true; // Added by Gretman
-                        Data.SolarSystemsList.Add(solarSystem);
-                        systemCount++;
-                    }
-                    MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
-                    SolarSystem solarSystem1 = new SolarSystem();
-                    solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
-                    solarSystem1.DontStartNearPlayer = true;
-                    Data.SolarSystemsList.Add(solarSystem1);
-                    for (; systemCount < NumSystems; ++systemCount)
-                    {
-                        SolarSystem solarSystem2 = new SolarSystem();
-                        solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, this.Data, this.Scale);
-                        Data.SolarSystemsList.Add(solarSystem2);
-                        ++counter;
-                        PercentLoaded = counter / (float)(NumSystems * 2);
+                        SpaceStation spaceStation = new SpaceStation { planet = planet };
+                        planet.Station = spaceStation;
+                        spaceStation.ParentSystem = planet.system;
+                        spaceStation.LoadContent(ScreenManager);
                     }
 
-                    // This section added by Gretman
-                    if (Mode != RaceDesignScreen.GameMode.Corners)
-                    {
-                        foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
-                        {
-                            if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                                solarSystem2.Position = GenerateRandom(Data.Size.X / 4f);
-                        }
+                    string colonyShip = empire.data.DefaultColonyShip;
+                    if (GlobalStats.HardcoreRuleset) colonyShip += " STL";
 
-                        foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)    //Unaltered Vanilla stuff
-                        {
-                            if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
-                                solarSystem2.Position = GenerateRandom(350000f);
-                        }
+                    Ship ship1 = Ship.CreateShipAt(colonyShip, empire, planet, new Vector2(-2000, -2000), true);
+                    Data.MasterShipList.Add(ship1);
+
+                    string startingScout = empire.data.StartingScout;
+                    if (GlobalStats.HardcoreRuleset) startingScout += " STL";
+
+                    Ship ship2 = Ship.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
+                    Data.MasterShipList.Add(ship2);
+
+                    if (empire == PlayerEmpire)
+                    {
+                        string starterShip = empire.data.Traits.Prototype == 0 ? empire.data.StartingShip : empire.data.PrototypeShip;
+
+                        playerShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
+                        playerShip.SensorRange = 100000f; // @todo What is this range hack?
+
+                        if (GlobalStats.ActiveModInfo == null || playerShip.VanityName == "")
+                            playerShip.VanityName = "Perseverance";
+
+                        Data.MasterShipList.Add(playerShip);
+
+                        // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
+                        Data.playerShip = playerShip;
+
+                        planet.GovernorOn = false;
+                        planet.colonyType = Planet.ColonyType.Colony;
                     }
                     else
                     {
-                        short whichcorner = (short)RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
-                        foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)    
-                        {
-                            if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                            {
-                                if (solarSystem2.isStartingSystem)
-                                {
+                        string starterShip = empire.data.StartingShip;
+                        if (GlobalStats.HardcoreRuleset) starterShip += " STL";
+                        starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
 
-                                    //Corner Values
-                                    //0 = Top Left
-                                    //1 = Top Right
-                                    //2 = Bottom Left
-                                    //3 = Bottom Right
+                        Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
+                        Data.MasterShipList.Add(ship3);
 
-                                    //Put the 4 Home Planets into their corners, nessled nicely back a bit
-                                    float RandomoffsetX = RandomMath.RandomBetween(0, 19) / 100;   //Do want some variance in location, but still in the back
-                                    float RandomoffsetY = RandomMath.RandomBetween(0, 19) / 100;
-                                    float MinOffset = 0.04f;   //Minimum Offset
-                                         //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
-
-                                    float CornerOffset = 0.75f;  //Additional Offset for being in corner
-                                         //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
-                                    switch (whichcorner)
-                                    {
-                                        case 0:
-                                            solarSystem2.Position = new Vector2(
-                                                                    (-this.Data.Size.X + (this.Data.Size.X * (MinOffset + RandomoffsetX))),
-                                                                    (-this.Data.Size.Y + (this.Data.Size.Y * (MinOffset + RandomoffsetX))));
-                                            this.ClaimedSpots.Add(solarSystem2.Position);
-                                            break;
-                                        case 1:
-                                            solarSystem2.Position = new Vector2(
-                                                                    (this.Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
-                                                                    (-this.Data.Size.Y + (this.Data.Size.Y * (MinOffset + RandomoffsetX))));
-                                            this.ClaimedSpots.Add(solarSystem2.Position);
-                                            break;
-                                        case 2:
-                                            solarSystem2.Position = new Vector2(
-                                                                    (-this.Data.Size.X + (this.Data.Size.X * (MinOffset + RandomoffsetX))),
-                                                                    (this.Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
-                                            this.ClaimedSpots.Add(solarSystem2.Position);
-                                            break;
-                                        case 3:
-                                            solarSystem2.Position = new Vector2(
-                                                                    (this.Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
-                                                                    (this.Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
-                                            this.ClaimedSpots.Add(solarSystem2.Position);
-                                            break;
-                                    }
-                                }
-                                else solarSystem2.Position = this.GenerateRandomCorners(whichcorner);   //This will distribute the extra planets from "/SolarSystems/Random" evenly
-                                whichcorner += 1;
-                                if (whichcorner > 3) whichcorner = 0;
-                            }
-                        }
-
-                        foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)
-                        {
-                            //This will distribute all the rest of the planets evenly
-                            if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
-                            {
-                                solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
-                                whichcorner += 1;   //Only change which corner if a system is actually created
-                                if (whichcorner > 3) whichcorner = 0;
-                            }
-                        }
-                    }// Done breaking stuff -- Gretman
-
-                    ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
-                    firstRun = false;
-                }
-
-
-                SolarSystem wipSystem = Data.SolarSystemsList[systemToMake];
-
-                PercentLoaded = (counter + systemToMake) / (float)(Data.SolarSystemsList.Count * 2);
-                foreach (Empire key in Data.EmpireList)
-                    wipSystem.ExploredDict.Add(key, false);
-                foreach (Planet planet in wipSystem.PlanetList)
-                {
-                    planet.system = wipSystem;
-                    planet.Position += wipSystem.Position;
-                    planet.InitializeUpdate();
-                    ScreenManager.inter.ObjectManager.Submit(planet.SO);
-                    foreach (Empire key in Data.EmpireList)
-                        planet.ExploredDict.Add(key, false);
-                }
-                foreach (Asteroid asteroid in wipSystem.AsteroidsList)
-                {
-                    asteroid.Position3D.X += wipSystem.Position.X;
-                    asteroid.Position3D.Y += wipSystem.Position.Y;
-                    asteroid.Initialize();
-                    ScreenManager.inter.ObjectManager.Submit(asteroid.So);
-                }
-                foreach (Moon moon in wipSystem.MoonList)
-                {
-                    moon.Initialize();
-                    ScreenManager.inter.ObjectManager.Submit(moon.So);
-                }
-                foreach (Ship ship in wipSystem.ShipList)
-                {
-                    ship.Position = ship.loyalty.GetPlanets()[0].Position + new Vector2(6000f, 2000f);
-                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0.0f));
-                    ship.Initialize();
-                    ScreenManager.inter.ObjectManager.Submit(ship.GetSO());
-                    foreach (Thruster thruster in ship.GetTList())
-                    {
-                        thruster.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
-                        thruster.InitializeForViewing();
+                        empire.AddShip(ship3);
+                        empire.GetForcePool().Add(ship3);
                     }
                 }
-                ++systemToMake;
-                if (systemToMake == Data.SolarSystemsList.Count)
+            }
+            foreach (Empire empire in Data.EmpireList)
+            {
+                if (empire.isFaction || empire.data.Traits.BonusExplored <= 0)
+                    continue;
+
+                var planet0 = empire.GetPlanets()[0];
+                var solarSystems = Data.SolarSystemsList;
+                var orderedEnumerable = solarSystems.OrderBy(system => Vector2.Distance(planet0.Position, system.Position));
+                int numSystemsExplored = solarSystems.Count >= 20 ? empire.data.Traits.BonusExplored : solarSystems.Count;
+                for (int i = 0; i < numSystemsExplored; ++i)
                 {
-                    foreach (SolarSystem solarSystem1 in Data.SolarSystemsList)
-                    {
-                        var list = new Array<SysDisPair>();
-                        foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
-                        {
-                            if (solarSystem1 != solarSystem2)
-                            {
-                                float num1 = Vector2.Distance(solarSystem1.Position, solarSystem2.Position);
-                                if (list.Count < 5)
-                                {
-                                    list.Add(new SysDisPair
-                                    {
-                                        System = solarSystem2,
-                                        Distance = num1
-                                    });
-                                }
-                                else
-                                {
-                                    int index1 = 0;
-                                    float num2 = 0.0f;
-                                    for (int index2 = 0; index2 < 5; ++index2)
-                                    {
-                                        if (list[index2].Distance > num2)
-                                        {
-                                            index1 = index2;
-                                            num2 = list[index2].Distance;
-                                        }
-                                    }
-                                    if (num1 < num2)
-                                        list[index1] = new SysDisPair
-                                        {
-                                            System = solarSystem2,
-                                            Distance = num1
-                                        };
-                                }
-                            }
-                        }
-                        foreach (SysDisPair sysDisPair in list)
-                            solarSystem1.FiveClosestSystems.Add(sysDisPair.System);
-                    }
-                    foreach (Empire empire in Data.EmpireList)
-                    {
-                        if (empire.isFaction || empire.MinorRace)
-                            continue;
-
-                        foreach (Planet planet in empire.GetPlanets())
-                        {
-                            planet.MineralRichness += GlobalStats.StartingPlanetRichness;
-                            planet.system.ExploredDict[empire] = true;
-                            planet.ExploredDict[empire] = true;
-
-                            foreach (Planet p in planet.system.PlanetList)
-                                p.ExploredDict[empire] = true;
-
-                            if (planet.system.OwnerList.Count == 0)
-                            {
-                                planet.system.OwnerList.Add(empire);
-                                foreach (Planet planet2 in planet.system.PlanetList)
-                                    planet2.ExploredDict[empire] = true;
-                            }
-                            if (planet.HasShipyard)
-                            {
-                                SpaceStation spaceStation = new SpaceStation { planet = planet };
-                                planet.Station = spaceStation;
-                                spaceStation.ParentSystem = planet.system;
-                                spaceStation.LoadContent(ScreenManager);
-                            }
-
-                            string colonyShip = empire.data.DefaultColonyShip;
-                            if (GlobalStats.HardcoreRuleset) colonyShip += " STL";
-
-                            // @todo This hack is here because SD has several tight coupling issues, need to fix loading order
-                            ResourceManager.ScreenManager = ScreenManager;
-                            Ship ship1 = Ship.CreateShipAt(colonyShip, empire, planet, new Vector2(-2000, -2000), true);
-                            Data.MasterShipList.Add(ship1);
-
-                            string startingScout = empire.data.StartingScout;
-                            if (GlobalStats.HardcoreRuleset) startingScout += " STL";
-
-                            Ship ship2 = Ship.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
-                            Data.MasterShipList.Add(ship2);
-
-                            if (empire == PlayerEmpire)
-                            {
-                                string starterShip = empire.data.Traits.Prototype == 0 ? empire.data.StartingShip : empire.data.PrototypeShip;
-
-                                playerShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
-                                playerShip.SensorRange = 100000f; // @todo What is this range hack?
-
-                                if (GlobalStats.ActiveModInfo == null || playerShip.VanityName == "")
-                                    playerShip.VanityName = "Perseverance";
-
-                                Data.MasterShipList.Add(playerShip);
-
-                                // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
-                                Data.playerShip = playerShip;
-
-                                planet.GovernorOn = false;
-                                planet.colonyType = Planet.ColonyType.Colony;
-                            }
-                            else
-                            {
-                                string starterShip = empire.data.StartingShip;
-                                if (GlobalStats.HardcoreRuleset) starterShip += " STL";
-                                starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
-
-                                Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
-                                Data.MasterShipList.Add(ship3);
-
-                                empire.AddShip(ship3);
-                                empire.GetForcePool().Add(ship3);
-                            }
-                            // @todo Remove tight coupling hacks
-                            ResourceManager.ScreenManager = null;
-                        }
-                    }
-                    foreach (Empire empire in Data.EmpireList)
-                    {
-                        if (empire.isFaction || empire.data.Traits.BonusExplored <= 0)
-                            continue;
-
-                        var planet0 = empire.GetPlanets()[0];
-                        var solarSystems = Data.SolarSystemsList;
-                        var orderedEnumerable  = solarSystems.OrderBy(system => Vector2.Distance(planet0.Position, system.Position));
-                        int numSystemsExplored = solarSystems.Count >= 20 ? empire.data.Traits.BonusExplored : solarSystems.Count;
-                        for (int i = 0; i < numSystemsExplored; ++i)
-                        {
-                            var system = orderedEnumerable.ElementAt(i);
-                            system.ExploredDict[empire] = true;
-                            foreach (Planet planet in system.PlanetList)
-                                planet.ExploredDict[empire] = true;
-                        }
-                    }
-                    ready = true;
+                    var system = orderedEnumerable.ElementAt(i);
+                    system.ExploredDict[empire] = true;
+                    foreach (Planet planet in system.PlanetList)
+                        planet.ExploredDict[empire] = true;
                 }
             }
         }
 
-        public Vector2 GenerateRandom(float spacing)
+        private void FinalizeSolarSystems()
         {
-            Vector2 sysPos = new Vector2(RandomMath.RandomBetween(-this.Data.Size.X + 100000f, this.Data.Size.X - 100000f), RandomMath.RandomBetween(-this.Data.Size.X + 100000f, this.Data.Size.Y - 100000f)); //Fixed to make use of negative map values -Gretman
-            if (this.SystemPosOK(sysPos, spacing))
+            foreach (SolarSystem solarSystem1 in Data.SolarSystemsList)
             {
-                this.ClaimedSpots.Add(sysPos);
-                return sysPos;
+                var list = new Array<SysDisPair>();
+                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
+                {
+                    if (solarSystem1 != solarSystem2)
+                    {
+                        float num1 = Vector2.Distance(solarSystem1.Position, solarSystem2.Position);
+                        if (list.Count < 5)
+                        {
+                            list.Add(new SysDisPair
+                            {
+                                System = solarSystem2,
+                                Distance = num1
+                            });
+                        }
+                        else
+                        {
+                            int index1 = 0;
+                            float num2 = 0.0f;
+                            for (int index2 = 0; index2 < 5; ++index2)
+                            {
+                                if (list[index2].Distance > num2)
+                                {
+                                    index1 = index2;
+                                    num2 = list[index2].Distance;
+                                }
+                            }
+                            if (num1 < num2)
+                                list[index1] = new SysDisPair
+                                {
+                                    System = solarSystem2,
+                                    Distance = num1
+                                };
+                        }
+                    }
+                }
+                foreach (SysDisPair sysDisPair in list)
+                    solarSystem1.FiveClosestSystems.Add(sysDisPair.System);
+            }
+
+        }
+
+        private void SubmitSceneObjectsForRendering()
+        {
+            SolarSystem wipSystem = Data.SolarSystemsList[systemToMake];
+
+            PercentLoaded = (counter + systemToMake) / (float)(Data.SolarSystemsList.Count * 2);
+            foreach (Empire key in Data.EmpireList)
+                wipSystem.ExploredDict.Add(key, false);
+            foreach (Planet planet in wipSystem.PlanetList)
+            {
+                planet.system = wipSystem;
+                planet.Position += wipSystem.Position;
+                planet.InitializeUpdate();
+                ScreenManager.inter.ObjectManager.Submit(planet.SO);
+                foreach (Empire key in Data.EmpireList)
+                    planet.ExploredDict.Add(key, false);
+            }
+            foreach (Asteroid asteroid in wipSystem.AsteroidsList)
+            {
+                asteroid.Position3D.X += wipSystem.Position.X;
+                asteroid.Position3D.Y += wipSystem.Position.Y;
+                asteroid.Initialize();
+                ScreenManager.inter.ObjectManager.Submit(asteroid.So);
+            }
+            foreach (Moon moon in wipSystem.MoonList)
+            {
+                moon.Initialize();
+                ScreenManager.inter.ObjectManager.Submit(moon.So);
+            }
+            foreach (Ship ship in wipSystem.ShipList)
+            {
+                ship.Position = ship.loyalty.GetPlanets()[0].Position + new Vector2(6000f, 2000f);
+                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0.0f));
+                ship.Initialize();
+                ScreenManager.inter.ObjectManager.Submit(ship.GetSO());
+                foreach (Thruster thruster in ship.GetTList())
+                {
+                    thruster.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
+                    thruster.InitializeForViewing();
+                }
+            }
+        }
+
+        private void GenerateInitialSystemData()
+        {
+            var removalCollection = new BatchRemovalCollection<EmpireData>();
+            foreach (EmpireData empireData in ResourceManager.Empires)
+            {
+                if (empireData.Traits.Name != EmpireToRemoveName && empireData.Faction == 0 && !empireData.MinorRace)
+                    removalCollection.Add(empireData);
+            }
+            int num = removalCollection.Count - NumOpponents;
+            float spaceSaved = GC.GetTotalMemory(true);
+            for (int opponents = 0; opponents < num; ++opponents)
+            {
+                //Intentionally using too high of a value here, because of the truncated decimal. -Gretman
+                int index = RandomMath.InRange(removalCollection.Count);
+
+                Log.Info("Race excluded from game: {0}  (Index {1} of {2})", removalCollection[index].PortraitName, index, removalCollection.Count - 1);
+                removalCollection.RemoveAt(index);
+            }
+
+            Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
+
+            foreach (EmpireData data in removalCollection)
+            {
+                Empire empireFromEmpireData = CreateEmpireFromEmpireData(data);
+                Data.EmpireList.Add(empireFromEmpireData);
+                var traits = empireFromEmpireData.data.Traits;
+                switch (Difficulty)
+                {
+                    case UniverseData.GameDifficulty.Easy:
+                        traits.ProductionMod -= 0.25f;
+                        traits.ResearchMod   -= 0.25f;
+                        traits.TaxMod        -= 0.25f;
+                        traits.ModHpModifier -= 0.25f;
+                        break;
+                    case UniverseData.GameDifficulty.Hard:
+                        empireFromEmpireData.data.FlatMoneyBonus += 10;
+                        traits.ProductionMod += 0.5f;
+                        traits.ResearchMod   += 0.75f;
+                        traits.TaxMod        += 0.5f;
+                        traits.ShipCostMod   -= 0.2f;
+                        break;
+                    case UniverseData.GameDifficulty.Brutal:
+                        empireFromEmpireData.data.FlatMoneyBonus += 50; // cheaty cheat
+                        traits.ProductionMod += 1.0f;
+                        traits.ResearchMod    = 2.0f;
+                        traits.TaxMod        += 1.0f;
+                        traits.ShipCostMod   -= 0.5f;
+                        break;
+                }
+                EmpireManager.Add(empireFromEmpireData);
+            }
+
+            foreach (EmpireData data in ResourceManager.Empires)
+            {
+                if (data.Faction == 0 && !data.MinorRace)
+                    continue;
+                Empire empireFromEmpireData = CreateEmpireFromEmpireData(data);
+                Data.EmpireList.Add(empireFromEmpireData);
+                EmpireManager.Add(empireFromEmpireData);
+            }
+
+            foreach (Empire empire in Data.EmpireList)
+            {
+                foreach (Empire e in Data.EmpireList)
+                {
+                    if (empire == e)
+                        continue;
+                    Relationship r = new Relationship(e.data.Traits.Name);
+                    empire.AddRelationships(e, r);
+                    if (PlayerEmpire != e)
+                        continue;
+
+                    float angerMod = (int)Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
+                    r.Anger_DiplomaticConflict = angerMod;
+                    r.Anger_MilitaryConflict = 1;
+                }
+            }
+            ResourceManager.MarkShipDesignsUnlockable();
+
+            Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
+
+            foreach (Empire empire in Data.EmpireList)
+            {
+                if (empire.isFaction || empire.MinorRace)
+                    continue;
+                SolarSystem solarSystem;
+                SolarSystemData systemData = ResourceManager.LoadSolarSystemData(empire.data.Traits.HomeSystemName);
+                if (systemData == null)
+                {
+                    solarSystem = new SolarSystem();
+                    solarSystem.GenerateStartingSystem(empire.data.Traits.HomeSystemName, empire, Scale);
+                }
+                else solarSystem = SolarSystem.GenerateSystemFromData(systemData, empire);
+                solarSystem.isStartingSystem = true;
+                Data.SolarSystemsList.Add(solarSystem);
+                if (empire == PlayerEmpire)
+                    PlayerSystem = solarSystem;
+            }
+            int systemCount = 0;
+            foreach (var systemData in ResourceManager.LoadRandomSolarSystems())
+            {
+                if (systemCount > NumSystems)
+                    break;
+                var solarSystem = SolarSystem.GenerateSystemFromData(systemData, null);
+                solarSystem.DontStartNearPlayer = true; // Added by Gretman
+                Data.SolarSystemsList.Add(solarSystem);
+                systemCount++;
+            }
+            var markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
+            var solarSystem1 = new SolarSystem();
+            solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
+            solarSystem1.DontStartNearPlayer = true;
+            Data.SolarSystemsList.Add(solarSystem1);
+            for (; systemCount < NumSystems; ++systemCount)
+            {
+                var solarSystem2 = new SolarSystem();
+                solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, this.Data, this.Scale);
+                Data.SolarSystemsList.Add(solarSystem2);
+                ++counter;
+                PercentLoaded = counter / (float)(NumSystems * 2);
+            }
+
+            // This section added by Gretman
+            if (Mode != RaceDesignScreen.GameMode.Corners)
+            {
+                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
+                {
+                    if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                        solarSystem2.Position = GenerateRandomSysPos(Data.Size.X / 4f);
+                }
+
+                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)    //Unaltered Vanilla stuff
+                {
+                    if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
+                        solarSystem2.Position = GenerateRandomSysPos(350000f);
+                }
             }
             else
             {
-                while (!this.SystemPosOK(sysPos, spacing))
-                    sysPos = new Vector2(RandomMath.RandomBetween(-this.Data.Size.X + 100000f, this.Data.Size.X - 100000f), RandomMath.RandomBetween(-this.Data.Size.X + 100000f, this.Data.Size.Y - 100000f));
-                this.ClaimedSpots.Add(sysPos);
-                return sysPos;
+                short whichcorner = (short)RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
+                foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)
+                {
+                    if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                    {
+                        if (solarSystem2.isStartingSystem)
+                        {
+
+                            //Corner Values
+                            //0 = Top Left
+                            //1 = Top Right
+                            //2 = Bottom Left
+                            //3 = Bottom Right
+
+                            //Put the 4 Home Planets into their corners, nessled nicely back a bit
+                            float RandomoffsetX = RandomMath.RandomBetween(0, 19) / 100;   //Do want some variance in location, but still in the back
+                            float RandomoffsetY = RandomMath.RandomBetween(0, 19) / 100;
+                            float MinOffset = 0.04f;   //Minimum Offset
+                                                       //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
+
+                            float CornerOffset = 0.75f;  //Additional Offset for being in corner
+                                                         //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
+                            switch (whichcorner)
+                            {
+                                case 0:
+                                    solarSystem2.Position = new Vector2(
+                                                            (-Data.Size.X + (Data.Size.X * (MinOffset + RandomoffsetX))),
+                                                            (-Data.Size.Y + (Data.Size.Y * (MinOffset + RandomoffsetX))));
+                                    ClaimedSpots.Add(solarSystem2.Position);
+                                    break;
+                                case 1:
+                                    solarSystem2.Position = new Vector2(
+                                                            (Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
+                                                            (-Data.Size.Y + (Data.Size.Y * (MinOffset + RandomoffsetX))));
+                                    ClaimedSpots.Add(solarSystem2.Position);
+                                    break;
+                                case 2:
+                                    solarSystem2.Position = new Vector2(
+                                                            (-Data.Size.X + (Data.Size.X * (MinOffset + RandomoffsetX))),
+                                                            (Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                    ClaimedSpots.Add(solarSystem2.Position);
+                                    break;
+                                case 3:
+                                    solarSystem2.Position = new Vector2(
+                                                            (Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
+                                                            (Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                    ClaimedSpots.Add(solarSystem2.Position);
+                                    break;
+                            }
+                        }
+                        else solarSystem2.Position = GenerateRandomCorners(whichcorner);   //This will distribute the extra planets from "/SolarSystems/Random" evenly
+                        whichcorner += 1;
+                        if (whichcorner > 3) whichcorner = 0;
+                    }
+                }
+
+                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
+                {
+                    //This will distribute all the rest of the planets evenly
+                    if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
+                    {
+                        solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
+                        whichcorner += 1;   //Only change which corner if a system is actually created
+                        if (whichcorner > 3) whichcorner = 0;
+                    }
+                }
+            }// Done breaking stuff -- Gretman
+
+            ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
+        }
+
+        private void Worker()
+        {
+            while (!AllSystemsGenerated)
+            {
+                if (firstRun)
+                {
+                    GenerateInitialSystemData();
+                    firstRun = false;
+                }
+
+                SubmitSceneObjectsForRendering();
+
+                ++systemToMake;
+
+                if (systemToMake == Data.SolarSystemsList.Count)
+                {
+                    FinalizeSolarSystems();
+                    FinalizeEmpires();
+                    AllSystemsGenerated = true;
+                }
             }
+        }
+
+        public Vector2 GenerateRandomSysPos(float spacing)
+        {
+            Vector2 sysPos;
+            do {
+                sysPos = RandomMath.Vector2D(Data.Size.X - 100000f);
+            } while (!SystemPosOK(sysPos, spacing));
+
+            ClaimedSpots.Add(sysPos);
+            return sysPos;
         }
 
         public Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type
@@ -790,14 +801,14 @@ namespace Ship_Game
                 empire.MinorRace = true;
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.DiplomaticTraitsList.Count);
             data.DiplomaticPersonality = this.DTraits.DiplomaticTraitsList[index1];
-            while (!this.CheckPersonality(data))
+            while (!CheckPersonality(data))
             {
                 int index2 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.DiplomaticTraitsList.Count);
                 data.DiplomaticPersonality = this.DTraits.DiplomaticTraitsList[index2];
             }
             int index3 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.EconomicTraitsList.Count);
             data.EconomicPersonality = this.DTraits.EconomicTraitsList[index3];
-            while (!this.CheckEPersonality(data))
+            while (!CheckEPersonality(data))
             {
                 int index2 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.EconomicTraitsList.Count);
                 data.EconomicPersonality = this.DTraits.EconomicTraitsList[index2];
@@ -816,7 +827,7 @@ namespace Ship_Game
             return empire;
         }
 
-        private bool CheckPersonality(EmpireData data)
+        private static bool CheckPersonality(EmpireData data)
         {
             foreach (string str in data.ExcludedDTraits)
             {
@@ -826,7 +837,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool CheckEPersonality(EmpireData data)
+        private static bool CheckEPersonality(EmpireData data)
         {
             foreach (string str in data.ExcludedETraits)
             {
@@ -838,22 +849,21 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            if (!ready || !input.InGameSelect)
+            if (!AllSystemsGenerated || !input.InGameSelect)
                 return;
-            Go();
-        }
 
-        public void Go()
-        {
             GameAudio.StopGenericMusic(immediate: false);
+
+            
             us = new UniverseScreen(Data)
             {
                 player         = PlayerEmpire,
+                camPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
                 ScreenManager  = ScreenManager,
-                camPos         = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
                 GameDifficulty = Difficulty,
                 GameScale      = Scale
             };
+
             UniverseScreen.GameScaleStatic = Scale;
             WorkerThread.Abort();
             WorkerThread = null;
@@ -864,7 +874,6 @@ namespace Ship_Game
             mmscreen.OnPlaybackStopped(null, null);
             ScreenManager.RemoveScreen(mmscreen);
  
-            //this.Dispose();
             ExitScreen();
         }
 
@@ -875,21 +884,21 @@ namespace Ship_Game
             int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
             ScreenManager.SpriteBatch.Draw(LoadingScreenTexture, new Rectangle(width / 2 - 960, height / 2 - 540, 1920, 1080), Color.White);
-            Rectangle r = new Rectangle(width / 2 - 150, height - 25, 300, 25);
+            var r = new Rectangle(width / 2 - 150, height - 25, 300, 25);
             new ProgressBar(r)
             {
                 Max = 100f,
                 Progress = PercentLoaded * 100f
             }.Draw(ScreenManager.SpriteBatch);
-            Vector2 position = new Vector2(ScreenCenter.X - 250f, (float)(r.Y - Fonts.Arial12Bold.MeasureString(text).Y - 5.0));
+            var position = new Vector2(ScreenCenter.X - 250f, (float)(r.Y - Fonts.Arial12Bold.MeasureString(text).Y - 5.0));
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, position, Color.White);
-            if (ready)
+            if (AllSystemsGenerated)
             {
                 PercentLoaded = 1f;
                 position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
                 string token = Localizer.Token(2108);
                 position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
-                Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
+                var color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, token, position, color);
             }
             ScreenManager.SpriteBatch.End();

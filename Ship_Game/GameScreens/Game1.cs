@@ -10,63 +10,63 @@ using System.Windows.Forms;
 namespace Ship_Game
 {
     // This class is created only once during Program start
-	public sealed class Game1 : Game
-	{
-		public GraphicsDeviceManager Graphics;
-		public static Game1 Instance;
-		public ScreenManager ScreenManager;
+    public sealed class Game1 : Game
+    {
+        public GraphicsDeviceManager Graphics;
+        public static Game1 Instance;
+        public ScreenManager ScreenManager;
         public Viewport Viewport { get; private set; }
-		public bool IsLoaded { get; private set; }
+        public bool IsLoaded { get; private set; }
 
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Instance.Content;
 
-		public Game1()
-		{
+        public Game1()
+        {
             // need to set base Content, to ensure proper content disposal
             base.Content = this.Content = new GameContentManager(Services, "Game");
 
         #if STEAM
             if (SteamManager.SteamInitialize())
-			{
+            {
                 SteamManager.RequestCurrentStats();
                 if (SteamManager.SetAchievement("Thanks"))
                     SteamManager.SaveAllStatAndAchievementChanges();
-			}
+            }
         #endif
 
             Exiting += GameExiting;
 
             Graphics = new GraphicsDeviceManager(this)
-			{
-				MinimumPixelShaderProfile  = ShaderProfile.PS_2_0,
-				MinimumVertexShaderProfile = ShaderProfile.VS_2_0
-			};
-			string appData = Dir.ApplicationData;
-			Directory.CreateDirectory(appData + "/StarDrive/Saved Games");
+            {
+                MinimumPixelShaderProfile  = ShaderProfile.PS_2_0,
+                MinimumVertexShaderProfile = ShaderProfile.VS_2_0
+            };
+            string appData = Dir.ApplicationData;
+            Directory.CreateDirectory(appData + "/StarDrive/Saved Games");
             Directory.CreateDirectory(appData + "/StarDrive/Saved Races");  // for saving custom races
             Directory.CreateDirectory(appData + "/StarDrive/Saved Setups"); // for saving new game setups
             Directory.CreateDirectory(appData + "/StarDrive/Fleet Designs");
-			Directory.CreateDirectory(appData + "/StarDrive/Saved Designs");
-			Directory.CreateDirectory(appData + "/StarDrive/WIP");
-			Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
-			Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
+            Directory.CreateDirectory(appData + "/StarDrive/Saved Designs");
+            Directory.CreateDirectory(appData + "/StarDrive/WIP");
+            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
+            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
 
-			if (GlobalStats.RanOnce)
-			{
+            if (GlobalStats.RanOnce)
+            {
                 Graphics.PreferredBackBufferWidth  = GlobalStats.XRES;
                 Graphics.PreferredBackBufferHeight = GlobalStats.YRES;
-			}
-			else
-			{
-				Graphics.PreferredBackBufferWidth  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-				Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-				Graphics.IsFullScreen = true;
-			}
-			Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-			Graphics.PreferMultiSampling = true;
-			Graphics.SynchronizeWithVerticalRetrace = true;
-			Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
+            }
+            else
+            {
+                Graphics.PreferredBackBufferWidth  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+                Graphics.IsFullScreen = true;
+            }
+            Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
+            Graphics.PreferMultiSampling = true;
+            Graphics.SynchronizeWithVerticalRetrace = true;
+            Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
 
             int width  = GlobalStats.XRES;
             int height = GlobalStats.YRES;
@@ -78,10 +78,10 @@ namespace Ship_Game
             SetWindowMode(GlobalStats.WindowMode, width, height);
 
             var cursor = new Bitmap("Content/Cursors/Cursor.png", true);
-			System.Drawing.Graphics.FromImage(cursor);
-			Control.FromHandle(Window.Handle).Cursor = new Cursor(cursor.GetHicon());
-			IsMouseVisible = true;
-		}
+            System.Drawing.Graphics.FromImage(cursor);
+            Control.FromHandle(Window.Handle).Cursor = new Cursor(cursor.GetHicon());
+            IsMouseVisible = true;
+        }
 
         private void GameExiting(object sender, EventArgs e)
         {
@@ -89,64 +89,66 @@ namespace Ship_Game
         }
 
         public void ApplySettings()
-		{
-			Graphics.ApplyChanges();
-		    Viewport = GraphicsDevice.Viewport;
+        {
+            Graphics.ApplyChanges();
+            Viewport = GraphicsDevice.Viewport;
             ScreenManager?.UpdateViewports();
         }
 
-		protected override void Draw(GameTime gameTime)
-		{
-		    if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
+        protected override void Draw(GameTime gameTime)
+        {
+            if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
                 return;
 
-		    GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
-		    if (!SplashScreen.DisplayComplete)
-		    {
+            GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
+            if (!SplashScreen.DisplayComplete)
+            {
                 ScreenManager.splashScreenGameComponent.Draw(gameTime);
             }
-		    ScreenManager.Draw(gameTime);
-		    base.Draw(gameTime);
-		}
+            ScreenManager.Draw(gameTime);
+            base.Draw(gameTime);
+        }
 
-		protected override void Initialize()
-		{
-			Window.Title = "StarDrive";
+        protected override void Initialize()
+        {
+            Window.Title = "StarDrive";
             ScreenManager = new ScreenManager(this, Graphics)
-			{
-				splashScreenGameComponent = new SplashScreenGameComponent(this, Graphics)
-			};
+            {
+                splashScreenGameComponent = new SplashScreenGameComponent(this, Graphics)
+            };
             Components.Add(ScreenManager.splashScreenGameComponent);
             GameAudio.Initialize("Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
-            
-			Instance = this;
-			base.Initialize();
-		}
 
-		protected override void LoadContent()
-		{
-			if (IsLoaded)
-				return;
+            ResourceManager.ScreenManager = ScreenManager;
+
+            Instance = this;
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            if (IsLoaded)
+                return;
 
             ScreenManager.LoadContent();
-			Fonts.LoadContent(Content);
-			ScreenManager.AddScreen(new GameLoadingScreen());
-			IsLoaded = true;
-		}
+            Fonts.LoadContent(Content);
+            ScreenManager.AddScreen(new GameLoadingScreen());
+            IsLoaded = true;
+        }
 
-		private static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
-		{
+        private static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
+        {
             GraphicsAdapter a = e.GraphicsDeviceInformation.Adapter;
             PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;
 
-			if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, 
+            if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, 
                                                    false, MultiSampleType.TwoSamples, out int quality))
-			{
+            {
                 p.MultiSampleQuality = (quality == 1 ? 0 : 1);
                 p.MultiSampleType    = MultiSampleType.FourSamples;
-			}
-			else
-			{
+            }
+            else
+            {
                 p.MultiSampleType    = MultiSampleType.None;
                 p.MultiSampleQuality = 0;
             }
@@ -159,27 +161,27 @@ namespace Ship_Game
                     
             }
 
-			e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
-		}
+            e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
+        }
 
-		public void SetWindowMode(WindowMode mode, int width, int height)
-		{
+        public void SetWindowMode(WindowMode mode, int width, int height)
+        {
             if (width <= 0 || height <= 0)
             {
                 width  = 800;
                 height = 600;
             }
-			var form = (Form)Control.FromHandle(Window.Handle);        
+            var form = (Form)Control.FromHandle(Window.Handle);        
             if (Debugger.IsAttached && mode == WindowMode.Fullscreen)
                 mode = WindowMode.Borderless;
             GlobalStats.WindowMode = mode;
             Graphics.PreferredBackBufferWidth  = width;
             Graphics.PreferredBackBufferHeight = height;
             switch (mode)
-			{
-				case WindowMode.Windowed:   form.FormBorderStyle = FormBorderStyle.Fixed3D; break;
-				case WindowMode.Borderless: form.FormBorderStyle = FormBorderStyle.None;    break;
-			}
+            {
+                case WindowMode.Windowed:   form.FormBorderStyle = FormBorderStyle.Fixed3D; break;
+                case WindowMode.Borderless: form.FormBorderStyle = FormBorderStyle.None;    break;
+            }
             if (mode != WindowMode.Fullscreen && Graphics.IsFullScreen || 
                 mode == WindowMode.Fullscreen && !Graphics.IsFullScreen)
             {
@@ -197,18 +199,18 @@ namespace Ship_Game
                 var size = Screen.PrimaryScreen.Bounds.Size;
                 form.Location = new System.Drawing.Point(size.Width / 2 - width / 2, size.Height / 2 - height / 2);
             }
-		}
+        }
 
-		protected override void UnloadContent()
-		{
-		}
+        protected override void UnloadContent()
+        {
+        }
 
-		protected override void Update(GameTime gameTime)
-		{
+        protected override void Update(GameTime gameTime)
+        {
             GameAudio.Update();
             ScreenManager.Update(gameTime);
-			base.Update(gameTime);
-		}
+            base.Update(gameTime);
+        }
 
         protected override void Dispose(bool disposing)
         {
