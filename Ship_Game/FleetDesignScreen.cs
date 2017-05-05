@@ -1863,7 +1863,7 @@ namespace Ship_Game
 			this.OperationalRadius.SetAmount(0.2f);
 			this.OperationalRadius.Tip_ID = 13;
 			Rectangle sizerect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
-			this.Slider_Size = new SizeSlider(sizerect, "Target Size Preference");
+			this.Slider_Size = new SizeSlider(sizerect, "Target UniverseRadius Preference");
 			this.Slider_Size.SetAmount(0.5f);
 			this.Slider_Size.Tip_ID = 14;
 			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);

@@ -116,7 +116,7 @@ namespace ns3
           if (bool_0)
             return this;
           BoundingBox boundingBox0 = this.boundingBox_0;
-          boundingBox0.Min = Class13.smethod_3(boundingBox0.Min, (int) this.enum2_0, -this.plane_0.D);
+          boundingBox0.Min = CoreUtils.smethod_3(boundingBox0.Min, (int) this.enum2_0, -this.plane_0.D);
           this.class9_0 = Class9<T>.PooledObjectFactory0.New();
           this.class9_0.method_0(ref boundingBox0, this.int_0);
         }
@@ -127,7 +127,7 @@ namespace ns3
         if (bool_0)
           return this;
         BoundingBox boundingBox0 = this.boundingBox_0;
-        boundingBox0.Max = Class13.smethod_3(boundingBox0.Max, (int) this.enum2_0, -this.plane_0.D);
+        boundingBox0.Max = CoreUtils.smethod_3(boundingBox0.Max, (int) this.enum2_0, -this.plane_0.D);
         this.class9_1 = Class9<T>.PooledObjectFactory0.New();
         this.class9_1.method_0(ref boundingBox0, this.int_0);
       }

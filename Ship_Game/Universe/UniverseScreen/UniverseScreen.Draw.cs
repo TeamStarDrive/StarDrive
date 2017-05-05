@@ -311,7 +311,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.Clear(Color.TransparentWhite);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             this.ScreenManager.SpriteBatch.Draw(this.FogMap, new Rectangle(0, 0, 512, 512), Color.White);
-            float num = 512f / Size.X;
+            float num = 512f / UniverseRadius;
             var uiNode = ResourceManager.TextureDict["UI/node"];
             foreach (Ship ship in player.GetShips())
             {
@@ -333,7 +333,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.LightsTarget);
             this.ScreenManager.GraphicsDevice.Clear(Color.White);
 
-            this.Viewport.Project(new Vector3(this.Size.X / 2f, this.Size.Y / 2f, 0.0f),
+            this.Viewport.Project(new Vector3(this.UniverseRadius / 2f, this.UniverseRadius / 2f, 0.0f),
                 this.projection, this.view, Matrix.Identity);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
@@ -342,7 +342,7 @@ namespace Ship_Game
                     Viewport.Project(Vector3.Zero, this.projection, this.view,
                         Matrix.Identity);
                 Vector3 vector3_2 =
-                    Viewport.Project(new Vector3(this.Size.X, this.Size.Y, 0.0f),
+                    Viewport.Project(new Vector3(this.UniverseRadius, this.UniverseRadius, 0.0f),
                         this.projection, this.view, Matrix.Identity);
 
 

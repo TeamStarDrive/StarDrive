@@ -262,7 +262,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             SetName(name);
             for (int index = 0; index < model.Meshes.Count; ++index)
-                method_3(model.Meshes[index], null);
+                Add(model.Meshes[index], null);
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         public SceneObject(ModelMesh mesh, string name)
         {
             SetName(name);
-            method_3(mesh, null);
+            Add(mesh, null);
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             SetName(name);
             for (int i = 0; i < model.Meshes.Count; ++i)
-                method_3(model.Meshes[i], overrideeffect);
+                Add(model.Meshes[i], overrideeffect);
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         public SceneObject(ModelMesh mesh, Effect overrideeffect, string name)
         {
             SetName(name);
-            method_3(mesh, overrideeffect);
+            Add(mesh, overrideeffect);
         }
 
         private void SetName(string name)
@@ -365,7 +365,7 @@ namespace SynapseGaming.LightingSystem.Rendering
 
         private void CalculateWorldBounds()
         {
-            WorldBoundingSphere = !InfiniteBounds ? Class13.smethod_6(ObjectBoundingSphere, WorldMatrix) : new BoundingSphere(Vector3.Zero, 3.402823E+37f);
+            WorldBoundingSphere = !InfiniteBounds ? CoreUtils.TransformSphere(ObjectBoundingSphere, WorldMatrix) : new BoundingSphere(Vector3.Zero, 3.402823E+37f);
             BoundingBox fromSphere = BoundingBox.CreateFromSphere(WorldBoundingSphere);
             if (ObjectType == ObjectType.Static)
             {
@@ -380,17 +380,28 @@ namespace SynapseGaming.LightingSystem.Rendering
             }
         }
 
-        private void method_3(ModelMesh mesh, Effect effect)
+        private void Add(ModelMesh mesh, Effect effect)
         {
-            Matrix identity = Matrix.Identity;
-            for (ModelBone modelBone = mesh.ParentBone; modelBone != null; modelBone = modelBone.Parent)
-                identity *= modelBone.Transform;
-            BoundingSphere objectspaceboundingsphere = Class13.smethod_6(mesh.BoundingSphere, identity);
-            for (int index = 0; index < mesh.MeshParts.Count; ++index)
+            Matrix completeTransform = Matrix.Identity;
+            for (ModelBone bone = mesh.ParentBone; bone != null; bone = bone.Parent)
+                completeTransform *= bone.Transform;
+
+            BoundingSphere objectspaceboundingsphere = CoreUtils.TransformSphere(mesh.BoundingSphere, completeTransform);
+            for (int i = 0; i < mesh.MeshParts.Count; ++i)
             {
-                ModelMeshPart meshPart = mesh.MeshParts[index];
+                ModelMeshPart meshPart = mesh.MeshParts[i];
                 Effect fx = effect ?? meshPart.Effect;
-                Add(new RenderableMesh(this, fx, identity, objectspaceboundingsphere, mesh.IndexBuffer, mesh.VertexBuffer, meshPart.VertexDeclaration, meshPart.StartIndex, PrimitiveType.TriangleList, meshPart.PrimitiveCount, meshPart.BaseVertex, meshPart.NumVertices, meshPart.StreamOffset, meshPart.VertexStride));
+                Add(new RenderableMesh(this, fx, completeTransform, objectspaceboundingsphere, 
+                    mesh.IndexBuffer, 
+                    mesh.VertexBuffer, 
+                    meshPart.VertexDeclaration, 
+                    meshPart.StartIndex, 
+                    PrimitiveType.TriangleList, 
+                    meshPart.PrimitiveCount, 
+                    meshPart.BaseVertex, 
+                    meshPart.NumVertices, 
+                    meshPart.StreamOffset, 
+                    meshPart.VertexStride));
             }
         }
 
@@ -415,10 +426,7 @@ namespace SynapseGaming.LightingSystem.Rendering
 
         /// <summary>Returns a String that represents the current Object.</summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return Class13.smethod_2(this);
-        }
+        public override string ToString() => CoreUtils.NamedObject(this);
 
         /// <summary>
         /// Helper method that creates a new SceneObject for each
@@ -428,8 +436,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <param name="returnobjects">List used to store the created SceneObject objects.</param>
         public static void CreateMeshBasedObjectsFromModel(Model model, IList<SceneObject> returnobjects)
         {
-            for (int index = 0; index < model.Meshes.Count; ++index)
-                returnobjects.Add(new SceneObject(model.Meshes[index]));
+            for (int i = 0; i < model.Meshes.Count; ++i)
+                returnobjects.Add(new SceneObject(model.Meshes[i]));
         }
     }
 }

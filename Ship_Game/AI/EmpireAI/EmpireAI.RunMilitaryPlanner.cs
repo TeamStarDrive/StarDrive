@@ -432,7 +432,7 @@ namespace Ship_Game.AI {
                         float weight = 0;
                         weight += (this.empire.currentMilitaryStrength - empire.MinimumTaskForceStrength) /
                                   this.empire.currentMilitaryStrength * 5;
-                        //weight += ((Empire.Universe.Size.X*.25f) - this.GetDistanceFromOurAO(empire.AO)) / (Empire.Universe.Size.X * .25f) * 10;
+                        //weight += ((Empire.Universe.UniverseRadius.X*.25f) - this.GetDistanceFromOurAO(empire.AO)) / (Empire.Universe.UniverseRadius.X * .25f) * 10;
 
                         if (empire.GetTargetPlanet() == null)
                         {

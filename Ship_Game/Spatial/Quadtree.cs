@@ -218,6 +218,7 @@ namespace Ship_Game
             int count = node.Count;
             SpatialObj[] arr = node.Items;
             node.Items = NoObjects;
+            node.Count = 0;
 
             // reinsert all items:
             for (int i = 0; i < count; ++i)
@@ -264,7 +265,7 @@ namespace Ship_Game
                 node.Add(ref obj);
 
                 // actually, are we maybe over Threshold and should Divide ?
-                if (node.NW != null && node.Count >= CellThreshold)
+                if (node.NW == null && node.Count >= CellThreshold)
                     SplitNode(node, level);
                 return;
             }
@@ -285,8 +286,8 @@ namespace Ship_Game
                 return true;
             }
             return node.NW != null
-                && RemoveAt(node.NW, go) || RemoveAt(node.NE, go)
-                || RemoveAt(node.SE, go) || RemoveAt(node.SW, go);
+                && (RemoveAt(node.NW, go) || RemoveAt(node.NE, go)
+                ||  RemoveAt(node.SE, go) || RemoveAt(node.SW, go));
         }
 
         public void Remove(GameplayObject go) => RemoveAt(Root, go);
@@ -513,7 +514,7 @@ namespace Ship_Game
         {
             var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
             var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
-            screen.DrawRectangleProjected(center, size, 0f, Color.SandyBrown, 2f);
+            screen.DrawRectangleProjected(center, size, 0f, Color.SaddleBrown, 1f);
 
             for (int i = 0; i < node.Count; ++i)
             {

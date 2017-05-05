@@ -229,7 +229,7 @@ namespace SynapseGaming.LightingSystem.Rendering
       this.avatarRenderer_0 = avatarrenderer;
       this.avatarDescription_0 = description;
       this.boundingBox_0 = new BoundingBox(new Vector3(-0.5f, 0.0f, -0.5f), new Vector3(0.5f, this.avatarDescription_0.Height, 0.5f));
-      this.boundingBox_1 = Class13.smethod_5(this.boundingBox_0, Matrix.CreateScale(2f));
+      this.boundingBox_1 = CoreUtils.smethod_5(this.boundingBox_0, Matrix.CreateScale(2f));
       this.matrix_0 = Matrix.Identity;
       this.method_0();
     }
@@ -246,9 +246,9 @@ namespace SynapseGaming.LightingSystem.Rendering
 
     private void method_0()
     {
-      this.boundingBox_2 = Class13.smethod_5(this.boundingBox_0, this.matrix_0);
+      this.boundingBox_2 = CoreUtils.smethod_5(this.boundingBox_0, this.matrix_0);
       this.boundingSphere_0 = BoundingSphere.CreateFromBoundingBox(this.boundingBox_2);
-      this.boundingBox_3 = Class13.smethod_5(this.boundingBox_1, this.matrix_0);
+      this.boundingBox_3 = CoreUtils.smethod_5(this.boundingBox_1, this.matrix_0);
     }
   }
 }
