@@ -262,7 +262,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             }
             if (effect_0 == null)
                 return;
-            int_7 = indexBuffer == null ? Class13.smethod_17(vertexBuffer.GetHashCode(), vertexStreamOffset, stride) : Class13.smethod_18(indexBuffer.GetHashCode(), vertexBuffer.GetHashCode(), vertexStreamOffset, stride);
+            int_7 = indexBuffer == null ? CoreUtils.smethod_17(vertexBuffer.GetHashCode(), vertexStreamOffset, stride) : CoreUtils.smethod_18(indexBuffer.GetHashCode(), vertexBuffer.GetHashCode(), vertexStreamOffset, stride);
             int_6 = effect_0.GetHashCode();
             SetWorldAndWorldToObject(Matrix.Identity, Matrix.Identity);
             CalculateMaterialInfo();

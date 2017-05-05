@@ -95,7 +95,7 @@ namespace Ship_Game.AI {
                 //if (!BadSupply)
                 return timeTotarget * Effeciency; // (float)Math.Ceiling((double)timeTotarget);
             }
-            return timeTotarget + UniverseScreen.Size.X;
+            return timeTotarget + UniverseScreen.UniverseRadius;
         }
 
         public void OrderTrade(float elapsedTime)
@@ -309,7 +309,7 @@ namespace Ship_Game.AI {
                             float cargoSpaceMax = p.MAX_STORAGE - p.ProductionHere;
                             var faster = true;
                             float thisTradeStr = TradeSort(Owner, p, "Production", Owner.CargoSpaceMax, true);
-                            if (thisTradeStr >= UniverseScreen.Size.X && p.ProductionHere >= 0)
+                            if (thisTradeStr >= UniverseScreen.UniverseRadius && p.ProductionHere >= 0)
                                 continue;
 
                             using (Owner.loyalty.GetShips().AcquireReadLock())
@@ -404,7 +404,7 @@ namespace Ship_Game.AI {
                             float cargoSpaceMax = p.MAX_STORAGE - p.FoodHere;
                             var faster = true;
                             float mySpeed = TradeSort(Owner, p, "Food", Owner.CargoSpaceMax, true);
-                            if (mySpeed >= UniverseScreen.Size.X)
+                            if (mySpeed >= UniverseScreen.UniverseRadius)
                                 continue;
                             cargoSpaceMax += p.NetFoodPerTurn * mySpeed;
                             cargoSpaceMax = cargoSpaceMax > p.MAX_STORAGE ? p.MAX_STORAGE : cargoSpaceMax;

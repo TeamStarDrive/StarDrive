@@ -1522,7 +1522,7 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("blip_click");
                     RaceDesignScreen galaxysize = this;
                     galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
-                    if (this.Galaxysize > RaceDesignScreen.GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map Size -Gretman
+                    if (this.Galaxysize > RaceDesignScreen.GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
                     {
                         this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
                     }
@@ -1845,7 +1845,7 @@ namespace Ship_Game
             this.PlurEntry.Text = this.SelectedData.Traits.Plural;
             this.HomeSystemEntry.Text = this.SelectedData.Traits.HomeSystemName;
             this.HomeWorldName = this.SelectedData.Traits.HomeworldName;
-            this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12.LineSpacing);
+            this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy UniverseRadius                                   ").X, Fonts.Arial12.LineSpacing);
             this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
             this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
             this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);

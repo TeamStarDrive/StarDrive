@@ -36,7 +36,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
       lightingEffect.SpecularColorMapFile = input.ReadString();
       lightingEffect.SpecularColorMapTexture = input.ReadExternalReference<Texture2D>();
       lightingEffect.ParallaxMapFile = input.ReadString();
-      lightingEffect.ParallaxMapTexture = Class13.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
+      lightingEffect.ParallaxMapTexture = CoreUtils.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
       lightingEffect.Skinned = input.ReadBoolean();
       lightingEffect.DoubleSided = input.ReadBoolean();
       TransparencyMode mode = (TransparencyMode) input.ReadInt32();

@@ -326,14 +326,14 @@ namespace Ship_Game
                 this.camPos = this.camTransitionPosition;
             }
 
-            if (this.camPos.X > this.Size.X)
-                this.camPos.X = this.Size.X;
-            if (this.camPos.X < -this.Size.X) //So the camera can pan out into the new negative map coordinates -Gretman
-                this.camPos.X = -this.Size.X;
-            if (this.camPos.Y > (double) this.Size.Y)
-                this.camPos.Y = this.Size.Y;
-            if ((double) this.camPos.Y < -this.Size.Y)
-                this.camPos.Y = -this.Size.Y;
+            if (this.camPos.X > this.UniverseRadius)
+                this.camPos.X = this.UniverseRadius;
+            if (this.camPos.X < -this.UniverseRadius) //So the camera can pan out into the new negative map coordinates -Gretman
+                this.camPos.X = -this.UniverseRadius;
+            if (this.camPos.Y > (double) this.UniverseRadius)
+                this.camPos.Y = this.UniverseRadius;
+            if ((double) this.camPos.Y < -this.UniverseRadius)
+                this.camPos.Y = -this.UniverseRadius;
             if ((double) this.camHeight > (double) this.MaxCamHeight * (double) this.GameScale)
                 this.camHeight = this.MaxCamHeight * this.GameScale;
             else if (camHeight < minCamHeight)

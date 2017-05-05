@@ -243,7 +243,7 @@ namespace SynapseGaming.LightingSystem.Lights
         if (value == Vector3.Zero)
           this.matrix_0 = Matrix.Identity;
         else
-          this.matrix_0 = Class13.smethod_14(Vector3.Forward, Vector3.Normalize(value));
+          this.matrix_0 = CoreUtils.smethod_14(Vector3.Forward, Vector3.Normalize(value));
       }
     }
 
@@ -393,7 +393,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <returns></returns>
     public override string ToString()
     {
-      return Class13.smethod_2((INamedObject) this);
+      return CoreUtils.NamedObject((INamedObject) this);
     }
 
     /// <summary>

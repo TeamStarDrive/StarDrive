@@ -36,7 +36,7 @@ namespace SynapseGaming.LightingSystem.Processors.Deferred
       deferredObjectEffect.SpecularColorMapFile = input.ReadString();
       deferredObjectEffect.SpecularColorMapTexture = input.ReadExternalReference<Texture2D>();
       deferredObjectEffect.ParallaxMapFile = input.ReadString();
-      deferredObjectEffect.ParallaxMapTexture = Class13.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
+      deferredObjectEffect.ParallaxMapTexture = CoreUtils.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
       deferredObjectEffect.Skinned = input.ReadBoolean();
       deferredObjectEffect.DoubleSided = input.ReadBoolean();
       TransparencyMode mode = (TransparencyMode) input.ReadInt32();
