@@ -119,7 +119,7 @@ namespace Ship_Game
         private void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
-            int granularity = (int) (this.Size.X / this.reducer);
+            int granularity = (int) (this.UniverseRadius / this.reducer);
             foreach (var node in empire.BorderNodes)
             {
                 SolarSystem ss = node.SourceObject as SolarSystem;
@@ -279,7 +279,7 @@ namespace Ship_Game
                 if (rebuild)
                 {
                     reducer = (int) (Empire.ProjectorRadius * .75f);
-                    int granularity = (int) (Size.X / reducer);
+                    int granularity = (int) (UniverseRadius / reducer);
                     int elegran = granularity * 2;
                     int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
                     byte[,] grid = new byte[elements, elements];
@@ -760,11 +760,7 @@ namespace Ship_Game
                                 ship.ProcessInput(elapsedTime);
                         }
                     }
-                    if (!Paused && IsActive)
-                        system.spatialManager.Update(elapsedTime, system);
-                   // system.AsteroidsList.ApplyPendingRemovals();
-                } //);
-                // this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
+                }
             }
         }
 
@@ -827,9 +823,6 @@ namespace Ship_Game
                 if (system.combatTimer <= 0.0f)
                     system.CombatInSystem = false;
 
-                if (elapsedTime > 0.0f)
-                    system.spatialManager.Update(elapsedTime, system);
-
                 bool inFrustrum = false;
                 if (Frustum.Contains(system.Position, 100000f))
                     inFrustrum = true;
@@ -891,7 +884,6 @@ namespace Ship_Game
                     foreach (Asteroid asteroid in system.AsteroidsList)
                         asteroid.Update(elapsedTime);
                 }
-                //system.AsteroidsList.ApplyPendingRemovals();
             }
         }
 

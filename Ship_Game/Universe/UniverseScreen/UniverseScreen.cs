@@ -48,7 +48,7 @@ namespace Ship_Game
         private Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
         public Background bg            = new Background();
-        public Vector2 Size             = new Vector2(5000000f, 5000000f);
+        public float UniverseRadius     = 5000000f; // universe size in world units
         public float FTLModifier        = 1f;
         public float EnemyFTLModifier   = 1f;
         public bool FTLInNuetralSystems = true;
@@ -80,7 +80,6 @@ namespace Ship_Game
         private AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
         private ManualResetEvent EmpireDone             = new ManualResetEvent(false);
         private Array<Ship> DeepSpaceShips  = new Array<Ship>();
-        private object thislock             = new object();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
         private float SectorMiniMapHeight = 20000f;
@@ -243,12 +242,16 @@ namespace Ship_Game
         public int reducer          = 1;
         public float screenDelay    = 0f;
 
-        // for really specific debugging
+        // for really specific debuggingD
         public static int FrameId;
+
+        private UniverseScreen() : base(null)
+        {
+        }
 
         public UniverseScreen(UniverseData data) : base(null)
         {
-            Size                        = data.Size;
+            UniverseRadius              = data.Size.X;
             FTLModifier                 = data.FTLSpeedModifier;
             EnemyFTLModifier            = data.EnemyFTLSpeedModifier;
             GravityWells                = data.GravityWells;
@@ -259,11 +262,12 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
             PlayerEmpire.isPlayer       = true;
+            DeepSpaceManager.Setup(UniverseRadius);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
         {
-            Size                  = data.Size;
+            UniverseRadius        = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
             GravityWells          = data.GravityWells;
@@ -276,6 +280,7 @@ namespace Ship_Game
             ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
+            DeepSpaceManager.Setup(UniverseRadius);
         }
 
         public void SetLighting(bool real)
@@ -293,14 +298,14 @@ namespace Ship_Game
                 return;
             }
 
-            LightRig rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
+            var rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
             lock (GlobalStats.ObjectManagerLocker)
                 ScreenManager.inter.LightManager.Submit(rig);
         }
 
         private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
         {
-            PointLight light = new PointLight
+            var light = new PointLight
             {
                 DiffuseColor = new Vector3(1f, 1f, 0.85f),
                 Intensity    = intensity,
@@ -346,20 +351,20 @@ namespace Ship_Game
             SystemInfoUIElement.DataFont = Fonts.Arial10;
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = new AutomationWindow(ScreenManager, this);
-            for (int i = 0; i < Size.X / 5000.0f; ++i)
+            for (int i = 0; i < UniverseRadius / 5000.0f; ++i)
             {
                 NebulousOverlay nebulousOverlay = new NebulousOverlay();
                 float z = RandomMath.RandomBetween(-200000f, -2E+07f);
                 nebulousOverlay.Path = "Textures/smoke";
-                nebulousOverlay.Position = new Vector3(RandomMath.RandomBetween(-0.5f * Size.X, Size.X + 0.5f * Size.X), RandomMath.RandomBetween(-0.5f * Size.X, Size.X + 0.5f * Size.X), z);
+                nebulousOverlay.Position = new Vector3(
+                    RandomMath.RandomBetween(-0.5f * UniverseRadius, UniverseRadius + 0.5f * UniverseRadius), 
+                    RandomMath.RandomBetween(-0.5f * UniverseRadius, UniverseRadius + 0.5f * UniverseRadius), z);
                 float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
                 nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 100f);
                 nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
                 Stars.Add(nebulousOverlay);
             }
             LoadGraphics();
-
-            DeepSpaceManager.SetupForDeepSpace(Size.X, Size.Y);
 
             DoParticleLoad();
             bg3d = new Background3D(this);
@@ -473,11 +478,11 @@ namespace Ship_Game
             this.MaxCamHeight = 4E+07f;
             while ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
             {
-                Vector2 vector2_1 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
+                Vector2 vector2_1 = new Vector2(UniverseRadius / 2f, UniverseRadius / 2f);
                 Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) * Matrix.CreateRotationX(0.0f.ToRadians()) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
                 Vector3 vector3_1 = this.Viewport.Project(Vector3.Zero, this.projection, view, Matrix.Identity);
                 Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.Viewport.Project(new Vector3(this.Size, 0.0f), this.projection, view, Matrix.Identity);
+                Vector3 vector3_2 = this.Viewport.Project(new Vector3(UniverseRadius, UniverseRadius, 0.0f), this.projection, view, Matrix.Identity);
                 num = new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X;
                 if ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
                     this.MaxCamHeight -= 0.1f * this.MaxCamHeight;
@@ -754,8 +759,6 @@ namespace Ship_Game
             MasterShipList.Clear();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                solarSystem.spatialManager.Destroy();
-                solarSystem.spatialManager = null;
                 solarSystem.FiveClosestSystems.Clear();
                 foreach (Planet planet in solarSystem.PlanetList)
                 {

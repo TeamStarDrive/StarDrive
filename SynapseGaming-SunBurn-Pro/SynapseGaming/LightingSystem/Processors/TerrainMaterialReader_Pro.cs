@@ -66,7 +66,7 @@ namespace SynapseGaming.LightingSystem.Processors
       baseTerrainEffect.BlendMapFile = input.ReadString();
       baseTerrainEffect.BlendMapTexture = input.ReadExternalReference<Texture2D>();
       baseTerrainEffect.HeightMapFile = input.ReadString();
-      baseTerrainEffect.HeightMapTexture = Class13.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
+      baseTerrainEffect.HeightMapTexture = CoreUtils.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
       Class55.smethod_0(input);
       if (input.ReadInt32() != 1234)
         throw new Exception("Error loading asset.");

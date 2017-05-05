@@ -230,7 +230,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
         return;
       Vector3 vector3_2;
       Vector3 vector3_3;
-      Class13.smethod_1((light as ILight).CompositeColorAndIntensity, light.Depth, 0.65f, out vector3_2, out vector3_3);
+      CoreUtils.smethod_1((light as ILight).CompositeColorAndIntensity, light.Depth, 0.65f, out vector3_2, out vector3_3);
       this.vector3_2[0] = vector3_2;
       this.vector3_2[1] = vector3_3;
       this.vector3_2[2] = (vector3_2 + vector3_3) * 0.2f;

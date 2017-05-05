@@ -56,7 +56,7 @@ namespace Ship_Game.Gameplay
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
-        private AnimationController animationController;
+        private AnimationController ShipMeshAnim;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
         public bool reserved;
@@ -90,7 +90,6 @@ namespace Ship_Game.Gameplay
         public bool ManualHangarOverride;
         public Fleet.FleetCombatStatus FleetCombatStatus;
         public Ship Mothership;
-        public string ModelPath;
         public bool isThrusting;
         public float WarpDraw;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
@@ -203,7 +202,7 @@ namespace Ship_Game.Gameplay
 
         public float FTLModifier { get; private set; } = 1f;
 
-        public T[] GetObjectsInSensors<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, SensorRange);
+        public T[] GetObjectsInSensors<T>() where T : GameplayObject => ActiveSpatialManager.GetNearby<T>(Position, SensorRange);
 
         public bool IsInNeutralSpace
         {
@@ -689,12 +688,6 @@ namespace Ship_Game.Gameplay
             loyalty.RemoveShip(this);
             SetSystem(null);
             TetheredTo = null;
-        }
-
-        public void SetAnimationController(AnimationController ac, SkinnedModel model)
-        {
-            animationController = ac;
-            animationController.StartClip(model.AnimationClips["Take 001"]);
         }
 
         //added by gremlin The Generals GetFTL speed
@@ -1260,13 +1253,6 @@ namespace Ship_Game.Gameplay
             ThrusterList = list;
         }
 
-        public void SetSO(SceneObject so)
-        {
-            ShipSO = so;
-            ShipSO.Visibility = ObjectVisibility.Rendered;
-            Radius = ShipSO.WorldBoundingSphere.Radius;
-        }
-
         public SceneObject GetSO()
         {
             return ShipSO;
@@ -1531,45 +1517,48 @@ namespace Ship_Game.Gameplay
             AI.CombatAI = new CombatAI(this);
         }
 
-        public void LoadFromSave()
+        public void CreateSceneObject()
         {
-            foreach (KeyValuePair<string, ShipData> keyValuePair in ResourceManager.HullsDict)
+            Model model;
+            if (shipData.Animated)
             {
-                if (keyValuePair.Value.ModelPath == ModelPath)
-                {
-                    if (keyValuePair.Value.Animated)
-                    {
-                        SkinnedModel skinnedModel = ResourceManager.GetSkinnedModel(ModelPath);
-                        ShipSO = new SceneObject(skinnedModel.Model);
-                        animationController = new AnimationController(skinnedModel.SkeletonBones);
-                        animationController.StartClip(skinnedModel.AnimationClips["Take 001"]);
-                    }
-                    else
-                    {
-                        ShipSO = new SceneObject((ResourceManager.GetModel(ModelPath).Meshes)[0]);
-                        ShipSO.ObjectType = ObjectType.Dynamic;
-                    }
-                }
+                SkinnedModel skinned = ResourceManager.GetSkinnedModel(shipData.ModelPath);
+                ShipMeshAnim = new AnimationController(skinned.SkeletonBones);
+                ShipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+                model = skinned.Model;
             }
+            else
+            {
+                model = ResourceManager.GetModel(shipData.ModelPath);
+            }
+
+            ShipSO = new SceneObject(model.Meshes[0])
+            {
+                ObjectType = ObjectType.Dynamic,
+                Visibility = ObjectVisibility.Rendered
+            };
+            Radius = ShipSO.WorldBoundingSphere.Radius;
         }
 
         public void InitializeFromSave()
         {
-            if (string.IsNullOrEmpty(VanityName))
+            if (VanityName.IsEmpty())
                 VanityName = Name;
 
             if (shipData.Role == ShipData.RoleName.platform)
                 IsPlatform = true;
-            //Weapons.Clear();
+
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
+            ShipSO.Visibility = ObjectVisibility.Rendered;
+            Radius = ShipSO.WorldBoundingSphere.Radius;
+
             Init(fromSave: true);
             if (ResourceManager.ShipsDict.ContainsKey(Name) && ResourceManager.ShipsDict[Name].IsPlayerDesign)
                 IsPlayerDesign = true;
             else if (!ResourceManager.ShipsDict.ContainsKey(Name))
                 FromSave = true;
             LoadInitializeStatus();
-            if (Empire.Universe != null)
-                Empire.Universe.ShipsToAdd.Add(this);
+            Empire.Universe?.ShipsToAdd.Add(this);
 
             SetSystem(System);
             InitExternalSlots();
@@ -1600,8 +1589,6 @@ namespace Ship_Game.Gameplay
                     hasRepairBeam = true;
                 }
             }
-            ShipSO.Visibility = ObjectVisibility.Rendered;
-            Radius = ShipSO.WorldBoundingSphere.Radius;
             ShipStatusChange();
             shipInitialized = true;
             RecalculateMaxHP();            //Fix for Ship Max health being greater than all modules combined (those damned haphazard engineers). -Gretman
@@ -1617,7 +1604,6 @@ namespace Ship_Game.Gameplay
             if (shipData.Role == ShipData.RoleName.platform)
                 IsPlatform = true;
             SetShipData(GetShipData());
-            //Weapons.Clear();
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             lock (GlobalStats.AddShipLocker)
             {
@@ -1632,7 +1618,6 @@ namespace Ship_Game.Gameplay
                 InitializeAI();
             AI.CombatState = template.shipData.CombatState;
             InitExternalSlots();
-            //this.hyperspace = (Cue)null;   //Removed to save space, because this is set to null in ship initilizers, and never reassigned. -Gretman
             base.Initialize();
             foreach (ShipModule module in ModuleSlotList)
             {
@@ -2258,8 +2243,8 @@ namespace Ship_Game.Gameplay
                                                    * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
                     if (shipData.Animated)
                     {
-                        ShipSO.SkinBones = animationController.SkinnedBoneTransforms;
-                        animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                        ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
+                        ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                     }
                 }
                 for (int i = 0; i < projectiles.Count; ++i)
@@ -2376,15 +2361,15 @@ namespace Ship_Game.Gameplay
                             * Matrix.CreateRotationZ(Rotation) 
                             * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
 
-                        if (shipData.Animated && animationController != null)
+                        if (shipData.Animated && ShipMeshAnim != null)
                         {
-                            ShipSO.SkinBones = animationController.SkinnedBoneTransforms;
-                            animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                            ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
+                            ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                         }
-                        else if (shipData != null && animationController != null && shipData.Animated)
+                        else if (shipData != null && ShipMeshAnim != null && shipData.Animated)
                         {
-                            ShipSO.SkinBones = animationController.SkinnedBoneTransforms;
-                            animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                            ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
+                            ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                         }
                         foreach (Thruster thruster in ThrusterList)
                         {
@@ -3688,7 +3673,8 @@ namespace Ship_Game.Gameplay
                     case ShipData.RoleName.station:     ExplodeShip(1200f, true);       break;
                     default:                            ExplodeShip(600f, cleanupOnly); break;
                 }
-                System?.spatialManager.ShipExplode(this, Size * 50, Center, Radius);
+
+                ActiveSpatialManager.ShipExplode(this, Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {

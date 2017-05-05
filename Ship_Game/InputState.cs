@@ -112,13 +112,7 @@ namespace Ship_Game
             }
         }
 
-        public bool BButtonHeld
-        {
-            get
-            {
-                return CurrentGamePadState.Buttons.B == ButtonState.Pressed;
-            }
-        }
+        public bool BButtonHeld => CurrentGamePadState.Buttons.B == ButtonState.Pressed;
 
         public bool C => IsNewKeyPress(Keys.C);
 
@@ -173,7 +167,8 @@ namespace Ship_Game
 
         public bool Land => IsNewKeyPress(Keys.L);
 
-        public bool RepeatingKeyCheck(Keys key)  => CurrentKeyboardState.IsKeyDown(key);
+        public bool RepeatingKeyCheck(Keys key) => CurrentKeyboardState.IsKeyDown(key);
+        public bool IsKeyDown(Keys key)         => CurrentKeyboardState.IsKeyDown(key);
         
         public bool LeftShoulderDown
         {
@@ -386,8 +381,12 @@ namespace Ship_Game
         {
             if (!Repeat)
                 return CurrentKeyboardState.IsKeyDown(key) && LastKeyboardState.IsKeyUp(key);
-            
-                 return CurrentKeyboardState.IsKeyDown(key);
+            return CurrentKeyboardState.IsKeyDown(key);
+        }
+
+        public bool WasKeyPressed(Keys key)
+        {
+            return CurrentKeyboardState.IsKeyDown(key) && LastKeyboardState.IsKeyUp(key);
         }
 
         public void Update(GameTime gameTime)

@@ -149,7 +149,7 @@ namespace SynapseGaming.LightingSystem.Core
             int count1 = foundobjects.Count;
             worldbounds.GetCorners(this.WorldBoundsCorners);
             this.list_0.Clear();
-            this.class9_0.method_7(Class13.smethod_11(this.WorldBoundsCorners), this.list_0);
+            this.class9_0.method_7(CoreUtils.smethod_11(this.WorldBoundsCorners), this.list_0);
             bool flag1 = (objectfilter & ObjectFilter.Dynamic) != (ObjectFilter)0;
             bool flag2 = (objectfilter & ObjectFilter.Static) != (ObjectFilter)0;
             int count2 = this.list_0.Count;

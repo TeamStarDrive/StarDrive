@@ -295,7 +295,7 @@ namespace SynapseGaming.LightingSystem.Lights
       {
         Matrix matrix = Matrix.Identity;
         if (value != Vector3.Zero)
-          matrix = Class13.smethod_14(Vector3.Forward, Vector3.Normalize(value));
+          matrix = CoreUtils.smethod_14(Vector3.Forward, Vector3.Normalize(value));
         matrix.Translation = this.matrix_0.Translation;
         this.matrix_0 = matrix;
         this.method_0();
@@ -487,7 +487,7 @@ namespace SynapseGaming.LightingSystem.Lights
     private void method_0()
     {
       float num = (float) Math.Tanh((double) MathHelper.ToRadians(MathHelper.Clamp(this.float_6, 1f / 1000f, 179.99f) * 0.5f)) * this.float_5;
-      this.boundingBox_0 = Class13.smethod_5(new BoundingBox(new Vector3(-num, -num, -this.float_5), new Vector3(num, num, 0.0f)), this.matrix_0);
+      this.boundingBox_0 = CoreUtils.smethod_5(new BoundingBox(new Vector3(-num, -num, -this.float_5), new Vector3(num, num, 0.0f)), this.matrix_0);
       this.boundingSphere_0 = BoundingSphere.CreateFromBoundingBox(this.boundingBox_0);
     }
 
@@ -506,7 +506,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <returns></returns>
     public override string ToString()
     {
-      return Class13.smethod_2((INamedObject) this);
+      return CoreUtils.NamedObject((INamedObject) this);
     }
 
     /// <summary>
