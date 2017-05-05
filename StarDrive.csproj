@@ -1594,7 +1594,9 @@
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Deploy\Config\config_develop" />
     <None Include="Deploy\Config\Deploy.cmd" />
+    <None Include="Deploy\Config\include_develop" />
     <None Include="Deploy\Config\Pre-run.ps1" />
     <None Include="Deploy\TortoiseHg\contrib\bash_completion" />
     <None Include="Deploy\TortoiseHg\contrib\hgk" />
