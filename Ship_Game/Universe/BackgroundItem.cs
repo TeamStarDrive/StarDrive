@@ -1,7 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -24,21 +23,24 @@ namespace Ship_Game
 
 		public int[] Indexes = new int[6];
 
-		public BasicEffect quadEffect;
+		public static BasicEffect QuadEffect;
 
 		public BackgroundItem()
 		{
 		}
-
+        public BackgroundItem(Texture2D texture)
+        {
+            Texture = texture;
+        }
 		public void Draw(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection, float Alpha, Array<BackgroundItem> bgiList)
 		{
-			this.quadEffect.View = view;
-			this.quadEffect.Projection = projection;
-			this.quadEffect.Texture = this.Texture;
-			this.quadEffect.Alpha = Alpha;
-			ScreenManager.GraphicsDevice.VertexDeclaration = this.quadVertexDecl;
-			this.quadEffect.Begin();
-			foreach (EffectPass pass in this.quadEffect.CurrentTechnique.Passes)
+			QuadEffect.View = view;
+			QuadEffect.Projection = projection;
+			QuadEffect.Texture = Texture;
+			QuadEffect.Alpha = Alpha;
+			ScreenManager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
+			QuadEffect.Begin();
+			foreach (EffectPass pass in QuadEffect.CurrentTechnique.Passes)
 			{
 				pass.Begin();
 				foreach (BackgroundItem bgi in bgiList)
@@ -47,26 +49,26 @@ namespace Ship_Game
 				}
 				pass.End();
 			}
-			this.quadEffect.End();
+			QuadEffect.End();
 			ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
 		}
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection, float Alpha)
 		{
-			this.quadEffect.World = Matrix.Identity;
-			this.quadEffect.View = view;
-			this.quadEffect.Projection = projection;
-			this.quadEffect.Texture = this.Texture;
-			this.quadEffect.Alpha = Alpha;
-			ScreenManager.GraphicsDevice.VertexDeclaration = this.quadVertexDecl;
-			this.quadEffect.Begin();
-			foreach (EffectPass pass in this.quadEffect.CurrentTechnique.Passes)
+			QuadEffect.World = Matrix.Identity;
+			QuadEffect.View = view;
+			QuadEffect.Projection = projection;
+			QuadEffect.Texture = Texture;
+			QuadEffect.Alpha = Alpha;
+			ScreenManager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
+			QuadEffect.Begin();
+			foreach (EffectPass pass in QuadEffect.CurrentTechnique.Passes)
 			{
 				pass.Begin();
-				ScreenManager.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, this.Vertices, 0, 4, this.Indexes, 0, 2);
+				ScreenManager.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
 				pass.End();
 			}
-			this.quadEffect.End();
+			QuadEffect.End();
 			ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
 		}
 
@@ -76,32 +78,26 @@ namespace Ship_Game
 			Vector2 textureUpperRight = new Vector2(1f, 0f);
 			Vector2 textureLowerLeft = new Vector2(0f, 1f);
 			Vector2 textureLowerRight = new Vector2(1f, 1f);
-			this.Vertices[0].Position = this.LowerLeft;
-			this.Vertices[0].TextureCoordinate = textureLowerLeft;
-			this.Vertices[1].Position = this.UpperLeft;
-			this.Vertices[1].TextureCoordinate = textureUpperLeft;
-			this.Vertices[2].Position = this.LowerRight;
-			this.Vertices[2].TextureCoordinate = textureLowerRight;
-			this.Vertices[3].Position = this.UpperRight;
-			this.Vertices[3].TextureCoordinate = textureUpperRight;
-			this.Indexes[0] = 0;
-			this.Indexes[1] = 1;
-			this.Indexes[2] = 2;
-			this.Indexes[3] = 2;
-			this.Indexes[4] = 1;
-			this.Indexes[5] = 3;
+			Vertices[0].Position = LowerLeft;
+			Vertices[0].TextureCoordinate = textureLowerLeft;
+			Vertices[1].Position = UpperLeft;
+			Vertices[1].TextureCoordinate = textureUpperLeft;
+			Vertices[2].Position = LowerRight;
+			Vertices[2].TextureCoordinate = textureLowerRight;
+			Vertices[3].Position = UpperRight;
+			Vertices[3].TextureCoordinate = textureUpperRight;
+			Indexes[0] = 0;
+			Indexes[1] = 1;
+			Indexes[2] = 2;
+			Indexes[3] = 2;
+			Indexes[4] = 1;
+			Indexes[5] = 3;
 		}
 
 		public void LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
 		{
-			this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-			{
-				World = Matrix.Identity,
-				View = view,
-				Projection = projection,
-				TextureEnabled = true
-			};
-			this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+
+			quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
 		}
 
         public void Dispose()

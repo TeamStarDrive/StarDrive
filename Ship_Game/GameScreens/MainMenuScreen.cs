@@ -557,7 +557,13 @@ namespace Ship_Game
             // @todo Why are these global inits here??
             ShieldManager.LoadContent(Game1.GameContent);
             Beam.BeamEffect = Game1.GameContent.Load<Effect>("Effects/BeamFX");
-
+            BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+            {
+                World = Matrix.Identity,
+                View = View,
+                Projection = Projection,
+                TextureEnabled = true
+            };
             Portrait = new Rectangle((int)size.X / 2 - 960, (int)size.Y / 2 - 540, 1920, 1080);
 
             while (Portrait.Width < size.X && Portrait.Height < size.Y)

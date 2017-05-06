@@ -7,6 +7,20 @@ namespace Ship_Game
     {
         public static readonly Random Random = new Random();
 
+        public static float AvgRandomBetween(float minimum, float maximum)
+        {
+            float rand = 0;
+            int x = 0;
+            for(; x<3; x++)
+            {
+                rand += RandomBetween(minimum, maximum);
+            }
+            rand /= x;
+            if (float.IsNaN(rand) || float.IsInfinity(rand))
+                rand = minimum;
+            return rand;
+        }
+
         /// Generate random, inclusive [minimum, maximum]
         public static float RandomBetween(float minimum, float maximum)
         {
