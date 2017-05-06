@@ -903,7 +903,14 @@ namespace Ship_Game
                 else                        SmallNebulas.Add(tex);
             }
         }
-
+        public static Texture2D MedNebula(int index)
+        {
+            return MedNebulas[index];
+        }
+        public static Texture2D BigNebula(int index)
+        {
+            return BigNebulas[index];
+        }
         // Refactored by RedFox
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {
