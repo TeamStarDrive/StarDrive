@@ -15,6 +15,8 @@ namespace Ship_Game
         public float Cx, Cy, Radius;
         public GameObjectType Type;
 
+        public bool OverlapsQuads; // does it overlap multiple quads?
+
         public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
         public SpatialObj(GameplayObject go)
@@ -47,6 +49,7 @@ namespace Ship_Game
             else if ((Type & GameObjectType.Ship) != 0)  Loyalty = ((Ship)go).loyalty.Id;
             else                                         Loyalty = 0;
             LastCollided = 0;
+            OverlapsQuads = false;
         }
 
         public void UpdateBounds() // Update SpatialObj bounding box
@@ -230,6 +233,7 @@ namespace Ship_Game
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
 
+            obj.OverlapsQuads = false;
             if (obj.X < midX && obj.LastX < midX) // left
             {
                 if (obj.Y <  midY && obj.LastY < midY) return node.NW; // top left
@@ -240,6 +244,7 @@ namespace Ship_Game
                 if (obj.Y <  midY && obj.LastY < midY) return node.NE; // top right
                 if (obj.Y >= midY)                     return node.SE; // bot right
             }
+            obj.OverlapsQuads = true;
             return null; // obj does not perfectly fit inside a quadrant
         }
 
@@ -253,12 +258,15 @@ namespace Ship_Game
                     return;
                 }
 
-                Node quad = PickSubQuadrant(node, ref obj);
-                if (quad != null)
+                if (node.NW != null)
                 {
-                    node = quad; // go deeper!
-                    --level;
-                    continue;
+                    Node quad = PickSubQuadrant(node, ref obj);
+                    if (quad != null)
+                    {
+                        node = quad; // go deeper!
+                        --level;
+                        continue;
+                    }
                 }
 
                 // item belongs to this node
@@ -292,17 +300,16 @@ namespace Ship_Game
 
         public void Remove(GameplayObject go) => RemoveAt(Root, go);
 
-        private void UpdateNode(Node node)
+        private void UpdateNode(Node node, int level)
         {
             if (node.Count > 0)
             {
                 float nx = node.X, ny = node.Y; // L1 cache warm node bounds
                 float nlastX = node.LastX, nlastY = node.LastY;
 
-                SpatialObj[] items = node.Items;
                 for (int i = 0; i < node.Count; ++i)
                 {
-                    ref SpatialObj obj = ref items[i];
+                    ref SpatialObj obj = ref node.Items[i]; // .Items may be modified by InsertAt and RemoveAtSwapLast
                     if (obj.Loyalty == 0)
                         continue; // seems to be a static world object, so don't bother updating
 
@@ -314,22 +321,38 @@ namespace Ship_Game
 
                     obj.UpdateBounds();
 
-                    if (obj.X < nx || obj.Y < ny || // out of Node bounds??
-                        obj.LastX > nlastX || obj.LastY > nlastY)
+                    //bool isFullyOutsideBounds = obj.LastX < nx || obj.LastY < ny ||
+                    //                            obj.X > nlastX || obj.Y > nlastY;
+                    //bool insideBoundsRect = nx <= obj.X && ny <= obj.Y && 
+                    //                        obj.LastX < nlastX && obj.LastY < nlastY;
+                    //if (!insideBoundsRect)
+                    if (obj.X < nx || obj.Y < ny || obj.LastX > nlastX || obj.LastY > nlastY) // out of Node bounds??
                     {
                         SpatialObj reinsert = obj;
                         node.RemoveAtSwapLast(i--);
                         InsertAt(Root, Levels, ref reinsert);
-                        continue;
+                    }
+                    // we previously overlapped the boundary, so insertion was at parent node;
+                    // ... so now check if we're completely inside a subquadrant and reinsert into it
+                    else if (obj.OverlapsQuads)
+                    {
+                        Node quad = PickSubQuadrant(node, ref obj);
+                        if (quad != null)
+                        {
+                            SpatialObj reinsert = obj;
+                            node.RemoveAtSwapLast(i--);
+                            InsertAt(quad, level-1, ref reinsert);
+                        }
                     }
                 }
             }
             if (node.NW != null)
             {
-                UpdateNode(node.NW);
-                UpdateNode(node.NE);
-                UpdateNode(node.SE);
-                UpdateNode(node.SW);
+                int sublevel = level - 1;
+                UpdateNode(node.NW, sublevel);
+                UpdateNode(node.NE, sublevel);
+                UpdateNode(node.SE, sublevel);
+                UpdateNode(node.SW, sublevel);
             }
         }
 
@@ -353,7 +376,7 @@ namespace Ship_Game
         public void UpdateAll()
         {
             ++FrameId;
-            UpdateNode(Root);
+            UpdateNode(Root, Levels);
             RemoveEmptyChildNodes(Root);
         }
 
@@ -514,14 +537,18 @@ namespace Ship_Game
         {
             var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
             var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
-            screen.DrawRectangleProjected(center, size, 0f, Color.SaddleBrown, 1f);
+            screen.DrawRectangleProjected(center, size, 0f, Color.SaddleBrown);
 
-            for (int i = 0; i < node.Count; ++i)
+
+            var items = new SpatialObj[node.Count];
+            Array.Copy(node.Items, items, items.Length);
+            for (int i = 0; i < items.Length; ++i)
             {
-                ref SpatialObj so = ref node.Items[i];
+                ref SpatialObj so = ref items[i];
                 var ocenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
                 var osize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
                 screen.DrawRectangleProjected(ocenter, osize, 0f, Color.MediumVioletRed);
+                screen.DrawLineProjected(center, ocenter, Color.MediumVioletRed);
             }
             if (node.NW != null)
             {
