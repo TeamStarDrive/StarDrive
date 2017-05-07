@@ -553,7 +553,6 @@ namespace Ship_Game
             ExplosionManager.Universe             = this;
             Fleet.Screen                          = this;
             Bomb.Screen                           = this;
-            Anomaly.screen                        = this;
             MinimapButtons.screen                 = this;
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
@@ -832,7 +831,6 @@ namespace Ship_Game
             SolarSystemDict.Clear();
             Fleet.Screen                          = null;
             Bomb.Screen                           = null;
-            Anomaly.screen                        = null;
             MinimapButtons.screen                 = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;

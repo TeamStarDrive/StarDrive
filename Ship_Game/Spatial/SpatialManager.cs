@@ -58,6 +58,8 @@ namespace Ship_Game.Gameplay
             Buckets.Count = 0;
             Buckets.Items = null;
             Collisions.Clear();
+
+            QuadTree?.Dispose(ref QuadTree);
         }
 
         private void ClearBuckets()
@@ -138,7 +140,7 @@ namespace Ship_Game.Gameplay
 
             if (obj.SpatialIndex != -1) // the object is already in a SpatialManager
             {
-                if (Contains(obj))
+                if (obj.SpatialIndex != -1 && AllObjects.ContainsRef(obj))
                     return; // this SpatialManager already contains this object
 
                 Log.Error("SpatialManager cannot add object {0} because it's in another SpatialManager", obj);
@@ -191,11 +193,6 @@ namespace Ship_Game.Gameplay
             obj.SpatialIndex  = -1;
         }
 
-        public bool Contains(GameplayObject gameObj)
-        {
-            return gameObj.SpatialIndex != -1 && AllObjects.ContainsRef(gameObj);
-        }
-
         public IReadOnlyList<Ship> ShipsList => Ships;
 
         public void GetDeepSpaceShips(Array<Ship> copyTo)
@@ -212,7 +209,6 @@ namespace Ship_Game.Gameplay
         public void Update(float elapsedTime, SolarSystem system)
         {
             BucketUpdateTimer += elapsedTime;
-
 
             if (BucketUpdateTimer >= 0.5f) // update all buckets
             {
@@ -483,51 +479,35 @@ namespace Ship_Game.Gameplay
         // @todo This method is a complete mess, like all other decompiled parts. It needs a lot of cleanup.
         private void CollideBeam(Beam beam)
         {
-            beam.CollidedThisFrame = false;
-
             Vector2 beamStart = beam.Source;
             Vector2 beamEnd = beam.Destination;
             float distance = beamEnd.Distance(beamStart);
             if (distance > beam.Range + 10f)
                 return;
 
-            GameplayObject targetObject = null;
-            GameplayObject beamTarget = beam.GetTarget();
-            if (beamTarget != null)
+            GameplayObject beamTarget = beam.Target;
+            if (beamTarget is ShipModule targetModule)
+                beamTarget = targetModule.GetParent();
+            else if (beamTarget is Ship targetShip)
             {
-                if (beamTarget is Ship ship)
+                targetShip.MoveModulesTimer = 2f;
+                beam.ActualHitDestination = beamTarget.Center;
+                if (beam.DamageAmount >= 0f)
+                    return;
+
+                // @todo Why is this here?? Healing stuff shuld be handled elsewhere! like target.Touch(beam)
+                foreach (ShipModule module in targetShip.ModuleSlotList)
                 {
-                    targetObject = ship; // @todo Is this correct? Should fix a null pointer crash...
-                    ship.MoveModulesTimer = 2f;
-                    beam.ActualHitDestination = beamTarget.Center;
-                    if (beam.DamageAmount >= 0f)
-                        return;
+                    module.Health -= beam.DamageAmount;
 
-                    // @todo Why is this here?? Healing stuff shuld be handled elsewhere! like target.Touch(beam)
-                    foreach (ShipModule module in ship.ModuleSlotList)
-                    {
-                        module.Health -= beam.DamageAmount;
-
-                        if (module.Health < 0f)
-                            module.Health = 0f;
-                        else if (module.Health >= module.HealthMax)
-                            module.Health = module.HealthMax;
-                    }
+                    if (module.Health < 0f)
+                        module.Health = 0f;
+                    else if (module.Health >= module.HealthMax)
+                        module.Health = module.HealthMax;
                 }
-                else if (beamTarget is ShipModule targetModule)
-                    targetObject = targetModule.GetParent();
-                else if (beamTarget is Asteroid)
-                    targetObject = beamTarget;
-                else Log.Error("Unexpected beamTarget");
             }
 
-            if (targetObject == null)
-            {
-                Log.Error("CollideBeam targetObject null, where are you aiming at??? :S");
-                return;
-            }
-
-            Ship[] nearby = GetNearby<Ship>(targetObject.Position, targetObject.Radius);
+            Ship[] nearby = GetNearby<Ship>(beamTarget.Position, beamTarget.Radius);
             if (nearby.Length == 0)
                 return;
             nearby.SortByDistance(beamStart);

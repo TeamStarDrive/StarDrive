@@ -591,10 +591,7 @@ namespace Ship_Game
                             }
                         }
 
-
-                        for (int i = ship.Beams.Count - 1;
-                            i >= 0;
-                            --i) // regular FOR to mitigate multi-threading issues
+                        for (int i = ship.Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
                         {
                             Beam beam = ship.Beams[i];
                             if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))

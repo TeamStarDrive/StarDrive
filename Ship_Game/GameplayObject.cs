@@ -52,6 +52,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
 
+        [XmlIgnore][JsonIgnore]
+        public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
@@ -71,7 +73,7 @@ namespace Ship_Game
 
         public virtual void Initialize()
         {
-            if (SpatialIndex == -1 && Empire.Universe != null) // not assigned to a SpatialManager yet?
+            if (!DisableSpatialCollision && SpatialIndex == -1 && Empire.Universe != null) // not assigned to a SpatialManager yet?
                 ActiveSpatialManager.Add(this);
         }
 
@@ -101,6 +103,9 @@ namespace Ship_Game
                 system?.ShipList.AddUnique(ship);
             }
             System = system;
+
+            if (!DisableSpatialCollision && SpatialIndex == -1 && Active && Empire.Universe != null)
+                ActiveSpatialManager.Add(this);
         }
 
 
@@ -112,8 +117,6 @@ namespace Ship_Game
         public virtual void Update(float elapsedTime)
         {
             CollidedThisFrame = false;
-            if (SpatialIndex == -1 && Active && Empire.Universe != null)
-                ActiveSpatialManager.Add(this);
         }
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";

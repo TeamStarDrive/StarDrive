@@ -945,23 +945,20 @@ namespace Ship_Game.Gameplay
                     MouseState state = Mouse.GetState();
                     if (state.RightButton == ButtonState.Pressed)
                     {
-                        Vector3 position = Empire.Universe.Viewport.Unproject(new Vector3(state.X, state.Y, 0.0f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity);
-                        Vector3 direction = Empire.Universe.Viewport.Unproject(new Vector3(state.X, state.Y, 1f), Empire.Universe.projection, Empire.Universe.view, Matrix.Identity) - position;
-                        direction.Normalize();
-                        var ray = new Ray(position, direction);
-                        float num = -ray.Position.Z / ray.Direction.Z;
-                        var pickedPos3D = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                        Vector2 pickedPos = pickedPos3D.ToVec2();
+                        Vector3 pickedPos3D = Empire.Universe.UnprojectToWorldPosition3D(new Vector2(state.X, state.Y));
+                        Vector2 pickedPos2D = pickedPos3D.ToVec2();
+
                         foreach (Weapon w in Weapons)
                         {
                             if (w.timeToNextFire <= 0.0 && w.moduleAttachedTo.Powered)
                             {
                                 if (CheckIfInsideFireArc(w, pickedPos3D))
                                 {
+                                    Vector2 fireDirection = (pickedPos2D - w.Center).Normalized();
                                     if (w.isBeam)
-                                        w.FireMouseBeam(pickedPos.Normalized());
+                                        w.FireMouseBeam(fireDirection);
                                     else 
-                                        w.FireMouse((pickedPos - w.Center).Normalized());
+                                        w.FireMouse(fireDirection);
                                 }
                             }
                         }
@@ -1765,11 +1762,6 @@ namespace Ship_Game.Gameplay
             speed = velocityMaximum;
         }
 
-        public bool isPlayerShip()
-        {
-            return PlayerShip;
-        }
-
         ///added by gremlin Initialize status from deveks mod. 
         public bool InitializeStatus(bool fromSave)
         {
@@ -2434,7 +2426,7 @@ namespace Ship_Game.Gameplay
                             ResetJumpTimer();
                         }
                     }
-                    if (isPlayerShip())
+                    if (PlayerShip)
                     {
                         if ((!isSpooling || !Active) && Afterburner.IsPlaying)
                         {
@@ -2454,68 +2446,48 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
-                    if (projectiles.Count > 0)
+                    UpdateProjectiles(elapsedTime);
+                    UpdateBeams(elapsedTime);
+                }
+            }
+        }
+
+        private void UpdateProjectiles(float elapsedTime)
+        {
+            for (int i = projectiles.Count - 1; i >= 0; --i)
+            {
+                Projectile projectile = projectiles[i];
+                if (projectile?.Active == true)
+                    projectiles[i].Update(elapsedTime);
+                else
+                    projectiles.RemoveAtSwapLast(i);
+            }
+        }
+
+        private void UpdateBeams(float elapsedTime)
+        {
+            for (int i = 0; i < beams.Count; i++)
+            {
+                Beam beam = beams[i];
+                if (beam.ModuleAttachedTo != null)
+                {
+                    ShipModule shipModule = beam.ModuleAttachedTo;
+
+                    Vector2 slotForward  = (beam.Owner.Rotation + shipModule.Rotation.ToRadians()).RadiansToDirection();
+                    Vector2 muzzleOrigin = shipModule.Center + slotForward * (shipModule.YSIZE * 8f);
+                    int thickness = (int)UniverseRandom.RandomBetween(beam.Thickness*0.75f, beam.Thickness*1.1f);
+
+                    beam.Update(muzzleOrigin, thickness, elapsedTime);
+
+                    if (beam.Duration < 0f && !beam.Infinite)
                     {
-                        //standard for loop through each weapon group.
-                        for (int i = projectiles.Count - 1; i >= 0; --i)
-                        {
-                            Projectile projectile = projectiles[i];
-                            if (projectile?.Active == true)
-                                projectiles[i].Update(elapsedTime);
-                            else
-                                projectiles.RemoveAtSwapLast(i);
-                        }
+                        beam.Die(null, false);
+                        beams.RemoveRef(beam);
                     }
-
-                    if (beams.Count > 0)
-                    {
-                        //source = Enumerable.Range(0, this.beams.Count).ToArray();
-                        //rangePartitioner = Partitioner.Create(0, source.Length);
-                        //handle each weapon group in parallel
-                        //global::System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
-                        //Parallel.For(this.beams.Count, (start, end) =>
-                        {
-                            //standard for loop through each weapon group.
-                            //for (int T = start; T < end; T++)
-                            for (int i = 0; i < beams.Count; i++)
-                            {
-                                Beam beam = beams[i];
-                                if (beam.ModuleAttachedTo != null)
-                                {
-                                    ShipModule shipModule = beam.ModuleAttachedTo;
-                                    Vector2 origin = (int)shipModule.XSIZE != 1
-                                        || (int)shipModule.YSIZE != 3
-                                        ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))
-                                        : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
-                                    Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
-                                    float angleToTarget = origin.AngleToTarget(shipModule.Center);
-                                    Vector2 angleAndDistance = shipModule.Center.PointFromAngle(MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
-                                    float num2 = (float)((int)shipModule.XSIZE * 16 / 2);
-                                    float num3 = (float)((int)shipModule.YSIZE * 16 / 2);
-                                    float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
-                                    float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
-                                    origin = angleAndDistance.PointFromAngle(MathHelper.ToDegrees(radians), distance);
-                                    int thickness = (int)UniverseRandom.RandomBetween(beam.Thickness*0.75f, beam.Thickness*1.1f);
-
-                                    beam.Update(beam.ModuleAttachedTo != null ? origin : beam.Owner.Center, 
-                                        beam.FollowMouse ? Empire.Universe.mouseWorldPos : beam.Destination, 
-                                        thickness, Empire.Universe.view, Empire.Universe.projection, elapsedTime);
-
-                                    if (beam.Duration < 0f && !beam.Infinite)
-                                    {
-                                        beam.Die(null, false);
-                                        beams.RemoveRef(beam);
-                                    }
-                                }
-                                else
-                                {
-                                    beam.Die(null, false);
-                                }
-                            }
-
-                        }//); 
-                    }
-                   
+                }
+                else
+                {
+                    beam.Die(null, false);
                 }
             }
         }

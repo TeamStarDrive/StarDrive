@@ -2920,11 +2920,11 @@ namespace Ship_Game
             int num = 0;
             if (flag1)
             {
-                foreach (Ship ship in (Array<Ship>)this.OwnedShips)
+                foreach (Ship ship in this.OwnedShips)
                 {
                     if (num < 2)
                     {
-                        if (ship.shipData.Role == ShipData.RoleName.scout && !ship.isPlayerShip())
+                        if (ship.shipData.Role == ShipData.RoleName.scout && !ship.PlayerShip)
                         {
                             ship.DoExplore();
                             ++num;
