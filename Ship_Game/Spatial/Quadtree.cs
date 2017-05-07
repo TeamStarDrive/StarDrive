@@ -307,10 +307,9 @@ namespace Ship_Game
                 float nx = node.X, ny = node.Y; // L1 cache warm node bounds
                 float nlastX = node.LastX, nlastY = node.LastY;
 
-                SpatialObj[] items = node.Items;
                 for (int i = 0; i < node.Count; ++i)
                 {
-                    ref SpatialObj obj = ref items[i];
+                    ref SpatialObj obj = ref node.Items[i]; // .Items may be modified by InsertAt and RemoveAtSwapLast
                     if (obj.Loyalty == 0)
                         continue; // seems to be a static world object, so don't bother updating
 
@@ -341,7 +340,6 @@ namespace Ship_Game
                         if (quad != null)
                         {
                             SpatialObj reinsert = obj;
-                            reinsert.OverlapsQuads = false;
                             node.RemoveAtSwapLast(i--);
                             InsertAt(quad, level-1, ref reinsert);
                         }
