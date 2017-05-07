@@ -4,6 +4,7 @@
 "StarDrive.pdb"
 "Newtonsoft.Json.dll"
 "Newtonsoft.Json.xml"
+"version.txt"
 "..\..\StarDrive\SDSunBurn.dll"
 "..\..\StarDrive\SDSunBurn.pdb"
 "..\..\StarDrive\Microsoft.Xna.Framework.Game.dll"
