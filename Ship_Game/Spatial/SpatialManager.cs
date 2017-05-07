@@ -488,24 +488,6 @@ namespace Ship_Game.Gameplay
             GameplayObject beamTarget = beam.Target;
             if (beamTarget is ShipModule targetModule)
                 beamTarget = targetModule.GetParent();
-            else if (beamTarget is Ship targetShip)
-            {
-                targetShip.MoveModulesTimer = 2f;
-                beam.ActualHitDestination = beamTarget.Center;
-                if (beam.DamageAmount >= 0f)
-                    return;
-
-                // @todo Why is this here?? Healing stuff shuld be handled elsewhere! like target.Touch(beam)
-                foreach (ShipModule module in targetShip.ModuleSlotList)
-                {
-                    module.Health -= beam.DamageAmount;
-
-                    if (module.Health < 0f)
-                        module.Health = 0f;
-                    else if (module.Health >= module.HealthMax)
-                        module.Health = module.HealthMax;
-                }
-            }
 
             Ship[] nearby = GetNearby<Ship>(beamTarget.Position, beamTarget.Radius);
             if (nearby.Length == 0)

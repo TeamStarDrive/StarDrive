@@ -251,7 +251,11 @@ namespace Ship_Game.Gameplay
 
         private void CreateDroneBeam(GameplayObject target, DroneAI source)
         {
-            var beam = new Beam(this, target);
+            // repair drone beams with negative damage have their collision disabled
+            var beam = new Beam(this, target)
+            {
+                DisableSpatialCollision = DamageAmount < 0f
+            };
 
             if (!beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection))
             {
