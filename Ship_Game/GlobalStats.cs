@@ -28,8 +28,7 @@ namespace Ship_Game
 
     public static class GlobalStats
     {
-        public static string Branch = "default"; // branch of this build
-        public static string Commit = "0000";    // commit ID of this build
+        public static string Version = "";
         public static string ExtendedVersion = "";
 
         public static int ComparisonCounter = 1;
@@ -120,7 +119,7 @@ namespace Ship_Game
         public static int XRES;
         public static int YRES;
         public static WindowMode WindowMode;
-        public static bool RanOnce;
+        public static bool IsFirstRun; // first time the game is run? we'll use some optimized defaults
         public static bool ForceFullSim   = true;
         public static int AntiAlias       = 2;
         public static bool AntiAlias8XOverride;
@@ -143,7 +142,7 @@ namespace Ship_Game
         public static bool NotEnglishOrSpanish    => IsGerman || IsPolish || IsRussian || IsFrench;
         ////////////////////////////////
 
-        static GlobalStats()
+        public static void LoadConfig()
         {
             try
             {
@@ -154,16 +153,16 @@ namespace Ship_Game
                 return; // configuration file is missing
             }
 
-            string ver = (Assembly.GetEntryAssembly()?
+            Version = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;
        
-            ExtendedVersion = $"BlackBox : {ver}";
+            ExtendedVersion = $"BlackBox : {Version}";
             GetSetting("GravityWellRange",       ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);
             GetSetting("AutoSaveFreq",           ref AutoSaveFreq);
-            GetSetting("RanOnce",                ref RanOnce);
+            GetSetting("IsFirstRun",                ref IsFirstRun);
             GetSetting("ForceFullSim",           ref ForceFullSim);
             GetSetting("WindowMode",             ref WindowMode);
             GetSetting("8XAntiAliasing",         ref AntiAlias8XOverride);
@@ -179,9 +178,9 @@ namespace Ship_Game
 
             LoadModInfo(ModName);
 
-            if (!RanOnce) // first run? try full screen
+            if (!IsFirstRun) // first run? try full screen
                 WindowMode = 0;
-            RanOnce = true;
+            IsFirstRun = true;
 
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
@@ -251,7 +250,7 @@ namespace Ship_Game
             WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
             WriteSetting(config, "perf", perf);
             WriteSetting(config, "AutoSaveFreq",   AutoSaveFreq);
-            WriteSetting(config, "RanOnce",        RanOnce);
+            WriteSetting(config, "IsFirstRun",        IsFirstRun);
             WriteSetting(config, "ForceFullSim",   ForceFullSim);
             WriteSetting(config, "WindowMode",     WindowMode);
             WriteSetting(config, "8XAntiAliasing", AntiAlias8XOverride);

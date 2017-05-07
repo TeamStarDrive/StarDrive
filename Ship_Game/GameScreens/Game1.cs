@@ -26,6 +26,8 @@ namespace Ship_Game
             // need to set base Content, to ensure proper content disposal
             base.Content = this.Content = new GameContentManager(Services, "Game");
 
+            GlobalStats.LoadConfig();
+
         #if STEAM
             if (SteamManager.SteamInitialize())
             {
@@ -52,7 +54,7 @@ namespace Ship_Game
             Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
             Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
 
-            if (GlobalStats.RanOnce)
+            if (GlobalStats.IsFirstRun)
             {
                 Graphics.PreferredBackBufferWidth  = GlobalStats.XRES;
                 Graphics.PreferredBackBufferHeight = GlobalStats.YRES;
@@ -70,7 +72,7 @@ namespace Ship_Game
 
             int width  = GlobalStats.XRES;
             int height = GlobalStats.YRES;
-            if (!GlobalStats.RanOnce)
+            if (!GlobalStats.IsFirstRun)
             {
                 width  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
                 height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
