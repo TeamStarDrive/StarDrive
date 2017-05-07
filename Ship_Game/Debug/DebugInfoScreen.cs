@@ -232,7 +232,6 @@ namespace Ship_Game.Debug
                 {
                     SolarSystem systemToDefend = Screen.SelectedShip.AI.SystemToDefend;
                     if (systemToDefend != null)
-
                         DrawString("Defending "+systemToDefend.Name);
                     else
                         DrawString("Defending Awaiting Order");
@@ -240,17 +239,10 @@ namespace Ship_Game.Debug
                 if (ship.System == null)
                 {
                     DrawString("Deep Space");
-                    lock (GlobalStats.DeepSpaceLock)
-                    {
-                        if (!UniverseScreen.DeepSpaceManager.Contains(ship))
-                            DrawString(Color.LightPink, "ERROR-DS CO");
-                        else
-                            DrawString("Manager OK");
-                    }
                 }
                 else
                 {
-                    DrawString(ship.System.Name+" system");
+                    DrawString(ship.System.Name + " system");
                 }
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
                     ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                

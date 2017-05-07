@@ -177,11 +177,13 @@ namespace Ship_Game.Gameplay
 
         private ShipModule() : base(GameObjectType.ShipModule)
         {
+            DisableSpatialCollision = true;
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
         private ShipModule(ShipModule_Deserialize s) : base(GameObjectType.ShipModule)
         {
+            DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(s);
             XSIZE                = s.XSIZE;
             YSIZE                = s.YSIZE;

@@ -45,8 +45,8 @@ namespace Ship_Game
                 LastX    = Cx + Radius;
                 LastY    = Cy + Radius;
             }
-            if ((Type & GameObjectType.Projectile) != 0) Loyalty = ((Projectile)go).Loyalty.Id;
-            else if ((Type & GameObjectType.Ship) != 0)  Loyalty = ((Ship)go).loyalty.Id;
+            if ((Type & GameObjectType.Projectile) != 0) Loyalty = ((Projectile)go).Loyalty?.Id ?? 0;
+            else if ((Type & GameObjectType.Ship) != 0)  Loyalty = ((Ship)go).loyalty?.Id ?? 0;
             else                                         Loyalty = 0;
             LastCollided = 0;
             OverlapsQuads = false;
@@ -91,6 +91,12 @@ namespace Ship_Game
                 .RayHitTestCircle(target.Radius, obj.Source, obj.Destination, rayWidth: 8.0f);
         }
 
+        public float BeamDistanceTo(ref SpatialObj target)
+        {
+            var obj = (Beam)Obj;
+            return new Vector2(target.Cx, target.Cy).RayCircleIntersect(target.Radius, obj.Source, obj.Destination);
+        }
+
         private bool HitTestBeams(ref SpatialObj beam)
         {
             // @todo Add Beam <-> Beam redirected collision in the future
@@ -114,6 +120,10 @@ namespace Ship_Game
         }
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+
     public struct SpatialCollision // two spatial objects that collided
     {
         public GameplayObject Obj1, Obj2;
@@ -131,6 +141,7 @@ namespace Ship_Game
         private Node Root;
         private int FrameId;
 
+        ///////////////////////////////////////////////////////////////////////////////////////////
         private class Node
         {
             public readonly float X, Y, LastX, LastY;
@@ -147,7 +158,6 @@ namespace Ship_Game
                 Count = 0;
                 Items = NoObjects;
             }
-
             public void Add(ref SpatialObj obj)
             {
                 if (Items.Length == Count)
@@ -164,7 +174,6 @@ namespace Ship_Game
                 }
                 Items[Count++] = obj;
             }
-
             public void RemoveAtSwapLast(int index)
             {
                 ref SpatialObj last = ref Items[--Count];
@@ -172,13 +181,13 @@ namespace Ship_Game
                 last.Obj = null;
                 if (Count == 0) Items = NoObjects;
             }
-
             public bool Overlaps(ref Vector2 topleft, ref Vector2 topright)
             {
                 return X <= topright.X && LastX > topleft.X
                     && Y <= topright.Y && LastY > topleft.Y;
             }
         }
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
         // Create a quadtree to fit the universe
         public Quadtree(float universeSize, float smallestCell = 512f)
@@ -431,6 +440,40 @@ namespace Ship_Game
             }
         }
 
+        // for beams it's important to only collide the CLOSEST objects
+        private static bool CollideBeamAtNode(Node node, int frameId, ref SpatialObj beam, 
+            ref GameplayObject collided, ref float sqDistance)
+        {
+            for (;;)
+            {
+                int count = node.Count;
+                SpatialObj[] arr = node.Items;
+                for (int i = 0; i < count; ++i)
+                {
+                    ref SpatialObj item = ref arr[i];
+                    if (frameId      != item.LastCollided && // already collided this frame
+                        item.Loyalty != beam.Loyalty      && // friendlies don't collide
+                        item.Obj     != beam.Obj          && // ignore self
+                        item.HitTest(ref beam)) // actual collision test
+                    {
+                        collided = item.Obj;
+                        item.LastCollided = frameId;
+                        beam.LastCollided = frameId;
+                        return true;
+                    }
+                }
+                if (node.NW == null)
+                {
+                    collided = null;
+                    return false;
+                }
+                if (CollideBeamAtNode(node.NW, frameId, ref beam, ref collided, ref sqDistance)) return true;
+                if (CollideBeamAtNode(node.NE, frameId, ref beam, ref collided, ref sqDistance)) return true;
+                if (CollideBeamAtNode(node.SE, frameId, ref beam, ref collided, ref sqDistance)) return true;
+                if (CollideBeamAtNode(node.SW, frameId, ref beam, ref collided, ref sqDistance)) return true;
+            }
+        }
+
         //// finds the nearest collision
         //public bool CheckCollision(Vector2 pos, float radius, int loyalty, out GameplayObject collided)
         //{
@@ -468,9 +511,18 @@ namespace Ship_Game
                 if (frameId == so.LastCollided)
                     continue; // already collided inside this loop
 
-                if (!CollideAtNode(node, frameId, ref so, out GameplayObject collided))
-                    continue;
-
+                GameplayObject collided = null;
+                if (so.Is(GameObjectType.Beam)) // beams are a bit special
+                {
+                    float sqdist = 9999999f;
+                    if (!CollideBeamAtNode(node, frameId, ref so, ref collided, ref sqdist))
+                        continue;
+                }
+                else
+                {
+                    if (!CollideAtNode(node, frameId, ref so, out collided))
+                        continue;
+                }
                 results.Add(new SpatialCollision { Obj1 = so.Obj, Obj2 = collided });
             }
         }
@@ -520,7 +572,6 @@ namespace Ship_Game
                         if (nearbyDummy.HitTest(ref so))
                             nearby[numNearby++] = so.Obj;
                     }
-
                 }
 
                 node = node.Parent;
@@ -533,18 +584,24 @@ namespace Ship_Game
             return nearby;
         }
 
+        private static SpatialObj[] DrawBuffer = NoObjects;
+
         private static void DebugVisualize(UniverseScreen screen, ref Vector2 topleft, ref Vector2 botright, Node node)
         {
             var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
             var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
             screen.DrawRectangleProjected(center, size, 0f, Color.SaddleBrown);
 
+            // @todo This is a hack to reduce concurrency related bugs.
+            //       once the main drawing and simulation loops are stable enough, this copying can be removed
+            //       In most cases it doesn't matter, because this is only used during DEBUG display...
+            int count = node.Count;
+            if (DrawBuffer.Length < count) DrawBuffer = new SpatialObj[count];
+            Array.Copy(node.Items, DrawBuffer, count);
 
-            var items = new SpatialObj[node.Count];
-            Array.Copy(node.Items, items, items.Length);
-            for (int i = 0; i < items.Length; ++i)
+            for (int i = 0; i < count; ++i)
             {
-                ref SpatialObj so = ref items[i];
+                ref SpatialObj so = ref DrawBuffer[i];
                 var ocenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
                 var osize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
                 screen.DrawRectangleProjected(ocenter, osize, 0f, Color.MediumVioletRed);
@@ -565,6 +622,8 @@ namespace Ship_Game
             Vector2 topleft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
             Vector2 botright = screen.UnprojectToWorldPosition(screenSize);
             DebugVisualize(screen, ref topleft, ref botright, Root);
+
+            Array.Clear(DrawBuffer, 0, DrawBuffer.Length); // prevent zombie objects
         }
     }
 }

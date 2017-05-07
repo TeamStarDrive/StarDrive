@@ -243,25 +243,15 @@ namespace Ship_Game.Gameplay
             if (ToggleCue.IsPlaying)
                 return;
 
-            AudioEmitter soundEmitter = (Owner?.isPlayerShip() ?? false) ? null : emitter ?? Owner.SoundEmitter;
+            AudioEmitter soundEmitter = Owner?.PlayerShip == true ? null : (emitter ?? Owner?.SoundEmitter);
 
             GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
 
-        private void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
+        private void CreateDroneBeam(GameplayObject target, DroneAI source)
         {
-            if (source == null)
-                return;
-            var beam = new Beam(source.Owner.Center, target.Center, BeamThickness, source.Owner, target)
-            {
-                ModuleAttachedTo = moduleAttachedTo,
-                PowerCost        = BeamPowerCostPerSecond,
-                Range            = Range,
-                Duration         = BeamDuration > 0 ? BeamDuration : 2f,
-                DamageAmount     = DamageAmount,
-                Weapon           = this
-            };
+            var beam = new Beam(this, target);
 
             if (!beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection))
             {
@@ -276,16 +266,7 @@ namespace Ship_Game.Gameplay
 
         private void CreateTargetedBeam(GameplayObject target)
         {
-            var beam = new Beam(moduleAttachedTo.Center, BeamThickness, moduleAttachedTo.GetParent(), target)
-            {
-                ModuleAttachedTo = moduleAttachedTo,
-                PowerCost        = BeamPowerCostPerSecond,
-                Range            = Range,
-                Duration         = BeamDuration > 0 ? BeamDuration : 2f,
-                DamageAmount     = DamageAmount,
-                Weapon           = this,
-                Destination      = target.Center
-            };
+            var beam = new Beam(this, target);
 
             //damage increase by level
             if (Owner.Level > 0)
@@ -310,18 +291,9 @@ namespace Ship_Game.Gameplay
                 PlayToggleAndFireSfx(Owner.SoundEmitter);
         }
 
-        private void CreateMouseBeam(Vector2 destination)
+        private void CreateMouseBeam(Vector2 direction)
         {
-            var beam = new Beam(moduleAttachedTo.Center, destination, BeamThickness, moduleAttachedTo.GetParent())
-            {
-                ModuleAttachedTo = moduleAttachedTo,
-                Range            = Range,
-                FollowMouse      = true,
-                Duration         = BeamDuration > 0 ? BeamDuration : 2f,
-                PowerCost        = BeamPowerCostPerSecond,
-                DamageAmount     = DamageAmount,
-                Weapon           = this
-            };
+            var beam = new Beam(this, moduleAttachedTo.Center + direction*Range) { FollowMouse = true };
             
             beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection);
             if (!beam.Active)
@@ -500,13 +472,13 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void FireDroneBeam(Vector2 direction, GameplayObject target, DroneAI source)
+        public void FireDroneBeam(GameplayObject target, DroneAI source)
         {
             drowner = source.Owner;
             if (timeToNextFire > 0f)
                 return;
             timeToNextFire = fireDelay;
-            CreateDroneBeam(direction, target, source);
+            CreateDroneBeam(target, source);
         }
 
         public void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)

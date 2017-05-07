@@ -6,27 +6,12 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using System.Xml.Serialization;
 using Ship_Game.AI;
 
 namespace Ship_Game
 {
-    internal sealed class HelperFunctions
+    internal static class HelperFunctions
     {
-        public HelperFunctions()
-        {
-        }
-
-        public static Vector3[] BeamPoints(Vector2 src, Vector2 dst, float width, Vector2[] outPoints, int offset, float BeamZ)
-        {
-            Vector2 dir = dst - src;
-            Vector2 right = Vector2.Normalize(new Vector2(dir.Y, -dir.X));
-            outPoints[0] = src - (right * width);
-            outPoints[1] = src + (right * width);
-            outPoints[2] = dst - (right * width);
-            outPoints[3] = dst + (right * width);
-            return new [] { new Vector3(outPoints[0], BeamZ), new Vector3(outPoints[1], BeamZ), new Vector3(outPoints[2], BeamZ), new Vector3(outPoints[3], BeamZ) };
-        }
 
         public static bool CheckIntersection(Rectangle rect, Vector2 pos)
         {
