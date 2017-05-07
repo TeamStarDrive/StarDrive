@@ -52,7 +52,7 @@ namespace Ship_Game
                 neb.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
                 BGItems.Add(neb);
                 if (starParts)
-                    Screen.star_particles.AddParticleThreadB(new Vector3(nebrect.X + nebrect.Width / 2, nebrect.Y + nebrect.Height / 2, nebZ),
+                    Screen.star_particles.AddParticleThreadB(new Vector3(nebrect.X, nebrect.Y, nebZ),
                         Vector3.Zero);
 
                 return nebZ;
@@ -74,7 +74,7 @@ namespace Ship_Game
                     (int)rw,
                     (int)rw);
 
-                CreateNebulaPart(b, 0, smoke, startz, zPos, false);
+                CreateNebulaPart(b, 0, smoke, startz, zPos, true);
             }
         }
 

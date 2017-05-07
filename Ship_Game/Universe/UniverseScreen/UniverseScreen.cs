@@ -595,7 +595,7 @@ namespace Ship_Game
             string folderPath = Dir.ApplicationData;
             if (loadFogPath == null)
             {
-                FogMap = ResourceManager.TextureDict["UniverseFeather"];
+                FogMap = ResourceManager.Texture("UniverseFeather");
             }
             else
             {
