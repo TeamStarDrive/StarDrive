@@ -424,15 +424,15 @@ namespace Ship_Game.AI
             {
                 case 0:
                     bool flag1 = false;
-                    foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
+                    foreach (Ship ship in empire.GetShips())
                     {
-                        if (ship.isColonyShip && !ship.isPlayerShip() && (ship.AI != null && ship.AI.State != AIState.Colonize))
+                        if (ship.isColonyShip && !ship.PlayerShip && (ship.AI != null && ship.AI.State != AIState.Colonize))
                         {
                             this.colonyShip = ship;
                             flag1 = true;
                         }
                     }
-                    Planet planet1 = (Planet)null;
+                    Planet planet1 = null;
                     if (!flag1)
                     {
                         Array<Planet> list = new Array<Planet>();
@@ -531,7 +531,7 @@ namespace Ship_Game.AI
                             flag3 = false;
                             foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                             {
-                                if (ship.isColonyShip && !ship.isPlayerShip() && (ship.AI != null && ship.AI.State != AIState.Colonize))
+                                if (ship.isColonyShip && !ship.PlayerShip && (ship.AI != null && ship.AI.State != AIState.Colonize))
                                 {
                                     this.colonyShip = ship;
                                     flag3 = true;
@@ -593,7 +593,7 @@ namespace Ship_Game.AI
                     {
                         Ship ship = this.empire.GetShips()[index];
                         if (ship != null && !ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax >0 && (ship.shipData.Role == ShipData.RoleName.freighter && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified) 
-                            && !ship.isPlayerShip()) 
+                            && !ship.PlayerShip) 
                             && (ship.AI != null && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
                         {
                             this.freighter = ship;
@@ -696,7 +696,9 @@ namespace Ship_Game.AI
                     bool flag2 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit)) && ship.AI.State != AIState.Scrap)
+                        if (!ship.isColonyShip && !ship.isConstructor 
+                            && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) 
+                            && (!ship.PlayerShip && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit)) && ship.AI.State != AIState.Scrap)
                         {
                             this.freighter = ship;
                             flag2 = true;
@@ -777,7 +779,7 @@ namespace Ship_Game.AI
                     bool flag = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if ((ship.shipData.Role == ShipData.RoleName.scout || ship.Name == EmpireManager.Player.data.CurrentAutoScout) && !ship.isPlayerShip())
+                        if ((ship.shipData.Role == ShipData.RoleName.scout || ship.Name == EmpireManager.Player.data.CurrentAutoScout) && !ship.PlayerShip)
                         {
                             this.freighter = ship;
                             flag = true;
@@ -799,7 +801,9 @@ namespace Ship_Game.AI
                     bool flag1 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax >0 && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
+                        if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax >0 
+                            && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) 
+                            && (!ship.PlayerShip && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
                         {
                             this.passTran = ship;
                             flag1 = true;
@@ -881,7 +885,11 @@ namespace Ship_Game.AI
                     bool flag2 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit)) && ship.AI.State != AIState.Scrap)
+                        if (!ship.isColonyShip && !ship.isConstructor 
+                            && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) 
+                            && (!ship.PlayerShip && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport 
+                            && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit)) 
+                            && ship.AI.State != AIState.Scrap)
                         {
                             this.passTran = ship;
                             flag2 = true;

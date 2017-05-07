@@ -52,17 +52,19 @@ namespace Ship_Game
             return zero.Distance(ProjectToScreenPosition(new Vector2(sizeInWorld, 0f)));
         }
 
-        public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
+        public Vector3 UnprojectToWorldPosition3D(Vector2 screenSpace)
         {
-            Vector3 position = Viewport.Unproject(new Vector3(screenSpace, 0.0f), projection, view, Matrix.Identity);
-            Vector3 direction = Viewport.Unproject(new Vector3(screenSpace, 1f), projection, view, Matrix.Identity) - position;
-            direction.Normalize();
-            var ray = new Ray(position, direction);
-            float num = -ray.Position.Z / ray.Direction.Z;
-            var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-            return new Vector2(vector3.X, vector3.Y);
+            Vector3 pos = Viewport.Unproject(new Vector3(screenSpace, 0f), projection, view, Matrix.Identity);
+            Vector3 dir = Viewport.Unproject(new Vector3(screenSpace, 1f), projection, view, Matrix.Identity) - pos;
+            dir.Normalize();
+            float num = -pos.Z / dir.Z;
+            return (pos + num * dir);
         }
 
+        public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
+        {
+            return UnprojectToWorldPosition3D(screenSpace).ToVec2();
+        }
 
 
         // projects the line from World positions into Screen positions, then draws the line

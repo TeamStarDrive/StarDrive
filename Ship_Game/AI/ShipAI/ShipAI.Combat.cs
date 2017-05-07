@@ -67,7 +67,7 @@ namespace Ship_Game.AI
                 || weapon.TargetChangeTimer > 0f
             )
                 return false;
-            if ((!weapon.TruePD || !weapon.Tag_PD) && Owner.isPlayerShip())
+            if ((!weapon.TruePD || !weapon.Tag_PD) && Owner.PlayerShip)
                 return false;
 
             var moduletarget = weapon.fireTarget as ShipModule;
@@ -97,7 +97,7 @@ namespace Ship_Game.AI
                 if (weapon.TruePD)   weapon.TargetChangeTimer *= .25f;
             }
             // if weapon target is null reset primary target and decrement target change timer.
-            if (weapon.fireTarget == null && !Owner.isPlayerShip())
+            if (weapon.fireTarget == null && !Owner.PlayerShip)
                 weapon.PrimaryTarget = false;
 
             // Reasons for this weapon not to fire                    

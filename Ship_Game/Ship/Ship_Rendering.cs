@@ -198,7 +198,7 @@ namespace Ship_Game.Gameplay
                 }
 
                 // finally, draw firing arcs for the player ship
-                if (isPlayerShip() && slot.FieldOfFire > 0.0f && slot.InstalledWeapon != null)
+                if (PlayerShip && slot.FieldOfFire > 0.0f && slot.InstalledWeapon != null)
                     us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 

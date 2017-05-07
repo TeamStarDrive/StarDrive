@@ -1,5 +1,9 @@
+using System;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 
 
@@ -7,139 +11,69 @@ namespace Ship_Game
 {
     public sealed class Beam : Projectile
     {
-        public Vector3 Origin;
-        public Vector3 UpperLeft;
-        public Vector3 LowerLeft;
-        public Vector3 UpperRight;
-        public Vector3 LowerRight;
-        public Vector3 Normal;
-        public Vector3 Up;
-        public Vector3 Left;
         public float PowerCost;
-        public ShipModule HitLast;
         public Vector2 Source;
-        public int Thickness { get; private set; }
         public Vector2 Destination;
+        public Vector2 ActualHitDestination; // actual location where beam hits another ship
+        public int Thickness { get; private set; }
         public static Effect BeamEffect;
-        public Vector2 ActualHitDestination;
         public bool FollowMouse;
-        public float BeamOffsetAngle;
-        public VertexPositionNormalTexture[] Vertices;
-        public int[] Indexes;
-        private float BeamZ;
-        private GameplayObject Target;
+        public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
+        public int[] Indexes = new int[6];
+        private readonly float BeamZ = RandomMath2.RandomBetween(-1f, 1f);
         public bool Infinite;
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;
 
-        private AudioHandle DamageToggleSound;
-        private float DamageSoundTimer;
+        private AudioHandle DamageToggleSound = default(AudioHandle);
 
-        public Beam()
+        [XmlIgnore][JsonIgnore]
+        public GameplayObject Target { get; }
+
+        // Create a targeted beam that follows GameplayObject [target]
+        public Beam(Weapon weapon, GameplayObject target) : this(weapon, target.Center)
         {
-            Duration = 2f;
+            Target = target;
         }
 
-        public Beam(Vector2 srcCenter, int thickness, Ship owner, GameplayObject target) : this()
+        // Create an untargeted beam with an initial destination position
+        public Beam(Weapon weapon, Vector2 destination)
         {
-            Thickness = thickness;
-            Target = target;
-            Owner = owner;
-            Vector2 targetDir = Vector2.Normalize(target.Center);
-            SetSystem(owner.System);
-            Source = srcCenter;
-            BeamOffsetAngle = owner.Rotation - srcCenter.AngleToTarget(targetDir).ToRadians();
-            Destination = srcCenter.PointFromRadians(owner.Rotation + BeamOffsetAngle, Range);
+            Weapon           = weapon;
+            ModuleAttachedTo = weapon.moduleAttachedTo;
+            DamageAmount = weapon.DamageAmount;
+            PowerCost    = weapon.BeamPowerCostPerSecond;
+            Range        = weapon.Range;
+            Duration     = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
+            Thickness    = weapon.BeamThickness;
+
+            Owner  = ModuleAttachedTo.GetParent();
+            Source = ModuleAttachedTo.Center;
+            SetDestination(destination);
             ActualHitDestination = Destination;
-            Vertices = new VertexPositionNormalTexture[4];
-            Indexes = new int[6];
-            BeamZ = RandomMath2.RandomBetween(-1f, 1f);
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, targetDir, thickness, new Vector2[4], 0, BeamZ);
-            UpperLeft  = points[0];
-            UpperRight = points[1];
-            LowerLeft  = points[2];
-            LowerRight = points[3];
-            FillVertices();
-        }
 
-        public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Projectile owner, GameplayObject target) : this()
-        {
-            Target = target;
-            SetSystem(owner.System);
-            Source          = srcCenter;
-            BeamOffsetAngle = 0f;
-            Vertices        = new VertexPositionNormalTexture[4];
-            Indexes         = new int[6];
-            BeamZ           = RandomMath2.RandomBetween(-1f, 1f);
-            ActualHitDestination = destination;
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, thickness, new Vector2[4], 0, BeamZ);
-            UpperLeft  = points[0];
-            UpperRight = points[1];
-            LowerLeft  = points[2];
-            LowerRight = points[3];
-            FillVertices();
-        }
-        public void BeamRecreate(Vector2 srcCenter, int thickness, Ship owner, GameplayObject target)
-        {
-            Indexes = new int[6];
-            ActualHitDestination = Vector2.Zero;
-            FollowMouse     = false;
-            Duration        = 2f;
-            BeamOffsetAngle = 0f;
-            BeamOffsetAngle = 0f;
-            Indexes.Initialize();
-            BeamZ             = 0f;
-            Target            = null;
-            Infinite          = false;
-            DamageToggleSound.Stop();
-            DamageSoundTimer = 0f;
-
-            ModuleAttachedTo = Weapon.moduleAttachedTo;
-            PowerCost        = Weapon.BeamPowerCostPerSecond;
-            Range            = Weapon.Range;
-            Thickness        = Weapon.BeamThickness;
-            Duration         = Weapon.BeamDuration > 0 ? Weapon.BeamDuration : 2f;
-            DamageAmount     = Weapon.DamageAmount;
-            Destination      = target.Center;
-            Active           = true;
-            
-            Target = target;
-            Owner = owner;
-            Vector2 targetDir = Vector2.Normalize(target.Center);
             SetSystem(Owner.System);
-            Source          = srcCenter;
-            BeamOffsetAngle = owner.Rotation - srcCenter.RadiansToTarget(targetDir);
-            Destination     = srcCenter.PointFromRadians(owner.Rotation + BeamOffsetAngle, Range);
-            Vertices        = new VertexPositionNormalTexture[4];
-            Indexes         = new int[6];
-            BeamZ           = RandomMath2.RandomBetween(-1f, 1f);
-            ActualHitDestination = Destination;
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, targetDir, Thickness, new Vector2[4], 0, BeamZ);
-            UpperLeft  = points[0];
-            UpperRight = points[1];                                 
-            LowerLeft  = points[2];
-            LowerRight = points[3];
-            FillVertices();
-            Active = true;
+            InitBeamMeshIndices();
+            UpdateBeamMesh();
         }
-        public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Ship shipOwner)
+
+        // Create a spatially fixed beam spawned from a ship center
+        public Beam(Ship ship, Vector2 destination, int thickness)
         {
-            Owner = shipOwner;
+            Owner       = ship;
+            Source      = ship.Center;
+            Destination = destination;
+            Thickness   = thickness;
+
             SetSystem(Owner.System);
-            Source = srcCenter;
-            Thickness       = thickness;
-            BeamOffsetAngle = shipOwner.Rotation - srcCenter.RadiansToTarget(destination);
-            Destination     = srcCenter.PointFromRadians(shipOwner.Rotation + BeamOffsetAngle, Range);
-            Vertices        = new VertexPositionNormalTexture[4];
-            Indexes         = new int[6];
-            BeamZ           = RandomMath2.RandomBetween(-1f, 1f);
-            ActualHitDestination = Destination;
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, thickness, new Vector2[4], 0, BeamZ);
-            UpperLeft  = points[0];
-            UpperRight = points[1];
-            LowerLeft  = points[2];
-            LowerRight = points[3];
-            FillVertices();
+            InitBeamMeshIndices();
+            UpdateBeamMesh();
+        }
+
+        private void SetDestination(Vector2 destination)
+        {
+            Vector2 deltaVec = destination - Source;
+            Destination = Source + deltaVec.Normalized()*Math.Min(Range, deltaVec.Length());
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -205,13 +139,9 @@ namespace Ship_Game
                 BeamEffect.End();
             }
         }
-
-        private void FillVertices()
+        
+        private void InitBeamMeshIndices()
         {
-            Vertices[0].Position = LowerLeft;
-            Vertices[1].Position = UpperLeft;
-            Vertices[2].Position = LowerRight;
-            Vertices[3].Position = UpperRight;
             Vertices[0].TextureCoordinate = new Vector2(0f, 1f);
             Vertices[1].TextureCoordinate = new Vector2(0f, 0f);
             Vertices[2].TextureCoordinate = new Vector2(1f, 1f);
@@ -224,9 +154,30 @@ namespace Ship_Game
             Indexes[5] = 3;
         }
 
-        public GameplayObject GetTarget()
+        private void UpdateBeamMesh()
         {
-            return Target;
+            Vector2 src = Source;
+            Vector2 dst = ActualHitDestination;
+            Vector2 deltaVec = dst - src;
+            Vector2 right = new Vector2(deltaVec.Y, -deltaVec.X).Normalized();
+
+            // typical zigzag pattern:  |\|
+            Vertices[0].Position = new Vector3(dst - (right * Thickness), BeamZ); // botleft
+            Vertices[1].Position = new Vector3(src - (right * Thickness), BeamZ); // topleft
+            Vertices[2].Position = new Vector3(dst + (right * Thickness), BeamZ); // botright
+            Vertices[3].Position = new Vector3(src + (right * Thickness), BeamZ); // topright
+
+            // @todo Why are we always doing this extra work??
+            Vertices[0].TextureCoordinate = new Vector2(0f, 1f);
+            Vertices[1].TextureCoordinate = new Vector2(0f, 0f);
+            Vertices[2].TextureCoordinate = new Vector2(1f, 1f);
+            Vertices[3].TextureCoordinate = new Vector2(1f, 0f);
+            Indexes[0] = 0;
+            Indexes[1] = 1;
+            Indexes[2] = 2;
+            Indexes[3] = 2;
+            Indexes[4] = 1;
+            Indexes[5] = 3;
         }
 
         public bool LoadContent(ScreenManager screenMgr, Matrix view, Matrix projection)
@@ -246,20 +197,13 @@ namespace Ship_Game
             if (DamageAmount < 0f && targetModule?.ShieldPower > 0f) // @todo Repair beam??
                 return false;
 
-            //// trigger shield static sfx.... @todo BUT WHY?
-            //if (targetModule != null && targetModule.ShieldPower > 0f)
-            //{
-            //    if (Owner.InFrustum && DamageToggleSound.IsStopped)
-            //        DamageToggleSound.PlaySfxAsync("sd_shield_static_1");
-            //}
-
             targetModule?.Damage(this, DamageAmount);
             return true;
         }
 
-        public void Update(Vector2 srcCenter, Vector2 dstCenter, int thickness, Matrix view, Matrix projection, float elapsedTime)
+        public void Update(Vector2 srcCenter, int thickness, float elapsedTime)
         {
-            Owner.PowerCurrent = Owner.PowerCurrent - PowerCost * elapsedTime;
+            Owner.PowerCurrent -= PowerCost * elapsedTime;
             if (Owner.PowerCurrent < 0f)
             {
                 Owner.PowerCurrent = 0f;
@@ -277,59 +221,46 @@ namespace Ship_Game
             Duration -= elapsedTime;
             Source = srcCenter;
 
-            // Modified by Gretman
-            if (Target == null) // If current target sucks, use "destination" instead
-            {
-                Log.Info("Beam assigned alternate destination at update");
-                Destination = Source.PointFromRadians(Owner.Rotation - BeamOffsetAngle, Range);
-            }
-            else if (!Owner.isPlayerShip() && Destination.OutsideRadius(Source, Range + Owner.Radius)) // So beams at the back of a ship can hit too!
-            {
-                Log.Info($"Beam killed because of distance: Dist = {Destination.Distance(Source)}  Beam Range = {Range}");
-                Die(null, true);
-                return;
-            }
-            else if (!Owner.isPlayerShip() && !Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation))
-            {
-                Log.Info("Beam killed because of angle");
-                Die(null, true);
-                return;
-            }
-            else
-            {
-                Destination = Target.Center;
-            }// Done messing with stuff - Gretman
+            // always update Destination to ensure beam stays in range
+            SetDestination(FollowMouse
+                        ? Empire.Universe.mouseWorldPos
+                        : Target?.Center ?? Destination);
 
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, ActualHitDestination, thickness, new Vector2[4], 0, BeamZ);
-            UpperLeft = points[0];
-            UpperRight = points[1];
-            LowerLeft = points[2];
-            LowerRight = points[3];
-            FillVertices();
+            if (!CollidedThisFrame)
+                ActualHitDestination = Destination;
 
-            if ((Duration < 0f && !Infinite ))// ||Vector2.Distance(Destination, owner.Center) > range)
+            if (!Owner.PlayerShip)
             {
-                Die(null, true);
+                if (Destination.OutsideRadius(Source, Range + Owner.Radius)) // +Radius So beams at the back of a ship can hit too!
+                {
+                    Log.Info($"Beam killed because of distance: Dist = {Destination.Distance(Source)}  Beam Range = {Range}");
+                    Die(null, true);
+                    return;
+                }
+                if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation))
+                {
+                    Log.Info("Beam killed because of angle");
+                    Die(null, true);
+                    return;
+                }
             }
+
+            UpdateBeamMesh();
+            if (Duration < 0f && !Infinite)
+                Die(null, true);
         }
 
-        public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, Matrix view, Matrix projection, float elapsedTime)
+        public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, float elapsedTime)
         {
             Duration -= elapsedTime;
             Source = srcCenter;
             Destination = dstCenter;
-            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, Destination, thickness, new Vector2[4], 0, BeamZ);
-            UpperLeft = points[0];
-            UpperRight = points[1];
-            LowerLeft = points[2];
-            LowerRight = points[3];
-            FillVertices();
-            if (Duration < 0f && !Infinite)
-            {
-                Die(null, true);
-            }
-        }
+            Thickness = thickness;
 
+            UpdateBeamMesh();
+            if (Duration < 0f && !Infinite)
+                Die(null, true);
+        }
 
         protected override void Dispose(bool disposing)
         {
