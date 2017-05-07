@@ -253,9 +253,23 @@ namespace Ship_Game
         public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, float elapsedTime)
         {
             Duration -= elapsedTime;
-            Source = srcCenter;
-            Destination = dstCenter;
             Thickness = thickness;
+            Source    = srcCenter;
+            SetDestination(dstCenter);
+
+            // apply drone repair effect
+            if (DamageAmount < 0f && Source.Distance(Destination) <= (Range + 10f) && Target is Ship targetShip)
+            {
+                foreach (ShipModule module in targetShip.ModuleSlotList)
+                {
+                    module.Health -= DamageAmount;
+
+                    if (module.Health < 0f)
+                        module.Health = 0f;
+                    else if (module.Health >= module.HealthMax)
+                        module.Health = module.HealthMax;
+                }
+            }
 
             UpdateBeamMesh();
             if (Duration < 0f && !Infinite)
