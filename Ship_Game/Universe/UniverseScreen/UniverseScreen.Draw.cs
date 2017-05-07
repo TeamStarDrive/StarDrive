@@ -442,23 +442,19 @@ namespace Ship_Game
             {
                 if (!solarSystem.isVisible)
                     continue;
-                try
+                foreach (Planet planet in solarSystem.PlanetList)
                 {
-                    foreach (Planet planet in solarSystem.PlanetList)
+                    foreach (Projectile projectile in planet.Projectiles)
                     {
-                        foreach (Projectile projectile in planet.Projectiles)
-                        {
-                            if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" &&
-                                projectile.WeaponType != "Drone")
-                                DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
-                                    projectile.GetWorld(),
-                                    view, projection, projectile.Weapon.Animated != 0
-                                        ? ResourceManager.TextureDict[projectile.TexturePath]
-                                        : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
-                        }
+                        if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" &&
+                            projectile.WeaponType != "Drone")
+                            DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
+                                projectile.GetWorld(),
+                                view, projection, projectile.Weapon.Animated != 0
+                                    ? ResourceManager.TextureDict[projectile.TexturePath]
+                                    : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
                     }
                 }
-                catch { }
             }
             if (Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
             {
