@@ -6,11 +6,9 @@ set year=%date:~-2%
 set month=%date:~4,2%
 set day=%date:~7,2%
 
-for /f %%r in ('%1deploy\TortoiseHg\hg.exe id -n -r .') do set hgrev=%%r
+for /f %%r in ('%1deploy\TortoiseHg\hg log -r tip --template {latesttag}_{latesttagdistance}') do set hgrev=%%r
 for /f "delims=" %%b in ('%1\deploy\TortoiseHg\hg id -b') do set name=%%b
-rem for /f "delims=" %%i in (..\..\.hg\branch) do (
-rem set name=%%i
-rem )
+echo %hgrev%
 set name=%name:/=_%
 if not exist "%1deploy\config\include_%name%" (
 copy "%1deploy\config\config.txt" "%1deploy\config\config_%name%" 
@@ -18,9 +16,9 @@ copy "%1deploy\config\include.txt" "%1deploy\config\include_%name%"
 )
 echo %name%
 echo ..\7-Zip\7z A sd.7z @"%1deploy\Config\include_%name%"
-echo copy /b "..\7-Zip\7ZSD.sfx" + "%1deploy\Config\config_%name%" + sd.7z "%name% %hgrev%.exe"
+echo copy /b "..\7-Zip\7ZSD.sfx" + "%1deploy\Config\config_%name%" + sd.7z "%hgrev%.exe"
 
 ..\7-Zip\7z A sd.7z @"%1deploy\Config\include_%name%"
-copy /b "..\7-Zip\7ZSD.sfx" + "%1deploy\Config\config_%name%" + sd.7z "%name% %hgrev%.exe"
+copy /b "..\7-Zip\7ZSD.sfx" + "%1deploy\Config\config_%name%" + sd.7z "%hgrev%.exe"
 )
 

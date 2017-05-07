@@ -154,15 +154,11 @@ namespace Ship_Game
                 return; // configuration file is missing
             }
 
-            string[] ver = (Assembly.GetEntryAssembly()?
+            string ver = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
-                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion.Split('_');
-            if (ver?.Length > 1)
-            {
-                Branch = ver[0];
-                Commit = ver[1];
-            }
-            ExtendedVersion = $"BlackBox Texas : {Branch}_{Commit}";
+                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;//.Split('_');
+       
+            ExtendedVersion = $"BlackBox : {ver}";
             GetSetting("GravityWellRange",       ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);
