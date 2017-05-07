@@ -51,23 +51,17 @@ namespace Ship_Game
 
 		public override void ExitScreen()
 		{
-			try
+			if (SplashVideo != null)
 			{
-				if (SplashVideo != null)
-				{
-					SplashPlayer.Stop();
-					SplashVideo = null;
-					SplashPlayer.Dispose();
-				}
-				if (LoadingVideo != null)
-				{
-					LoadingPlayer.Stop();
-					LoadingVideo = null;
-					LoadingPlayer.Dispose();
-				}
+				SplashPlayer.Stop();
+				SplashVideo = null;
+				SplashPlayer.Dispose();
 			}
-			catch
+			if (LoadingVideo != null)
 			{
+				LoadingPlayer.Stop();
+				LoadingVideo = null;
+				LoadingPlayer.Dispose();
 			}
 			base.ExitScreen();
 		}

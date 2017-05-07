@@ -200,7 +200,7 @@ namespace Ship_Game
             IDictionary evt = ex.Data;
             if (evt.Count == 0)
             {
-                evt["Version"] = GlobalStats.ExtendedVersion;
+                evt["Version"] = GlobalStats.Version;
                 if (GlobalStats.HasMod)
                 {
                     evt["Mod"]        = GlobalStats.ActiveMod.ModName;
@@ -215,7 +215,6 @@ namespace Ship_Game
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["XnaMemory"] = Game1.Instance != null ? (Game1.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
-                evt["Commit"]    = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/" + GlobalStats.Commit;
             }
             var sb = new StringBuilder("!! Exception: ");
             sb.Append(ex.Message);
