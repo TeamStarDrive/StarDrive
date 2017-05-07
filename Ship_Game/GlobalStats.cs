@@ -156,7 +156,7 @@ namespace Ship_Game
 
             string ver = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
-                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;//.Split('_');
+                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;
        
             ExtendedVersion = $"BlackBox : {ver}";
             GetSetting("GravityWellRange",       ref GravityWellRange);

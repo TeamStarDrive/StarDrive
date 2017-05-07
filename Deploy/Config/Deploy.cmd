@@ -8,7 +8,7 @@ set day=%date:~7,2%
 
 for /f %%r in ('%1deploy\TortoiseHg\hg log -r tip --template {latesttag}_{latesttagdistance}') do set hgrev=%%r
 for /f "delims=" %%b in ('%1\deploy\TortoiseHg\hg id -b') do set name=%%b
-echo %hgrev%
+echo %hgrev% > version.txt
 set name=%name:/=_%
 if not exist "%1deploy\config\include_%name%" (
 copy "%1deploy\config\config.txt" "%1deploy\config\config_%name%" 
