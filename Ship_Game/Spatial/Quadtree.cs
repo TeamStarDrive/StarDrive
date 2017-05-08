@@ -76,43 +76,14 @@ namespace Ship_Game
             }
         }
 
-        private bool Overlaps(ref SpatialObj b)
-        {
-            return X <= b.LastX && LastX > b.X
-                && Y <= b.LastY && LastY > b.Y;
-        }
-
-        private bool BeamHitTest(ref SpatialObj target)
-        {
-            if (!this.Overlaps(ref target))
-                return false;
-            var obj = (Beam)Obj;
-            return new Vector2(target.Cx, target.Cy)
-                .RayHitTestCircle(target.Radius, obj.Source, obj.Destination, rayWidth: 8.0f);
-        }
-
-        public float BeamDistanceTo(ref SpatialObj target)
+        public float HitTestBeam(ref SpatialObj target)
         {
             var obj = (Beam)Obj;
             return new Vector2(target.Cx, target.Cy).RayCircleIntersect(target.Radius, obj.Source, obj.Destination);
         }
 
-        private bool HitTestBeams(ref SpatialObj beam)
-        {
-            // @todo Add Beam <-> Beam redirected collision in the future
-            return false;
-        }
-
         public bool HitTest(ref SpatialObj b)
         {
-            bool beamA = Is(GameObjectType.Beam);
-            bool beamB = b.Is(GameObjectType.Beam);
-            if (beamA || beamB)
-            {
-                if (beamA && beamB)
-                    return false; // HitTestBeams(ref b);
-                return beamA ? BeamHitTest(ref b) : b.BeamHitTest(ref this);
-            }
             float dx = Cx - b.Cx;
             float dy = Cy - b.Cy;
             float ra = Radius, rb = b.Radius;
@@ -408,88 +379,83 @@ namespace Ship_Game
             return node;
         }
 
-        private static bool CollideAtNode(Node node, int frameId, ref SpatialObj obj, out GameplayObject collided)
+        // regular collision; it doesn't matter which SpatialObj collides, just return the first
+        private static bool HitTestAtNode(Node node, int frameId, ref SpatialObj obj, ref GameplayObject collided)
         {
-            for (;;)
+            for (int i = 0; i < node.Count; ++i)
             {
-                int count = node.Count;
-                SpatialObj[] arr = node.Items;
-                for (int i = 0; i < count; ++i)
+                ref SpatialObj item = ref node.Items[i];
+                if (frameId      != item.LastCollided && // already collided this frame
+                    item.Loyalty != obj.Loyalty       && // friendlies don't collide
+                    item.Obj     != obj.Obj           && // ignore self
+                    !item.Is(GameObjectType.Beam)     && // forbid obj-beam tests; beam-obj is handled by HitTestBeamAtNode
+                    obj.HitTest(ref item)) // actual collision test
                 {
-                    ref SpatialObj item = ref arr[i];
-                    if (frameId      != item.LastCollided && // already collided this frame
-                        item.Loyalty != obj.Loyalty       && // friendlies don't collide
-                        item.Obj     != obj.Obj           && // ignore self
-                        item.HitTest(ref obj)) // actual collision test
+                    collided = item.Obj;
+                    item.LastCollided = frameId;
+                    obj.LastCollided  = frameId;
+                    return true;
+                }
+            }
+            if (node.NW == null)
+                return false;
+            return HitTestAtNode(node.NW, frameId, ref obj, ref collided)
+                || HitTestAtNode(node.NE, frameId, ref obj, ref collided)
+                || HitTestAtNode(node.SE, frameId, ref obj, ref collided)
+                || HitTestAtNode(node.SW, frameId, ref obj, ref collided);
+        }
+
+        private struct BeamHitResult
+        {
+            public GameplayObject Collided;
+            public float Distance;
+            public Node At;
+            public int Idx;
+        }
+
+        // for beams it's important to only collide the CLOSEST object, so the lookup is exhaustive
+        private static void HitTestBeamAtNode(Node node, int frameId, ref SpatialObj beam, ref BeamHitResult result)
+        {
+            for (int i = 0; i < node.Count; ++i)
+            {
+                ref SpatialObj item = ref node.Items[i];
+                if (frameId      != item.LastCollided && // already collided this frame
+                    item.Loyalty != beam.Loyalty      && // friendlies don't collide
+                    item.Obj     != beam.Obj          && // ignore self
+                    !item.Is(GameObjectType.Beam))       // forbid beam-beam collision            
+                {
+                    float dist = beam.HitTestBeam(ref item);
+                    if (0f < dist && dist < result.Distance)
                     {
-                        collided = item.Obj;
-                        item.LastCollided = frameId;
-                        obj.LastCollided  = frameId;
-                        return true;
+                        result.Distance = dist;
+                        result.Collided = item.Obj;
+                        result.At  = node;
+                        result.Idx = i;
                     }
                 }
-                if (node.NW == null)
-                {
-                    collided = null;
-                    return false;
-                }
-                if (CollideAtNode(node.NW, frameId, ref obj, out collided)) return true;
-                if (CollideAtNode(node.NE, frameId, ref obj, out collided)) return true;
-                if (CollideAtNode(node.SE, frameId, ref obj, out collided)) return true;
-                if (CollideAtNode(node.SW, frameId, ref obj, out collided)) return true;
+            }
+            if (node.NW != null)
+            {
+                HitTestBeamAtNode(node.NW, frameId, ref beam, ref result);
+                HitTestBeamAtNode(node.NW, frameId, ref beam, ref result);
+                HitTestBeamAtNode(node.SE, frameId, ref beam, ref result);
+                HitTestBeamAtNode(node.SW, frameId, ref beam, ref result);
             }
         }
 
-        // for beams it's important to only collide the CLOSEST objects
-        private static bool CollideBeamAtNode(Node node, int frameId, ref SpatialObj beam, 
-            ref GameplayObject collided, ref float sqDistance)
+        private static bool HitTestBeamAtNode(Node node, int frameId, ref SpatialObj beam, ref GameplayObject collided)
         {
-            for (;;)
-            {
-                int count = node.Count;
-                SpatialObj[] arr = node.Items;
-                for (int i = 0; i < count; ++i)
-                {
-                    ref SpatialObj item = ref arr[i];
-                    if (frameId      != item.LastCollided && // already collided this frame
-                        item.Loyalty != beam.Loyalty      && // friendlies don't collide
-                        item.Obj     != beam.Obj          && // ignore self
-                        item.HitTest(ref beam)) // actual collision test
-                    {
-                        collided = item.Obj;
-                        item.LastCollided = frameId;
-                        beam.LastCollided = frameId;
-                        return true;
-                    }
-                }
-                if (node.NW == null)
-                {
-                    collided = null;
-                    return false;
-                }
-                if (CollideBeamAtNode(node.NW, frameId, ref beam, ref collided, ref sqDistance)) return true;
-                if (CollideBeamAtNode(node.NE, frameId, ref beam, ref collided, ref sqDistance)) return true;
-                if (CollideBeamAtNode(node.SE, frameId, ref beam, ref collided, ref sqDistance)) return true;
-                if (CollideBeamAtNode(node.SW, frameId, ref beam, ref collided, ref sqDistance)) return true;
-            }
+            // this whole thing is quite ugly... but we need some way to set .LastCollided
+            BeamHitResult hit = default(BeamHitResult);
+            hit.Distance = 9999999f;
+            HitTestBeamAtNode(node, frameId, ref beam, ref hit);
+            if (hit.Collided == null)
+                return false;
+            collided                           = hit.Collided;
+            hit.At.Items[hit.Idx].LastCollided = frameId;
+            beam.LastCollided                  = frameId;
+            return true;
         }
-
-        //// finds the nearest collision
-        //public bool CheckCollision(Vector2 pos, float radius, int loyalty, out GameplayObject collided)
-        //{
-        //    var nearbyDummy = new SpatialObj // dummy object to simplify our search interface
-        //    {
-        //        X     = pos.X - radius,
-        //        Y     = pos.Y - radius,
-        //        LastX = pos.X + radius,
-        //        LastY = pos.Y + radius,
-        //        Loyalty = loyalty,
-        //    };
-        //    Node node = FindEnclosingNode(ref nearbyDummy);
-        //    if (node != null) return CollideAtNode(node, FrameId, ref nearbyDummy, out collided);
-        //    collided = null;
-        //    return false;
-        //}
 
         private static void CollideAllAt(Node node, int frameId, Array<SpatialCollision> results)
         {
@@ -512,15 +478,14 @@ namespace Ship_Game
                     continue; // already collided inside this loop
 
                 GameplayObject collided = null;
-                if (so.Is(GameObjectType.Beam)) // beams are a bit special
+                if (so.Is(GameObjectType.Beam)) // beam-obj collisions are a special case
                 {
-                    float sqdist = 9999999f;
-                    if (!CollideBeamAtNode(node, frameId, ref so, ref collided, ref sqdist))
+                    if (!HitTestBeamAtNode(node, frameId, ref so, ref collided))
                         continue;
                 }
                 else
                 {
-                    if (!CollideAtNode(node, frameId, ref so, out collided))
+                    if (!HitTestAtNode(node, frameId, ref so, ref collided))
                         continue;
                 }
                 results.Add(new SpatialCollision { Obj1 = so.Obj, Obj2 = collided });
