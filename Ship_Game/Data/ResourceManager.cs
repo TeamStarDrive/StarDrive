@@ -999,31 +999,32 @@ namespace Ship_Game
                     FileInfo info = shipDescriptors[i];
                     if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                         continue;
+                    /*Concept here is to not load ships that have already been loaded.
+                      * else what could happen for instance is that the ships in the content/saveddesigns folder
+                      * will overwrite mod ships which is not wanted as these are default ships
+                      * intended to be overwritten not the other way around. 
+                      * Show Directory when it has changed. 
+                     */
+                    lock (ships)
+                    {
+                        if (ShipsDict.ContainsKey(Path.GetFileNameWithoutExtension(info.Name)))
+                        {
+                            if (directoryName != info.DirectoryName)
+                            {
+                                directoryName = info.DirectoryName;
+                                Log.Info($"Directory: {directoryName}");
+                            }
+                            Log.Info($"LoadShip {info.Name} already loaded ");
+                            continue;
+                        }
+                    }
 
                     try
                     {
                         ShipData shipData = ShipData.Parse(info);
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
-                        /*Concept here is to not load ships that have already been loaded.
-                         * else what could happen for instance is that the ships in the content/saveddesigns folder
-                         * will overwrite mod ships which is not wanted as these are default ships
-                         * intended to be overwritten not the other way around. 
-                         * Show Directory when it has changed. 
-                        */                        
-                        lock (ships) 
-                        {
-                            if (ShipsDict.ContainsKey(shipData.Name))
-                            {
-                                if (directoryName != info.DirectoryName)
-                                {
-                                    directoryName = info.DirectoryName;
-                                    Log.Info($"Directory: {directoryName}");
-                                }                                
-                                Log.Info($"LoadShip {shipData.Name} already loaded ");
-                                continue;
-                            }                                                            
-                        }
+                            
                         /* @TODO Investigate module and ship initialization in the shipsDictionary
                          * addToShieldManager is a hack to prevent shields from being created and added to the shieldmanager. 
                          * Need to investigate this process to see if we really need to intialize modules in the ships dictionary
