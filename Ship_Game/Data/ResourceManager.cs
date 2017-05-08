@@ -991,7 +991,7 @@ namespace Ship_Game
         private static Array<Ship> LoadShipTemplates(FileInfo[] shipDescriptors)
         {
             var ships = new Array<Ship>();
-
+            string directoryName = "";
             RangeAction loadShips = (start, end) =>
             {
                 for (int i = start; i < end; ++i)
@@ -1005,6 +1005,25 @@ namespace Ship_Game
                         ShipData shipData = ShipData.Parse(info);
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
+                        /*Concept here is to not load ships that have already been loaded.
+                         * else what could happen for instance is that the ships in the content/saveddesigns folder
+                         * will overwrite mod ships which is not wanted as these are default ships
+                         * intended to be overwritten not the other way around. 
+                         * Show Directory when it has changed. 
+                        */                        
+                        lock (ships) 
+                        {
+                            if (ShipsDict.ContainsKey(shipData.Name))
+                            {
+                                if (directoryName != info.DirectoryName)
+                                {
+                                    directoryName = info.DirectoryName;
+                                    Log.Info($"Directory: {directoryName}");
+                                }                                
+                                Log.Info($"LoadShip {shipData.Name} already loaded ");
+                                continue;
+                            }                                                            
+                        }
                         /* @TODO Investigate module and ship initialization in the shipsDictionary
                          * addToShieldManager is a hack to prevent shields from being created and added to the shieldmanager. 
                          * Need to investigate this process to see if we really need to intialize modules in the ships dictionary
@@ -1018,7 +1037,7 @@ namespace Ship_Game
                             continue;
 
                         lock (ships)
-                        {
+                        {                            
                             ShipsDict[shipData.Name] = newShip;
                             ships.Add(newShip);
                         }
@@ -1041,10 +1060,7 @@ namespace Ship_Game
             ShipsDict.Clear();
 
             foreach (Ship ship in LoadShipTemplates(GatherFilesModOrVanilla("StarterShips", "xml")))
-                ship.reserved = true;
-
-            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("SavedDesigns", "xml")))
-                ship.reserved = true;
+                ship.reserved = true;            
 
             foreach (Ship ship in LoadShipTemplates(Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml")))
                 ship.IsPlayerDesign = true;
@@ -1054,7 +1070,11 @@ namespace Ship_Game
                 ship.reserved = true;
                 ship.IsPlayerDesign = true;
             }
-            
+
+            //Moving this last. I am using this directory for required designs. i guess... The name should be changed.
+            //@todo Change the name or create new to have a required designs folder. 
+            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("SavedDesigns", "xml")))
+                ship.reserved = true;
             foreach (var entry in ShipsDict) // Added by gremlin : Base strength Calculator
             {
                 CalculateBaseStrength(entry.Value);
