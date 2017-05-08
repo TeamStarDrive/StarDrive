@@ -496,6 +496,11 @@ namespace Ship_Game
                         case "Exit":
                             Game1.Instance.Exit();
                             break;
+                        case "Info":
+                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
+                            ScreenManager.AddScreen(new InGameWiki(this, new Rectangle(0, 0, 750, 600)));
+                            break;
+                        
                     }
                 }
             }
@@ -549,6 +554,7 @@ namespace Ship_Game
             Button(ref pos, "Load Game", localization: 2);
             Button(ref pos, "Options", localization: 4);
             Button(ref pos, "Mods", "Mods");
+            Button(ref pos, "Info", "BlackBox Info");
             Button(ref pos, "Exit", localization: 5);
 
             ScreenManager.inter.ObjectManager.Clear();
