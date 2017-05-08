@@ -29,8 +29,7 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
-
-            var help = Dir.GetFiles("Content/HelpTopics/" + GlobalStats.Language);
+            var help = ResourceManager.GatherFilesModOrVanilla("HelpTopics/" + GlobalStats.Language,"xml");
             if (help.Length != 0)
                 HelpTopics = help[0].Deserialize<HelpTopics>();
         }
@@ -237,6 +236,10 @@ namespace Ship_Game
         {
             base.Setup();
             TitleText += $" {GlobalStats.ExtendedVersion}";
+            if (GlobalStats.HasMod)
+            {
+                MiddleText =$"Mod Loaded: {GlobalStats.ModName} Ver: {GlobalStats.ActiveModInfo.Version}";
+            }
             Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
             this.CategoriesRect = new Rectangle(this.R.X + 25, this.R.Y + 130, 330, 430);
             Submenu blah = new Submenu(base.ScreenManager, this.CategoriesRect);
