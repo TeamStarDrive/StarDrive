@@ -1007,7 +1007,7 @@ namespace Ship_Game
                      */
                     lock (ships)
                     {
-                        if (ShipsDict.ContainsKey(Path.GetFileNameWithoutExtension(info.Name)))
+                        if (ShipsDict.ContainsKey(info.NameNoExt()))
                         {
                             if (directoryName != info.DirectoryName)
                             {
