@@ -126,7 +126,7 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as Ship).shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
-					if (e.clickRectHover == 1 && !(e.item as Ship).reserved && !(e.item as Ship).FromSave)
+					if (e.clickRectHover == 1 && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
 						if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
@@ -135,7 +135,7 @@ namespace Ship_Game
 							ToolTip.CreateTooltip(78, base.ScreenManager);
 						}
 					}
-					else if (!(e.item as Ship).reserved && !(e.item as Ship).FromSave)
+					else if (!(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
 					}
@@ -259,7 +259,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && !(e.item as Ship).reserved && !(e.item as Ship).FromSave && input.InGameSelect)
+					if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave && input.InGameSelect)
 					{
 						this.ShipToDelete = (e.item as Ship).Name;
 						MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
@@ -359,7 +359,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						if (Ship.Value.reserved || Ship.Value.FromSave)
+						if (Ship.Value.IsReadonlyDesign || Ship.Value.FromSave)
 						{
 							e.AddItem(Ship.Value);
 						}
@@ -470,7 +470,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						if (Ship.Value.reserved || Ship.Value.FromSave)
+						if (Ship.Value.IsReadonlyDesign || Ship.Value.FromSave)
 						{
 							e.AddItem(Ship.Value);
 						}

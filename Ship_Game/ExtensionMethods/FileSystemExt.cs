@@ -76,7 +76,7 @@ namespace Ship_Game
 
     public static class FileSystemExtensions
     {
-        private static string AppRoot = Path.GetFullPath(".");
+        private static readonly string AppRoot = Path.GetFullPath(".");
 
         public static T Deserialize<T>(this FileInfo info)
         {
