@@ -616,152 +616,144 @@ namespace Ship_Game
                 for (int index = 0; index < JunkList.Count; ++index)
                     JunkList[index].Update(elapsedTime);
             }
-            this.SelectedShipList.ApplyPendingRemovals();
-            this.MasterShipList.ApplyPendingRemovals();
-            if (this.perStarDateTimer <= this.StarDate)
+            SelectedShipList.ApplyPendingRemovals();
+            MasterShipList.ApplyPendingRemovals();
+            if (perStarDateTimer <= StarDate)
             {
-                this.perStarDateTimer = this.StarDate + .1f;
-                this.perStarDateTimer = (float) Math.Round((double) this.perStarDateTimer, 1);
-                this.empireShipCountReserve = EmpireManager.Empires
-                    .Where(empire => empire != this.player && !empire.data.Defeated && !empire.isFaction)
-                    .Sum(empire => empire.EmpireShipCountReserve);
-                this.globalshipCount = this.MasterShipList
-                    .Where(ship => (ship.loyalty != null && ship.loyalty != this.player) &&
-                                   ship.shipData.Role != ShipData.RoleName.troop && ship.Mothership == null)
-                    .Count();
+                perStarDateTimer = StarDate + .1f;
+                perStarDateTimer = (float) Math.Round(perStarDateTimer, 1);
+                empireShipCountReserve = EmpireManager.Empires.Sum(empire =>
+                        {
+                            if (empire == player || empire.data.Defeated || empire.isFaction)
+                                return 0;
+                            return empire.EmpireShipCountReserve;
+                        }
+                );
+                globalshipCount = MasterShipList.FilterBy(ship => (ship.loyalty != null && ship.loyalty != player) &&
+                                                                  ship.shipData.Role != ShipData.RoleName.troop && ship.Mothership == null).Length;
             }
 
             #endregion
 
             perfavg5.Stop();
             Lag = perfavg5.AvgTime;
-
-            //if (this.perfavg5.Average() > .1f)
-            //    GlobalStats.ForceFullSim = false;
-            //else GlobalStats.ForceFullSim = true;
         }
 
         public void SystemUpdaterTaskBased(SolarSystem system)
         {
-            //Array<SolarSystem> list = (Array<SolarSystem>)data;
-            // while (true)
+            float elapsedTime = !Paused ? 0.01666667f : 0.0f;
+            float realTime = zTime; 
             {
-                //this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
-                //float elapsedTime = this.ztimeSnapShot;
-                float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-                float realTime = this.zTime; // this.zgameTime.ElapsedGameTime.Seconds;
+                system.DangerTimer -= realTime;
+                system.DangerUpdater -= realTime;
+                if (system.DangerUpdater < 0.0)
                 {
-                    system.DangerTimer -= realTime;
-                    system.DangerUpdater -= realTime;
-                    if (system.DangerUpdater < 0.0)
-                    {
-                        system.DangerUpdater = 10f;
-                        system.DangerTimer = (double) this.player.GetGSAI()
-                                                 .ThreatMatrix
-                                                 .PingRadarStr(system.Position,
-                                                     100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0
-                            ? 0.0f
-                            : 120f;
-                    }
-                    system.combatTimer -= realTime;
+                    system.DangerUpdater = 10f;
+                    system.DangerTimer = player.GetGSAI()
+                                             .ThreatMatrix
+                                             .PingRadarStr(system.Position,
+                                                 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0
+                        ? 0.0f
+                        : 120f;
+                }
+                system.combatTimer -= realTime;
 
 
-                    if (system.combatTimer <= 0.0)
-                        system.CombatInSystem = false;
-                    bool viewing = false;
-                    this.Viewport.Project(new Vector3(system.Position, 0.0f),
-                        this.projection, this.view, Matrix.Identity);
-                    if (this.Frustum.Contains(new BoundingSphere(new Vector3(system.Position, 0.0f), 100000f)) !=
-                        ContainmentType.Disjoint)
+                if (system.combatTimer <= 0.0)
+                    system.CombatInSystem = false;
+                bool viewing = false;
+                Vector3 v3SystemPosition = system.Position.ToVec3();
+                Viewport.Project(v3SystemPosition, projection, view, Matrix.Identity);
+                if (Frustum.Contains(new BoundingSphere(v3SystemPosition, 100000f)) !=
+                    ContainmentType.Disjoint)
+                    viewing = true;
+                //WTF is this doing?
+                else if (this.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                {
+                    Rectangle rect = new Rectangle((int)system.Position.X - 100000,
+                        (int)system.Position.Y - 100000, 200000, 200000);
+                    Vector3 position =
+                        this.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
+                            this.projection, this.view, Matrix.Identity);
+                    Vector3 direction =
+                        this.Viewport.Unproject(new Vector3(500f, 500f, 1f),
+                            this.projection, this.view, Matrix.Identity) - position;
+                    direction.Normalize();
+                    Ray ray = new Ray(position, direction);
+                    float num = -ray.Position.Z / ray.Direction.Z;
+                    Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
+                        ray.Position.Y + num * ray.Direction.Y, 0.0f);
+                    Vector2 pos = new Vector2(vector3.X, vector3.Y);
+                    if (HelperFunctions.CheckIntersection(rect, pos))
                         viewing = true;
-                    else if (this.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                }
+                if (system.Explored(player) && viewing)
+                {
+                    system.isVisible = viewState <= UnivScreenState.SectorView;
+                }
+                if (system.isVisible && viewState <= UnivScreenState.SystemView)
+                {
+                    system.VisibilityUpdated = true;
+                    for (int i = 0; i < system.AsteroidsList.Count; i++)
                     {
-                        Rectangle rect = new Rectangle((int) system.Position.X - 100000,
-                            (int) system.Position.Y - 100000, 200000, 200000);
-                        Vector3 position =
-                            this.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
-                                this.projection, this.view, Matrix.Identity);
-                        Vector3 direction =
-                            this.Viewport.Unproject(new Vector3(500f, 500f, 1f),
-                                this.projection, this.view, Matrix.Identity) - position;
-                        direction.Normalize();
-                        Ray ray = new Ray(position, direction);
-                        float num = -ray.Position.Z / ray.Direction.Z;
-                        Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
-                            ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                        Vector2 pos = new Vector2(vector3.X, vector3.Y);
-                        if (HelperFunctions.CheckIntersection(rect, pos))
-                            viewing = true;
+                        Asteroid asteroid = system.AsteroidsList[i];
+                        asteroid.So.Visibility = ObjectVisibility.Rendered;
+                        asteroid.Update(elapsedTime);
                     }
-                    if (system.Explored(player) && viewing)
+                    for (int i = 0; i < system.MoonList.Count; i++)
                     {
-                        system.isVisible = viewState <= UnivScreenState.SectorView;
-                    }
-                    if (system.isVisible && viewState <= UnivScreenState.SystemView )
-                    {
-                        if (!system.VisibilityUpdated)
-                        {
-                            system.VisibilityUpdated = true;
-                            for (int i = 0; i < system.AsteroidsList.Count; i++)
-                            {
-                                Asteroid asteroid = system.AsteroidsList[i];
-                                asteroid.So.Visibility = ObjectVisibility.Rendered;
-                                asteroid.Update(elapsedTime);
-                            }
-                            for (int i = 0; i < system.MoonList.Count; i++)
-                            {
-                                Moon moon = system.MoonList[i];
-                                moon.So.Visibility = ObjectVisibility.Rendered;
-                                moon.UpdatePosition(elapsedTime);
-                            }
-                        }
-                    }
-                    else if(system.VisibilityUpdated)
-                    {
-                        system.VisibilityUpdated = false;
-                        for (int i = 0; i < system.AsteroidsList.Count; i++)
-                        {
-                            Asteroid asteroid = system.AsteroidsList[i];                            
-                            asteroid.So.Visibility = ObjectVisibility.None;
-                        }
-                        for (int i = 0; i < system.MoonList.Count; i++)
-                        {
-                            Moon moon = system.MoonList[i];
-                            moon.So.Visibility = ObjectVisibility.None;
-                        }
-                    }
-                    for (int i = 0; i < system.PlanetList.Count; i++)
-                    {
-                        Planet planet = system.PlanetList[i];
-                        planet.Update(elapsedTime);
-                        if (planet.HasShipyard && system.isVisible)
-                            planet.Station.Update(elapsedTime);
+                        Moon moon = system.MoonList[i];
+                        moon.So.Visibility = ObjectVisibility.Rendered;
+                        moon.UpdatePosition(elapsedTime);
                     }
 
-                    for (int i = 0; i < system.ShipList.Count; ++i)
+                }
+                else if (system.VisibilityUpdated)
+                {
+                    system.VisibilityUpdated = false;
+                    for (int i = 0; i < system.AsteroidsList.Count; i++)
                     {
-                        Ship ship = system.ShipList[i];
-                        if (ship.System == null)
-                            continue;
-                        if (!ship.Active || ship.ModuleSlotList.Length == 0) // added by gremlin ghost ship killer
+                        Asteroid asteroid = system.AsteroidsList[i];
+                        asteroid.So.Visibility = ObjectVisibility.None;
+                    }
+                    for (int i = 0; i < system.MoonList.Count; i++)
+                    {
+                        Moon moon = system.MoonList[i];
+                        moon.So.Visibility = ObjectVisibility.None;
+                    }
+                }
+                for (int i = 0; i < system.PlanetList.Count; i++)
+                {
+                    Planet planet = system.PlanetList[i];
+                    planet.Update(elapsedTime);
+                    if (planet.HasShipyard && system.isVisible)
+                        planet.Station.Update(elapsedTime);
+                }
+
+                for (int i = 0; i < system.ShipList.Count; ++i)
+                {
+                    Ship ship = system.ShipList[i];
+                    if (ship.System == null)
+                        continue;
+                    if (!ship.Active || ship.ModuleSlotList.Length == 0) // added by gremlin ghost ship killer
+                    {
+                        ship.Die(null, true);
+                    }
+                    else
+                    {
+                        if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
                         {
-                            ship.Die(null, true);
+                            ship.Inhibited = true;
+                            ship.InhibitedTimer = 10f;
                         }
-                        else
-                        {
-                            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                            {
-                                ship.Inhibited = true;
-                                ship.InhibitedTimer = 10f;
-                            }
-                            //ship.PauseUpdate = true;
-                            ship.Update(elapsedTime);
-                            if (ship.PlayerShip)
-                                ship.ProcessInput(elapsedTime);
-                        }
+                        //ship.PauseUpdate = true;
+                        ship.Update(elapsedTime);
+                        if (ship.PlayerShip)
+                            ship.ProcessInput(elapsedTime);
                     }
                 }
             }
+
         }
 
         private void DeepSpaceThread()

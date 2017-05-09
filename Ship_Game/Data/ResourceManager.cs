@@ -1060,9 +1060,6 @@ namespace Ship_Game
         {
             ShipsDict.Clear();
 
-            foreach (Ship ship in LoadShipTemplates(GatherFilesModOrVanilla("StarterShips", "xml")))
-                ship.reserved = true;            
-
             foreach (Ship ship in LoadShipTemplates(Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml")))
                 ship.IsPlayerDesign = true;
 
@@ -1074,6 +1071,9 @@ namespace Ship_Game
 
             //Moving this last. I am using this directory for required designs. i guess... The name should be changed.
             //@todo Change the name or create new to have a required designs folder. 
+            foreach (Ship ship in LoadShipTemplates(GatherFilesModOrVanilla("StarterShips", "xml")))
+                ship.reserved = true;
+
             foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("SavedDesigns", "xml")))
                 ship.reserved = true;
             foreach (var entry in ShipsDict) // Added by gremlin : Base strength Calculator
