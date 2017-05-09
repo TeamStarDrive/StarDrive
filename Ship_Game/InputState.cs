@@ -61,8 +61,9 @@ namespace Ship_Game
         public bool Fleet9               => IsNewKeyPress(Keys.D9);
         public bool AddToFleet           => RepeatingKeyCheck(Keys.LeftControl) && !RepeatingKeyCheck(Keys.LeftShift);
         public bool ReplaceFleet         => RepeatingKeyCheck(Keys.LeftControl) && RepeatingKeyCheck(Keys.LeftShift);
-       
 
+        //IngameWiki
+        public bool ExitWiki => IsNewKeyPress(Keys.P) && !GlobalStats.TakingInput;
 
         //debug
         public bool DebugMode            => LeftCtrlShift && (IsNewKeyPress(Keys.OemTilde) || IsNewKeyPress(Keys.Tab));
