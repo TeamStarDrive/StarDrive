@@ -59,7 +59,7 @@ namespace Ship_Game.Gameplay
         private AnimationController ShipMeshAnim;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
-        public bool reserved;
+        public bool IsReadonlyDesign;
         public bool isColonyShip;
         public bool isConstructor;
         public string StrategicIconPath;

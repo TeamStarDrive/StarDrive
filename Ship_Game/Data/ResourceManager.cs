@@ -961,7 +961,7 @@ namespace Ship_Game
             foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
             {
                 // Added by gremlin support techlevel disabled folder.
-                if (pair.Info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
+                if (pair.Info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
                     continue;
                 ShipModule_Deserialize data = pair.Entity;
 
@@ -988,43 +988,30 @@ namespace Ship_Game
                 entry.Value.SetAttributesNoParent();
         }
 
-        private static Array<Ship> LoadShipTemplates(FileInfo[] shipDescriptors)
+        
+        private struct ShipDesignInfo
         {
-            var ships = new Array<Ship>();
-            string directoryName = "";
-            RangeAction loadShips = (start, end) =>
+            public FileInfo File;
+            public bool IsPlayerDesign;
+            public bool IsReadonlyDesign;
+        }
+
+        private static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
+        {
+            void LoadShips(int start, int end)
             {
                 for (int i = start; i < end; ++i)
                 {
-                    FileInfo info = shipDescriptors[i];
-                    if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
+                    FileInfo info = shipDescriptors[i].File;
+                    if (info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                         continue;
-                    /*Concept here is to not load ships that have already been loaded.
-                      * else what could happen for instance is that the ships in the content/saveddesigns folder
-                      * will overwrite mod ships which is not wanted as these are default ships
-                      * intended to be overwritten not the other way around. 
-                      * Show Directory when it has changed. 
-                     */
-                    lock (ships)
-                    {
-                        if (ShipsDict.ContainsKey(info.NameNoExt()))
-                        {
-                            if (directoryName != info.DirectoryName)
-                            {
-                                directoryName = info.DirectoryName;
-                                Log.Info($"Directory: {directoryName}");
-                            }
-                            Log.Info($"LoadShip {info.Name} already loaded ");
-                            continue;
-                        }
-                    }
 
                     try
                     {
                         ShipData shipData = ShipData.Parse(info);
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
-                            
+
                         /* @TODO Investigate module and ship initialization in the shipsDictionary
                          * addToShieldManager is a hack to prevent shields from being created and added to the shieldmanager. 
                          * Need to investigate this process to see if we really need to intialize modules in the ships dictionary
@@ -1037,10 +1024,12 @@ namespace Ship_Game
                         if (!newShip.InitializeStatus(fromSave: false))
                             continue;
 
-                        lock (ships)
-                        {                            
+                        newShip.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
+                        newShip.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
+
+                        lock (ShipsDict)
+                        {
                             ShipsDict[shipData.Name] = newShip;
-                            ships.Add(newShip);
                         }
                     }
                     catch (Exception e)
@@ -1048,10 +1037,27 @@ namespace Ship_Game
                         Log.Error(e, $"LoadShip {info.Name} failed");
                     }
                 }
-            };
-            Parallel.For(shipDescriptors.Length, loadShips);
+            }
+
+            Parallel.For(shipDescriptors.Length, LoadShips);
             //loadShips(0, shipDescriptors.Length); // test without parallel for
-            return ships;
+        }
+
+        private static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
+        {
+            foreach (FileInfo info in filesToAdd)
+            {
+                string commonIdentifier = info.NameNoExt();
+                if (designs.TryGetValue(commonIdentifier, out ShipDesignInfo design))
+                    Log.Info($"DesignOverride: {design.File.CleanResPath(),-34} -> {info.CleanResPath()}");
+
+                designs[commonIdentifier] = new ShipDesignInfo
+                {
+                    File             = info,
+                    IsPlayerDesign   = playerDesign,
+                    IsReadonlyDesign = readOnly
+                };
+            }
         }
 
         // Refactored by RedFox
@@ -1060,22 +1066,13 @@ namespace Ship_Game
         {
             ShipsDict.Clear();
 
-            foreach (Ship ship in LoadShipTemplates(Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml")))
-                ship.IsPlayerDesign = true;
+            var designs = new Map<string, ShipDesignInfo>();
+            CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: true);
+            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
+            LoadShipTemplates(designs.Values.ToArray());
 
-            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("ShipDesigns", "xml")))
-            {
-                ship.reserved = true;
-                ship.IsPlayerDesign = true;
-            }
-
-            //Moving this last. I am using this directory for required designs. i guess... The name should be changed.
-            //@todo Change the name or create new to have a required designs folder. 
-            foreach (Ship ship in LoadShipTemplates(GatherFilesModOrVanilla("StarterShips", "xml")))
-                ship.reserved = true;
-
-            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("SavedDesigns", "xml")))
-                ship.reserved = true;
             foreach (var entry in ShipsDict) // Added by gremlin : Base strength Calculator
             {
                 CalculateBaseStrength(entry.Value);
