@@ -28,7 +28,8 @@ namespace Ship_Game
 
             GlobalStats.LoadConfig();
 
-        #if STEAM
+#if STEAM
+            
             if (SteamManager.SteamInitialize())
             {
                 SteamManager.RequestCurrentStats();

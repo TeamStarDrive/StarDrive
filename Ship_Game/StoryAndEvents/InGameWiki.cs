@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace Ship_Game
@@ -26,12 +25,12 @@ namespace Ship_Game
 
         public InGameWiki(GameScreen parent) : base(parent)
         {
-            IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            IsPopup           = true;
+            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            var help = ResourceManager.GatherFilesModOrVanilla("HelpTopics/" + GlobalStats.Language,"xml");
-            if (help.Length != 0)
-                HelpTopics = help[0].Deserialize<HelpTopics>();
+            var help          = ResourceManager.GatherFilesModOrVanilla("HelpTopics/" + GlobalStats.Language,"xml");
+            if (help.Length  != 0)
+                HelpTopics    = help[0].Deserialize<HelpTopics>();
         }
         public InGameWiki(GameScreen parent, Rectangle r) : this(parent)
         {
@@ -53,8 +52,9 @@ namespace Ship_Game
             DrawBase(gameTime);
             ScreenManager.SpriteBatch.Begin();
             HelpCategories.Draw(ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2(R.X + 20, R.Y + 20);
-            for (int i = HelpCategories.indexAtTop; i < HelpCategories.Copied.Count && i < HelpCategories.indexAtTop + HelpCategories.entriesToDisplay; i++)
+            Vector2 bCursor = new Vector2(R.X + 20, R.Y + 20);            
+            for (int i = HelpCategories.indexAtTop; i < HelpCategories.Copied.Count 
+                && i < HelpCategories.indexAtTop + HelpCategories.entriesToDisplay; i++)
             {
                 bCursor = new Vector2(R.X + 35, R.Y + 20);
                 ScrollList.Entry e = HelpCategories.Copied[i];
@@ -62,65 +62,68 @@ namespace Ship_Game
                 if (!(e.item is ModuleHeader))
                 {
                     bCursor.X = bCursor.X + 15f;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as HelpTopic).Title, bCursor, (e.clickRectHover == 1 ? Color.Orange : Color.White));
-                    bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, (e.item as HelpTopic).ShortDescription, bCursor, (e.clickRectHover == 1 ? Color.White : Color.Orange));
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 
+                        ((HelpTopic) e.item).Title, bCursor, (e.clickRectHover == 1 ? Color.Orange : Color.White));
+                    bCursor.Y = bCursor.Y + Fonts.Arial12Bold.LineSpacing;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, 
+                        ((HelpTopic) e.item).ShortDescription, bCursor, (e.clickRectHover == 1 ? Color.White : Color.Orange));
                 }
                 else
                 {
-                    (e.item as ModuleHeader).Draw(base.ScreenManager, bCursor);
+                    ((ModuleHeader) e.item).Draw(ScreenManager, bCursor);
                 }
             }
-            bCursor = new Vector2((float)this.TextRect.X, (float)(this.TextRect.Y + 20));
-            if (this.ActiveVideo != null)
+            bCursor = new Vector2(TextRect.X, TextRect.Y + 20);
+            if (ActiveVideo != null)
             {
-                if (this.VideoPlayer.State != MediaState.Playing)
+                if (VideoPlayer.State != MediaState.Playing)
                 {
-                    this.VideoFrame = this.VideoPlayer.GetTexture();
-                    base.ScreenManager.SpriteBatch.Draw(this.VideoFrame, this.SmallViewer, Color.White);
-                    Primitives2D.DrawRectangleGlow(base.ScreenManager.SpriteBatch, this.SmallViewer);
-                    Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, this.SmallViewer, new Color(32, 30, 18));
-                    if (this.HoverSmallVideo)
+                    VideoFrame = VideoPlayer.GetTexture();
+                    ScreenManager.SpriteBatch.Draw(VideoFrame, SmallViewer, Color.White);
+                    ScreenManager.SpriteBatch.DrawRectangleGlow(SmallViewer);
+                    ScreenManager.SpriteBatch.DrawRectangle(SmallViewer, new Color(32, 30, 18));
+                    if (HoverSmallVideo)
                     {
-                        Rectangle playIcon = new Rectangle(this.SmallViewer.X + this.SmallViewer.Width / 2 - 64, this.SmallViewer.Y + this.SmallViewer.Height / 2 - 64, 128, 128);
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["icon_play"], playIcon, new Color(255, 255, 255, 200));
+                        Rectangle playIcon = new Rectangle(SmallViewer.X + SmallViewer.Width / 2 - 64, 
+                            SmallViewer.Y + SmallViewer.Height / 2 - 64, 128, 128);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("icon_play"), 
+                            playIcon, new Color(255, 255, 255, 200));
                     }
                 }
                 else
                 {
-                    this.VideoFrame = this.VideoPlayer.GetTexture();
-                    base.ScreenManager.SpriteBatch.Draw(this.VideoFrame, this.BigViewer, Color.White);
-                    Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, this.BigViewer, new Color(32, 30, 18));
+                    VideoFrame = VideoPlayer.GetTexture();
+                    ScreenManager.SpriteBatch.Draw(VideoFrame, BigViewer, Color.White);
+                    ScreenManager.SpriteBatch.DrawRectangle(BigViewer, new Color(32, 30, 18));
                 }
             }
-            this.HelpEntries.Draw(base.ScreenManager.SpriteBatch);
-            for (int i = this.HelpEntries.indexAtTop; i < this.HelpEntries.Copied.Count && i < this.HelpEntries.indexAtTop + this.HelpEntries.entriesToDisplay; i++)
+            HelpEntries.Draw(ScreenManager.SpriteBatch);
+            for (int i = HelpEntries.indexAtTop; i < HelpEntries.Copied.Count && i < HelpEntries.indexAtTop + HelpEntries.entriesToDisplay; i++)
             {
-                ScrollList.Entry e = this.HelpEntries.Copied[i];
-                bCursor.Y = (float)e.clickRect.Y;
-                bCursor.X = (float)((int)bCursor.X);
-                bCursor.Y = (float)((int)bCursor.Y);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, e.item as string, bCursor, Color.White);
+                ScrollList.Entry e = HelpEntries.Copied[i];
+                bCursor.Y = e.clickRect.Y;
+                bCursor.X = (int)bCursor.X;
+                bCursor.Y = (int)bCursor.Y;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (string) e.item, bCursor, Color.White);
             }
-            if (this.VideoPlayer != null && this.VideoPlayer.State != MediaState.Playing)
+            if (VideoPlayer != null && VideoPlayer.State != MediaState.Playing)
             {
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.ActiveTopic.Title, this.TitlePosition, Color.Orange);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, ActiveTopic.Title, TitlePosition, Color.Orange);
                 GameAudio.ResumeGenericMusic();
             }
-            else if (this.VideoPlayer == null)
-            {
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.ActiveTopic.Title, this.TitlePosition, Color.Orange);
-            }
-            base.ScreenManager.SpriteBatch.End();
+            else if (VideoPlayer == null)            
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, ActiveTopic.Title, TitlePosition, Color.Orange);
+            
+            ScreenManager.SpriteBatch.End();
         }
 
         public override void ExitScreen()
         {
-            if (this.VideoPlayer != null)
+            if (VideoPlayer != null)
             {
-                this.VideoPlayer.Stop();
-                this.VideoPlayer = null;
-                this.ActiveVideo = null;
+                VideoPlayer.Stop();
+                VideoPlayer = null;
+                ActiveVideo = null;
                 GameAudio.ResumeGenericMusic();
             }
             base.ExitScreen();
@@ -129,102 +132,95 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            if (input.CurrentMouseState.RightButton == ButtonState.Pressed)
-            {
-                this.ExitScreen();
-            }
-            if (input.Escaped)
-            {
-                this.ExitScreen();
-            }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
+            if (input.RightMouseClick)            
+                ExitScreen();
+            
+            if (input.Escaped)            
+                ExitScreen();
+            
+            if (input.ExitWiki)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ExitScreen();
+                ExitScreen();
             }
-            this.HelpCategories.HandleInput(input);
-            this.HelpEntries.HandleInput(input);
-            if (this.ActiveVideo != null)
+            HelpCategories.HandleInput(input);
+            HelpEntries.HandleInput(input);
+            if (ActiveVideo != null)
             {
-                if (this.VideoPlayer.State == MediaState.Paused)
+                if (VideoPlayer.State == MediaState.Paused)
                 {
-                    if (!HelperFunctions.CheckIntersection(this.SmallViewer, input.CursorPosition))
+                    if (!HelperFunctions.CheckIntersection(SmallViewer, input.CursorPosition))
                     {
-                        this.HoverSmallVideo = false;
+                        HoverSmallVideo = false;
                     }
                     else
                     {
-                        this.HoverSmallVideo = true;
+                        HoverSmallVideo = true;
                         if (input.InGameSelect)
                         {
-                            this.VideoPlayer.Play(this.ActiveVideo);
+                            VideoPlayer.Play(ActiveVideo);
                             GameAudio.PauseGenericMusic();
                         }
                     }
                 }
-                else if (this.VideoPlayer.State == MediaState.Playing)
+                else if (VideoPlayer.State == MediaState.Playing)
                 {
-                    this.HoverSmallVideo = false;
-                    if (HelperFunctions.CheckIntersection(this.BigViewer, input.CursorPosition) && input.InGameSelect)
+                    HoverSmallVideo = false;
+                    if (HelperFunctions.CheckIntersection(BigViewer, input.CursorPosition) && input.InGameSelect)
                     {
-                        this.VideoPlayer.Pause();
+                        VideoPlayer.Pause();
                         GameAudio.ResumeGenericMusic();
                     }
                 }
             }
-            for (int i = 0; i < this.HelpCategories.Copied.Count; i++)
+            for (int i = 0; i < HelpCategories.Copied.Count; i++)
             {
-                ScrollList.Entry e = this.HelpCategories.Copied[i];
-                if (e.item is ModuleHeader)
-                {
-                    (e.item as ModuleHeader).HandleInput(input, e);
-                }
-                else if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
-                {
-                    e.clickRectHover = 0;
-                }
+                ScrollList.Entry e = HelpCategories.Copied[i];
+                if (e.item is ModuleHeader)                
+                    ((ModuleHeader) e.item).HandleInput(input, e);
+                else if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))                
+                    e.clickRectHover = 0;                
                 else
                 {
-                    if (e.clickRectHover == 0)
-                    {
+                    if (e.clickRectHover == 0)                    
                         GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
+                    
                     e.clickRectHover = 1;
-                    if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && e.item is HelpTopic)
+                    if (input.LeftMouseClick && e.item is HelpTopic)
                     {
-                        this.HelpEntries.Entries.Clear();
-                        this.HelpEntries.Copied.Clear();
-                        this.HelpEntries.indexAtTop = 0;
-                        this.ActiveTopic = e.item as HelpTopic;
-                        if (this.ActiveTopic.Text != null)
+                        HelpEntries.Entries.Clear();
+                        HelpEntries.Copied.Clear();
+                        HelpEntries.indexAtTop = 0;
+                        ActiveTopic = (HelpTopic) e.item;                        
+                        if (ActiveTopic.Text != null)
                         {
-                            HelperFunctions.parseTextToSL(this.ActiveTopic.Text, (float)(this.TextRect.Width - 40), Fonts.Arial12Bold, ref this.HelpEntries);
-                            this.TitlePosition = new Vector2((float)(this.TextRect.X + this.TextRect.Width / 2) - Fonts.Arial20Bold.MeasureString(this.ActiveTopic.Title).X / 2f - 15f, this.TitlePosition.Y);
+                            HelperFunctions.parseTextToSL(ActiveTopic.Text, (TextRect.Width - 40), Fonts.Arial12Bold, ref HelpEntries);
+                            TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2) 
+                                - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TitlePosition.Y);
                         }
-                        if (!String.IsNullOrEmpty(ActiveTopic.Link))
+                        if (!string.IsNullOrEmpty(ActiveTopic.Link))
                         {
                             try
-
                             {
-                                if (SteamManager.isInitialized)
-                                    SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);
-                                else
-                                    Process.Start(ActiveTopic.Link);
+                                SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);                                
                             }
-                            catch { }
+                            catch
+                            {
+                                Process.Start(ActiveTopic.Link);
+                            }
                         }
-                        if (this.ActiveTopic.VideoPath == null)
+                        if (ActiveTopic.VideoPath == null)
                         {
-                            this.ActiveVideo = null;
-                            this.VideoPlayer = null;
+                            ActiveVideo = null;
+                            VideoPlayer = null;
                         }
                         else
                         {
-                            this.HelpEntries.Copied.Clear();
-                            this.VideoPlayer = new VideoPlayer();
-                            this.ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", this.ActiveTopic.VideoPath));
-                            this.VideoPlayer.Play(this.ActiveVideo);
-                            this.VideoPlayer.Pause();
+                            HelpEntries.Copied.Clear();
+                            VideoPlayer = new VideoPlayer();
+                            ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
+                            VideoPlayer.Play(ActiveVideo);
+                            VideoPlayer.Pause();
                         }
                     }
                 }
@@ -234,49 +230,49 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            base.Setup();
+            Setup();
             TitleText += $" {GlobalStats.ExtendedVersion}";
             if (GlobalStats.HasMod)
             {
                 MiddleText =$"Mod Loaded: {GlobalStats.ModName} Ver: {GlobalStats.ActiveModInfo.Version}";
             }
-            Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-            this.CategoriesRect = new Rectangle(this.R.X + 25, this.R.Y + 130, 330, 430);
-            Submenu blah = new Submenu(base.ScreenManager, this.CategoriesRect);
-            this.HelpCategories = new ScrollList(blah, 40);
-            this.TextRect = new Rectangle(this.CategoriesRect.X + this.CategoriesRect.Width + 5, this.CategoriesRect.Y + 10, 375, 420);
-            Rectangle TextSLRect = new Rectangle(this.CategoriesRect.X + this.CategoriesRect.Width + 5, this.CategoriesRect.Y + 10, 375, 420);
-            Submenu bler = new Submenu(base.ScreenManager, TextSLRect);
-            this.HelpEntries = new ScrollList(bler, Fonts.Arial12Bold.LineSpacing + 2);
-            this.SmallViewer = new Rectangle(this.TextRect.X + 20, this.TextRect.Y + 40, 336, 189);
-            this.BigViewer = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 640, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 360, 1280, 720);
-            this.VideoPlayer = new Microsoft.Xna.Framework.Media.VideoPlayer();
-            this.ActiveTopic = new HelpTopic()
+            Vector2 vector2      = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100);
+            CategoriesRect       = new Rectangle(R.X + 25, R.Y + 130, 330, 430);
+            Submenu blah         = new Submenu(ScreenManager, CategoriesRect);
+            HelpCategories       = new ScrollList(blah, 40);
+            TextRect             = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
+            Rectangle TextSLRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
+            Submenu bler         = new Submenu(ScreenManager, TextSLRect);
+            HelpEntries          = new ScrollList(bler, Fonts.Arial12Bold.LineSpacing + 2);
+            SmallViewer          = new Rectangle(TextRect.X + 20, TextRect.Y + 40, 336, 189);
+            BigViewer            = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 640, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 360, 1280, 720);
+            VideoPlayer          = new VideoPlayer();
+            ActiveTopic          = new HelpTopic
             {
                 Title = Localizer.Token(1401),
-                Text = Localizer.Token(1400)
+                Text  = Localizer.Token(1400)
             };
-            HelperFunctions.parseTextToSL(this.ActiveTopic.Text, (float)(this.TextRect.Width - 40), Fonts.Arial12Bold, ref this.HelpEntries);
-            this.TitlePosition = new Vector2((float)(this.TextRect.X + this.TextRect.Width / 2) - Fonts.Arial20Bold.MeasureString(this.ActiveTopic.Title).X / 2f - 15f, (float)(this.TextRect.Y + 10));
-            Array<string> Categories = new Array<string>();
-            foreach (HelpTopic halp in this.HelpTopics.HelpTopicsList)
+            HelperFunctions.parseTextToSL(ActiveTopic.Text, TextRect.Width 
+                - 40, Fonts.Arial12Bold, ref HelpEntries);
+            TitlePosition = new Vector2(TextRect.X + TextRect.Width / 2 
+                - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TextRect.Y + 10);
+            Array<string> categories = new Array<string>();
+            foreach (HelpTopic halp in HelpTopics.HelpTopicsList)
             {
-                if (Categories.Contains(halp.Category))
-                {
+                if (categories.Contains(halp.Category))                
                     continue;
-                }
-                Categories.Add(halp.Category);
+                
+                categories.Add(halp.Category);
                 ModuleHeader mh = new ModuleHeader(halp.Category, 295f);
-                this.HelpCategories.AddItem(mh);
+                HelpCategories.AddItem(mh);
             }
-            foreach (ScrollList.Entry e in this.HelpCategories.Entries)
+            foreach (ScrollList.Entry e in HelpCategories.Entries)
             {
-                foreach (HelpTopic halp in this.HelpTopics.HelpTopicsList)
+                foreach (HelpTopic halp in HelpTopics.HelpTopicsList)
                 {
-                    if (halp.Category != (e.item as ModuleHeader).Text)
-                    {
+                    if (halp.Category != (e.item as ModuleHeader)?.Text)                    
                         continue;
-                    }
+                    
                     e.AddItem(halp);
                 }
             }
