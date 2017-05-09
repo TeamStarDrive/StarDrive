@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 
+// ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
     public sealed class InGameWiki : PopupWindow
     {
-        private HelpTopics HelpTopics;
+        private readonly HelpTopics HelpTopics;
         private ScrollList HelpCategories;
         private Rectangle CategoriesRect;
         private Rectangle TextRect;
@@ -52,7 +53,7 @@ namespace Ship_Game
             DrawBase(gameTime);
             ScreenManager.SpriteBatch.Begin();
             HelpCategories.Draw(ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2(R.X + 20, R.Y + 20);            
+            Vector2 bCursor;
             for (int i = HelpCategories.indexAtTop; i < HelpCategories.Copied.Count 
                 && i < HelpCategories.indexAtTop + HelpCategories.entriesToDisplay; i++)
             {
@@ -236,16 +237,17 @@ namespace Ship_Game
             {
                 MiddleText =$"Mod Loaded: {GlobalStats.ModName} Ver: {GlobalStats.ActiveModInfo.Version}";
             }
-            Vector2 vector2      = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100);
+            var presentation = ScreenManager.GraphicsDevice.PresentationParameters;
+            
             CategoriesRect       = new Rectangle(R.X + 25, R.Y + 130, 330, 430);
             Submenu blah         = new Submenu(ScreenManager, CategoriesRect);
             HelpCategories       = new ScrollList(blah, 40);
             TextRect             = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
-            Rectangle TextSLRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
-            Submenu bler         = new Submenu(ScreenManager, TextSLRect);
+            Rectangle textSlRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
+            Submenu bler         = new Submenu(ScreenManager, textSlRect);
             HelpEntries          = new ScrollList(bler, Fonts.Arial12Bold.LineSpacing + 2);
             SmallViewer          = new Rectangle(TextRect.X + 20, TextRect.Y + 40, 336, 189);
-            BigViewer            = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 640, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 360, 1280, 720);
+            BigViewer            = new Rectangle(presentation.BackBufferWidth / 2 - 640, presentation.BackBufferHeight / 2 - 360, 1280, 720);
             VideoPlayer          = new VideoPlayer();
             ActiveTopic          = new HelpTopic
             {
@@ -270,7 +272,7 @@ namespace Ship_Game
             {
                 foreach (HelpTopic halp in HelpTopics.HelpTopicsList)
                 {
-                    if (halp.Category != (e.item as ModuleHeader)?.Text)                    
+                    if (halp.Category != ((ModuleHeader) e.item)?.Text)                    
                         continue;
                     
                     e.AddItem(halp);
