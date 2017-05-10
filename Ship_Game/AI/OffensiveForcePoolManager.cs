@@ -7,10 +7,10 @@ namespace Ship_Game.AI
     public class OffensiveForcePoolManager
     {
         private readonly Empire Owner;
-        private GSAI Gsai => Owner.GetGSAI();
-        private ThreatMatrix ThreatMatrix => Gsai.ThreatMatrix;
-        private DefensiveCoordinator DefensiveCoordinator => Gsai.DefensiveCoordinator;
-        private Array<AO> AreasOfOperations => Gsai.AreasOfOperations;
+        private EmpireAI EmpireAI => Owner.GetGSAI();
+        private ThreatMatrix ThreatMatrix => EmpireAI.ThreatMatrix;
+        private DefensiveCoordinator DefensiveCoordinator => EmpireAI.DefensiveCoordinator;
+        private Array<AO> AreasOfOperations => EmpireAI.AreasOfOperations;
 
         public OffensiveForcePoolManager (Empire owner)
         {

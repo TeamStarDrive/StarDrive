@@ -58,7 +58,7 @@ namespace Ship_Game
         public Color EmpireColor;
         public static UniverseScreen Universe;
         //public Vector4 VColor;          //Not referenced in code, removing to save memory
-        private GSAI GSAI;
+        private EmpireAI EmpireAI;
         //private MilitaryResearchStrategy militaryResearchStrategy;
         private EconomicResearchStrategy economicResearchStrategy;
         private float UpdateTimer;
@@ -221,7 +221,7 @@ namespace Ship_Game
             OwnedSolarSystems.Clear();
             OwnedShips.Clear();
             Relationships.Clear();
-            GSAI = null;
+            EmpireAI = null;
             HostilesPresent.Clear();
             ForcePool.Clear();
             KnownShips.Clear();
@@ -280,8 +280,8 @@ namespace Ship_Game
                 ship.AI.OrderQueue.Clear();
                 ship.AI.State = AIState.AwaitingOrders;
             }
-            GSAI.Goals.Clear();
-            GSAI.TaskList.Clear();
+            EmpireAI.Goals.Clear();
+            EmpireAI.TaskList.Clear();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             Empire rebels = CreatingNewGameScreen.CreateRebelsFromEmpireData(data, this);
             rebels.data.Traits.Name     = data.Traits.Singular + " Remnant";
@@ -346,8 +346,8 @@ namespace Ship_Game
                 ship.AI.OrderQueue.Clear();
                 ship.AI.State = AIState.AwaitingOrders;
             }
-            GSAI.Goals.Clear();
-            GSAI.TaskList.Clear();
+            EmpireAI.Goals.Clear();
+            EmpireAI.TaskList.Clear();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             OwnedShips.Clear();
             data.AgentList.Clear();
@@ -500,7 +500,7 @@ namespace Ship_Game
 
         public void Initialize()
         {
-            GSAI = new GSAI(this);
+            EmpireAI = new EmpireAI(this);
             for (int key = 1; key < 10; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};
@@ -692,7 +692,7 @@ namespace Ship_Game
 
         public void InitializeFromSave()
         {
-            GSAI = new GSAI(this);
+            EmpireAI = new EmpireAI(this);
             for (int key = 1; key < 100; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};
@@ -1057,7 +1057,7 @@ namespace Ship_Game
             }
             UpdateShipsWeCanBuild();
             if (!isPlayer)
-                GSAI.TriggerRefit();
+                EmpireAI.TriggerRefit();
             data.ResearchQueue.Remove(techID);
         }
 
@@ -1170,7 +1170,7 @@ namespace Ship_Game
 
         public Array<Ship> FindShipsInOurBorders()
         {
-            return GSAI.ThreatMatrix.FindShipsInOurBorders();
+            return EmpireAI.ThreatMatrix.FindShipsInOurBorders();
         }
 
         public void UpdateKnownShips()
@@ -1186,7 +1186,7 @@ namespace Ship_Game
                 {
                     nearby.inSensorRange = true;
                     KnownShips.Add(nearby);
-                    GSAI.ThreatMatrix.UpdatePin(nearby);
+                    EmpireAI.ThreatMatrix.UpdatePin(nearby);
                 }
                 return;
             }
@@ -1253,12 +1253,12 @@ namespace Ship_Game
                     break;
                 }
 
-                GSAI.ThreatMatrix.UpdatePin(nearby, border, insensors);
+                EmpireAI.ThreatMatrix.UpdatePin(nearby, border, insensors);
                 return insensors;
             }
 
             // update our own empire ships
-            GSAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
+            EmpireAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
             if (isPlayer)
             {
                 nearby.inSensorRange = true;
@@ -1438,7 +1438,7 @@ namespace Ship_Game
                     }
                     numWars++;
                 }
-                float defStr = GSAI.DefensiveCoordinator.GetForcePoolStrength();
+                float defStr = EmpireAI.DefensiveCoordinator.GetForcePoolStrength();
                 this.EmpireShipCountReserve = 0;
 
                 if (!this.isPlayer)
@@ -1660,7 +1660,7 @@ namespace Ship_Game
                 foreach (string shiptech in ship.shipData.techsNeeded)
                     ShipTechs.Add(shiptech);                        
 
-                if (!GSAI.NonCombatshipIsGoodForGoals(ship))
+                if (!EmpireAI.NonCombatshipIsGoodForGoals(ship))
                     continue;
 
                 int bombcount = 0;
@@ -2439,9 +2439,9 @@ namespace Ship_Game
             UpdateRelationships();
 
             if (this.isFaction)
-                this.GSAI.FactionUpdate();
+                this.EmpireAI.FactionUpdate();
             else if (!this.data.Defeated)
-                this.GSAI.Update();
+                this.EmpireAI.Update();
             if (Money > data.CounterIntelligenceBudget)
             {
                 this.Money -= this.data.CounterIntelligenceBudget;
@@ -2605,12 +2605,12 @@ namespace Ship_Game
                 this.data.difficulty = Difficulty.Brutal;
                 //lock (GlobalStats.TaskLocker)
                 {
-                    this.GSAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (Array<MilitaryTask>)this.GSAI.TaskList)
+                    this.EmpireAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (Array<MilitaryTask>)this.GSAI.TaskList)
                         { item_7.EndTask(); }, false, false, false);
-                    this.GSAI.TaskList.ApplyPendingRemovals();
+                    this.EmpireAI.TaskList.ApplyPendingRemovals();
                 }
-                this.GSAI.DefensiveCoordinator.DefensiveForcePool.Clear();
-                this.GSAI.DefensiveCoordinator.DefenseDict.Clear();
+                this.EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
+                this.EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
                 this.ForcePool.Clear();
                 //foreach (Ship s in (Array<Ship>)this.OwnedShips) //.OrderByDescending(experience=> experience.experience).ThenBy(strength=> strength.BaseStrength))
                 foreach (Ship s in this.OwnedShips)
@@ -2654,7 +2654,7 @@ namespace Ship_Game
         {
             if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian )
                 return;
-            this.GSAI.AssignShipToForce(s);
+            this.EmpireAI.AssignShipToForce(s);
         }
 
         public void ForcePoolRemove(Ship s)
@@ -2835,7 +2835,7 @@ namespace Ship_Game
             unusedFreighters.AddRange(assignedShips);
             freighters = 0;// unusedFreighters.Count;
             int goalLimt = 1  + this.getResStrat().IndustryPriority;
-            foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
+            foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
                 {
@@ -2853,7 +2853,7 @@ namespace Ship_Game
             if (moneyForFreighters > 0 && freighters < minFreightCount && goalLimt >0)
             {
                 freighters++;
-                this.GSAI.Goals.Add(new Goal(this)
+                this.EmpireAI.Goals.Add(new Goal(this)
                 {
                     GoalName = "IncreaseFreighters",
                     type = GoalType.BuildShips
@@ -2875,16 +2875,16 @@ namespace Ship_Game
 
         public void ReportGoalComplete(Goal g)
         {
-            for (int index = 0; index < this.GSAI.Goals.Count; ++index)
+            for (int index = 0; index < this.EmpireAI.Goals.Count; ++index)
             {
-                if (this.GSAI.Goals[index] == g)
-                    this.GSAI.Goals.QueuePendingRemoval(this.GSAI.Goals[index]);
+                if (this.EmpireAI.Goals[index] == g)
+                    this.EmpireAI.Goals.QueuePendingRemoval(this.EmpireAI.Goals[index]);
             }
         }
 
-        public GSAI GetGSAI()
+        public EmpireAI GetGSAI()
         {
-            return this.GSAI;
+            return this.EmpireAI;
         }
 
         public Vector2 GetWeightedCenter()
@@ -2936,7 +2936,7 @@ namespace Ship_Game
                 if (num == 0)
                 {
                     bool flag2 = true;
-                    foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
+                    foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
                     {
                         if (goal.type == GoalType.BuildScout)
                         {
@@ -2950,15 +2950,15 @@ namespace Ship_Game
                     goal1.type = GoalType.BuildScout;
                     goal1.empire = this;
                     goal1.GoalName = "Build Scout";
-                    this.GSAI.Goals.Add(goal1);
-                    this.GSAI.Goals.Add(goal1);
+                    this.EmpireAI.Goals.Add(goal1);
+                    this.EmpireAI.Goals.Add(goal1);
                 }
                 else
                 {
                     if (num >= 2 || this.data.DiplomaticPersonality == null)
                         return;
                     bool flag2 = true;
-                    foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
+                    foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
                     {
                         if (goal.type == GoalType.BuildScout)
                         {
@@ -2967,7 +2967,7 @@ namespace Ship_Game
                         }
                     }
                     if (flag2)
-                        this.GSAI.Goals.Add(new Goal()
+                        this.EmpireAI.Goals.Add(new Goal()
                         {
                             type = GoalType.BuildScout,
                             empire = this,
@@ -2975,7 +2975,7 @@ namespace Ship_Game
                         });
                     if (!(this.data.DiplomaticPersonality.Name == "Expansionist") || !flag2)
                         return;
-                    this.GSAI.Goals.Add(new Goal()
+                    this.EmpireAI.Goals.Add(new Goal()
                     {
                         type = GoalType.BuildScout,
                         empire = this,
@@ -3128,7 +3128,7 @@ namespace Ship_Game
             if(ship != null)
             {                
                 if (!rel.Treaty_OpenBorders && !rel.Treaty_Trade
-                &&  GSAI.ThreatMatrix.ShipInOurBorders(ship)) return true;
+                &&  EmpireAI.ThreatMatrix.ShipInOurBorders(ship)) return true;
 
                 if (ship.isColonyShip && ship.System != null && rel.WarnedSystemsList.Contains(ship.System.guid)) return true;
             }
@@ -3167,7 +3167,7 @@ namespace Ship_Game
             KnownShips?.Dispose(ref KnownShips);
             OwnedShips?.Dispose(ref OwnedShips);
             DefensiveFleet?.Dispose(ref DefensiveFleet);
-            GSAI?.Dispose(ref GSAI);
+            EmpireAI?.Dispose(ref EmpireAI);
             data.AgentList = new BatchRemovalCollection<Agent>();
             data.MoleList = new BatchRemovalCollection<Mole>();
             LockPatchCache?.Dispose(ref LockPatchCache);
