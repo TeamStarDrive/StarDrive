@@ -4,17 +4,17 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI {
-    public sealed partial class GSAI
+    public sealed partial class EmpireAI
     {
         public void FactionUpdate()
         {
-            string name = this.empire.data.Traits.Name;
+            string name = this.OwnerEmpire.data.Traits.Name;
             switch (name)
             {
                 case "The Remnant":
                 {
                     bool HasPlanets = false; // this.empire.GetPlanets().Count > 0;
-                    foreach (Planet planet in this.empire.GetPlanets())
+                    foreach (Planet planet in this.OwnerEmpire.GetPlanets())
                     {
                         HasPlanets = true;
 
@@ -26,7 +26,7 @@ namespace Ship_Game.AI {
                         }
                         planet.ApplyProductiontoQueue(1, 0);
                     }
-                    foreach (Ship assimilate in this.empire.GetShips())
+                    foreach (Ship assimilate in this.OwnerEmpire.GetShips())
                     {
                         if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null)
                         {
@@ -38,7 +38,7 @@ namespace Ship_Game.AI {
                                     if (assimilate.System != null)
                                     {
                                         target = assimilate.System.PlanetList
-                                            .Where(owner => owner.Owner != this.empire && owner.Owner != null)
+                                            .Where(owner => owner.Owner != this.OwnerEmpire && owner.Owner != null)
                                             .FirstOrDefault();
                                     }
                                     if (target != null)
@@ -94,7 +94,7 @@ namespace Ship_Game.AI {
                             if (assimilate.System != null && assimilate.AI.State == AIState.AwaitingOrders)
                             {
                                 target = assimilate.System.PlanetList
-                                    .Where(owner => owner.Owner != this.empire && owner.Owner != null)
+                                    .Where(owner => owner.Owner != this.OwnerEmpire && owner.Owner != null)
                                     .FirstOrDefault();
                                 if (target != null && (assimilate.HasTroopBay || assimilate.hasAssaultTransporter))
                                     if (assimilate.TroopList.Count > assimilate.GetHangars().Count)
@@ -120,23 +120,23 @@ namespace Ship_Game.AI {
                     }
                     if (!AttackingSomeone)
                     {
-                        foreach (KeyValuePair<Empire, Relationship> r in this.empire.AllRelations)
+                        foreach (KeyValuePair<Empire, Relationship> r in this.OwnerEmpire.AllRelations)
                         {
-                            if (!r.Value.AtWar || r.Key.GetPlanets().Count <= 0 || this.empire.GetShips().Count <= 0)
+                            if (!r.Value.AtWar || r.Key.GetPlanets().Count <= 0 || this.OwnerEmpire.GetShips().Count <= 0)
                             {
                                 continue;
                             }
                             Vector2 center = new Vector2();
-                            foreach (Ship ship in this.empire.GetShips())
+                            foreach (Ship ship in this.OwnerEmpire.GetShips())
                             {
                                 center = center + ship.Center;
                             }
-                            center = center / (float) this.empire.GetShips().Count;
+                            center = center / (float) this.OwnerEmpire.GetShips().Count;
                             IOrderedEnumerable<Planet> sortedList =
                                 from planet in r.Key.GetPlanets()
                                 orderby Vector2.Distance(planet.Position, center)
                                 select planet;
-                            MilitaryTask task = new MilitaryTask(this.empire);
+                            MilitaryTask task = new MilitaryTask(this.OwnerEmpire);
                             task.SetTargetPlanet(sortedList.First<Planet>());
                             task.TaskTimer = 300f;
                             task.type = MilitaryTask.TaskType.CorsairRaid;
@@ -159,7 +159,7 @@ namespace Ship_Game.AI {
                 {
                     if (task.type != MilitaryTask.TaskType.Exploration)
                     {
-                        task.Evaluate(this.empire);
+                        task.Evaluate(this.OwnerEmpire);
                     }
                     else
                     {

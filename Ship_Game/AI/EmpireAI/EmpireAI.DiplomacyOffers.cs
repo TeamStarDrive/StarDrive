@@ -2,31 +2,31 @@ using System.Collections.Generic;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI {
-    public sealed partial class GSAI
+    public sealed partial class EmpireAI
     {
         public void AcceptOffer(Offer ToUs, Offer FromUs, Empire us, Empire Them)
         {
             if (ToUs.PeaceTreaty)
             {
-                Relationship relation = empire.GetRelations(Them);
+                Relationship relation = OwnerEmpire.GetRelations(Them);
                 relation.AtWar = false;
                 relation.PreparingForWar = false;
                 relation.ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 relation.WarHistory.Add(relation.ActiveWar);
-                if (empire.data.DiplomaticPersonality != null)
+                if (OwnerEmpire.data.DiplomaticPersonality != null)
                 {
                     relation.Posture = Posture.Neutral;
                     if (relation.Anger_FromShipsInOurBorders >
-                        (float) (empire.data.DiplomaticPersonality.Territorialism / 3))
+                        (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
                     {
                         relation.Anger_FromShipsInOurBorders =
-                            (float) (empire.data.DiplomaticPersonality.Territorialism / 3);
+                            (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
                     }
                     if (relation.Anger_TerritorialConflict >
-                        (float) (empire.data.DiplomaticPersonality.Territorialism / 3))
+                        (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
                     {
                         relation.Anger_TerritorialConflict =
-                            (float) (empire.data.DiplomaticPersonality.Territorialism / 3);
+                            (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
                     }
                 }
                 relation.Anger_MilitaryConflict = 0f;
@@ -38,7 +38,7 @@ namespace Ship_Game.AI {
                 relation.HasDefenseFleet = false;
                 if (relation.DefenseFleet != -1)
                 {
-                    empire.GetFleetsDict()[relation.DefenseFleet].FleetTask.EndTask();
+                    OwnerEmpire.GetFleetsDict()[relation.DefenseFleet].FleetTask.EndTask();
                 }
                 using (TaskList.AcquireWriteLock())
                 {
@@ -54,7 +54,7 @@ namespace Ship_Game.AI {
                     }
                 }
                 relation.ActiveWar = null;
-                Relationship relationThem = Them.GetRelations(empire);
+                Relationship relationThem = Them.GetRelations(OwnerEmpire);
                 relationThem.AtWar = false;
                 relationThem.PreparingForWar = false;
                 relationThem.ActiveWar.EndStarDate = Empire.Universe.StarDate;
@@ -91,7 +91,7 @@ namespace Ship_Game.AI {
                             .TaskList.ForEach(task =>
                             {
                                 if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null ||
-                                    task.GetTargetPlanet().Owner != empire)
+                                    task.GetTargetPlanet().Owner != OwnerEmpire)
                                 {
                                     return;
                                 }
@@ -100,14 +100,14 @@ namespace Ship_Game.AI {
                     }
                 }
                 relationThem.ActiveWar = null;
-                if (Them == Empire.Universe.PlayerEmpire || empire == Empire.Universe.PlayerEmpire)
+                if (Them == Empire.Universe.PlayerEmpire || OwnerEmpire == Empire.Universe.PlayerEmpire)
                 {
-                    Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(empire, Them);
+                    Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(OwnerEmpire, Them);
                 }
                 else if (Empire.Universe.PlayerEmpire.GetRelations(Them).Known &&
-                         Empire.Universe.PlayerEmpire.GetRelations(empire).Known)
+                         Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Known)
                 {
-                    Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(empire, Them);
+                    Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(OwnerEmpire, Them);
                 }
             }
             if (ToUs.NAPact)
@@ -310,7 +310,7 @@ namespace Ship_Game.AI {
                     }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != empire)
+                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != OwnerEmpire)
                         {
                             continue;
                         }
@@ -428,33 +428,33 @@ namespace Ship_Game.AI {
         {
             if (ToUs.PeaceTreaty)
             {
-                empire.GetRelations(Them).AtWar = false;
-                empire.GetRelations(Them).PreparingForWar = false;
-                empire.GetRelations(Them).ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                empire.GetRelations(Them).WarHistory.Add(empire.GetRelations(Them).ActiveWar);
-                empire.GetRelations(Them).Posture = Posture.Neutral;
-                if (empire.GetRelations(Them).Anger_FromShipsInOurBorders >
-                    (float) (this.empire.data.DiplomaticPersonality.Territorialism / 3))
+                OwnerEmpire.GetRelations(Them).AtWar = false;
+                OwnerEmpire.GetRelations(Them).PreparingForWar = false;
+                OwnerEmpire.GetRelations(Them).ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                OwnerEmpire.GetRelations(Them).WarHistory.Add(OwnerEmpire.GetRelations(Them).ActiveWar);
+                OwnerEmpire.GetRelations(Them).Posture = Posture.Neutral;
+                if (OwnerEmpire.GetRelations(Them).Anger_FromShipsInOurBorders >
+                    (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
                 {
-                    empire.GetRelations(Them).Anger_FromShipsInOurBorders =
-                        (float) (this.empire.data.DiplomaticPersonality.Territorialism / 3);
+                    OwnerEmpire.GetRelations(Them).Anger_FromShipsInOurBorders =
+                        (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
                 }
-                if (empire.GetRelations(Them).Anger_TerritorialConflict >
-                    (float) (this.empire.data.DiplomaticPersonality.Territorialism / 3))
+                if (OwnerEmpire.GetRelations(Them).Anger_TerritorialConflict >
+                    (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
                 {
-                    empire.GetRelations(Them).Anger_TerritorialConflict =
-                        (float) (this.empire.data.DiplomaticPersonality.Territorialism / 3);
+                    OwnerEmpire.GetRelations(Them).Anger_TerritorialConflict =
+                        (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
                 }
-                empire.GetRelations(Them).Anger_MilitaryConflict = 0f;
-                empire.GetRelations(Them).WarnedAboutShips = false;
-                empire.GetRelations(Them).WarnedAboutColonizing = false;
-                empire.GetRelations(Them).HaveRejected_Demand_Tech = false;
-                empire.GetRelations(Them).HaveRejected_OpenBorders = false;
-                empire.GetRelations(Them).HaveRejected_TRADE = false;
-                empire.GetRelations(Them).HasDefenseFleet = false;
-                if (empire.GetRelations(Them).DefenseFleet != -1)
+                OwnerEmpire.GetRelations(Them).Anger_MilitaryConflict = 0f;
+                OwnerEmpire.GetRelations(Them).WarnedAboutShips = false;
+                OwnerEmpire.GetRelations(Them).WarnedAboutColonizing = false;
+                OwnerEmpire.GetRelations(Them).HaveRejected_Demand_Tech = false;
+                OwnerEmpire.GetRelations(Them).HaveRejected_OpenBorders = false;
+                OwnerEmpire.GetRelations(Them).HaveRejected_TRADE = false;
+                OwnerEmpire.GetRelations(Them).HasDefenseFleet = false;
+                if (OwnerEmpire.GetRelations(Them).DefenseFleet != -1)
                 {
-                    this.empire.GetFleetsDict()[empire.GetRelations(Them).DefenseFleet].FleetTask.EndTask();
+                    this.OwnerEmpire.GetFleetsDict()[OwnerEmpire.GetRelations(Them).DefenseFleet].FleetTask.EndTask();
                 }
                 //lock (GlobalStats.TaskLocker)
                 {
@@ -468,35 +468,35 @@ namespace Ship_Game.AI {
                         task.EndTask();
                     });
                 }
-                empire.GetRelations(Them).ActiveWar = null;
-                Them.GetRelations(this.empire).AtWar = false;
-                Them.GetRelations(this.empire).PreparingForWar = false;
-                Them.GetRelations(this.empire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                Them.GetRelations(this.empire).WarHistory.Add(Them.GetRelations(this.empire).ActiveWar);
-                Them.GetRelations(this.empire).Posture = Posture.Neutral;
+                OwnerEmpire.GetRelations(Them).ActiveWar = null;
+                Them.GetRelations(this.OwnerEmpire).AtWar = false;
+                Them.GetRelations(this.OwnerEmpire).PreparingForWar = false;
+                Them.GetRelations(this.OwnerEmpire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                Them.GetRelations(this.OwnerEmpire).WarHistory.Add(Them.GetRelations(this.OwnerEmpire).ActiveWar);
+                Them.GetRelations(this.OwnerEmpire).Posture = Posture.Neutral;
                 if (EmpireManager.Player != Them)
                 {
-                    if (Them.GetRelations(this.empire).Anger_FromShipsInOurBorders >
+                    if (Them.GetRelations(this.OwnerEmpire).Anger_FromShipsInOurBorders >
                         (float) (Them.data.DiplomaticPersonality.Territorialism / 3))
                     {
-                        Them.GetRelations(this.empire).Anger_FromShipsInOurBorders =
+                        Them.GetRelations(this.OwnerEmpire).Anger_FromShipsInOurBorders =
                             (float) (Them.data.DiplomaticPersonality.Territorialism / 3);
                     }
-                    if (Them.GetRelations(this.empire).Anger_TerritorialConflict >
+                    if (Them.GetRelations(this.OwnerEmpire).Anger_TerritorialConflict >
                         (float) (Them.data.DiplomaticPersonality.Territorialism / 3))
                     {
-                        Them.GetRelations(this.empire).Anger_TerritorialConflict =
+                        Them.GetRelations(this.OwnerEmpire).Anger_TerritorialConflict =
                             (float) (Them.data.DiplomaticPersonality.Territorialism / 3);
                     }
-                    Them.GetRelations(this.empire).Anger_MilitaryConflict = 0f;
-                    Them.GetRelations(this.empire).WarnedAboutShips = false;
-                    Them.GetRelations(this.empire).WarnedAboutColonizing = false;
-                    Them.GetRelations(this.empire).HaveRejected_Demand_Tech = false;
-                    Them.GetRelations(this.empire).HaveRejected_OpenBorders = false;
-                    Them.GetRelations(this.empire).HaveRejected_TRADE = false;
-                    if (Them.GetRelations(this.empire).DefenseFleet != -1)
+                    Them.GetRelations(this.OwnerEmpire).Anger_MilitaryConflict = 0f;
+                    Them.GetRelations(this.OwnerEmpire).WarnedAboutShips = false;
+                    Them.GetRelations(this.OwnerEmpire).WarnedAboutColonizing = false;
+                    Them.GetRelations(this.OwnerEmpire).HaveRejected_Demand_Tech = false;
+                    Them.GetRelations(this.OwnerEmpire).HaveRejected_OpenBorders = false;
+                    Them.GetRelations(this.OwnerEmpire).HaveRejected_TRADE = false;
+                    if (Them.GetRelations(this.OwnerEmpire).DefenseFleet != -1)
                     {
-                        Them.GetFleetsDict()[Them.GetRelations(this.empire).DefenseFleet].FleetTask.EndTask();
+                        Them.GetFleetsDict()[Them.GetRelations(this.OwnerEmpire).DefenseFleet].FleetTask.EndTask();
                     }
                     //lock (GlobalStats.TaskLocker)
                     {
@@ -504,7 +504,7 @@ namespace Ship_Game.AI {
                             .TaskList.ForEach(task => //foreach (MilitaryTask task in Them.GetGSAI().TaskList)
                             {
                                 if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null ||
-                                    task.GetTargetPlanet().Owner != this.empire)
+                                    task.GetTargetPlanet().Owner != this.OwnerEmpire)
                                 {
                                     return;
                                 }
@@ -512,7 +512,7 @@ namespace Ship_Game.AI {
                             }, false, false, false);
                     }
                 }
-                Them.GetRelations(this.empire).ActiveWar = null;
+                Them.GetRelations(this.OwnerEmpire).ActiveWar = null;
             }
             if (ToUs.NAPact)
             {
@@ -701,7 +701,7 @@ namespace Ship_Game.AI {
                     }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != this.empire)
+                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != this.OwnerEmpire)
                         {
                             continue;
                         }
@@ -814,8 +814,8 @@ namespace Ship_Game.AI {
                 {
                     return "OFFER_ALLIANCE_TOO_COMPLICATED";
                 }
-                if (empire.GetRelations(them).Trust < 90f || empire.GetRelations(them).TotalAnger >= 20f ||
-                    empire.GetRelations(them).TurnsKnown <= 100)
+                if (OwnerEmpire.GetRelations(them).Trust < 90f || OwnerEmpire.GetRelations(them).TotalAnger >= 20f ||
+                    OwnerEmpire.GetRelations(them).TurnsKnown <= 100)
                 {
                     return "AI_ALLIANCE_REJECT";
                 }
@@ -824,19 +824,19 @@ namespace Ship_Game.AI {
             }
             if (ToUs.PeaceTreaty)
             {
-                GSAI.PeaceAnswer answer = this.AnalyzePeaceOffer(ToUs, FromUs, them, attitude);
+                EmpireAI.PeaceAnswer answer = this.AnalyzePeaceOffer(ToUs, FromUs, them, attitude);
                 if (!answer.peace)
                 {
                     return answer.answer;
                 }
-                this.AcceptOffer(ToUs, FromUs, this.empire, them);
-                empire.GetRelations(them).Treaty_Peace = true;
-                empire.GetRelations(them).PeaceTurnsRemaining = 100;
-                them.GetRelations(this.empire).Treaty_Peace = true;
-                them.GetRelations(this.empire).PeaceTurnsRemaining = 100;
+                this.AcceptOffer(ToUs, FromUs, this.OwnerEmpire, them);
+                OwnerEmpire.GetRelations(them).Treaty_Peace = true;
+                OwnerEmpire.GetRelations(them).PeaceTurnsRemaining = 100;
+                them.GetRelations(this.OwnerEmpire).Treaty_Peace = true;
+                them.GetRelations(this.OwnerEmpire).PeaceTurnsRemaining = 100;
                 return answer.answer;
             }
-            Empire us = this.empire;
+            Empire us = this.OwnerEmpire;
             float TotalTrustRequiredFromUS = 0f;
             DTrait dt = us.data.DiplomaticPersonality;
             if (FromUs.TradeTreaty)
@@ -897,7 +897,7 @@ namespace Ship_Game.AI {
             if (ToUs.TradeTreaty)
             {
                 ValueToUs = ValueToUs + 5f;
-                if ((double) this.empire.EstimateIncomeAtTaxRate(0.5f) < 1)
+                if ((double) this.OwnerEmpire.EstimateIncomeAtTaxRate(0.5f) < 1)
                 {
                     ValueToUs = ValueToUs + 20f;
                 }
@@ -1192,10 +1192,10 @@ namespace Ship_Game.AI {
             return "";
         }
 
-        public GSAI.PeaceAnswer AnalyzePeaceOffer(Offer ToUs, Offer FromUs, Empire them, Offer.Attitude attitude)
+        public EmpireAI.PeaceAnswer AnalyzePeaceOffer(Offer ToUs, Offer FromUs, Empire them, Offer.Attitude attitude)
         {
             WarState state;
-            Empire us = this.empire;
+            Empire us = this.OwnerEmpire;
             DTrait dt = us.data.DiplomaticPersonality;
             float ValueToUs = 0f;
             float ValueFromUs = 0f;
@@ -1820,7 +1820,7 @@ namespace Ship_Game.AI {
             {
                 OfferQuality = "Fair";
             }
-            GSAI.PeaceAnswer response = new GSAI.PeaceAnswer()
+            EmpireAI.PeaceAnswer response = new EmpireAI.PeaceAnswer()
             {
                 peace = false,
                 answer = "REJECT_OFFER_PEACE_POOROFFER"
@@ -1993,7 +1993,7 @@ namespace Ship_Game.AI {
                     }
                     else if (state == WarState.ColdWar)
                     {
-                        string name1 = this.empire.data.DiplomaticPersonality.Name;
+                        string name1 = this.OwnerEmpire.data.DiplomaticPersonality.Name;
                         str1 = name1;
                         if (name1 != null && str1 == "Pacifist")
                         {
@@ -2108,7 +2108,7 @@ namespace Ship_Game.AI {
                     }
                     else if (state == WarState.ColdWar)
                     {
-                        string name2 = this.empire.data.DiplomaticPersonality.Name;
+                        string name2 = this.OwnerEmpire.data.DiplomaticPersonality.Name;
                         str1 = name2;
                         if (name2 != null && str1 == "Pacifist")
                         {
@@ -2189,32 +2189,32 @@ namespace Ship_Game.AI {
         {
             if (ally)
             {
-                this.empire.GetRelations(them).Treaty_Alliance = true;
-                this.empire.GetRelations(them).Treaty_OpenBorders = true;
-                them.GetRelations(this.empire).Treaty_Alliance = true;
-                them.GetRelations(this.empire).Treaty_OpenBorders = true;
+                this.OwnerEmpire.GetRelations(them).Treaty_Alliance = true;
+                this.OwnerEmpire.GetRelations(them).Treaty_OpenBorders = true;
+                them.GetRelations(this.OwnerEmpire).Treaty_Alliance = true;
+                them.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = true;
                 return;
             }
-            this.empire.GetRelations(them).Treaty_Alliance = false;
-            this.empire.GetRelations(them).Treaty_OpenBorders = false;
-            them.GetRelations(this.empire).Treaty_Alliance = false;
-            them.GetRelations(this.empire).Treaty_OpenBorders = false;
+            this.OwnerEmpire.GetRelations(them).Treaty_Alliance = false;
+            this.OwnerEmpire.GetRelations(them).Treaty_OpenBorders = false;
+            them.GetRelations(this.OwnerEmpire).Treaty_Alliance = false;
+            them.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = false;
         }
 
         public void SetAlliance(bool ally)
         {
             if (ally)
             {
-                this.empire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = true;
-                this.empire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = true;
-                Empire.Universe.PlayerEmpire.GetRelations(this.empire).Treaty_Alliance = true;
-                Empire.Universe.PlayerEmpire.GetRelations(this.empire).Treaty_OpenBorders = true;
+                this.OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = true;
+                this.OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = true;
+                Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_Alliance = true;
+                Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = true;
                 return;
             }
-            empire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = false;
-            empire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = false;
-            Empire.Universe.PlayerEmpire.GetRelations(this.empire).Treaty_Alliance = false;
-            Empire.Universe.PlayerEmpire.GetRelations(this.empire).Treaty_OpenBorders = false;
+            OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = false;
+            OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = false;
+            Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_Alliance = false;
+            Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = false;
         }
     }
 }

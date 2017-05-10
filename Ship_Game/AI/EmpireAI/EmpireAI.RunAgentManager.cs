@@ -4,7 +4,7 @@ using System.Linq;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI {
-    public sealed partial class GSAI
+    public sealed partial class EmpireAI
     {
         private int DesiredAgentsPerHostile = 2;
         private int DesiredAgentsPerNeutral = 1;
@@ -24,9 +24,9 @@ namespace Ship_Game.AI {
 
             //this.DesiredAgentsPerHostile = 5;
             //this.DesiredAgentsPerNeutral = 2;
-            this.BaseAgents = empire.GetPlanets().Count / 2;
+            this.BaseAgents = OwnerEmpire.GetPlanets().Count / 2;
             this.DesiredAgentCount = 0;
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.AllRelations)
+            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
                 {
@@ -34,7 +34,7 @@ namespace Ship_Game.AI {
                 }
                 if (Relationship.Value.Posture == Posture.Hostile)
                 {
-                    GSAI desiredAgentCount = this;
+                    EmpireAI desiredAgentCount = this;
                     desiredAgentCount.DesiredAgentCount = desiredAgentCount.DesiredAgentCount +
                                                           this.DesiredAgentsPerHostile;
                 }
@@ -42,32 +42,32 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                GSAI gSAI = this;
+                EmpireAI gSAI = this;
                 gSAI.DesiredAgentCount = gSAI.DesiredAgentCount + this.DesiredAgentsPerNeutral;
             }
-            GSAI desiredAgentCount1 = this;
+            EmpireAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
 
             int empirePlanetSpys =
-                this.empire.GetPlanets().Count() / 3 + 3; // (int)(this.spyBudget / (this.empire.GrossTaxes * 3));
-            int currentSpies = this.empire.data.AgentList.Count;
+                this.OwnerEmpire.GetPlanets().Count() / 3 + 3; // (int)(this.spyBudget / (this.empire.GrossTaxes * 3));
+            int currentSpies = this.OwnerEmpire.data.AgentList.Count;
             if (this.spyBudget >= 250f && currentSpies < empirePlanetSpys)
             {
                 Names =
-                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType,
+                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.OwnerEmpire.data.Traits.ShipType,
                     ".txt"))
                     ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
                     : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
-                        this.empire.data.Traits.ShipType, ".txt")));
+                        this.OwnerEmpire.data.Traits.ShipType, ".txt")));
                 string[] Tokens = Names.Split(new char[] {','});
                 Agent a = new Agent();
                 a.Name = AgentComponent.GetName(Tokens);
-                this.empire.data.AgentList.Add(a);
+                this.OwnerEmpire.data.AgentList.Add(a);
                 this.spyBudget -= 250f;
             }
             int Defenders = 0;
             int Offense = 0;
-            foreach (Agent a in this.empire.data.AgentList)
+            foreach (Agent a in this.OwnerEmpire.data.AgentList)
             {
                 if (a.Mission == AgentMission.Defending)
                 {
@@ -81,13 +81,13 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                a.AssignMission(AgentMission.Training, this.empire, "");
+                a.AssignMission(AgentMission.Training, this.OwnerEmpire, "");
             }
             float offSpyModifier = (int) Empire.Universe.GameDifficulty * .1f;
-            int DesiredOffense = (int) (this.empire.data.AgentList.Count * offSpyModifier);
+            int DesiredOffense = (int) (this.OwnerEmpire.data.AgentList.Count * offSpyModifier);
             //int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .33f); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
             //int DesiredOffense = this.empire.data.AgentList.Count / 2;
-            foreach (Agent agent in this.empire.data.AgentList)
+            foreach (Agent agent in this.OwnerEmpire.data.AgentList)
             {
                 if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
                     Offense >= DesiredOffense)
@@ -95,7 +95,7 @@ namespace Ship_Game.AI {
                     continue;
                 }
                 Array<Empire> PotentialTargets = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.empire.AllRelations)
+                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.OwnerEmpire.AllRelations)
                 {
                     if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated ||
                         Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
@@ -110,7 +110,7 @@ namespace Ship_Game.AI {
                 }
                 HashSet<AgentMission> PotentialMissions = new HashSet<AgentMission>();
                 Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
-                if (this.empire.GetRelations(Target).AtWar)
+                if (this.OwnerEmpire.GetRelations(Target).AtWar)
                 {
                     if (agent.Level >= 8)
                     {
@@ -133,7 +133,7 @@ namespace Ship_Game.AI {
                         //PotentialMissions.Add(AgentMission.Infiltrate);
                     }
                 }
-                if (this.empire.GetRelations(Target).Posture == Posture.Hostile)
+                if (this.OwnerEmpire.GetRelations(Target).Posture == Posture.Hostile)
                 {
                     if (agent.Level >= 8)
                     {
@@ -152,7 +152,7 @@ namespace Ship_Game.AI {
                 }
 
 
-                if (this.empire.GetRelations(Target).SpiesDetected > 0)
+                if (this.OwnerEmpire.GetRelations(Target).SpiesDetected > 0)
                 {
                     if (agent.Level >= 4) PotentialMissions.Add(AgentMission.Assassinate);
                 }
@@ -221,7 +221,7 @@ namespace Ship_Game.AI {
                     continue;
                 }
                 AgentMission am = PotentialMissions.Skip(RandomMath.InRange(PotentialMissions.Count)).FirstOrDefault();
-                agent.AssignMission(am, this.empire, Target.data.Traits.Name);
+                agent.AssignMission(am, this.OwnerEmpire, Target.data.Traits.Name);
                 Offense++;
             }
         }
@@ -230,12 +230,12 @@ namespace Ship_Game.AI {
         {
             int income = (int) this.spyBudget;
             string Names;
-            this.BaseAgents = empire.GetPlanets().Count / 2;
+            this.BaseAgents = OwnerEmpire.GetPlanets().Count / 2;
             this.DesiredAgentsPerHostile = (int) (income * .010f); // +1;
             this.DesiredAgentsPerNeutral = (int) (income * .05f); // +1;
 
             this.DesiredAgentCount = 0;
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.AllRelations)
+            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
                 {
@@ -243,7 +243,7 @@ namespace Ship_Game.AI {
                 }
                 if (Relationship.Value.Posture == Posture.Hostile)
                 {
-                    GSAI desiredAgentCount = this;
+                    EmpireAI desiredAgentCount = this;
                     desiredAgentCount.DesiredAgentCount = desiredAgentCount.DesiredAgentCount +
                                                           this.DesiredAgentsPerHostile;
                 }
@@ -251,33 +251,33 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                GSAI gSAI = this;
+                EmpireAI gSAI = this;
                 gSAI.DesiredAgentCount = gSAI.DesiredAgentCount + this.DesiredAgentsPerNeutral;
             }
-            GSAI desiredAgentCount1 = this;
+            EmpireAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
             //int empirePlanetSpys = this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
             int empireSpyLimit =
-                this.empire.GetPlanets().Count() / 3 + 3; // (int)(this.spyBudget / this.empire.GrossTaxes);
-            int currentSpies = this.empire.data.AgentList.Count;
+                this.OwnerEmpire.GetPlanets().Count() / 3 + 3; // (int)(this.spyBudget / this.empire.GrossTaxes);
+            int currentSpies = this.OwnerEmpire.data.AgentList.Count;
             if (this.spyBudget >= 250f && currentSpies < empireSpyLimit)
             {
                 Names =
-                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType,
+                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.OwnerEmpire.data.Traits.ShipType,
                     ".txt"))
                     ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
                     : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
-                        this.empire.data.Traits.ShipType, ".txt")));
+                        this.OwnerEmpire.data.Traits.ShipType, ".txt")));
                 string[] Tokens = Names.Split(new char[] {','});
                 Agent a = new Agent();
                 a.Name = AgentComponent.GetName(Tokens);
-                this.empire.data.AgentList.Add(a);
+                this.OwnerEmpire.data.AgentList.Add(a);
                 this.spyBudget -= 250f;
             }
             int Defenders = 0;
             int Offense = 0;
-            foreach (Agent a in this.empire.data.AgentList)
+            foreach (Agent a in this.OwnerEmpire.data.AgentList)
             {
                 if (a.Mission == AgentMission.Defending)
                 {
@@ -292,13 +292,13 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                a.AssignMission(AgentMission.Training, this.empire, "");
+                a.AssignMission(AgentMission.Training, this.OwnerEmpire, "");
             }
             // int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .2);// (int)(0.20f * (float)this.empire.data.AgentList.Count);
             float offSpyModifier = (int) Empire.Universe.GameDifficulty * .17f;
 
-            int DesiredOffense = (int) (this.empire.data.AgentList.Count * offSpyModifier);
-            foreach (Agent agent in this.empire.data.AgentList)
+            int DesiredOffense = (int) (this.OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            foreach (Agent agent in this.OwnerEmpire.data.AgentList)
             {
                 if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
                     Offense >= DesiredOffense)
@@ -306,7 +306,7 @@ namespace Ship_Game.AI {
                     continue;
                 }
                 Array<Empire> PotentialTargets = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.empire.AllRelations)
+                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.OwnerEmpire.AllRelations)
                 {
                     if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated ||
                         Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
@@ -321,7 +321,7 @@ namespace Ship_Game.AI {
                 }
                 Array<AgentMission> PotentialMissions = new Array<AgentMission>();
                 Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
-                if (this.empire.GetRelations(Target).AtWar)
+                if (this.OwnerEmpire.GetRelations(Target).AtWar)
                 {
                     if (agent.Level >= 8)
                     {
@@ -349,7 +349,7 @@ namespace Ship_Game.AI {
                             PotentialMissions.Add(AgentMission.StealTech);
                     }
                 }
-                if (this.empire.GetRelations(Target).Posture == Posture.Hostile)
+                if (this.OwnerEmpire.GetRelations(Target).Posture == Posture.Hostile)
                 {
                     if (agent.Level >= 8)
                     {
@@ -374,8 +374,8 @@ namespace Ship_Game.AI {
                         PotentialMissions.Add(AgentMission.Robbery);
                     }
                 }
-                if (this.empire.GetRelations(Target).Posture == Posture.Neutral ||
-                    this.empire.GetRelations(Target).Posture == Posture.Friendly)
+                if (this.OwnerEmpire.GetRelations(Target).Posture == Posture.Neutral ||
+                    this.OwnerEmpire.GetRelations(Target).Posture == Posture.Friendly)
                 {
                     if (agent.Level >= 8)
                     {
@@ -401,7 +401,7 @@ namespace Ship_Game.AI {
                         PotentialMissions.Add(AgentMission.Robbery);
                     }
                 }
-                if (this.empire.GetRelations(Target).SpiesDetected > 0)
+                if (this.OwnerEmpire.GetRelations(Target).SpiesDetected > 0)
                 {
                     if (agent.Level >= 4) PotentialMissions.Add(AgentMission.Assassinate);
                 }
@@ -470,7 +470,7 @@ namespace Ship_Game.AI {
                     continue;
                 }
                 AgentMission am = PotentialMissions[RandomMath.InRange(PotentialMissions.Count)];
-                agent.AssignMission(am, this.empire, Target.data.Traits.Name);
+                agent.AssignMission(am, this.OwnerEmpire, Target.data.Traits.Name);
                 Offense++;
             }
         }
@@ -489,8 +489,8 @@ namespace Ship_Game.AI {
             //this.DesiredAgentsPerHostile = 5;
             //this.DesiredAgentsPerNeutral = 1;
             this.DesiredAgentCount = 0;
-            this.BaseAgents = empire.GetPlanets().Count / 2 + (int) (this.spyBudget / (this.empire.GrossTaxes * 2));
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.AllRelations)
+            this.BaseAgents = OwnerEmpire.GetPlanets().Count / 2 + (int) (this.spyBudget / (this.OwnerEmpire.GrossTaxes * 2));
+            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
                 {
@@ -498,7 +498,7 @@ namespace Ship_Game.AI {
                 }
                 if (Relationship.Value.Posture == Posture.Hostile)
                 {
-                    GSAI desiredAgentCount = this;
+                    EmpireAI desiredAgentCount = this;
                     desiredAgentCount.DesiredAgentCount = desiredAgentCount.DesiredAgentCount +
                                                           this.DesiredAgentsPerHostile;
                 }
@@ -506,32 +506,32 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                GSAI gSAI = this;
+                EmpireAI gSAI = this;
                 gSAI.DesiredAgentCount = gSAI.DesiredAgentCount + this.DesiredAgentsPerNeutral;
             }
-            GSAI desiredAgentCount1 = this;
+            EmpireAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
             //int empirePlanetSpys = empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
-            int empirePlanetSpys = empire.GetPlanets().Count() / 3 + 3;
+            int empirePlanetSpys = OwnerEmpire.GetPlanets().Count() / 3 + 3;
             //if (empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
 
-            if (this.spyBudget >= 250f && this.empire.data.AgentList.Count < empirePlanetSpys)
+            if (this.spyBudget >= 250f && this.OwnerEmpire.data.AgentList.Count < empirePlanetSpys)
             {
                 Names =
-                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType,
+                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.OwnerEmpire.data.Traits.ShipType,
                     ".txt"))
                     ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
                     : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
-                        this.empire.data.Traits.ShipType, ".txt")));
+                        this.OwnerEmpire.data.Traits.ShipType, ".txt")));
                 string[] Tokens = Names.Split(new char[] {','});
                 Agent a = new Agent();
                 a.Name = AgentComponent.GetName(Tokens);
-                this.empire.data.AgentList.Add(a);
+                this.OwnerEmpire.data.AgentList.Add(a);
                 this.spyBudget -= 250f;
             }
             int Defenders = 0;
             int Offense = 0;
-            foreach (Agent a in this.empire.data.AgentList)
+            foreach (Agent a in this.OwnerEmpire.data.AgentList)
             {
                 if (a.Mission == AgentMission.Defending)
                 {
@@ -545,13 +545,13 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                a.AssignMission(AgentMission.Training, this.empire, "");
+                a.AssignMission(AgentMission.Training, this.OwnerEmpire, "");
             }
             float offSpyModifier = (int) Empire.Universe.GameDifficulty * .08f;
             int DesiredOffense =
-                (int) (this.empire.data.AgentList.Count *
+                (int) (this.OwnerEmpire.data.AgentList.Count *
                        offSpyModifier); // /(int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .4f);
-            foreach (Agent agent in this.empire.data.AgentList)
+            foreach (Agent agent in this.OwnerEmpire.data.AgentList)
             {
                 if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
                     Offense >= DesiredOffense)
@@ -559,7 +559,7 @@ namespace Ship_Game.AI {
                     continue;
                 }
                 Array<Empire> PotentialTargets = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.empire.AllRelations)
+                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.OwnerEmpire.AllRelations)
                 {
                     if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated ||
                         Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
@@ -574,7 +574,7 @@ namespace Ship_Game.AI {
                 }
                 Array<AgentMission> PotentialMissions = new Array<AgentMission>();
                 Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
-                if (this.empire.GetRelations(Target).AtWar)
+                if (this.OwnerEmpire.GetRelations(Target).AtWar)
                 {
                     if (agent.Level >= 8)
                     {
@@ -596,7 +596,7 @@ namespace Ship_Game.AI {
                         //PotentialMissions.Add(AgentMission.Infiltrate);
                     }
                 }
-                if (this.empire.GetRelations(Target).SpiesDetected > 0)
+                if (this.OwnerEmpire.GetRelations(Target).SpiesDetected > 0)
                 {
                     if (agent.Level >= 4) PotentialMissions.Add(AgentMission.Assassinate);
                 }
@@ -665,7 +665,7 @@ namespace Ship_Game.AI {
                     continue;
                 }
                 AgentMission am = PotentialMissions[RandomMath.InRange(PotentialMissions.Count)];
-                agent.AssignMission(am, this.empire, Target.data.Traits.Name);
+                agent.AssignMission(am, this.OwnerEmpire, Target.data.Traits.Name);
                 Offense++;
             }
         }
@@ -673,15 +673,15 @@ namespace Ship_Game.AI {
         private void RunAgentManager()
         {
             float spyincomemodifer = .01f; // ((int)Empire.Universe.GameDifficulty + 1) * .0033f;
-            int income = (int) ((this.empire.Money * spyincomemodifer) *
-                                (1 - this.empire.data.TaxRate)); //-this.empire.GrossTaxes*5 );//* .2f);
-            if (income < 0 || this.empire.data.SpyBudget > this.empire.Money * .75f)
+            int income = (int) ((this.OwnerEmpire.Money * spyincomemodifer) *
+                                (1 - this.OwnerEmpire.data.TaxRate)); //-this.empire.GrossTaxes*5 );//* .2f);
+            if (income < 0 || this.OwnerEmpire.data.SpyBudget > this.OwnerEmpire.Money * .75f)
                 income = 0;
 
-            this.spyBudget = income + this.empire.data.SpyBudget;
-            this.empire.Money -= income;
+            this.spyBudget = income + this.OwnerEmpire.data.SpyBudget;
+            this.OwnerEmpire.Money -= income;
 
-            string name = empire.data.DiplomaticPersonality.Name;
+            string name = OwnerEmpire.data.DiplomaticPersonality.Name;
             if (spyBudget > 50 && name != null)
             {
                 switch (name)
@@ -709,7 +709,7 @@ namespace Ship_Game.AI {
                         break;
                 }
             }
-            this.empire.data.SpyBudget = this.spyBudget;
+            this.OwnerEmpire.data.SpyBudget = this.spyBudget;
             this.spyBudget = 0;
         }
     }
