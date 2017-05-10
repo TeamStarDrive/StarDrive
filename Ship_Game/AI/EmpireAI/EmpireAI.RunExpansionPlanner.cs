@@ -5,18 +5,18 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI {
-    public sealed partial class GSAI
+    public sealed partial class EmpireAI
     {
         private int desired_ColonyGoals = 2;
         private Array<Planet> DesiredPlanets = new Array<Planet>();
 
         public void CheckClaim(KeyValuePair<Empire, Relationship> Them, Planet claimedPlanet)
         {
-            if (this.empire == Empire.Universe.PlayerEmpire)
+            if (this.OwnerEmpire == Empire.Universe.PlayerEmpire)
             {
                 return;
             }
-            if (this.empire.isFaction)
+            if (this.OwnerEmpire.isFaction)
             {
                 return;
             }
@@ -38,36 +38,36 @@ namespace Ship_Game.AI {
                 }
                 if (TheyAreThereAlready && Them.Key == Empire.Universe.PlayerEmpire)
                 {
-                    Relationship item = empire.GetRelations(Them.Key);
+                    Relationship item = OwnerEmpire.GetRelations(Them.Key);
                     item.Anger_TerritorialConflict = item.Anger_TerritorialConflict +
                                                      (5f + (float) Math.Pow(5,
-                                                          (double) empire.GetRelations(Them.Key).NumberStolenClaims));
-                    empire.GetRelations(Them.Key).UpdateRelationship(this.empire, Them.Key);
-                    Relationship numberStolenClaims = empire.GetRelations(Them.Key);
+                                                          (double) OwnerEmpire.GetRelations(Them.Key).NumberStolenClaims));
+                    OwnerEmpire.GetRelations(Them.Key).UpdateRelationship(this.OwnerEmpire, Them.Key);
+                    Relationship numberStolenClaims = OwnerEmpire.GetRelations(Them.Key);
                     numberStolenClaims.NumberStolenClaims = numberStolenClaims.NumberStolenClaims + 1;
-                    if (empire.GetRelations(Them.Key).NumberStolenClaims == 1 && !empire.GetRelations(Them.Key)
+                    if (OwnerEmpire.GetRelations(Them.Key).NumberStolenClaims == 1 && !OwnerEmpire.GetRelations(Them.Key)
                             .StolenSystems.Contains(claimedPlanet.guid))
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                             Empire.Universe.PlayerEmpire, "Stole Claim", claimedPlanet.system));
                     }
-                    else if (empire.GetRelations(Them.Key).NumberStolenClaims == 2 &&
-                             !empire.GetRelations(Them.Key).HaveWarnedTwice && !empire.GetRelations(Them.Key)
+                    else if (OwnerEmpire.GetRelations(Them.Key).NumberStolenClaims == 2 &&
+                             !OwnerEmpire.GetRelations(Them.Key).HaveWarnedTwice && !OwnerEmpire.GetRelations(Them.Key)
                                  .StolenSystems.Contains(claimedPlanet.system.guid))
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                             Empire.Universe.PlayerEmpire, "Stole Claim 2", claimedPlanet.system));
-                        empire.GetRelations(Them.Key).HaveWarnedTwice = true;
+                        OwnerEmpire.GetRelations(Them.Key).HaveWarnedTwice = true;
                     }
-                    else if (empire.GetRelations(Them.Key).NumberStolenClaims >= 3 &&
-                             !empire.GetRelations(Them.Key).HaveWarnedThrice && !empire.GetRelations(Them.Key)
+                    else if (OwnerEmpire.GetRelations(Them.Key).NumberStolenClaims >= 3 &&
+                             !OwnerEmpire.GetRelations(Them.Key).HaveWarnedThrice && !OwnerEmpire.GetRelations(Them.Key)
                                  .StolenSystems.Contains(claimedPlanet.system.guid))
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                             Empire.Universe.PlayerEmpire, "Stole Claim 3", claimedPlanet.system));
-                        empire.GetRelations(Them.Key).HaveWarnedThrice = true;
+                        OwnerEmpire.GetRelations(Them.Key).HaveWarnedThrice = true;
                     }
-                    empire.GetRelations(Them.Key).StolenSystems.Add(claimedPlanet.system.guid);
+                    OwnerEmpire.GetRelations(Them.Key).StolenSystems.Add(claimedPlanet.system.guid);
                 }
             }
         }
@@ -92,15 +92,15 @@ namespace Ship_Game.AI {
                 }
             }
             if (numColonyGoals < this.desired_ColonyGoals +
-                (this.empire.data.EconomicPersonality != null
-                    ? this.empire.data.EconomicPersonality.ColonyGoalsPlus
+                (this.OwnerEmpire.data.EconomicPersonality != null
+                    ? this.OwnerEmpire.data.EconomicPersonality.ColonyGoalsPlus
                     : 0)) //
             {
                 Planet toMark = null;
                 float DistanceInJumps = 0;
                 Vector2 WeightedCenter = new Vector2();
                 int numPlanets = 0;
-                foreach (Planet p in this.empire.GetPlanets())
+                foreach (Planet p in this.OwnerEmpire.GetPlanets())
                 {
                     for (int i = 0; (float) i < p.Population / 1000f; i++)
                     {
@@ -115,20 +115,20 @@ namespace Ship_Game.AI {
                 {
                     //added by gremlin make non offensive races act like it.
                     bool systemOK = true;
-                    if (!this.empire.isFaction && this.empire.data != null &&
-                        this.empire.data.DiplomaticPersonality != null
+                    if (!this.OwnerEmpire.isFaction && this.OwnerEmpire.data != null &&
+                        this.OwnerEmpire.data.DiplomaticPersonality != null
                         && !(
-                            (this.empire.AllRelations.Where(war => war.Value.AtWar).Count() > 0 &&
-                             this.empire.data.DiplomaticPersonality.Name != "Honorable")
-                            || this.empire.data.DiplomaticPersonality.Name == "Agressive"
-                            || this.empire.data.DiplomaticPersonality.Name == "Ruthless"
-                            || this.empire.data.DiplomaticPersonality.Name == "Cunning")
+                            (this.OwnerEmpire.AllRelations.Where(war => war.Value.AtWar).Count() > 0 &&
+                             this.OwnerEmpire.data.DiplomaticPersonality.Name != "Honorable")
+                            || this.OwnerEmpire.data.DiplomaticPersonality.Name == "Agressive"
+                            || this.OwnerEmpire.data.DiplomaticPersonality.Name == "Ruthless"
+                            || this.OwnerEmpire.data.DiplomaticPersonality.Name == "Cunning")
                     )
                     {
                         foreach (Empire enemy in s.OwnerList)
                         {
-                            if (enemy != this.empire && !enemy.isFaction &&
-                                !this.empire.GetRelations(enemy).Treaty_Alliance)
+                            if (enemy != this.OwnerEmpire && !enemy.isFaction &&
+                                !this.OwnerEmpire.GetRelations(enemy).Treaty_Alliance)
                             {
                                 systemOK = false;
 
@@ -137,11 +137,11 @@ namespace Ship_Game.AI {
                         }
                     }
                     if (!systemOK) continue;
-                    if (!s.ExploredDict[this.empire])
+                    if (!s.ExploredDict[this.OwnerEmpire])
                     {
                         continue;
                     }
-                    float str = this.ThreatMatrix.PingRadarStr(s.Position, 300000f, this.empire, true);
+                    float str = this.ThreatMatrix.PingRadarStr(s.Position, 300000f, this.OwnerEmpire, true);
                     if (str > 0f)
                     {
                         //Log.Info("Colonization ignored in " + s.Name + " Incorrect pin str :" +str.ToString() );
@@ -162,11 +162,11 @@ namespace Ship_Game.AI {
                         {
                             continue;
                         }
-                        str = this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire);
+                        str = this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.OwnerEmpire);
                         if (str > 0)
                             continue;
                         IOrderedEnumerable<AO> sorted =
-                            from ao in this.empire.GetGSAI().AreasOfOperations
+                            from ao in this.OwnerEmpire.GetGSAI().AreasOfOperations
                             orderby Vector2.Distance(planetList.Position, ao.Position)
                             select ao;
                         if (sorted.Count<AO>() > 0)
@@ -186,7 +186,7 @@ namespace Ship_Game.AI {
                         }
 
 
-                        if (planetList.ExploredDict[this.empire]
+                        if (planetList.ExploredDict[this.OwnerEmpire]
                             && planetList.habitable
                             && planetList.Owner == null)
                         {
@@ -201,7 +201,7 @@ namespace Ship_Game.AI {
                             }
                             r2.planet = planetList;
 //Cyberbernetic planet picker
-                            if (this.empire.data.Traits.Cybernetic != 0)
+                            if (this.OwnerEmpire.data.Traits.Cybernetic != 0)
                             {
                                 r2.PV = (commodities + planetList.MineralRichness + planetList.MaxPopulation / 1000f) /
                                         DistanceInJumps;
@@ -217,8 +217,8 @@ namespace Ship_Game.AI {
 
                             if (planetList.Type == "Barren"
                                 && commodities > 0
-                                || this.empire.GetBDict()["Biospheres"]
-                                || this.empire.data.Traits.Cybernetic != 0
+                                || this.OwnerEmpire.GetBDict()["Biospheres"]
+                                || this.OwnerEmpire.data.Traits.Cybernetic != 0
                             )
                             {
                                 ranker.Add(r2);
@@ -226,17 +226,17 @@ namespace Ship_Game.AI {
                             else if (planetList.Type != "Barren"
                                      && commodities > 0
                                      || ((double) planetList.Fertility >= .5f ||
-                                         (this.empire.data.Traits.Cybernetic != 0 &&
+                                         (this.OwnerEmpire.data.Traits.Cybernetic != 0 &&
                                           (double) planetList.MineralRichness >= .5f))
-                                     || (this.empire.GetTDict()["Aeroponics"].Unlocked))
+                                     || (this.OwnerEmpire.GetTDict()["Aeroponics"].Unlocked))
                                 //|| (this.empire.data.Traits.Cybernetic != 0 && this.empire.GetBDict()["Biospheres"]))
                             {
                                 ranker.Add(r2);
                             }
                             else if (planetList.Type != "Barren")
                             {
-                                if (this.empire.data.Traits.Cybernetic == 0)
-                                    foreach (Planet food in this.empire.GetPlanets())
+                                if (this.OwnerEmpire.data.Traits.Cybernetic == 0)
+                                    foreach (Planet food in this.OwnerEmpire.GetPlanets())
                                     {
                                         if (food.FoodHere > food.MAX_STORAGE * .7f &&
                                             food.fs == Planet.GoodState.EXPORT)
@@ -249,7 +249,7 @@ namespace Ship_Game.AI {
                                 {
                                     if (planetList.MineralRichness < .5f)
                                     {
-                                        foreach (Planet food in this.empire.GetPlanets())
+                                        foreach (Planet food in this.OwnerEmpire.GetPlanets())
                                         {
                                             if (food.ProductionHere > food.MAX_STORAGE * .7f ||
                                                 food.ps == Planet.GoodState.EXPORT)
@@ -266,11 +266,11 @@ namespace Ship_Game.AI {
                                 }
                             }
                         }
-                        if (!planetList.ExploredDict[this.empire]
+                        if (!planetList.ExploredDict[this.OwnerEmpire]
                             || !planetList.habitable
-                            || planetList.Owner == this.empire
-                            || this.empire == EmpireManager.Player
-                            && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
+                            || planetList.Owner == this.OwnerEmpire
+                            || this.OwnerEmpire == EmpireManager.Player
+                            && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.OwnerEmpire) > 0f)
                         {
                             continue;
                         }
@@ -284,7 +284,7 @@ namespace Ship_Game.AI {
                             DistanceInJumps = 1f;
                         }
                         r.planet = planetList;
-                        if (this.empire.data.Traits.Cybernetic != 0)
+                        if (this.OwnerEmpire.data.Traits.Cybernetic != 0)
                         {
                             r.PV = (commodities + planetList.MineralRichness + planetList.MaxPopulation / 1000f) /
                                    DistanceInJumps;
@@ -298,16 +298,16 @@ namespace Ship_Game.AI {
                         //if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
                         if (planetList.Type == "Barren"
                             && commodities > 0
-                            || this.empire.GetBDict()["Biospheres"]
-                            || this.empire.data.Traits.Cybernetic != 0)
+                            || this.OwnerEmpire.GetBDict()["Biospheres"]
+                            || this.OwnerEmpire.data.Traits.Cybernetic != 0)
 
                         {
                             if (!(planetList.Type != "Barren")
                                 || planetList.Fertility < .5f
-                                && !this.empire.GetTDict()["Aeroponics"].Unlocked
-                                && this.empire.data.Traits.Cybernetic == 0)
+                                && !this.OwnerEmpire.GetTDict()["Aeroponics"].Unlocked
+                                && this.OwnerEmpire.data.Traits.Cybernetic == 0)
                             {
-                                foreach (Planet food in this.empire.GetPlanets())
+                                foreach (Planet food in this.OwnerEmpire.GetPlanets())
                                 {
                                     if (food.FoodHere > food.MAX_STORAGE * .9f && food.fs == Planet.GoodState.EXPORT)
                                     {
@@ -388,7 +388,7 @@ namespace Ship_Game.AI {
                     }
                     if (ok)
                     {
-                        Goal cgoal = new Goal(toMark, this.empire)
+                        Goal cgoal = new Goal(toMark, this.OwnerEmpire)
                         {
                             GoalName = "MarkForColonization"
                         };
