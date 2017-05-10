@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
+// ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
 {
     [System.Runtime.InteropServices.Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
@@ -13,7 +13,7 @@ namespace Ship_Game.AI
 
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
-        private float BuildCapacity    = 0;
+        private float BuildCapacity;
         private readonly float MinimumWarpRange = GlobalStats.MinimumWarpRange;
         
         private readonly Empire OwnerEmpire;
@@ -126,7 +126,7 @@ namespace Ship_Game.AI
                 queryingShip.AI.OrderQueue.Clear();
                 return null;
             }
-            SolarSystem nearesttoHome = sortedList.OrderBy(furthest => Vector2.Distance(OwnerEmpire.GetWeightedCenter(), furthest.Position)).FirstOrDefault(); ;
+            SolarSystem nearesttoHome = sortedList.OrderBy(furthest => Vector2.Distance(OwnerEmpire.GetWeightedCenter(), furthest.Position)).FirstOrDefault();
             foreach (SolarSystem nearest in sortedList)
             {
                 if (nearest.CombatInSystem) continue;
@@ -162,7 +162,9 @@ namespace Ship_Game.AI
             
             float baseDefensePct = 0.1f;
             baseDefensePct = baseDefensePct + 0.15f * numWars;
-            if(toAdd .hasAssaultTransporter || toAdd.BombCount >0 || toAdd.HasTroopBay || toAdd.BaseStrength ==0 || toAdd.WarpThrust <= 0 || toAdd.GetStrength() < toAdd.BaseStrength || !toAdd.BaseCanWarp && !OwnerEmpire.GetForcePool().Contains(toAdd))
+            if(toAdd .hasAssaultTransporter || toAdd.BombCount >0 || toAdd.HasTroopBay || toAdd.BaseStrength <=0 
+                || toAdd.WarpThrust <= 0f || toAdd.GetStrength() < toAdd.BaseStrength || !toAdd.BaseCanWarp 
+                && !OwnerEmpire.GetForcePool().Contains(toAdd))
             {
                 OwnerEmpire.GetForcePool().Add(toAdd);
                 return;
@@ -182,7 +184,6 @@ namespace Ship_Game.AI
             AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Position));
             if (!area?.AddShip(toAdd) ?? false )
                 OwnerEmpire.GetForcePool().Add(toAdd);
-
         }
 
         private Vector2 FindAveragePosition(Empire e)
@@ -205,7 +206,8 @@ namespace Ship_Game.AI
             foreach (string platform in OwnerEmpire.structuresWeCanBuild)
             {
                 Ship orbitalDefense = ResourceManager.ShipsDict[platform];
-                if (platform != "Subspace Projector" && orbitalDefense.shipData.Role == ShipData.RoleName.platform && orbitalDefense.BaseStrength > 0)
+                if (platform != "Subspace Projector" && orbitalDefense.shipData.Role == ShipData.RoleName.platform 
+                    && orbitalDefense.BaseStrength > 0)
                     potentialSatellites.Add(orbitalDefense);
             }
             if (!potentialSatellites.Any())
@@ -220,13 +222,15 @@ namespace Ship_Game.AI
             foreach (string platform in OwnerEmpire.structuresWeCanBuild)
             {
                 Ship orbitalDefense = ResourceManager.ShipsDict[platform];
-                if (orbitalDefense.shipData.Role == ShipData.RoleName.station && (orbitalDefense.shipData.IsOrbitalDefense || !orbitalDefense.shipData.IsShipyard))                
+                if (orbitalDefense.shipData.Role == ShipData.RoleName.station 
+                    && (orbitalDefense.shipData.IsOrbitalDefense || !orbitalDefense.shipData.IsShipyard))                
                     potentialSatellites.Add(orbitalDefense);                
             }
             if (!potentialSatellites.Any())
                 return "";
-            int index = RandomMath.InRange((int)(potentialSatellites.Count()*.5f));
-            return potentialSatellites.OrderByDescending(tech=> tech.shipData.TechScore).ThenByDescending(stre=>stre.shipData.BaseStrength).Skip(index).FirstOrDefault().Name;
+            int index = RandomMath.InRange((int)(potentialSatellites.Count*.5f));
+            return potentialSatellites.OrderByDescending(tech=> tech.shipData.TechScore)
+                .ThenByDescending(stre=>stre.shipData.BaseStrength).Skip(index).FirstOrDefault()?.Name;
         }
         
         public float GetDistanceFromOurAO(Planet p)
@@ -238,7 +242,7 @@ namespace Ship_Game.AI
             if (!sortedList.Any())            
                 return 0f;
             
-            return Vector2.Distance(p.Position, sortedList.First<AO>().Position);
+            return Vector2.Distance(p.Position, sortedList.First().Position);
         }
         
         public void InitialzeAOsFromSave(UniverseData data)
@@ -251,7 +255,6 @@ namespace Ship_Game.AI
         public void ManageAOs()
         {
             Array<AO> aOs = new Array<AO>();
-            float empireStr = OwnerEmpire.currentMilitaryStrength;
             foreach (AO areasOfOperation in AreasOfOperations)
             {
                 
