@@ -618,7 +618,7 @@ namespace Ship_Game.AI {
                             continue;
                         if (this.empire.ShipsWeCanBuild.Contains(shortTermBest.Name))
                             continue;
-                        if (!this.shipIsGoodForGoals(shortTermBest))
+                        if (!this.ShipIsGoodForGoals(shortTermBest))
                             continue;
                         if (shortTermBest.shipData.techsNeeded.Intersect(useableTech).Count() == 0)
                             continue;
