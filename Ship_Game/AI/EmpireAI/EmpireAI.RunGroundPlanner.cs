@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Ship_Game.AI {
-    public sealed partial class GSAI
+    public sealed partial class EmpireAI
     {
         private void RunGroundPlanner()
         {
@@ -12,13 +12,13 @@ namespace Ship_Game.AI {
             float totalwanted = 0;
 
             IEnumerable<Troop> troopTemplates = ResourceManager.GetTroopTemplates()
-                .Where(t => empire.WeCanBuildTroop(t.Name))
+                .Where(t => OwnerEmpire.WeCanBuildTroop(t.Name))
                 .OrderBy(t => t.Cost);
             Troop lowCostTroop = troopTemplates.FirstOrDefault();
             Troop highCostTroop = troopTemplates.LastOrDefault();
             Troop troop = highCostTroop;
 
-            foreach (SolarSystem system in this.empire.GetOwnedSystems())
+            foreach (SolarSystem system in this.OwnerEmpire.GetOwnedSystems())
             {
                 SystemCommander defenseSystem = this.DefensiveCoordinator.DefenseDict[system];
                 //int planetcount = system.PlanetList.Where(planet => planet.Owner == empire).Count();
@@ -37,7 +37,7 @@ namespace Ship_Game.AI {
             }
             if (totalwanted / totalideal <= .1f)
                 return;
-            Planet targetBuild = this.empire.GetPlanets()
+            Planet targetBuild = this.OwnerEmpire.GetPlanets()
                 .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Research
                                  && planet.GetMaxProductionPotential() > 5
                                  && (planet.ProductionHere) - 2 * (planet.ConstructionQueue.Where(
@@ -52,7 +52,7 @@ namespace Ship_Game.AI {
                 return;
 
 
-            Goal g = new Goal(troop, this.empire, targetBuild);
+            Goal g = new Goal(troop, this.OwnerEmpire, targetBuild);
             this.Goals.Add(g);
         }
     }

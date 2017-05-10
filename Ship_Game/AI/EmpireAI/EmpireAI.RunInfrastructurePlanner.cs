@@ -3,13 +3,13 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI {
-    public sealed partial class GSAI
+    public sealed partial class EmpireAI
     {
         private SolarSystem FindBestRoadOrigin(SolarSystem Origin, SolarSystem Destination)
         {
             SolarSystem Closest = Origin;
             Array<SolarSystem> ConnectedToOrigin = new Array<SolarSystem>();
-            foreach (SpaceRoad road in this.empire.SpaceRoadsList)
+            foreach (SpaceRoad road in this.OwnerEmpire.SpaceRoadsList)
             {
                 if (road.GetOrigin() != Origin)
                 {
@@ -36,20 +36,20 @@ namespace Ship_Game.AI {
         private void RunInfrastructurePlanner()
         {
             //if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
-            float sspBudget = this.empire.Money * (.01f * (1.025f - this.empire.data.TaxRate));
-            if (sspBudget < 0 || this.empire.data.SSPBudget > this.empire.Money * .1)
+            float sspBudget = this.OwnerEmpire.Money * (.01f * (1.025f - this.OwnerEmpire.data.TaxRate));
+            if (sspBudget < 0 || this.OwnerEmpire.data.SSPBudget > this.OwnerEmpire.Money * .1)
             {
                 sspBudget = 0;
             }
             else
             {
-                this.empire.Money -= sspBudget;
-                this.empire.data.SSPBudget += sspBudget;
+                this.OwnerEmpire.Money -= sspBudget;
+                this.OwnerEmpire.data.SSPBudget += sspBudget;
             }
-            sspBudget = this.empire.data.SSPBudget * .1f;
+            sspBudget = this.OwnerEmpire.data.SSPBudget * .1f;
             float roadMaintenance = 0;
-            float nodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(this.empire);
-            foreach (SpaceRoad roadBudget in this.empire.SpaceRoadsList)
+            float nodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(this.OwnerEmpire);
+            foreach (SpaceRoad roadBudget in this.OwnerEmpire.SpaceRoadsList)
             {
                 if (roadBudget.NumberOfProjectors == 0)
                     roadBudget.NumberOfProjectors = roadBudget.RoadNodesList.Count;
@@ -83,24 +83,24 @@ namespace Ship_Game.AI {
 
                 {
                     UnderConstruction = UnderConstruction +
-                                        ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.empire);
+                                        ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.OwnerEmpire);
                 }
             }
             sspBudget -= UnderConstruction;
             if (sspBudget > nodeMaintenance * 2) //- nodeMaintenance * 5
             {
-                foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
+                foreach (SolarSystem ownedSystem in this.OwnerEmpire.GetOwnedSystems())
                     //ReaderWriterLockSlim roadlock = new ReaderWriterLockSlim();
                     //Parallel.ForEach(this.empire.GetOwnedSystems(), ownedSystem =>
                 {
                     IOrderedEnumerable<SolarSystem> sortedList =
-                        from otherSystem in this.empire.GetOwnedSystems()
+                        from otherSystem in this.OwnerEmpire.GetOwnedSystems()
                         orderby Vector2.Distance(otherSystem.Position, ownedSystem.Position)
                         select otherSystem;
                     int devLevelos = 0;
                     foreach (Planet p in ownedSystem.PlanetList)
                     {
-                        if (p.Owner != this.empire)
+                        if (p.Owner != this.OwnerEmpire)
                             continue;
                         //if (p.ps != Planet.GoodState.EXPORT && p.fs != Planet.GoodState.EXPORT)
                         //    continue;
@@ -118,7 +118,7 @@ namespace Ship_Game.AI {
                         int devLevel = devLevelos;
                         bool createRoad = true;
                         //roadlock.EnterReadLock();
-                        foreach (SpaceRoad road in this.empire.SpaceRoadsList)
+                        foreach (SpaceRoad road in this.OwnerEmpire.SpaceRoadsList)
                         {
                             if (road.GetOrigin() != ownedSystem && road.GetDestination() != ownedSystem)
                             {
@@ -129,7 +129,7 @@ namespace Ship_Game.AI {
                         // roadlock.ExitReadLock();
                         foreach (Planet p in Origin.PlanetList)
                         {
-                            if (p.Owner != this.empire)
+                            if (p.Owner != this.OwnerEmpire)
                                 continue;
                             devLevel += p.developmentLevel;
                         }
@@ -137,7 +137,7 @@ namespace Ship_Game.AI {
                         {
                             continue;
                         }
-                        SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.empire, sspBudget, nodeMaintenance);
+                        SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.OwnerEmpire, sspBudget, nodeMaintenance);
 
                         //roadlock.EnterWriteLock();
                         if (sspBudget <= 0 || newRoad.NumberOfProjectors == 0 || newRoad.NumberOfProjectors > devLevel)
@@ -148,15 +148,15 @@ namespace Ship_Game.AI {
                         sspBudget -= newRoad.NumberOfProjectors * nodeMaintenance;
                         UnderConstruction += newRoad.NumberOfProjectors * nodeMaintenance;
 
-                        this.empire.SpaceRoadsList.Add(newRoad);
+                        this.OwnerEmpire.SpaceRoadsList.Add(newRoad);
                         // roadlock.ExitWriteLock();
                     }
                 } //);
             }
-            sspBudget = this.empire.data.SSPBudget - roadMaintenance - UnderConstruction;
+            sspBudget = this.OwnerEmpire.data.SSPBudget - roadMaintenance - UnderConstruction;
             Array<SpaceRoad> ToRemove = new Array<SpaceRoad>();
             //float income = this.empire.Money +this.empire.GrossTaxes; //this.empire.EstimateIncomeAtTaxRate(0.25f) +
-            foreach (SpaceRoad road in this.empire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
+            foreach (SpaceRoad road in this.OwnerEmpire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
             {
                 if (road.RoadNodesList.Count == 0 || sspBudget <= 0.0f) // || road.NumberOfProjectors ==0)
                 {
@@ -192,8 +192,8 @@ namespace Ship_Game.AI {
 
                 RoadNode ssp = road.RoadNodesList.Where(notNull => notNull != null && notNull.Platform != null)
                     .FirstOrDefault();
-                if ((ssp != null && (!road.GetOrigin().OwnerList.Contains(this.empire) ||
-                                     !road.GetDestination().OwnerList.Contains(this.empire))))
+                if ((ssp != null && (!road.GetOrigin().OwnerList.Contains(this.OwnerEmpire) ||
+                                     !road.GetDestination().OwnerList.Contains(this.OwnerEmpire))))
                 {
                     ToRemove.Add(road);
                     sspBudget += road.NumberOfProjectors * nodeMaintenance;
@@ -217,8 +217,8 @@ namespace Ship_Game.AI {
                             addNew = false;
                             break;
                         }
-                        using (empire.BorderNodes.AcquireReadLock())
-                            foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
+                        using (OwnerEmpire.BorderNodes.AcquireReadLock())
+                            foreach (Empire.InfluenceNode bordernode in OwnerEmpire.BorderNodes)
                             {
                                 float sizecheck = Vector2.Distance(node.Position, bordernode.Position);
                                 sizecheck += !(bordernode.SourceObject is Ship) ? Empire.ProjectorRadius : 0;
@@ -227,15 +227,15 @@ namespace Ship_Game.AI {
                                 addNew = false;
                                 break;
                             }
-                        if (addNew) Goals.Add(new Goal(node.Position, "Subspace Projector", empire));
+                        if (addNew) Goals.Add(new Goal(node.Position, "Subspace Projector", OwnerEmpire));
                     }
                 }
             }
-            if (this.empire != Empire.Universe.player)
+            if (this.OwnerEmpire != Empire.Universe.player)
             {
                 foreach (SpaceRoad road in ToRemove)
                 {
-                    this.empire.SpaceRoadsList.Remove(road);
+                    this.OwnerEmpire.SpaceRoadsList.Remove(road);
                     foreach (RoadNode node in road.RoadNodesList)
                     {
                         if (node.Platform != null && node.Platform.Active
@@ -254,7 +254,7 @@ namespace Ship_Game.AI {
                                 continue;
                             }
                             this.Goals.QueuePendingRemoval(g);
-                            foreach (Planet p in this.empire.GetPlanets())
+                            foreach (Planet p in this.OwnerEmpire.GetPlanets())
                             {
                                 foreach (QueueItem qi in p.ConstructionQueue)
                                 {
@@ -274,8 +274,8 @@ namespace Ship_Game.AI {
                                 p.ConstructionQueue.ApplyPendingRemovals();
                             }
 
-                            using (empire.GetShips().AcquireReadLock())
-                                foreach (Ship ship in this.empire.GetShips())
+                            using (OwnerEmpire.GetShips().AcquireReadLock())
+                                foreach (Ship ship in this.OwnerEmpire.GetShips())
                                 {
                                     ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
 
@@ -291,7 +291,7 @@ namespace Ship_Game.AI {
                         }
                         this.Goals.ApplyPendingRemovals();
                     }
-                    this.empire.SpaceRoadsList.Remove(road);
+                    this.OwnerEmpire.SpaceRoadsList.Remove(road);
                 }
             }
         }
