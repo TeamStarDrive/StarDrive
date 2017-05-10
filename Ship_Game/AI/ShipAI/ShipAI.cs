@@ -256,7 +256,7 @@ namespace Ship_Game.AI
             Planet targetPlanet = goal.TargetPlanet;
             targetPlanet.ProductionHere = targetPlanet.ProductionHere + Owner.GetCost(Owner.loyalty) / 2f;
             Owner.QueueTotalRemoval();
-            Owner.loyalty.GetGSAI().recyclepool++;
+            Owner.loyalty.GetGSAI().Recyclepool++;
         }
 
         public void Update(float elapsedTime)
