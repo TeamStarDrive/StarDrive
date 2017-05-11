@@ -256,6 +256,7 @@ namespace Ship_Game
             supply,
             freighter,
             troop,
+            Support,
             fighter,
             scout,
             gunboat,
