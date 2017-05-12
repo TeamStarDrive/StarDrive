@@ -29,16 +29,16 @@ namespace Ship_Game.AI {
                     if (OwnerEmpire.data.DiplomaticPersonality != null &&
                         OwnerEmpire.data.DiplomaticPersonality.Name == "Honorable")
                     {
-                        amount = 60f;
-                        offer.RejectDL = "HelpUS_War_No_BreakAlliance";
-                        OwnerEmpire.GetRelations(ally).Treaty_Alliance = false;
-                        ally.GetRelations(OwnerEmpire).Treaty_Alliance = false;
+                        amount                                            = 60f;
+                        offer.RejectDL                                    = "HelpUS_War_No_BreakAlliance";
+                        OwnerEmpire.GetRelations(ally).Treaty_Alliance    = false;
+                        ally.GetRelations(OwnerEmpire).Treaty_Alliance    = false;
                         OwnerEmpire.GetRelations(ally).Treaty_OpenBorders = false;
-                        OwnerEmpire.GetRelations(ally).Treaty_NAPact = false;
+                        OwnerEmpire.GetRelations(ally).Treaty_NAPact      = false;
                     }
-                    Relationship item = OwnerEmpire.GetRelations(ally);
-                    item.Trust = item.Trust - amount;
-                    Relationship angerDiplomaticConflict = OwnerEmpire.GetRelations(ally);
+                    Relationship item                                = OwnerEmpire.GetRelations(ally);
+                    item.Trust                                       = item.Trust - amount;
+                    Relationship angerDiplomaticConflict             = OwnerEmpire.GetRelations(ally);
                     angerDiplomaticConflict.Anger_DiplomaticConflict =
                         angerDiplomaticConflict.Anger_DiplomaticConflict + amount;
                 })
@@ -341,7 +341,7 @@ namespace Ship_Game.AI {
         }
 
         // ReSharper disable once UnusedMember.Local 
-        // Lets thing about using this
+        // Lets think about using this
         private void FightBrutalWar(KeyValuePair<Empire, Relationship> r)
         {
             var invasionTargets = new Array<Planet>();
