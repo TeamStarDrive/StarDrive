@@ -71,9 +71,8 @@ namespace Ship_Game.AI {
 
             float atWarBonus = 0.05f;
             if (OwnerEmpire.Money > 500f)
-                atWarBonus += (offenseNeeded * (0.03f + OwnerEmpire.getResStrat().MilitaryPriority * .03f));
-            float capacity =
-                OwnerEmpire.Grossincome() * (.25f + atWarBonus) - underConstruction;
+                atWarBonus        += (offenseNeeded * (0.03f + OwnerEmpire.getResStrat().MilitaryPriority * .03f));
+            float capacity         = OwnerEmpire.Grossincome() * (.25f + atWarBonus) - underConstruction;
             float allowableDeficit = -(OwnerEmpire.Money * .05f) * atWarBonus;
 
             if (capacity > BuildCapacity)
@@ -149,7 +148,7 @@ namespace Ship_Game.AI {
                                 g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
                                 Goals.QueuePendingRemoval(g);
                                 added += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
-                                flag = true;
+                                flag   = true;
                                 break;
                             }
                             if (flag)
@@ -305,7 +304,7 @@ namespace Ship_Game.AI {
 
                     using (TaskList.AcquireReadLock())
                     {
-                        foreach (var mt in TaskList)
+                        foreach (MilitaryTask mt in TaskList)
                         {
                             if ((mt.type != MilitaryTask.TaskType.DefendClaim
                                  && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies)
@@ -433,7 +432,7 @@ namespace Ship_Game.AI {
                 {
                     if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().system))
                     {
-                        var dobreak = false;
+                        bool dobreak = false;
                         foreach (KeyValuePair<Guid, Planet> entry in Empire.Universe.PlanetsDict)
                         {
                             if (task.GetTargetPlanet() != entry.Value)                            
