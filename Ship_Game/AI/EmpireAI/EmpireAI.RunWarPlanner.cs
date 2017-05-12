@@ -376,17 +376,15 @@ namespace Ship_Game.AI {
                 }
                 if (ok)
                 {
-                    MilitaryTask invadeTask = new MilitaryTask(target, OwnerEmpire);
-                    //lock (GlobalStats.TaskLocker)
+                    var invadeTask = new MilitaryTask(target, OwnerEmpire);
                     {
                         TaskList.Add(invadeTask);
                     }
                 }
             }
-            Array<Planet> planetsWeAreInvading = new Array<Planet>();
-            //lock (GlobalStats.TaskLocker)
+            var planetsWeAreInvading = new Array<Planet>();
             {
-                TaskList.ForEach(task => //foreach (MilitaryTask task in TaskList)
+                TaskList.ForEach(task =>
                 {
                     if (task.type != MilitaryTask.TaskType.AssaultPlanet || task.GetTargetPlanet().Owner == null ||
                         task.GetTargetPlanet().Owner != r.Key)
@@ -415,8 +413,7 @@ namespace Ship_Game.AI {
                         break;
                     }
                     planetsWeAreInvading.Add(p);
-                    MilitaryTask invade = new MilitaryTask(p, OwnerEmpire);
-                    //lock (GlobalStats.TaskLocker)
+                    var invade = new MilitaryTask(p, OwnerEmpire);
                     {
                         TaskList.Add(invade);
                     }
@@ -452,9 +449,9 @@ namespace Ship_Game.AI {
                                       : 0));
                     s = new Array<SolarSystem>();
 
-                    for (int index = 0; index < Enumerable.Count(orderedEnumerable1); ++index)
+                    for (int x = 0; x < orderedEnumerable1.Count(); ++x)
                     {
-                        Planet p = orderedEnumerable1.ElementAt(index);
+                        Planet p = orderedEnumerable1.ElementAt(x);
                         if (s.Count > warWeight)
                             break;
 
@@ -462,8 +459,6 @@ namespace Ship_Game.AI {
                         {
                             s.Add(p.ParentSystem);
                         }
-                        //if(s.Count >2)
-                        //    break;
                         list1.Add(p);
                     }
                     foreach (Planet planet in list1)
@@ -548,7 +543,7 @@ namespace Ship_Game.AI {
                         task.AORadius = 75000f;
                         task.SetTargetPlanet(planet);
                         task.TargetPlanetGuid = planet.guid;
-                        task.type = MilitaryTask.TaskType.DefendClaim;
+                        task.type             = MilitaryTask.TaskType.DefendClaim;
                         TaskList.Add(task);
                     }
                     break;
@@ -566,10 +561,10 @@ namespace Ship_Game.AI {
         public void GetWarDeclaredOnUs(Empire warDeclarant, WarType wt)
         {
             Relationship relations = OwnerEmpire.GetRelations(warDeclarant);
-            relations.AtWar = true;
-            relations.FedQuest = null;
-            relations.Posture = Posture.Hostile;
-            relations.ActiveWar = new War(OwnerEmpire, warDeclarant, Empire.Universe.StarDate)
+            relations.AtWar        = true;
+            relations.FedQuest     = null;
+            relations.Posture      = Posture.Hostile;
+            relations.ActiveWar    = new War(OwnerEmpire, warDeclarant, Empire.Universe.StarDate)
             {
                 WarType = wt
             };
@@ -703,7 +698,7 @@ namespace Ship_Game.AI {
                                     task.AORadius = 75000f;
                                     task.SetTargetPlanet(planet);
                                     task.TargetPlanetGuid = planet.guid;
-                                    task.type = MilitaryTask.TaskType.DefendClaim;
+                                    task.type             = MilitaryTask.TaskType.DefendClaim;
                                     TaskList.Add(task);
                                 }
                             }
@@ -770,8 +765,8 @@ namespace Ship_Game.AI {
                                     task.AORadius = 75000f;
                                     task.SetTargetPlanet(planet);
                                     task.TargetPlanetGuid = planet.guid;
-                                    task.type = MilitaryTask.TaskType.DefendClaim;
-                                    task.EnemyStrength = 0;
+                                    task.type             = MilitaryTask.TaskType.DefendClaim;
+                                    task.EnemyStrength    = 0;
                                     {
                                         TaskList.Add(task);
                                     }
