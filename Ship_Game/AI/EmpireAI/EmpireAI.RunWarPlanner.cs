@@ -4,56 +4,57 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
+// ReSharper disable once CheckNamespace
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
     {
-        public void CallAllyToWar(Empire Ally, Empire Enemy)
+        public void CallAllyToWar(Empire ally, Empire enemy)
         {
-            Offer offer = new Offer()
+            var offer = new Offer()
             {
                 AcceptDL = "HelpUS_War_Yes",
                 RejectDL = "HelpUS_War_No"
             };
-            string dialogue = "HelpUS_War";
-            Offer OurOffer = new Offer()
+            const string dialogue = "HelpUS_War";
+            var ourOffer = new Offer()
             {
-                ValueToModify = new Ref<bool>(() => Ally.GetRelations(Enemy).AtWar, (bool x) =>
+                ValueToModify = new Ref<bool>(() => ally.GetRelations(enemy).AtWar, x =>
                 {
                     if (x)
                     {
-                        Ally.GetGSAI().DeclareWarOnViaCall(Enemy, WarType.ImperialistWar);
+                        ally.GetGSAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar);
                         return;
                     }
-                    float Amount = 30f;
-                    if (this.OwnerEmpire.data.DiplomaticPersonality != null &&
-                        this.OwnerEmpire.data.DiplomaticPersonality.Name == "Honorable")
+                    float amount = 30f;
+                    if (OwnerEmpire.data.DiplomaticPersonality != null &&
+                        OwnerEmpire.data.DiplomaticPersonality.Name == "Honorable")
                     {
-                        Amount = 60f;
+                        amount = 60f;
                         offer.RejectDL = "HelpUS_War_No_BreakAlliance";
-                        this.OwnerEmpire.GetRelations(Ally).Treaty_Alliance = false;
-                        Ally.GetRelations(this.OwnerEmpire).Treaty_Alliance = false;
-                        this.OwnerEmpire.GetRelations(Ally).Treaty_OpenBorders = false;
-                        this.OwnerEmpire.GetRelations(Ally).Treaty_NAPact = false;
+                        OwnerEmpire.GetRelations(ally).Treaty_Alliance = false;
+                        ally.GetRelations(OwnerEmpire).Treaty_Alliance = false;
+                        OwnerEmpire.GetRelations(ally).Treaty_OpenBorders = false;
+                        OwnerEmpire.GetRelations(ally).Treaty_NAPact = false;
                     }
-                    Relationship item = this.OwnerEmpire.GetRelations(Ally);
-                    item.Trust = item.Trust - Amount;
-                    Relationship angerDiplomaticConflict = this.OwnerEmpire.GetRelations(Ally);
+                    Relationship item = OwnerEmpire.GetRelations(ally);
+                    item.Trust = item.Trust - amount;
+                    Relationship angerDiplomaticConflict = OwnerEmpire.GetRelations(ally);
                     angerDiplomaticConflict.Anger_DiplomaticConflict =
-                        angerDiplomaticConflict.Anger_DiplomaticConflict + Amount;
+                        angerDiplomaticConflict.Anger_DiplomaticConflict + amount;
                 })
             };
-            if (Ally == Empire.Universe.PlayerEmpire)
+            if (ally == Empire.Universe.PlayerEmpire)
             {
-                Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
-                    Empire.Universe.PlayerEmpire, dialogue, OurOffer, offer, Enemy));
+                Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
+                    Empire.Universe.PlayerEmpire, dialogue, ourOffer, offer, enemy));
             }
         }
 
         public void DeclareWarFromEvent(Empire them, WarType wt)
         {
-            OwnerEmpire.GetRelations(them).AtWar = true;
-            OwnerEmpire.GetRelations(them).Posture = Posture.Hostile;
-            OwnerEmpire.GetRelations(them).ActiveWar = new War(this.OwnerEmpire, them, Empire.Universe.StarDate)
+            OwnerEmpire.GetRelations(them).AtWar     = true;
+            OwnerEmpire.GetRelations(them).Posture   = Posture.Hostile;
+            OwnerEmpire.GetRelations(them).ActiveWar = new War(OwnerEmpire, them, Empire.Universe.StarDate)
             {
                 WarType = wt
             };
@@ -62,44 +63,46 @@ namespace Ship_Game.AI {
                 OwnerEmpire.GetRelations(them).Trust = 0f;
             }
             OwnerEmpire.GetRelations(them).Treaty_OpenBorders = false;
-            OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-            OwnerEmpire.GetRelations(them).Treaty_Trade = false;
-            OwnerEmpire.GetRelations(them).Treaty_Alliance = false;
-            OwnerEmpire.GetRelations(them).Treaty_Peace = false;
-            them.GetGSAI().GetWarDeclaredOnUs(this.OwnerEmpire, wt);
+            OwnerEmpire.GetRelations(them).Treaty_NAPact      = false;
+            OwnerEmpire.GetRelations(them).Treaty_Trade       = false;
+            OwnerEmpire.GetRelations(them).Treaty_Alliance    = false;
+            OwnerEmpire.GetRelations(them).Treaty_Peace       = false;
+            them.GetGSAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
         public void DeclareWarOn(Empire them, WarType wt)
         {
-            OwnerEmpire.GetRelations(them).PreparingForWar = false;
-            if (this.OwnerEmpire.isFaction || this.OwnerEmpire.data.Defeated || (them.data.Defeated || them.isFaction))
+            Relationship ourRelations = OwnerEmpire.GetRelations(them);
+            Relationship theirRelations = them.GetRelations(OwnerEmpire );
+            ourRelations.PreparingForWar = false;
+            if (OwnerEmpire.isFaction || OwnerEmpire.data.Defeated || (them.data.Defeated || them.isFaction))
                 return;
-            OwnerEmpire.GetRelations(them).FedQuest = (FederationQuest) null;
-            if (this.OwnerEmpire == Empire.Universe.PlayerEmpire && OwnerEmpire.GetRelations(them).Treaty_NAPact)
+            ourRelations.FedQuest = null;
+            if (OwnerEmpire == Empire.Universe.PlayerEmpire && ourRelations.Treaty_NAPact)
             {
-                OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-                foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.OwnerEmpire.AllRelations)
+                ourRelations.Treaty_NAPact = false;
+                foreach (var kv in OwnerEmpire.AllRelations)
                 {
-                    if (keyValuePair.Key != them)
+                    if (kv.Key != them)
                     {
-                        keyValuePair.Key.GetRelations(this.OwnerEmpire).Trust -= 50f;
-                        keyValuePair.Key.GetRelations(this.OwnerEmpire).Anger_DiplomaticConflict += 20f;
-                        keyValuePair.Key.GetRelations(this.OwnerEmpire).UpdateRelationship(keyValuePair.Key, this.OwnerEmpire);
+                        kv.Key.GetRelations(OwnerEmpire).Trust                    -= 50f;
+                        kv.Key.GetRelations(OwnerEmpire).Anger_DiplomaticConflict += 20f;
+                        kv.Key.GetRelations(OwnerEmpire).UpdateRelationship(kv.Key, OwnerEmpire);
                     }
                 }
-                them.GetRelations(this.OwnerEmpire).Trust -= 50f;
-                them.GetRelations(this.OwnerEmpire).Anger_DiplomaticConflict += 50f;
-                them.GetRelations(this.OwnerEmpire).UpdateRelationship(them, this.OwnerEmpire);
+                theirRelations.Trust                    -= 50f;
+                theirRelations.Anger_DiplomaticConflict += 50f;
+                theirRelations.UpdateRelationship(them, OwnerEmpire);
             }
-            if (them == Empire.Universe.PlayerEmpire && !OwnerEmpire.GetRelations(them).AtWar)
+            if (them == Empire.Universe.PlayerEmpire && !ourRelations.AtWar)
             {
                 switch (wt)
                 {
                     case WarType.BorderConflict:
-                        if (OwnerEmpire.GetRelations(them).contestedSystemGuid != Guid.Empty)
+                        if (ourRelations.contestedSystemGuid != Guid.Empty)
                         {
                             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War BC TarSys", OwnerEmpire.GetRelations(them).GetContestedSystem()));
+                                "Declare War BC TarSys", ourRelations.GetContestedSystem()));
                             break;
                         }
                         else
@@ -109,19 +112,19 @@ namespace Ship_Game.AI {
                             break;
                         }
                     case WarType.ImperialistWar:
-                        if (OwnerEmpire.GetRelations(them).Treaty_NAPact)
+                        if (ourRelations.Treaty_NAPact)
                         {
                             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
                                 "Declare War Imperialism Break NA"));
-                            using (var enumerator = this.OwnerEmpire.AllRelations.GetEnumerator())
+                            using (var enumerator = OwnerEmpire.AllRelations.GetEnumerator())
                             {
                                 while (enumerator.MoveNext())
                                 {
-                                    KeyValuePair<Empire, Relationship> current = enumerator.Current;
-                                    if (current.Key != them)
+                                    var kv = enumerator.Current;
+                                    if (kv.Key != them)
                                     {
-                                        current.Value.Trust -= 50f;
-                                        current.Value.Anger_DiplomaticConflict += 20f;
+                                        kv.Value.Trust                    -= 50f;
+                                        kv.Value.Anger_DiplomaticConflict += 20f;
                                     }
                                 }
                                 break;
@@ -134,71 +137,76 @@ namespace Ship_Game.AI {
                             break;
                         }
                     case WarType.DefensiveWar:
-                        if (!OwnerEmpire.GetRelations(them).Treaty_NAPact)
+                        if (!ourRelations.Treaty_NAPact)
                         {
                             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
                                 "Declare War Defense"));
-                            OwnerEmpire.GetRelations(them).Anger_DiplomaticConflict += 25f;
-                            OwnerEmpire.GetRelations(them).Trust -= 25f;
+                            ourRelations.Anger_DiplomaticConflict += 25f;
+                            ourRelations.Trust                    -= 25f;
                             break;
                         }
-                        else if (OwnerEmpire.GetRelations(them).Treaty_NAPact)
+                        else if (ourRelations.Treaty_NAPact)
                         {
                             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
                                 "Declare War Defense BrokenNA"));
-                            OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-                            foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.OwnerEmpire.AllRelations)
+                            ourRelations.Treaty_NAPact = false;
+                            foreach (var kv in OwnerEmpire.AllRelations)
                             {
-                                if (keyValuePair.Key != them)
+                                if (kv.Key != them)
                                 {
-                                    keyValuePair.Value.Trust -= 50f;
-                                    keyValuePair.Value.Anger_DiplomaticConflict += 20f;
+                                    kv.Value.Trust                    -= 50f;
+                                    kv.Value.Anger_DiplomaticConflict += 20f;
                                 }
                             }
-                            OwnerEmpire.GetRelations(them).Trust -= 50f;
-                            OwnerEmpire.GetRelations(them).Anger_DiplomaticConflict += 50f;
+                            ourRelations.Trust                    -= 50f;
+                            ourRelations.Anger_DiplomaticConflict += 50f;
                             break;
                         }
                         else
                             break;
+                    case WarType.GenocidalWar:
+                        break;
+                    case WarType.SkirmishWar:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(wt), wt, null);
                 }
             }
-            if (them == Empire.Universe.PlayerEmpire || this.OwnerEmpire == Empire.Universe.PlayerEmpire)
-                Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.OwnerEmpire, them);
+            if (them == Empire.Universe.PlayerEmpire || OwnerEmpire == Empire.Universe.PlayerEmpire)
+                Empire.Universe.NotificationManager.AddWarDeclaredNotification(OwnerEmpire, them);
             else if (Empire.Universe.PlayerEmpire.GetRelations(them).Known &&
-                     Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Known)
-                Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.OwnerEmpire, them);
-            OwnerEmpire.GetRelations(them).AtWar = true;
-            OwnerEmpire.GetRelations(them).Posture = Posture.Hostile;
-            OwnerEmpire.GetRelations(them).ActiveWar = new War(this.OwnerEmpire, them, Empire.Universe.StarDate);
-            OwnerEmpire.GetRelations(them).ActiveWar.WarType = wt;
-            if (OwnerEmpire.GetRelations(them).Trust > 0f)
-                OwnerEmpire.GetRelations(them).Trust = 0.0f;
-            OwnerEmpire.GetRelations(them).Treaty_OpenBorders = false;
-            OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-            OwnerEmpire.GetRelations(them).Treaty_Trade = false;
-            OwnerEmpire.GetRelations(them).Treaty_Alliance = false;
-            OwnerEmpire.GetRelations(them).Treaty_Peace = false;
-            them.GetGSAI().GetWarDeclaredOnUs(this.OwnerEmpire, wt);
+                     Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Known)
+                Empire.Universe.NotificationManager.AddWarDeclaredNotification(OwnerEmpire, them);
+            ourRelations.AtWar             = true;
+            ourRelations.Posture           = Posture.Hostile;
+            ourRelations.ActiveWar = new War(OwnerEmpire, them, Empire.Universe.StarDate) {WarType = wt};
+            if (ourRelations.Trust > 0f)
+                ourRelations.Trust          = 0.0f;
+            ourRelations.Treaty_OpenBorders = false;
+            ourRelations.Treaty_NAPact      = false;
+            ourRelations.Treaty_Trade       = false;
+            ourRelations.Treaty_Alliance    = false;
+            ourRelations.Treaty_Peace       = false;
+            them.GetGSAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
         public void DeclareWarOnViaCall(Empire them, WarType wt)
         {
             OwnerEmpire.GetRelations(them).PreparingForWar = false;
-            if (this.OwnerEmpire.isFaction || this.OwnerEmpire.data.Defeated || them.data.Defeated || them.isFaction)
+            if (OwnerEmpire.isFaction || OwnerEmpire.data.Defeated || them.data.Defeated || them.isFaction)
             {
                 return;
             }
             OwnerEmpire.GetRelations(them).FedQuest = null;
-            if (this.OwnerEmpire == Empire.Universe.PlayerEmpire && OwnerEmpire.GetRelations(them).Treaty_NAPact)
+            if (OwnerEmpire == Empire.Universe.PlayerEmpire && OwnerEmpire.GetRelations(them).Treaty_NAPact)
             {
-                OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-                Relationship item = them.GetRelations(this.OwnerEmpire);
-                item.Trust = item.Trust - 50f;
-                Relationship angerDiplomaticConflict = them.GetRelations(this.OwnerEmpire);
+                OwnerEmpire.GetRelations(them).Treaty_NAPact     = false;
+                Relationship item                                = them.GetRelations(OwnerEmpire);
+                item.Trust                                       = item.Trust - 50f;
+                Relationship angerDiplomaticConflict             = them.GetRelations(OwnerEmpire);
                 angerDiplomaticConflict.Anger_DiplomaticConflict =
                     angerDiplomaticConflict.Anger_DiplomaticConflict + 50f;
-                them.GetRelations(this.OwnerEmpire).UpdateRelationship(them, this.OwnerEmpire);
+                them.GetRelations(OwnerEmpire).UpdateRelationship(them, OwnerEmpire);
             }
             if (them == Empire.Universe.PlayerEmpire && !OwnerEmpire.GetRelations(them).AtWar)
             {
@@ -212,12 +220,9 @@ namespace Ship_Game.AI {
                                 "Declare War BC"));
                             break;
                         }
-                        else
-                        {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War BC Tarsys", OwnerEmpire.GetRelations(them).GetContestedSystem()));
-                            break;
-                        }
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
+                            "Declare War BC Tarsys", OwnerEmpire.GetRelations(them).GetContestedSystem()));
+                        break;
                     }
                     case WarType.ImperialistWar:
                     {
@@ -227,12 +232,9 @@ namespace Ship_Game.AI {
                                 "Declare War Imperialism"));
                             break;
                         }
-                        else
-                        {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Imperialism Break NA"));
-                            break;
-                        }
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
+                            "Declare War Imperialism Break NA"));
+                        break;
                     }
                     case WarType.DefensiveWar:
                     {
@@ -245,37 +247,43 @@ namespace Ship_Game.AI {
                             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
                                 "Declare War Defense BrokenNA"));
                             OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-                            Relationship trust = OwnerEmpire.GetRelations(them);
-                            trust.Trust = trust.Trust - 50f;
-                            Relationship relationship = OwnerEmpire.GetRelations(them);
-                            relationship.Anger_DiplomaticConflict = relationship.Anger_DiplomaticConflict + 50f;
+                            Relationship trust                           = OwnerEmpire.GetRelations(them);
+                            trust.Trust                                  = trust.Trust - 50f;
+                            Relationship relationship                    = OwnerEmpire.GetRelations(them);
+                            relationship.Anger_DiplomaticConflict        = relationship.Anger_DiplomaticConflict + 50f;
                             break;
                         }
                         else
                         {
                             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
                                 "Declare War Defense"));
-                            Relationship item1 = OwnerEmpire.GetRelations(them);
+                            Relationship item1             = OwnerEmpire.GetRelations(them);
                             item1.Anger_DiplomaticConflict = item1.Anger_DiplomaticConflict + 25f;
-                            Relationship trust1 = OwnerEmpire.GetRelations(them);
-                            trust1.Trust = trust1.Trust - 25f;
+                            Relationship trust1            = OwnerEmpire.GetRelations(them);
+                            trust1.Trust                   = trust1.Trust - 25f;
                             break;
                         }
                     }
+                    case WarType.GenocidalWar:
+                        break;
+                    case WarType.SkirmishWar:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(wt), wt, null);
                 }
             }
-            if (them == Empire.Universe.PlayerEmpire || this.OwnerEmpire == Empire.Universe.PlayerEmpire)
+            if (them == Empire.Universe.PlayerEmpire || OwnerEmpire == Empire.Universe.PlayerEmpire)
             {
-                Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.OwnerEmpire, them);
+                Empire.Universe.NotificationManager.AddWarDeclaredNotification(OwnerEmpire, them);
             }
             else if (Empire.Universe.PlayerEmpire.GetRelations(them).Known &&
-                     Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Known)
+                     Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Known)
             {
-                Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.OwnerEmpire, them);
+                Empire.Universe.NotificationManager.AddWarDeclaredNotification(OwnerEmpire, them);
             }
-            OwnerEmpire.GetRelations(them).AtWar = true;
-            OwnerEmpire.GetRelations(them).Posture = Posture.Hostile;
-            OwnerEmpire.GetRelations(them).ActiveWar = new War(this.OwnerEmpire, them, Empire.Universe.StarDate)
+            OwnerEmpire.GetRelations(them).AtWar     = true;
+            OwnerEmpire.GetRelations(them).Posture   = Posture.Hostile;
+            OwnerEmpire.GetRelations(them).ActiveWar = new War(OwnerEmpire, them, Empire.Universe.StarDate)
             {
                 WarType = wt
             };
@@ -284,29 +292,29 @@ namespace Ship_Game.AI {
                 OwnerEmpire.GetRelations(them).Trust = 0f;
             }
             OwnerEmpire.GetRelations(them).Treaty_OpenBorders = false;
-            OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-            OwnerEmpire.GetRelations(them).Treaty_Trade = false;
-            OwnerEmpire.GetRelations(them).Treaty_Alliance = false;
-            OwnerEmpire.GetRelations(them).Treaty_Peace = false;
-            them.GetGSAI().GetWarDeclaredOnUs(this.OwnerEmpire, wt);
+            OwnerEmpire.GetRelations(them).Treaty_NAPact      = false;
+            OwnerEmpire.GetRelations(them).Treaty_Trade       = false;
+            OwnerEmpire.GetRelations(them).Treaty_Alliance    = false;
+            OwnerEmpire.GetRelations(them).Treaty_Peace       = false;
+            them.GetGSAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
         public void EndWarFromEvent(Empire them)
         {
-            this.OwnerEmpire.GetRelations(them).AtWar = false;
-            them.GetRelations(this.OwnerEmpire).AtWar = false;
+            OwnerEmpire.GetRelations(them).AtWar = false;
+            them.GetRelations(OwnerEmpire).AtWar = false;
             //lock (GlobalStats.TaskLocker)
             {
-                this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
+                TaskList.ForEach(task => //foreach (MilitaryTask task in TaskList)
                 {
-                    if (this.OwnerEmpire.GetFleetsDict().ContainsKey(task.WhichFleet) &&
-                        this.OwnerEmpire.data.Traits.Name == "Corsairs")
+                    if (OwnerEmpire.GetFleetsDict().ContainsKey(task.WhichFleet) &&
+                        OwnerEmpire.data.Traits.Name == "Corsairs")
                     {
                         bool foundhome = false;
-                        foreach (Ship ship in this.OwnerEmpire.GetShips())
+                        foreach (Ship ship in OwnerEmpire.GetShips())
                         {
-                            if (!(ship.shipData.Role == ShipData.RoleName.station) &&
-                                !(ship.shipData.Role == ShipData.RoleName.platform))
+                            if (ship.shipData.Role != ShipData.RoleName.station &&
+                                ship.shipData.Role != ShipData.RoleName.platform)
                             {
                                 continue;
                             }
@@ -320,7 +328,7 @@ namespace Ship_Game.AI {
                         }
                         if (!foundhome)
                         {
-                            foreach (Ship ship in this.OwnerEmpire.GetFleetsDict()[task.WhichFleet].Ships)
+                            foreach (Ship ship in OwnerEmpire.GetFleetsDict()[task.WhichFleet].Ships)
                             {
                                 ship.AI.OrderQueue.Clear();
                                 ship.AI.State = AIState.AwaitingOrders;
@@ -328,87 +336,89 @@ namespace Ship_Game.AI {
                         }
                     }
                     task.EndTaskWithMove();
-                }, false, false, false);
+                }, false, false);
             }
         }
 
+        // ReSharper disable once UnusedMember.Local 
+        // Lets thing about using this
         private void FightBrutalWar(KeyValuePair<Empire, Relationship> r)
         {
-            Array<Planet> InvasionTargets = new Array<Planet>();
-            foreach (Planet p in this.OwnerEmpire.GetPlanets())
+            var invasionTargets = new Array<Planet>();
+            foreach (Planet p in OwnerEmpire.GetPlanets())
             {
                 foreach (Planet toCheck in p.system.PlanetList)
                 {
-                    if (toCheck.Owner == null || toCheck.Owner == this.OwnerEmpire || !toCheck.Owner.isFaction &&
-                        !this.OwnerEmpire.GetRelations(toCheck.Owner).AtWar)
+                    if (toCheck.Owner == null || toCheck.Owner == OwnerEmpire || !toCheck.Owner.isFaction &&
+                        !OwnerEmpire.GetRelations(toCheck.Owner).AtWar)
                     {
                         continue;
                     }
-                    InvasionTargets.Add(toCheck);
+                    invasionTargets.Add(toCheck);
                 }
             }
-            if (InvasionTargets.Count > 0)
+            if (invasionTargets.Count > 0)
             {
-                Planet target = InvasionTargets[0];
-                bool OK = true;
+                Planet target = invasionTargets[0];
+                bool ok = true;
 
                 using (TaskList.AcquireReadLock())
                 {
-                    foreach (MilitaryTask task in this.TaskList)
+                    foreach (MilitaryTask task in TaskList)
                     {
                         if (task.GetTargetPlanet() != target)
                         {
                             continue;
                         }
-                        OK = false;
+                        ok = false;
                         break;
                     }
                 }
-                if (OK)
+                if (ok)
                 {
-                    MilitaryTask InvadeTask = new MilitaryTask(target, this.OwnerEmpire);
+                    MilitaryTask invadeTask = new MilitaryTask(target, OwnerEmpire);
                     //lock (GlobalStats.TaskLocker)
                     {
-                        this.TaskList.Add(InvadeTask);
+                        TaskList.Add(invadeTask);
                     }
                 }
             }
-            Array<Planet> PlanetsWeAreInvading = new Array<Planet>();
+            Array<Planet> planetsWeAreInvading = new Array<Planet>();
             //lock (GlobalStats.TaskLocker)
             {
-                this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
+                TaskList.ForEach(task => //foreach (MilitaryTask task in TaskList)
                 {
                     if (task.type != MilitaryTask.TaskType.AssaultPlanet || task.GetTargetPlanet().Owner == null ||
                         task.GetTargetPlanet().Owner != r.Key)
                     {
                         return;
                     }
-                    PlanetsWeAreInvading.Add(task.GetTargetPlanet());
-                }, false, false, false);
+                    planetsWeAreInvading.Add(task.GetTargetPlanet());
+                }, false, false);
             }
-            if (PlanetsWeAreInvading.Count < 3 && this.OwnerEmpire.GetPlanets().Count > 0)
+            if (planetsWeAreInvading.Count < 3 && OwnerEmpire.GetPlanets().Count > 0)
             {
-                Vector2 vector2 = this.FindAveragePosition(this.OwnerEmpire);
-                this.FindAveragePosition(r.Key);
+                Vector2 vector2 = FindAveragePosition(OwnerEmpire);
+                FindAveragePosition(r.Key);
                 IOrderedEnumerable<Planet> sortedList =
                     from planet in r.Key.GetPlanets()
                     orderby Vector2.Distance(vector2, planet.Position)
                     select planet;
                 foreach (Planet p in sortedList)
                 {
-                    if (PlanetsWeAreInvading.Contains(p))
+                    if (planetsWeAreInvading.Contains(p))
                     {
                         continue;
                     }
-                    if (PlanetsWeAreInvading.Count >= 3)
+                    if (planetsWeAreInvading.Count >= 3)
                     {
                         break;
                     }
-                    PlanetsWeAreInvading.Add(p);
-                    MilitaryTask invade = new MilitaryTask(p, this.OwnerEmpire);
+                    planetsWeAreInvading.Add(p);
+                    MilitaryTask invade = new MilitaryTask(p, OwnerEmpire);
                     //lock (GlobalStats.TaskLocker)
                     {
-                        this.TaskList.Add(invade);
+                        TaskList.Add(invade);
                     }
                 }
             }
@@ -416,11 +426,11 @@ namespace Ship_Game.AI {
 
         private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
         {
-            float warWeight = 1 + this.OwnerEmpire.getResStrat().ExpansionPriority +
-                              this.OwnerEmpire.getResStrat().MilitaryPriority;
-            foreach (MilitaryTask item_0 in (Array<MilitaryTask>) this.TaskList)
+            float warWeight = 1 + OwnerEmpire.getResStrat().ExpansionPriority +
+                              OwnerEmpire.getResStrat().MilitaryPriority;
+            foreach (MilitaryTask militaryTask in TaskList)
             {
-                if (item_0.type == MilitaryTask.TaskType.AssaultPlanet)
+                if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
                 {
                     warWeight--;
                 }
@@ -432,20 +442,19 @@ namespace Ship_Game.AI {
             switch (r.Value.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
-                    Array<Planet> list1 = new Array<Planet>();
-                    IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy(r.Key.GetPlanets(),
-                        (Func<Planet, float>) (planet => this.GetDistanceFromOurAO(planet) / 150000 +
-                                                         (r.Key.GetGSAI()
-                                                             .DefensiveCoordinator.DefenseDict
-                                                             .TryGetValue(planet.ParentSystem, out scom)
-                                                             ? scom.RankImportance
-                                                             : 0)));
-                    int x = (int) UniverseData.UniverseWidth;
+                    var list1 = new Array<Planet>();
+                    IOrderedEnumerable<Planet> orderedEnumerable1 = r.Key.GetPlanets()
+                        .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
+                                  (r.Key.GetGSAI()
+                                      .DefensiveCoordinator.DefenseDict
+                                      .TryGetValue(planet.ParentSystem, out scom)
+                                      ? scom.RankImportance
+                                      : 0));
                     s = new Array<SolarSystem>();
 
                     for (int index = 0; index < Enumerable.Count(orderedEnumerable1); ++index)
                     {
-                        Planet p = Enumerable.ElementAt(orderedEnumerable1, index);
+                        Planet p = orderedEnumerable1.ElementAt(index);
                         if (s.Count > warWeight)
                             break;
 
@@ -480,21 +489,19 @@ namespace Ship_Game.AI {
                     }
                     break;
                 case WarType.ImperialistWar:
-                    Array<Planet> list2 = new Array<Planet>();
-                    IOrderedEnumerable<Planet> orderedEnumerable2 = Enumerable.OrderBy<Planet, float>(
-                        (IEnumerable<Planet>) r.Key.GetPlanets(),
-                        (Func<Planet, float>) (planet => this.GetDistanceFromOurAO(planet) / 150000 +
-                                                         (r.Key.GetGSAI()
-                                                             .DefensiveCoordinator.DefenseDict
-                                                             .TryGetValue(planet.ParentSystem, out scom)
-                                                             ? scom.RankImportance
-                                                             : 0)));
+                    var planets = new Array<Planet>();                    
+                    IOrderedEnumerable<Planet> importantPlanets = r.Key.GetPlanets().OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
+                                  (r.Key.GetGSAI()
+                                      .DefensiveCoordinator.DefenseDict
+                                      .TryGetValue(planet.ParentSystem, out scom)
+                                      ? scom.RankImportance
+                                      : 0));
                     s = new Array<SolarSystem>();
                     for (int index = 0;
-                        index < Enumerable.Count<Planet>((IEnumerable<Planet>) orderedEnumerable2);
+                        index < importantPlanets.Count();
                         ++index)
                     {
-                        Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>) orderedEnumerable2, index);
+                        Planet p = importantPlanets.ElementAt(index);
                         if (s.Count > warWeight)
                             break;
 
@@ -502,11 +509,9 @@ namespace Ship_Game.AI {
                         {
                             s.Add(p.ParentSystem);
                         }
-                        //if (s.Count > 2)
-                        //    break;
-                        list2.Add(p);
+                        planets.Add(p);
                     }
-                    foreach (Planet planet in list2)
+                    foreach (Planet planet in planets)
                     {
                         bool flag = true;
                         bool claim = false;
@@ -515,16 +520,16 @@ namespace Ship_Game.AI {
                             continue;
                         using (TaskList.AcquireReadLock())
                         {
-                            foreach (MilitaryTask item_1 in (Array<MilitaryTask>) this.TaskList)
+                            foreach (MilitaryTask militaryTask in TaskList)
                             {
-                                if (item_1.GetTargetPlanet() == planet)
+                                if (militaryTask.GetTargetPlanet() == planet)
                                 {
-                                    if (item_1.type == MilitaryTask.TaskType.AssaultPlanet)
+                                    if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
                                         flag = false;
-                                    if (item_1.type == MilitaryTask.TaskType.DefendClaim)
+                                    if (militaryTask.type == MilitaryTask.TaskType.DefendClaim)
                                     {
                                         claim = true;
-                                        if (item_1.Step == 2)
+                                        if (militaryTask.Step == 2)
                                             claimPressent = true;
                                     }
                                 }
@@ -532,29 +537,35 @@ namespace Ship_Game.AI {
                         }
                         if (flag && claimPressent)
                         {
-                            TaskList.Add(new MilitaryTask(planet, this.OwnerEmpire));
+                            TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
                         }
-                        if (!claim)
+                        if (claim) continue;
+                        var task = new MilitaryTask()
                         {
-                            MilitaryTask task = new MilitaryTask()
-                            {
-                                AO = planet.Position
-                            };
-                            task.SetEmpire(this.OwnerEmpire);
-                            task.AORadius = 75000f;
-                            task.SetTargetPlanet(planet);
-                            task.TargetPlanetGuid = planet.guid;
-                            task.type = MilitaryTask.TaskType.DefendClaim;
-                            TaskList.Add(task);
-                        }
+                            AO = planet.Position
+                        };
+                        task.SetEmpire(OwnerEmpire);
+                        task.AORadius = 75000f;
+                        task.SetTargetPlanet(planet);
+                        task.TargetPlanetGuid = planet.guid;
+                        task.type = MilitaryTask.TaskType.DefendClaim;
+                        TaskList.Add(task);
                     }
                     break;
+                case WarType.GenocidalWar:
+                    break;
+                case WarType.DefensiveWar:
+                    break;
+                case WarType.SkirmishWar:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
         public void GetWarDeclaredOnUs(Empire warDeclarant, WarType wt)
         {
-            var relations = OwnerEmpire.GetRelations(warDeclarant);
+            Relationship relations = OwnerEmpire.GetRelations(warDeclarant);
             relations.AtWar = true;
             relations.FedQuest = null;
             relations.Posture = Posture.Hostile;
@@ -572,17 +583,17 @@ namespace Ship_Game.AI {
                 }
             }
             if (relations.Trust > 0f)
-                relations.Trust = 0f;
-            relations.Treaty_Alliance = false;
-            relations.Treaty_NAPact = false;
+                relations.Trust          = 0f;
+            relations.Treaty_Alliance    = false;
+            relations.Treaty_NAPact      = false;
             relations.Treaty_OpenBorders = false;
-            relations.Treaty_Trade = false;
-            relations.Treaty_Peace = false;
+            relations.Treaty_Trade       = false;
+            relations.Treaty_Peace       = false;
         }
 
         public void OfferPeace(KeyValuePair<Empire, Relationship> relationship, string whichPeace)
         {
-            Offer offerPeace = new Offer()
+            var offerPeace = new Offer()
             {
                 PeaceTreaty = true,
                 AcceptDL = "OFFERPEACE_ACCEPTED",
@@ -593,7 +604,7 @@ namespace Ship_Game.AI {
             string dialogue = whichPeace;
             if (relationship.Key != Empire.Universe.PlayerEmpire)
             {
-                Offer ourOffer = new Offer {PeaceTreaty = true};
+                var ourOffer = new Offer {PeaceTreaty = true};
                 relationship.Key.GetGSAI().AnalyzeOffer(ourOffer, offerPeace, OwnerEmpire, Offer.Attitude.Respectful);
                 return;
             }
@@ -603,12 +614,12 @@ namespace Ship_Game.AI {
 
         private void RunWarPlanner()
         {
-            float warWeight = 1 + this.OwnerEmpire.getResStrat().ExpansionPriority +
-                              this.OwnerEmpire.getResStrat().MilitaryPriority;
+            float warWeight = 1 + OwnerEmpire.getResStrat().ExpansionPriority +
+                              OwnerEmpire.getResStrat().MilitaryPriority;
 
-            foreach (KeyValuePair<Empire, Relationship> r in this.OwnerEmpire.AllRelations.OrderByDescending(anger =>
+            foreach (var kv in OwnerEmpire.AllRelations.OrderByDescending(anger =>
                 {
-                    float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(), this.OwnerEmpire.GetWeightedCenter());
+                    float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(), OwnerEmpire.GetWeightedCenter());
                     angerMod = (Empire.Universe.UniverseRadius - angerMod) / UniverseData.UniverseWidth;
                     if (anger.Value.AtWar)
                         angerMod *= 100;
@@ -616,190 +627,171 @@ namespace Ship_Game.AI {
                 }
             ))
             {
-                if (warWeight > 0)
+                if (!(warWeight > 0)) continue;
+                if (kv.Key.isFaction)
+                {
+                    kv.Value.AtWar = false;
+                    continue;
+                }
+                warWeight--;
+                SystemCommander scom;
+                if (kv.Value.PreparingForWar)
+                {
+                    Array<SolarSystem> s;
+                    switch (kv.Value.PreparingForWarType)
+                    {
+                        case WarType.BorderConflict:
+                            Array<Planet> list1 = new Array<Planet>();
+                            s = new Array<SolarSystem>();
 
-                    if (r.Key.isFaction)
-                    {
-                        r.Value.AtWar = false;
-                    }
-                    else
-                    {
-                        warWeight--;
-                        SystemCommander scom;
-                        if (r.Value.PreparingForWar)
-                        {
-                            Array<SolarSystem> s;
-                            switch (r.Value.PreparingForWarType)
+                            IOrderedEnumerable<Planet> orderedEnumerable1 = kv.Key.GetPlanets()
+                                .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
+                                    (kv.Key.GetGSAI()
+                                        .DefensiveCoordinator.DefenseDict
+                                        .TryGetValue(planet.ParentSystem, out scom)
+                                        ? scom.RankImportance
+                                        : 0));
+                            for (int index = 0;
+                                index < orderedEnumerable1.Count();
+                                ++index)
                             {
-                                case WarType.BorderConflict:
-                                    Array<Planet> list1 = new Array<Planet>();
-                                    s = new Array<SolarSystem>();
-
-                                    IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>(
-                                        (IEnumerable<Planet>) r.Key.GetPlanets(),
-                                        (Func<Planet, float>) (planet => this.GetDistanceFromOurAO(planet) / 150000 +
-                                                                         (r.Key.GetGSAI()
-                                                                             .DefensiveCoordinator.DefenseDict
-                                                                             .TryGetValue(planet.ParentSystem, out scom)
-                                                                             ? scom.RankImportance
-                                                                             : 0)));
-                                    for (int index = 0;
-                                        index < Enumerable.Count<Planet>((IEnumerable<Planet>) orderedEnumerable1);
-                                        ++index)
-                                    {
-                                        Planet p =
-                                            Enumerable.ElementAt<Planet>((IEnumerable<Planet>) orderedEnumerable1,
-                                                index);
-                                        if (s.Count > warWeight)
-                                            break;
-
-                                        if (!s.Contains(p.ParentSystem))
-                                        {
-                                            s.Add(p.ParentSystem);
-                                        }
-
-                                        list1.Add(p);
-
-                                        //list1.Add(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index));
-                                        //if (index == 2)
-                                        //    break;
-                                    }
-                                    foreach (Planet planet in list1)
-                                    {
-                                        bool assault = true;
-                                        bool claim = false;
-                                        bool claimPresent = false;
-                                        //this.TaskList.thisLock.EnterReadLock();
-                                        {
-                                            //foreach (MilitaryTask item_0 in (Array<MilitaryTask>)this.TaskList)
-                                            this.TaskList.ForEach(item_0 =>
-                                            {
-                                                //if (!assault)
-                                                //    return;
-                                                if (item_0.GetTargetPlanet() == planet &&
-                                                    item_0.type == MilitaryTask.TaskType.AssaultPlanet)
-                                                {
-                                                    assault = false;
-                                                }
-                                                if (item_0.GetTargetPlanet() == planet &&
-                                                    item_0.type == MilitaryTask.TaskType.DefendClaim)
-                                                {
-                                                    if (item_0.Step == 2)
-                                                        claimPresent = true;
-                                                    //if (s.Contains(current.ParentSystem))
-                                                    //    s.Remove(current.ParentSystem);
-                                                    claim = true;
-                                                }
-                                            }, false, false, false);
-                                        }
-                                        //this.TaskList.thisLock.ExitReadLock();
-                                        if (assault && claimPresent)
-                                        {
-                                            TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
-                                        }
-                                        if (!claim)
-                                        {
-                                            MilitaryTask task = new MilitaryTask()
-                                            {
-                                                AO = planet.Position
-                                            };
-                                            task.SetEmpire(this.OwnerEmpire);
-                                            task.AORadius = 75000f;
-                                            task.SetTargetPlanet(planet);
-                                            task.TargetPlanetGuid = planet.guid;
-                                            task.type = MilitaryTask.TaskType.DefendClaim;
-                                            TaskList.Add(task);
-                                        }
-                                    }
+                                Planet p =
+                                    orderedEnumerable1.ElementAt(index);
+                                if (s.Count > warWeight)
                                     break;
-                                case WarType.ImperialistWar:
-                                    Array<Planet> list2 = new Array<Planet>();
-                                    s = new Array<SolarSystem>();
-                                    IOrderedEnumerable<Planet> orderedEnumerable2 = r.Key.GetPlanets()
-                                        .OrderBy(
-                                            (planet => GetDistanceFromOurAO(planet) / 150000 +
-                                                       (r.Key.GetGSAI()
-                                                           .DefensiveCoordinator.DefenseDict
-                                                           .TryGetValue(planet.ParentSystem, out scom)
-                                                           ? scom.RankImportance
-                                                           : 0)));
-                                    for (int index = 0; index < Enumerable.Count(orderedEnumerable2); ++index)
-                                    {
-                                        Planet p = Enumerable.ElementAt(orderedEnumerable2, index);
-                                        if (s.Count > warWeight)
-                                            break;
 
-                                        if (!s.Contains(p.ParentSystem))
-                                        {
-                                            s.Add(p.ParentSystem);
-                                        }
-                                        //if (s.Count > 2)
-                                        //    break;
-                                        list2.Add(p);
-                                    }
-                                    foreach (Planet planet in list2)
-                                    {
-                                        bool flag = true;
-                                        bool claim = false;
-                                        bool claimPresent = false;
-                                        //this.TaskList.thisLock.EnterReadLock();
-                                        {
-                                            // foreach (MilitaryTask item_1 in (Array<MilitaryTask>)this.TaskList)
-                                            this.TaskList.ForEach(item_1 =>
-                                            {
-                                                if (!flag && claim)
-                                                    return;
-                                                if (item_1.GetTargetPlanet() == planet &&
-                                                    item_1.type == MilitaryTask.TaskType.AssaultPlanet)
-                                                {
-                                                    flag = false;
-                                                }
-                                                if (item_1.GetTargetPlanet() == planet &&
-                                                    item_1.type == MilitaryTask.TaskType.DefendClaim)
-                                                {
-                                                    if (item_1.Step == 2)
-                                                        claimPresent = true;
+                                if (!s.Contains(p.ParentSystem))
+                                {
+                                    s.Add(p.ParentSystem);
+                                }
 
-                                                    claim = true;
-                                                }
-                                            }, false, false, false);
-                                        }
-                                        //  this.TaskList.thisLock.ExitReadLock();
-                                        if (flag && claimPresent)
-                                        {
-                                            TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
-                                        }
-                                        if (!claim)
-                                        {
-                                            // @todo This is repeated everywhere. Might cut down a lot of code by creating a function
-
-                                            //public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner)
-                                            MilitaryTask task = new MilitaryTask()
-                                            {
-                                                AO = planet.Position
-                                            };
-                                            task.SetEmpire(this.OwnerEmpire);
-                                            task.AORadius = 75000f;
-                                            task.SetTargetPlanet(planet);
-                                            task.TargetPlanetGuid = planet.guid;
-                                            task.type = MilitaryTask.TaskType.DefendClaim;
-                                            task.EnemyStrength = 0;
-                                            //lock (GlobalStats.TaskLocker)
-                                            {
-                                                TaskList.Add(task);
-                                            }
-                                        }
-                                    }
-                                    break;
+                                list1.Add(p);
                             }
-                        }
-                        if (r.Value.AtWar)
-                        {
-                            // int num = (int)this.empire.data.difficulty;
-                            this.FightDefaultWar(r);
-                        }
+                            foreach (Planet planet in list1)
+                            {
+                                bool assault      = true;
+                                bool claim        = false;
+                                bool claimPresent = false;
+                                {
+                                    TaskList.ForEach(task =>
+                                    {
+                                        if (task.GetTargetPlanet() == planet &&
+                                            task.type == MilitaryTask.TaskType.AssaultPlanet)
+                                        {
+                                            assault = false;
+                                        }
+                                        if (task.GetTargetPlanet() == planet &&
+                                            task.type == MilitaryTask.TaskType.DefendClaim)
+                                        {
+                                            if (task.Step == 2)
+                                                claimPresent = true;
+                                            claim = true;
+                                        }
+                                    }, false, false);
+                                }
+                                if (assault && claimPresent)
+                                {
+                                    TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
+                                }
+                                if (!claim)
+                                {
+                                    var task = new MilitaryTask()
+                                    {
+                                        AO = planet.Position
+                                    };
+                                    task.SetEmpire(OwnerEmpire);
+                                    task.AORadius = 75000f;
+                                    task.SetTargetPlanet(planet);
+                                    task.TargetPlanetGuid = planet.guid;
+                                    task.type = MilitaryTask.TaskType.DefendClaim;
+                                    TaskList.Add(task);
+                                }
+                            }
+                            break;
+                        case WarType.ImperialistWar:
+                            Array<Planet> list2 = new Array<Planet>();
+                            s = new Array<SolarSystem>();
+                            IOrderedEnumerable<Planet> orderedEnumerable2 = kv.Key.GetPlanets()
+                                .OrderBy(
+                                    (planet => GetDistanceFromOurAO(planet) / 150000 +
+                                               (kv.Key.GetGSAI()
+                                                   .DefensiveCoordinator.DefenseDict
+                                                   .TryGetValue(planet.ParentSystem, out scom)
+                                                   ? scom.RankImportance
+                                                   : 0)));
+                            for (int index = 0; index < orderedEnumerable2.Count(); ++index)
+                            {
+                                Planet p = orderedEnumerable2.ElementAt(index);
+                                if (s.Count > warWeight)
+                                    break;
+
+                                if (!s.Contains(p.ParentSystem))
+                                {
+                                    s.Add(p.ParentSystem);
+                                }
+                                list2.Add(p);
+                            }
+                            foreach (Planet planet in list2)
+                            {
+                                bool flag         = true;
+                                bool claim        = false;
+                                bool claimPresent = false;
+                                {
+                                    TaskList.ForEach(task =>
+                                    {
+                                        if (!flag && claim)
+                                            return;
+                                        if (task.GetTargetPlanet() == planet &&
+                                            task.type == MilitaryTask.TaskType.AssaultPlanet)
+                                        {
+                                            flag = false;
+                                        }
+                                        if (task.GetTargetPlanet() != planet ||
+                                            task.type != MilitaryTask.TaskType.DefendClaim) return;
+                                        if (task.Step == 2)
+                                            claimPresent = true;
+
+                                        claim = true;
+                                    }, false, false);
+                                }
+                                if (flag && claimPresent)
+                                {
+                                    TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
+                                }
+                                if (!claim)
+                                {
+                                    // @todo This is repeated everywhere. Might cut down a lot of code by creating a function
+
+                                    MilitaryTask task = new MilitaryTask()
+                                    {
+                                        AO = planet.Position
+                                    };
+                                    task.SetEmpire(OwnerEmpire);
+                                    task.AORadius = 75000f;
+                                    task.SetTargetPlanet(planet);
+                                    task.TargetPlanetGuid = planet.guid;
+                                    task.type = MilitaryTask.TaskType.DefendClaim;
+                                    task.EnemyStrength = 0;
+                                    {
+                                        TaskList.Add(task);
+                                    }
+                                }
+                            }
+                            break;
+                        case WarType.GenocidalWar:
+                            break;
+                        case WarType.DefensiveWar:
+                            break;
+                        case WarType.SkirmishWar:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
-                //warWeight--;
+                }
+                if (kv.Value.AtWar)
+                {
+                    FightDefaultWar(kv);
+                }
             }
         }
     }
