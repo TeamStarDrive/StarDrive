@@ -287,11 +287,11 @@ namespace Ship_Game
 
         private void CheckAndPowerConduit(SlotStruct slot)
         {
-            slot.module.Powered = true;
+            slot.Module.Powered = true;
             slot.CheckedConduits = true;
             foreach (SlotStruct ss in Slots)
             {
-                if (ss == slot || Math.Abs(slot.pq.X - ss.pq.X) / 16 + Math.Abs(slot.pq.Y - ss.pq.Y) / 16 != 1 || ss.module == null || ss.module.ModuleType != ShipModuleType.PowerConduit || ss.CheckedConduits)
+                if (ss == slot || Math.Abs(slot.PQ.X - ss.PQ.X) / 16 + Math.Abs(slot.PQ.Y - ss.PQ.Y) / 16 != 1 || ss.Module == null || ss.Module.ModuleType != ShipModuleType.PowerConduit || ss.CheckedConduits)
                     continue;
                 CheckAndPowerConduit(ss);
             }
@@ -305,7 +305,7 @@ namespace Ship_Game
             {
                 if (slot.ModuleUID == null)
                     emptySlots = false;
-                if (slot.ModuleUID == null || !slot.module.IsCommandModule)
+                if (slot.ModuleUID == null || !slot.Module.IsCommandModule)
                     continue;
                 hasBridge = true;
             }
@@ -320,12 +320,12 @@ namespace Ship_Game
             if (x == 0 && y == 0)
                 return false; // ignore self, {0,0} is offsetBase
 
-            int sx = offsetBase.pq.X + 16 * x;
-            int sy = offsetBase.pq.Y + 16 * y;
+            int sx = offsetBase.PQ.X + 16 * x;
+            int sy = offsetBase.PQ.Y + 16 * y;
             for (int i = 0; i < Slots.Count; ++i)
             {
                 SlotStruct s = Slots[i];
-                if (s.pq.X == sx && s.pq.Y == sy)
+                if (s.PQ.X == sx && s.PQ.Y == sy)
                 {
                     found = s;
                     return true;
@@ -344,14 +344,14 @@ namespace Ship_Game
                     if (!FindStructFromOffset(slot, x, y, out SlotStruct slot2))
                         continue;
 
-                    if (slot2.module != null)
+                    if (slot2.Module != null)
                         ClearParentSlot(slot2, addToAlteredSlots);
 
                     slot2.ModuleUID = null;
-                    slot2.tex       = null;
-                    slot2.module    = null;
-                    slot2.parent    = slot;
-                    slot2.state     = ActiveModuleState.Normal;
+                    slot2.Tex       = null;
+                    slot2.Module    = null;
+                    slot2.Parent    = slot;
+                    slot2.State     = ActiveModuleState.Normal;
                 }
             }
         }
@@ -366,43 +366,43 @@ namespace Ship_Game
             {
                 SlotStruct slot1 = new SlotStruct()
                 {
-                    pq            = parent.pq,
+                    PQ            = parent.PQ,
                     Restrictions  = parent.Restrictions,
-                    facing        = parent.facing,
+                    Facing        = parent.Facing,
                     ModuleUID     = parent.ModuleUID,
-                    module        = parent.module,
-                    state         = parent.state,
-                    slotReference = parent.slotReference
+                    Module        = parent.Module,
+                    State         = parent.State,
+                    SlotReference = parent.SlotReference
                 };
                 DesignStack.Peek().AlteredSlots.Add(slot1);
             }
 
-            for (int y = 0; y < parent.module.YSIZE; ++y)
+            for (int y = 0; y < parent.Module.YSIZE; ++y)
             {
-                for (int x = 0; x < parent.module.XSIZE; ++x)
+                for (int x = 0; x < parent.Module.XSIZE; ++x)
                 {
                     if (!FindStructFromOffset(parent, x, y, out SlotStruct slot2))
                         continue;
                     slot2.ModuleUID = null;
-                    slot2.tex       = null;
-                    slot2.module    = null;
-                    slot2.parent    = null;
-                    slot2.state     = ActiveModuleState.Normal;
+                    slot2.Tex       = null;
+                    slot2.Module    = null;
+                    slot2.Parent    = null;
+                    slot2.State     = ActiveModuleState.Normal;
                 }
             }
             //clear parent slot
             parent.ModuleUID = null;
-            parent.tex       = null;
-            parent.module    = null;
-            parent.parent    = null;
-            parent.state     = ActiveModuleState.Normal;
+            parent.Tex       = null;
+            parent.Module    = null;
+            parent.Parent    = null;
+            parent.State     = ActiveModuleState.Normal;
         }
         private void ClearParentSlotNoStack(SlotStruct parent) => ClearParentSlot(parent, false);   //Unused
 
         private void ClearSlot(SlotStruct slot, bool addToAlteredSlots = true)
         {   //this is the clearslot function actually used atm
             //only called from installmodule atm, not from manual module removal
-            if (slot.module != null)
+            if (slot.Module != null)
             {
                 ClearParentSlot(slot, addToAlteredSlots);
             }
@@ -412,10 +412,10 @@ namespace Ship_Game
                 //why would we want to clear an empty slot?
                 //might be used on initial load instead of a proper slot constructor
                 slot.ModuleUID = null;
-                slot.tex       = null;
-                slot.parent    = null;
-                slot.module    = null;
-                slot.state     = ActiveModuleState.Normal;
+                slot.Tex       = null;
+                slot.Parent    = null;
+                slot.Module    = null;
+                slot.State     = ActiveModuleState.Normal;
             }
         }
         private void ClearSlotNoStack(SlotStruct slot) => ClearSlot(slot, false);
@@ -584,17 +584,17 @@ namespace Ship_Game
             {
                 foreach (SlotStruct slot in this.Slots)
                 {
-                    if (slot.module != null)
+                    if (slot.Module != null)
                     {
-                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Modules/tile_concreteglass_1x1"], new Rectangle(slot.pq.enclosingRect.X, slot.pq.enclosingRect.Y, 16 * slot.module.XSIZE, 16 * slot.module.YSIZE), Color.Gray);
+                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.Texture("Modules/tile_concreteglass_1x1"), new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.Gray);
                     }
                     else
                     {
                         if (this.ActiveModule != null)
                         {
                             SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
-                            Texture2D item = Ship_Game.ResourceManager.TextureDict["Modules/tile_concreteglass_1x1"];
-                            Rectangle rectangle = slot.pq.enclosingRect;
+                            Texture2D item = Ship_Game.ResourceManager.Texture("Modules/tile_concreteglass_1x1");
+                            Rectangle rectangle = slot.PQ.enclosingRect;
                             if (slot.ShowValid)
                             {
                                 color = Color.LightGreen;
@@ -606,18 +606,18 @@ namespace Ship_Game
                             spriteBatch.Draw(item, rectangle, color);
                             if (slot.Powered)
                             {
-                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/tile_concreteglass_1x1"], slot.pq.enclosingRect, new Color(255, 255, 0, 150));
+                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/tile_concreteglass_1x1"), slot.PQ.enclosingRect, new Color(255, 255, 0, 150));
                             }
                         }
                         else if (slot.Powered)
                         {
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/tile_concreteglass_1x1"], slot.pq.enclosingRect, Color.Yellow);
+                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/tile_concreteglass_1x1"), slot.PQ.enclosingRect, Color.Yellow);
                         }
                         else
                         {
                             SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
-                            Texture2D texture2D = ResourceManager.TextureDict["Modules/tile_concreteglass_1x1"];
-                            Rectangle rectangle1 = slot.pq.enclosingRect;
+                            Texture2D texture2D = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
+                            Rectangle rectangle1 = slot.PQ.enclosingRect;
                             if (slot.ShowValid)
                             {
                                 lightGreen = Color.LightGreen;
@@ -629,441 +629,441 @@ namespace Ship_Game
                             spriteBatch1.Draw(texture2D, rectangle1, lightGreen);
                         }
                     }
-                    if (slot.module != null)
+                    if (slot.Module != null)
                         continue;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.pq.enclosingRect.X, (float)slot.pq.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
                 foreach (SlotStruct slot in this.Slots)
                 {
-                    if (slot.ModuleUID == null || slot.tex == null)
+                    if (slot.ModuleUID == null || slot.Tex == null)
                     {
                         continue;
                     }
-                    if (slot.state != ActiveModuleState.Normal)
+                    if (slot.State != ActiveModuleState.Normal)
                     {
                         Rectangle r = new Rectangle(
-                            slot.pq.enclosingRect.X, 
-                            slot.pq.enclosingRect.Y, 
-                            16 * slot.module.XSIZE, 
-                            16 * slot.module.YSIZE);
+                            slot.PQ.enclosingRect.X, 
+                            slot.PQ.enclosingRect.Y, 
+                            16 * slot.Module.XSIZE, 
+                            16 * slot.Module.YSIZE);
 
                         // @todo Simplify this
-                        switch (slot.state)
+                        switch (slot.State)
                         {
                             case ActiveModuleState.Left:
                             {
-                                int h = slot.module.YSIZE * 16;
-                                int w = slot.module.XSIZE * 16;
+                                int h = slot.Module.YSIZE * 16;
+                                int w = slot.Module.XSIZE * 16;
                                 r.Width  = h; // swap width & height
                                 r.Height = w;
                                 r.Y += h;
-                                ScreenManager.SpriteBatch.Draw(slot.tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                                 break;
                             }
                             case ActiveModuleState.Right:
                             {
-                                int w = slot.module.YSIZE * 16;
-                                int h = slot.module.XSIZE * 16;
+                                int w = slot.Module.YSIZE * 16;
+                                int h = slot.Module.XSIZE * 16;
                                 r.Width = w;
                                 r.Height = h;
                                 r.X += h;
-                                ScreenManager.SpriteBatch.Draw(slot.tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                                 break;
                             }
                             case ActiveModuleState.Rear:
                             {
-                                ScreenManager.SpriteBatch.Draw(slot.tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
+                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
                                 break;
                             }
                         }
                     }
-                    else if (slot.module.XSIZE <= 1 && slot.module.YSIZE <= 1)
+                    else if (slot.Module.XSIZE <= 1 && slot.Module.YSIZE <= 1)
                     {
-                        if (slot.module.ModuleType != ShipModuleType.PowerConduit)
+                        if (slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         {
-                            ScreenManager.SpriteBatch.Draw(slot.tex, slot.pq.enclosingRect, Color.White);
+                            ScreenManager.SpriteBatch.Draw(slot.Tex, slot.PQ.enclosingRect, Color.White);
                         }
                         else
                         {
                             string graphic = GetConduitGraphic(slot);
                             var conduitTex = ResourceManager.Texture("Conduits/" + graphic);
-                            ScreenManager.SpriteBatch.Draw(conduitTex, slot.pq.enclosingRect, Color.White);
-                            if (slot.module.Powered)
+                            ScreenManager.SpriteBatch.Draw(conduitTex, slot.PQ.enclosingRect, Color.White);
+                            if (slot.Module.Powered)
                             {
                                 var poweredTex = ResourceManager.Texture("Conduits/" + graphic + "_power");
-                                ScreenManager.SpriteBatch.Draw(poweredTex, slot.pq.enclosingRect, Color.White);
+                                ScreenManager.SpriteBatch.Draw(poweredTex, slot.PQ.enclosingRect, Color.White);
                             }
                         }
                     }
-                    else if (slot.slotReference.Position.X <= 256f)
+                    else if (slot.SlotReference.Position.X <= 256f)
                     {
-                        ScreenManager.SpriteBatch.Draw(slot.tex, new Rectangle(slot.pq.enclosingRect.X, slot.pq.enclosingRect.Y, 16 * slot.module.XSIZE, 16 * slot.module.YSIZE), Color.White);
+                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
                     }
                     else
                     {
-                        ScreenManager.SpriteBatch.Draw(slot.tex, new Rectangle(slot.pq.enclosingRect.X, slot.pq.enclosingRect.Y, 16 * slot.module.XSIZE, 16 * slot.module.YSIZE), null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
                     }
-                    if (slot.module != HoveredModule)
+                    if (slot.Module != HoveredModule)
                     {
                         continue;
                     }
-                    Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, new Rectangle(slot.pq.enclosingRect.X, slot.pq.enclosingRect.Y, 16 * slot.module.XSIZE, 16 * slot.module.YSIZE), Color.White, 2f);
+                    Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White, 2f);
                 }
                 foreach (SlotStruct slot in this.Slots)
                 {
-                    if (slot.ModuleUID == null || slot.tex == null || slot.module != this.HighlightedModule && !this.ShowAllArcs)
+                    if (slot.ModuleUID == null || slot.Tex == null || slot.Module != this.HighlightedModule && !this.ShowAllArcs)
                     {
                         continue;
                     }
-                    if (slot.module.shield_power_max > 0f)
+                    if (slot.Module.shield_power_max > 0f)
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
-                        DrawCircle(Center, slot.module.shield_radius, 50, Color.LightGreen);
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
+                        DrawCircle(Center, slot.Module.shield_radius, 50, Color.LightGreen);
                     }
 
 
                     // @todo Use this to fix the 'original' code below :)))
-                    var arcTexture = Empire.Universe.GetArcTexture(slot.module.FieldOfFire);
+                    var arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
 
                     //Original by The Doctor, modified by McShooterz
-                    if (slot.module.FieldOfFire == 90f)
+                    if (slot.Module.FieldOfFire == 90f)
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(arcTexture, toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(arcTexture, toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }                       
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
-                    else if (slot.module.FieldOfFire == 15f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc15"))
+                    else if (slot.Module.FieldOfFire == 15f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc15"))
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
-                    else if (slot.module.FieldOfFire == 20f && ResourceManager.TextureDict.ContainsKey("Arcs/Arc20"))
+                    else if (slot.Module.FieldOfFire == 20f && ResourceManager.TextureDict.ContainsKey("Arcs/Arc20"))
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
-                    else if (slot.module.FieldOfFire == 45f && ResourceManager.TextureDict.ContainsKey("Arcs/Arc45"))
+                    else if (slot.Module.FieldOfFire == 45f && ResourceManager.TextureDict.ContainsKey("Arcs/Arc45"))
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
-                    else if (slot.module.FieldOfFire == 120f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc120"))
+                    else if (slot.Module.FieldOfFire == 120f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc120"))
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
-                    else if (slot.module.FieldOfFire == 60f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc60"))
+                    else if (slot.Module.FieldOfFire == 60f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc60"))
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
-                    else if (slot.module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc360"))
+                    else if (slot.Module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc360"))
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
-                    else if (slot.module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc180"))
+                    else if (slot.Module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc180"))
                     {
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
-                        if (slot.module.InstalledWeapon.Tag_Cannon && !slot.module.InstalledWeapon.Tag_Energy)
+                        if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable4, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Railgun || slot.module.InstalledWeapon.Tag_Subspace)
+                        else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (slot.module.InstalledWeapon.Tag_Cannon)
+                        else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
                             Color drawcolor = new Color(0, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable5, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.Module.InstalledWeapon.isBeam)
                         {
                             Color drawcolor = new Color(255, 0, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable6 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable6, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable6, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else
                         {
                             Color drawcolor = new Color(0, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable7 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable7, drawcolor, (float)slot.module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable7, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                     }
                     //Original by The Doctor, modified by McShooterz
                     else
                     {
-                        if (slot.module.FieldOfFire == 0f)
+                        if (slot.Module.FieldOfFire == 0f)
                         {
                             continue;
                         }
-                        float halfArc = slot.module.FieldOfFire / 2f;
-                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
-                        Vector2 leftArc  = Center.PointFromAngle(slot.module.Facing + -halfArc, 300f);
-                        Vector2 rightArc = Center.PointFromAngle(slot.module.Facing + halfArc, 300f);
+                        float halfArc = slot.Module.FieldOfFire / 2f;
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
+                        Vector2 leftArc  = Center.PointFromAngle(slot.Module.Facing + -halfArc, 300f);
+                        Vector2 rightArc = Center.PointFromAngle(slot.Module.Facing + halfArc, 300f);
                         Color arc = new Color(255, 165, 0, 100);
                         Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
                         Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
@@ -1071,13 +1071,13 @@ namespace Ship_Game
                 }
                 foreach (SlotStruct ss in this.Slots)
                 {
-                    if (ss.module == null)
+                    if (ss.Module == null)
                     {
                         continue;
                     }
-                    Vector2 Center = new Vector2((float)(ss.pq.X + 16 * ss.module.XSIZE / 2), (float)(ss.pq.Y + 16 * ss.module.YSIZE / 2));
+                    Vector2 Center = new Vector2((float)(ss.PQ.X + 16 * ss.Module.XSIZE / 2), (float)(ss.PQ.Y + 16 * ss.Module.YSIZE / 2));
                     Vector2 lightOrigin = new Vector2(8f, 8f);
-                    if (ss.module.PowerDraw <= 0f || ss.module.Powered || ss.module.ModuleType == ShipModuleType.PowerConduit)
+                    if (ss.Module.PowerDraw <= 0f || ss.Module.Powered || ss.Module.ModuleType == ShipModuleType.PowerConduit)
                     {
                         continue;
                     }
@@ -2199,9 +2199,11 @@ namespace Ship_Game
 
         private bool RestrictedModCheck(ShipData.RoleName Role, ShipModule Mod)
         {
+            return false;
+
             if (Mod.FighterModule || Mod.CorvetteModule || Mod.FrigateModule || Mod.StationModule || Mod.DestroyerModule || Mod.CruiserModule
              || Mod.CarrierModule || Mod.CapitalModule || Mod.FreighterModule || Mod.PlatformModule || Mod.DroneModule)
-            {
+            {  
                 if (Role == ShipData.RoleName.drone && Mod.DroneModule == false) return true;
                 if (Role == ShipData.RoleName.scout && Mod.FighterModule == false) return true;
                 if (Role == ShipData.RoleName.fighter && Mod.FighterModule == false) return true;
@@ -2610,77 +2612,77 @@ namespace Ship_Game
             foreach (SlotStruct slot in this.Slots)
             {
                 Size = Size + 1f;
-                if (slot.module == null)
+                if (slot.Module == null)
                 {
                     continue;
                 }
-                HitPoints = HitPoints + (slot.module.Health + EmpireManager.Player.data.Traits.ModHpModifier * slot.module.Health);
-                if (slot.module.Mass < 0f && slot.Powered)
+                HitPoints = HitPoints + (slot.Module.Health + EmpireManager.Player.data.Traits.ModHpModifier * slot.Module.Health);
+                if (slot.Module.Mass < 0f && slot.Powered)
                 {
-                    if (slot.module.ModuleType == ShipModuleType.Armor)
+                    if (slot.Module.ModuleType == ShipModuleType.Armor)
                     {
-                        Mass += slot.module.Mass * EmpireManager.Player.data.ArmourMassModifier;
+                        Mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
                     }
                     else
-                        Mass += slot.module.Mass;
+                        Mass += slot.Module.Mass;
                 }
-                else if (slot.module.Mass > 0f)
+                else if (slot.Module.Mass > 0f)
                 {
-                    if (slot.module.ModuleType == ShipModuleType.Armor)
+                    if (slot.Module.ModuleType == ShipModuleType.Armor)
                     {
-                        Mass += slot.module.Mass * EmpireManager.Player.data.ArmourMassModifier;
+                        Mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
                     }
                     else
-                        Mass += slot.module.Mass;
+                        Mass += slot.Module.Mass;
                 }
-                TroopCount += slot.module.TroopCapacity;
-                PowerCapacity += slot.module.PowerStoreMax + slot.module.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier; 
-                OrdnanceCap = OrdnanceCap + (float)slot.module.OrdinanceCapacity;
-                PowerFlow += slot.module.PowerFlowMax + slot.module.PowerFlowMax * EmpireManager.Player.data.PowerFlowMod;
-                if (slot.module.Powered)
+                TroopCount += slot.Module.TroopCapacity;
+                PowerCapacity += slot.Module.PowerStoreMax + slot.Module.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier; 
+                OrdnanceCap = OrdnanceCap + (float)slot.Module.OrdinanceCapacity;
+                PowerFlow += slot.Module.PowerFlowMax + slot.Module.PowerFlowMax * EmpireManager.Player.data.PowerFlowMod;
+                if (slot.Module.Powered)
                 {
-                    EMPResist += slot.module.EMP_Protection;
-                    WarpableMass = WarpableMass + slot.module.WarpMassCapacity;
-                    PowerDraw = PowerDraw + slot.module.PowerDraw;
-                    WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
-                    if (slot.module.ECM > TotalECM)
-                        TotalECM = slot.module.ECM;
-                    if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.PowerRequiredToFire > 0)
+                    EMPResist += slot.Module.EMP_Protection;
+                    WarpableMass = WarpableMass + slot.Module.WarpMassCapacity;
+                    PowerDraw = PowerDraw + slot.Module.PowerDraw;
+                    WarpDraw = WarpDraw + slot.Module.PowerDrawAtWarp;
+                    if (slot.Module.ECM > TotalECM)
+                        TotalECM = slot.Module.ECM;
+                    if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.PowerRequiredToFire > 0)
                         bEnergyWeapons = true;
-                    if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.BeamPowerCostPerSecond > 0)
+                    if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.BeamPowerCostPerSecond > 0)
                         bEnergyWeapons = true;
-                    if (slot.module.FTLSpeed > 0f)
+                    if (slot.Module.FTLSpeed > 0f)
                     {
                         FTLCount = FTLCount + 1f;
-                        FTLSpeed = FTLSpeed + slot.module.FTLSpeed;
+                        FTLSpeed = FTLSpeed + slot.Module.FTLSpeed;
                     }
-                    if (slot.module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > FTLSpoolTimer)
+                    if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > FTLSpoolTimer)
                     {
-                        FTLSpoolTimer = slot.module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
+                        FTLSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
                     }
-                    ShieldPower += slot.module.shield_power_max + EmpireManager.Player.data.ShieldPowerMod * slot.module.shield_power_max;
-                    Thrust = Thrust + slot.module.thrust;
-                    WarpThrust = WarpThrust + slot.module.WarpThrust;
-                    TurnThrust = TurnThrust + slot.module.TurnThrust;
+                    ShieldPower += slot.Module.shield_power_max + EmpireManager.Player.data.ShieldPowerMod * slot.Module.shield_power_max;
+                    Thrust = Thrust + slot.Module.thrust;
+                    WarpThrust = WarpThrust + slot.Module.WarpThrust;
+                    TurnThrust = TurnThrust + slot.Module.TurnThrust;
 
-                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * 
+                    RepairRate += ((slot.Module.BonusRepairRate + slot.Module.BonusRepairRate * 
                         EmpireManager.Player.data.Traits.RepairMod) * (1f + bonus?.RepairBonus??0));
-                    OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
-                    if (slot.module.SensorRange > sensorRange)
+                    OrdnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
+                    if (slot.Module.SensorRange > sensorRange)
                     {
-                        sensorRange = slot.module.SensorRange;
+                        sensorRange = slot.Module.SensorRange;
                     }
-                    if (slot.module.SensorBonus > sensorBonus)
-                        sensorBonus = slot.module.SensorBonus;
+                    if (slot.Module.SensorBonus > sensorBonus)
+                        sensorBonus = slot.Module.SensorBonus;
                     
                     //added by gremlin collect weapon stats                  
-                    if (slot.module.isWeapon || slot.module.BombType != null)
+                    if (slot.Module.isWeapon || slot.Module.BombType != null)
                     {
                         Weapon weapon;
-                        if (slot.module.BombType == null)
-                            weapon = slot.module.InstalledWeapon;
+                        if (slot.Module.BombType == null)
+                            weapon = slot.Module.InstalledWeapon;
                         else
-                            weapon = ResourceManager.WeaponsDict[slot.module.BombType];
+                            weapon = ResourceManager.WeaponsDict[slot.Module.BombType];
                         OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
                         WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
                         if(weapon.isBeam)
@@ -2690,14 +2692,14 @@ namespace Ship_Game
                         
                     }
                     //end
-                    if (slot.module.FixedTracking > fixedtargets)
-                        fixedtargets = slot.module.FixedTracking;
+                    if (slot.Module.FixedTracking > fixedtargets)
+                        fixedtargets = slot.Module.FixedTracking;
 
-                    targets += slot.module.TargetTracking;
+                    targets += slot.Module.TargetTracking;
 
                 }
-                Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
-                CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
+                Cost = Cost + slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                CargoSpace = CargoSpace + slot.Module.Cargo_Capacity;
 
                 
 
@@ -3018,10 +3020,10 @@ namespace Ship_Game
                 if (slot.ModuleUID == null)
                     EmptySlots = false;
 
-                if (slot.module != null)
+                if (slot.Module != null)
                 {
-                    Off += ResourceManager.CalculateModuleOffense(slot.module);
-                    Def += ResourceManager.CalculateModuleDefense(slot.module, (int)Size);
+                    Off += ResourceManager.CalculateModuleOffense(slot.Module);
+                    Def += ResourceManager.CalculateModuleDefense(slot.Module, (int)Size);
                 }
                 if (slot.ModuleUID == null || !ResourceManager.GetModuleTemplate(slot.ModuleUID).IsCommandModule)
                     continue;
@@ -3544,15 +3546,15 @@ namespace Ship_Game
             int numNear = 0;
             foreach (SlotStruct slot in this.Slots)
             {
-                if (slot.module == null || slot.module.ModuleType != ShipModuleType.PowerConduit || slot == ss)
+                if (slot.Module == null || slot.Module.ModuleType != ShipModuleType.PowerConduit || slot == ss)
                 {
                     continue;
                 }
-                int totalDistanceX = Math.Abs(slot.pq.X - ss.pq.X) / 16;
-                int totalDistanceY = Math.Abs(slot.pq.Y - ss.pq.Y) / 16;
+                int totalDistanceX = Math.Abs(slot.PQ.X - ss.PQ.X) / 16;
+                int totalDistanceY = Math.Abs(slot.PQ.Y - ss.PQ.Y) / 16;
                 if (totalDistanceX == 1 && totalDistanceY == 0)
                 {
-                    if (slot.pq.X <= ss.pq.X)
+                    if (slot.PQ.X <= ss.PQ.X)
                     {
                         right = true;
                     }
@@ -3565,7 +3567,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                if (slot.pq.Y <= ss.pq.Y)
+                if (slot.PQ.Y <= ss.PQ.Y)
                 {
                     down = true;
                 }
@@ -3765,15 +3767,15 @@ namespace Ship_Game
                 SlotStruct slot1 = new SlotStruct();
                 foreach (SlotStruct slot2 in this.Slots)
                 {
-                    if (slot2.pq == designAction.clickedSS.pq)
+                    if (slot2.PQ == designAction.clickedSS.PQ)
                     {
                         this.ClearSlotNoStack(slot2);
                         slot1 = slot2;
-                        slot1.facing = designAction.clickedSS.facing;
+                        slot1.Facing = designAction.clickedSS.Facing;
                     }
                     foreach (SlotStruct slotStruct in designAction.AlteredSlots)
                     {
-                        if (slot2.pq == slotStruct.pq)
+                        if (slot2.PQ == slotStruct.PQ)
                         {
                             this.ClearSlotNoStack(slot2);
                             break;
@@ -3790,12 +3792,12 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slot2 in this.Slots)
                     {
-                        if (slot2.pq == slotStruct.pq && slotStruct.ModuleUID != null)
+                        if (slot2.PQ == slotStruct.PQ && slotStruct.ModuleUID != null)
                         {
                             this.ActiveModule = ShipModule.CreateNoParent(slotStruct.ModuleUID);
                             this.ResetModuleState();
                             this.InstallModuleNoStack(slot2);
-                            slot2.facing = slotStruct.facing;
+                            slot2.Facing = slotStruct.Facing;
                             slot2.ModuleUID = slotStruct.ModuleUID;
                         }
                     }
@@ -4003,21 +4005,21 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slotStruct in this.Slots)
                     {
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slotStruct.pq.enclosingRect.X, (float)slotStruct.pq.enclosingRect.Y));
+                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slotStruct.PQ.enclosingRect.X, (float)slotStruct.PQ.enclosingRect.Y));
                         if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
                         {
-                            if (slotStruct.module != null)
-                                this.HoveredModule = slotStruct.module;
+                            if (slotStruct.Module != null)
+                                this.HoveredModule = slotStruct.Module;
                             if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                             {
                                 GameAudio.PlaySfxAsync("simple_beep");
                                 if (this.Debug)
                                 {
-                                    this.DebugAlterSlot(slotStruct.slotReference.Position, this.operation);
+                                    this.DebugAlterSlot(slotStruct.SlotReference.Position, this.operation);
                                     return;
                                 }
-                                else if (slotStruct.module != null)
-                                    this.HighlightedModule = slotStruct.module;
+                                else if (slotStruct.Module != null)
+                                    this.HighlightedModule = slotStruct.Module;
                             }
                         }
                     }
@@ -4061,18 +4063,18 @@ namespace Ship_Game
                     {
                         parent.ShowInvalid = false;
                         parent.ShowValid = false;
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)parent.pq.enclosingRect.X, (float)parent.pq.enclosingRect.Y));
+                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)parent.PQ.enclosingRect.X, (float)parent.PQ.enclosingRect.Y));
                         Rectangle rect = new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom));
-                        if (parent.module != null && HelperFunctions.CheckIntersection(rect, vector2)) //if clicked at this slot
+                        if (parent.Module != null && HelperFunctions.CheckIntersection(rect, vector2)) //if clicked at this slot
                         {
                             DesignAction designAction = new DesignAction();
                             designAction.clickedSS               = new SlotStruct();
-                            designAction.clickedSS.pq            = parent.pq;
+                            designAction.clickedSS.PQ            = parent.PQ;
                             designAction.clickedSS.Restrictions  = parent.Restrictions;
-                            designAction.clickedSS.facing        = parent.module != null ? parent.module.Facing : 0.0f;
+                            designAction.clickedSS.Facing        = parent.Module != null ? parent.Module.Facing : 0.0f;
                             designAction.clickedSS.ModuleUID     = parent.ModuleUID;
-                            designAction.clickedSS.module        = parent.module;
-                            designAction.clickedSS.slotReference = parent.slotReference;
+                            designAction.clickedSS.Module        = parent.Module;
+                            designAction.clickedSS.SlotReference = parent.SlotReference;
                             DesignStack.Push(designAction);
                             GameAudio.PlaySfxAsync("sub_bass_whoosh");
                             ClearParentSlot(parent);
@@ -4098,16 +4100,16 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slot in this.Slots)
                     {
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.pq.enclosingRect.X, (float)slot.pq.enclosingRect.Y));
+                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y));
                         if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
                         {
                             GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
-                            if (slot.pq.X != this.lastDesignActionPos.X || slot.pq.Y != this.lastDesignActionPos.Y || ActiveModule.UID != this.lastActiveUID)
+                            if (slot.PQ.X != this.lastDesignActionPos.X || slot.PQ.Y != this.lastDesignActionPos.Y || ActiveModule.UID != this.lastActiveUID)
                             {
                                 this.InstallModule(slot);                       //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
-                                this.lastDesignActionPos.X = slot.pq.X;
-                                this.lastDesignActionPos.Y = slot.pq.Y;
+                                this.lastDesignActionPos.X = slot.PQ.X;
+                                this.lastDesignActionPos.Y = slot.PQ.Y;
                                 this.lastActiveUID = ActiveModule.UID;
                             }
                         }
@@ -4120,10 +4122,10 @@ namespace Ship_Game
 
                 foreach (SlotStruct slotStruct in this.Slots)
                 {
-                    if (slotStruct.ModuleUID != null && this.HighlightedModule != null && (slotStruct.module == this.HighlightedModule && (double)slotStruct.module.FieldOfFire != 0.0) && slotStruct.module.ModuleType == ShipModuleType.Turret)
+                    if (slotStruct.ModuleUID != null && this.HighlightedModule != null && (slotStruct.Module == this.HighlightedModule && (double)slotStruct.Module.FieldOfFire != 0.0) && slotStruct.Module.ModuleType == ShipModuleType.Turret)
                     {
-                        float num1 = slotStruct.module.FieldOfFire / 2f;
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)(slotStruct.pq.enclosingRect.X + 16 * (int)slotStruct.module.XSIZE / 2), (float)(slotStruct.pq.enclosingRect.Y + 16 * (int)slotStruct.module.YSIZE / 2)));
+                        float num1 = slotStruct.Module.FieldOfFire / 2f;
+                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)(slotStruct.PQ.enclosingRect.X + 16 * (int)slotStruct.Module.XSIZE / 2), (float)(slotStruct.PQ.enclosingRect.Y + 16 * (int)slotStruct.Module.YSIZE / 2)));
                         float num2 = spaceFromWorldSpace.AngleToTarget(vector2);
                         float num3 = this.HighlightedModule.Facing;
                         float num4 = Math.Abs(num2 - num3);
@@ -4285,7 +4287,7 @@ namespace Ship_Game
         private bool SlotStructFits(SlotStruct slot)
         {
             int numFreeSlots = 0;
-            int sx = slot.pq.X, sy = slot.pq.Y;
+            int sx = slot.PQ.X, sy = slot.PQ.Y;
             for (int y = 0; y < ActiveModule.YSIZE; ++y)
             {
                 for (int x = 0; x < ActiveModule.XSIZE; ++x)
@@ -4293,9 +4295,9 @@ namespace Ship_Game
                     for (int i = 0; i < Slots.Count; ++i)
                     {
                         SlotStruct ss = Slots[i];
-                        if (ss.ShowValid && ss.pq.Y == (sy + 16 * y) && ss.pq.X == (sx + 16 * x))
+                        if (ss.ShowValid && ss.PQ.Y == (sy + 16 * y) && ss.PQ.X == (sx + 16 * x))
                         {
-                            if (ss.module == null && ss.parent == null)
+                            if (ss.Module == null && ss.Parent == null)
                                 ++numFreeSlots;
                         }
                     }
@@ -4310,28 +4312,28 @@ namespace Ship_Game
             {
                 DesignAction designAction = new DesignAction();
                 designAction.clickedSS = new SlotStruct();
-                designAction.clickedSS.pq = slot.pq;
+                designAction.clickedSS.PQ = slot.PQ;
                 designAction.clickedSS.Restrictions  = slot.Restrictions;
-                designAction.clickedSS.facing        = slot.module != null ? slot.module.Facing : 0.0f;
+                designAction.clickedSS.Facing        = slot.Module != null ? slot.Module.Facing : 0.0f;
                 designAction.clickedSS.ModuleUID     = slot.ModuleUID;
-                designAction.clickedSS.module        = slot.module;
-                designAction.clickedSS.tex           = slot.tex;
-                designAction.clickedSS.slotReference = slot.slotReference;
-                designAction.clickedSS.state         = slot.state;
+                designAction.clickedSS.Module        = slot.Module;
+                designAction.clickedSS.Tex           = slot.Tex;
+                designAction.clickedSS.SlotReference = slot.SlotReference;
+                designAction.clickedSS.State         = slot.State;
                 DesignStack.Push(designAction);
                 ClearSlot(slot);
                 ClearDestinationSlots(slot);
 
                 slot.ModuleUID            = ActiveModule.UID;
-                slot.module               = ShipModule.CreateNoParent(ActiveModule.UID);
-                slot.module.XSIZE         = ActiveModule.XSIZE;
-                slot.module.YSIZE         = ActiveModule.YSIZE;
-                slot.module.XMLPosition   = ActiveModule.XMLPosition;
-                slot.state                = ActiveModState;
-                slot.module.hangarShipUID = ActiveModule.hangarShipUID;
-                slot.module.Facing        = ActiveModule.Facing;
-                slot.tex = ResourceManager.Texture(ActiveModule.IconTexturePath);
-                slot.module.SetAttributesNoParent();
+                slot.Module               = ShipModule.CreateNoParent(ActiveModule.UID);
+                slot.Module.XSIZE         = ActiveModule.XSIZE;
+                slot.Module.YSIZE         = ActiveModule.YSIZE;
+                slot.Module.XMLPosition   = ActiveModule.XMLPosition;
+                slot.State                = ActiveModState;
+                slot.Module.hangarShipUID = ActiveModule.hangarShipUID;
+                slot.Module.Facing        = ActiveModule.Facing;
+                slot.Tex = ResourceManager.Texture(ActiveModule.IconTexturePath);
+                slot.Module.SetAttributesNoParent();
 
                 RecalculatePower();
                 ShipSaved = false;
@@ -4348,15 +4350,15 @@ namespace Ship_Game
         {
             if (SlotStructFits(slot))
             {
-                ActiveModuleState activeModuleState = slot.state;
+                ActiveModuleState activeModuleState = slot.State;
                 ClearSlot(slot);
                 ClearDestinationSlotsNoStack(slot);
                 slot.ModuleUID = ActiveModule.UID;
-                slot.module    = ActiveModule; 
-                slot.state     = activeModuleState;
-                slot.module.Facing = slot.facing;
-                slot.tex = ResourceManager.TextureDict[ActiveModule.IconTexturePath];
-                slot.module.SetAttributesNoParent();
+                slot.Module    = ActiveModule; 
+                slot.State     = activeModuleState;
+                slot.Module.Facing = slot.Facing;
+                slot.Tex = ResourceManager.TextureDict[ActiveModule.IconTexturePath];
+                slot.Module.SetAttributesNoParent();
 
                 RecalculatePower();
             }
@@ -4370,12 +4372,12 @@ namespace Ship_Game
                 ClearSlotNoStack(slot);
                 ClearDestinationSlotsNoStack(slot);
                 slot.ModuleUID            = ActiveModule.UID;
-                slot.module               = ActiveModule;
-                slot.state                = ActiveModState;
-                slot.module.hangarShipUID = ActiveModule.hangarShipUID;
-                slot.module.Facing        = ActiveModule.Facing;
-                slot.tex = ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath];
-                slot.module.SetAttributesNoParent();
+                slot.Module               = ActiveModule;
+                slot.State                = ActiveModState;
+                slot.Module.hangarShipUID = ActiveModule.hangarShipUID;
+                slot.Module.Facing        = ActiveModule.Facing;
+                slot.Tex = ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath];
+                slot.Module.SetAttributesNoParent();
 
                 RecalculatePower();
                 ShipSaved = false;
@@ -4825,31 +4827,31 @@ namespace Ship_Game
             {
                 slotStruct.Powered = false;
                 slotStruct.CheckedConduits = false;
-                if (slotStruct.module != null)
-                    slotStruct.module.Powered = false;
+                if (slotStruct.Module != null)
+                    slotStruct.Module.Powered = false;
             }
             foreach (SlotStruct slotStruct in this.Slots)
             {
                 //System.Diagnostics.Debug.Assert(slotStruct.parent != null, "parent is null");                   
-                if (slotStruct.module != null && slotStruct.module.ModuleType == ShipModuleType.PowerPlant)
+                if (slotStruct.Module != null && slotStruct.Module.ModuleType == ShipModuleType.PowerPlant)
                 {
                     foreach (SlotStruct slot in this.Slots)
                     {
-                        if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && (Math.Abs(slot.pq.X - slotStruct.pq.X) / 16 + Math.Abs(slot.pq.Y - slotStruct.pq.Y) / 16 == 1 && slot.module != null))
+                        if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && (Math.Abs(slot.PQ.X - slotStruct.PQ.X) / 16 + Math.Abs(slot.PQ.Y - slotStruct.PQ.Y) / 16 == 1 && slot.Module != null))
                             this.CheckAndPowerConduit(slot);
                     }
                 }                
-                else if (slotStruct.parent != null)               
+                else if (slotStruct.Parent != null)               
                 {
                     //System.Diagnostics.Debug.Assert(slotStruct.parent.module != null, "parent is fine, module is null");
-                    if (slotStruct.parent.module != null)
+                    if (slotStruct.Parent.Module != null)
                     {
                         //System.Diagnostics.Debug.Assert(slotStruct.parent.module.ModuleType != null, "parent is fine, module is fine, moduletype is null");
-                        if (slotStruct.parent.module.ModuleType == ShipModuleType.PowerPlant)
+                        if (slotStruct.Parent.Module.ModuleType == ShipModuleType.PowerPlant)
                         {
                             foreach (SlotStruct slot in this.Slots)
                             {
-                                if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && (Math.Abs(slot.pq.X - slotStruct.pq.X) / 16 + Math.Abs(slot.pq.Y - slotStruct.pq.Y) / 16 == 1 && slot.module != null))
+                                if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && (Math.Abs(slot.PQ.X - slotStruct.PQ.X) / 16 + Math.Abs(slot.PQ.Y - slotStruct.PQ.Y) / 16 == 1 && slot.Module != null))
                                     this.CheckAndPowerConduit(slot);
                             }
                         }
@@ -4858,28 +4860,28 @@ namespace Ship_Game
             }
             foreach (SlotStruct slotStruct1 in Slots)
             {
-                if (slotStruct1.module != null && slotStruct1.module.PowerRadius > 0 && (slotStruct1.module.ModuleType != ShipModuleType.PowerConduit || slotStruct1.module.Powered))
+                if (slotStruct1.Module != null && slotStruct1.Module.PowerRadius > 0 && (slotStruct1.Module.ModuleType != ShipModuleType.PowerConduit || slotStruct1.Module.Powered))
                 {
                     foreach (SlotStruct slotStruct2 in Slots)
                     {
-                        if (Math.Abs(slotStruct1.pq.X - slotStruct2.pq.X) / 16 + Math.Abs(slotStruct1.pq.Y - slotStruct2.pq.Y) / 16 <= (int)slotStruct1.module.PowerRadius)
+                        if (Math.Abs(slotStruct1.PQ.X - slotStruct2.PQ.X) / 16 + Math.Abs(slotStruct1.PQ.Y - slotStruct2.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
                             slotStruct2.Powered = true;
                     }
-                    if (slotStruct1.module.XSIZE <= 1 && slotStruct1.module.YSIZE <= 1)
+                    if (slotStruct1.Module.XSIZE <= 1 && slotStruct1.Module.YSIZE <= 1)
                         continue;
 
-                    for (int y = 0; y < slotStruct1.module.YSIZE; ++y)
+                    for (int y = 0; y < slotStruct1.Module.YSIZE; ++y)
                     {
-                        for (int x = 0; x < slotStruct1.module.XSIZE; ++x)
+                        for (int x = 0; x < slotStruct1.Module.XSIZE; ++x)
                         {
                             if (x == 0 && y == 0) continue;
                             foreach (SlotStruct slotStruct2 in Slots)
                             {
-                                if (slotStruct2.pq.Y == slotStruct1.pq.Y + 16 * y && slotStruct2.pq.X == slotStruct1.pq.X + 16 * x)
+                                if (slotStruct2.PQ.Y == slotStruct1.PQ.Y + 16 * y && slotStruct2.PQ.X == slotStruct1.PQ.X + 16 * x)
                                 {
                                     foreach (SlotStruct slotStruct3 in Slots)
                                     {
-                                        if (Math.Abs(slotStruct2.pq.X - slotStruct3.pq.X) / 16 + Math.Abs(slotStruct2.pq.Y - slotStruct3.pq.Y) / 16 <= (int)slotStruct1.module.PowerRadius)
+                                        if (Math.Abs(slotStruct2.PQ.X - slotStruct3.PQ.X) / 16 + Math.Abs(slotStruct2.PQ.Y - slotStruct3.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
                                             slotStruct3.Powered = true;
                                     }
                                 }
@@ -4892,13 +4894,13 @@ namespace Ship_Game
             {
                 if (slotStruct.Powered)
                 {
-                    if (slotStruct.module != null && slotStruct.module.ModuleType != ShipModuleType.PowerConduit)
-                        slotStruct.module.Powered = true;
-                    if (slotStruct.parent != null && slotStruct.parent.module != null)
-                        slotStruct.parent.module.Powered = true;                    
+                    if (slotStruct.Module != null && slotStruct.Module.ModuleType != ShipModuleType.PowerConduit)
+                        slotStruct.Module.Powered = true;
+                    if (slotStruct.Parent != null && slotStruct.Parent.Module != null)
+                        slotStruct.Parent.Module.Powered = true;                    
                 }
-                if (!slotStruct.Powered && slotStruct.module != null && slotStruct.module.IndirectPower)
-                        slotStruct.module.Powered = true;
+                if (!slotStruct.Powered && slotStruct.Module != null && slotStruct.Module.IndirectPower)
+                        slotStruct.Module.Powered = true;
             }
         }
 
@@ -4932,15 +4934,15 @@ namespace Ship_Game
                 ModuleSlotData savedSlot = new ModuleSlotData()
                 {
                     InstalledModuleUID = slot.ModuleUID,
-                    Position           = slot.slotReference.Position,
+                    Position           = slot.SlotReference.Position,
                     Restrictions       = slot.Restrictions,
                 };
-                if (slot.module != null)
+                if (slot.Module != null)
                 {
-                    savedSlot.Facing = slot.module.Facing;
+                    savedSlot.Facing = slot.Module.Facing;
 
-                    if (slot.module.ModuleType == ShipModuleType.Hangar)
-                        savedSlot.SlotOptions = slot.module.hangarShipUID;
+                    if (slot.Module.ModuleType == ShipModuleType.Hangar)
+                        savedSlot.SlotOptions = slot.Module.hangarShipUID;
                 }
                 toSave.ModuleSlots[i] = savedSlot;
             }
@@ -5009,13 +5011,13 @@ namespace Ship_Game
                 ModuleSlotData data = new ModuleSlotData
                 {
                     InstalledModuleUID = slot.ModuleUID,
-                    Position           = slot.slotReference.Position,
+                    Position           = slot.SlotReference.Position,
                     Restrictions       = slot.Restrictions
                 };
-                if (slot.module != null)
+                if (slot.Module != null)
                 {
-                    if (slot.module.ModuleType == ShipModuleType.Hangar)
-                        data.SlotOptions = slot.module.hangarShipUID;
+                    if (slot.Module.ModuleType == ShipModuleType.Hangar)
+                        data.SlotOptions = slot.Module.hangarShipUID;
                 }
                 savedShip.ModuleSlots[i] = data;
             }
@@ -5180,11 +5182,11 @@ namespace Ship_Game
                 PrimitiveQuad pq = new PrimitiveQuad(slot.Position.X + this.offset.X - 8f, slot.Position.Y + this.offset.Y - 8f, 16f, 16f);
                 SlotStruct ss = new SlotStruct()
                 {
-                    pq            = pq,
+                    PQ            = pq,
                     Restrictions  = slot.Restrictions,
-                    facing        = slot.Facing,
+                    Facing        = slot.Facing,
                     ModuleUID     = slot.InstalledModuleUID,
-                    slotReference = slot,
+                    SlotReference = slot,
                     SlotOptions   = slot.SlotOptions
                 };
                 this.Slots.Add(ss);
@@ -5196,13 +5198,13 @@ namespace Ship_Game
                     continue;
                 }
                 this.ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);
-                this.ChangeModuleState(slot.state);
+                this.ChangeModuleState(slot.State);
                 this.InstallModuleFromLoad(slot);
-                if (slot.module == null || slot.module.ModuleType != ShipModuleType.Hangar)
+                if (slot.Module == null || slot.Module.ModuleType != ShipModuleType.Hangar)
                 {
                     continue;
                 }
-                slot.module.hangarShipUID = slot.SlotOptions;
+                slot.Module.hangarShipUID = slot.SlotOptions;
             }
             this.ActiveModule = null;
             this.ActiveModState = ShipDesignScreen.ActiveModuleState.Normal;
