@@ -87,13 +87,11 @@ namespace Ship_Game.AI {
                 ++numColonyGoals;
             }
             if (numColonyGoals >= DesiredColonyGoals +
-                (OwnerEmpire.data.EconomicPersonality != null
-                    ? OwnerEmpire.data.EconomicPersonality.ColonyGoalsPlus
-                    : 0)) return;
+                (OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0)) return;
             {
-                Planet toMark = null;
+                Planet toMark      = null;
                 var weightedCenter = new Vector2();
-                int numPlanets = 0;
+                int numPlanets     = 0;
                 foreach (Planet p in OwnerEmpire.GetPlanets())
                 {
                     for (int i = 0; (float)i < p.Population / 1000f; i++)
