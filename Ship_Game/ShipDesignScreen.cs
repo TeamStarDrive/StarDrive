@@ -5112,22 +5112,9 @@ namespace Ship_Game
             mod.SetAttributesNoParent();
             this.ActiveModule = mod;
             this.ResetModuleState();
-            foreach (SlotStruct s in this.Slots)
-            {
-                s.ShowInvalid = false;
-                s.ShowValid = false;
-                Restrictions ModRes = ResourceManager.GetModuleTemplate(ActiveModule.UID).Restrictions;  //Making this section a little easier to read -Gretman
-                Restrictions SlotRes = s.Restrictions;
-
-                if (ModRes == Restrictions.I && (SlotRes != Restrictions.E && SlotRes != Restrictions.O && SlotRes != Restrictions.OE)) s.ShowValid = true;
-                else if (ModRes == Restrictions.O && (SlotRes != Restrictions.E && SlotRes != Restrictions.I && SlotRes != Restrictions.IE)) s.ShowValid = true;
-                else if (ModRes == Restrictions.E && (SlotRes != Restrictions.I && SlotRes != Restrictions.O && SlotRes != Restrictions.IO)) s.ShowValid = true;
-                else if (ModRes == Restrictions.IO && SlotRes != Restrictions.E) s.ShowValid = true;
-                else if (ModRes == Restrictions.IE && SlotRes != Restrictions.O) s.ShowValid = true;
-                else if (ModRes == Restrictions.OE && SlotRes != Restrictions.I) s.ShowValid = true;
-                else if (ModRes == Restrictions.IOE) s.ShowValid = true;
-                else s.ShowInvalid = true;
-            }
+            foreach (SlotStruct s in this.Slots)                                    
+                s.SetVisibility(ResourceManager.GetModuleTemplate(ActiveModule.UID).Restrictions);
+            
             if (this.ActiveHangarModule != this.ActiveModule && this.ActiveModule.ModuleType == ShipModuleType.Hangar)
             {
                 this.ActiveHangarModule = this.ActiveModule;
@@ -5188,6 +5175,7 @@ namespace Ship_Game
                     SlotReference = slot,
                     SlotOptions   = slot.SlotOptions
                 };
+                ss.SetVisibility(slot.Restrictions);
                 this.Slots.Add(ss);
             }
             foreach (SlotStruct slot in this.Slots)
