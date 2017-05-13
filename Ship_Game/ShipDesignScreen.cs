@@ -2199,7 +2199,6 @@ namespace Ship_Game
 
         private bool RestrictedModCheck(ShipData.RoleName Role, ShipModule Mod)
         {
-            return false;
 
             if (Mod.FighterModule || Mod.CorvetteModule || Mod.FrigateModule || Mod.StationModule || Mod.DestroyerModule || Mod.CruiserModule
              || Mod.CarrierModule || Mod.CapitalModule || Mod.FreighterModule || Mod.PlatformModule || Mod.DroneModule)
@@ -2216,7 +2215,7 @@ namespace Ship_Game
                 if (Role == ShipData.RoleName.capital && Mod.CapitalModule == false) return true;
                 if (Role == ShipData.RoleName.freighter && Mod.FreighterModule == false) return true;
                 if (Role == ShipData.RoleName.platform && Mod.PlatformModule == false) return true;
-                if (Role == ShipData.RoleName.station && Mod.StationModule == false) ; return true;
+                if (Role == ShipData.RoleName.station && Mod.StationModule == false) return true;
             }
             else if (Mod.FightersOnly)
             {
