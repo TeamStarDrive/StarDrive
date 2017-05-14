@@ -134,7 +134,6 @@ namespace Ship_Game.Gameplay
         public float RotationRadsPerSecond = 2f;
         [XmlIgnore][JsonIgnore]
         private AudioEmitter planetEmitter;
-        public bool HitsFriendlies;
         public string InFlightCue = "";
         public float particleDelay;
         public float ECMResist;

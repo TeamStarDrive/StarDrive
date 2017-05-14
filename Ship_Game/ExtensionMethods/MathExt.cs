@@ -323,7 +323,7 @@ namespace Ship_Game
             if (det > 0.0f)
             {
                 return new Vector2(
-                    (a1 * c1 - b1 * c2) / det,
+                    (a1 * c1 -  b1 * c2) / det,
                     (a1 * c2 - -b1 * c1) / det);
             }
             return center;

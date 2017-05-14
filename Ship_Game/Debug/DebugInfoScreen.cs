@@ -466,7 +466,7 @@ namespace Ship_Game.Debug
 
         private void SpatialManagement()
         {
-            UniverseScreen.DeepSpaceManager.DebugVisualize(Screen);
+            UniverseScreen.SpaceManager.DebugVisualize(Screen);
             //foreach (SolarSystem system in Screen.SolarSystemDict.Values)
             //{
             //    system.spatialManager.DebugVisualize(Screen);

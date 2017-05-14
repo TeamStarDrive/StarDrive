@@ -20,9 +20,10 @@ namespace Ship_Game.AI
             if (Empire.Universe == null) return;
             if (Owner.Owner == null)
             {
-                Ship[] nearbyShips = Owner.GetNearby<Ship>();
-                foreach(Ship nearbyShip in nearbyShips)
+                GameplayObject[] nearbyShips = Owner.FindNearby(GameObjectType.Ship);
+                foreach(GameplayObject go in nearbyShips)
                 {
+                    var nearbyShip = (Ship) go;
                     if (nearbyShip.loyalty != Owner.Loyalty && Owner.Weapon.TargetValid(nearbyShip.shipData.Role))
                         TargetList.Add(nearbyShip);
                 }
