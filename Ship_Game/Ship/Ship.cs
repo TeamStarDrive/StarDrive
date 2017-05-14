@@ -202,7 +202,8 @@ namespace Ship_Game.Gameplay
 
         public float FTLModifier { get; private set; } = 1f;
 
-        public T[] GetObjectsInSensors<T>() where T : GameplayObject => ActiveSpatialManager.GetNearby<T>(Position, SensorRange);
+        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None)
+            => UniverseScreen.SpaceManager.FindNearby(Position, SensorRange);
 
         public bool IsInNeutralSpace
         {
@@ -2925,9 +2926,10 @@ namespace Ship_Game.Gameplay
                     inSensorRange = true;
                 else if (!inSensorRange)
                 {
-                    Ship[] nearby = GetObjectsInSensors<Ship>();
-                    foreach (Ship ship in nearby)
+                    GameplayObject[] nearby = GetObjectsInSensors(GameObjectType.Ship);
+                    foreach (GameplayObject go in nearby)
                     {
+                        var ship = (Ship) go;
                         if (ship.loyalty == EmpireManager.Player && (Center.InRadius(ship.Position, ship.SensorRange) || Empire.Universe.Debug))
                         {
                             inSensorRange = true;
@@ -3662,7 +3664,7 @@ namespace Ship_Game.Gameplay
                     default:                            ExplodeShip(600f, cleanupOnly); break;
                 }
 
-                ActiveSpatialManager.ShipExplode(this, Size * 50, Center, Radius);
+                UniverseScreen.SpaceManager.ShipExplode(this, Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {
@@ -3685,6 +3687,8 @@ namespace Ship_Game.Gameplay
                 Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
             QueueTotalRemoval();
+
+            base.Die(source, cleanupOnly);
         }
 
         public void QueueTotalRemoval()

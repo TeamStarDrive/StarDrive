@@ -191,7 +191,7 @@ namespace Ship_Game.AI {
             State = AIState.Combat;
             Owner.InCombat = true;
             Owner.InCombatTimer = 15f;
-            if (Owner.Mothership?.Active ?? false)
+            if (Owner.Mothership?.Active == true)
                 if (Owner.shipData.Role != ShipData.RoleName.troop
                     &&
                     (Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] ||

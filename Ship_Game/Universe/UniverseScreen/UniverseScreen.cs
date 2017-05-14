@@ -27,7 +27,7 @@ namespace Ship_Game
         public static bool ShipWindowOpen       = false;
         public static bool ColonizeWindowOpen   = false;
         public static bool PlanetViewWindowOpen = false;
-        public static readonly SpatialManager DeepSpaceManager = new SpatialManager();
+        public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public static bool DisableClicks = false;
@@ -262,7 +262,7 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
             PlayerEmpire.isPlayer       = true;
-            DeepSpaceManager.Setup(UniverseRadius);
+            SpaceManager.Setup(UniverseRadius);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
@@ -280,7 +280,7 @@ namespace Ship_Game
             ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
-            DeepSpaceManager.Setup(UniverseRadius);
+            SpaceManager.Setup(UniverseRadius);
         }
 
         public void SetLighting(bool real)
@@ -744,7 +744,7 @@ namespace Ship_Game
             processTurnsThread.Join(250);
             EmpireUI.empire = null;
             EmpireUI = null;
-            DeepSpaceManager.Destroy();
+            SpaceManager.Destroy();
             ScreenManager.Music.Stop();
             NebulousShit.Clear();
             bloomComponent = null;
@@ -808,7 +808,7 @@ namespace Ship_Game
             ClickableShipsList.Clear();
             ClickPlanetList.Clear();
             ClickableSystems.Clear();
-            DeepSpaceManager.Destroy();
+            SpaceManager.Destroy();
             SolarSystemList.Clear();
             starfield.UnloadContent();
             starfield.Dispose();
