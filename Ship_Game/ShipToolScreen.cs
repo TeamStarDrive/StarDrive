@@ -111,7 +111,7 @@ namespace Ship_Game
                     PrimitiveQuad newCell = new PrimitiveQuad((float)((int)this.Center.X + 16 * x), (float)((int)this.Center.Y + 16 * y), (float)this.slotsize, (float)this.slotsize);
                     SlotStruct newslot = new SlotStruct()
                     {
-                        pq = newCell,
+                        PQ = newCell,
                         Restrictions = Restrictions.I
                     };
                     this.SlotList.Add(newslot);
@@ -163,22 +163,22 @@ namespace Ship_Game
             Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, this.what, Color.White);
             foreach (SlotStruct slot in this.SlotList)
             {
-                if (!this.applyThruster && slot.pq.isFilled)
+                if (!this.applyThruster && slot.PQ.isFilled)
                 {
-                    this.spriteBatch.Draw(this.moduleSlot, slot.pq.enclosingRect, Color.White);
-                    this.spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.pq.enclosingRect.X, (float)slot.pq.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                    this.spriteBatch.Draw(this.moduleSlot, slot.PQ.enclosingRect, Color.White);
+                    this.spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
                 if (this.applyThruster || slot.ModuleUID == null)
                 {
                     continue;
                 }
-                if (slot.module.XSIZE > 1 || slot.module.YSIZE > 1)
+                if (slot.Module.XSIZE > 1 || slot.Module.YSIZE > 1)
                 {
-                    this.spriteBatch.Draw(slot.tex, new Rectangle(slot.pq.enclosingRect.X, slot.pq.enclosingRect.Y, 16 * slot.module.XSIZE, 16 * slot.module.YSIZE), Color.White);
+                    this.spriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
                 }
                 else
                 {
-                    this.spriteBatch.Draw(slot.tex, slot.pq.enclosingRect, Color.White);
+                    this.spriteBatch.Draw(slot.Tex, slot.PQ.enclosingRect, Color.White);
                 }
             }
             this.DrawHorizontalLine(this.SelectionBox.Y);
@@ -476,11 +476,11 @@ namespace Ship_Game
             {
                 foreach (SlotStruct slot in this.SlotList)
                 {
-                    if (!slot.pq.enclosingRect.Intersects(this.SelectionBox) || this.ActiveModule != null)
+                    if (!slot.PQ.enclosingRect.Intersects(this.SelectionBox) || this.ActiveModule != null)
                     {
                         continue;
                     }
-                    slot.pq.isFilled = !slot.pq.isFilled;
+                    slot.PQ.isFilled = !slot.PQ.isFilled;
                     slot.Restrictions = this.DesignState;
                 }
             }
@@ -644,10 +644,10 @@ namespace Ship_Game
             for (int i = 0; i < SlotList.Count; ++i)
             {
                 SlotStruct slot = SlotList[i];
-                if (!slot.pq.isFilled)
+                if (!slot.PQ.isFilled)
                     continue;
 
-                var pos = new Vector2(slot.pq.X + slot.pq.W / 2 - border.X, slot.pq.Y + slot.pq.H / 2 - border.Y);
+                var pos = new Vector2(slot.PQ.X + slot.PQ.W / 2 - border.X, slot.PQ.Y + slot.PQ.H / 2 - border.Y);
                 filledModules.Add(new ModuleSlotData
                 {
                     Position           = pos,

@@ -17,7 +17,32 @@ namespace Ship_Game
         public ShipModule Module;
         public string SlotOptions;
         public Texture2D Tex;
-        public bool ShowValid = true; //These values are not being set correctly in the shipyard so they are always default. false
+        public bool ShowValid = true;
         public bool ShowInvalid = true;
+
+        public void SetValidity(ShipModule module = null)
+        {
+            if (module == null)
+            {
+                ShowInvalid = true;
+                ShowValid   = true;
+                return;
+            }
+
+            ShowInvalid               = false;
+            ShowValid                 = false;
+            Restrictions restrictions = module.Restrictions;
+            if (restrictions          == Restrictions.I && (Restrictions != Restrictions.E 
+                && Restrictions      != Restrictions.O && Restrictions != Restrictions.OE)) ShowValid = true;
+            else if (restrictions     == Restrictions.O && (Restrictions != Restrictions.E 
+                && Restrictions      != Restrictions.I && Restrictions != Restrictions.IE)) ShowValid = true;
+            else if (restrictions     == Restrictions.E && (Restrictions != Restrictions.I 
+                && Restrictions      != Restrictions.O && Restrictions != Restrictions.IO)) ShowValid = true;
+            else if (restrictions     == Restrictions.IO && Restrictions != Restrictions.E) ShowValid = true;
+            else if (restrictions     == Restrictions.IE && Restrictions != Restrictions.O) ShowValid = true;
+            else if (restrictions     == Restrictions.OE && Restrictions != Restrictions.I) ShowValid = true;
+            else if (restrictions     == Restrictions.IOE) ShowValid = true;
+            else ShowInvalid          = true;
+        }
     }
 }

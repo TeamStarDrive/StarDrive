@@ -759,7 +759,7 @@ namespace Ship_Game
         public static bool TryGetHull(string shipHull, out ShipData hullData)
         {
             return HullsDict.TryGetValue(shipHull, out hullData);
-        }
+        }        
 
         public static Array<ShipData> LoadHullData() // Refactored by RedFox
         {

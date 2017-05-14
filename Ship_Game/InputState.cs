@@ -78,10 +78,12 @@ namespace Ship_Game
         //Ingame controls
         public bool PreviousTarget       => BackMouseClick;
         public bool ChaseCam             => MiddleMouseClick;
-        public bool TacticalIcons        => RepeatingKeyCheck(Keys.LeftAlt);        
+        public bool TacticalIcons        => RepeatingKeyCheck(Keys.LeftAlt);
         //Ingame debug
-       // public bool 
+        // public bool 
 
+        //ShipDesign Screen
+        public bool ShipDesignExit => CurrentKeyboardState.IsKeyDown(Keys.Y) && !LastKeyboardState.IsKeyDown(Keys.Y);
         /// <summary>
         /// below are the defaults set previously. i bleieve the idea is to set the button wanted here with a name to indicate its use.
         /// </summary>
