@@ -24,7 +24,7 @@ namespace Ship_Game.Gameplay
         public readonly string[] PermittedHangarRoles;
         public readonly short MaximumHangarShipSize;
         public readonly bool FightersOnly;
-        public readonly bool DroneModule;
+        public readonly bool DroneModule = true;
         public readonly bool FighterModule = true;
         public readonly bool CorvetteModule = true;
         public readonly bool FrigateModule = true;

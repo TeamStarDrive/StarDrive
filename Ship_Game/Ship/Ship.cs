@@ -196,7 +196,7 @@ namespace Ship_Game.Gameplay
         public float maxFTLSpeed;
         public float maxSTLSpeed;
         public float NormalWarpThrust;
-        public float BoardingDefenseTotal => (MechanicalBoardingDefense  +TroopBoardingDefense);
+        public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
 
         public Array<Empire> BorderCheck = new Array<Empire>();
 
@@ -217,7 +217,7 @@ namespace Ship_Game.Gameplay
                     if (rel.AtWar || rel.Treaty_Alliance)
                         return false;
                 }
-                return true; 
+                return true;
             }
         }
         public bool IsInFriendlySpace
@@ -233,7 +233,7 @@ namespace Ship_Game.Gameplay
                 return false;
             }
         }
-        
+
         public bool IsIndangerousSpace
         {
             get
@@ -242,7 +242,7 @@ namespace Ship_Game.Gameplay
                     if (loyalty.GetRelations(BorderCheck[i]).AtWar)
                         return true;
                 return false;
-            }            
+            }
         }
 
         private int Calculatesize()
@@ -552,7 +552,7 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                return  loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
+                return loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
             }
             set
             {
@@ -567,7 +567,7 @@ namespace Ship_Game.Gameplay
                     AI.State = AIState.AwaitingOrders;
 
                     return;
-                }                
+                }
                 EmpireManager.Player.GetGSAI().DefensiveCoordinator.AddShip(this);
                 AI.State = AIState.SystemDefender;
             }
@@ -657,12 +657,12 @@ namespace Ship_Game.Gameplay
 
         public void ShipRecreate()
         {
-            Active            = false;
-            AI.Target         = null;
+            Active = false;
+            AI.Target = null;
             AI.ColonizeTarget = null;
-            AI.EscortTarget   = null;
-            AI.start          = null;
-            AI.end            = null;
+            AI.EscortTarget = null;
+            AI.start = null;
+            AI.end = null;
             AI.PotentialTargets.Clear();
             AI.NearbyShips.Clear();
             AI.FriendliesNearby.Clear();
@@ -803,11 +803,11 @@ namespace Ship_Game.Gameplay
 
         public void AttackShip(Ship target)
         {
-            AI.State             = AIState.AttackTarget;
-            AI.Target            = target;
-            AI.HasPriorityOrder  = false;
+            AI.State = AIState.AttackTarget;
+            AI.Target = target;
+            AI.HasPriorityOrder = false;
             AI.HasPriorityTarget = true;
-            InCombatTimer        = 15f;
+            InCombatTimer = 15f;
         }
 
 
@@ -957,7 +957,7 @@ namespace Ship_Game.Gameplay
                                     Vector2 fireDirection = (pickedPos2D - w.Center).Normalized();
                                     if (w.isBeam)
                                         w.FireMouseBeam(fireDirection);
-                                    else 
+                                    else
                                         w.FireMouse(fireDirection);
                                 }
                             }
@@ -1014,9 +1014,9 @@ namespace Ship_Game.Gameplay
             if (!CheckRangeToTarget(w, target))
                 return false;
             Ship targetShip = target as Ship;
-            if (w.MassDamage >0 || w.RepulsionDamage >0)
-            {                
-                if (targetShip != null && (targetShip.EnginesKnockedOut || targetShip.IsTethered() )) 
+            if (w.MassDamage > 0 || w.RepulsionDamage > 0)
+            {
+                if (targetShip != null && (targetShip.EnginesKnockedOut || targetShip.IsTethered()))
                 {
                     return false;
                 }
@@ -1027,17 +1027,17 @@ namespace Ship_Game.Gameplay
              !loyalty.isFaction &&
            loyalty.TryGetRelations(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
                 return false;
-            
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
-            Vector2 PickedPos = target.Center;            
+
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            Vector2 PickedPos = target.Center;
             Vector2 pos = PickedPos;
-            
+
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
             float facing = w.moduleAttachedTo.Facing + MathHelper.ToDegrees(base.Rotation);
 
-            
+
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -1068,7 +1068,7 @@ namespace Ship_Game.Gameplay
         public bool CheckIfInsideFireArc(Weapon w, Vector2 pos)
         {
             //added by gremlin attackrun compensator
-            
+
             if (w.moduleAttachedTo.Center.OutsideRadius(pos, w.GetModifiedRange()))
             {
                 return false;
@@ -1104,7 +1104,7 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos )
+        public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos)
         {
 
             //added by gremlin attackrun compensator
@@ -1116,7 +1116,7 @@ namespace Ship_Game.Gameplay
                 if (modifyRangeAR < 50)
                     modifyRangeAR = 50;
             }
-            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR )
+            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR)
             {
                 return false;
             }
@@ -1154,7 +1154,7 @@ namespace Ship_Game.Gameplay
 
         // Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Ship ship)
-        {           
+        {
             Vector2 pickedPos = ship.Center;
             float radius = ship.Radius;
             ++GlobalStats.WeaponArcChecks;
@@ -1166,7 +1166,7 @@ namespace Ship_Game.Gameplay
                 if (ship.EnginesKnockedOut || ship.IsTethered())
                     return false;
             }
-            
+
             if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.speed) //&& this.maxWeaponsRange < 2000
             {
                 modifyRangeAr = Math.Max(speed * w.SalvoTimer, 50f);
@@ -1204,7 +1204,7 @@ namespace Ship_Game.Gameplay
         {
             if (w.moduleAttachedTo.Center.OutsideRadius(pickedPos, w.GetModifiedRange() + 50f))
                 return false;
-            
+
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
             Vector2 toTarget = pickedPos - w.Center;
             float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
@@ -1282,15 +1282,29 @@ namespace Ship_Game.Gameplay
         private static float GetModMaintenanceModifier(ShipData.RoleName role)
         {
             ModInformation mod = GlobalStats.ActiveModInfo;
-            if (role == ShipData.RoleName.fighter  || role == ShipData.RoleName.scout)     return mod.UpkeepFighter;
-            if (role == ShipData.RoleName.corvette || role == ShipData.RoleName.gunboat)   return mod.UpkeepCorvette;
-            if (role == ShipData.RoleName.frigate  || role == ShipData.RoleName.destroyer) return mod.UpkeepFrigate;
-            if (role == ShipData.RoleName.cruiser)   return mod.UpkeepCruiser;
-            if (role == ShipData.RoleName.carrier)   return mod.UpkeepCarrier;
-            if (role == ShipData.RoleName.capital)   return mod.UpkeepCapital;
-            if (role == ShipData.RoleName.freighter) return mod.UpkeepFreighter;
-            if (role == ShipData.RoleName.platform)  return mod.UpkeepPlatform;
-            if (role == ShipData.RoleName.station)   return mod.UpkeepStation;
+            switch (role) {
+                case ShipData.RoleName.fighter:
+                case ShipData.RoleName.scout:
+                    return mod.UpkeepFighter;
+                case ShipData.RoleName.corvette:
+                case ShipData.RoleName.gunboat:
+                    return mod.UpkeepCorvette;
+                case ShipData.RoleName.frigate:
+                case ShipData.RoleName.destroyer:
+                    return mod.UpkeepFrigate;
+                case ShipData.RoleName.cruiser:
+                    return mod.UpkeepCruiser;
+                case ShipData.RoleName.carrier:
+                    return mod.UpkeepCarrier;
+                case ShipData.RoleName.capital:
+                    return mod.UpkeepCapital;
+                case ShipData.RoleName.freighter:
+                    return mod.UpkeepFreighter;
+                case ShipData.RoleName.platform:
+                    return mod.UpkeepPlatform;
+                case ShipData.RoleName.station:
+                    return mod.UpkeepStation;
+            }
             if (role == ShipData.RoleName.drone && mod.useDrones) return mod.UpkeepDrone;
             return mod.UpkeepBaseline;
         }
@@ -1347,7 +1361,9 @@ namespace Ship_Game.Gameplay
                 case 2: case 3: case 4: return 2f;
             }
         }
-
+        private static ShipData.RoleName ShipRole => ShipRole;
+        
+        
         private static float GetShipRoleMaintenance(ShipRole role, Empire empire)
         {
             for (int i = 0; i < role.RaceList.Count; ++i)

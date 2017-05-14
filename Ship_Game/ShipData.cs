@@ -137,7 +137,7 @@ namespace Ship_Game
 
         [DllImport("SDNative.dll")]
         private static extern unsafe void DisposeShipDataParser(CShipDataParser* parser);
-
+        
         // Added by RedFox - manual parsing of ShipData, because this is the slowest part 
         // in loading, the brunt work is offloaded to C++ and then copied back into C#
         public static unsafe ShipData Parse(FileInfo info)
@@ -255,10 +255,10 @@ namespace Ship_Game
             construction,
             supply,
             freighter,
-            troop,
-            Support,
+            troop,            
             fighter,
             scout,
+            Support,
             gunboat,
             drone,
             corvette,

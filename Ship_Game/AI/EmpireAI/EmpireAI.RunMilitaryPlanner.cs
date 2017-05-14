@@ -16,7 +16,7 @@ namespace Ship_Game.AI {
             if (!OwnerEmpire.MinorRace)
                 RunGroundPlanner();
             NumberOfShipGoals = 0;
-            foreach (var p in OwnerEmpire.GetPlanets())
+            foreach (Planet p in OwnerEmpire.GetPlanets())
             {
                 if(p.WorkerPercentage > .75 || p.GetMaxProductionPotential() < 2f)                
                     continue;
@@ -259,34 +259,32 @@ namespace Ship_Game.AI {
                 }
                 else
                 {
-                    if(g.GetMarkedPlanet() != null)
+                    if (g.GetMarkedPlanet() == null) continue;
+                    foreach (var kv in ThreatMatrix.Pins
+                        .Where(pin => !(g.GetMarkedPlanet().Position.OutsideRadius(pin.Value.Position,75000f)
+                                        || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == OwnerEmpire ||
+                                        pin.Value.Strength <= 0f
+                                        || !OwnerEmpire
+                                            .GetRelations(EmpireManager.GetEmpireByName(pin.Value.EmpireName))
+                                            .AtWar)))
                     {
-                        foreach (var kv in ThreatMatrix.Pins
-                            .Where(pin => !(g.GetMarkedPlanet().Position.OutsideRadius(pin.Value.Position,75000f)
-                                            || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == OwnerEmpire ||
-                                            pin.Value.Strength <= 0f
-                                            || !OwnerEmpire
-                                                .GetRelations(EmpireManager.GetEmpireByName(pin.Value.EmpireName))
-                                                .AtWar)))
+                        if (g.GetMarkedPlanet().Position.OutsideRadius(kv.Value.Position, 75000f)
+                            || EmpireManager.GetEmpireByName(kv.Value.EmpireName) == OwnerEmpire ||
+                            kv.Value.Strength <= 0f
+                            || !OwnerEmpire.GetRelations(EmpireManager.GetEmpireByName(kv.Value.EmpireName)).AtWar
+                            && !EmpireManager.GetEmpireByName(kv.Value.EmpireName).isFaction)
                         {
-                            if (g.GetMarkedPlanet().Position.OutsideRadius(kv.Value.Position, 75000f)
-                                || EmpireManager.GetEmpireByName(kv.Value.EmpireName) == OwnerEmpire ||
-                                kv.Value.Strength <= 0f
-                                || !OwnerEmpire.GetRelations(EmpireManager.GetEmpireByName(kv.Value.EmpireName)).AtWar
-                                && !EmpireManager.GetEmpireByName(kv.Value.EmpireName).isFaction)
-                            {
-                                continue;
-                            }
-                            var tohold = new Array<Goal>
-                            {
-                                g
-                            };
-                            var task =
-                                new MilitaryTask(g.GetMarkedPlanet().Position, 125000f, tohold, OwnerEmpire);
-                            {
-                                TaskList.Add(task);
-                                break;
-                            }
+                            continue;
+                        }
+                        var tohold = new Array<Goal>
+                        {
+                            g
+                        };
+                        var task =
+                            new MilitaryTask(g.GetMarkedPlanet().Position, 125000f, tohold, OwnerEmpire);
+                        {
+                            TaskList.Add(task);
+                            break;
                         }
                     }
                 }
@@ -425,9 +423,9 @@ namespace Ship_Game.AI {
                     
                 }
                 var tnInOurSystems = new Array<MilitaryTask>();
-                var tnInOurAOs = new Array<MilitaryTask>();
-                var tnRemainder = new Array<MilitaryTask>();
-                Toughnuts = toughNuts.Count;
+                var tnInOurAOs     = new Array<MilitaryTask>();
+                var tnRemainder    = new Array<MilitaryTask>();
+                Toughnuts          = toughNuts.Count;
                 foreach (MilitaryTask task in toughNuts)
                 {
                     if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().system))
