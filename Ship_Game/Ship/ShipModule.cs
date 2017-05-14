@@ -778,7 +778,7 @@ namespace Ship_Game.Gameplay
                     GameplayObject damageCauser = Parent.LastDamagedBy;
                     if (damageCauser == null)
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
-                    ActiveSpatialManager.ExplodeAtModule(damageCauser, this, 
+                    UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this, 
                         ignoreShields:true, damageAmount:size*2500, damageRadius:size*64);
                 }
                 if (PowerFlowMax > 0 || PowerRadius > 0)
