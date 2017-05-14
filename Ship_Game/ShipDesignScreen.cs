@@ -569,8 +569,8 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime)
         {
-            Color lightGreen;
-            Color color;
+            Color unpoweredColored;
+            Color activeColor;
             lock (GlobalStats.ObjectManagerLocker)
             {
                 base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
@@ -579,14 +579,17 @@ namespace Ship_Game
                 Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
                 base.ScreenManager.inter.RenderManager.Render();
             }
-            base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, this.camera.get_transformation(base.ScreenManager.GraphicsDevice));
+            base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None
+                , this.camera.get_transformation(base.ScreenManager.GraphicsDevice));
             if (this.ToggleOverlay)
             {
                 foreach (SlotStruct slot in this.Slots)
                 {
                     if (slot.Module != null)
                     {
-                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.Texture("Modules/tile_concreteglass_1x1"), new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.Gray);
+                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.Texture("Modules/tile_concreteglass_1x1")
+                            , new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
+                            , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.Gray);
                     }
                     else
                     {
@@ -597,21 +600,23 @@ namespace Ship_Game
                             Rectangle rectangle = slot.PQ.enclosingRect;
                             if (slot.ShowValid)
                             {
-                                color = Color.LightGreen;
+                                activeColor = Color.LightGreen;
                             }
                             else
                             {
-                                color = (slot.ShowInvalid ? Color.Red : Color.White);
+                                activeColor = (slot.ShowInvalid ? Color.Red : Color.White);
                             }
-                            spriteBatch.Draw(item, rectangle, color);
+                            spriteBatch.Draw(item, rectangle, activeColor);
                             if (slot.Powered)
                             {
-                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/tile_concreteglass_1x1"), slot.PQ.enclosingRect, new Color(255, 255, 0, 150));
+                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/tile_concreteglass_1x1")
+                                    , slot.PQ.enclosingRect, new Color(255, 255, 0, 150));
                             }
                         }
                         else if (slot.Powered)
                         {
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/tile_concreteglass_1x1"), slot.PQ.enclosingRect, Color.Yellow);
+                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/tile_concreteglass_1x1")
+                                , slot.PQ.enclosingRect, Color.Yellow);
                         }
                         else
                         {
@@ -620,18 +625,20 @@ namespace Ship_Game
                             Rectangle rectangle1 = slot.PQ.enclosingRect;
                             if (slot.ShowValid)
                             {
-                                lightGreen = Color.LightGreen;
+                                unpoweredColored = Color.LightGreen;
                             }
                             else
                             {
-                                lightGreen = (slot.ShowInvalid ? Color.Red : Color.White);
+                                unpoweredColored = (slot.ShowInvalid ? Color.Red : Color.White);
                             }
-                            spriteBatch1.Draw(texture2D, rectangle1, lightGreen);
+                            spriteBatch1.Draw(texture2D, rectangle1, unpoweredColored);
                         }
                     }
                     if (slot.Module != null)
                         continue;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions)
+                        , new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y)
+                        , Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
                 foreach (SlotStruct slot in this.Slots)
                 {
@@ -657,7 +664,8 @@ namespace Ship_Game
                                 r.Width  = h; // swap width & height
                                 r.Height = w;
                                 r.Y += h;
-                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero
+                                    , SpriteEffects.None, 1f);
                                 break;
                             }
                             case ActiveModuleState.Right:
@@ -667,12 +675,14 @@ namespace Ship_Game
                                 r.Width = w;
                                 r.Height = h;
                                 r.X += h;
-                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero
+                                    , SpriteEffects.None, 1f);
                                 break;
                             }
                             case ActiveModuleState.Rear:
                             {
-                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
+                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero
+                                    , SpriteEffects.FlipVertically, 1f);
                                 break;
                             }
                         }
@@ -697,17 +707,21 @@ namespace Ship_Game
                     }
                     else if (slot.SlotReference.Position.X <= 256f)
                     {
-                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
+                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
+                            , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
                     }
                     else
                     {
-                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
+                            , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), null, Color.White, 0f, Vector2.Zero
+                            , SpriteEffects.FlipHorizontally, 1f);
                     }
                     if (slot.Module != HoveredModule)
                     {
                         continue;
                     }
-                    Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White, 2f);
+                    Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
+                        , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White, 2f);
                 }
                 foreach (SlotStruct slot in this.Slots)
                 {
@@ -717,7 +731,8 @@ namespace Ship_Game
                     }
                     if (slot.Module.shield_power_max > 0f)
                     {
-                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2)
+                            , (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         DrawCircle(Center, slot.Module.shield_radius, 50, Color.LightGreen);
                     }
 
@@ -728,21 +743,24 @@ namespace Ship_Game
                     //Original by The Doctor, modified by McShooterz
                     if (slot.Module.FieldOfFire == 90f)
                     {
-                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2), (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
+                        Vector2 Center = new Vector2((float)(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2)
+                            , (float)(slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
                         if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)
                         {
                             Color drawcolor = new Color(255, 255, 0, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable4 = null;
-                            base.ScreenManager.SpriteBatch.Draw(arcTexture, toDraw, nullable4, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(arcTexture, toDraw, nullable4, drawcolor
+                                , (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)
                         {
                             Color drawcolor = new Color(255, 0, 255, 255);
                             Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
                             Rectangle? nullable5 = null;
-                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"]
+                                , toDraw, nullable5, drawcolor, (float)slot.Module.Facing.ToRadians(), Origin, SpriteEffects.None, 1f);
                         }
                         else if (slot.Module.InstalledWeapon.Tag_Cannon)
                         {
@@ -3738,7 +3756,8 @@ namespace Ship_Game
             }
             this.CarrierOnlyBox.HandleInput(input);
 
-            if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null && this.ActiveModule.ModuleType != ShipModuleType.Turret || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
+            if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null 
+                && this.ActiveModule.ModuleType != ShipModuleType.Turret || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
             {
                 if (input.Left)
                     this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Left);
@@ -3749,14 +3768,15 @@ namespace Ship_Game
                 if (input.Up)
                     this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Normal);
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !input.LastKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
+            if (input.ShipDesignExit && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
             }
             if (this.close.HandleInput(input))
                 this.ExitScreen();
-            else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && input.LastKeyboardState.IsKeyUp(Keys.Z) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+            else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && input.LastKeyboardState.IsKeyUp(Keys.Z)
+                && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
             {
                 if (this.DesignStack.Count <= 0)
                     return;
@@ -3806,7 +3826,9 @@ namespace Ship_Game
             }
             else
             {
-                if (!HelperFunctions.CheckIntersection(this.ModuleSelectionMenu.Menu, input.CursorPosition) && !HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition) && !HelperFunctions.CheckIntersection(this.ChooseFighterSub.Menu, input.CursorPosition))
+                if (!HelperFunctions.CheckIntersection(this.ModuleSelectionMenu.Menu, input.CursorPosition)
+                    && !HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition)
+                    && !HelperFunctions.CheckIntersection(this.ChooseFighterSub.Menu, input.CursorPosition))
                 {
                     if (input.ScrollOut)
                     {
@@ -3825,8 +3847,6 @@ namespace Ship_Game
                             this.TransitionZoom = 2.65f;
                     }
                 }
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde))
-                    input.LastKeyboardState.IsKeyUp(Keys.OemTilde);
 
                 if (Debug)
                 {
@@ -3849,7 +3869,8 @@ namespace Ship_Game
                 this.EmpireUI.HandleInput(input, this);
                 this.activeModSubMenu.HandleInputNoReset(this);
                 this.hullSL.HandleInput(input);
-                for (int index = hullSL.indexAtTop; index < hullSL.Copied.Count && index < hullSL.indexAtTop + hullSL.entriesToDisplay; ++index)
+                for (int index = hullSL.indexAtTop;
+                    index < hullSL.Copied.Count && index < hullSL.indexAtTop + hullSL.entriesToDisplay; ++index)
                 {
                     ScrollList.Entry e = hullSL.Copied[index];
                     if (e.item is ModuleHeader)
@@ -3887,11 +3908,13 @@ namespace Ship_Game
                 this.modSel.HandleInput((object)this);
                 if (this.ActiveModule != null)
                 {
-                    if (this.ActiveModule.ModuleType == ShipModuleType.Hangar && !this.ActiveModule.IsTroopBay && !this.ActiveModule.IsSupplyBay)
+                    if (this.ActiveModule.ModuleType == ShipModuleType.Hangar && !this.ActiveModule.IsTroopBay
+                        && !this.ActiveModule.IsSupplyBay)
                     {
                         this.UpdateHangarOptions(this.ActiveModule);
                         this.ChooseFighterSL.HandleInput(input);
-                        for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
+                        for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count
+                            && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
                         {
                             ScrollList.Entry entry = this.ChooseFighterSL.Copied[index];
                             if (HelperFunctions.CheckIntersection(entry.clickRect, vector2))
@@ -3910,10 +3933,12 @@ namespace Ship_Game
                         }
                     }
                 }
-                else if (this.HighlightedModule != null && this.HighlightedModule.ModuleType == ShipModuleType.Hangar && (!this.HighlightedModule.IsTroopBay && !this.HighlightedModule.IsSupplyBay))
+                else if (this.HighlightedModule != null && this.HighlightedModule.ModuleType == ShipModuleType.Hangar
+                    && (!this.HighlightedModule.IsTroopBay && !this.HighlightedModule.IsSupplyBay))
                 {
                     this.ChooseFighterSL.HandleInput(input);
-                    for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
+                    for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count
+                        && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
                     {
                         ScrollList.Entry entry = this.ChooseFighterSL.Copied[index];
                         if (HelperFunctions.CheckIntersection(entry.clickRect, vector2))
@@ -3931,7 +3956,8 @@ namespace Ship_Game
                         }
                     }
                 }
-                for (int index = this.weaponSL.indexAtTop; index < this.weaponSL.Copied.Count && index < this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay; ++index)
+                for (int index = this.weaponSL.indexAtTop; index < this.weaponSL.Copied.Count
+                    && index < this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay; ++index)
                 {
                     ScrollList.Entry e = this.weaponSL.Copied[index];
                     if (e.item is ModuleHeader)
@@ -3955,13 +3981,20 @@ namespace Ship_Game
                         e.clickRectHover = 0;
                 }
                 this.weaponSL.HandleInput(input);
-                if (HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed || HelperFunctions.CheckIntersection(this.modSel.Menu, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed || HelperFunctions.CheckIntersection(this.activeModSubMenu.Menu, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+                if (HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition)
+                    && input.CurrentMouseState.LeftButton == ButtonState.Pressed
+                    || HelperFunctions.CheckIntersection(this.modSel.Menu, input.CursorPosition)
+                    && input.CurrentMouseState.LeftButton == ButtonState.Pressed
+                    || HelperFunctions.CheckIntersection(this.activeModSubMenu.Menu, input.CursorPosition)
+                    && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                     return;
                 if (HelperFunctions.CheckIntersection(this.modSel.Menu, vector2))
                 {
-                    if (this.mouseStateCurrent.ScrollWheelValue > this.mouseStatePrevious.ScrollWheelValue && this.weaponSL.indexAtTop > 0)
+                    if (this.mouseStateCurrent.ScrollWheelValue > this.mouseStatePrevious.ScrollWheelValue
+                        && this.weaponSL.indexAtTop > 0)
                         --this.weaponSL.indexAtTop;
-                    if (this.mouseStateCurrent.ScrollWheelValue < this.mouseStatePrevious.ScrollWheelValue && this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay < this.weaponSL.Entries.Count)
+                    if (this.mouseStateCurrent.ScrollWheelValue < this.mouseStatePrevious.ScrollWheelValue
+                        && this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay < this.weaponSL.Entries.Count)
                         ++this.weaponSL.indexAtTop;
                 }
                 if (HelperFunctions.CheckIntersection(this.ArcsButton.R, input.CursorPosition))
@@ -4030,7 +4063,7 @@ namespace Ship_Game
                     foreach (ModuleButton moduleButton in this.ModuleButtons)
                         moduleButton.moduleRect.Y += 128;
                 }
-                if (HelperFunctions.CheckIntersection(this.downArrow, vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+                if (HelperFunctions.CheckIntersection(this.downArrow, vector2) && input.LeftMouseClick)
                 {
                     ++this.scrollPosition;
                     GameAudio.PlaySfxAsync("blip_click");
@@ -4054,31 +4087,34 @@ namespace Ship_Game
                             moduleButton.moduleRect.Y -= 128;
                     }
                 }
-                if (this.mouseStateCurrent.RightButton == ButtonState.Released && this.mouseStatePrevious.RightButton == ButtonState.Pressed)
+                if (input.RightMouseClick)
                 {
                     //this should actually clear slots
                     this.ActiveModule = (ShipModule)null;
-                    foreach (SlotStruct parent in this.Slots)
+                    foreach (SlotStruct slot in this.Slots)
                     {
-                        parent.ShowInvalid = false;
-                        parent.ShowValid = false;
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)parent.PQ.enclosingRect.X, (float)parent.PQ.enclosingRect.Y));
-                        Rectangle rect = new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom));
-                        if (parent.Module != null && HelperFunctions.CheckIntersection(rect, vector2)) //if clicked at this slot
+                        slot.SetValidity(null);
+                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(
+                            new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y));
+                        Rectangle rect = new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y
+                            , (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom));
+                        if (slot.Module != null && HelperFunctions.CheckIntersection(rect, vector2)) //if clicked at this slot
                         {
+                            slot.SetValidity(slot.Module);
                             DesignAction designAction = new DesignAction();
-                            designAction.clickedSS               = new SlotStruct();
-                            designAction.clickedSS.PQ            = parent.PQ;
-                            designAction.clickedSS.Restrictions  = parent.Restrictions;
-                            designAction.clickedSS.Facing        = parent.Module != null ? parent.Module.Facing : 0.0f;
-                            designAction.clickedSS.ModuleUID     = parent.ModuleUID;
-                            designAction.clickedSS.Module        = parent.Module;
-                            designAction.clickedSS.SlotReference = parent.SlotReference;
+                            designAction.clickedSS = new SlotStruct();
+                            designAction.clickedSS.PQ = slot.PQ;
+                            designAction.clickedSS.Restrictions = slot.Restrictions;
+                            designAction.clickedSS.Facing = slot.Module != null ? slot.Module.Facing : 0.0f;
+                            designAction.clickedSS.ModuleUID = slot.ModuleUID;
+                            designAction.clickedSS.Module = slot.Module;
+                            designAction.clickedSS.SlotReference = slot.SlotReference;
                             DesignStack.Push(designAction);
                             GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                            ClearParentSlot(parent);
+                            ClearParentSlot(slot);
                             RecalculatePower();
                         }
+
                     }
                 }
                 foreach (ModuleButton moduleButton in this.ModuleButtons)
@@ -4099,12 +4135,15 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slot in this.Slots)
                     {
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y));
-                        if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
+                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.PQ.enclosingRect.X
+                            , (float)slot.PQ.enclosingRect.Y));
+                        if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y
+                            , (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
                         {
                             GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
-                            if (slot.PQ.X != this.lastDesignActionPos.X || slot.PQ.Y != this.lastDesignActionPos.Y || ActiveModule.UID != this.lastActiveUID)
+                            if (slot.PQ.X != this.lastDesignActionPos.X || slot.PQ.Y != this.lastDesignActionPos.Y
+                                || ActiveModule.UID != this.lastActiveUID)
                             {
                                 this.InstallModule(slot);                       //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
                                 this.lastDesignActionPos.X = slot.PQ.X;
@@ -4114,7 +4153,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                else if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+                else if (input.LeftMouseClick)
                     this.HoldTimer -= .01666f;
                 else
                     this.HoldTimer = 0.50f;
@@ -4149,14 +4188,14 @@ namespace Ship_Game
                         else
                         {
                             //Delay method
-                            if (  (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                            if ((this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
                             {
                                 this.HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);
-                            }                           
-                            
+                            }
+
                         }
 
-                        
+
 
                     }
                 }
@@ -4225,7 +4264,7 @@ namespace Ship_Game
                                         break;
                                     case "broadside_left":
                                         this.CombatState = CombatState.BroadsideLeft;
-                                        break;                                         
+                                        break;
                                     case "orbit_right":
                                         this.CombatState = CombatState.OrbitRight;
                                         break;
@@ -5108,12 +5147,13 @@ namespace Ship_Game
 
         public void SetActiveModule(ShipModule mod)
         {
+
             GameAudio.PlaySfxAsync("smallservo");
             mod.SetAttributesNoParent();
             this.ActiveModule = mod;
             this.ResetModuleState();
             foreach (SlotStruct s in this.Slots)                                    
-                s.SetVisibility(ResourceManager.GetModuleTemplate(ActiveModule.UID).Restrictions);
+                s.SetValidity(ActiveModule);
             
             if (this.ActiveHangarModule != this.ActiveModule && this.ActiveModule.ModuleType == ShipModuleType.Hangar)
             {
@@ -5174,17 +5214,17 @@ namespace Ship_Game
                     ModuleUID     = slot.InstalledModuleUID,
                     SlotReference = slot,
                     SlotOptions   = slot.SlotOptions
-                };
-                ss.SetVisibility(slot.Restrictions);
+                };                
                 this.Slots.Add(ss);
             }
             foreach (SlotStruct slot in this.Slots)
             {
+                slot.SetValidity();
                 if (slot.ModuleUID == null)
-                {
+                {                    
                     continue;
                 }
-                this.ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);
+                this.ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);                
                 this.ChangeModuleState(slot.State);
                 this.InstallModuleFromLoad(slot);
                 if (slot.Module == null || slot.Module.ModuleType != ShipModuleType.Hangar)
@@ -5209,7 +5249,8 @@ namespace Ship_Game
             {
                 this.camera.Zoom = 2.65f;
             }
-            this.cameraPosition.Z = this.OriginalZ / this.camera.Zoom;
+
+                this.cameraPosition.Z = this.OriginalZ / this.camera.Zoom;
             Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
             this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);

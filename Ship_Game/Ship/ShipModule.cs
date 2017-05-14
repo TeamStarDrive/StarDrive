@@ -229,22 +229,23 @@ namespace Ship_Game.Gameplay
             var module = new ShipModule
             {
                 // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
-                Flyweight            = template.Flyweight,
-                DescriptionIndex     = template.DescriptionIndex,
-                FieldOfFire          = template.FieldOfFire,
-                hangarShipUID        = template.hangarShipUID,
-                hangarTimer          = template.hangarTimer,
-                Health               = template.HealthMax,
-                HealthMax            = template.HealthMax,
-                isWeapon             = template.isWeapon,
-                Mass                 = template.Mass,
-                ModuleType           = template.ModuleType,
-                NameIndex            = template.NameIndex,
-                OrdinanceCapacity    = template.OrdinanceCapacity,
-                ShieldPower          = template.shield_power_max, //Hmmm... This one is strange -Gretman
-                XSIZE                = template.XSIZE,
-                YSIZE                = template.YSIZE,
-                IconTexturePath      = template.IconTexturePath,
+                Flyweight         = template.Flyweight,
+                DescriptionIndex  = template.DescriptionIndex,
+                FieldOfFire       = template.FieldOfFire,
+                hangarShipUID     = template.hangarShipUID,
+                hangarTimer       = template.hangarTimer,
+                Health            = template.HealthMax,
+                HealthMax         = template.HealthMax,
+                isWeapon          = template.isWeapon,
+                Mass              = template.Mass,
+                ModuleType        = template.ModuleType,
+                NameIndex         = template.NameIndex,
+                OrdinanceCapacity = template.OrdinanceCapacity,
+                ShieldPower       = template.shield_power_max, //Hmmm... This one is strange -Gretman
+                XSIZE             = template.XSIZE,
+                YSIZE             = template.YSIZE,
+                IconTexturePath   = template.IconTexturePath,
+                Restrictions      = template.Restrictions
             };
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
