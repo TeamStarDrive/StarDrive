@@ -564,6 +564,39 @@ namespace Ship_Game
             victim.CollidedThisFrame     = true;
         }
 
+        private static void FindNearbyAtNode(Node node, ref SpatialObj nearbyDummy, GameObjectType filter, 
+                                             ref int numNearby, ref GameplayObject[] nearby)
+        {
+            int count = node.Count;
+            if (count <= 0)
+                return;
+
+            int maxNewLength = numNearby + count;
+            SpatialObj[] items = node.Items;
+            for (int i = 0; i < count; ++i)
+            {
+                ref SpatialObj so = ref items[i];
+                if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
+                    continue; // no filter match
+
+                if (!nearbyDummy.HitTestNearby(ref so))
+                    continue;
+
+                if (numNearby == nearby.Length) // "clever" resize
+                    Array.Resize(ref nearby, maxNewLength - i);
+
+                nearby[numNearby++] = so.Obj;
+            }
+
+            if (node.NW != null)
+            {
+                FindNearbyAtNode(node.NW, ref nearbyDummy, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node.NE, ref nearbyDummy, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node.SE, ref nearbyDummy, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node.SW, ref nearbyDummy, filter, ref numNearby, ref nearby);
+            }
+        }
+
         public GameplayObject[] FindNearby(Vector2 pos, float radius, GameObjectType filter = GameObjectType.None)
         {
             // assume most results will be either empty, or only from a single quadrant
@@ -581,36 +614,12 @@ namespace Ship_Game
 
             // find the deepest enclosing node
             Node node = FindEnclosingNode(ref nearbyDummy);
-
-            // now work back upwards
-            while (node != null)
-            {
-                int count = node.Count;
-                if (count > 0)
-                {
-                    int maxNewLength = numNearby + count;
-                    if (nearby.Length < maxNewLength) // optimistic: all in range
-                        Array.Resize(ref nearby, maxNewLength);
-
-                    SpatialObj[] items = node.Items;
-                    for (int i = 0; i < count; ++i)
-                    {
-                        ref SpatialObj so = ref items[i];
-                        if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
-                            continue; // no filter match
-
-                        if (nearbyDummy.HitTestNearby(ref so))
-                            nearby[numNearby++] = so.Obj;
-                    }
-                }
-
-                node = node.Parent;
-                if (node == null || ((node.X + node.LastX)/2f) > radius)
-                    break;
-            }
+            if (node != null)
+                FindNearbyAtNode(node, ref nearbyDummy, filter, ref numNearby, ref nearby);
 
             if (numNearby != nearby.Length)
                 Array.Resize(ref nearby, numNearby);
+
             return nearby;
         }
 

@@ -203,7 +203,7 @@ namespace Ship_Game.Gameplay
         public float FTLModifier { get; private set; } = 1f;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None)
-            => UniverseScreen.SpaceManager.FindNearby(Position, SensorRange);
+            => UniverseScreen.SpaceManager.FindNearby(Position, SensorRange, filter);
 
         public bool IsInNeutralSpace
         {
@@ -2940,11 +2940,11 @@ namespace Ship_Game.Gameplay
                 if (shipStatusChanged || InCombat)
                     ShipStatusChange();
                 //Power draw based on warp
-                if (!inborders && engineState == Ship.MoveState.Warp)
+                if (!inborders && engineState == MoveState.Warp)
                 {
                     PowerDraw = (loyalty.data.FTLPowerDrainModifier * ModulePowerDraw) + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
                 }
-                else if (engineState != Ship.MoveState.Warp && ShieldsUp)
+                else if (engineState != MoveState.Warp && ShieldsUp)
                     PowerDraw = ModulePowerDraw + ShieldPowerDraw;
                 else
                     PowerDraw = ModulePowerDraw;
@@ -2954,7 +2954,7 @@ namespace Ship_Game.Gameplay
                 foreach (ShipModule slot in ModuleSlotList)
                     slot.Update(1f);
                 //Check Current Shields
-                if (engineState == Ship.MoveState.Warp || !ShieldsUp)
+                if (engineState == MoveState.Warp || !ShieldsUp)
                     shield_power = 0f;
                 else
                 {
