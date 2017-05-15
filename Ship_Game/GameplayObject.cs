@@ -15,7 +15,7 @@ namespace Ship_Game
         None       = 0,
         Ship       = 1,
         ShipModule = 2,
-        Projectile = 4,
+        Proj       = 4,
         Beam       = 8,
         Asteroid   = 16,
         Moon       = 32,
@@ -74,23 +74,21 @@ namespace Ship_Game
         public virtual void Initialize()
         {
             if (!DisableSpatialCollision && SpatialIndex == -1 && Empire.Universe != null) // not assigned to a SpatialManager yet?
-                ActiveSpatialManager.Add(this);
+                UniverseScreen.SpaceManager.Add(this);
         }
 
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
             if (SpatialIndex != -1)
-                ActiveSpatialManager.Remove(this);
+                UniverseScreen.SpaceManager.Remove(this);
         }
 
         [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";
 
-        [XmlIgnore][JsonIgnore] 
-        public SpatialManager ActiveSpatialManager => UniverseScreen.DeepSpaceManager;
-
-        public T[] GetNearby<T>() where T : GameplayObject => ActiveSpatialManager.GetNearby<T>(Position, Radius);        
+        public GameplayObject[] FindNearby(GameObjectType filter = GameObjectType.None)
+            => UniverseScreen.SpaceManager.FindNearby(Position, Radius, filter);    
 
         public void SetSystem(SolarSystem system)
         {
@@ -105,7 +103,7 @@ namespace Ship_Game
             System = system;
 
             if (!DisableSpatialCollision && SpatialIndex == -1 && Active && Empire.Universe != null)
-                ActiveSpatialManager.Add(this);
+                UniverseScreen.SpaceManager.Add(this);
         }
 
 

@@ -1160,7 +1160,8 @@ namespace Ship_Game
                     for (int i = 0; i < ship.AI.TargetQueue.Count - 1; ++i)
                     {
                         var target = ship.AI.TargetQueue[i];
-                        if (!target?.Active ?? true) continue;
+                        if (target == null || !target.Active)
+                            continue;
                         DrawLineProjected(target.Center, ship.AI.TargetQueue[i].Center,
                             Colors.Attack((byte) (alpha * .5f)));
                     }

@@ -188,7 +188,7 @@ namespace Ship_Game
 
         public override bool Touch(GameplayObject target)
         {
-            if (target == null || target == Owner && !Weapon.HitsFriendlies || target is Ship)
+            if (target == null || target == Owner || target is Ship)
                 return false;
             if (target is Projectile && WeaponType != "Missile")
                 return false;
