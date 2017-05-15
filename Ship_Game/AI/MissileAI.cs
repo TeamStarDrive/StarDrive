@@ -185,7 +185,8 @@ namespace Ship_Game.AI
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-            if (Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM || Owner.Weapon.TerminalPhaseAttack))
+            if (Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM 
+                || Owner.Weapon.TerminalPhaseAttack))
             {
                 float distancetoTarget = Owner.Center.Distance(Target.Center);
                 if (Jammed)

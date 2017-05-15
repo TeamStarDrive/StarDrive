@@ -21,7 +21,7 @@ namespace Ship_Game.Gameplay
         private MissileAI MissileAI;
         public float VelocityMax;
         public float Speed;
-        public float Range;
+        public float Range;        
         public float DamageAmount;
         public float DamageRadius;
         public float ExplosionRadiusMod;
@@ -135,8 +135,7 @@ namespace Ship_Game.Gameplay
                 if (Explodes)
                 {
                     if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
-                    {
-                        DamageAmount += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageAmount;
+                    {                        
                         DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
                     }
 
