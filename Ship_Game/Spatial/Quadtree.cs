@@ -44,10 +44,10 @@ namespace Ship_Game
                 LastX    = Cx + Radius;
                 LastY    = Cy + Radius;
             }
-            if ((Type & GameObjectType.Proj) != 0) Loyalty = ((Projectile)go).Loyalty?.Id ?? 0;
-            else if ((Type & GameObjectType.Ship) != 0)  Loyalty = ((Ship)go).loyalty?.Id ?? 0;
-            else                                         Loyalty = 0;
-            LastCollided = 0;
+            if      ((Type & GameObjectType.Proj) != 0) Loyalty = ((Projectile)go).Loyalty?.Id ?? 0;
+            else if ((Type & GameObjectType.Ship) != 0) Loyalty = ((Ship)go).loyalty?.Id ?? 0;
+            else                                        Loyalty = 0;
+            LastCollided  = 0;
             OverlapsQuads = false;
         }
 
