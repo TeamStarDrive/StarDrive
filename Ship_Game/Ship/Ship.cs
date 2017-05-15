@@ -202,7 +202,8 @@ namespace Ship_Game.Gameplay
 
         public float FTLModifier { get; private set; } = 1f;
 
-        public T[] GetObjectsInSensors<T>() where T : GameplayObject => ActiveSpatialManager.GetNearby<T>(Position, SensorRange);
+        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None)
+            => UniverseScreen.SpaceManager.FindNearby(Position, SensorRange, filter);
 
         public bool IsInNeutralSpace
         {
@@ -2925,9 +2926,10 @@ namespace Ship_Game.Gameplay
                     inSensorRange = true;
                 else if (!inSensorRange)
                 {
-                    Ship[] nearby = GetObjectsInSensors<Ship>();
-                    foreach (Ship ship in nearby)
+                    GameplayObject[] nearby = GetObjectsInSensors(GameObjectType.Ship);
+                    foreach (GameplayObject go in nearby)
                     {
+                        var ship = (Ship) go;
                         if (ship.loyalty == EmpireManager.Player && (Center.InRadius(ship.Position, ship.SensorRange) || Empire.Universe.Debug))
                         {
                             inSensorRange = true;
@@ -2938,11 +2940,11 @@ namespace Ship_Game.Gameplay
                 if (shipStatusChanged || InCombat)
                     ShipStatusChange();
                 //Power draw based on warp
-                if (!inborders && engineState == Ship.MoveState.Warp)
+                if (!inborders && engineState == MoveState.Warp)
                 {
                     PowerDraw = (loyalty.data.FTLPowerDrainModifier * ModulePowerDraw) + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
                 }
-                else if (engineState != Ship.MoveState.Warp && ShieldsUp)
+                else if (engineState != MoveState.Warp && ShieldsUp)
                     PowerDraw = ModulePowerDraw + ShieldPowerDraw;
                 else
                     PowerDraw = ModulePowerDraw;
@@ -2952,7 +2954,7 @@ namespace Ship_Game.Gameplay
                 foreach (ShipModule slot in ModuleSlotList)
                     slot.Update(1f);
                 //Check Current Shields
-                if (engineState == Ship.MoveState.Warp || !ShieldsUp)
+                if (engineState == MoveState.Warp || !ShieldsUp)
                     shield_power = 0f;
                 else
                 {
@@ -3662,7 +3664,7 @@ namespace Ship_Game.Gameplay
                     default:                            ExplodeShip(600f, cleanupOnly); break;
                 }
 
-                ActiveSpatialManager.ShipExplode(this, Size * 50, Center, Radius);
+                UniverseScreen.SpaceManager.ShipExplode(this, Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {
@@ -3685,6 +3687,8 @@ namespace Ship_Game.Gameplay
                 Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
             QueueTotalRemoval();
+
+            base.Die(source, cleanupOnly);
         }
 
         public void QueueTotalRemoval()

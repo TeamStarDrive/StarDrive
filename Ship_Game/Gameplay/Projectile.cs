@@ -71,7 +71,7 @@ namespace Ship_Game.Gameplay
         public Ship Owner { get; protected set; }
         public Planet Planet { get; private set; }
 
-        public Projectile() : base(GameObjectType.Projectile)
+        public Projectile() : base(GameObjectType.Proj)
         {
         }
 
@@ -152,7 +152,7 @@ namespace Ship_Game.Gameplay
                             Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                     }
 
-                    ActiveSpatialManager.ProjectileExplode(this, DamageAmount, DamageRadius);
+                    UniverseScreen.SpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
                 }
                 else if (Weapon.FakeExplode && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
@@ -468,140 +468,133 @@ namespace Ship_Game.Gameplay
 
         public override bool Touch(GameplayObject target)
         {
-            if (Miss)
-            {
+            if (Miss || target == Owner)
                 return false;
-            }
-            if (target != null)
-            {
-                if (target == Owner && !Weapon.HitsFriendlies)
-                {
-                    return false;
-                }
-                var projectile = target as Projectile;
-                if (projectile != null)
-                {
-                    if (Owner != null && projectile.Loyalty == Owner.loyalty)
-                    {
-                        return false;
-                    }
-                    if (projectile.WeaponType == "Missile")
-                    {
-                        float ran = UniverseRandom.RandomBetween(0f, 1f);
-                        if (projectile.Loyalty != null && ran >= projectile.Loyalty.data.MissileDodgeChance)
-                        {
-                            projectile.DamageMissile(this, DamageAmount);
-                            return true;
-                        }
-                    }
-                    else if (Weapon.Tag_Intercept || projectile.Weapon.Tag_Intercept)
-                    {
-                        DieNextFrame = true;
-                        projectile.DieNextFrame = true;
-                    }
-                    return false;
-                }
-                if (target is Asteroid)
-                {
-                    if (!Explodes)
-                    {
-                        target.Damage(this, DamageAmount);
-                    }
-                    Die(null, false);
-                    return true;
-                }
-                if (target is ShipModule module)
-                {
-                    Ship parent = module.GetParent();
-                    if (parent.loyalty == Loyalty && !Weapon.HitsFriendlies)
-                        return false;
 
-                    if (Weapon.TruePD)
+            var projectile = target as Projectile;
+            if (projectile != null)
+            {
+                if (Owner != null && projectile.Loyalty == Owner.loyalty)
+                {
+                    return false;
+                }
+                if (projectile.WeaponType == "Missile")
+                {
+                    float ran = UniverseRandom.RandomBetween(0f, 1f);
+                    if (projectile.Loyalty != null && ran >= projectile.Loyalty.data.MissileDodgeChance)
                     {
-                        DieNextFrame = true;
+                        projectile.DamageMissile(this, DamageAmount);
                         return true;
                     }
-                    if (parent.shipData.Role == ShipData.RoleName.fighter && parent.loyalty.data.Traits.DodgeMod > 0f)
+                }
+                else if (Weapon.Tag_Intercept || projectile.Weapon.Tag_Intercept)
+                {
+                    DieNextFrame = true;
+                    projectile.DieNextFrame = true;
+                }
+                return false;
+            }
+            if (target is Asteroid)
+            {
+                if (!Explodes)
+                {
+                    target.Damage(this, DamageAmount);
+                }
+                Die(null, false);
+                return true;
+            }
+            if (target is ShipModule module)
+            {
+                Ship parent = module.GetParent();
+                if (parent.loyalty == Loyalty)
+                    return false;
+
+                if (Weapon.TruePD)
+                {
+                    DieNextFrame = true;
+                    return true;
+                }
+                if (parent.shipData.Role == ShipData.RoleName.fighter && parent.loyalty.data.Traits.DodgeMod > 0f)
+                {
+                    if (UniverseRandom.RandomBetween(0f, 100f) < parent.loyalty.data.Traits.DodgeMod * 100f)
                     {
-                        if (UniverseRandom.RandomBetween(0f, 100f) < parent.loyalty.data.Traits.DodgeMod * 100f)
-                            Miss = true;
+                        Miss = true;
+                        return false;       
                     }
-                    if (Miss)
-                        return false;
+                }
 
-                    //Non exploding projectiles should go through multiple modules if it has enough damage
-                    if (!Explodes && module.Active)
+                //Non exploding projectiles should go through multiple modules if it has enough damage
+                if (!Explodes && module.Active)
+                {
+                    //Doc: If module has resistance to Armour Piercing effects, deduct that from the projectile's AP before starting AP and damage checks
+                    if (module.APResist > 0)
+                        ArmorPiercing = ArmorPiercing - module.APResist;
+
+                    if (ArmorPiercing <= 0 || module.ModuleType != ShipModuleType.Armor)
+                        module.Damage(this, DamageAmount, out DamageAmount);
+                    else
+                        ArmorPiercing -= (module.XSIZE + module.YSIZE) / 2;
+
+                    if (DamageAmount > 0f) // damage passes through to next modules
                     {
-                        //Doc: If module has resistance to Armour Piercing effects, deduct that from the projectile's AP before starting AP and damage checks
-                        if (module.APResist > 0)
-                            ArmorPiercing = ArmorPiercing - module.APResist;
+                        Vector2 projectileDir = Velocity.Normalized();
+                        var projectedModules = parent.RayHitTestModules(Center, projectileDir, 100f, Radius);
 
-                        if (ArmorPiercing <= 0 || module.ModuleType != ShipModuleType.Armor)
-                            module.Damage(this, DamageAmount, out DamageAmount);
-                        else
-                            ArmorPiercing -= (module.XSIZE + module.YSIZE) / 2;
-
-                        if (DamageAmount > 0f) // damage passes through to next modules
+                        // now pierce through all of the modules while we can still pierce and damage:
+                        if (projectedModules != null)
                         {
-                            Vector2 projectileDir = Velocity.Normalized();
-                            var projectedModules = parent.RayHitTestModules(Center, projectileDir, 100f, Radius);
-
-                            // now pierce through all of the modules while we can still pierce and damage:
-                            if (projectedModules != null)
+                            foreach (ShipModule impactModule in projectedModules)
                             {
-                                foreach (ShipModule impactModule in projectedModules)
+                                if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
                                 {
-                                    if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
-                                    {
-                                        ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
-                                        continue; // SKIP/Phase through this armor module (yikes!)
-                                    }
-
-                                    impactModule.Damage(this, DamageAmount, out DamageAmount);
-                                    if (DamageAmount <= 0f)
-                                        break;
+                                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                                    continue; // SKIP/Phase through this armor module (yikes!)
                                 }
+
+                                impactModule.Damage(this, DamageAmount, out DamageAmount);
+                                if (DamageAmount <= 0f)
+                                    break;
                             }
                         }
                     }
-                    Health = 0f;
                 }
-                if (WeaponEffectType == "Plasma")
+                Health = 0f;
+            }
+            if (WeaponEffectType == "Plasma")
+            {
+                var center  = new Vector3(Center.X, Center.Y, -100f);
+                Vector2 forward = Rotation.RadiansToDirection();
+                Vector2 right   = forward.RightVector();
+                for (int i = 0; i < 20; i++)
                 {
-                    var center  = new Vector3(Center.X, Center.Y, -100f);
-                    Vector2 forward = Rotation.RadiansToDirection();
-                    Vector2 right   = forward.RightVector();
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Vector3 random = UniverseRandom.Vector3D(250f) * new Vector3(right.X, right.Y, 1f);
-                        Empire.Universe.flameParticles.AddParticleThreadA(center, random);
+                    Vector3 random = UniverseRandom.Vector3D(250f) * new Vector3(right.X, right.Y, 1f);
+                    Empire.Universe.flameParticles.AddParticleThreadA(center, random);
 
-                        random = UniverseRandom.Vector3D(150f) + new Vector3(-forward.X, -forward.Y, 0f);
-                        Empire.Universe.flameParticles.AddParticleThreadA(center, random);
-                    }
+                    random = UniverseRandom.Vector3D(150f) + new Vector3(-forward.X, -forward.Y, 0f);
+                    Empire.Universe.flameParticles.AddParticleThreadA(center, random);
                 }
-                else if (WeaponEffectType == "MuzzleBlast") // currently unused
+            }
+            else if (WeaponEffectType == "MuzzleBlast") // currently unused
+            {
+                var center  = new Vector3(Center.X, Center.Y, -100f);
+                Vector2 forward = Rotation.RadiansToDirection();
+                Vector2 right   = forward.RightVector();
+                for (int i = 0; i < 20; i++)
                 {
-                    var center  = new Vector3(Center.X, Center.Y, -100f);
-                    Vector2 forward = Rotation.RadiansToDirection();
-                    Vector2 right   = forward.RightVector();
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Vector3 random = UniverseRandom.Vector3D(500f) * new Vector3(right.X, right.Y, 1f);
-                        Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
+                    Vector3 random = UniverseRandom.Vector3D(500f) * new Vector3(right.X, right.Y, 1f);
+                    Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
 
-                        random = new Vector3(-forward.X, -forward.Y, 0f) 
-                            + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
-                                        UniverseRandom.RandomBetween(-500f, 500f), 
-                                        UniverseRandom.RandomBetween(-150f, 150f));
-                        Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
-                    }
+                    random = new Vector3(-forward.X, -forward.Y, 0f) 
+                        + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
+                                    UniverseRandom.RandomBetween(-500f, 500f), 
+                                    UniverseRandom.RandomBetween(-150f, 150f));
+                    Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
                 }
-                else if (WeaponType == "Ballistic Cannon")
-                {
-                    if (target is ShipModule shipModule && shipModule.ModuleType != ShipModuleType.Shield)
-                        GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
-                }
+            }
+            else if (WeaponType == "Ballistic Cannon")
+            {
+                if (target is ShipModule shipModule && shipModule.ModuleType != ShipModuleType.Shield)
+                    GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
             }
             DieNextFrame = true;
             return true;

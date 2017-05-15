@@ -189,8 +189,9 @@ namespace Ship_Game.AI
             if (Owner.TrackingPower > 0 && hasPointDefense) // update projectile list                         
             {
                 // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
-                foreach (Projectile missile in Owner.GetObjectsInSensors<Projectile>())
+                foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj))
                 {
+                    var missile = (Projectile) go;
                     if (missile.Loyalty != Owner.loyalty && missile.Weapon.Tag_Intercept)
                         TrackProjectiles.Add(missile);
                 }
@@ -391,9 +392,10 @@ namespace Ship_Game.AI
                     };
                     NearbyShips.Add(sw);
                 }
-                Ship[] nearbyShips = Owner.GetObjectsInSensors<Ship>();
-                foreach (Ship nearbyShip in nearbyShips)
+                GameplayObject[] nearbyShips = Owner.GetObjectsInSensors(GameObjectType.Ship);
+                foreach (var go in nearbyShips)
                 {
+                    var nearbyShip = (Ship)go;
                     if (!nearbyShip.Active || nearbyShip.dying
                         || Owner.Center.OutsideRadius(nearbyShip.Center, Radius + (Radius < 0.01f ? 10000 : 0)))
                         continue;
