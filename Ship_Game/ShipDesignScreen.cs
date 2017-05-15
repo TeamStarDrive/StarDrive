@@ -604,7 +604,7 @@ namespace Ship_Game
                             }
                             else
                             {
-                                activeColor = (slot.ShowInvalid ? Color.Red : Color.White);
+                                activeColor = (slot.ShowValid ? Color.White : Color.Red);
                             }
                             spriteBatch.Draw(item, rectangle, activeColor);
                             if (slot.Powered)
@@ -629,7 +629,7 @@ namespace Ship_Game
                             }
                             else
                             {
-                                unpoweredColored = (slot.ShowInvalid ? Color.Red : Color.White);
+                                unpoweredColored = (slot.ShowValid ? Color.White : Color.Red);
                             }
                             spriteBatch1.Draw(texture2D, rectangle1, unpoweredColored);
                         }
