@@ -106,7 +106,7 @@ namespace Ship_Game.Gameplay
         public float OrdinanceRequiredToFire;
         public Vector2 Center;
         public float Range;
-        public float DamageAmount;
+        public float DamageAmount;        
         public float ProjectileSpeed;
         public int ProjectileCount = 1;
         public int FireArc;
@@ -176,6 +176,7 @@ namespace Ship_Game.Gameplay
                 return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
             }
         }
+      
 
         public Weapon(Ship owner, ShipModule moduleAttachedTo)
         {
@@ -237,7 +238,15 @@ namespace Ship_Game.Gameplay
                 if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
             }
         }
-
+        public float AdjustDamage()
+        {
+            if (Owner?.loyalty?.data == null) return 0;
+            if (OrdinanceRequiredToFire >0 && DamageAmount >0)
+            {
+                return Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageAmount;
+            }
+            return 0;            
+        }
         private void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
             if (ToggleCue.IsPlaying)
@@ -313,19 +322,21 @@ namespace Ship_Game.Gameplay
 
         private Projectile CreateProjectile(Ship owner, Vector2 direction, ShipModule attachedTo, GameplayObject target, bool playSound = true)
         {
-            var projectile = new Projectile(owner, direction, attachedTo);
-            projectile.Range                 = Range;
-            projectile.Weapon                = this;
-            projectile.Explodes              = explodes;
-            projectile.DamageAmount          = DamageAmount;
-            projectile.DamageRadius          = DamageRadius;
-            projectile.ExplosionRadiusMod    = ExplosionRadiusVisual;
-            projectile.Health                = HitPoints;
-            projectile.Speed                 = ProjectileSpeed;
-            projectile.WeaponEffectType      = WeaponEffectType;
-            projectile.WeaponType            = WeaponType;
-            projectile.RotationRadsPerSecond = RotationRadsPerSecond;
-            projectile.ArmorPiercing         = (int)ArmourPen;
+            var projectile = new Projectile(owner, direction, attachedTo)
+            {
+                Range = Range,
+                Weapon = this,
+                Explodes = explodes,
+                DamageAmount = DamageAmount + AdjustDamage(),
+                DamageRadius = DamageRadius,
+                ExplosionRadiusMod = ExplosionRadiusVisual,
+                Health = HitPoints,
+                Speed = ProjectileSpeed,
+                WeaponEffectType = WeaponEffectType,
+                WeaponType = WeaponType,
+                RotationRadsPerSecond = RotationRadsPerSecond,
+                ArmorPiercing = (int) ArmourPen
+            };
 
             if (owner.Level > 0)
                 projectile.DamageAmount += projectile.DamageAmount * owner.Level * 0.05f;
@@ -384,7 +395,7 @@ namespace Ship_Game.Gameplay
                 Range = Range,
                 Weapon = this,
                 Explodes = explodes,
-                DamageAmount = DamageAmount
+                DamageAmount = DamageAmount + AdjustDamage()
             };
             if (RangeVariance)
             {
