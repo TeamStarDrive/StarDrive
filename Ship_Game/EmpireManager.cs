@@ -36,6 +36,7 @@ namespace Ship_Game
                 e.Id = EmpireList.Count;
             }
         }
+
         public static void Clear()
         {
             EmpireList.Clear();
@@ -46,6 +47,13 @@ namespace Ship_Game
             UnknownFaction   = null;
             CorsairsFaction  = null;
         }
+
+        
+        public static Empire GetEmpireById(int empireId)
+        {
+            return empireId == 0 ? null : EmpireList[empireId-1];
+        }
+
         public static Empire GetEmpireByName(string name)
         {
             if (name == null)

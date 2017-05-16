@@ -88,7 +88,7 @@ namespace Ship_Game
         public string SystemName => System?.Name ?? "Deep Space";
 
         public GameplayObject[] FindNearby(GameObjectType filter = GameObjectType.None)
-            => UniverseScreen.SpaceManager.FindNearby(Position, Radius, filter);    
+            => UniverseScreen.SpaceManager.FindNearby(this, Radius, filter);    
 
         public void SetSystem(SolarSystem system)
         {
@@ -106,6 +106,12 @@ namespace Ship_Game
                 UniverseScreen.SpaceManager.Add(this);
         }
 
+        public int GetLoyaltyId()
+        {
+            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty?.Id ?? 0;
+            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty?.Id ?? 0;
+            return 0;
+        }
 
         public virtual bool Touch(GameplayObject target)
         {
