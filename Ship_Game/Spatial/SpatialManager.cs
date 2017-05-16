@@ -18,6 +18,7 @@ namespace Ship_Game.Gameplay
         public void Destroy()
         {
             QuadTree?.Dispose(ref QuadTree);
+            AllObjects.Clear();
         }
 
         public void Dispose()
@@ -26,10 +27,7 @@ namespace Ship_Game.Gameplay
         }
         ~SpatialManager() { Destroy(); }
 
-        public void DebugVisualize(UniverseScreen screen)
-        {
-            QuadTree.DebugVisualize(screen);
-        }
+        public void DebugVisualize(UniverseScreen screen) => QuadTree.DebugVisualize(screen);
 
         private static bool IsSpatialType(GameplayObject obj)
             => obj.Is(GameObjectType.Ship) || obj.Is(GameObjectType.Proj)/*also Beam*/;
@@ -70,14 +68,11 @@ namespace Ship_Game.Gameplay
                 return; // not in any SpatialManagers, so Remove is no-op
             }
 
-            QuadTree.Remove(obj);
-            RemoveByIndex(obj, idx);
-        }
+            if (QuadTree == null)
+                return;
 
-        private void RemoveByIndex(GameplayObject obj, int index)
-        {
-            AllObjects[index] = null;
-            obj.SpatialIndex  = -1;
+            QuadTree.Remove(obj);
+            AllObjects[obj.SpatialIndex] = null;
         }
 
         // @todo OPTIMIZE THIS CLUSTERFCK
@@ -97,31 +92,20 @@ namespace Ship_Game.Gameplay
         public void Update(float elapsedTime)
         {
             // remove null values and remove inactive objects
+            GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();
             for (int i = 0; i < AllObjects.Count; ++i)
             {
-                if (AllObjects[i] == null)
-                    AllObjects.RemoveAtSwapLast(i--);
-            }
-
-            // now rebuild buckets and reassign spatial indexes
-            int count = AllObjects.Count;
-            GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();
-
-            for (int i = 0; i < count; ++i)
-            {
                 GameplayObject obj = allObjects[i];
-                obj.SpatialIndex = i;
+                if (obj != null) obj.SpatialIndex = i;
+                else AllObjects.RemoveAtSwapLast(i--);
             }
 
             QuadTree.UpdateAll();
             QuadTree.CollideAll();
         }
 
-
         public GameplayObject[] FindNearby(GameplayObject obj, float radius, GameObjectType filter = GameObjectType.None)
-        {
-            return QuadTree.FindNearby(obj, radius, filter);
-        }
+            => QuadTree.FindNearby(obj, radius, filter);
 
         // @note This is called every time an exploding projectile hits a target and dies
         //       so everything nearby receives additional splash damage
