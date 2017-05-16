@@ -345,15 +345,13 @@ namespace Ship_Game
                     Viewport.Project(new Vector3(this.UniverseRadius, this.UniverseRadius, 0.0f),
                         this.projection, this.view, Matrix.Identity);
 
-
                 Rectangle fogRect = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                     (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
-                Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch,
-                    new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                        this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight),
-                    new Color((byte) 0, (byte) 0, (byte) 0, (byte) 170));
-                this.ScreenManager.SpriteBatch.Draw(this.FogMap, fogRect,
-                    new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 55));
+                ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, 
+                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
+                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight),
+                    new Color(0, 0, 0, 170));
+                ScreenManager.SpriteBatch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
             }
             this.DrawFogNodes();
             this.DrawInfluenceNodes();
@@ -456,38 +454,8 @@ namespace Ship_Game
                     }
                 }
             }
-            if (Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
-            {
-                //foreach (Empire e in EmpireManager.Empires)
-                {
-                    //if (e.isPlayer || e.isFaction)
-                    //    continue;
-                    //foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values)
-                    //{
-                    //    if (pin.Position != Vector2.Zero) // && pin.InBorders)
-                    //    {
-                    //        Circle circle = this.DrawSelectionCircles(pin.Position, 50f);
-                    //        DrawCircle(circle.Center, circle.Radius, 6, e.EmpireColor);
-                    //        if(pin.InBorders)
-                    //        {
-                    //            circle = this.DrawSelectionCircles(pin.Position, 50f);
-                    //            DrawCircle(circle.Center, circle.Radius, 3, e.EmpireColor);
-                    //        }
-                    //    }
-                    //}
-                    //for(int x=0;x < e.grid.GetLength(0);x++)
-                    //    for (int y = 0; y < e.grid.GetLength(1); y++)
-                    //    {
-                    //        if (e.grid[x, y] != 1)
-                    //            continue;
-                    //        Vector2 translated = new Vector2((x - e.granularity) * reducer, (y - e.granularity) * reducer);
-                    //        Circle circle = this.DrawSelectionCircles(translated, reducer *.5f);
-                    //        DrawCircle(circle.Center, circle.Radius, 4, e.EmpireColor);
-                    //    }
-                }
-            }
 
-            this.DrawTacticalPlanetIcons();
+            DrawTacticalPlanetIcons();
             if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
             {
                 var inhibit = ResourceManager.TextureDict["UI/node_inhibit"];
@@ -557,40 +525,37 @@ namespace Ship_Game
             ShipsInCombat.Text = "Ships: " + this.player.empireShipCombat;
             if (player.empireShipCombat > 0)
             {
-                ShipsInCombat.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-                ShipsInCombat.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+                ShipsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+                ShipsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
                 ShipsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
             }
             else
             {
-                ShipsInCombat.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
-                ShipsInCombat.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
-                ShipsInCombat.PressedTexture =
-                    ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
+                ShipsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
+                ShipsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
+                ShipsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
             }
             ShipsInCombat.Draw(ScreenManager.SpriteBatch);
 
             PlanetsInCombat.Text = "Planets: " + player.empirePlanetCombat;
             if (player.empirePlanetCombat > 0)
             {
-                PlanetsInCombat.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-                PlanetsInCombat.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+                PlanetsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+                PlanetsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
                 PlanetsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
             }
             else
             {
-                PlanetsInCombat.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
-                PlanetsInCombat.HoverTexture =
-                    ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
-                PlanetsInCombat.PressedTexture =
-                    ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
+                PlanetsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
+                PlanetsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
+                PlanetsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
             }
             PlanetsInCombat.Draw(ScreenManager.SpriteBatch);
 
             if (!LookingAtPlanet)
                 pieMenu.Draw(this.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
 
-            Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, SelectionBox, Color.Green, 1f);
+            ScreenManager.SpriteBatch.DrawRectangle(SelectionBox, Color.Green, 1f);
             EmpireUI.Draw(ScreenManager.SpriteBatch);
             if (!LookingAtPlanet)
                 DrawShipUI(gameTime);
@@ -1090,13 +1055,11 @@ namespace Ship_Game
         {
             if (ship == null)
                 return;
-            Color color;
             Vector2 start = ship.Center;
 
-            ShipAI.ShipGoal goal;
             if (!ship.InCombat || ship.AI.HasPriorityOrder)
             {
-                color = Colors.Orders(alpha);
+                Color color = Colors.Orders(alpha);
                 if (ship.AI.State == AIState.Ferrying)
                 {
                     DrawLineProjected(start, ship.AI.EscortTarget.Center, color);
@@ -1107,8 +1070,7 @@ namespace Ship_Game
                     if (ship.Mothership != null)
                         DrawLineProjected(start, ship.Mothership.Center, color);
                     else
-                        ship.AI.State =
-                            AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix. 
+                        ship.AI.State = AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix. 
                     return;
                 }
                 if (ship.AI.State == AIState.Escort && ship.AI.EscortTarget != null)
@@ -1128,10 +1090,8 @@ namespace Ship_Game
                     Vector2 screenPos = ProjectToScreenPosition(ship.Center);
                     Vector2 screenPosTarget = ProjectToScreenPosition(ship.AI.ColonizeTarget.Position, 2500f);
                     DrawLine(screenPos, screenPosTarget, color);
-                    string text = String.Format("Colinize\nSystem : {0}\nPlanet : {1}",
-                        ship.AI.ColonizeTarget.ParentSystem.Name, ship.AI.ColonizeTarget.Name);
-                    DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text,
-                        new Color(ship.loyalty.EmpireColor, alpha));
+                    string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
+                    DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
                     return;
                 }
                 if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
@@ -1144,7 +1104,7 @@ namespace Ship_Game
                     DrawWayPointLines(ship, color);
                     return;
                 }
-                goal = ship.AI.OrderQueue.PeekFirst;
+                ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 if (ship.AI.State == AIState.Bombard && goal?.TargetPlanet != null)
                 {
                     DrawLineProjected(ship.Center, goal.TargetPlanet.Position, Colors.CombatOrders(alpha), 2500f);
