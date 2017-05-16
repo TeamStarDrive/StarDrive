@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -44,10 +45,24 @@ namespace Ship_Game
                 LastX    = Cx + Radius;
                 LastY    = Cy + Radius;
             }
-            if ((Type & GameObjectType.Proj) != 0) Loyalty = ((Projectile)go).Loyalty?.Id ?? 0;
-            else if ((Type & GameObjectType.Ship) != 0)  Loyalty = ((Ship)go).loyalty?.Id ?? 0;
-            else                                         Loyalty = 0;
-            LastCollided = 0;
+            Loyalty       = go.GetLoyaltyId();
+            LastCollided  = 0;
+            OverlapsQuads = false;
+        }
+
+        public SpatialObj(GameplayObject go, float radius)
+        {
+            Obj           = go;
+            Type          = go.Type;
+            Cx            = go.Center.X;
+            Cy            = go.Center.Y;
+            Radius        = radius;
+            X             = Cx - radius;
+            Y             = Cy - radius;
+            LastX         = Cx + radius;
+            LastY         = Cy + radius;
+            Loyalty       = go.GetLoyaltyId();
+            LastCollided  = 0;
             OverlapsQuads = false;
         }
 
@@ -163,15 +178,13 @@ namespace Ship_Game
         private class Node
         {
             public readonly float X, Y, LastX, LastY;
-            public readonly Node Parent;
             public Node NW, NE, SE, SW;
             public int Count;
             public SpatialObj[] Items;
-            public Node(Node parent, float x, float y, float lastX, float lastY)
+            public Node(float x, float y, float lastX, float lastY)
             {
                 X = x; Y = y;
                 LastX = lastX; LastY = lastY;
-                Parent = parent;
                 NW = null; NE = null; SE = null; SW = null;
                 Count = 0;
                 Items = NoObjects;
@@ -231,7 +244,7 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            Root = new Node(null, -half, -half, +half, +half);
+            Root = new Node(-half, -half, +half, +half);
         }
 
         private static void SplitNode(Node node, int level)
@@ -239,10 +252,10 @@ namespace Ship_Game
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
 
-            node.NW = new Node(node, node.X, node.Y, midX,       midY);
-            node.NE = new Node(node, midX,   node.Y, node.LastX, midY);
-            node.SE = new Node(node, midX,   midY,   node.LastX, node.LastY);
-            node.SW = new Node(node, node.X, midY,   midX,       node.LastY);
+            node.NW = new Node(node.X, node.Y, midX,       midY);
+            node.NE = new Node(midX,   node.Y, node.LastX, midY);
+            node.SE = new Node(midX,   midY,   node.LastX, node.LastY);
+            node.SW = new Node(node.X, midY,   midX,       node.LastY);
 
             int count = node.Count;
             SpatialObj[] arr = node.Items;
@@ -503,6 +516,7 @@ namespace Ship_Game
         }
 
         public void CollideAll() => CollideAllAt(Root, FrameId);
+
         private static void CollideAllAt(Node node, int frameId)
         {
             if (node.NW != null) // depth first approach, to early filter LastCollided
@@ -568,10 +582,6 @@ namespace Ship_Game
                                              ref int numNearby, ref GameplayObject[] nearby)
         {
             int count = node.Count;
-            if (count <= 0)
-                return;
-
-            int maxNewLength = numNearby + count;
             SpatialObj[] items = node.Items;
             for (int i = 0; i < count; ++i)
             {
@@ -579,15 +589,15 @@ namespace Ship_Game
                 if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
                     continue; // no filter match
 
-                if (!nearbyDummy.HitTestNearby(ref so))
+                // ignore self  and  ensure in radius
+                if (so.Obj == nearbyDummy.Obj || !nearbyDummy.HitTestNearby(ref so))
                     continue;
 
                 if (numNearby == nearby.Length) // "clever" resize
-                    Array.Resize(ref nearby, maxNewLength - i);
+                    Array.Resize(ref nearby, numNearby + count);
 
                 nearby[numNearby++] = so.Obj;
             }
-
             if (node.NW != null)
             {
                 FindNearbyAtNode(node.NW, ref nearbyDummy, filter, ref numNearby, ref nearby);
@@ -597,20 +607,14 @@ namespace Ship_Game
             }
         }
 
-        public GameplayObject[] FindNearby(Vector2 pos, float radius, GameObjectType filter = GameObjectType.None)
+        public GameplayObject[] FindNearby(GameplayObject obj, float radius, GameObjectType filter = GameObjectType.None)
         {
             // assume most results will be either empty, or only from a single quadrant
             // this means using a dynamic Array will be way more wasteful
             int numNearby = 0;
             GameplayObject[] nearby = Empty<GameplayObject>.Array;
 
-            var nearbyDummy = new SpatialObj // dummy object to simplify our search interface
-            {
-                X     = pos.X - radius,
-                Y     = pos.Y - radius,
-                LastX = pos.X + radius,
-                LastY = pos.Y + radius,
-            };
+            var nearbyDummy = new SpatialObj(obj, radius); // dummy object to simplify our search interface
 
             // find the deepest enclosing node
             Node node = FindEnclosingNode(ref nearbyDummy);
@@ -620,31 +624,62 @@ namespace Ship_Game
             if (numNearby != nearby.Length)
                 Array.Resize(ref nearby, numNearby);
 
+            if (ShouldStoreDebugInfo) AddNearbyDebug(obj, radius, nearby);
+            else                      DebugFindNearby.Clear();
             return nearby;
         }
 
-        private static SpatialObj[] DrawBuffer = NoObjects;
+        private static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.showdebugwindow;
+        private static void AddNearbyDebug(GameplayObject obj, float radius, GameplayObject[] nearby)
+        {
+            var debug = new FindNearbyDebug { Obj = obj, Radius = radius, Nearby = nearby, Timer = 2f };
+            for (int i = 0; i < DebugFindNearby.Count; ++i)
+                if (DebugFindNearby[i].Obj == obj) {
+                    DebugFindNearby[i] = debug;
+                    return;           
+                }
+            DebugFindNearby.Add(debug);
+        }
+
+        private struct FindNearbyDebug
+        {
+            public GameplayObject Obj;
+            public float Radius;
+            public GameplayObject[] Nearby;
+            public float Timer;
+        }
+
+        private static readonly Array<FindNearbyDebug> DebugFindNearby = new Array<FindNearbyDebug>();
+        private static SpatialObj[] DebugDrawBuffer = NoObjects;
+
+        private static readonly Color Brown  = new Color(Color.SaddleBrown, 150);
+        private static readonly Color Violet = new Color(Color.MediumVioletRed, 100);
+        private static readonly Color Golden = new Color(Color.Gold, 100);
+        // "Allies are Blue, Enemies are Red, what should I do, with our Quadtree?" - RedFox
+        private static readonly Color Blue   = new Color(Color.CadetBlue, 100);
+        private static readonly Color Red    = new Color(Color.OrangeRed, 100);
+        private static readonly Color Yellow = new Color(Color.Yellow, 100);
 
         private static void DebugVisualize(UniverseScreen screen, ref Vector2 topleft, ref Vector2 botright, Node node)
         {
             var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
             var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
-            screen.DrawRectangleProjected(center, size, 0f, Color.SaddleBrown);
+            screen.DrawRectangleProjected(center, size, 0f, Brown);
 
             // @todo This is a hack to reduce concurrency related bugs.
             //       once the main drawing and simulation loops are stable enough, this copying can be removed
             //       In most cases it doesn't matter, because this is only used during DEBUG display...
             int count = node.Count;
-            if (DrawBuffer.Length < count) DrawBuffer = new SpatialObj[count];
-            Array.Copy(node.Items, DrawBuffer, count);
+            if (DebugDrawBuffer.Length < count) DebugDrawBuffer = new SpatialObj[count];
+            Array.Copy(node.Items, DebugDrawBuffer, count);
 
             for (int i = 0; i < count; ++i)
             {
-                ref SpatialObj so = ref DrawBuffer[i];
+                ref SpatialObj so = ref DebugDrawBuffer[i];
                 var ocenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
                 var osize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
-                screen.DrawRectangleProjected(ocenter, osize, 0f, Color.MediumVioletRed);
-                screen.DrawLineProjected(center, ocenter, Color.MediumVioletRed);
+                screen.DrawRectangleProjected(ocenter, osize, 0f, Violet);
+                screen.DrawLineProjected(center, ocenter, Violet);
             }
             if (node.NW != null)
             {
@@ -655,6 +690,22 @@ namespace Ship_Game
             }
         }
 
+        private static Color GetRelationColor(GameplayObject a, GameplayObject b)
+        {
+            Empire e1 = EmpireManager.GetEmpireById(a.GetLoyaltyId());
+            Empire e2 = EmpireManager.GetEmpireById(b.GetLoyaltyId());
+            if (e1 != null && e2 != null)
+            {
+                if (e1 == e2)
+                    return Blue;
+                if (e1.IsEmpireAttackable(e2)) // hostile?
+                    return Red;
+                if (e1.TryGetRelations(e2, out Relationship relations) && relations.Treaty_Alliance)
+                    return Blue;
+            }
+            return Yellow; // neutral relation
+        }
+
         public void DebugVisualize(UniverseScreen screen)
         {
             var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
@@ -662,7 +713,24 @@ namespace Ship_Game
             Vector2 botright = screen.UnprojectToWorldPosition(screenSize);
             DebugVisualize(screen, ref topleft, ref botright, Root);
 
-            Array.Clear(DrawBuffer, 0, DrawBuffer.Length); // prevent zombie objects
+            Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
+
+            for (int i = 0; i < DebugFindNearby.Count; ++i)
+            {
+                FindNearbyDebug debug = DebugFindNearby[i];
+                screen.DrawCircleProjected(debug.Obj.Center, debug.Radius, 36, Golden);
+                for (int j = 0; j < debug.Nearby.Length; ++j)
+                {
+                    GameplayObject nearby = debug.Nearby[j];
+                    screen.DrawLineProjected(debug.Obj.Center, nearby.Center, GetRelationColor(debug.Obj, nearby));
+                }
+
+                debug.Timer -= UniverseScreen.DeltaTime;
+                if (debug.Timer > 0f)
+                    DebugFindNearby[i] = debug;
+                else
+                    DebugFindNearby.RemoveAtSwapLast(i--);
+            }
         }
     }
 }

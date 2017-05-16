@@ -1062,7 +1062,7 @@ namespace Ship_Game
 
         // Refactored by RedFox
         // This is a hotpath during loading and ~50% of time is spent here
-        public static void LoadShipTemplates()
+        private static void LoadShipTemplates()
         {
             ShipsDict.Clear();
 
