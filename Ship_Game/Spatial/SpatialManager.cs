@@ -12,7 +12,7 @@ namespace Ship_Game.Gameplay
         {
             float universeWidth = universeRadius * 2f;
             QuadTree = new Quadtree(universeWidth);
-            Log.Info($"SpatialManager Width: {universeWidth}  QTSize: {QuadTree.FullSize}  QTLevels: {QuadTree.Levels}");
+            Log.Info($"SpatialManager Width: {(int)universeWidth}  QTSize: {(int)QuadTree.FullSize}  QTLevels: {QuadTree.Levels}");
         }
 
         public void Destroy()
@@ -118,9 +118,9 @@ namespace Ship_Game.Gameplay
         }
 
 
-        public GameplayObject[] FindNearby(Vector2 pos, float radius, GameObjectType filter = GameObjectType.None)
+        public GameplayObject[] FindNearby(GameplayObject obj, float radius, GameObjectType filter = GameObjectType.None)
         {
-            return QuadTree.FindNearby(pos, radius, filter);
+            return QuadTree.FindNearby(obj, radius, filter);
         }
 
         // @note This is called every time an exploding projectile hits a target and dies
@@ -131,7 +131,7 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0f)
                 return;
 
-            GameplayObject[] ships = FindNearby(source.Center, damageRadius, GameObjectType.Ship);
+            GameplayObject[] ships = FindNearby(source, damageRadius, GameObjectType.Ship);
             ships.SortByDistance(source.Center);
 
             foreach (GameplayObject go in ships)
@@ -173,7 +173,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             Vector2 explosionCenter = thisShip.Center;
-            GameplayObject[] nearby = FindNearby(thisShip.Position, thisShip.Radius);
+            GameplayObject[] nearby = FindNearby(thisShip, thisShip.Radius);
 
             for (int i = 0; i < nearby.Length; ++i)
             {
