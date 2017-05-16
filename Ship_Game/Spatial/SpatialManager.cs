@@ -94,7 +94,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Update(float elapsedTime, SolarSystem system)
+        public void Update(float elapsedTime)
         {
             // remove null values and remove inactive objects
             for (int i = 0; i < AllObjects.Count; ++i)
