@@ -1563,7 +1563,8 @@ namespace Ship_Game
 
                 if (mod.shield_kinetic_resist != 0)
                 {
-                    this.DrawStatColor(ref modTitlePos, Localizer.Token(6162), (float)mod.shield_kinetic_resist, 209, Color.LightSkyBlue, isPercent: true);
+                    this.DrawStatColor(ref modTitlePos, Localizer.Token(6162), (float)mod.shield_kinetic_resist, 209
+                        , Color.LightSkyBlue, isPercent: true);
                     modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 }
                 if (mod.shield_energy_resist != 0)
@@ -2021,12 +2022,12 @@ namespace Ship_Game
                     if (mod.InstalledWeapon.EffectVsArmor <= 1f)
                     {
                         float effectVsArmor = ModifiedWeaponStat(mod.InstalledWeapon, "armor") * 100f;
-                        this.DrawStat105Bad(ref modTitlePos, "VS Armor", string.Concat(effectVsArmor.ToString("#"), "%"), 147);
+                        this.DrawVSResistBad(ref modTitlePos, "VS Armor", string.Concat(effectVsArmor.ToString("#"), "%"), 147);
                     }
                     else
                     {
                         float single = ModifiedWeaponStat(mod.InstalledWeapon, "armor") * 100f;
-                        this.DrawStat105(ref modTitlePos, "VS Armor", string.Concat(single.ToString("#"), "%"), 147);
+                        this.DrawVSResist(ref modTitlePos, "VS Armor", string.Concat(single.ToString("#"), "%"), 147);
                     }
                     modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 }
@@ -2035,12 +2036,12 @@ namespace Ship_Game
                     if (mod.InstalledWeapon.EffectVSShields <= 1f)
                     {
                         float effectVSShields = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-                        this.DrawStat105Bad(ref modTitlePos, "VS Shield", string.Concat(effectVSShields.ToString("#"), "%"), 147);
+                        this.DrawVSResistBad(ref modTitlePos, "VS Shield", string.Concat(effectVSShields.ToString("#"), "%"), 147);
                     }
                     else
                     {
                         float effectVSShields1 = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-                        this.DrawStat105(ref modTitlePos, "VS Shield", string.Concat(effectVSShields1.ToString("#"), "%"), 147);
+                        this.DrawVSResist(ref modTitlePos, "VS Shield", string.Concat(effectVSShields1.ToString("#"), "%"), 147);
                     }
                     modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 }
@@ -3222,189 +3223,80 @@ namespace Ship_Game
             return string.Concat(single.ToString("#"), "k");
         }
 
-        private void DrawStatColor(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, Color color, bool doGoodBadTint = true, bool isPercent = false)
+        private void DrawStatColor(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, Color color
+            , bool doGoodBadTint = true, bool isPercent = false)
         {
-            float amount = 120f;
-            if (GlobalStats.IsGermanFrenchOrPolish) amount = amount + 20f;
-            Vector2 MousePos = new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, color);
-            string numbers = "0.0";
-            if (isPercent) numbers = stat.ToString("p1");
-            else numbers = GetNumberString(stat);
-            if (stat == 0f) numbers = "0";
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
-            if (doGoodBadTint) base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
-            else base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, Color.White);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            SpriteFont font = Fonts.Arial12Bold;
+            float amount = Spacing(120f);                        
+            DrawString(Cursor, color, words, font);
+            string numbers = isPercent ? stat.ToString("P1") : GetNumberString(stat);
+            if (stat == 0f) numbers = "0.0";            
+            Cursor = FontSpace(Cursor, amount, numbers, font);
+
+            color = doGoodBadTint ? (stat > 0f ? Color.LightGreen : Color.LightPink) : Color.White;
+            DrawString(Cursor, color, numbers, font);
+            
+            Cursor = FontBackSpace(Cursor, amount, numbers, font);            
+
+            CheckToolTip(Tooltip_ID, Cursor, words, numbers, font, MousePos);
         }
 
-        private void DrawStat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, bool doGoodBadTint = true, bool isPercent = false)
+        private void DrawStat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, bool doGoodBadTint = true
+            , bool isPercent = false)
         {
             DrawStatColor(ref Cursor, words, stat, Tooltip_ID, Color.White, doGoodBadTint, isPercent);
         }
         //Mer - Gretman left off here
-        private void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID, Color nameColor, Color statColor, float spacing = 165f)
         {
-            float amount = 165f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            SpriteFont font = Fonts.Arial12Bold;
+            float amount = Spacing(spacing);
+            Color color = nameColor;
+            DrawString(Cursor, color, words, font);
+            Cursor = FontSpace(Cursor, amount, words, font);
+            color = statColor;
+            DrawString(Cursor, color, stat, font);
+            Cursor = FontBackSpace(Cursor, amount, stat, font);    
+            CheckToolTip(Tooltip_ID, Cursor, words, stat, font, MousePos);
         }
 
         private void DrawStatEnergy(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
-            float amount = 165f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.LightSkyBlue, Color.LightGreen);
         }
 
         private void DrawStatPropulsion(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
-            float amount = 165f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.DarkSeaGreen, Color.LightGreen);
         }
 
         private void DrawStatOrdnance(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
-            float amount = 165f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen);
         }
 
-        private void DrawStat105(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawVSResist(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
-            float amount = 105f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen, 105);
         }
 
-        private void DrawStat105Bad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawVSResistBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
-            float amount = 105f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightPink);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen, 105);            
         }
 
         private void DrawStatBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
-            float amount = 165f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightPink);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightPink, 165);
+        }
+        private void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        {
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen, 165);
         }
 
         private void DrawStatEnergyBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
-            float amount = 165f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-            {
-                amount = amount + 20f;
-            }
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightPink);
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
-            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
-            {
-                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
-            }
+            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.LightSkyBlue, Color.LightPink, 165);
         }
 
         private void DrawUI(GameTime gameTime)
@@ -3513,8 +3405,8 @@ namespace Ship_Game
             if (!this.ShipSaved && !this.CheckDesign())
             {
                 MessageBoxScreen message = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "Exit");
-                message.Cancelled += new EventHandler<EventArgs>(this.DoExit);
-                message.Accepted += new EventHandler<EventArgs>(this.SaveWIP);
+                message.Cancelled       += new EventHandler<EventArgs>(this.DoExit);
+                message.Accepted        += new EventHandler<EventArgs>(this.SaveWIP);
                 base.ScreenManager.AddScreen(message);
                 return;
             }
@@ -3524,8 +3416,8 @@ namespace Ship_Game
                 return;
             }
             MessageBoxScreen message0 = new MessageBoxScreen(this, Localizer.Token(2137), "Save", "Exit");
-            message0.Cancelled += new EventHandler<EventArgs>(this.DoExit);
-            message0.Accepted += new EventHandler<EventArgs>(this.SaveChanges);
+            message0.Cancelled       += new EventHandler<EventArgs>(this.DoExit);
+            message0.Accepted        += new EventHandler<EventArgs>(this.SaveChanges);
             base.ScreenManager.AddScreen(message0);
         }
 
@@ -3539,27 +3431,27 @@ namespace Ship_Game
                 this.ReallyExit();
                 return;
             }
-            else if(!this.ShipSaved && this.CheckDesign())
+            else if (!this.ShipSaved && this.CheckDesign())
             {
-                 message = new MessageBoxScreen(this, Localizer.Token(2137), "Save", "Exit");
+                message            = new MessageBoxScreen(this, Localizer.Token(2137), "Save", "Exit");
                 message.Cancelled += new EventHandler<EventArgs>(this.LaunchScreen);
-            message.Accepted += new EventHandler<EventArgs>(this.SaveChanges);
-            base.ScreenManager.AddScreen(message);
+                message.Accepted  += new EventHandler<EventArgs>(this.SaveChanges);
+                base.ScreenManager.AddScreen(message);
                 return;
 
             }
-             message = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "Exit");
+            message            = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "Exit");
             message.Cancelled += new EventHandler<EventArgs>(this.LaunchScreen);
-            message.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenLaunchScreen);
+            message.Accepted  += new EventHandler<EventArgs>(this.SaveWIPThenLaunchScreen);
             base.ScreenManager.AddScreen(message);
         }
 
         private string GetConduitGraphic(SlotStruct ss)
         {
-            bool right = false;
-            bool left = false;
-            bool up = false;
-            bool down = false;
+            bool right  = false;
+            bool left   = false;
+            bool up     = false;
+            bool down   = false;
             int numNear = 0;
             foreach (SlotStruct slot in this.Slots)
             {
