@@ -1970,7 +1970,6 @@ namespace Ship_Game
 
             GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;  //Added by Gretman
 
-            ResourceManager.LoadShipTemplates();
             this.Singular = this.SingEntry.Text;
             this.Plural = this.PlurEntry.Text;
             this.HomeSystemName = this.HomeSystemEntry.Text;

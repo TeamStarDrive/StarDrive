@@ -3115,17 +3115,16 @@ namespace Ship_Game
             ship.AI.State = AIState.AwaitingOrders;
             ship.ClearFleet();
         }
-        public bool IsEmpireAttackable(Empire empire, GameplayObject target =null)
+        public bool IsEmpireAttackable(Empire empire, GameplayObject target = null)
         {
             if (empire == this) return false;
             if (empire == null) return true;            
-            if (!TryGetRelations(empire, out Relationship rel) || rel ==null || !rel.Known) return true;            
+            if (!TryGetRelations(empire, out Relationship rel) || rel == null || !rel.Known) return true;            
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
             if (isFaction || empire.isFaction ) return true;
             if (target == null) return true;
-            Ship ship = target as Ship;
-            if(ship != null)
+            if (target is Ship ship)
             {                
                 if (!rel.Treaty_OpenBorders && !rel.Treaty_Trade
                 &&  EmpireAI.ThreatMatrix.ShipInOurBorders(ship)) return true;
@@ -3175,5 +3174,7 @@ namespace Ship_Game
             OwnedProjectors?.Dispose(ref OwnedProjectors);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
         }
+
+        public override string ToString() => $"Id={Id} Name={Name} Player={isPlayer} Faction={isFaction} Minor={MinorRace}";
     }
 }

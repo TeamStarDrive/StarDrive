@@ -176,8 +176,11 @@ namespace Ship_Game
             }
         }
 
+        public static float DeltaTime;
+
         private void ProcessTurnDelta(float elapsedTime)
         {
+            DeltaTime = elapsedTime;
             perfavg5.Start(); // total dowork perf counter
 
             GlobalStats.BeamTests     = 0;
