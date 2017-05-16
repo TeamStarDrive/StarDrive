@@ -11,7 +11,7 @@ namespace Ship_Game
         public GameplayObject Obj;
         public float X, Y, LastX, LastY;
         public int Loyalty; // if loyalty == 0, then this is a STATIC world object !!!
-        public int LastCollided;
+        public int ProjCollided; // this is used to prevent projectiles colliding twice
 
         public Vector2 Center;
         public float Radius;
@@ -47,7 +47,7 @@ namespace Ship_Game
                 LastY    = Center.Y + Radius;
             }
             Loyalty       = go.GetLoyaltyId();
-            LastCollided  = 0;
+            ProjCollided  = 0;
             OverlapsQuads = false;
         }
 
@@ -62,7 +62,7 @@ namespace Ship_Game
             LastX         = Center.X + radius;
             LastY         = Center.Y + radius;
             Loyalty       = go.GetLoyaltyId();
-            LastCollided  = 0;
+            ProjCollided  = 0;
             OverlapsQuads = false;
         }
 
@@ -446,14 +446,13 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj proj = ref node.Items[i]; // potential projectile ?
-                if (frameId      != proj.LastCollided && // already collided this frame
+                if (frameId      != proj.ProjCollided && // projectile already collided this frame
                     proj.Loyalty != ship.Loyalty      && // friendlies don't collide
                     (proj.Type & GameObjectType.Proj) != 0 && // only collide with projectiles
                     (proj.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(ref ship, out ShipModule hitModule))
                 {
-                    proj.LastCollided = frameId;
-                    ship.LastCollided = frameId;
+                    proj.ProjCollided = frameId;
                     HandleProjCollision(proj.Obj as Projectile, hitModule ?? ship.Obj);
                     return true;
                 }
@@ -472,13 +471,14 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (frameId      != item.LastCollided && // already collided this frame
+                if (frameId      != item.ProjCollided && // projectile already collided this frame
                     item.Loyalty != proj.Loyalty      && // friendlies don't collide
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(ref item, out ShipModule hitModule))
                 {
-                    item.LastCollided = frameId;
-                    proj.LastCollided = frameId;
+                    if ((item.Type & GameObjectType.Proj) != 0)
+                        item.ProjCollided = frameId;
+                    proj.ProjCollided = frameId;
                     HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj);
                     return true;
                 }
@@ -495,8 +495,6 @@ namespace Ship_Game
         {
             public GameplayObject Collided;
             public float Distance;
-            public Node At;
-            public int Idx;
         }
 
         // for beams it's important to only collide the CLOSEST object, so the lookup is exhaustive
@@ -505,7 +503,7 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (frameId      != item.LastCollided && // already collided this frame
+                if (frameId      != item.ProjCollided && // projectile already collided this frame
                     item.Loyalty != beam.Loyalty      && // friendlies don't collide
                     (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
                 {
@@ -514,31 +512,27 @@ namespace Ship_Game
                     {
                         result.Distance = dist;
                         result.Collided = hitModule ?? item.Obj;
-                        result.At  = node;
-                        result.Idx = i;
                     }
                 }
             }
-            if (node.NW != null)
-            {
-                CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
-                CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
-                CollideBeamAtNode(node.SE, frameId, ref beam, ref result);
-                CollideBeamAtNode(node.SW, frameId, ref beam, ref result);
-            }
+            if (node.NW == null)
+                return;
+            CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
+            CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
+            CollideBeamAtNode(node.SE, frameId, ref beam, ref result);
+            CollideBeamAtNode(node.SW, frameId, ref beam, ref result);
         }
 
         private static void CollideBeamAtNode(Node node, int frameId, ref SpatialObj beam)
         {
             // this whole thing is quite ugly... but we need some way to set .LastCollided
-            BeamHitResult hit = default(BeamHitResult);
-            hit.Distance = 9999999f;
+            var hit = new BeamHitResult{Distance = 9999999f};
             CollideBeamAtNode(node, frameId, ref beam, ref hit);
-            if (hit.Collided == null)
-                return;
-            hit.At.Items[hit.Idx].LastCollided = frameId;
-            beam.LastCollided                  = frameId;
-            HandleBeamCollision(beam.Obj as Beam, hit.Collided, hit.Distance);
+            if (hit.Collided != null)
+            {
+                beam.ProjCollided = frameId;
+                HandleBeamCollision(beam.Obj as Beam, hit.Collided, hit.Distance);
+            }
         }
 
         public void CollideAll() => CollideAllAt(Root, FrameId);
@@ -553,14 +547,10 @@ namespace Ship_Game
                 CollideAllAt(node.SW, frameId);
             }
 
-            int count = node.Count;
-            if (count <= 1) // can't collide with self :)
-                return;
-            SpatialObj[] items = node.Items;
-            for (int i = 0; i < count; ++i)
+            for (int i = 0; i < node.Count; ++i)
             {
-                ref SpatialObj so = ref items[i];
-                if (frameId == so.LastCollided || so.Obj.Active == false)
+                ref SpatialObj so = ref node.Items[i];
+                if (frameId == so.ProjCollided || so.Obj.Active == false)
                     continue; // already collided inside this loop
 
                 // each collision instigator type has a very specific recursive handler
@@ -573,9 +563,8 @@ namespace Ship_Game
 
         private static void HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
         {
-            if (!beam.Touch(victim)) // dish out damage if we can
-                return; // we couldn't do a Touch for some reason :(
-
+            if (!beam.Touch(victim))
+                return;
             if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
                 module.GetParent().MoveModulesTimer = 2f;
             
@@ -595,7 +584,6 @@ namespace Ship_Game
         {
             if (!projectile.Touch(victim))
                 return;
-
             if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
                 module.GetParent().MoveModulesTimer = 2f;
         }
