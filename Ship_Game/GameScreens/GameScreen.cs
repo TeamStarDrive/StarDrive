@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
@@ -28,6 +29,7 @@ namespace Ship_Game
         public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
         public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
         public float TransitionPosition   { get; protected set; } = 1f;
+        public Vector2 MousePos =>  new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
 
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
@@ -211,13 +213,45 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(text, ScreenManager);
             }
         }
-
+        public void CheckToolTip(string text, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
+        {
+            var rect = new Rectangle((int)cursor.X, (int)cursor.Y
+                , (int)font.MeasureString(words).X + (int)font.MeasureString(numbers).X
+                , font.LineSpacing);
+            CheckToolTip(text, rect, mousePos);
+        }
+        public void CheckToolTip(int toolTipId, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
+        {
+            var rect = new Rectangle((int)cursor.X, (int)cursor.Y
+                , (int)font.MeasureString(words).X + (int)font.MeasureString(numbers).X
+                , font.LineSpacing);
+            CheckToolTip(toolTipId, rect, mousePos);
+        }        
+        public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
+        {
+            cursor.X += (spacing - font.MeasureString(drawnString).X);
+            return cursor;
+        }
+        public Vector2 FontBackSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
+        {
+            cursor.X -= (spacing - font.MeasureString(drawnString).X);
+            return cursor;
+        }
         public void DrawString(Vector2 posOnScreen, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, posOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
         }
-
+        public void DrawString(Vector2 posOnScreen, Color textColor, string text, SpriteFont font, float rotation = 0f, float textScale = 1f)
+        {
+            Vector2 size = font.MeasureString(text);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, posOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+        }
+        public float Spacing(float amount)
+        {          
+            if (GlobalStats.IsGermanFrenchOrPolish) amount += 20f;
+            return amount;
+        }
         protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
         {
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
