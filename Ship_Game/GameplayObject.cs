@@ -47,7 +47,6 @@ namespace Ship_Game
         [Serialize(8)] public GameObjectType Type;
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
-        [XmlIgnore][JsonIgnore] public bool CollidedThisFrame;
 
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
@@ -120,7 +119,6 @@ namespace Ship_Game
 
         public virtual void Update(float elapsedTime)
         {
-            CollidedThisFrame = false;
         }
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
