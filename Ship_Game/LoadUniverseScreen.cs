@@ -403,7 +403,6 @@ namespace Ship_Game
 
         private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
         {
-            ResourceManager.LoadShipTemplates();
             ScreenManager.inter.ObjectManager.Clear();
             data = new UniverseData();
             RandomEventManager.ActiveEvent = savedData.RandomEvent;
