@@ -237,7 +237,11 @@ namespace Ship_Game.Gameplay
                 if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
             }
         }
-        public float AdjustDamage()
+        /// <summary>
+        /// modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
+        /// </summary>
+        /// <returns>float amount to add</returns>
+        private float AdjustDamage()
         {
             if (Owner?.loyalty?.data == null) return 0;
             if (OrdinanceRequiredToFire >0 && DamageAmount >0)
