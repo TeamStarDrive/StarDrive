@@ -24,6 +24,8 @@ namespace Ship_Game
         public bool Infinite;
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;
+        [XmlIgnore][JsonIgnore] public bool CollidedThisFrame;
+
 
         private AudioHandle DamageToggleSound = default(AudioHandle);
 
@@ -226,8 +228,8 @@ namespace Ship_Game
                         ? Empire.Universe.mouseWorldPos
                         : Target?.Center ?? Destination);
 
-            if (!CollidedThisFrame)
-                ActualHitDestination = Destination;
+            if (!CollidedThisFrame) ActualHitDestination = Destination;
+            CollidedThisFrame = false;
 
             if (!Owner.PlayerShip)
             {

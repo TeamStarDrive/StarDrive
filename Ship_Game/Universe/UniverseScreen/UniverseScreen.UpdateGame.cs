@@ -192,10 +192,15 @@ namespace Ship_Game
             if (ProcessTurnEmpires(elapsedTime))
                 return;
 
-            SpaceManager.Update(elapsedTime, null);
             UpdateShipsAndFleets(elapsedTime);
 
+            // this will update all ship Center coordinates
             ProcessTurnShipsAndSystems();
+
+            // update spatial manager after ships have moved.
+            // all the collisions will be triggered here:
+            SpaceManager.Update(elapsedTime);
+
             ProcessTurnUpdateMisc(elapsedTime);
 
             perfavg5.Stop();
@@ -573,7 +578,6 @@ namespace Ship_Game
                 }
                 system.combatTimer -= realTime;
 
-
                 if (system.combatTimer <= 0.0)
                     system.CombatInSystem = false;
                 bool viewing = false;
@@ -585,21 +589,16 @@ namespace Ship_Game
                 //WTF is this doing?
                 else if (viewState <= UnivScreenState.ShipView)
                 {
-                    Rectangle rect = new Rectangle((int)system.Position.X - 100000,
+                    var rect = new Rectangle((int)system.Position.X - 100000,
                         (int)system.Position.Y - 100000, 200000, 200000);
-                    Vector3 position =
-                        this.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
-                            this.projection, this.view, Matrix.Identity);
-                    Vector3 direction =
-                        this.Viewport.Unproject(new Vector3(500f, 500f, 1f),
-                            this.projection, this.view, Matrix.Identity) - position;
+                    Vector3 position = Viewport.Unproject(new Vector3(500f, 500f, 0.0f), projection, view, Matrix.Identity);
+                    Vector3 direction = Viewport.Unproject(new Vector3(500f, 500f, 1f), projection, view, Matrix.Identity) - position;
                     direction.Normalize();
-                    Ray ray = new Ray(position, direction);
+                    var ray = new Ray(position, direction);
                     float num = -ray.Position.Z / ray.Direction.Z;
-                    Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
-                        ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                    Vector2 pos = new Vector2(vector3.X, vector3.Y);
-                    if (HelperFunctions.CheckIntersection(rect, pos))
+                    var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
+                    var pos = new Vector2(vector3.X, vector3.Y);
+                    if (rect.HitTest(pos))
                         viewing = true;
                 }
                 if (system.Explored(player) && viewing)
