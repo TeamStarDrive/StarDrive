@@ -3817,6 +3817,6 @@ namespace Ship_Game.Gameplay
             if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
-        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}";
+        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty}";
     }
 }

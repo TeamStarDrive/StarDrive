@@ -268,12 +268,6 @@ namespace Ship_Game.Gameplay
             {
                 DisableSpatialCollision = DamageAmount < 0f
             };
-
-            if (!beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection))
-            {
-                beam.Die(null, true);
-                return;
-            } 
             source.Beams.Add(beam);
 
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -297,11 +291,6 @@ namespace Ship_Game.Gameplay
             }
             ModifyProjectile(beam);
 
-            if (!beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection))
-            {
-                beam.Die(null, true);
-                return;
-            }
             moduleAttachedTo.GetParent().AddBeam(beam);
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && moduleAttachedTo.GetParent().InFrustum)
                 PlayToggleAndFireSfx(Owner.SoundEmitter);
@@ -310,13 +299,6 @@ namespace Ship_Game.Gameplay
         private void CreateMouseBeam(Vector2 direction)
         {
             var beam = new Beam(this, moduleAttachedTo.Center + direction*Range) { FollowMouse = true };
-            
-            beam.LoadContent(Empire.Universe.ScreenManager, Empire.Universe.view, Empire.Universe.projection);
-            if (!beam.Active)
-            {
-                beam.Die(null, true);
-                return;
-            }
             moduleAttachedTo.GetParent().AddBeam(beam);
 
             if ((Owner.System?.isVisible == true || Owner.InDeepSpace) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)

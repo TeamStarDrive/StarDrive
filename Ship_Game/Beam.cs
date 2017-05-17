@@ -39,7 +39,7 @@ namespace Ship_Game
         }
 
         // Create an untargeted beam with an initial destination position
-        public Beam(Weapon weapon, Vector2 destination)
+        public Beam(Weapon weapon, Vector2 destination) : base(GameObjectType.Beam)
         {
             Weapon           = weapon;
             ModuleAttachedTo = weapon.moduleAttachedTo;
@@ -54,22 +54,28 @@ namespace Ship_Game
             SetDestination(destination);
             ActualHitDestination = Destination;
 
-            SetSystem(Owner.System);
-            InitBeamMeshIndices();
-            UpdateBeamMesh();
+            Initialize();
         }
 
         // Create a spatially fixed beam spawned from a ship center
-        public Beam(Ship ship, Vector2 destination, int thickness)
+        public Beam(Ship ship, Vector2 destination, int thickness) : base(GameObjectType.Beam)
         {
             Owner       = ship;
             Source      = ship.Center;
             Destination = destination;
             Thickness   = thickness;
 
+            Initialize();
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
             SetSystem(Owner.System);
             InitBeamMeshIndices();
             UpdateBeamMesh();
+
+            QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
         }
 
         private void SetDestination(Vector2 destination)
@@ -103,7 +109,7 @@ namespace Ship_Game
                 screenMgr.GraphicsDevice.VertexDeclaration = QuadVertexDecl;
                 BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
                 BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
-                string beamTexPath = "Beams/" + ResourceManager.WeaponsDict[Weapon.UID].BeamTexture;
+                string beamTexPath = "Beams/" + Weapon.BeamTexture;
                 BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath));
                 Displacement -= 0.05f;
                 if (Displacement < 0f)
@@ -180,12 +186,6 @@ namespace Ship_Game
             Indexes[3] = 2;
             Indexes[4] = 1;
             Indexes[5] = 3;
-        }
-
-        public bool LoadContent(ScreenManager screenMgr, Matrix view, Matrix projection)
-        {
-            QuadVertexDecl = new VertexDeclaration(screenMgr.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-            return true;
         }
 
         public override bool Touch(GameplayObject target)
@@ -283,5 +283,7 @@ namespace Ship_Game
             QuadVertexDecl?.Dispose(ref QuadVertexDecl);
             base.Dispose(disposing);
         }
+
+        public override string ToString() => $"Beam[{WeaponType}] Wep={Weapon?.Name} Src={Source} Dst={Destination} Loy=[{Loyalty}]";
     }
 }

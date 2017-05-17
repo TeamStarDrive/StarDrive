@@ -32,13 +32,10 @@ namespace Ship_Game
         private Ship SpawnAncientRepulsor(Vector2 repulsorPos)
         {
             Ship repulsor = Ship.CreateShipAtPoint(PlatformName, EmpireManager.Unknown, repulsorPos);
-
-            var screen = Empire.Universe;
             var beam = new Beam(repulsor, PlaformCenter, 75)
             {
                 Weapon = ResourceManager.WeaponsDict["AncientRepulsor"]
             };
-            beam.LoadContent(screen.ScreenManager, screen.view, screen.projection);
             repulsor.AddBeam(beam);
             beam.Infinite     = true;
             beam.Range        = 2500f;

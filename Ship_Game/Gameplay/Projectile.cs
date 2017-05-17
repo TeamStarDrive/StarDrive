@@ -74,6 +74,9 @@ namespace Ship_Game.Gameplay
         public Projectile() : base(GameObjectType.Proj)
         {
         }
+        public Projectile(GameObjectType typeFlags) : base(typeFlags | GameObjectType.Proj)
+        {
+        }
 
         public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo) : this()
         {
@@ -267,7 +270,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             SetSystem(System);
-            base.Initialize();
+            Initialize();
         }
 
         public void InitializeDrone(float initialSpeed, Vector2 direction)
@@ -297,7 +300,7 @@ namespace Ship_Game.Gameplay
                 DroneAI = new DroneAI(this);
             }
             SetSystem(System);
-            base.Initialize();
+            Initialize();
         }
 
         public void InitializeMissile(float initialSpeed, Vector2 direction, GameplayObject target)
@@ -345,7 +348,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             SetSystem(System);
-            base.Initialize();
+            Initialize();
         }
 
         public void InitializeMissilePlanet(float initialSpeed, Vector2 dir, GameplayObject target, Planet p)
@@ -382,7 +385,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             SetSystem(System);
-            base.Initialize();
+            Initialize();
         }
 
         public void InitializePlanet(float initialSpeed, Vector2 direction, Vector2 pos)
@@ -419,7 +422,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             SetSystem(System);
-            base.Initialize();
+            Initialize();
         }
 
         public void LoadContent(string texPath, string modelFilePath)
@@ -776,5 +779,7 @@ namespace Ship_Game.Gameplay
         {
             DroneAI?.Dispose(ref DroneAI);
         }
+
+        public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Center} Rad={Radius} Loy=[{Loyalty}]";
     }
 }
