@@ -1121,6 +1121,6 @@ namespace Ship_Game.Gameplay
             return Color.Black;
         }
 
-        public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}";
+        public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}  Ship={Parent?.Name}";
     }
 }

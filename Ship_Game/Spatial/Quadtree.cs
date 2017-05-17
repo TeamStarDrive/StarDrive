@@ -16,10 +16,9 @@ namespace Ship_Game
         public Vector2 Center;
         public float Radius;
         public GameObjectType Type;
-
         public bool OverlapsQuads; // does it overlap multiple quads?
 
-        public bool Is(GameObjectType flags) => (Type & flags) != 0;
+        public override string ToString() => Obj.ToString();
 
         public SpatialObj(GameplayObject go)
         {
@@ -99,7 +98,7 @@ namespace Ship_Game
             Vector2 beamStart = beam.Source;
             Vector2 beamEnd   = beam.Destination;
 
-            if (target.Is(GameObjectType.Ship)) // beam-ship is special collision
+            if ((target.Type & GameObjectType.Ship) != 0) // beam-ship is special collision
             {
                 var ship = (Ship)target.Obj;
                 hitModule = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
@@ -440,8 +439,9 @@ namespace Ship_Game
         }
 
 
-        // regular collision; it doesn't matter which SpatialObj collides, just return the first
-        private static bool CollideShipAtNode(Node node, int frameId, ref SpatialObj ship)
+        // ship collision; this can collide with multiple projectiles..
+        // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
+        private static void CollideShipAtNode(Node node, int frameId, ref SpatialObj ship)
         {
             for (int i = 0; i < node.Count; ++i)
             {
@@ -454,18 +454,17 @@ namespace Ship_Game
                 {
                     proj.ProjCollided = frameId;
                     HandleProjCollision(proj.Obj as Projectile, hitModule ?? ship.Obj);
-                    return true;
                 }
             }
             if (node.NW == null)
-                return false;
-            return CollideShipAtNode(node.NW, frameId, ref ship)
-                || CollideShipAtNode(node.NE, frameId, ref ship)
-                || CollideShipAtNode(node.SE, frameId, ref ship)
-                || CollideShipAtNode(node.SW, frameId, ref ship);
+                return;
+            CollideShipAtNode(node.NW, frameId, ref ship);
+            CollideShipAtNode(node.NE, frameId, ref ship);
+            CollideShipAtNode(node.SE, frameId, ref ship);
+            CollideShipAtNode(node.SW, frameId, ref ship);
         }
 
-        // regular collision; it doesn't matter which SpatialObj collides, just return the first
+        // projectile collision, return the first match because the projectile destroys itself anyway
         private static bool CollideProjAtNode(Node node, int frameId, ref SpatialObj proj)
         {
             for (int i = 0; i < node.Count; ++i)
@@ -536,6 +535,19 @@ namespace Ship_Game
         }
 
         public void CollideAll() => CollideAllAt(Root, FrameId);
+
+        private static int CountItemsRecursive(Node node)
+        {
+            int count = node.Count;
+            if (node.NW != null)
+            {
+                count += CountItemsRecursive(node.NW);
+                count += CountItemsRecursive(node.NE);
+                count += CountItemsRecursive(node.SE);
+                count += CountItemsRecursive(node.SW);
+            }
+            return count;
+        }
 
         private static void CollideAllAt(Node node, int frameId)
         {
