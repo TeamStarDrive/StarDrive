@@ -3229,9 +3229,10 @@ namespace Ship_Game
             SpriteFont font = Fonts.Arial12Bold;
             float amount = Spacing(120f);                        
             DrawString(Cursor, color, words, font);
-            string numbers = isPercent ? stat.ToString("P1") : GetNumberString(stat);
+            string numbers = "0.0";
+            numbers = isPercent ? stat.ToString("P1") : GetNumberString(stat);
             if (stat == 0f) numbers = "0.0";            
-            Cursor = FontSpace(Cursor, amount, numbers, font);
+            Cursor         = FontSpace(Cursor, amount, numbers, font);
 
             color = doGoodBadTint ? (stat > 0f ? Color.LightGreen : Color.LightPink) : Color.White;
             DrawString(Cursor, color, numbers, font);
@@ -3250,11 +3251,11 @@ namespace Ship_Game
         private void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID, Color nameColor, Color statColor, float spacing = 165f)
         {
             SpriteFont font = Fonts.Arial12Bold;
-            float amount = Spacing(spacing);
-            Color color = nameColor;
+            float amount    = Spacing(spacing);
+            Color color     = nameColor;
             DrawString(Cursor, color, words, font);
             Cursor = FontSpace(Cursor, amount, words, font);
-            color = statColor;
+            color  = statColor;
             DrawString(Cursor, color, stat, font);
             Cursor = FontBackSpace(Cursor, amount, stat, font);    
             CheckToolTip(Tooltip_ID, Cursor, words, stat, font, MousePos);
