@@ -69,7 +69,7 @@ namespace Ship_Game.Gameplay
         public bool IsSecondary;
 
         public Ship Owner { get; protected set; }
-        public Planet Planet { get; private set; }
+        public Planet Planet { get; }
 
         public Projectile() : base(GameObjectType.Proj)
         {
@@ -95,17 +95,18 @@ namespace Ship_Game.Gameplay
         public Projectile(Planet p, Vector2 direction) : this()
         {
             SetSystem(p.system);
-            Position = p.Position;
+            Planet   = p;
+            Position = p.Center;
             Loyalty  = p.Owner;
             Velocity = direction;
-            Rotation = p.Position.RadiansToTarget(p.Position + Velocity);
-            Center   = p.Position;
-            Emitter.Position = new Vector3(p.Position, 0f);
+            Rotation = p.Center.RadiansToTarget(p.Center + Velocity);
+            Center   = p.Center;
+            Emitter.Position = new Vector3(p.Center, 0f);
         }
 
         public Projectile(Ship owner, Vector2 direction) : this()
         {
-            this.Owner = owner;
+            Owner = owner;
             Loyalty = owner.loyalty;
             Rotation = (float)Math.Acos(Vector2.Dot(Vector2.UnitY, direction)) - 3.14159274f;
             if (direction.X > 0f) Rotation = -Rotation;
@@ -252,7 +253,7 @@ namespace Ship_Game.Gameplay
             }
             if (WeaponType != "Missile" && WeaponType != "Drone" && WeaponType != "Rocket" || (System == null || !System.isVisible) && !InDeepSpace)
             {
-                if (Owner != null && Owner.loyalty.data.Traits.Blind > 0)
+                if (Owner.loyalty.data.Traits.Blind > 0)
                 {
                     if (UniverseRandom.IntBetween(0, 10) <= 1)
                         Miss = true;
@@ -351,17 +352,16 @@ namespace Ship_Game.Gameplay
             Initialize();
         }
 
-        public void InitializeMissilePlanet(float initialSpeed, Vector2 dir, GameplayObject target, Planet p)
+        public void InitializeMissilePlanet(float initialSpeed, Vector2 dir, GameplayObject target)
         {
             Direction       = dir;
-            Center          = p.Position;
+            Center          = Planet.Center;
             ZStart          = -2500f;
             Velocity        = (initialSpeed * dir) + (Owner?.Velocity ?? Vector2.Zero);
             Radius          = 1f;
             VelocityMax     = initialSpeed + (Owner?.Velocity.Length() ?? 0f);
             Duration = Range / initialSpeed * 2f;
             InitialDuration = Duration;
-            Planet          = p;
             if (Weapon.Animated == 1)
             {
                 SwitchFrames = InitialDuration / Weapon.Frames;

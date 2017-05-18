@@ -525,7 +525,7 @@ namespace Ship_Game.AI
                 switch (this.TaskStep)
                 {
                     case 0:                        
-                        Vector2 nearestShipyard = Owner.RallyPoints.FindMin(planet => Vector2.Distance(task.AO, planet.Position)).Position;                        
+                        Vector2 nearestShipyard = Owner.RallyPoints.FindMin(planet => Vector2.Distance(task.AO, planet.Center)).Center;                        
                         Vector2 fVec = Vector2.Normalize(task.AO - nearestShipyard);
                         this.MoveToNow(nearestShipyard, nearestShipyard.RadiansToTarget(task.AO), fVec);
                         for (int index = 0; index < Ships.Count; index++)
@@ -554,7 +554,7 @@ namespace Ship_Game.AI
                         if (!fleetGathered && fleetNotInCombat)
                             break;
                         this.TaskStep = 2;
-                        Vector2 movePosition = task.GetTargetPlanet().Position + Vector2.Normalize(FindAveragePosition() - task.GetTargetPlanet().Position) * 50000f;
+                        Vector2 movePosition = task.GetTargetPlanet().Center + Vector2.Normalize(FindAveragePosition() - task.GetTargetPlanet().Center) * 50000f;
                         Position = movePosition;
                         FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - FindAveragePosition()));
                         break;
@@ -644,7 +644,7 @@ namespace Ship_Game.AI
                             ship.AI.Intercepting = true;
                             ship.AI.OrderLandAllTroops(task.GetTargetPlanet());
                         }
-                        this.Position = task.GetTargetPlanet().Position;
+                        this.Position = task.GetTargetPlanet().Center;
                         this.AssembleFleet(this.Facing, Vector2.Normalize(this.Position - this.FindAveragePosition()));
                         break;
                 }
@@ -659,7 +659,7 @@ namespace Ship_Game.AI
                 {
                     MilitaryTask militaryTask = new MilitaryTask
                     {
-                        AO = task.GetTargetPlanet().Position,
+                        AO = task.GetTargetPlanet().Center,
                         AORadius = 50000f,
                         WhichFleet = task.WhichFleet
                     };
@@ -692,7 +692,7 @@ namespace Ship_Game.AI
                     {
                         case -1:
                         case 0:
-                            Planet goaltarget = Owner.RallyPoints.FindMin(distance => distance.Position.SqDist(FleetTask.AO));
+                            Planet goaltarget = Owner.RallyPoints.FindMin(distance => distance.Center.SqDist(FleetTask.AO));
                             
                             if(goaltarget == null)
                             {
@@ -700,8 +700,8 @@ namespace Ship_Game.AI
                                 break;
                             }
                             
-                            Vector2 fVec = Vector2.Normalize(task.AO - goaltarget.Position);
-                            Vector2 vector2 = goaltarget.Position;
+                            Vector2 fVec = Vector2.Normalize(task.AO - goaltarget.Center);
+                            Vector2 vector2 = goaltarget.Center;
                             MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);        
                             TaskStep = 1;
                             break;
@@ -716,7 +716,7 @@ namespace Ship_Game.AI
                             if (nearFleet)
                             {
                                 TaskStep = 2;
-                                Vector2 movePosition = task.GetTargetPlanet().Position + Vector2.Normalize(FindAveragePosition() - task.GetTargetPlanet().Position) * 125000f;
+                                Vector2 movePosition = task.GetTargetPlanet().Center + Vector2.Normalize(FindAveragePosition() - task.GetTargetPlanet().Center) * 125000f;
                                 Position = movePosition;
                                 FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - FindAveragePosition()));
                             }
@@ -732,7 +732,7 @@ namespace Ship_Game.AI
                             }
                             InterceptorDict.Clear();
                             TaskStep = 3;
-                            Position = task.GetTargetPlanet().Position;
+                            Position = task.GetTargetPlanet().Center;
                             AssembleFleet(Facing, Vector2.Normalize(Position - FindAveragePosition()));
                             break;
                         case 3:
@@ -744,7 +744,7 @@ namespace Ship_Game.AI
                             BombPlanet(0, task);
                             
                                                           //TODO: Indiction logic.   this doesnt work. 
-                                foreach (Ship key in Owner.GetGSAI().ThreatMatrix.PingRadarShip(task.GetTargetPlanet().Position,10000,Owner))
+                                foreach (Ship key in Owner.GetGSAI().ThreatMatrix.PingRadarShip(task.GetTargetPlanet().Center,10000,Owner))
                                 {
                                     if (Owner.IsEmpireAttackable(key.loyalty,key)                                        
                                         //&& (key.Center.InRadius(task.GetTargetPlanet().Position, 15000 )
@@ -755,7 +755,7 @@ namespace Ship_Game.AI
                                 foreach (var kv in this.InterceptorDict)
                                 {
                                     Array<Ship> list3 = new Array<Ship>();
-                                    if (!kv.Key.Active || kv.Key.Center.OutsideRadius(task.GetTargetPlanet().Position, 20000))
+                                    if (!kv.Key.Active || kv.Key.Center.OutsideRadius(task.GetTargetPlanet().Center, 20000))
                                         continue;                                    
                                     list2.Add(kv.Key);
                                     foreach (Ship ship in kv.Value)
@@ -816,7 +816,7 @@ namespace Ship_Game.AI
                                     }
                                 }
                                 if (InterceptorDict.Count == 0 
-                                    || this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Position, 25000f, this.Owner) < 500)
+                                    || this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, 25000f, this.Owner) < 500)
                                     this.TaskStep = 4;
 
                                 using (Owner.GetGSAI().TaskList.AcquireReadLock())
@@ -844,7 +844,7 @@ namespace Ship_Game.AI
                                 break;
                             
                         case 5:
-                            Planet rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Position));                                                        
+                            Planet rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Center));                                                        
                             foreach (Ship ship in this.Ships)
                                 ship.AI.OrderResupply(rallyPoint, true);
                             this.TaskStep = 6;
@@ -992,11 +992,11 @@ namespace Ship_Game.AI
                             if (planet.HasShipyard)
                                 list1.Add(planet);
                         }
-                        IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Position));
+                        IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Center));
                         if (orderedEnumerable1.Count() <= 0)
                             break;
-                        Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Position);
-                        Vector2 vector2 = orderedEnumerable1.First().Position;
+                        Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Center);
+                        Vector2 vector2 = orderedEnumerable1.First().Center;
                         this.MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
                         this.TaskStep = 1;
                         break;
@@ -1117,10 +1117,10 @@ namespace Ship_Game.AI
                             if (planet.HasShipyard)
                                 list6.Add(planet);
                         }
-                        IOrderedEnumerable<Planet> orderedEnumerable3 = list6.OrderBy(p => Vector2.Distance(this.Position, p.Position));
+                        IOrderedEnumerable<Planet> orderedEnumerable3 = list6.OrderBy(p => Vector2.Distance(this.Position, p.Center));
                         if (orderedEnumerable3.Count() <= 0)
                             break;
-                        this.Position = orderedEnumerable3.First().Position;
+                        this.Position = orderedEnumerable3.First().Center;
                         foreach (Ship ship in this.Ships)
                             ship.AI.OrderResupply(orderedEnumerable3.First(), true);
                         this.TaskStep = 6;
@@ -1173,11 +1173,11 @@ namespace Ship_Game.AI
                         if (planet.HasShipyard)
                             list1.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Position));
+                    IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Center));
                     if (orderedEnumerable1.Count() <= 0)
                         break;
-                    Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Position);
-                    Vector2 vector2 = orderedEnumerable1.First().Position;
+                    Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Center);
+                    Vector2 vector2 = orderedEnumerable1.First().Center;
                     this.MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
                     this.TaskStep = 1;
                     break;
@@ -1297,10 +1297,10 @@ namespace Ship_Game.AI
                         if (planet.HasShipyard)
                             list6.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable3 = list6.OrderBy(p => Vector2.Distance(this.Position, p.Position));
+                    IOrderedEnumerable<Planet> orderedEnumerable3 = list6.OrderBy(p => Vector2.Distance(this.Position, p.Center));
                     if (orderedEnumerable3.Count() <= 0)
                         break;
-                    this.Position = orderedEnumerable3.First().Position;
+                    this.Position = orderedEnumerable3.First().Center;
                     foreach (Ship ship in this.Ships)
                         ship.AI.OrderResupply(orderedEnumerable3.First(), true);
                     this.TaskStep = 6;
@@ -1326,18 +1326,18 @@ namespace Ship_Game.AI
             switch (TaskStep)
             {
                 case 0:
-                    Planet rallyPoint = Owner.RallyPoints.FindMin(planet => planet.Position.SqDist(task.AO));
+                    Planet rallyPoint = Owner.RallyPoints.FindMin(planet => planet.Center.SqDist(task.AO));
                     if (rallyPoint == null) return;
-                    Position = rallyPoint.Position;
-                    Vector2 fVec = Vector2.Normalize(task.GetTargetPlanet().Position - Position);
-                    MoveToNow(Position, Position.RadiansToTarget(task.GetTargetPlanet().Position), fVec);
+                    Position = rallyPoint.Center;
+                    Vector2 fVec = Vector2.Normalize(task.GetTargetPlanet().Center - Position);
+                    MoveToNow(Position, Position.RadiansToTarget(task.GetTargetPlanet().Center), fVec);
                     TaskStep = 1;
                     break;
                 case 1:
                     if (!IsFleetAssembled(5000, out bool endtask))
                         break;                    
                     TaskStep = 2;
-                    Position = task.GetTargetPlanet().Position;
+                    Position = task.GetTargetPlanet().Center;
                     FormationWarpTo(Position, FindAveragePosition().RadiansToTarget(Position), Vector2.Normalize(Position - FindAveragePosition()));
                     foreach (Ship ship in Ships)
                         ship.AI.HasPriorityOrder = true;
@@ -1355,12 +1355,12 @@ namespace Ship_Game.AI
                             }
                         }
                     }
-                    if (!incombat && FindAveragePosition().OutsideRadius(task.GetTargetPlanet().Position, 5000f))
+                    if (!incombat && FindAveragePosition().OutsideRadius(task.GetTargetPlanet().Center, 5000f))
                         break;
                     TaskStep = 3;
                     break;
                 case 3:                    
-                    EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(FleetTask.GetTargetPlanet().Position, 150000,10000,Owner);
+                    EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(FleetTask.GetTargetPlanet().Center, 150000,10000,Owner);
                     
                     if (EnemyClumpsDict.Count == 0)
                     {
@@ -1440,8 +1440,8 @@ namespace Ship_Game.AI
                     }
                 case 5:
 
-                    rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Position));
-                    this.Position = rallyPoint.Position;
+                    rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Center));
+                    this.Position = rallyPoint.Center;
                     foreach (Ship ship in this.Ships)
                         ship.AI.OrderResupply(rallyPoint, true);
                     this.TaskStep = 6;
@@ -1642,11 +1642,11 @@ namespace Ship_Game.AI
                             if (planet.HasShipyard)
                                 list1.Add(planet);
                         }
-                        IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Position));
+                        IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Center));
                         if (!orderedEnumerable1.Any())
                             break;
-                        Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Position);
-                        Vector2 vector2 = orderedEnumerable1.First().Position;
+                        Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Center);
+                        Vector2 vector2 = orderedEnumerable1.First().Center;
                         this.MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
                         this.TaskStep = 1;
                         break;
@@ -1665,7 +1665,7 @@ namespace Ship_Game.AI
                         }
                         if (!flag)
                             break;
-                        Vector2 movePosition = task.GetTargetPlanet().Position + Vector2.Normalize(this.FindAveragePosition() - task.GetTargetPlanet().Position) * 150000f;
+                        Vector2 movePosition = task.GetTargetPlanet().Center + Vector2.Normalize(this.FindAveragePosition() - task.GetTargetPlanet().Center) * 150000f;
                         this.Position = movePosition;
                         this.FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - this.FindAveragePosition()));
                         foreach (Ship ship in this.Ships)
@@ -1673,7 +1673,7 @@ namespace Ship_Game.AI
                         this.TaskStep = 2;
                         break;
                     case 2:
-                        if (task.WaitForCommand && this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Position, 30000f, this.Owner) > 250.0)
+                        if (task.WaitForCommand && this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, 30000f, this.Owner) > 250.0)
                             break;
                         foreach (Ship ship in this.Ships)
                             ship.AI.OrderBombardPlanet(task.GetTargetPlanet());
@@ -1697,10 +1697,10 @@ namespace Ship_Game.AI
                             if (planet.HasShipyard)
                                 list2.Add(planet);
                         }
-                        IOrderedEnumerable<Planet> orderedEnumerable2 = list2.OrderBy(p => Vector2.Distance(this.Position, p.Position));
+                        IOrderedEnumerable<Planet> orderedEnumerable2 = list2.OrderBy(p => Vector2.Distance(this.Position, p.Center));
                         if (!orderedEnumerable2.Any())
                             break;
-                        this.Position = orderedEnumerable2.First().Position;
+                        this.Position = orderedEnumerable2.First().Center;
                         foreach (Ship ship in this.Ships)
                             ship.AI.OrderResupply(orderedEnumerable2.First(), true);
                         this.TaskStep = 6;
@@ -1738,11 +1738,11 @@ namespace Ship_Game.AI
                         if (planet.HasShipyard)
                             list1.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Position));
+                    IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Center));
                     if (!orderedEnumerable1.Any())
                         break;
-                    Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Position);
-                    Vector2 vector2 = orderedEnumerable1.First().Position;
+                    Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Center);
+                    Vector2 vector2 = orderedEnumerable1.First().Center;
                     this.MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
                     this.TaskStep = 1;
                     break;
@@ -1897,10 +1897,10 @@ namespace Ship_Game.AI
                         if (planet.HasShipyard)
                             list6.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable3 = list6.OrderBy(p => Vector2.Distance(this.Position, p.Position));
+                    IOrderedEnumerable<Planet> orderedEnumerable3 = list6.OrderBy(p => Vector2.Distance(this.Position, p.Center));
                     if (orderedEnumerable3.Count() <= 0)
                         break;
-                    this.Position = orderedEnumerable3.First().Position;
+                    this.Position = orderedEnumerable3.First().Center;
                     foreach (Ship ship in this.Ships)
                         ship.AI.OrderResupply(orderedEnumerable3.First(), true);
                     this.TaskStep = 6;

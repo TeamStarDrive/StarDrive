@@ -181,7 +181,7 @@ namespace Ship_Game.AI
                 return;
             }
             //need to rework this better divide the ships. 
-            AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Position));
+            AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
             if (!area?.AddShip(toAdd) ?? false )
                 OwnerEmpire.GetForcePool().Add(toAdd);
         }
@@ -190,7 +190,7 @@ namespace Ship_Game.AI
         {
             Vector2 avgPos = new Vector2();
             foreach (Planet p in e.GetPlanets())            
-                avgPos = avgPos + p.Position;
+                avgPos = avgPos + p.Center;
             
             if (e.GetPlanets().Count <= 0)            
                 return Vector2.Zero;
@@ -237,12 +237,12 @@ namespace Ship_Game.AI
         {
             IOrderedEnumerable<AO> sortedList = 
                 from area in AreasOfOperations
-                orderby Vector2.Distance(p.Position, area.Position)
+                orderby Vector2.Distance(p.Center, area.Center)
                 select area;
             if (!sortedList.Any())            
                 return 0f;
             
-            return Vector2.Distance(p.Position, sortedList.First().Position);
+            return Vector2.Distance(p.Center, sortedList.First().Center);
         }
         
         public void InitialzeAOsFromSave(UniverseData data)
@@ -263,7 +263,7 @@ namespace Ship_Game.AI
                     aOs.Add(areasOfOperation);
                     continue;
                 }                
-                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Position, areasOfOperation.Radius, OwnerEmpire);
+                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, OwnerEmpire);
 
                 int min = (int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) *.5f);
                 if (areasOfOperation.ThreatLevel < min)
@@ -308,8 +308,8 @@ namespace Ship_Game.AI
                 float aoSize = 0;
                 foreach (SolarSystem system in planet2.system.FiveClosestSystems)
                 {
-                    if (aoSize < Vector2.Distance(planet2.Position, system.Position))
-                        aoSize = Vector2.Distance(planet2.Position, system.Position);
+                    if (aoSize < Vector2.Distance(planet2.Center, system.Position))
+                        aoSize = Vector2.Distance(planet2.Center, system.Position);
                 }
                 float aomax = Empire.Universe.UniverseRadius * .2f;
                 if (aoSize > aomax)
@@ -318,7 +318,7 @@ namespace Ship_Game.AI
                 foreach (AO areasOfOperation2 in AreasOfOperations)
                 {
 
-                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Position, planet2.Position) >= aoSize)
+                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Center, planet2.Center) >= aoSize)
                         continue;
                     flag1 = false;
                     break;

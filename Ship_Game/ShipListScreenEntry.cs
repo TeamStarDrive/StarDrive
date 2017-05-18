@@ -491,7 +491,7 @@ namespace Ship_Game
 					{
 						break;
 					}
-					if (Vector2.Distance(ship.Center, ship.AI.OrderQueue.PeekFirst.TargetPlanet.Position) >= 2500f)
+					if (Vector2.Distance(ship.Center, ship.AI.OrderQueue.PeekFirst.TargetPlanet.Center) >= 2500f)
 					{
 						text = string.Concat(Localizer.Token(176), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
 						break;
@@ -508,7 +508,7 @@ namespace Ship_Game
                     {
                         break;
                     }
-                    if (ship.Center.OutsideRadius(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Position, 2500f))
+                    if (ship.Center.OutsideRadius(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Center, 2500f))
                     {
                         text = "Soften " + ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name;
                         break;

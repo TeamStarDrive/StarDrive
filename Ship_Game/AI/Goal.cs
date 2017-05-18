@@ -377,7 +377,7 @@ namespace Ship_Game.AI
                     {                        
                         if (Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).ConstructionQueue.Count > leastque)
                             break;
-                        float currentdist = Vector2.Distance(orderedEnumerable.ElementAt(looper).Position, this.BuildPosition);
+                        float currentdist = Vector2.Distance(orderedEnumerable.ElementAt(looper).Center, this.BuildPosition);
                         if (currentdist < leastdist)
                         {
                             bestplanet = looper;

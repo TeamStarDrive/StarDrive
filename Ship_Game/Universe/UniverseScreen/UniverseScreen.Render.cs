@@ -103,7 +103,7 @@ namespace Ship_Game
                             Planet planet = solarSystem.PlanetList[i];
                             if (solarSystem.Explored(EmpireManager.Player))
                             {
-                                this.ProjectToScreenCoords(planet.Position, 2500f, planet.SO.WorldBoundingSphere.Radius,
+                                this.ProjectToScreenCoords(planet.Center, 2500f, planet.SO.WorldBoundingSphere.Radius,
                                     out Vector2 planetScreenPos, out float planetScreenRadius);
                                 float scale = planetScreenRadius / 115f;
 
@@ -157,7 +157,7 @@ namespace Ship_Game
                             for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                             {
                                 Planet planet = solarSystem.PlanetList[i];
-                                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Position, 2500f);
+                                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
                                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
                                 if (this.viewState > UniverseScreen.UnivScreenState.ShipView)
                                 {

@@ -45,7 +45,7 @@ namespace Ship_Game.AI
 
         private void Colonize(Planet TargetPlanet)
         {
-            if (Owner.Center.OutsideRadius(TargetPlanet.Position, 2000f))
+            if (Owner.Center.OutsideRadius(TargetPlanet.Center, 2000f))
             {
                 OrderQueue.RemoveFirst();
                 OrderColonization(TargetPlanet);
@@ -195,14 +195,14 @@ namespace Ship_Game.AI
             FindNewPosTimer = 0f;
             GotoStep = 0;
             HasPriorityOrder = true;
-            MovePosition.X = p.Position.X;
-            MovePosition.Y = p.Position.Y;
+            MovePosition.X = p.Center.X;
+            MovePosition.Y = p.Center.Y;
         }
         
         public float TimeToTarget(Planet target)
         {
             float test = 0;
-            test = Vector2.Distance(target.Position, Owner.Center) / Owner.GetmaxFTLSpeed;
+            test = Vector2.Distance(target.Center, Owner.Center) / Owner.GetmaxFTLSpeed;
             return test;
         }
 
@@ -211,7 +211,7 @@ namespace Ship_Game.AI
             if (Owner.AreaOfOperation.Count == 0)
                 return true;
             foreach (Rectangle AO in Owner.AreaOfOperation)
-                if (HelperFunctions.CheckIntersection(AO, planet.Position))
+                if (HelperFunctions.CheckIntersection(AO, planet.Center))
                     return true;
             return false;
         }
@@ -232,7 +232,7 @@ namespace Ship_Game.AI
                 if (!predicate(p) || !InsideAreaOfOperation(p))
                     continue;
 
-                float dist = Owner.Center.SqDist(p.Position);
+                float dist = Owner.Center.SqDist(p.Center);
                 if (dist >= minSqDist)
                     continue;
 
@@ -244,7 +244,7 @@ namespace Ship_Game.AI
 
         private void ScrapShip(float elapsedTime, ShipGoal goal)
         {
-            if (Vector2.Distance(goal.TargetPlanet.Position, Owner.Center) >= goal.TargetPlanet.ObjectRadius + Owner.Radius)   //2500f)   //OrbitTarget.ObjectRadius *15)
+            if (Vector2.Distance(goal.TargetPlanet.Center, Owner.Center) >= goal.TargetPlanet.ObjectRadius + Owner.Radius)   //2500f)   //OrbitTarget.ObjectRadius *15)
             {
                 //goal.MovePosition = goal.TargetPlanet.Position;
                 //this.MoveToWithin1000(elapsedTime, goal);
@@ -439,7 +439,7 @@ namespace Ship_Game.AI
                                         }
                                         var sortedList =
                                             from p in shipyards
-                                            orderby Vector2.Distance(Owner.Center, p.Position)
+                                            orderby Vector2.Distance(Owner.Center, p.Center)
                                             select p;
                                         if (!sortedList.Any())
                                             break;

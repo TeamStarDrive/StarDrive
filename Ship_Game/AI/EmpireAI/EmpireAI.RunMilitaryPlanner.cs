@@ -261,14 +261,14 @@ namespace Ship_Game.AI {
                 {
                     if (g.GetMarkedPlanet() == null) continue;
                     foreach (var kv in ThreatMatrix.Pins
-                        .Where(pin => !(g.GetMarkedPlanet().Position.OutsideRadius(pin.Value.Position,75000f)
+                        .Where(pin => !(g.GetMarkedPlanet().Center.OutsideRadius(pin.Value.Position,75000f)
                                         || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == OwnerEmpire ||
                                         pin.Value.Strength <= 0f
                                         || !OwnerEmpire
                                             .GetRelations(EmpireManager.GetEmpireByName(pin.Value.EmpireName))
                                             .AtWar)))
                     {
-                        if (g.GetMarkedPlanet().Position.OutsideRadius(kv.Value.Position, 75000f)
+                        if (g.GetMarkedPlanet().Center.OutsideRadius(kv.Value.Position, 75000f)
                             || EmpireManager.GetEmpireByName(kv.Value.EmpireName) == OwnerEmpire ||
                             kv.Value.Strength <= 0f
                             || !OwnerEmpire.GetRelations(EmpireManager.GetEmpireByName(kv.Value.EmpireName)).AtWar
@@ -281,7 +281,7 @@ namespace Ship_Game.AI {
                             g
                         };
                         var task =
-                            new MilitaryTask(g.GetMarkedPlanet().Position, 125000f, tohold, OwnerEmpire);
+                            new MilitaryTask(g.GetMarkedPlanet().Center, 125000f, tohold, OwnerEmpire);
                         {
                             TaskList.Add(task);
                             break;
@@ -321,7 +321,7 @@ namespace Ship_Game.AI {
                         continue;
                     var task = new MilitaryTask
                     {
-                        AO = g.GetMarkedPlanet().Position
+                        AO = g.GetMarkedPlanet().Center
                     };
                     task.SetEmpire(OwnerEmpire);
                     task.AORadius = 75000f;
@@ -404,7 +404,7 @@ namespace Ship_Game.AI {
                             {
                                 foreach (AO area in AreasOfOperations)
                                 {
-                                    if (entry.Value.Position.OutsideRadius(area.Position, area.Radius))
+                                    if (entry.Value.Center.OutsideRadius(area.Center, area.Radius))
                                         continue;
                                     inOurAOs.Add(task);
                                     dobreak = true;
@@ -438,7 +438,7 @@ namespace Ship_Game.AI {
                             
                             foreach (AO area in AreasOfOperations)
                             {
-                                if (entry.Value.Position.OutsideRadius(area.Position, area.Radius))
+                                if (entry.Value.Center.OutsideRadius(area.Center, area.Radius))
                                     continue;
                                 tnInOurAOs.Add(task);
                                 dobreak = true;

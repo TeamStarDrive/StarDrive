@@ -237,7 +237,7 @@ namespace Ship_Game
                 else
                 {
                     Planet p = CreatePlanetFromPlanetSaveData(system, ring.Planet);
-                    p.Position = system.Position.PointOnCircle(p.OrbitalAngle, p.OrbitalRadius);
+                    p.Center = system.Position.PointOnCircle(p.OrbitalAngle, p.OrbitalRadius);
                     
                     foreach (Building b in p.BuildingList)
                     {
@@ -246,7 +246,7 @@ namespace Ship_Game
                         p.Station = new SpaceStation
                         {
                             planet       = p,
-                            Position     = p.Position,
+                            Position     = p.Center,
                             ParentSystem = p.system
                         };
                         p.Station.LoadContent(ScreenManager);

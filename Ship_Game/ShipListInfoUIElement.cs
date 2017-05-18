@@ -600,7 +600,7 @@ namespace Ship_Game
                                     flag = false;
                             
                             if (flag)
-                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].AI.OrbitTarget.Position;  //fbedard: center fleet on resupply planet
+                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].AI.OrbitTarget.Center;  //fbedard: center fleet on resupply planet
                             
                         }
                         //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();

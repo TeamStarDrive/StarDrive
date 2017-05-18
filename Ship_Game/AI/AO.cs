@@ -18,7 +18,7 @@ namespace Ship_Game.AI
         [XmlIgnore][JsonIgnore] private readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
         [XmlIgnore][JsonIgnore] private Planet[] PlanetsInAo                          = NoPlanets;
         [XmlIgnore][JsonIgnore] private Planet[] OurPlanetsInAo                       = NoPlanets;
-        [XmlIgnore][JsonIgnore] public Vector2 Position                               => CoreWorld.Position;
+        [XmlIgnore][JsonIgnore] public Vector2 Center                                 => CoreWorld.Center;
         [XmlIgnore][JsonIgnore] private Empire Owner                                  => CoreWorld.Owner;
 
         [Serialize(0)] public int ThreatLevel;
@@ -66,12 +66,12 @@ namespace Ship_Game.AI
             WhichFleet            = p.Owner.GetUnusedKeyForFleet();
             p.Owner.GetFleetsDict().Add(WhichFleet, CoreFleet);
             CoreFleet.Name        = "Core Fleet";
-            CoreFleet.Position    = p.Position;
+            CoreFleet.Position    = p.Center;
             CoreFleet.Owner       = p.Owner;
             CoreFleet.IsCoreFleet = true;
             var tempPlanet = new Array<Planet>();
             foreach (Planet planet in Empire.Universe.PlanetsDict.Values)
-                if (planet.Position.InRadius(CoreWorld.Position, radius))
+                if (planet.Center.InRadius(CoreWorld.Center, radius))
                     tempPlanet.Add(planet);
             PlanetsInAo = tempPlanet.ToArray();
         }
@@ -128,7 +128,7 @@ namespace Ship_Game.AI
             foreach (SolarSystem sys in data.SolarSystemsList)
             {
                 foreach (Planet p in sys.PlanetList)
-                    if (p.Position.InRadius(Position, Radius))
+                    if (p.Center.InRadius(Center, Radius))
                         tempPlanet.Add(p);
             }
             PlanetsInAo = tempPlanet.ToArray();
@@ -245,9 +245,9 @@ namespace Ship_Game.AI
                     }
                 }
                 
-                CoreFleet.Position = CoreWorld.Position;
+                CoreFleet.Position = CoreWorld.Center;
                 CoreFleet.AutoArrange();
-                CoreFleet.MoveToNow(Position, 0f, new Vector2(0f, -1f));
+                CoreFleet.MoveToNow(Center, 0f, new Vector2(0f, -1f));
             
                 TurnsToRelax +=  1;
             }
