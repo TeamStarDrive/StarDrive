@@ -703,7 +703,7 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < System.PlanetList.Count; i++)
                     {
                         Planet planet = System.PlanetList[i];
-                        if (Position.InRadius(planet.Position,
+                        if (Position.InRadius(planet.Center,
                              planet.GravityWellRadius))
                         {
                             InhibitedTimer = .3f;
@@ -751,7 +751,7 @@ namespace Ship_Game.Gameplay
         public void TetherToPlanet(Planet p)
         {
             TetheredTo = p;
-            TetherOffset = Center - p.Position;
+            TetherOffset = Center - p.Center;
         }
 
         public Planet GetTether()
@@ -2191,8 +2191,8 @@ namespace Ship_Game.Gameplay
             }
             if (TetheredTo != null)
             {
-                Position = TetheredTo.Position + TetherOffset;
-                Center   = TetheredTo.Position + TetherOffset;
+                Position = TetheredTo.Center + TetherOffset;
+                Center   = TetheredTo.Center + TetherOffset;
                 velocityMaximum = 0;
             }
             if (Mothership != null && !Mothership.Active)
@@ -2278,7 +2278,7 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Planet p in System.PlanetList)
                     {
-                        if (p.Position.OutsideRadius(Center, 3000f * 3000f))
+                        if (p.Center.OutsideRadius(Center, 3000f * 3000f))
                             continue;
                         if (p.ExploredDict[loyalty]) // already explored
                             continue;
@@ -2301,7 +2301,7 @@ namespace Ship_Game.Gameplay
 
                             MilitaryTask militaryTask = new MilitaryTask
                             {
-                                AO = p.Position,
+                                AO = p.Center,
                                 AORadius = 50000f,
                                 type = MilitaryTask.TaskType.Exploration
                             };
@@ -2821,13 +2821,11 @@ namespace Ship_Game.Gameplay
                 {
                     
                     AI.CombatAI.UpdateCombatAI(this);
-                    IOrderedEnumerable<Weapon> orderedEnumerable;
-                    if (AI.CombatState == CombatState.ShortRange)
-                        orderedEnumerable = Enumerable.OrderBy<Weapon, float>((IEnumerable<Weapon>)Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
-                    else
-                        orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
+
+                    float direction = AI.CombatState == CombatState.ShortRange ? 1f : -1f; // ascending : descending
+                    Weapon[] sortedByRange = Weapons.SortedBy(weapon => direction*weapon.GetModifiedRange());
                     bool flag = false;
-                    foreach (Weapon weapon in (IEnumerable<Weapon>)orderedEnumerable)
+                    foreach (Weapon weapon in sortedByRange)
                     {
                         //Edited by Gretman
                         //This fixes ships with only 'other' damage types thinking it has 0 range, causing them to fly through targets even when set to attack at max/min range
@@ -2836,91 +2834,70 @@ namespace Ship_Game.Gameplay
                             maxWeaponsRange = weapon.GetModifiedRange();
                             if (!weapon.Tag_PD) flag = true;
                         }
-                        Weapon weaponTemplate = ResourceManager.GetWeaponTemplate(weapon.UID);
-                        weapon.fireDelay = weaponTemplate.fireDelay;
-                        //Added by McShooterz: weapon tag modifiers with check if mod uses them
-                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useWeaponModifiers)
-                        {                            
 
-                            if (weapon.Tag_Beam)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Beam"].Rate;
-                            if (weapon.Tag_Energy)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Energy"].Rate;
-                            if (weapon.Tag_Explosive)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Explosive"].Rate;
-                            if (weapon.Tag_Guided)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Guided"].Rate;
-                            if (weapon.Tag_Hybrid)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Hybrid"].Rate;
-                            if (weapon.Tag_Intercept)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Intercept"].Rate;
-                            if (weapon.Tag_Kinetic)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Kinetic"].Rate;
-                            if (weapon.Tag_Missile)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Missile"].Rate;
-                            if (weapon.Tag_Railgun)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Railgun"].Rate;
-                            if (weapon.Tag_Torpedo)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Torpedo"].Rate;
-                            if (weapon.Tag_Cannon)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Cannon"].Rate;
-                            if (weapon.Tag_Subspace)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Subspace"].Rate;
-                            if (weapon.Tag_PD)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["PD"].Rate;
-                            if (weapon.Tag_Bomb)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Bomb"].Rate;
-                            if (weapon.Tag_SpaceBomb)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Spacebomb"].Rate;
-                            if (weapon.Tag_BioWeapon)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["BioWeapon"].Rate;
-                            if (weapon.Tag_Drone)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Drone"].Rate;
-                            if (weapon.Tag_Warp)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Warp"].Rate;
-                            if (weapon.Tag_Array)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Array"].Rate;
-                            if (weapon.Tag_Flak)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Flak"].Rate;
-                            if (weapon.Tag_Tractor)
-                                weapon.fireDelay += -weaponTemplate.fireDelay * loyalty.data.WeaponTags["Tractor"].Rate;
-                        }
-                        //Added by McShooterz: Hull bonus Fire Rate
-                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+                        if (GlobalStats.HasMod)
                         {
-                            HullBonus mod;
-                            if (Ship_Game.ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out mod))
-                                weapon.fireDelay *= 1f - mod.FireRateBonus;
+                            Weapon weaponTemplate = ResourceManager.GetWeaponTemplate(weapon.UID);
+                            weapon.fireDelay = weaponTemplate.fireDelay;
+
+                            //Added by McShooterz: weapon tag modifiers with check if mod uses them
+                            if (GlobalStats.ActiveModInfo.useWeaponModifiers)
+                            {
+                                var tags = loyalty.data.WeaponTags;
+                                if (weapon.Tag_Beam)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Beam"].Rate;
+                                if (weapon.Tag_Energy)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Energy"].Rate;
+                                if (weapon.Tag_Explosive) weapon.fireDelay -= weaponTemplate.fireDelay * tags["Explosive"].Rate;
+                                if (weapon.Tag_Guided)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Guided"].Rate;
+                                if (weapon.Tag_Hybrid)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Hybrid"].Rate;
+                                if (weapon.Tag_Intercept) weapon.fireDelay -= weaponTemplate.fireDelay * tags["Intercept"].Rate;
+                                if (weapon.Tag_Kinetic)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Kinetic"].Rate;
+                                if (weapon.Tag_Missile)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Missile"].Rate;
+                                if (weapon.Tag_Railgun)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Railgun"].Rate;
+                                if (weapon.Tag_Torpedo)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Torpedo"].Rate;
+                                if (weapon.Tag_Cannon)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Cannon"].Rate;
+                                if (weapon.Tag_Subspace)  weapon.fireDelay -= weaponTemplate.fireDelay * tags["Subspace"].Rate;
+                                if (weapon.Tag_PD)        weapon.fireDelay -= weaponTemplate.fireDelay * tags["PD"].Rate;
+                                if (weapon.Tag_Bomb)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Bomb"].Rate;
+                                if (weapon.Tag_SpaceBomb) weapon.fireDelay -= weaponTemplate.fireDelay * tags["Spacebomb"].Rate;
+                                if (weapon.Tag_BioWeapon) weapon.fireDelay -= weaponTemplate.fireDelay * tags["BioWeapon"].Rate;
+                                if (weapon.Tag_Drone)     weapon.fireDelay -= weaponTemplate.fireDelay * tags["Drone"].Rate;
+                                if (weapon.Tag_Warp)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Warp"].Rate;
+                                if (weapon.Tag_Array)     weapon.fireDelay -= weaponTemplate.fireDelay * tags["Array"].Rate;
+                                if (weapon.Tag_Flak)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Flak"].Rate;
+                                if (weapon.Tag_Tractor)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Tractor"].Rate;
+                            }
+                            //Added by McShooterz: Hull bonus Fire Rate
+                            if (GlobalStats.ActiveModInfo.useHullBonuses)
+                            {
+                                if (ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
+                                    weapon.fireDelay *= 1f - mod.FireRateBonus;
+                            }
                         }
                     }
                 }
 
-                try
+                if (InhibitedTimer < 2f)
                 {
-                    if (InhibitedTimer < 2f)
-                        foreach (Empire index1 in EmpireManager.Empires)
+                    foreach (Empire e in EmpireManager.Empires)
+                    {
+                        if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
                         {
-                            if (index1 != loyalty && !loyalty.GetRelations(index1).Treaty_OpenBorders)
+                            for (int i = 0; i < e.Inhibitors.Count; ++i)
                             {
-                                for (int index2 = 0; index2 < index1.Inhibitors.Count; ++index2)
+                                Ship ship = e.Inhibitors[i];
+                                if (ship != null && Center.InRadius(ship.Position, ship.InhibitionRadius))
                                 {
-                                    Ship ship = index1.Inhibitors[index2];
-                                    if (ship != null && Vector2.Distance(Center, ship.Position) <= ship.InhibitionRadius)
-                                    {
-                                        Inhibited = true;
-                                        InhibitedTimer = 5f;
-                                        break;
-                                    }
-                                }
-                                if (Inhibited)
+                                    Inhibited = true;
+                                    InhibitedTimer = 5f;
                                     break;
+                                }
                             }
+                            if (Inhibited)
+                                break;
                         }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Inhibitor blew up");
-                }
+
                 inSensorRange = false;
                 if (Empire.Universe.Debug || loyalty == EmpireManager.Player || loyalty != EmpireManager.Player && EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance)
                     inSensorRange = true;
@@ -2930,7 +2907,7 @@ namespace Ship_Game.Gameplay
                     foreach (GameplayObject go in nearby)
                     {
                         var ship = (Ship) go;
-                        if (ship.loyalty == EmpireManager.Player && (Center.InRadius(ship.Position, ship.SensorRange) || Empire.Universe.Debug))
+                        if (ship.loyalty == EmpireManager.Player && Center.InRadius(ship.Position, ship.SensorRange))
                         {
                             inSensorRange = true;
                             break;

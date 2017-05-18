@@ -392,7 +392,7 @@ namespace Ship_Game.Debug
                     Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 6);
                 
                 foreach(AO ao in e.GetGSAI().AreasOfOperations)                
-                    Screen.DrawCircleProjectedZ(ao.Position, ao.Radius, e.EmpireColor, 16);
+                    Screen.DrawCircleProjectedZ(ao.Center, ao.Radius, e.EmpireColor, 16);
                 
 
             }
@@ -436,8 +436,8 @@ namespace Ship_Game.Debug
             {
                 foreach (Planet planet in e.GetPlanets())
                 {                    
-                    Screen.DrawCircleProjectedZ(planet.Position, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
-                    Screen.DrawCircleProjectedZ(planet.Position, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
+                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
+                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
                 }
 
                 foreach (Ship ship in e.GetShips())

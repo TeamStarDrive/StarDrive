@@ -400,7 +400,7 @@ namespace Ship_Game.AI {
                 FindAveragePosition(r.Key);
                 IOrderedEnumerable<Planet> sortedList =
                     from planet in r.Key.GetPlanets()
-                    orderby Vector2.Distance(vector2, planet.Position)
+                    orderby Vector2.Distance(vector2, planet.Center)
                     select planet;
                 foreach (Planet p in sortedList)
                 {
@@ -537,7 +537,7 @@ namespace Ship_Game.AI {
                         if (claim) continue;
                         var task = new MilitaryTask()
                         {
-                            AO = planet.Position
+                            AO = planet.Center
                         };
                         task.SetEmpire(OwnerEmpire);
                         task.AORadius = 75000f;
@@ -692,7 +692,7 @@ namespace Ship_Game.AI {
                                 {
                                     var task = new MilitaryTask()
                                     {
-                                        AO = planet.Position
+                                        AO = planet.Center
                                     };
                                     task.SetEmpire(OwnerEmpire);
                                     task.AORadius = 75000f;
@@ -759,7 +759,7 @@ namespace Ship_Game.AI {
 
                                     MilitaryTask task = new MilitaryTask()
                                     {
-                                        AO = planet.Position
+                                        AO = planet.Center
                                     };
                                     task.SetEmpire(OwnerEmpire);
                                     task.AORadius = 75000f;

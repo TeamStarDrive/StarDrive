@@ -372,7 +372,7 @@ namespace Ship_Game
                 {
                     foreach (Ship_Game.Planet p in this.ship.System.PlanetList)
                     {
-                        if (p.Position.OutsideRadius(ship.Position, p.GravityWellRadius))
+                        if (p.Center.OutsideRadius(ship.Position, p.GravityWellRadius))
                         {
                             continue;
                         }

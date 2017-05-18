@@ -363,7 +363,7 @@ namespace Ship_Game
                         planetType   = 22
                     };
                     newOrbital.SetPlanetAttributes();
-                    newOrbital.Position      = planetCenter;
+                    newOrbital.Center      = planetCenter;
                     newOrbital.scale         = scale;
                     newOrbital.ObjectRadius  = planetRadius;
                     newOrbital.OrbitalRadius = ringRadius;
@@ -463,7 +463,7 @@ namespace Ship_Game
 
                     float planetRadius = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
                     newOrbital.SetPlanetAttributes();
-                    newOrbital.Position = planetCenter;
+                    newOrbital.Center = planetCenter;
                     newOrbital.scale = scale;
                     newOrbital.ObjectRadius = planetRadius;
                     newOrbital.OrbitalRadius = ringRadius;
@@ -524,7 +524,7 @@ namespace Ship_Game
 
                     float planetRadius = 1000f * (float)(1 + Math.Log(scale) / 1.5);
                     newOrbital.SetPlanetAttributes();
-                    newOrbital.Position      = planetCenter;
+                    newOrbital.Center      = planetCenter;
                     newOrbital.scale         = scale;
                     newOrbital.ObjectRadius  = planetRadius;
                     newOrbital.OrbitalRadius = ringRadius;
@@ -585,7 +585,7 @@ namespace Ship_Game
                         ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
                         ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
                     }
-                    newOrbital.Position = planetCenter;
+                    newOrbital.Center = planetCenter;
                     newOrbital.scale = scale;
                     newOrbital.ObjectRadius = planetRadius;
                     newOrbital.OrbitalRadius = ringRadius;
@@ -652,7 +652,7 @@ namespace Ship_Game
                         system             = newSys,
                         SpecialDescription = ringData.SpecialDescription,
                         planetType         = whichPlanet,
-                        Position           = planetCenter,
+                        Center           = planetCenter,
                         scale              = scale,
                         ObjectRadius       = planetRadius,
                         OrbitalRadius      = ringRadius,
@@ -745,7 +745,7 @@ namespace Ship_Game
                                 scale        = ringData.Moons[j].MoonScale,
                                 OrbitRadius  = radius,
                                 OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                                Position     = GenerateRandomPointOnCircle(radius, newOrbital.Position)
+                                Position     = GenerateRandomPointOnCircle(radius, newOrbital.Center)
                             };
                             newSys.MoonList.Add(moon);
                         }

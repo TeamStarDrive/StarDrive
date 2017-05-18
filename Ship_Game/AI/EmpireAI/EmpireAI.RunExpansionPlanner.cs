@@ -96,7 +96,7 @@ namespace Ship_Game.AI {
                 {
                     for (int i = 0; (float)i < p.Population / 1000f; i++)
                     {
-                        weightedCenter = weightedCenter + p.Position;
+                        weightedCenter = weightedCenter + p.Center;
                         numPlanets++;
                     }
                 }
@@ -147,17 +147,17 @@ namespace Ship_Game.AI {
                         if (!ok)
                             continue;
 
-                        str = ThreatMatrix.PingRadarStr(planetList.Position, 50000f, OwnerEmpire);
+                        str = ThreatMatrix.PingRadarStr(planetList.Center, 50000f, OwnerEmpire);
                         if (str > 0)
                             continue;
                         IOrderedEnumerable<AO> sorted =
                             from ao in OwnerEmpire.GetGSAI().AreasOfOperations
-                            orderby Vector2.Distance(planetList.Position, ao.Position)
+                            orderby Vector2.Distance(planetList.Center, ao.Center)
                             select ao;
                         if (sorted.Any())
                         {
                             AO closestAO = sorted.First();
-                            if (planetList.Position.OutsideRadius(closestAO.Position, closestAO.Radius * 2f))
+                            if (planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 2f))
                                 continue;
                         }
                         int commodities = 0;
@@ -175,7 +175,7 @@ namespace Ship_Game.AI {
                         {
                             var r2 = new Goal.PlanetRanker()
                             {
-                                Distance = Vector2.Distance(weightedCenter, planetList.Position)
+                                Distance = Vector2.Distance(weightedCenter, planetList.Center)
                             };
                             distanceInJumps = r2.Distance / 400000f;
                             if (distanceInJumps < 1f)
@@ -242,12 +242,12 @@ namespace Ship_Game.AI {
                             || !planetList.habitable
                             || planetList.Owner == OwnerEmpire
                             || OwnerEmpire == EmpireManager.Player
-                            && ThreatMatrix.PingRadarStr(planetList.Position, 50000f, OwnerEmpire) > 0f)
+                            && ThreatMatrix.PingRadarStr(planetList.Center, 50000f, OwnerEmpire) > 0f)
                             continue;
 
                         var r = new Goal.PlanetRanker()
                         {
-                            Distance = Vector2.Distance(weightedCenter, planetList.Position)
+                            Distance = Vector2.Distance(weightedCenter, planetList.Center)
                         };
                         distanceInJumps = r.Distance / 400000f;
                         if (distanceInJumps < 1f)

@@ -510,7 +510,7 @@ namespace Ship_Game
                         Empire.Universe.SelectedPlanet = entry.planet;
                         Empire.Universe.ViewingShip = false;
                         Empire.Universe.returnToShip = false;
-                        Empire.Universe.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
+                        Empire.Universe.transitionDestination = new Vector3(entry.planet.Center.X, entry.planet.Center.Y, 10000f);
                     }
                 }
             }

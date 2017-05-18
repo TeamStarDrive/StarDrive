@@ -178,6 +178,10 @@ namespace Ship_Game
             Debugger.Break();
         }
 
+        public static void Assert(bool trueCondition, string message)
+        {
+            if (trueCondition != true) Error(message);
+        }
 
         private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
         {

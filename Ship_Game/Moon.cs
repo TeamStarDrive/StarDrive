@@ -47,7 +47,7 @@ namespace Ship_Game.Gameplay
             if (OrbitPlanet == null)
                 OrbitPlanet = Empire.Universe.PlanetsDict[orbitTarget];
 
-            Position = OrbitPlanet.Position.PointOnCircle(OrbitalAngle, OrbitRadius);
+            Position = OrbitPlanet.Center.PointOnCircle(OrbitalAngle, OrbitRadius);
             So.World = Matrix.CreateScale(scale) 
                         * Matrix.CreateRotationZ(-Zrotate) 
                         * Matrix.CreateTranslation(new Vector3(Position, 3200f));

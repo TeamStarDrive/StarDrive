@@ -196,7 +196,7 @@ namespace Ship_Game
 				pgs.TroopsHere.Clear();
                 p.TroopsHere.Remove(this);
 			}
-			Ship retShip = Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, p.Position, this);
+			Ship retShip = Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, p.Center, this);
             p = null;
 			return retShip;
 		}

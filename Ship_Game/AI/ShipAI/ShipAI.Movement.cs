@@ -40,13 +40,13 @@ namespace Ship_Game.AI {
             if (Goal.TargetPlanet != null)
                 lock (WayPointLocker)
                 {
-                    ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Position);
-                    Goal.MovePosition = Goal.TargetPlanet.Position;
+                    ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Center);
+                    Goal.MovePosition = Goal.TargetPlanet.Center;
                 }
             Owner.HyperspaceReturn();
             Vector2 velocity = Owner.Velocity;
             if (Goal.TargetPlanet != null)
-                velocity += Goal.TargetPlanet.Position;
+                velocity += Goal.TargetPlanet.Center;
             float timetostop = velocity.Length() / Goal.SpeedLimit;
             float Distance = Owner.Center.Distance(Goal.MovePosition);
             if (Distance / (Goal.SpeedLimit + 0.001f) <= timetostop)
@@ -249,8 +249,8 @@ namespace Ship_Game.AI {
             if (OrderQueue.NotEmpty && OrderQueue[1].Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
                 lock (WayPointLocker)
                 {
-                    ActiveWayPoints.Last().Equals(goal.TargetPlanet.Position);
-                    goal.MovePosition = goal.TargetPlanet.Position;
+                    ActiveWayPoints.Last().Equals(goal.TargetPlanet.Center);
+                    goal.MovePosition = goal.TargetPlanet.Center;
                 }
             float speedLimit = (int) Owner.speed;
             float distance = Owner.Center.Distance(goal.MovePosition);
@@ -923,8 +923,8 @@ namespace Ship_Game.AI {
             if (Goal.TargetPlanet != null)
                 lock (WayPointLocker)
                 {
-                    ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Position);
-                    Goal.MovePosition = Goal.TargetPlanet.Position;
+                    ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Center);
+                    Goal.MovePosition = Goal.TargetPlanet.Center;
                 }
             if (Owner.loyalty == EmpireManager.Player)
                 HadPO = true;
@@ -1329,8 +1329,8 @@ namespace Ship_Game.AI {
                     }
                     else if (OrderQueue.PeekLast.TargetPlanet != null)
                     {
-                        float d = OrderQueue.PeekLast.TargetPlanet.Position.Distance(Owner.Center);
-                        wantedForward = Owner.Center.DirectionToTarget(OrderQueue.PeekLast.TargetPlanet.Position);
+                        float d = OrderQueue.PeekLast.TargetPlanet.Center.Distance(Owner.Center);
+                        wantedForward = Owner.Center.DirectionToTarget(OrderQueue.PeekLast.TargetPlanet.Center);
                         angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
                         if (angleDiff > 0.400000005960464f)
                             Owner.HyperspaceReturn();

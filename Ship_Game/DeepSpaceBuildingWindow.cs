@@ -257,11 +257,11 @@ namespace Ship_Game
 				{
 					foreach (UniverseScreen.ClickablePlanets p in this.screen.ClickPlanetList)
 					{
-						if (Vector2.Distance(p.planetToClick.Position, pp) > (2500f * p.planetToClick.scale))
+						if (Vector2.Distance(p.planetToClick.Center, pp) > (2500f * p.planetToClick.scale))
 						{
 							continue;
 						}
-						this.TetherOffset = pp - p.planetToClick.Position;
+						this.TetherOffset = pp - p.planetToClick.Center;
 						this.TargetPlanet = p.planetToClick.guid;
 						Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, p.ScreenPos, MousePos, new Color(255, 165, 0, 150), 3f);
 						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(MousePos.X, MousePos.Y + 34f), Color.White);

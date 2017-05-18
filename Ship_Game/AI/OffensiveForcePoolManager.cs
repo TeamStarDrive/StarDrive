@@ -30,7 +30,7 @@ namespace Ship_Game.AI
                     continue;
                 }
                 areasOfOperation.ThreatLevel = 0;
-                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Position, areasOfOperation.Radius, Owner);
+                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, Owner);
 
                 int min =(int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) * .5f) +100;
                 if (areasOfOperation.ThreatLevel < min)
@@ -57,14 +57,14 @@ namespace Ship_Game.AI
                 foreach (SolarSystem system in coreWorld.system.FiveClosestSystems)
                 {
                     if (aoSystems.Contains(system)) continue;                                       
-                    if (aoSize < Vector2.Distance(coreWorld.Position, system.Position))
-                        aoSize = Vector2.Distance(coreWorld.Position, system.Position);
+                    if (aoSize < Vector2.Distance(coreWorld.Center, system.Position))
+                        aoSize = Vector2.Distance(coreWorld.Center, system.Position);
                 }          
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in AreasOfOperations)
                 {
 
-                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Position, coreWorld.Position) >= aoSize)
+                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Center, coreWorld.Center) >= aoSize)
                         continue;
                     flag1 = false;
                     break;

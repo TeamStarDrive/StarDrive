@@ -346,32 +346,33 @@ namespace Ship_Game.AI
             NearbyShips.Clear();
             //this.TrackProjectiles.Clear();
 
+
+
             if (HasPriorityTarget && Target == null)
             {
                 HasPriorityTarget = false;
                 if (TargetQueue.Count > 0)
                 {
                     HasPriorityTarget = true;
-                    Target = TargetQueue.First<Ship>();
+                    Target = TargetQueue.First();
                 }
             }
             if (Target != null)
+            {
                 if ((Target as Ship).loyalty == Owner.loyalty)
                 {
                     Target = null;
                     HasPriorityTarget = false;
                 }
-
-
-                else if (
-                    !Intercepting && (Target as Ship).engineState == Ship.MoveState.Warp
-                ) //||((double)Vector2.Distance(Position, this.Target.Center) > (double)Radius ||
+                else if (!Intercepting && (Target as Ship).engineState == Ship.MoveState.Warp)
                 {
-                    Target = (GameplayObject) null;
+                    Target = null;
                     if (!HasPriorityOrder && Owner.loyalty != UniverseScreen.player)
                         State = AIState.AwaitingOrders;
-                    return (GameplayObject) null;
+                    return null;
                 }
+            }
+
             //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
             CombatAI.PreferredEngagementDistance = Owner.maxWeaponsRange * 0.75f;
             SolarSystem thisSystem = Owner.System;
@@ -380,7 +381,7 @@ namespace Ship_Game.AI
                 {
                     Planet p = thisSystem.PlanetList[i];
                     BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) &&
-                                  Owner.Center.InRadius(p.Position, Radius);             
+                                  Owner.Center.InRadius(p.Center, Radius);             
                 }
             {
                 if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
@@ -418,8 +419,8 @@ namespace Ship_Game.AI
                     };
                     NearbyShips.Add(sw);
 
-                    if (BadGuysNear && nearbyShip.AI.Target is Ship targetShip &&
-                        targetShip == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
+                    if (BadGuysNear && nearbyShip.AI.Target is Ship nearbyShipsTarget &&
+                        nearbyShipsTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                     {
                         sw.Weight = 3f;
                     }
@@ -649,15 +650,8 @@ namespace Ship_Game.AI
                 orderby potentialTarget.Weight
                 descending //, Vector2.Distance(potentialTarget.ship.Center,this.Owner.Center) 
                 select potentialTarget;
+            PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
 
-            {
-                //this.PotentialTargets.ClearAdd() ;//.ToList() as BatchRemovalCollection<Ship>;
-
-                //trackprojectiles in scan for targets.
-
-                PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
-                // .Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance));
-            }
             if (Target != null && !Target.Active)
             {
                 Target = null;
@@ -670,8 +664,8 @@ namespace Ship_Game.AI
                     BadGuysNear = true;
                 return Target;
             }
-            if (sortedList2.Count<ShipWeight>() > 0)
-                Target = sortedList2.ElementAt<ShipWeight>(0).Ship;
+            if (sortedList2.Any())
+                Target = sortedList2.ElementAt(0).Ship;
 
             if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0)
                 return Target;
@@ -863,7 +857,7 @@ namespace Ship_Game.AI
 
         public void DropBombsAtGoal(ShipGoal goal, float radius)
         {
-            if (Owner.Center.InRadius(goal.TargetPlanet.Position, radius))
+            if (Owner.Center.InRadius(goal.TargetPlanet.Center, radius))
             {
                 foreach (ShipModule bombBay in Owner.BombBays)
                 {

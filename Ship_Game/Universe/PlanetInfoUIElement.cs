@@ -545,8 +545,8 @@ namespace Ship_Game
                 Array<Ship> troopShips = new Array<Ship>(this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0
                          && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                         && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
-                Array<Planet> planetTroops = new Array<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
+                         && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
+                Array<Planet> planetTroops = new Array<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
                 if (troopShips.Count > 0)
                 {
                     GameAudio.PlaySfxAsync("echo_affirm");

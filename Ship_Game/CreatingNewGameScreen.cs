@@ -240,7 +240,7 @@ namespace Ship_Game
 
                 var planet0 = empire.GetPlanets()[0];
                 var solarSystems = Data.SolarSystemsList;
-                var orderedEnumerable = solarSystems.OrderBy(system => Vector2.Distance(planet0.Position, system.Position));
+                var orderedEnumerable = solarSystems.OrderBy(system => Vector2.Distance(planet0.Center, system.Position));
                 int numSystemsExplored = solarSystems.Count >= 20 ? empire.data.Traits.BonusExplored : solarSystems.Count;
                 for (int i = 0; i < numSystemsExplored; ++i)
                 {
@@ -307,7 +307,7 @@ namespace Ship_Game
             foreach (Planet planet in wipSystem.PlanetList)
             {
                 planet.system = wipSystem;
-                planet.Position += wipSystem.Position;
+                planet.Center += wipSystem.Position;
                 planet.InitializeUpdate();
                 ScreenManager.inter.ObjectManager.Submit(planet.SO);
                 foreach (Empire key in Data.EmpireList)
@@ -327,7 +327,7 @@ namespace Ship_Game
             }
             foreach (Ship ship in wipSystem.ShipList)
             {
-                ship.Position = ship.loyalty.GetPlanets()[0].Position + new Vector2(6000f, 2000f);
+                ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0.0f));
                 ship.Initialize();
                 ScreenManager.inter.ObjectManager.Submit(ship.GetSO());

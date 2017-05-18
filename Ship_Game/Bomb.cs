@@ -45,7 +45,7 @@ namespace Ship_Game
         {
             TargetPlanet = p;
             PlanetRadius = TargetPlanet.SO.WorldBoundingSphere.Radius;
-            Vector3 vtt = new Vector3(TargetPlanet.Position, 2500f) + 
+            Vector3 vtt = new Vector3(TargetPlanet.Center, 2500f) + 
                 new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.scale, 
                             RandomMath2.RandomBetween(-500f, 500f) * p.scale, 0f) - Position;
             vtt = Vector3.Normalize(vtt);
@@ -58,7 +58,7 @@ namespace Ship_Game
             World    = Matrix.CreateTranslation(Position);
                         //* Matrix.CreateRotationZ(Facing);
 
-            Vector3 planetPos = TargetPlanet.Position.ToVec3(z:2500f);
+            Vector3 planetPos = TargetPlanet.Center.ToVec3(z:2500f);
 
             float impactRadius = TargetPlanet.ShieldStrengthCurrent > 0f ? 100f : 30f;
             if (Position.InRadius(planetPos, PlanetRadius + impactRadius))

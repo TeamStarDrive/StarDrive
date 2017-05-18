@@ -208,19 +208,18 @@ namespace Ship_Game.Gameplay
         {
             var projectile = new Projectile(Owner, direction, moduleAttachedTo)
             {
-                Range        = Range,
-                Weapon       = this,
-                Explodes     = explodes,
-                DamageAmount = DamageAmount
+                Range = Range,
+                Weapon = this,
+                Explodes = explodes,
+                DamageAmount = DamageAmount,
+                DamageRadius = this.DamageRadius,
+                ExplosionRadiusMod = ExplosionRadiusVisual,
+                Speed = ProjectileSpeed,
+                Health = HitPoints,
+                WeaponEffectType = WeaponEffectType,
+                WeaponType = WeaponType,
+                RotationRadsPerSecond = RotationRadsPerSecond
             };
-            projectile.Explodes              = explodes;
-            projectile.DamageRadius          = DamageRadius;
-            projectile.ExplosionRadiusMod    = ExplosionRadiusVisual;
-            projectile.Speed                 = ProjectileSpeed;
-            projectile.Health                = HitPoints;
-            projectile.WeaponEffectType      = WeaponEffectType;
-            projectile.WeaponType            = WeaponType;
-            projectile.RotationRadsPerSecond = RotationRadsPerSecond;
             projectile.LoadContent(ProjectileTexturePath, ModelPath);
             ModifyProjectile(projectile);
             projectile.InitializeDrone(projectile.Speed, direction);
@@ -377,29 +376,29 @@ namespace Ship_Game.Gameplay
         {
             var projectile = new Projectile(p, direction)
             {
-                Range = Range,
-                Weapon = this,
-                Explodes = explodes,
-                DamageAmount = DamageAmount + AdjustDamage()
+                Weapon                = this,
+                Range                 = Range,
+                Explodes              = explodes,
+                DamageAmount          = DamageAmount + AdjustDamage(),
+                DamageRadius          = DamageRadius,
+                ExplosionRadiusMod    = ExplosionRadiusVisual,
+                Health                = HitPoints,
+                Speed                 = ProjectileSpeed,
+                WeaponEffectType      = WeaponEffectType,
+                WeaponType            = WeaponType,
+                RotationRadsPerSecond = RotationRadsPerSecond,
+                ArmorPiercing         = (int)ArmourPen
             };
+
+            projectile.LoadContent(ProjectileTexturePath, ModelPath);
+
             if (RangeVariance)
             {
                 projectile.Range *= RandomMath.RandomBetween(0.9f, 1.1f);
             }
-            projectile.Explodes              = explodes;
-            projectile.DamageRadius          = DamageRadius;
-            projectile.ExplosionRadiusMod    = ExplosionRadiusVisual;
-            projectile.Health                = HitPoints;
-            projectile.Speed                 = ProjectileSpeed;
-            projectile.WeaponEffectType      = WeaponEffectType;
-            projectile.WeaponType            = WeaponType;
-            projectile.LoadContent(ProjectileTexturePath, ModelPath);
-            projectile.RotationRadsPerSecond = RotationRadsPerSecond;
-            projectile.ArmorPiercing         = (int)ArmourPen;
-
             ModifyProjectile(projectile);
-            if (Tag_Guided) projectile.InitializeMissilePlanet(projectile.Speed, direction, target, p);
-            else            projectile.InitializePlanet(projectile.Speed, direction, p.Position);
+            if (Tag_Guided) projectile.InitializeMissilePlanet(projectile.Speed, direction, target);
+            else            projectile.InitializePlanet(projectile.Speed, direction, p.Center);
             projectile.Radius = ProjectileRadius;
             if (Animated == 1)
             {
@@ -408,11 +407,11 @@ namespace Ship_Game.Gameplay
             p.Projectiles.Add(projectile);
             planetEmitter = new AudioEmitter
             {
-                Position = new Vector3(p.Position, 2500f)
+                Position = new Vector3(p.Center, 2500f)
             };
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                planetEmitter.Position = new Vector3(p.Position, -2500f);
+                planetEmitter.Position = new Vector3(p.Center, -2500f);
                 PlayToggleAndFireSfx(planetEmitter);
 
                 projectile.DieSound = true;

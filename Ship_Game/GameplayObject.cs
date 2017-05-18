@@ -86,9 +86,6 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";
 
-        public GameplayObject[] FindNearby(GameObjectType filter = GameObjectType.None)
-            => UniverseScreen.SpaceManager.FindNearby(this, Radius, filter);    
-
         public void SetSystem(SolarSystem system)
         {
             if (System == system)

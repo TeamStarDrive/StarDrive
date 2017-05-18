@@ -706,7 +706,7 @@ namespace Ship_Game
                             }
                             else if (planet != null)
                             {
-                                SelectedFleet.Position = planet.Position; //fbedard: center fleet on planet
+                                SelectedFleet.Position = planet.Center; //fbedard: center fleet on planet
                                 foreach (Ship ship2 in SelectedFleet.Ships)
                                 {
                                     RightClickship(ship2, planet, false);
@@ -1946,7 +1946,7 @@ namespace Ship_Game
                         pInfoUI.SetPlanet(PlanetToView);
                         lastplanetcombat++;
 
-                        transitionDestination = new Vector3(SelectedPlanet.Position.X, SelectedPlanet.Position.Y, 9000f);
+                        transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
                         LookingAtPlanet = false;
                         transitionStartPosition = camPos;
                         AdjustCamTimer = 2f;
@@ -2206,7 +2206,7 @@ namespace Ship_Game
                 else
                 if (this.SelectedPlanet != null)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, num2);
+                    this.transitionDestination = new Vector3(this.SelectedPlanet.Center.X, this.SelectedPlanet.Center.Y, num2);
                 }  
                 else
                 if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
