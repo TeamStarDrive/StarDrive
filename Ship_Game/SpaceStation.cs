@@ -56,7 +56,7 @@ namespace Ship_Game
 			};
 
 
-			this.Position = this.planet.Position;
+			this.Position = this.planet.Center;
 
             //The Doctor: Mod definable spaceport 'station' art scaling
             float scale = 0.8f;
@@ -107,7 +107,7 @@ namespace Ship_Game
 
 		public void Update(float elapsedTime)
 		{
-			this.Position = this.planet.Position;
+			this.Position = this.planet.Center;
 			SpaceStation zrotate = this;
 			zrotate.Zrotate = zrotate.Zrotate + this.rotAmount * elapsedTime;
 

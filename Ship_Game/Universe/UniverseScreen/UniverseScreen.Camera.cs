@@ -140,7 +140,7 @@ namespace Ship_Game
                         : (PlanetScreen) new UnownedPlanetScreen(SelectedPlanet, ScreenManager));
                 LookingAtPlanet = true;
                 transitionStartPosition = camPos;
-                transitionDestination = new Vector3(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f, 2500f);
+                transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
                 AdjustCamTimer = 2f;
                 transitionElapsedTime = 0.0f;
                 transDuration = 5f;
@@ -184,7 +184,7 @@ namespace Ship_Game
             ShowShipNames = false;
             if (SelectedPlanet == null)
                 return;
-            transitionDestination = new Vector3(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f, 2500f);
+            transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
             if (!SelectedPlanet.system.ExploredDict[player])
             {
                 PlayNegativeSound();
@@ -198,13 +198,13 @@ namespace Ship_Game
                 else if (SelectedPlanet.Owner != null)
                 {
                     workersPanel = new UnownedPlanetScreen(SelectedPlanet, ScreenManager);
-                    transitionDestination = new Vector3(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f,
+                    transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
                         95000f);
                 }
                 else
                 {
                     workersPanel = new UnexploredPlanetScreen(SelectedPlanet, ScreenManager);
-                    transitionDestination = new Vector3(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f,
+                    transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
                         95000f);
                 }
                 SelectedPlanet.ExploredDict[player] = true;
@@ -309,9 +309,9 @@ namespace Ship_Game
             else if (this.LookingAtPlanet && this.SelectedPlanet != null)
             {
                 this.camTransitionPosition.X =
-                    MathHelper.SmoothStep(this.camPos.X, this.SelectedPlanet.Position.X, 0.2f);
+                    MathHelper.SmoothStep(this.camPos.X, this.SelectedPlanet.Center.X, 0.2f);
                 this.camTransitionPosition.Y =
-                    MathHelper.SmoothStep(this.camPos.Y, this.SelectedPlanet.Position.Y + 400f, 0.2f);
+                    MathHelper.SmoothStep(this.camPos.Y, this.SelectedPlanet.Center.Y + 400f, 0.2f);
                 this.camPos = this.camTransitionPosition;
             }
             else if (!this.ViewingShip)

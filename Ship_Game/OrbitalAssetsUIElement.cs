@@ -122,7 +122,7 @@ namespace Ship_Game
 				{
 					foreach (Ship ship in p.system.ShipList)
 					{
-						if (ship.loyalty != EmpireManager.Player || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, this.p.Position) >= 15000f)
+						if (ship.loyalty != EmpireManager.Player || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, this.p.Center) >= 15000f)
 						{
 							continue;
 						}

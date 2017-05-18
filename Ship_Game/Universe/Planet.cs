@@ -1,17 +1,9 @@
-// Type: Ship_Game.Planet
-// Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
-// MVID: C34284EE-F947-460F-BF1D-3C6685B19387
-// Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
-
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
@@ -64,12 +56,12 @@ namespace Ship_Game
         public bool ResLocked;
         public bool RecentCombat;
         public int Crippled_Turns;
-        public Planet.ColonyType colonyType;
+        public ColonyType colonyType;
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;
         private int TurnsSinceTurnover;
         public bool isSelected;
-        public Vector2 Position;
+        public Vector2 Center;
         public string SpecialDescription;
         public bool HasShipyard;
         public SolarSystem system;
@@ -79,7 +71,6 @@ namespace Ship_Game
         public string Name;
         public string Description;
         public Empire Owner;
-        public float Objectradius;
         public float OrbitalAngle;
         public float Population;
         public float Density;
@@ -134,12 +125,11 @@ namespace Ship_Game
         private float unfed;
         private Shield shield;
         public float FoodHere;
-        public byte developmentLevel;
+        public int developmentLevel;
         public bool CorsairPresence;
-        public bool queueEmptySent =true ;
+        public bool queueEmptySent = true;
         public float RepairPerTurn = 50;
         public Array<string> PlanetFleets = new Array<string>();
-        private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private bool PSexport = false;
         //private bool FSexport = false;
         public bool UniqueHab = false;
@@ -399,14 +389,14 @@ namespace Ship_Game
                 {
                     PlayPlanetSfx("sd_impact_shield_01", shield.Center);
                 }
-                shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
+                shield.Rotation = Center.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
                 shield.displacement = 0f;
                 shield.texscale = 2.8f;
                 shield.Radius = SO.WorldBoundingSphere.Radius + 100f;
                 shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                 shield.texscale = 2.8f;
                 shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                shield.Center = new Vector3(Position.X, Position.Y, 2500f);
+                shield.Center = new Vector3(Center.X, Center.Y, 2500f);
                 shield.pointLight.World = bomb.World;
                 shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                 shield.pointLight.Radius = 50f;
@@ -1167,10 +1157,10 @@ namespace Ship_Game
             SO.ObjectType = ObjectType.Dynamic;
             SO.World = Matrix.Identity * Matrix.CreateScale(3f) 
                 * Matrix.CreateScale(scale) 
-                * Matrix.CreateTranslation(new Vector3(Position, 2500f));
+                * Matrix.CreateTranslation(new Vector3(Center, 2500f));
             RingWorld = Matrix.Identity 
                 * Matrix.CreateRotationX(ringTilt.ToRadians()) 
-                * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Position, 2500f));
+                * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
             lock (GlobalStats.ObjectManagerLocker)
                 Empire.Universe.ScreenManager.inter.ObjectManager.Submit(SO);
         }
@@ -2316,7 +2306,7 @@ namespace Ship_Game
                                     Ship ship = system.ShipList[index2];
                                     if (ship.loyalty == Owner || (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact) )
                                         continue;
-                                    currentD = Vector2.Distance(Position, ship.Center);                                   
+                                    currentD = Vector2.Distance(Center, ship.Center);                                   
                                     if (ship.GetShipData().Role == ShipData.RoleName.troop && currentD  < previousT)
                                     {
                                         previousT = currentD;
@@ -2337,8 +2327,8 @@ namespace Ship_Game
                                     target = troop;
                                 if(target != null)
                                 {
-                                    building.theWeapon.Center = Position;
-                                    building.theWeapon.FireFromPlanet(target.Center + target.Velocity - Position, this, target.GetRandomInternalModule(building.theWeapon));
+                                    building.theWeapon.Center = Center;
+                                    building.theWeapon.FireFromPlanet(target.Center + target.Velocity - Center, this, target.GetRandomInternalModule(building.theWeapon));
                                     building.WeaponTimer = building.theWeapon.fireDelay;
                                     break;
                                 }
@@ -2413,7 +2403,7 @@ namespace Ship_Game
                         
                     }
                 }
-                if (ship != null && ship.loyalty == Owner && HasShipyard && ship.Position.InRadius(Position, 5000f))
+                if (ship != null && ship.loyalty == Owner && HasShipyard && ship.Position.InRadius(Center, 5000f))
                 {
                     ship.PowerCurrent = ship.PowerStoreMax;
                     ship.Ordinance = ship.OrdinanceMax;
@@ -5264,7 +5254,6 @@ output = maxp * take10 = 5
                 ProductionHere += howMuch;
                 return;
             }
-            planetLock.EnterWriteLock();
             float cost = 0;
             if (ConstructionQueue.Count > 0 && ConstructionQueue.Count > whichItem)
             {                
@@ -5289,9 +5278,8 @@ output = maxp * take10 = 5
                 }
                 ConstructionQueue[whichItem] = item;
             }
-            else
-                ProductionHere += howMuch;
-            planetLock.ExitWriteLock();
+            else ProductionHere += howMuch;
+
             for (int index1 = 0; index1 < ConstructionQueue.Count; ++index1)
             {
                 QueueItem queueItem = ConstructionQueue[index1];
@@ -5398,7 +5386,7 @@ output = maxp * take10 = 5
                     if (queueItem.sData.Role == ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
                     {
                         int num = Shipyards.Count / 9;
-                        shipAt.Position = Position + MathExt.PointOnCircle(Shipyards.Count * 40, 2000 + 2000 * num * scale);
+                        shipAt.Position = Center + MathExt.PointOnCircle(Shipyards.Count * 40, 2000 + 2000 * num * scale);
                         shipAt.Center = shipAt.Position;
                         shipAt.TetherToPlanet(this);
                         Shipyards.Add(shipAt.guid, shipAt);
@@ -5795,13 +5783,13 @@ output = maxp * take10 = 5
 
         public void InitializeUpdate()
         {
-            shield = ShieldManager.AddPlanetaryShield(Position);
+            shield = ShieldManager.AddPlanetaryShield(Center);
             //this.initializing = true;
             UpdateDescription();
             SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)planetType).Meshes[0]);
             SO.ObjectType = ObjectType.Dynamic;
-            SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateTranslation(new Vector3(Position, 2500f));
-            RingWorld = Matrix.Identity * Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Position, 2500f));
+            SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+            RingWorld = Matrix.Identity * Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(scale)) / 1.5)));
         }
 
@@ -5826,22 +5814,22 @@ output = maxp * take10 = 5
             if (PosUpdateTimer <= 0.0f || system.isVisible)
             {
                 PosUpdateTimer = 5f;
-                Position = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
+                Center = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
             }
             if (system.isVisible)
             {
-                BoundingSphere boundingSphere = new BoundingSphere(new Vector3(Position, 0.0f), 300000f);
+                BoundingSphere boundingSphere = new BoundingSphere(new Vector3(Center, 0.0f), 300000f);
                 //System.Threading.Tasks.Parallel.Invoke(() =>
                 {
-                    SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateRotationZ(-Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(Position, 2500f));
+                    SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateRotationZ(-Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
                 }//,
                 //() =>
                 {
-                    cloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateRotationZ((float)(-Zrotate / 1.5)) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(Position, 2500f));
+                    cloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateRotationZ((float)(-Zrotate / 1.5)) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
                 }//,
                 //() =>
                 {
-                    RingWorld = Matrix.Identity * Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Position, 2500f));
+                    RingWorld = Matrix.Identity * Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
                 }
                 //);
 

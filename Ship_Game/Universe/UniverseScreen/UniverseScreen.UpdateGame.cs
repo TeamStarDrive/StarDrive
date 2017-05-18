@@ -401,7 +401,7 @@ namespace Ship_Game
             }
             else if (SelectedPlanet != null)
             {
-                ProjectPieMenu(SelectedPlanet.Position, 2500f);
+                ProjectPieMenu(SelectedPlanet.Center, 2500f);
             }
             if (GlobalStats.RemnantArmageddon)
             {
@@ -527,10 +527,10 @@ namespace Ship_Game
             {
                 int x = granularity;
                 int y = granularity;
-                float xround = p.Position.X > 0 ? .5f : -.5f;
-                float yround = p.Position.Y > 0 ? .5f : -.5f;
-                x += (int) (p.Position.X / reducer + xround);
-                y += (int) (p.Position.Y / reducer + yround);
+                float xround = p.Center.X > 0 ? .5f : -.5f;
+                float yround = p.Center.Y > 0 ? .5f : -.5f;
+                x += (int) (p.Center.X / reducer + xround);
+                y += (int) (p.Center.Y / reducer + yround);
                 if (y < 0) y = 0;
                 if (x < 0) x = 0;
                 grid[x, y] = 200;

@@ -28,7 +28,7 @@ namespace Ship_Game
                         string.Concat(owner.data.Traits.Name, " colonized ", planet.Name));
                 var nro = new NRO()
                 {
-                    Node = planet.Position,
+                    Node = planet.Center,
                     Radius = 300000f,
                     StarDateMade = universeScreen.StarDate
                 };

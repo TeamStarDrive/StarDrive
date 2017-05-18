@@ -119,7 +119,7 @@ namespace Ship_Game.AI {
                 Owner.TradeTimer = 5f;
                 if (Owner.GetFood() > 0f || Owner.GetProduction() > 0f)
                 {
-                    OrderMoveTowardsPosition(end.Position, 0f, new Vector2(0f, -1f), true, end);
+                    OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
 
                     AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
 
@@ -128,7 +128,7 @@ namespace Ship_Game.AI {
                 }
                 else
                 {
-                    OrderMoveTowardsPosition(start.Position, 0f, new Vector2(0f, -1f), true, start);
+                    OrderMoveTowardsPosition(start.Center, 0f, new Vector2(0f, -1f), true, start);
 
                     AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
 
@@ -257,7 +257,7 @@ namespace Ship_Game.AI {
                         FoodOrProd = "Food";
                         if (Owner.GetFood() > 0f)
                         {
-                            OrderMoveTowardsPosition(end.Position, 0f, new Vector2(0f, -1f), true, end);
+                            OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
                             AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
                             State = AIState.SystemTrader;
                             return;
@@ -356,7 +356,7 @@ namespace Ship_Game.AI {
                             FoodOrProd = "Prod";
                             if (Owner.GetProduction() > 0f)
                             {
-                                OrderMoveTowardsPosition(end.Position, 0f, new Vector2(0f, -1f), true, end);
+                                OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
                                 AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
                                 State = AIState.SystemTrader;
                                 return;
@@ -463,7 +463,7 @@ namespace Ship_Game.AI {
                             FoodOrProd = "Food";
                             if (Owner.GetFood() > 0f)
                             {
-                                OrderMoveTowardsPosition(end.Position, 0f, new Vector2(0f, -1f), true, end);
+                                OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
                                 AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
                                 State = AIState.SystemTrader;
                                 return;
@@ -648,7 +648,7 @@ namespace Ship_Game.AI {
                     //    this.PickupAnyPassengers();
                     //if (this.Owner.CargoSpace_Used == 00 && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
                     //    this.PickupAnyGoods();
-                    OrderMoveTowardsPosition(start.Position + RandomMath.RandomDirection() * 500f, 0f,
+                    OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f,
                         new Vector2(0f, -1f), true, start);
 
                     AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
@@ -690,7 +690,7 @@ namespace Ship_Game.AI {
                 }
             if (!hasCargo && start != null)
             {
-                OrderMoveTowardsPosition(start.Position + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
+                OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
                     true, start);
                 AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
                 State = AIState.SystemTrader;
@@ -701,7 +701,7 @@ namespace Ship_Game.AI {
                     OrderTrade(5f);
                 return;
             }
-            OrderMoveTowardsPosition(end.Position + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true,
+            OrderMoveTowardsPosition(end.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true,
                 end);
             AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
             State = AIState.SystemTrader;
@@ -735,7 +735,7 @@ namespace Ship_Game.AI {
             {
                 if (SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget))
                 {
-                    OrderMoveTowardsPosition(end.Position, 0f, new Vector2(0f, -1f), true, end);
+                    OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
                     State = AIState.PassengerTransport;
                     FoodOrProd = "Pass";
                     AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
@@ -749,7 +749,7 @@ namespace Ship_Game.AI {
 
             if (start != null && end != null)
             {
-                OrderMoveTowardsPosition(start.Position + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
+                OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
                     true, start);
                 AddShipGoal(Plan.PickupPassengers, Vector2.Zero, 0f);
             }
@@ -801,7 +801,7 @@ namespace Ship_Game.AI {
                 start.FoodHere -= Owner.LoadFood(maxFoodLoad);
 
                 OrderQueue.RemoveFirst();
-                OrderMoveTowardsPosition(end.Position + UniverseRandom.RandomDirection() * 500f, 0f,
+                OrderMoveTowardsPosition(end.Center + UniverseRandom.RandomDirection() * 500f, 0f,
                     new Vector2(0f, -1f), true, end);
                 AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
             }
@@ -814,7 +814,7 @@ namespace Ship_Game.AI {
                 start.ProductionHere -= Owner.LoadProduction(maxProdLoad);
 
                 OrderQueue.RemoveFirst();
-                OrderMoveTowardsPosition(end.Position + UniverseRandom.RandomDirection() * 500f, 0f,
+                OrderMoveTowardsPosition(end.Center + UniverseRandom.RandomDirection() * 500f, 0f,
                     new Vector2(0f, -1f), true, end);
                 AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
             }
@@ -834,7 +834,7 @@ namespace Ship_Game.AI {
             start.Population -= Owner.LoadColonists(start.Population * 0.2f);
 
             OrderQueue.RemoveFirst();
-            OrderMoveTowardsPosition(end.Position, 0f, new Vector2(0f, -1f), true, end);
+            OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
             State = AIState.PassengerTransport;
             AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
         }

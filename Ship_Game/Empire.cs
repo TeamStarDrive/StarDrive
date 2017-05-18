@@ -1399,7 +1399,7 @@ namespace Ship_Game
                                 int empireIndex = EmpireManager.Empires.IndexOf(planet.Owner);
                                 StatTracker.SnapshotsDict[starDate][empireIndex].EmpireNodes.Add(new NRO
                                 {
-                                    Node = planet.Position,
+                                    Node = planet.Center,
                                     Radius = 300000f,
                                     StarDateMade = Universe.StarDate
                                 });
@@ -1977,14 +1977,14 @@ namespace Ship_Game
                     InfluenceNode influenceNode1 = SensorNodes.RecycleObject() ?? new InfluenceNode();
 
                     influenceNode1.SourceObject = (object)planet;
-                    influenceNode1.Position = planet.Position;
+                    influenceNode1.Position = planet.Center;
                     influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
                                                 // influenceNode1.Radius = this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
 
                     SensorNodes.Add(influenceNode1);
 
                     InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                    influenceNode2.Position = planet.Position;
+                    influenceNode2.Position = planet.Center;
                     influenceNode2.Radius = isFaction 
                                             ? 1f : this == Universe.PlayerEmpire ? 300000f * empire.data.SensorModifier 
                                             : 600000f * empire.data.SensorModifier;
@@ -2028,7 +2028,7 @@ namespace Ship_Game
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
                     influenceNode1.SourceObject = planet;
-                    influenceNode1.Position = planet.Position;
+                    influenceNode1.Position = planet.Center;
                 }
                 else
                 {
@@ -2053,12 +2053,12 @@ namespace Ship_Game
                 InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
 
                 influenceNode2.SourceObject = planet;
-                influenceNode2.Position = planet.Position;
+                influenceNode2.Position = planet.Center;
                 influenceNode2.Radius = 1f; //this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
                 SensorNodes.Add(influenceNode2);
                 InfluenceNode influenceNode3 = SensorNodes.RecycleObject() ?? new InfluenceNode();
                 influenceNode3.SourceObject = planet;
-                influenceNode3.Position = planet.Position;
+                influenceNode3.Position = planet.Center;
                 influenceNode3.Radius = isFaction ? 1f : data.SensorModifier;
                 foreach (Building t in planet.BuildingList)
                 {
@@ -2070,7 +2070,7 @@ namespace Ship_Game
             foreach (Mole mole in data.MoleList)   // Moles are spies who have successfuly been planted during 'Infiltrate' type missions, I believe - Doctor
                 SensorNodes.Add(new InfluenceNode()
                 {
-                    Position = Universe.PlanetsDict[mole.PlanetGuid].Position,
+                    Position = Universe.PlanetsDict[mole.PlanetGuid].Center,
                     Radius = 100000f * this.data.SensorModifier
                 });
             this.Inhibitors.Clear();
@@ -2330,7 +2330,7 @@ namespace Ship_Game
                     if (rebelsFromEmpireData != null)
                     {
                         Vector2 weightedCenter = GetWeightedCenter();
-                        if (OwnedPlanets.FindMax(out Planet planet, p => weightedCenter.SqDist(p.Position)))
+                        if (OwnedPlanets.FindMax(out Planet planet, p => weightedCenter.SqDist(p.Center)))
                         {
                             if (isPlayer)
                                 Universe.NotificationManager.AddRebellionNotification(planet, rebelsFromEmpireData); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable
@@ -2892,7 +2892,7 @@ namespace Ship_Game
                 for (int index = 0; (double)index < (double)planet.Population / 1000.0; ++index)
                 {
                     ++num;
-                    vector2 += planet.Position;
+                    vector2 += planet.Center;
                 }
             }
             if (num == 0)

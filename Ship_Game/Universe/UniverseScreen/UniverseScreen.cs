@@ -377,9 +377,9 @@ namespace Ship_Game
             {
                 foreach (string FleetUID in solarSystem.DefensiveFleets)
                 {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, solarSystem.PlanetList[0].Position);
+                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, solarSystem.PlanetList[0].Center);
                     MilitaryTask militaryTask = new MilitaryTask();
-                    militaryTask.AO = solarSystem.PlanetList[0].Position;
+                    militaryTask.AO = solarSystem.PlanetList[0].Center;
                     militaryTask.AORadius = 120000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                     defensiveFleetAt.FleetTask = militaryTask;
@@ -395,9 +395,9 @@ namespace Ship_Game
                     {
                         foreach (string FleetUID in p.PlanetFleets)
                         {
-                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, p.Position);
+                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, p.Center);
                             MilitaryTask militaryTask = new MilitaryTask();
-                            militaryTask.AO = solarSystem.PlanetList[0].Position;
+                            militaryTask.AO = solarSystem.PlanetList[0].Center;
                             militaryTask.AORadius = 120000f;
                             militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                             planetFleetAt.FleetTask = militaryTask;

@@ -6,47 +6,50 @@ namespace Ship_Game.AI
 {
     public sealed class MissileAI
     {
-        public Projectile Owner;
+        private readonly Projectile Missile;
         private GameplayObject Target;
-        private readonly BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
-        private float thinkTimer = 0.15f;
+        private readonly Array<Ship> TargetList;
+        private float ThinkTimer = 0.15f;
         private bool TargetSet;
         private bool Jammed;
-        private bool ECMRun;
+        private bool EcmRun;
 
-        public MissileAI(Projectile owner)
+        public MissileAI(Projectile missile)
         {
-            Owner = owner;
-            if (Empire.Universe == null) return;
-            if (Owner.Owner == null)
+            Missile = missile;
+            if (Empire.Universe == null)
+                return;
+
+            if (Missile.Owner != null)
             {
-                GameplayObject[] nearbyShips = Owner.FindNearby(GameObjectType.Ship);
+                TargetList = Missile.Owner.AI.PotentialTargets;
+            }
+            else if (Missile.Planet != null)
+            {
+                GameplayObject[] nearbyShips = UniverseScreen.SpaceManager.FindNearby(
+                            Missile, Missile.Planet.GravityWellRadius, GameObjectType.Ship);
                 foreach(GameplayObject go in nearbyShips)
                 {
                     var nearbyShip = (Ship) go;
-                    if (nearbyShip.loyalty != Owner.Loyalty && Owner.Weapon.TargetValid(nearbyShip.shipData.Role))
+                    if (nearbyShip.loyalty != missile.Loyalty && missile.Weapon.TargetValid(nearbyShip.shipData.Role))
                         TargetList.Add(nearbyShip);
                 }
-            }
-            else
-            {
-                TargetList = Owner.Owner.AI.PotentialTargets;
             }
         }
 
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
         {
-            Ship owningShip = Owner.Owner;
+            Ship owningShip = Missile.Owner;
             if (owningShip != null && owningShip.Active && !owningShip.dying)
             {
                 if (owningShip.AI.Target is Ship targetShip)
                 {
-                    if (targetShip.Active && targetShip.loyalty != Owner.Loyalty && 
-                        (!Owner.Loyalty.TryGetRelations(targetShip.loyalty, out Relationship targetRelations) 
+                    if (targetShip.Active && targetShip.loyalty != Missile.Loyalty && 
+                        (!Missile.Loyalty.TryGetRelations(targetShip.loyalty, out Relationship targetRelations) 
                          || !targetRelations.Known || !targetRelations.Treaty_NAPact))
                     {
-                        SetTarget(targetShip.GetRandomInternalModule(Owner));
+                        SetTarget(targetShip.GetRandomInternalModule(Missile));
                         return;
                     }
                 }
@@ -55,7 +58,7 @@ namespace Ship_Game.AI
                 {
                     if (!ship.Active || ship.dying || ship.engineState == Ship.MoveState.Warp)
                         continue;
-                    SetTarget(ship.GetRandomInternalModule(Owner));
+                    SetTarget(ship.GetRandomInternalModule(Missile));
                     return;
                 }                
             }
@@ -63,7 +66,7 @@ namespace Ship_Game.AI
             if (TargetList.Count <= 0)
                 return;
 
-            Empire owner = owningShip?.loyalty ?? Owner.Planet.Owner;
+            Empire owner = owningShip?.loyalty ?? Missile.Planet.Owner;
             if (owner == null)
                 return;
 
@@ -74,9 +77,9 @@ namespace Ship_Game.AI
                 if (!sourceTargetShip.Active || sourceTargetShip.dying )
                     continue;
 
-                float sqDist = Owner.Center.SqDist(sourceTargetShip.Center);
+                float sqDist = Missile.Center.SqDist(sourceTargetShip.Center);
                 if (sqDist > bestSqDist && 
-                    Owner.Loyalty.TryGetRelations(owner, out Relationship relTarget) && relTarget.Treaty_NAPact)
+                    Missile.Loyalty.TryGetRelations(owner, out Relationship relTarget) && relTarget.Treaty_NAPact)
                     continue;
                 bestSqDist = sqDist;
                 bestTarget = sourceTargetShip;                    
@@ -84,7 +87,7 @@ namespace Ship_Game.AI
 
             if (bestTarget != null && bestSqDist < 30000 * 30000)
             {
-                SetTarget(bestTarget.GetRandomInternalModule(Owner));
+                SetTarget(bestTarget.GetRandomInternalModule(Missile));
             }
         }
 
@@ -96,8 +99,8 @@ namespace Ship_Game.AI
 
         private void MoveStraight(float elapsedTime)
         {
-            Owner.Velocity = Owner.Rotation.RadiansToDirection() * (elapsedTime * Owner.Speed);
-            Owner.Velocity = Owner.Velocity.Normalized() * Owner.VelocityMax;
+            Missile.Velocity = Missile.Rotation.RadiansToDirection() * (elapsedTime * Missile.Speed);
+            Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax;
         }
 
         private void MoveTowardsTarget(float elapsedTime)
@@ -105,19 +108,19 @@ namespace Ship_Game.AI
             if (Target == null)
                 return;
 
-            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 forward = Missile.Rotation.RadiansToDirection();
             Vector2 right   = forward.RightVector();
-            Vector2 wantedForward = Owner.Center.DirectionToTarget(Target.Center);
+            Vector2 wantedForward = Missile.Center.DirectionToTarget(Target.Center);
             float angleDiff = (float)Math.Acos(wantedForward.Dot(forward));
             float facing = (wantedForward.Dot(right) > 0f ? 1f : -1f);
             // I suspect this is in radians - so 0.2f angle difference is actually about 11 degrees; can be problematic for missile AI guidance trying to hit target as it won't adjust early enough. Trying 0.1f
             if (angleDiff > 0.1f)
             {
-                Owner.Rotation += Math.Min(angleDiff, facing * elapsedTime * Owner.RotationRadsPerSecond);
+                Missile.Rotation += Math.Min(angleDiff, facing * elapsedTime * Missile.RotationRadsPerSecond);
             }
             wantedForward = forward.Normalized();
-            Owner.Velocity = wantedForward * (elapsedTime * Owner.Speed);
-            Owner.Velocity = Owner.Velocity.Normalized() * Owner.VelocityMax;
+            Missile.Velocity = wantedForward * (elapsedTime * Missile.Speed);
+            Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax;
         }
 
         private void MoveTowardsTargetJammed(float elapsedTime)
@@ -125,36 +128,36 @@ namespace Ship_Game.AI
             if (Target == null)
             {
                 Jammed = false;
-                ECMRun = false;
+                EcmRun = false;
                 return;
             }
-            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 forward = Missile.Rotation.RadiansToDirection();
             Vector2 right   = forward.RightVector();
             Vector2 aimPos = Target.Center;
-            if (!Owner.ErrorSet)
+            if (!Missile.ErrorSet)
             {
                 float randomdeviation = RandomMath.RandomBetween(900f, 1400f);
                 float rdbothways = RandomMath.RandomBetween(0f, 1f) > 0.5f ? randomdeviation : -randomdeviation;
                 aimPos.X += rdbothways;
                 aimPos.Y -= rdbothways;
-                Owner.FixedError = aimPos;
-                Owner.ErrorSet = true;
+                Missile.FixedError = aimPos;
+                Missile.ErrorSet = true;
             }
             else
             {
-                aimPos = Owner.FixedError;
+                aimPos = Missile.FixedError;
             }
-            Vector2 wantedForward = Owner.Center.DirectionToTarget(aimPos);
+            Vector2 wantedForward = Missile.Center.DirectionToTarget(aimPos);
             float angleDiff = (float)Math.Acos(wantedForward.Dot(forward));
             float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
             if (angleDiff > 0.1f)
-                Owner.Rotation += Math.Min(angleDiff, facing * elapsedTime * Owner.RotationRadsPerSecond);
+                Missile.Rotation += Math.Min(angleDiff, facing * elapsedTime * Missile.RotationRadsPerSecond);
             wantedForward = Vector2.Normalize(forward);
-            Owner.Velocity = wantedForward * (elapsedTime * Owner.Speed);
-            Owner.Velocity = Owner.Velocity.Normalized() * Owner.VelocityMax;
-            float distancetoEnd = Owner.Center.Distance(aimPos);
+            Missile.Velocity = wantedForward * (elapsedTime * Missile.Speed);
+            Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax;
+            float distancetoEnd = Missile.Center.Distance(aimPos);
             if (distancetoEnd <= 300f)
-                Owner.Die(Owner, false);
+                Missile.Die(Missile, false);
             Target = null;
         }
 
@@ -163,16 +166,16 @@ namespace Ship_Game.AI
             if (Target == null)
                 return;
 
-            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 forward = Missile.Rotation.RadiansToDirection();
             Vector2 right   = forward.RightVector();
-            Vector2 wantedForward = Owner.Center.DirectionToTarget(Target.Center);
+            Vector2 wantedForward = Missile.Center.DirectionToTarget(Target.Center);
             float angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
             float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
             if (angleDiff > 0.1f)
-                Owner.Rotation += Math.Min(angleDiff, facing * elapsedTime * Owner.RotationRadsPerSecond);
+                Missile.Rotation += Math.Min(angleDiff, facing * elapsedTime * Missile.RotationRadsPerSecond);
             wantedForward = forward.Normalized();
-            Owner.Velocity = wantedForward * (elapsedTime * Owner.Speed);
-            Owner.Velocity = Owner.Velocity.Normalized() * Owner.VelocityMax * Owner.Weapon.TerminalPhaseSpeedMod;
+            Missile.Velocity = wantedForward * (elapsedTime * Missile.Speed);
+            Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax * Missile.Weapon.TerminalPhaseSpeedMod;
         }
 
         public void SetTarget(GameplayObject target)
@@ -187,35 +190,35 @@ namespace Ship_Game.AI
         public void Think(float elapsedTime)
         {
             if (Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM 
-                || Owner.Weapon.TerminalPhaseAttack))
+                || Missile.Weapon.TerminalPhaseAttack))
             {
-                float distancetoTarget = Owner.Center.Distance(Target.Center);
+                float distancetoTarget = Missile.Center.Distance(Target.Center);
                 if (Jammed)
                 {
                     MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
-                if (GlobalStats.ActiveModInfo.enableECM && Target is ShipModule targetModule && !ECMRun && distancetoTarget <= 4000)
+                if (GlobalStats.ActiveModInfo.enableECM && Target is ShipModule targetModule && !EcmRun && distancetoTarget <= 4000)
                 {
-                    ECMRun = true;
+                    EcmRun = true;
                     float targetEcm = targetModule.GetParent().ECMValue;
-                    if (RandomMath.RandomBetween(0f, 1f) + Owner.Weapon.ECMResist < targetEcm)
+                    if (RandomMath.RandomBetween(0f, 1f) + Missile.Weapon.ECMResist < targetEcm)
                     {
                         Jammed = true;
                         MoveTowardsTargetJammed(elapsedTime);
                         return;
                     }
                 }
-                if (Owner.Weapon.TerminalPhaseAttack && distancetoTarget <= Owner.Weapon.TerminalPhaseDistance)
+                if (Missile.Weapon.TerminalPhaseAttack && distancetoTarget <= Missile.Weapon.TerminalPhaseDistance)
                 {
                     MoveTowardsTargetTerminal(elapsedTime);
                     return;
                 }
             }
-            thinkTimer -= elapsedTime;
-            if (thinkTimer <= 0f)
+            ThinkTimer -= elapsedTime;
+            if (ThinkTimer <= 0f)
             {
-                thinkTimer = 1f;
+                ThinkTimer = 1f;
                 if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().dying)
                 {
                     ClearTarget();

@@ -112,7 +112,7 @@ namespace Ship_Game
                 basicEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
                 if (this.UseRealLights)
                 {
-                    Vector3 vector3 = new Vector3(p.Position - p.system.Position, 0.0f);
+                    Vector3 vector3 = new Vector3(p.Center - p.system.Position, 0.0f);
                     vector3 = Vector3.Normalize(vector3);
                     basicEffect.DirectionalLight0.Direction = vector3;
                 }
@@ -146,10 +146,10 @@ namespace Ship_Game
                 return;
             float radius = this.SelectedPlanet.SO.WorldBoundingSphere.Radius;
             Vector3 vector3_3 = this.Viewport.Project(
-                new Vector3(this.SelectedPlanet.Position, 2500f), this.projection, this.view, Matrix.Identity);
+                new Vector3(this.SelectedPlanet.Center, 2500f), this.projection, this.view, Matrix.Identity);
             Vector2 Position1 = new Vector2(vector3_3.X, vector3_3.Y);
             Vector3 vector3_4 = this.Viewport.Project(
-                new Vector3(SelectedPlanet.Position.PointOnCircle(90f, radius), 2500f), this.projection, this.view,
+                new Vector3(SelectedPlanet.Center.PointOnCircle(90f, radius), 2500f), this.projection, this.view,
                 Matrix.Identity);
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
             if ((double) Radius1 < 8.0)
@@ -465,7 +465,7 @@ namespace Ship_Game
                     {
                         float radius = GlobalStats.GravityWellRange *
                                        (1 + (((float) Math.Log(cplanet.planetToClick.scale)) / 1.5f));
-                        DrawCircleProjected(cplanet.planetToClick.Position, radius, new Color(255, 50, 0, 150), 50, 1f,
+                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 50, 0, 150), 50, 1f,
                             inhibit, new Color(200, 0, 0, 50));
                     }
                 }
@@ -513,7 +513,7 @@ namespace Ship_Game
                     foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
                         float radius = 2500f * cplanet.planetToClick.scale;
-                        DrawCircleProjected(cplanet.planetToClick.Position, radius, new Color(255, 165, 0, 150), 50, 1f,
+                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 150), 50, 1f,
                             nodeTex, new Color(0, 0, 255, 50));
                     }
                 }
@@ -759,7 +759,7 @@ namespace Ship_Game
                         if (planet.Owner != null)
                         {
                             Vector3 vector3 =
-                                this.Viewport.Project(new Vector3(planet.Position, 2500f),
+                                this.Viewport.Project(new Vector3(planet.Center, 2500f),
                                     this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
@@ -785,7 +785,7 @@ namespace Ship_Game
                         else
                         {
                             Vector3 vector3 =
-                                this.Viewport.Project(new Vector3(planet.Position, 2500f),
+                                this.Viewport.Project(new Vector3(planet.Center, 2500f),
                                     this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
@@ -1088,7 +1088,7 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
                 {
                     Vector2 screenPos = ProjectToScreenPosition(ship.Center);
-                    Vector2 screenPosTarget = ProjectToScreenPosition(ship.AI.ColonizeTarget.Position, 2500f);
+                    Vector2 screenPosTarget = ProjectToScreenPosition(ship.AI.ColonizeTarget.Center, 2500f);
                     DrawLine(screenPos, screenPosTarget, color);
                     string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
                     DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
@@ -1096,7 +1096,7 @@ namespace Ship_Game
                 }
                 if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
                 {
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Position, color, 2500f);
+                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, color, 2500f);
                     return;
                 }
                 if (ship.AI.State == AIState.Rebase)
@@ -1107,7 +1107,7 @@ namespace Ship_Game
                 ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 if (ship.AI.State == AIState.Bombard && goal?.TargetPlanet != null)
                 {
-                    DrawLineProjected(ship.Center, goal.TargetPlanet.Position, Colors.CombatOrders(alpha), 2500f);
+                    DrawLineProjected(ship.Center, goal.TargetPlanet.Center, Colors.CombatOrders(alpha), 2500f);
                     DrawWayPointLines(ship, Colors.CombatOrders(alpha));
                 }
             }
@@ -1137,11 +1137,11 @@ namespace Ship_Game
             {
                 int spots = ship.AI.OrbitTarget.GetGroundLandingSpots();
                 if (spots > 4)
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Position, Colors.CombatOrders(alpha), 2500f);
+                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.CombatOrders(alpha), 2500f);
                 else if (spots > 0)
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Position, Colors.Warning(alpha), 2500f);
+                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.Warning(alpha), 2500f);
                 else
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Position, Colors.Error(alpha), 2500f);
+                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.Error(alpha), 2500f);
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
                 return;
             }
@@ -1199,7 +1199,7 @@ namespace Ship_Game
                     if (!planet.IsExploredBy(player))
                         continue;
 
-                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position, 2500f);
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center, 2500f);
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;
                     posOffSet.Y += 37f;

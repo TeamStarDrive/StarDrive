@@ -95,7 +95,7 @@ namespace Ship_Game.AI {
                 {
                     Planet x = Owner.System.PlanetList.FindMinFiltered(
                         filter: p => p.Owner != null && p.Owner != Owner.loyalty || p.RecentCombat,
-                        selector: p => Owner.Center.SqDist(p.Position));
+                        selector: p => Owner.Center.SqDist(p.Center));
                     if (x == null) return;
                     Owner.ScrambleAssaultShips(0);
                     OrderAssaultPlanet(x);
@@ -339,11 +339,11 @@ namespace Ship_Game.AI {
             {
                 if (target == null)
                     UniverseScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
-                shipgoal.goal.BuildPosition = target.Position + shipgoal.goal.TetherOffset;
+                shipgoal.goal.BuildPosition = target.Center + shipgoal.goal.TetherOffset;
             }
-            if (target != null && (target.Position + shipgoal.goal.TetherOffset).Distance(Owner.Center) > 200f)
+            if (target != null && (target.Center + shipgoal.goal.TetherOffset).Distance(Owner.Center) > 200f)
             {
-                shipgoal.goal.BuildPosition = target.Position + shipgoal.goal.TetherOffset;
+                shipgoal.goal.BuildPosition = target.Center + shipgoal.goal.TetherOffset;
                 OrderDeepSpaceBuild(shipgoal.goal);
                 return;
             }
@@ -484,7 +484,7 @@ namespace Ship_Game.AI {
                 }
                 else
                 {
-                    MovePosition = PatrolTarget.Position;
+                    MovePosition = PatrolTarget.Center;
                     float Distance = Owner.Center.Distance(MovePosition);
                     if (Distance < 75000f) PatrolTarget.system.ExploredDict[Owner.loyalty] = true;
                     if (Distance > 15000f)
@@ -556,17 +556,17 @@ namespace Ship_Game.AI {
                 DoOrbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
 
             float radius = goal.TargetPlanet.ObjectRadius + Owner.Radius * 2;
-            float distCenter = goal.TargetPlanet.Position.Distance(Owner.Center);
+            float distCenter = goal.TargetPlanet.Center.Distance(Owner.Center);
 
             if (Owner.shipData.Role == ShipData.RoleName.troop && Owner.TroopList.Count > 0)
             {
                 if (Owner.engineState == Ship.MoveState.Warp && distCenter < 7500f)
                     Owner.HyperspaceReturn();
                 if (distCenter < radius)
-                    ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime,
+                    ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime,
                         Owner.speed > 200 ? Owner.speed * .90f : Owner.velocityMaximum);
                 else
-                    ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime, Owner.speed);
+                    ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime, Owner.speed);
                 if (distCenter < goal.TargetPlanet.ObjectRadius &&
                     goal.TargetPlanet.AssignTroopToTile(Owner.TroopList[0]))
                     Owner.QueueTotalRemoval();
@@ -720,18 +720,18 @@ namespace Ship_Game.AI {
         {
             if (Owner.velocityMaximum < 1)
                 return;
-            float distance = orbitTarget.Position.Distance(Owner.Center);
+            float distance = orbitTarget.Center.Distance(Owner.Center);
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && distance < Empire.ProjectorRadius * 2)
             {
-                OrbitPos = orbitTarget.Position;
+                OrbitPos = orbitTarget.Center;
                 OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, OrbitTarget);
                 return;
             }
 
             if (distance > 15000f)
             {
-                ThrustTowardsPosition(orbitTarget.Position, elapsedTime, Owner.speed);
-                OrbitPos = orbitTarget.Position;
+                ThrustTowardsPosition(orbitTarget.Center, elapsedTime, Owner.speed);
+                OrbitPos = orbitTarget.Center;
                 return;
             }
             FindNewPosTimer -= elapsedTime;
@@ -746,7 +746,7 @@ namespace Ship_Game.AI {
                         OrbitalAngle -= 360f;
                 }
                 FindNewPosTimer = elapsedTime * 10f;
-                OrbitPos = orbitTarget.Position.PointOnCircle(OrbitalAngle, radius);
+                OrbitPos = orbitTarget.Center.PointOnCircle(OrbitalAngle, radius);
             }
 
             if (distance < 7500f)

@@ -55,7 +55,7 @@ namespace Ship_Game.AI {
                                             Planet capture = Empire.Universe.PlanetsDict.Values
                                                 .Where(potentials => potentials.Owner == null && potentials.habitable)
                                                 .OrderBy(potentials => Vector2.Distance(assimilate.Center,
-                                                    potentials.Position))
+                                                    potentials.Center))
                                                 .FirstOrDefault();
                                             if (capture != null)
                                                 assimilate.AI.OrderColonization(capture);
@@ -81,7 +81,7 @@ namespace Ship_Game.AI {
 
                                     Planet capture = Empire.Universe.PlanetsDict.Values
                                         .Where(potentials => potentials.Owner == null && potentials.habitable)
-                                        .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Position))
+                                        .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Center))
                                         .FirstOrDefault();
                                     if (capture != null)
                                         assimilate.AI.OrderColonization(capture);
@@ -134,7 +134,7 @@ namespace Ship_Game.AI {
                             center = center / (float) this.OwnerEmpire.GetShips().Count;
                             IOrderedEnumerable<Planet> sortedList =
                                 from planet in r.Key.GetPlanets()
-                                orderby Vector2.Distance(planet.Position, center)
+                                orderby Vector2.Distance(planet.Center, center)
                                 select planet;
                             MilitaryTask task = new MilitaryTask(this.OwnerEmpire);
                             task.SetTargetPlanet(sortedList.First<Planet>());

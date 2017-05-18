@@ -346,12 +346,12 @@ namespace Ship_Game
                         troopShips = new Array<Ship>(this.screen.EmpireUI.empire.GetShips()
                             .Where(troop => troop.TroopList.Count > 0
                                 && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                                && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Position)));
+                                && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
                     }
 
                     var planetTroops = new Array<Planet>(screen.EmpireUI.empire.GetPlanets()
                         .Where(troops => troops.TroopsHere.Count > 1)
-                        .OrderBy(distance => Vector2.Distance(distance.Position, planet.Position))
+                        .OrderBy(distance => Vector2.Distance(distance.Center, planet.Center))
                         .Where(p => p.Name != planet.Name));
 
                     if (troopShips.Count > 0)

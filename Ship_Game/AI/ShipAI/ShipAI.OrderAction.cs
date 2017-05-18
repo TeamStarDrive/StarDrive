@@ -91,8 +91,8 @@ namespace Ship_Game.AI {
             if (toColonize == null)
                 return;
             ColonizeTarget = toColonize;
-            OrderMoveTowardsPosition(toColonize.Position, 0f, new Vector2(0f, -1f), true, toColonize);
-            var colonize = new ShipGoal(Plan.Colonize, toColonize.Position, 0f)
+            OrderMoveTowardsPosition(toColonize.Center, 0f, new Vector2(0f, -1f), true, toColonize);
+            var colonize = new ShipGoal(Plan.Colonize, toColonize.Center, 0f)
             {
                 TargetPlanet = ColonizeTarget
             };
@@ -156,7 +156,7 @@ namespace Ship_Game.AI {
                 }
                 var sortedList =
                     from planet in plist
-                    orderby Vector2.Distance(Owner.Center, planet.Position)
+                    orderby Vector2.Distance(Owner.Center, planet.Center)
                     select planet;
                 if (sortedList.Any())
                 {
@@ -474,7 +474,7 @@ namespace Ship_Game.AI {
                 OrderQueue.Clear();
             var sortedList =
                 from toOrbit in Owner.loyalty.GetPlanets()
-                orderby Vector2.Distance(Owner.Center, toOrbit.Position)
+                orderby Vector2.Distance(Owner.Center, toOrbit.Center)
                 select toOrbit;
             if (sortedList.Any())
             {
@@ -622,7 +622,7 @@ namespace Ship_Game.AI {
                 return;
             }
 
-            OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false, p);
+            OrderMoveTowardsPosition(p.Center, 0f, new Vector2(0f, -1f), false, p);
             IgnoreCombat = true;
             var rebase = new ShipGoal(Plan.Rebase, Vector2.Zero, 0f)
             {
@@ -656,7 +656,7 @@ namespace Ship_Game.AI {
                     
                     && troop.GetAI().State == AIState.Rebase 
                     && troop.GetAI().OrbitTarget == planet).Count() < planet.TilesList.Sum(space => space.number_allowed_troops)*/
-                orderby Vector2.Distance(Owner.Center, planet.Position)
+                orderby Vector2.Distance(Owner.Center, planet.Center)
                 select planet;
 
 
@@ -666,7 +666,7 @@ namespace Ship_Game.AI {
                 return;
             }
             var p = sortedList.First();
-            OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false, p);
+            OrderMoveTowardsPosition(p.Center, 0f, new Vector2(0f, -1f), false, p);
             IgnoreCombat = true;
             var rebase = new ShipGoal(Plan.Rebase, Vector2.Zero, 0f)
             {
@@ -693,7 +693,7 @@ namespace Ship_Game.AI {
 
             var sortedList =
                 from planet in Owner.loyalty.GetPlanets()
-                orderby Vector2.Distance(Owner.Center, planet.Position)
+                orderby Vector2.Distance(Owner.Center, planet.Center)
                 select planet;
             OrbitTarget = null;
             foreach (Planet Planet in sortedList)
@@ -708,7 +708,7 @@ namespace Ship_Game.AI {
                 State = AIState.AwaitingOrders;
                 return;
             }
-            OrderMoveTowardsPosition(OrbitTarget.Position, 0f, Vector2.One, true, OrbitTarget);
+            OrderMoveTowardsPosition(OrbitTarget.Center, 0f, Vector2.One, true, OrbitTarget);
             var refit = new ShipGoal(Plan.Refit, Vector2.Zero, 0f)
             {
                 TargetPlanet = OrbitTarget,
@@ -736,7 +736,7 @@ namespace Ship_Game.AI {
             Target = null;
             OrbitTarget = toOrbit;
             AwaitClosest = toOrbit;
-            OrderMoveTowardsPosition(toOrbit.Position, 0f, Vector2.One, ClearOrders, toOrbit);
+            OrderMoveTowardsPosition(toOrbit.Center, 0f, Vector2.One, ClearOrders, toOrbit);
             State = AIState.Resupply;
             HasPriorityOrder = true;
         }
@@ -756,7 +756,7 @@ namespace Ship_Game.AI {
                 return;
             foreach (Planet planet in Owner.loyalty.GetPlanets())
             {
-                if (!planet.HasShipyard || Owner.InCombat && Vector2.Distance(Owner.Center, planet.Position) < 15000f)
+                if (!planet.HasShipyard || Owner.InCombat && Vector2.Distance(Owner.Center, planet.Center) < 15000f)
                     continue;
                 shipyards.Add(planet);
             }
@@ -765,12 +765,12 @@ namespace Ship_Game.AI {
                 sortedList =
                     from p in shipyards
                     orderby p.TroopsHere.Count > Owner.TroopCapacity,
-                    Vector2.Distance(Owner.Center, p.Position)
+                    Vector2.Distance(Owner.Center, p.Center)
                     select p;
             else
                 sortedList =
                     from p in shipyards
-                    orderby Vector2.Distance(Owner.Center, p.Position)
+                    orderby Vector2.Distance(Owner.Center, p.Center)
                     select p;
             if (sortedList.Count<Planet>() > 0)
                 OrderResupply(sortedList.First<Planet>(), ClearOrders);
@@ -817,7 +817,7 @@ namespace Ship_Game.AI {
             OrderQueue.Clear();
             var sortedList =
                 from planet in Owner.loyalty.GetPlanets()
-                orderby Vector2.Distance(Owner.Center, planet.Position)
+                orderby Vector2.Distance(Owner.Center, planet.Center)
                 select planet;
             OrbitTarget = null;
             foreach (Planet Planet in sortedList)
@@ -833,7 +833,7 @@ namespace Ship_Game.AI {
             }
             else
             {
-                OrderMoveTowardsPosition(OrbitTarget.Position, 0f, Vector2.One, true, OrbitTarget);
+                OrderMoveTowardsPosition(OrbitTarget.Center, 0f, Vector2.One, true, OrbitTarget);
                 var scrap = new ShipGoal(Plan.Scrap, Vector2.Zero, 0f)
                 {
                     TargetPlanet = OrbitTarget
@@ -908,7 +908,7 @@ namespace Ship_Game.AI {
                     if (Potentials.Count > 0)
                     {
                         AwaitClosest = Potentials[UniverseRandom.InRange(Potentials.Count)];
-                        OrderMoveTowardsPosition(AwaitClosest.Position, 0f, Vector2.One, true, null);
+                        OrderMoveTowardsPosition(AwaitClosest.Center, 0f, Vector2.One, true, null);
                         AddShipGoal(Plan.DefendSystem, Vector2.Zero, 0f);
                         State = AIState.SystemDefender;
                     }
@@ -968,7 +968,7 @@ namespace Ship_Game.AI {
             State = AIState.Orbit;
             OrbitTarget = toOrbit;
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian) //fbedard: civilian ship will use projectors
-                OrderMoveTowardsPosition(toOrbit.Position, 0f, new Vector2(0f, -1f), false, toOrbit);
+                OrderMoveTowardsPosition(toOrbit.Center, 0f, new Vector2(0f, -1f), false, toOrbit);
             var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
             {
                 TargetPlanet = toOrbit
@@ -1033,7 +1033,7 @@ namespace Ship_Game.AI {
 
                     if (closestOurs && !ours) // if we already have an owned planet and the current isnt. forget it. 
                         continue;
-                    distance = Owner.Center.SqDist(p.Position);
+                    distance = Owner.Center.SqDist(p.Center);
 
                     if (ours && closestOurs)
                         if (distance >= closestD)
@@ -1075,7 +1075,7 @@ namespace Ship_Game.AI {
                     Owner.loyalty.GetGSAI()
                         .GetKnownPlanets()
                         .FindMin(
-                            planet => planet.Position.SqDist(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));
+                            planet => planet.Center.SqDist(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));
                 return;
             }	        
             if (Owner.System?.OwnerList.Contains(Owner.loyalty) ?? false)

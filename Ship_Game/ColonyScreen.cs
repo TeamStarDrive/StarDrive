@@ -2127,7 +2127,7 @@ namespace Ship_Game
 
                         play = true;
 
-                        Ship.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                        Ship.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Center, pgs.TroopsHere[0]);
                         this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                         pgs.TroopsHere[0].SetPlanet(null);
                         pgs.TroopsHere.Clear();
@@ -2156,10 +2156,10 @@ namespace Ship_Game
                         troopShips = new Array<Ship>(this.eui.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
                             && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Position)));
+                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Center)));
 
                     Array<Planet> planetTroops = new Array<Planet>(this.eui.empire.GetPlanets()
-                        .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.p.Position))
+                        .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Center))
                         .Where(Name => Name.Name != this.p.Name));
 
                     if (troopShips.Count > 0)
@@ -2392,7 +2392,7 @@ namespace Ship_Game
                 if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
                 {
                     GameAudio.PlaySfxAsync("sd_troop_takeoff");
-                    Ship.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                    Ship.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Center, pgs.TroopsHere[0]);
                     this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                     pgs.TroopsHere[0].SetPlanet(null);
                     pgs.TroopsHere.Clear();
