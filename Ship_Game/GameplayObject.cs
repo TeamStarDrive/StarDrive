@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
@@ -10,7 +9,7 @@ using Ship_Game.Gameplay;
 namespace Ship_Game
 {
     [Flags]
-    public enum GameObjectType
+    public enum GameObjectType : byte
     {
         None       = 0,
         Ship       = 1,
@@ -72,8 +71,6 @@ namespace Ship_Game
 
         public virtual void Initialize()
         {
-            if (!DisableSpatialCollision && SpatialIndex == -1 && Empire.Universe != null) // not assigned to a SpatialManager yet?
-                UniverseScreen.SpaceManager.Add(this);
         }
 
         public virtual void Die(GameplayObject source, bool cleanupOnly)
@@ -88,6 +85,11 @@ namespace Ship_Game
 
         public void SetSystem(SolarSystem system)
         {
+            // SetSystem means this GameplayObject is used somewhere in the universe
+            // Regardless whether the system itself is null, we insert self to SpaceManager
+            if (!DisableSpatialCollision && SpatialIndex == -1 && Active)
+                UniverseScreen.SpaceManager.Add(this);
+
             if (System == system)
                 return;
 
@@ -97,9 +99,6 @@ namespace Ship_Game
                 system?.ShipList.AddUnique(ship);
             }
             System = system;
-
-            if (!DisableSpatialCollision && SpatialIndex == -1 && Active && Empire.Universe != null)
-                UniverseScreen.SpaceManager.Add(this);
         }
 
         public int GetLoyaltyId()
