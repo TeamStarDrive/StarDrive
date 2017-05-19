@@ -230,57 +230,57 @@ namespace Ship_Game
                     if (entry.Selected)
 					{
 						//Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
-                        Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
+                        base.ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
 					}
 					entry.SetNewPos(this.eRect.X + 22, this.ShipSL.Entries[i].clickRect.Y);
 					entry.Draw(base.ScreenManager, gameTime);
-					Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
+					base.ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
 				}
 				Color lineColor = new Color(118, 102, 67, 255);
 				Vector2 topLeftSL = new Vector2((float)e1.SysNameRect.X, (float)(this.eRect.Y + 35));
 				Vector2 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)e1.ShipNameRect.X, (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)e1.RoleRect.X, (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)e1.OrdersRect.X, (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)(e1.RefitRect.X + 5), (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)e1.STRRect.X, (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)(e1.MaintRect.X + 5), (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)(e1.TroopRect.X + 5), (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)(e1.FTLRect.X + 5), (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)(e1.STLRect.X + 5), (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)(e1.STLRect.X + 5 + e1.STRRect.Width), (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 35));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				topLeftSL = new Vector2((float)(e1.TotalEntrySize.X + e1.TotalEntrySize.Width), (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 				Vector2 leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + this.eRect.Height - 10));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, leftBot, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
 				leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + 35));
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
-				Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, leftBot, botSL, lineColor);
+				base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
 			}
 			this.ShowRoles.Draw(base.ScreenManager.SpriteBatch);
 			this.close.Draw(base.ScreenManager);
@@ -312,7 +312,7 @@ namespace Ship_Game
 			{
 				ShipListScreenEntry entry = this.ShipSL.Copied[i].item as ShipListScreenEntry;
 				entry.HandleInput(input);
-				if (HelperFunctions.CheckIntersection(entry.TotalEntrySize, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
 				{
 					if (this.ClickTimer >= this.ClickDelay)
 					{
@@ -350,7 +350,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (this.SB_FTL.HandleInput(input))  //HelperFunctions.CheckIntersection(this.FTL, input.CursorPosition))
+			if (this.SB_FTL.HandleInput(input))  //MathExt.HitTest(this.FTL, input.CursorPosition))
 			{
 				
 				//if (input.InGameSelect)
@@ -378,7 +378,7 @@ namespace Ship_Game
 			}
             else if(this.SB_FTL.Hover)
                 ToolTip.CreateTooltip("Faster Than Light Speed of Ship", base.ScreenManager);
-			if (this.SB_STL.HandleInput(input))//HelperFunctions.CheckIntersection(this.STL, input.CursorPosition))
+			if (this.SB_STL.HandleInput(input))//MathExt.HitTest(this.STL, input.CursorPosition))
 			{
 				
 				//if (input.InGameSelect)
@@ -406,7 +406,7 @@ namespace Ship_Game
 			}
             else if (this.SB_STL.Hover)
                 ToolTip.CreateTooltip("Sublight Speed of Ship", base.ScreenManager);
-			if (this.Maint.HandleInput(input))//  HelperFunctions.CheckIntersection(this.MaintRect, input.CursorPosition))
+			if (this.Maint.HandleInput(input))//  MathExt.HitTest(this.MaintRect, input.CursorPosition))
 			{
 				
                 //if (input.InGameSelect)
@@ -437,7 +437,7 @@ namespace Ship_Game
 			}
             else if (this.Maint.Hover)
                 ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
-			if (SB_Troop.HandleInput(input)  )//)HelperFunctions.CheckIntersection(this.TroopRect, input.CursorPosition))
+			if (SB_Troop.HandleInput(input)  )//)MathExt.HitTest(this.TroopRect, input.CursorPosition))
 			{
 				
 				//if (input.InGameSelect)
@@ -465,7 +465,7 @@ namespace Ship_Game
 			}
             else if(this.SB_Troop.Hover)
                 ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable", base.ScreenManager);
-			if (this.SB_STR.HandleInput(input))//HelperFunctions.CheckIntersection(this.STRIconRect, input.CursorPosition))
+			if (this.SB_STR.HandleInput(input))//MathExt.HitTest(this.STRIconRect, input.CursorPosition))
 			{
 				
 				//if (input.InGameSelect)

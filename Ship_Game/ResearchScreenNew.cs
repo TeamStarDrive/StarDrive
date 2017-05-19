@@ -91,7 +91,7 @@ namespace Ship_Game
             double totalSeconds = gameTime.ElapsedGameTime.TotalSeconds;
             this.ScreenManager.FadeBackBufferToBlack((int)this.TransitionAlpha * 2 / 3);
             this.ScreenManager.SpriteBatch.Begin();
-            Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
+            this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
             this.MainMenu.Draw();
             this.ScreenManager.SpriteBatch.End();
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, this.camera.get_transformation(this.ScreenManager.GraphicsDevice));
@@ -113,9 +113,9 @@ namespace Ship_Game
                             Vector2 vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             --vector2_3.Y;
                             if ((double)vector2_3.Y > (double)vector2_2.Y)
-                                Primitives2D.DrawResearchLineVertical(this.ScreenManager.SpriteBatch, vector2_2, vector2_3, Complete);
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_2, vector2_3, Complete);
                             else
-                                Primitives2D.DrawResearchLineVertical(this.ScreenManager.SpriteBatch, vector2_3, vector2_2, Complete);
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_3, vector2_2, Complete);
                         }
                     }
                 }
@@ -136,9 +136,9 @@ namespace Ship_Game
                                 Complete = true;
                             Vector2 vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             if ((double)vector2_3.Y > (double)vector2_2.Y)
-                                Primitives2D.DrawResearchLineVertical(this.ScreenManager.SpriteBatch, vector2_2, vector2_3, Complete);
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_2, vector2_3, Complete);
                             else
-                                Primitives2D.DrawResearchLineVertical(this.ScreenManager.SpriteBatch, vector2_3, vector2_2, Complete);
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_3, vector2_2, Complete);
                         }
                     }
                 }
@@ -163,10 +163,10 @@ namespace Ship_Game
                             }
                             Vector2 LeftPoint2 = new Vector2(RightPoint1.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
-                            Primitives2D.DrawResearchLineHorizontalGradient(this.ScreenManager.SpriteBatch, LeftPoint2, RightPoint2, Complete2);
+                            this.ScreenManager.SpriteBatch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, Complete2);
                         }
                     }
-                    Primitives2D.DrawResearchLineHorizontal(this.ScreenManager.SpriteBatch, LeftPoint1, RightPoint1, Complete1);
+                    this.ScreenManager.SpriteBatch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
                 }
             }
             foreach (KeyValuePair<string, Node> keyValuePair in this.TechTree)
@@ -191,10 +191,10 @@ namespace Ship_Game
                             Vector2 LeftPoint2 = new Vector2(RightPoint1.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             --LeftPoint2.Y;
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
-                            Primitives2D.DrawResearchLineHorizontalGradient(this.ScreenManager.SpriteBatch, LeftPoint2, RightPoint2, Complete2);
+                            this.ScreenManager.SpriteBatch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, Complete2);
                         }
                     }
-                    Primitives2D.DrawResearchLineHorizontal(this.ScreenManager.SpriteBatch, LeftPoint1, RightPoint1, Complete1);
+                    this.ScreenManager.SpriteBatch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
                 }
             }
             foreach (KeyValuePair<string, Node> keyValuePair in this.TechTree)
@@ -339,7 +339,7 @@ namespace Ship_Game
                 EmpireManager.Player.UpdateShipsWeCanBuild();
             }
 			this.qcomponent.HandleInput(input);
-			if (this.qcomponent.Visible && HelperFunctions.CheckIntersection(this.qcomponent.container, input.CursorPosition))
+			if (this.qcomponent.Visible && this.qcomponent.container.HitTest(input.CursorPosition))
 			{
 				return;
 			}

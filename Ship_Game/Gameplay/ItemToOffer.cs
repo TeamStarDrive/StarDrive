@@ -55,7 +55,7 @@ namespace Ship_Game.Gameplay
 
 		public string HandleInput(InputState input, ScrollList.Entry e)
 		{
-			if (!HelperFunctions.CheckIntersection(this.ClickRect, input.CursorPosition))
+			if (!this.ClickRect.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}

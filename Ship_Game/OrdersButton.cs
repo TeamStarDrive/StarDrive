@@ -63,7 +63,7 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			if (this.SimpleToggle)
 			{
-				if (!HelperFunctions.CheckIntersection(r, MousePos))
+				if (!r.HitTest(MousePos))
 				{
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_disabled"], r, Color.White);
 				}
@@ -157,7 +157,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(r, MousePos))
+			if (r.HitTest(MousePos))
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_hover"], r, Color.White);
 			}
@@ -262,7 +262,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input, ScreenManager sm)
 		{
-			if (!HelperFunctions.CheckIntersection(this.clickRect, input.CursorPosition))
+			if (!this.clickRect.HitTest(input.CursorPosition))
 			{
 				//this.Hover = false;
 				this.hovering = false;

@@ -118,7 +118,7 @@ namespace Ship_Game
             for (int i = 0; i < this.ShipDesigns.Entries.Count; i++)
             {
                 ScrollList.Entry e = this.ShipDesigns.Entries[i];
-                if (!HelperFunctions.CheckIntersection(e.clickRect, mousePos))
+                if (!e.clickRect.HitTest(mousePos))
                 {
                     e.clickRectHover = 0;
                 }
@@ -139,7 +139,7 @@ namespace Ship_Game
             }
             foreach (UIButton b in this.Buttons)
             {
-                if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+                if (!b.Rect.HitTest(mousePos))
                 {
                     b.State = UIButton.PressState.Default;
                 }
@@ -170,7 +170,7 @@ namespace Ship_Game
                 }
             }
             this.EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y, 200, 30);
-            if (!HelperFunctions.CheckIntersection(this.EnterNameArea.ClickableArea, mousePos))
+            if (!this.EnterNameArea.ClickableArea.HitTest(mousePos))
             {
                 this.EnterNameArea.Hover = false;
             }

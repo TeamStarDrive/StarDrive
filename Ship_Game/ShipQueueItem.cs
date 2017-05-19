@@ -84,7 +84,7 @@ namespace Ship_Game
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			Primitives2D.DrawLine(spriteBatch, new Vector2((float)this.ListRect.X, (float)(this.ListRect.Y + this.ListRect.Height)), new Vector2((float)(this.ListRect.X + this.ListRect.Width), (float)(this.ListRect.Y + this.ListRect.Height)), Color.DarkBlue);
+			spriteBatch.DrawLine(new Vector2((float)this.ListRect.X, (float)(this.ListRect.Y + this.ListRect.Height)), new Vector2((float)(this.ListRect.X + this.ListRect.Width), (float)(this.ListRect.Y + this.ListRect.Height)), Color.DarkBlue);
 			Vector2 cursor = new Vector2((float)(this.ListRect.X + 5), (float)(this.ListRect.Y + this.ListRect.Height / 2 - this.IconSize / 2));
 			this.ArrowRect = new Rectangle((int)cursor.X, (int)cursor.Y, 20, 20);
 			spriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], this.ArrowRect, this.ArrowColor);

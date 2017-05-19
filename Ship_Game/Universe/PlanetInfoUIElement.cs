@@ -233,7 +233,7 @@ namespace Ship_Game
 				}
 				if (marked)
 				{
-					if (!HelperFunctions.CheckIntersection(this.Mark, MousePos))
+					if (!this.Mark.HitTest(MousePos))
 					{
 						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1426), Text, new Color(88, 108, 146));
 					}
@@ -250,7 +250,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					if (!HelperFunctions.CheckIntersection(this.Mark, MousePos))
+					if (!this.Mark.HitTest(MousePos))
 					{
 						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1425), Text, new Color(88, 108, 146));
 					}
@@ -282,7 +282,7 @@ namespace Ship_Game
                      .Where(troop => troop.TroopList.Count > 0 )
                      .Where(troopAI => troopAI.AI.OrderQueue
                          .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() >0).Count();
-                if (!HelperFunctions.CheckIntersection(this.SendTroops, MousePos))
+                if (!this.SendTroops.HitTest(MousePos))
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
                 else
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text, new Color(174, 202, 255)); // Localizer.Token(1425)
@@ -334,7 +334,7 @@ namespace Ship_Game
 			this.SliderRes.amount = this.p.ResearcherPercentage;
 			this.SliderRes.cursor = new Rectangle(this.SliderRes.sRect.X + (int)((float)this.SliderRes.sRect.Width * this.SliderRes.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)(this.SliderFood.amount * (float)this.SliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)(this.SliderFood.amount * (float)this.SliderFood.sRect.Width), 6)), (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
-			Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SliderFood.sRect, this.SliderFood.Color);
+			this.ScreenManager.SpriteBatch.DrawRectangle(this.SliderFood.sRect, this.SliderFood.Color);
 			Rectangle fIcon2 = new Rectangle(this.SliderFood.sRect.X - 35, this.SliderFood.sRect.Y + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], fIcon2, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : new Color(110, 110, 110, 255)));
 			PlanetInfoUIElement.TippedItem ti1 = new PlanetInfoUIElement.TippedItem()
@@ -392,7 +392,7 @@ namespace Ship_Game
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, Color.LightPink);
 			}
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_brown"], new Rectangle(this.SliderProd.sRect.X, this.SliderProd.sRect.Y, (int)(this.SliderProd.amount * (float)this.SliderProd.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderProd.sRect.X, this.SliderProd.sRect.Y, (int)(this.SliderProd.amount * (float)this.SliderProd.sRect.Width), 6)), Color.White);
-			Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SliderProd.sRect, this.SliderProd.Color);
+			this.ScreenManager.SpriteBatch.DrawRectangle(this.SliderProd.sRect, this.SliderProd.Color);
 			Rectangle pIcon1 = new Rectangle(this.SliderProd.sRect.X - 35, this.SliderProd.sRect.Y + this.SliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], pIcon1, Color.White);
 			ti1 = new PlanetInfoUIElement.TippedItem()
@@ -442,7 +442,7 @@ namespace Ship_Game
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, prod, textPos, Color.LightPink);
 			}
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_blue"], new Rectangle(this.SliderRes.sRect.X, this.SliderRes.sRect.Y, (int)(this.SliderRes.amount * (float)this.SliderRes.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderRes.sRect.X, this.SliderRes.sRect.Y, (int)(this.SliderRes.amount * (float)this.SliderRes.sRect.Width), 6)), Color.White);
-			Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SliderRes.sRect, this.SliderRes.Color);
+			this.ScreenManager.SpriteBatch.DrawRectangle(this.SliderRes.sRect, this.SliderRes.Color);
 			Rectangle rIcon = new Rectangle(this.SliderRes.sRect.X - 35, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_science"].Height / 2, ResourceManager.TextureDict["NewUI/icon_science"].Width, ResourceManager.TextureDict["NewUI/icon_science"].Height);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rIcon, Color.White);
 			ti1 = new PlanetInfoUIElement.TippedItem()
@@ -494,19 +494,19 @@ namespace Ship_Game
 			{
 				return false;
 			}
-			if (HelperFunctions.CheckIntersection(this.ShieldRect, input.CursorPosition))
+			if (this.ShieldRect.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(Localizer.Token(2240), this.ScreenManager);
 			}
 			foreach (PlanetInfoUIElement.TippedItem ti in this.ToolTipItems)
 			{
-				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
+				if (!ti.r.HitTest(input.CursorPosition))
 				{
 					continue;
 				}
 				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
 			}
-			if (HelperFunctions.CheckIntersection(this.Mark, input.CursorPosition) && input.InGameSelect)
+			if (this.Mark.HitTest(input.CursorPosition) && input.InGameSelect)
 			{
 				bool marked = false;
 				Goal markedGoal = new Goal();
@@ -540,7 +540,7 @@ namespace Ship_Game
 					EmpireManager.Player.GetGSAI().Goals.Add(g);
 				}
 			}
-            if (HelperFunctions.CheckIntersection(this.SendTroops, input.CursorPosition) && input.InGameSelect)
+            if (this.SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 Array<Ship> troopShips = new Array<Ship>(this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0
@@ -599,7 +599,7 @@ namespace Ship_Game
 					this.screen.OpenCombatMenu(null);
 				}
 			}
-			if (!HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition))
+			if (!this.ElementRect.HitTest(input.CursorPosition))
 			{
 				return false;
 			}
@@ -620,7 +620,7 @@ namespace Ship_Game
 			Vector2 mousePos = input.CursorPosition;
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
-				if (HelperFunctions.CheckIntersection(this.SliderFood.sRect, mousePos) || this.draggingSlider1)
+				if (this.SliderFood.sRect.HitTest(mousePos) || this.draggingSlider1)
 				{
 					this.SliderFood.state = "hover";
 					this.SliderFood.Color = new Color(164, 154, 133);
@@ -630,7 +630,7 @@ namespace Ship_Game
 					this.SliderFood.state = "normal";
 					this.SliderFood.Color = new Color(72, 61, 38);
 				}
-				if (HelperFunctions.CheckIntersection(this.SliderFood.cursor, mousePos) || this.draggingSlider1)
+				if (this.SliderFood.cursor.HitTest(mousePos) || this.draggingSlider1)
 				{
 					this.SliderFood.cState = "hover";
 				}
@@ -639,7 +639,7 @@ namespace Ship_Game
 					this.SliderFood.cState = "normal";
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderProd.sRect, mousePos) || this.draggingSlider2)
+			if (this.SliderProd.sRect.HitTest(mousePos) || this.draggingSlider2)
 			{
 				this.SliderProd.state = "hover";
 				this.SliderProd.Color = new Color(164, 154, 133);
@@ -649,7 +649,7 @@ namespace Ship_Game
 				this.SliderProd.state = "normal";
 				this.SliderProd.Color = new Color(72, 61, 38);
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderProd.cursor, mousePos) || this.draggingSlider2)
+			if (this.SliderProd.cursor.HitTest(mousePos) || this.draggingSlider2)
 			{
 				this.SliderProd.cState = "hover";
 			}
@@ -657,7 +657,7 @@ namespace Ship_Game
 			{
 				this.SliderProd.cState = "normal";
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderRes.sRect, mousePos) || this.draggingSlider3)
+			if (this.SliderRes.sRect.HitTest(mousePos) || this.draggingSlider3)
 			{
 				this.SliderRes.state = "hover";
 				this.SliderRes.Color = new Color(164, 154, 133);
@@ -667,7 +667,7 @@ namespace Ship_Game
 				this.SliderRes.state = "normal";
 				this.SliderRes.Color = new Color(72, 61, 38);
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderRes.cursor, mousePos) || this.draggingSlider3)
+			if (this.SliderRes.cursor.HitTest(mousePos) || this.draggingSlider3)
 			{
 				this.SliderRes.cState = "hover";
 			}
@@ -675,15 +675,15 @@ namespace Ship_Game
 			{
 				this.SliderRes.cState = "normal";
 			}
-			if (this.p.Owner.data.Traits.Cybernetic == 0 && HelperFunctions.CheckIntersection(this.SliderFood.cursor, mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (this.p.Owner.data.Traits.Cybernetic == 0 && this.SliderFood.cursor.HitTest(mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider1 = true;
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderProd.cursor, mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (this.SliderProd.cursor.HitTest(mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider2 = true;
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderRes.cursor, mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (this.SliderRes.cursor.HitTest(mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider3 = true;
 			}

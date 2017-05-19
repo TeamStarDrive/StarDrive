@@ -796,7 +796,7 @@ namespace Ship_Game.AI {
 
         private void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
         {
-            Vector2 p = MathExt.PointFromRadians(Vector2.Zero, goal.DesiredFacing, 1f);
+            Vector2 p = Vector2.Zero.PointFromRadians(goal.DesiredFacing, 1f);
             Vector2 fvec = Vector2.Zero.DirectionToTarget(p);
             Vector2 wantedForward = Vector2.Normalize(fvec);
             var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),

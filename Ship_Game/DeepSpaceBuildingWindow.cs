@@ -263,7 +263,7 @@ namespace Ship_Game
 						}
 						this.TetherOffset = pp - p.planetToClick.Center;
 						this.TargetPlanet = p.planetToClick.guid;
-						Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, p.ScreenPos, MousePos, new Color(255, 165, 0, 150), 3f);
+						this.ScreenManager.SpriteBatch.DrawLine(p.ScreenPos, MousePos, new Color(255, 165, 0, 150), 3f);
 						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(MousePos.X, MousePos.Y + 34f), Color.White);
 					}
 				}
@@ -280,7 +280,7 @@ namespace Ship_Game
 			for (int i = 0; i < this.SL.Entries.Count; i++)
 			{
 				ScrollList.Entry e = this.SL.Entries[i];
-				if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+				if (!e.clickRect.HitTest(MousePos))
 				{
 					e.clickRectHover = 0;
 				}
@@ -299,13 +299,13 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (this.itemToBuild == null || HelperFunctions.CheckIntersection(this.win, MousePos) || input.CurrentMouseState.LeftButton != ButtonState.Pressed || input.LastMouseState.LeftButton != ButtonState.Released)
+			if (this.itemToBuild == null || this.win.HitTest(MousePos) || input.CurrentMouseState.LeftButton != ButtonState.Pressed || input.LastMouseState.LeftButton != ButtonState.Released)
 			{
 				if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
 				{
 					this.itemToBuild = null;
 				}
-				if (!HelperFunctions.CheckIntersection(this.ConstructionSubMenu.Menu, input.CursorPosition) || !input.RightMouseClick)
+				if (!this.ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || !input.RightMouseClick)
 				{
 					return false;
 				}

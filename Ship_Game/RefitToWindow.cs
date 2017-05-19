@@ -130,7 +130,7 @@ namespace Ship_Game
 			for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
 			{
 				ScrollList.Entry e = this.ShipSL.Copied[i];
-				if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+				if (e.clickRect.HitTest(input.CursorPosition))
 				{
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
 					if (input.InGameSelect)
@@ -142,7 +142,7 @@ namespace Ship_Game
 			}
 			if (this.RefitTo != null)
 			{
-				if (HelperFunctions.CheckIntersection(this.RefitOne.Rect, input.CursorPosition))
+				if (this.RefitOne.Rect.HitTest(input.CursorPosition))
 				{
 					ToolTip.CreateTooltip(Localizer.Token(2267), base.ScreenManager);
 					if (input.InGameSelect)
@@ -152,7 +152,7 @@ namespace Ship_Game
 						this.ExitScreen();
 					}
 				}
-				if (HelperFunctions.CheckIntersection(this.RefitAll.Rect, input.CursorPosition))
+				if (this.RefitAll.Rect.HitTest(input.CursorPosition))
 				{
 					ToolTip.CreateTooltip(Localizer.Token(2268), base.ScreenManager);
 					if (input.InGameSelect)

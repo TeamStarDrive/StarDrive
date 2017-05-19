@@ -744,7 +744,7 @@ namespace Ship_Game
                     Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
                         ray.Position.Y + num * ray.Direction.Y, 0.0f);
                     Vector2 pos = new Vector2(vector3.X, vector3.Y);
-                    if (HelperFunctions.CheckIntersection(rect, pos))
+                    if (rect.HitTest(pos))
                         inFrustrum = true;
                 }
                 if (system.Explored(this.player) && inFrustrum)

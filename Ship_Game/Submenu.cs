@@ -371,7 +371,7 @@ namespace Ship_Game
 			for (int i = 0; i < this.Tabs.Count; i++)
 			{
 				Submenu.Tab t = this.Tabs[i];
-				if (!HelperFunctions.CheckIntersection(t.tabRect, MousePos))
+				if (!t.tabRect.HitTest(MousePos))
 				{
 					t.Hover = false;
 				}
@@ -418,7 +418,7 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			foreach (Submenu.Tab t in this.Tabs)
 			{
-				if (!HelperFunctions.CheckIntersection(t.tabRect, MousePos))
+				if (!t.tabRect.HitTest(MousePos))
 				{
 					t.Hover = false;
 				}

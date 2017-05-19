@@ -82,7 +82,7 @@ namespace Ship_Game
 			float maxPopulation = (this.p.MaxPopulation + this.p.MaxPopBonus) / 1000f;
 			spriteBatch1.DrawString(arial12Bold, string.Concat(str, " / ", maxPopulation.ToString(fmt)), InfoCursor, new Color(255, 239, 208));
 			Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
-			if (HelperFunctions.CheckIntersection(hoverRect, MousePos))
+			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(75, this.ScreenManager);
 			}
@@ -91,7 +91,7 @@ namespace Ship_Game
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.Fertility.ToString(fmt), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
-			if (HelperFunctions.CheckIntersection(hoverRect, MousePos))
+			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(20, this.ScreenManager);
 			}
@@ -100,7 +100,7 @@ namespace Ship_Game
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.MineralRichness.ToString(fmt), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
-			if (HelperFunctions.CheckIntersection(hoverRect, MousePos))
+			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(21, this.ScreenManager);
 			}

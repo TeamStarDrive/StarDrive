@@ -377,7 +377,7 @@ namespace Ship_Game
 			}
 			if (!ResolutionDropDown.Open)
 			{
-				if (!HelperFunctions.CheckIntersection(FullScreen.ClickableArea, mousePos))
+				if (!FullScreen.ClickableArea.HitTest(mousePos))
 				{
 					FullScreen.highlighted = false;
 				}
@@ -405,7 +405,7 @@ namespace Ship_Game
 		    for (int i = 0; i < Buttons.Count; i++)
 		    {
 		        UIButton b = Buttons[i];
-		        if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+		        if (!b.Rect.HitTest(mousePos))
 		        {
 		            b.State = UIButton.PressState.Default;
 		            continue;
