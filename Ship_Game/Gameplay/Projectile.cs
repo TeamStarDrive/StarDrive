@@ -474,8 +474,7 @@ namespace Ship_Game.Gameplay
             if (Miss || target == Owner)
                 return false;
 
-            var projectile = target as Projectile;
-            if (projectile != null)
+            if (target is Projectile projectile)
             {
                 if (Owner != null && projectile.Loyalty == Owner.loyalty)
                 {
