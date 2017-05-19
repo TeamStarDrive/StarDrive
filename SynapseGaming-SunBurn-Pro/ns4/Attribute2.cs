@@ -8,22 +8,14 @@ using System;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property)]
   internal class Attribute2 : Attribute
   {
-    private string jia;
+      public string TexturePathProperty { get; }
 
-    public string TexturePathProperty
+      public Attribute2(string texturepathproperty)
     {
-      get
-      {
-        return this.jia;
-      }
-    }
-
-    public Attribute2(string texturepathproperty)
-    {
-      this.jia = texturepathproperty;
+      this.TexturePathProperty = texturepathproperty;
     }
   }
 }

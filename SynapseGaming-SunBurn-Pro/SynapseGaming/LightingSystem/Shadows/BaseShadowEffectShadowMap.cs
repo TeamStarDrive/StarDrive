@@ -21,15 +21,9 @@ namespace SynapseGaming.LightingSystem.Shadows
     private Effect effect_0;
 
     /// <summary>Effect used for shadow map rendering.</summary>
-    public override Effect ShadowEffect
-    {
-      get
-      {
-        return this.effect_0;
-      }
-    }
+    public override Effect ShadowEffect => this.effect_0;
 
-    /// <summary>
+      /// <summary>
     /// Creates a new effect that performs rendering specific to the shadow
     /// mapping implementation used by this object.
     /// </summary>
@@ -56,7 +50,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <summary>Releases resources allocated by this object.</summary>
     public override void Dispose()
     {
-      Disposable.Free<Effect>(ref this.effect_0);
+      Disposable.Free(ref this.effect_0);
       base.Dispose();
     }
 
@@ -68,11 +62,11 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <returns></returns>
     protected Vector4[] GetPackedRenderTargetLocationAndSpan(Texture2D shadowmap, int padding)
     {
-      Vector4 vector4 = new Vector4(1f / (float) shadowmap.Width, 1f / (float) shadowmap.Height, 1f / (float) shadowmap.Width, 1f / (float) shadowmap.Height);
+      Vector4 vector4 = new Vector4(1f / shadowmap.Width, 1f / shadowmap.Height, 1f / shadowmap.Width, 1f / shadowmap.Height);
       for (int index = 0; index < this.Surfaces.Length; ++index)
       {
         Rectangle rectangle = this.Surfaces[index].method_0(padding);
-        this.vector4_0[index] = new Vector4((float) rectangle.X, (float) rectangle.Y, (float) rectangle.Width, (float) rectangle.Height) * vector4;
+        this.vector4_0[index] = new Vector4(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height) * vector4;
       }
       return this.vector4_0;
     }

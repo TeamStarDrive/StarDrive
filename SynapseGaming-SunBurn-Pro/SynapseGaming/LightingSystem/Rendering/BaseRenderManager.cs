@@ -4,14 +4,14 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns10;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -21,42 +21,17 @@ namespace SynapseGaming.LightingSystem.Rendering
   /// </summary>
   public abstract class BaseRenderManager : IUnloadable, IManager, IRenderableManager, IManagerService, IRenderManager
   {
-    private int int_0 = 60;
-    private DetailPreference detailPreference_0 = DetailPreference.Medium;
-    private bool bool_0 = true;
-    private FillMode fillMode_0 = FillMode.Solid;
-    private int int_1 = 4;
-    private TextureFilter textureFilter_0 = TextureFilter.Linear;
-    private TextureFilter textureFilter_1 = TextureFilter.Anisotropic;
-    private TextureFilter textureFilter_2 = TextureFilter.Anisotropic;
-    private ShadowRenderTargetGroup shadowRenderTargetGroup_0 = new ShadowRenderTargetGroup();
-    private List<ILight> list_0 = new List<ILight>();
-    private List<ILight> list_1 = new List<ILight>();
-    private AmbientLight ambientLight_0 = new AmbientLight();
-    internal BaseRenderManager.Class57 class57_0 = new BaseRenderManager.Class57();
-    private DetailPreference detailPreference_1;
-    private IGraphicsDeviceService igraphicsDeviceService_0;
-    private ISceneState isceneState_0;
-    private int int_2;
-    private int int_3;
-    private bool bool_1;
-    private float float_0;
-    private IManagerServiceProvider imanagerServiceProvider_0;
-    private Class71 class71_0;
+      private ShadowRenderTargetGroup shadowRenderTargetGroup_0 = new ShadowRenderTargetGroup();
+      internal Class57 class57_0 = new Class57();
+      private Class71 class71_0;
 
     /// <summary>
     /// Gets the manager specific Type used as a unique key for storing and
     /// requesting the manager from the IManagerServiceProvider.
     /// </summary>
-    public Type ManagerType
-    {
-      get
-      {
-        return SceneInterface.RenderManagerType;
-      }
-    }
+    public Type ManagerType => SceneInterface.RenderManagerType;
 
-    /// <summary>
+      /// <summary>
     /// Sets the order this manager is processed relative to other managers
     /// in the IManagerServiceProvider. Managers with lower processing order
     /// values are processed first.
@@ -66,242 +41,108 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// EndFrameRendering is processed in reverse order (highest to lowest) to ensure
     /// the first manager begun is the last one ended (FILO).
     /// </summary>
-    public int ManagerProcessOrder
-    {
-      get
-      {
-        return this.int_0;
-      }
-      set
-      {
-        this.int_0 = value;
-      }
-    }
+    public int ManagerProcessOrder { get; set; } = 60;
 
-    /// <summary>
+      /// <summary>
     /// The current GraphicsDeviceManager used by this object.
     /// </summary>
-    public IGraphicsDeviceService GraphicsDeviceManager
-    {
-      get
-      {
-        return this.igraphicsDeviceService_0;
-      }
-    }
+    public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-    /// <summary>
+      /// <summary>
     /// Enables clearing the back buffer during rendering.
     /// Disabling allows custom rendering (such as skybox)
     /// prior to calling RenderManager.Render().
     /// </summary>
-    public bool ClearBackBufferEnabled
-    {
-      get
-      {
-        return this.bool_0;
-      }
-      set
-      {
-        this.bool_0 = value;
-      }
-    }
+    public bool ClearBackBufferEnabled { get; set; } = true;
 
-    /// <summary>
+      /// <summary>
     /// Changes the render fill mode allowing solid and wireframe rendering.
     /// </summary>
-    public FillMode RenderFillMode
-    {
-      get
-      {
-        return this.fillMode_0;
-      }
-      set
-      {
-        this.fillMode_0 = value;
-      }
-    }
+    public FillMode RenderFillMode { get; set; } = FillMode.Solid;
 
-    /// <summary>Maximum mipmap level used during rendering.</summary>
-    public int MaxMipLevel
-    {
-      get
-      {
-        return this.int_2;
-      }
-      set
-      {
-        this.int_2 = value;
-      }
-    }
+      /// <summary>Maximum mipmap level used during rendering.</summary>
+    public int MaxMipLevel { get; set; }
 
-    /// <summary>Mipmap level of detail bias applied during rendering.</summary>
-    public float MipMapLevelOfDetailBias
-    {
-      get
-      {
-        return this.float_0;
-      }
-      set
-      {
-        this.float_0 = value;
-      }
-    }
+      /// <summary>Mipmap level of detail bias applied during rendering.</summary>
+    public float MipMapLevelOfDetailBias { get; set; }
 
-    /// <summary>
+      /// <summary>
     /// Current composite ambient light (combination of all scene ambient lights)
     /// provided by the LightManager (only valid between calls to
     /// BeginFrameRendering and EndFrameRendering).
     /// </summary>
-    public AmbientLight FrameAmbientLight
-    {
-      get
-      {
-        return this.ambientLight_0;
-      }
-    }
+    public AmbientLight FrameAmbientLight { get; } = new AmbientLight();
 
-    /// <summary>
+      /// <summary>
     /// Current scene lights provided by the LightManager (only valid between
     /// calls to BeginFrameRendering and EndFrameRendering).
     /// </summary>
-    public List<ILight> FrameLights
-    {
-      get
-      {
-        return this.list_0;
-      }
-    }
+    public List<ILight> FrameLights { get; } = new List<ILight>();
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected int MaxAnisotropy
-    {
-      get
-      {
-        return this.int_1;
-      }
-    }
+    protected int MaxAnisotropy { get; private set; } = 4;
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected int MaxLoadedMipLevel
-    {
-      get
-      {
-        return this.int_3;
-      }
-    }
+    protected int MaxLoadedMipLevel { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected bool MaxLoadedMipLevelEnabled
-    {
-      get
-      {
-        return this.bool_1;
-      }
-    }
+    protected bool MaxLoadedMipLevelEnabled { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Current scene state information provided to BeginFrameRendering (only valid between calls to BeginFrameRendering and EndFrameRendering).
     /// </summary>
-    protected ISceneState SceneState
-    {
-      get
-      {
-        return this.isceneState_0;
-      }
-    }
+    protected ISceneState SceneState { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected DetailPreference ShadowDetail
-    {
-      get
-      {
-        return this.detailPreference_0;
-      }
-    }
+    protected DetailPreference ShadowDetail { get; private set; } = DetailPreference.Medium;
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected DetailPreference EffectDetail
-    {
-      get
-      {
-        return this.detailPreference_1;
-      }
-    }
+    protected DetailPreference EffectDetail { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected TextureFilter MipFilter
-    {
-      get
-      {
-        return this.textureFilter_0;
-      }
-    }
+    protected TextureFilter MipFilter { get; private set; } = TextureFilter.Linear;
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected TextureFilter MinFilter
-    {
-      get
-      {
-        return this.textureFilter_1;
-      }
-    }
+    protected TextureFilter MinFilter { get; private set; } = TextureFilter.Anisotropic;
 
-    /// <summary>
+      /// <summary>
     /// Determines the current rendering quality based on the user preferences provided to ApplyPreferences.
     /// </summary>
-    protected TextureFilter MagFilter
-    {
-      get
-      {
-        return this.textureFilter_2;
-      }
-    }
+    protected TextureFilter MagFilter { get; private set; } = TextureFilter.Anisotropic;
 
-    /// <summary>
+      /// <summary>
     /// Current ambient lights provided by the LightManager (only valid between calls to BeginFrameRendering and EndFrameRendering).
     /// </summary>
-    protected List<ILight> FrameAmbientLights
-    {
-      get
-      {
-        return this.list_1;
-      }
-    }
+    protected List<ILight> FrameAmbientLights { get; } = new List<ILight>();
 
-    /// <summary>
+      /// <summary>
     /// Service provider used to access all other manager services in this scene. Allows querying
     /// objects through the IObjectManager manager interface, querying lights through the ILightManager manager
     /// interface, and more.
     /// </summary>
-    protected IManagerServiceProvider ServiceProvider
-    {
-      get
-      {
-        return this.imanagerServiceProvider_0;
-      }
-    }
+    protected IManagerServiceProvider ServiceProvider { get; }
 
-    /// <summary>Creates a new BaseRenderManager instance.</summary>
+      /// <summary>Creates a new BaseRenderManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     /// <param name="sceneinterface">Service provider used to access all other manager services in this scene.</param>
     public BaseRenderManager(IGraphicsDeviceService graphicsdevicemanager, IManagerServiceProvider sceneinterface)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
-      this.imanagerServiceProvider_0 = sceneinterface;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
+      this.ServiceProvider = sceneinterface;
       this.class71_0 = new Class71(graphicsdevicemanager);
     }
 
@@ -314,26 +155,26 @@ namespace SynapseGaming.LightingSystem.Rendering
       switch (preferences.TextureSampling)
       {
         case SamplingPreference.Bilinear:
-          this.textureFilter_1 = TextureFilter.Linear;
-          this.textureFilter_2 = TextureFilter.Linear;
-          this.textureFilter_0 = TextureFilter.Point;
+          this.MinFilter = TextureFilter.Linear;
+          this.MagFilter = TextureFilter.Linear;
+          this.MipFilter = TextureFilter.Point;
           break;
         case SamplingPreference.Trilinear:
-          this.textureFilter_1 = TextureFilter.Linear;
-          this.textureFilter_2 = TextureFilter.Linear;
-          this.textureFilter_0 = TextureFilter.Linear;
+          this.MinFilter = TextureFilter.Linear;
+          this.MagFilter = TextureFilter.Linear;
+          this.MipFilter = TextureFilter.Linear;
           break;
         case SamplingPreference.Anisotropic:
-          this.textureFilter_1 = TextureFilter.Anisotropic;
-          this.textureFilter_2 = TextureFilter.Anisotropic;
-          this.textureFilter_0 = TextureFilter.Linear;
+          this.MinFilter = TextureFilter.Anisotropic;
+          this.MagFilter = TextureFilter.Anisotropic;
+          this.MipFilter = TextureFilter.Linear;
           break;
       }
-      this.int_1 = preferences.MaxAnisotropy;
-      this.int_3 = (int) preferences.TextureQuality;
-      this.bool_1 = this.int_3 != 0;
-      this.detailPreference_0 = preferences.ShadowDetail;
-      this.detailPreference_1 = preferences.EffectDetail;
+      this.MaxAnisotropy = preferences.MaxAnisotropy;
+      this.MaxLoadedMipLevel = (int) preferences.TextureQuality;
+      this.MaxLoadedMipLevelEnabled = this.MaxLoadedMipLevel != 0;
+      this.ShadowDetail = preferences.ShadowDetail;
+      this.EffectDetail = preferences.EffectDetail;
       this.class71_0.ApplyPreferences(preferences);
     }
 
@@ -345,7 +186,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
       if (texture == null || texture.LevelCount < 1)
         return;
-      int num = Math.Min(texture.LevelCount - 1, this.int_3);
+      int num = Math.Min(texture.LevelCount - 1, this.MaxLoadedMipLevel);
       if (texture.LevelOfDetail == num)
         return;
       texture.LevelOfDetail = num;
@@ -360,7 +201,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
       this.shadowRenderTargetGroup_0.ShadowGroups.Clear();
       this.class71_0.method_0(this.shadowRenderTargetGroup_0.ShadowGroups, lights, true);
-      this.shadowRenderTargetGroup_0.Build(this.GraphicsDeviceManager.GraphicsDevice, (RenderTarget) null, (DepthStencilBuffer) null);
+      this.shadowRenderTargetGroup_0.Build(this.GraphicsDeviceManager.GraphicsDevice, null, null);
       rendertargetgroups.Add(this.shadowRenderTargetGroup_0);
     }
 
@@ -379,41 +220,41 @@ namespace SynapseGaming.LightingSystem.Rendering
     public virtual void BeginFrameRendering(ISceneState scenestate)
     {
       //SplashScreen.CheckProductActivation();
-      this.isceneState_0 = scenestate;
+      this.SceneState = scenestate;
       GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
-      int num1 = Math.Max(Math.Min(this.int_1, LightingSystemManager.Instance.GetGraphicsDeviceSupport(graphicsDevice).MaxAnisotropy), 1);
+      int num1 = Math.Max(Math.Min(this.MaxAnisotropy, LightingSystemManager.Instance.GetGraphicsDeviceSupport(graphicsDevice).MaxAnisotropy), 1);
       for (int index = 0; index < 8; ++index)
       {
         SamplerState samplerState = graphicsDevice.SamplerStates[index];
         samplerState.MaxAnisotropy = num1;
-        samplerState.MaxMipLevel = this.int_2;
+        samplerState.MaxMipLevel = this.MaxMipLevel;
       }
       this.class71_0.BeginFrameRendering(scenestate);
-      this.list_0.Clear();
-      this.list_1.Clear();
-      ILightManager manager = (ILightManager) this.imanagerServiceProvider_0.GetManager(SceneInterface.LightManagerType, false);
+      this.FrameLights.Clear();
+      this.FrameAmbientLights.Clear();
+      ILightManager manager = (ILightManager) this.ServiceProvider.GetManager(SceneInterface.LightManagerType, false);
       if (manager == null)
       {
-        this.ambientLight_0.DiffuseColor = new Vector3(1f, 0.9f, 0.8f);
-        this.ambientLight_0.Intensity = 0.25f;
+        this.FrameAmbientLight.DiffuseColor = new Vector3(1f, 0.9f, 0.8f);
+        this.FrameAmbientLight.Intensity = 0.25f;
       }
       else
       {
-        manager.Find(this.list_0, this.isceneState_0.ViewFrustum, ObjectFilter.EnabledDynamicAndStatic);
-        this.ambientLight_0.DiffuseColor = Vector3.Zero;
-        this.ambientLight_0.Intensity = 1f;
+        manager.Find(this.FrameLights, this.SceneState.ViewFrustum, ObjectFilter.EnabledDynamicAndStatic);
+        this.FrameAmbientLight.DiffuseColor = Vector3.Zero;
+        this.FrameAmbientLight.Intensity = 1f;
         int num2 = 0;
         float num3 = 0.0f;
         Matrix viewToWorld = scenestate.ViewToWorld;
-        for (int index = 0; index < this.list_0.Count; ++index)
+        for (int index = 0; index < this.FrameLights.Count; ++index)
         {
-          ILight light = this.list_0[index];
+          ILight light = this.FrameLights[index];
           if (light is IAmbientSource)
           {
             num3 += (light as IAmbientSource).Depth;
             ++num2;
-            this.ambientLight_0.DiffuseColor = this.ambientLight_0.DiffuseColor + light.CompositeColorAndIntensity;
-            this.list_0.RemoveAt(index);
+            this.FrameAmbientLight.DiffuseColor = this.FrameAmbientLight.DiffuseColor + light.CompositeColorAndIntensity;
+            this.FrameLights.RemoveAt(index);
             --index;
           }
           if (light is IPointSource)
@@ -421,16 +262,16 @@ namespace SynapseGaming.LightingSystem.Rendering
             IPointSource pointSource = light as IPointSource;
             float num4 = Vector3.DistanceSquared(viewToWorld.Translation, pointSource.Position);
             float num5 = this.SceneState.Environment.VisibleDistance + pointSource.Radius;
-            if ((double) num4 > (double) num5 * (double) num5)
+            if (num4 > num5 * (double) num5)
             {
-              this.list_0.RemoveAt(index);
+              this.FrameLights.RemoveAt(index);
               --index;
             }
           }
         }
-        this.ambientLight_0.Depth = num2 <= 0 ? 0.1f : num3 / (float) num2;
+        this.FrameAmbientLight.Depth = num2 <= 0 ? 0.1f : num3 / num2;
       }
-      this.list_1.Add((ILight) this.ambientLight_0);
+      this.FrameAmbientLights.Add(this.FrameAmbientLight);
     }
 
     /// <summary>Renders the scene.</summary>

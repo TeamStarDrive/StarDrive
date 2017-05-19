@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Microsoft.Xna.Framework;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
 
 namespace SynapseGaming.LightingSystem.Lights
 {
@@ -33,40 +33,22 @@ namespace SynapseGaming.LightingSystem.Lights
     /// </summary>
     public bool Enabled
     {
-      get
-      {
-        return this.bool_0;
-      }
-      set
-      {
-        this.bool_0 = value;
-      }
+      get => this.bool_0;
+        set => this.bool_0 = value;
     }
 
     /// <summary>Direct lighting color given off by the light.</summary>
     public Vector3 DiffuseColor
     {
-      get
-      {
-        return this.vector3_0;
-      }
-      set
-      {
-        this.vector3_0 = value;
-      }
+      get => this.vector3_0;
+        set => this.vector3_0 = value;
     }
 
     /// <summary>Intensity of the light.</summary>
     public float Intensity
     {
-      get
-      {
-        return this.float_0;
-      }
-      set
-      {
-        this.float_0 = value;
-      }
+      get => this.float_0;
+        set => this.float_0 = value;
     }
 
     /// <summary>Unused.</summary>
@@ -98,38 +80,20 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <summary>
     /// The combined light color and intensity (provided for convenience).
     /// </summary>
-    public Vector3 CompositeColorAndIntensity
-    {
-      get
-      {
-        return this.vector3_0 * this.float_0;
-      }
-    }
+    public Vector3 CompositeColorAndIntensity => this.vector3_0 * this.float_0;
 
-    /// <summary>Bounding area of the light's influence.</summary>
-    public BoundingBox WorldBoundingBox
-    {
-      get
-      {
-        return AmbientLight.boundingBox_0;
-      }
-    }
+      /// <summary>Bounding area of the light's influence.</summary>
+    public BoundingBox WorldBoundingBox => boundingBox_0;
 
-    /// <summary>Bounding area of the light's influence.</summary>
-    public BoundingSphere WorldBoundingSphere
-    {
-      get
-      {
-        return AmbientLight.boundingSphere_0;
-      }
-    }
+      /// <summary>Bounding area of the light's influence.</summary>
+    public BoundingSphere WorldBoundingSphere => boundingSphere_0;
 
-    /// <summary>Shadow source the light's shadows are generated from.</summary>
+      /// <summary>Shadow source the light's shadows are generated from.</summary>
     public IShadowSource ShadowSource
     {
       get
       {
-        return (IShadowSource) null;
+        return null;
       }
       set
       {
@@ -152,27 +116,15 @@ namespace SynapseGaming.LightingSystem.Lights
     /// Indicates the object bounding area spans the entire world and
     /// the object is always visible.
     /// </summary>
-    public bool InfiniteBounds
-    {
-      get
-      {
-        return true;
-      }
-    }
+    public bool InfiniteBounds => true;
 
-    /// <summary>
+      /// <summary>
     /// Indicates the current move. This value increments each time the object
     /// is moved (when the World transform changes).
     /// </summary>
-    public int MoveId
-    {
-      get
-      {
-        return 0;
-      }
-    }
+    public int MoveId => 0;
 
-    /// <summary>
+      /// <summary>
     /// Defines how movement is applied. Updates to Dynamic objects
     /// are automatically applied, where Static objects must be moved
     /// manually using [manager].Move().
@@ -194,14 +146,8 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <summary>The object's current name.</summary>
     public string Name
     {
-      get
-      {
-        return this.string_0;
-      }
-      set
-      {
-        this.string_0 = value;
-      }
+      get => this.string_0;
+        set => this.string_0 = value;
     }
 
     /// <summary>
@@ -216,14 +162,8 @@ namespace SynapseGaming.LightingSystem.Lights
     /// </summary>
     public float Depth
     {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        this.float_1 = MathHelper.Clamp(value, 0.0f, 0.5f);
-      }
+      get => this.float_1;
+        set => this.float_1 = MathHelper.Clamp(value, 0.0f, 0.5f);
     }
 
     /// <summary>Creates a new AmbientLight instance.</summary>
@@ -243,20 +183,20 @@ namespace SynapseGaming.LightingSystem.Lights
         switch (serializationEntry.Name)
         {
           case "Enabled":
-            Class28.smethod_0<bool>(ref this.bool_0, serializationInfo_0, "Enabled");
+            Class28.smethod_0(ref this.bool_0, serializationInfo_0, "Enabled");
             continue;
           case "DiffuseColor":
-            Class28.smethod_0<Vector3>(ref this.vector3_0, serializationInfo_0, "DiffuseColor");
+            Class28.smethod_0(ref this.vector3_0, serializationInfo_0, "DiffuseColor");
             continue;
           case "Intensity":
-            Class28.smethod_0<float>(ref this.float_0, serializationInfo_0, "Intensity");
+            Class28.smethod_0(ref this.float_0, serializationInfo_0, "Intensity");
             continue;
           case "Name":
-            Class28.smethod_0<string>(ref this.string_0, serializationInfo_0, "Name");
+            Class28.smethod_0(ref this.string_0, serializationInfo_0, "Name");
             continue;
           case "Depth":
             float gparam_0 = 0.0f;
-            Class28.smethod_0<float>(ref gparam_0, serializationInfo_0, "Depth");
+            Class28.smethod_0(ref gparam_0, serializationInfo_0, "Depth");
             this.Depth = gparam_0;
             continue;
           default:
@@ -269,7 +209,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <returns></returns>
     public override string ToString()
     {
-      return CoreUtils.NamedObject((INamedObject) this);
+      return CoreUtils.NamedObject(this);
     }
 
     /// <summary>
@@ -280,9 +220,9 @@ namespace SynapseGaming.LightingSystem.Lights
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("Name", (object) this.Name);
+      info.AddValue("Name", this.Name);
       info.AddValue("Enabled", this.Enabled);
-      info.AddValue("DiffuseColor", (object) this.DiffuseColor);
+      info.AddValue("DiffuseColor", this.DiffuseColor);
       info.AddValue("Intensity", this.Intensity);
       info.AddValue("Depth", this.Depth);
     }

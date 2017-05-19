@@ -15,23 +15,16 @@ namespace SynapseGaming.LightingSystem.Core
   /// </summary>
   public class ResourceManager : IUnloadable, IManager, IManagerService, IResourceManager
   {
-    private int int_0 = 500;
-    private Dictionary<IDisposable, int> dictionary_0 = new Dictionary<IDisposable, int>(32);
+      private Dictionary<IDisposable, int> dictionary_0 = new Dictionary<IDisposable, int>(32);
     private Dictionary<IUnloadable, int> dictionary_1 = new Dictionary<IUnloadable, int>(32);
 
     /// <summary>
     /// Gets the manager specific Type used as a unique key for storing and
     /// requesting the manager from the IManagerServiceProvider.
     /// </summary>
-    public Type ManagerType
-    {
-      get
-      {
-        return SceneInterface.ResourceManagerType;
-      }
-    }
+    public Type ManagerType => SceneInterface.ResourceManagerType;
 
-    /// <summary>
+      /// <summary>
     /// Sets the order this manager is processed relative to other managers
     /// in the IManagerServiceProvider. Managers with lower processing order
     /// values are processed first.
@@ -41,19 +34,9 @@ namespace SynapseGaming.LightingSystem.Core
     /// EndFrameRendering is processed in reverse order (highest to lowest) to ensure
     /// the first manager begun is the last one ended (FILO).
     /// </summary>
-    public int ManagerProcessOrder
-    {
-      get
-      {
-        return this.int_0;
-      }
-      set
-      {
-        this.int_0 = value;
-      }
-    }
+    public int ManagerProcessOrder { get; set; } = 500;
 
-    /// <summary>Unused.</summary>
+      /// <summary>Unused.</summary>
     /// <param name="preferences"></param>
     public void ApplyPreferences(ILightingSystemPreferences preferences)
     {

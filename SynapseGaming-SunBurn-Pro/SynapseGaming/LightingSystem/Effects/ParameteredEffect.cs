@@ -4,12 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Effects
 {
@@ -19,12 +19,8 @@ namespace SynapseGaming.LightingSystem.Effects
   public abstract class ParameteredEffect : Effect, ITransparentEffect
   {
     private float float_0 = 1f;
-    private Dictionary<string, object> dictionary_0 = new Dictionary<string, object>();
-    internal ParameteredEffect.Class47 class47_0 = new ParameteredEffect.Class47();
-    private bool bool_0;
-    private bool bool_1;
-    private bool bool_2;
-    private TransparencyMode transparencyMode_0;
+      internal Class47 class47_0 = new Class47();
+      private TransparencyMode transparencyMode_0;
     private Texture texture_0;
 
     /// <summary>
@@ -33,50 +29,25 @@ namespace SynapseGaming.LightingSystem.Effects
     /// the value is false (meaning it varies and is different from the built-in
     /// effects) a depth adjustment technique like depth-offset needs to be applied.
     /// </summary>
-    public bool Invariant
-    {
-      get
-      {
-        return this.bool_0;
-      }
-    }
+    public bool Invariant { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Determines if the effect's shader alters render states during execution.
     /// </summary>
-    public bool AffectsRenderStates
-    {
-      get
-      {
-        return this.bool_1;
-      }
-    }
+    public bool AffectsRenderStates { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Surfaces rendered with the effect should be visible from both sides.
     /// </summary>
-    public bool DoubleSided
-    {
-      get
-      {
-        return this.bool_2;
-      }
-      set
-      {
-        this.bool_2 = value;
-      }
-    }
+    public bool DoubleSided { get; set; }
 
-    /// <summary>
+      /// <summary>
     /// The transparency style used when rendering the effect.
     /// </summary>
     public TransparencyMode TransparencyMode
     {
-      get
-      {
-        return this.transparencyMode_0;
-      }
-      set
+      get => this.transparencyMode_0;
+          set
       {
         this.transparencyMode_0 = value;
         this.SyncTransparency();
@@ -90,11 +61,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public float Transparency
     {
-      get
-      {
-        return this.float_0;
-      }
-      set
+      get => this.float_0;
+        set
       {
         this.float_0 = value;
         this.SyncTransparency();
@@ -115,43 +83,37 @@ namespace SynapseGaming.LightingSystem.Effects
       }
     }
 
-    internal Dictionary<string, object> Properties
-    {
-      get
-      {
-        return this.dictionary_0;
-      }
-    }
+    internal Dictionary<string, object> Properties { get; } = new Dictionary<string, object>();
 
-    internal ParameteredEffect(GraphicsDevice graphicsDevice_0, Effect effect_0)
+      internal ParameteredEffect(GraphicsDevice graphicsDevice_0, Effect effect_0)
       : base(graphicsDevice_0, effect_0)
     {
       for (int index = 0; index < this.Parameters.Count; ++index)
       {
         EffectParameter parameter = this.Parameters[index];
-        if (!this.dictionary_0.ContainsKey(parameter.Name) && parameter.RowCount <= 1 && (parameter.Elements.Count <= 0 && parameter.Annotations["SasBindAddress"] == null) && string.IsNullOrEmpty(parameter.Semantic))
+        if (!this.Properties.ContainsKey(parameter.Name) && parameter.RowCount <= 1 && (parameter.Elements.Count <= 0 && parameter.Annotations["SasBindAddress"] == null) && string.IsNullOrEmpty(parameter.Semantic))
         {
           if (parameter.ParameterType == EffectParameterType.Single)
           {
             if (parameter.ColumnCount == 0)
-              this.dictionary_0.Add(parameter.Name, (object) parameter.GetValueSingle());
+              this.Properties.Add(parameter.Name, parameter.GetValueSingle());
             else if (parameter.ColumnCount == 1 && parameter.ParameterClass == EffectParameterClass.Scalar)
-              this.dictionary_0.Add(parameter.Name, (object) parameter.GetValueSingle());
+              this.Properties.Add(parameter.Name, parameter.GetValueSingle());
             else if (parameter.ColumnCount == 3)
-              this.dictionary_0.Add(parameter.Name, (object) parameter.GetValueVector3());
+              this.Properties.Add(parameter.Name, parameter.GetValueVector3());
             else if (parameter.ColumnCount == 4)
-              this.dictionary_0.Add(parameter.Name, (object) parameter.GetValueVector4());
+              this.Properties.Add(parameter.Name, parameter.GetValueVector4());
           }
           else if (parameter.ParameterType == EffectParameterType.Int32 && parameter.ColumnCount == 0)
-            this.dictionary_0.Add(parameter.Name, (object) parameter.GetValueInt32());
+            this.Properties.Add(parameter.Name, parameter.GetValueInt32());
           else if (parameter.ParameterType == EffectParameterType.Texture2D && parameter.ColumnCount == 0)
-            this.dictionary_0.Add(parameter.Name, (object) "");
+            this.Properties.Add(parameter.Name, "");
           else if (parameter.ParameterType == EffectParameterType.Texture3D && parameter.ColumnCount == 0)
-            this.dictionary_0.Add(parameter.Name, (object) "");
+            this.Properties.Add(parameter.Name, "");
           else if (parameter.ParameterType == EffectParameterType.TextureCube && parameter.ColumnCount == 0)
-            this.dictionary_0.Add(parameter.Name, (object) "");
+            this.Properties.Add(parameter.Name, "");
           else if (parameter.ParameterType == EffectParameterType.Texture && parameter.ColumnCount == 0)
-            this.dictionary_0.Add(parameter.Name, (object) "");
+            this.Properties.Add(parameter.Name, "");
         }
       }
     }
@@ -214,18 +176,18 @@ namespace SynapseGaming.LightingSystem.Effects
 
     internal void method_0()
     {
-      foreach (KeyValuePair<string, object> keyValuePair in this.dictionary_0)
+      foreach (KeyValuePair<string, object> keyValuePair in this.Properties)
       {
         if (!(keyValuePair.Key == "EffectFile"))
         {
           if (keyValuePair.Key == "Technique")
             this.SetTechnique((string) keyValuePair.Value);
           else if (keyValuePair.Key == "Invariant")
-            this.bool_0 = (bool) keyValuePair.Value;
+            this.Invariant = (bool) keyValuePair.Value;
           else if (keyValuePair.Key == "AffectsRenderStates")
-            this.bool_1 = (bool) keyValuePair.Value;
+            this.AffectsRenderStates = (bool) keyValuePair.Value;
           else if (keyValuePair.Key == "DoubleSided")
-            this.bool_2 = (bool) keyValuePair.Value;
+            this.DoubleSided = (bool) keyValuePair.Value;
           else if (keyValuePair.Key == "TransparencyMode")
             this.transparencyMode_0 = (TransparencyMode) keyValuePair.Value;
           else if (keyValuePair.Key == "Transparency")
@@ -236,9 +198,9 @@ namespace SynapseGaming.LightingSystem.Effects
             if (parameter != null)
             {
               if (parameter.ParameterType == EffectParameterType.Texture2D)
-                this.texture_0 = (Texture) parameter.GetValueTexture2D();
+                this.texture_0 = parameter.GetValueTexture2D();
               else if (parameter.ParameterType == EffectParameterType.Texture3D)
-                this.texture_0 = (Texture) parameter.GetValueTexture3D();
+                this.texture_0 = parameter.GetValueTexture3D();
             }
           }
           else
@@ -275,58 +237,58 @@ namespace SynapseGaming.LightingSystem.Effects
           if (!(keyValuePair.Key == "Invariant") && !(keyValuePair.Key == "AffectsRenderStates") && !(keyValuePair.Key == "DoubleSided"))
           {
             if (keyValuePair.Key == "TransparencyMode")
-              object_0 = (object) Class11.smethod_1<TransparencyMode>((string) object_0);
+              object_0 = Class11.smethod_1<TransparencyMode>((string) object_0);
           }
           else
-            object_0 = (object) this.method_3(object_0);
-          if (this.dictionary_0.ContainsKey(keyValuePair.Key))
-            this.dictionary_0[keyValuePair.Key] = object_0;
+            object_0 = this.method_3(object_0);
+          if (this.Properties.ContainsKey(keyValuePair.Key))
+            this.Properties[keyValuePair.Key] = object_0;
           else
-            this.dictionary_0.Add(keyValuePair.Key, object_0);
+            this.Properties.Add(keyValuePair.Key, object_0);
         }
         else if (keyValuePair.Key == "Transparency" && type1 == typeof (float))
         {
-          if (this.dictionary_0.ContainsKey(keyValuePair.Key))
-            this.dictionary_0[keyValuePair.Key] = (object) (float) keyValuePair.Value;
+          if (this.Properties.ContainsKey(keyValuePair.Key))
+            this.Properties[keyValuePair.Key] = (float) keyValuePair.Value;
           else
-            this.dictionary_0.Add(keyValuePair.Key, (object) (float) keyValuePair.Value);
+            this.Properties.Add(keyValuePair.Key, (float) keyValuePair.Value);
         }
-        else if (this.dictionary_0.ContainsKey(keyValuePair.Key))
+        else if (this.Properties.ContainsKey(keyValuePair.Key))
         {
-          object obj = this.dictionary_0[keyValuePair.Key];
+          object obj = this.Properties[keyValuePair.Key];
           Type type2 = obj.GetType();
           if (type2 == type1)
             obj = keyValuePair.Value;
           else if (type2 == typeof (float))
-            obj = (object) this.method_6(keyValuePair.Value);
+            obj = this.method_6(keyValuePair.Value);
           else if (type2 == typeof (Vector3))
-            obj = (object) this.method_5(keyValuePair.Value);
+            obj = this.method_5(keyValuePair.Value);
           else if (type2 == typeof (Vector4))
-            obj = (object) this.method_4(keyValuePair.Value);
-          this.dictionary_0[keyValuePair.Key] = obj;
+            obj = this.method_4(keyValuePair.Value);
+          this.Properties[keyValuePair.Key] = obj;
         }
       }
-      if (!this.dictionary_0.ContainsKey("Technique"))
-        this.dictionary_0.Add("Technique", (object) this.CurrentTechnique.Name);
-      if (!this.dictionary_0.ContainsKey("DepthTechnique"))
-        this.dictionary_0.Add("DepthTechnique", (object) this.method_2("DepthTechnique"));
-      if (!this.dictionary_0.ContainsKey("GBufferTechnique"))
-        this.dictionary_0.Add("GBufferTechnique", (object) this.method_2("GBufferTechnique"));
-      if (!this.dictionary_0.ContainsKey("FinalTechnique"))
-        this.dictionary_0.Add("FinalTechnique", (object) this.method_2("FinalTechnique"));
-      if (!this.dictionary_0.ContainsKey("ShadowGenerationTechnique"))
-        this.dictionary_0.Add("ShadowGenerationTechnique", (object) this.method_2("ShadowGenerationTechnique"));
-      if (!this.dictionary_0.ContainsKey("Invariant"))
-        this.dictionary_0.Add("Invariant", (object) false);
-      if (!this.dictionary_0.ContainsKey("AffectsRenderStates"))
-        this.dictionary_0.Add("AffectsRenderStates", (object) false);
-      if (!this.dictionary_0.ContainsKey("DoubleSided"))
-        this.dictionary_0.Add("DoubleSided", (object) false);
-      if (!this.dictionary_0.ContainsKey("TransparencyMode"))
-        this.dictionary_0.Add("TransparencyMode", (object) TransparencyMode.None);
-      if (!this.dictionary_0.ContainsKey("Transparency"))
-        this.dictionary_0.Add("Transparency", (object) 0.5f);
-      if (this.dictionary_0.ContainsKey("TransparencyMapParameterName"))
+      if (!this.Properties.ContainsKey("Technique"))
+        this.Properties.Add("Technique", this.CurrentTechnique.Name);
+      if (!this.Properties.ContainsKey("DepthTechnique"))
+        this.Properties.Add("DepthTechnique", this.method_2("DepthTechnique"));
+      if (!this.Properties.ContainsKey("GBufferTechnique"))
+        this.Properties.Add("GBufferTechnique", this.method_2("GBufferTechnique"));
+      if (!this.Properties.ContainsKey("FinalTechnique"))
+        this.Properties.Add("FinalTechnique", this.method_2("FinalTechnique"));
+      if (!this.Properties.ContainsKey("ShadowGenerationTechnique"))
+        this.Properties.Add("ShadowGenerationTechnique", this.method_2("ShadowGenerationTechnique"));
+      if (!this.Properties.ContainsKey("Invariant"))
+        this.Properties.Add("Invariant", false);
+      if (!this.Properties.ContainsKey("AffectsRenderStates"))
+        this.Properties.Add("AffectsRenderStates", false);
+      if (!this.Properties.ContainsKey("DoubleSided"))
+        this.Properties.Add("DoubleSided", false);
+      if (!this.Properties.ContainsKey("TransparencyMode"))
+        this.Properties.Add("TransparencyMode", TransparencyMode.None);
+      if (!this.Properties.ContainsKey("Transparency"))
+        this.Properties.Add("Transparency", 0.5f);
+      if (this.Properties.ContainsKey("TransparencyMapParameterName"))
         return;
       string str = "";
       for (int index = 0; index < this.Parameters.Count; ++index)
@@ -338,7 +300,7 @@ namespace SynapseGaming.LightingSystem.Effects
           break;
         }
       }
-      this.dictionary_0.Add("TransparencyMapParameterName", (object) str);
+      this.Properties.Add("TransparencyMapParameterName", str);
     }
 
     private string method_2(string string_0)
@@ -409,7 +371,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public override Effect Clone(GraphicsDevice device)
     {
       Effect effect = this.Create(device);
-      Class12.smethod_1((object) this, (object) effect);
+      Class12.smethod_1(this, effect);
       return effect;
     }
 

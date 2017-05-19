@@ -4,8 +4,8 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework.Graphics;
 using System;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SynapseGaming.LightingSystem.Effects.Forward
 {
@@ -21,13 +21,13 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     public XSIEffect(GraphicsDevice graphicsdevice, Effect effect)
       : base(graphicsdevice, effect, false)
     {
-      this.BindBySasAddress(this.FindByName("AmbientColor"), BaseSasBindEffect.SASAddress_AmbientLight_Color[0]);
+      this.BindBySasAddress(this.FindByName("AmbientColor"), SASAddress_AmbientLight_Color[0]);
       this.SkinBonesEffectParameter = this.FindByName("Bones");
-      int length = BaseSasBindEffect.SASAddress_PointLight_Position.Length;
+      int length = SASAddress_PointLight_Position.Length;
       for (int index = 0; index < length; ++index)
       {
-        this.BindBySasAddress(this.FindBySasAddress("Sas.PointLights[" + (object) index + "].Position"), BaseSasBindEffect.SASAddress_PointLight_Position[index]);
-        this.BindBySasAddress(this.FindBySasAddress("Sas.PointLights[" + (object) index + "].Color"), BaseSasBindEffect.SASAddress_PointLight_Color[index]);
+        this.BindBySasAddress(this.FindBySasAddress("Sas.PointLights[" + index + "].Position"), SASAddress_PointLight_Position[index]);
+        this.BindBySasAddress(this.FindBySasAddress("Sas.PointLights[" + index + "].Color"), SASAddress_PointLight_Color[index]);
       }
       this.FindMaxLightCount();
       this.SetMaxLightCount(Math.Min(this.MaxLightSources, 3));

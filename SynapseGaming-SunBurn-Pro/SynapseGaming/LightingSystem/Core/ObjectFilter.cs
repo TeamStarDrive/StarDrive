@@ -25,6 +25,6 @@ namespace SynapseGaming.LightingSystem.Core
     DynamicAndStatic = Static | Dynamic,
     EnabledAndDisabled = Disabled | Enabled,
     EnabledDynamicAndStatic = DynamicAndStatic | Enabled,
-    All = 65535,
+    All = 65535
   }
 }

@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -24,29 +24,21 @@ namespace SynapseGaming.LightingSystem.Rendering
   /// </summary>
   public class DebugRenderManager : IUnloadable, IManager, IRenderableManager, IManagerService
   {
-    private int int_0 = 100;
-    private LineRenderHelper lineRenderHelper_0 = new LineRenderHelper(24);
+      private LineRenderHelper lineRenderHelper_0 = new LineRenderHelper(24);
     private Vector3[] vector3_0 = new Vector3[8];
     private List<ISceneObject> list_0 = new List<ISceneObject>();
     private List<ILight> list_1 = new List<ILight>();
     private ISceneState isceneState_0;
-    private IGraphicsDeviceService igraphicsDeviceService_0;
-    private IManagerServiceProvider imanagerServiceProvider_0;
+      private IManagerServiceProvider imanagerServiceProvider_0;
     private BasicEffect basicEffect_0;
 
     /// <summary>
     /// Gets the manager specific Type used as a unique key for storing and
     /// requesting the manager from the IManagerServiceProvider.
     /// </summary>
-    public Type ManagerType
-    {
-      get
-      {
-        return typeof (DebugRenderManager);
-      }
-    }
+    public Type ManagerType => typeof (DebugRenderManager);
 
-    /// <summary>
+      /// <summary>
     /// Sets the order this manager is processed relative to other managers
     /// in the IManagerServiceProvider. Managers with lower processing order
     /// values are processed first.
@@ -56,35 +48,19 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// EndFrameRendering is processed in reverse order (highest to lowest) to ensure
     /// the first manager begun is the last one ended (FILO).
     /// </summary>
-    public int ManagerProcessOrder
-    {
-      get
-      {
-        return this.int_0;
-      }
-      set
-      {
-        this.int_0 = value;
-      }
-    }
+    public int ManagerProcessOrder { get; set; } = 100;
 
-    /// <summary>
+      /// <summary>
     /// The current GraphicsDeviceManager used by this object.
     /// </summary>
-    public IGraphicsDeviceService GraphicsDeviceManager
-    {
-      get
-      {
-        return this.igraphicsDeviceService_0;
-      }
-    }
+    public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-    /// <summary>Creates a new DebugRenderManager instance.</summary>
+      /// <summary>Creates a new DebugRenderManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     /// <param name="sceneinterface">Service provider used to access all other manager services in this scene.</param>
     public DebugRenderManager(IGraphicsDeviceService graphicsdevicemanager, IManagerServiceProvider sceneinterface)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
       this.imanagerServiceProvider_0 = sceneinterface;
     }
 
@@ -116,18 +92,18 @@ namespace SynapseGaming.LightingSystem.Rendering
       this.lineRenderHelper_0.Submit(this.vector3_0[0], this.vector3_0[3], color_0);
       this.lineRenderHelper_0.Submit(this.vector3_0[4], this.vector3_0[7], color_0);
       this.lineRenderHelper_0.Submit(this.vector3_0[3], this.vector3_0[7], color_0);
-      this.lineRenderHelper_0.Render(this.igraphicsDeviceService_0.GraphicsDevice, (Effect) this.basicEffect_0);
+      this.lineRenderHelper_0.Render(this.GraphicsDeviceManager.GraphicsDevice, this.basicEffect_0);
     }
 
     /// <summary>Finalizes rendering.</summary>
     public void EndFrameRendering()
     {
-      GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
+      GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
       IObjectManager manager1 = (IObjectManager) this.imanagerServiceProvider_0.GetManager(SceneInterface.ObjectManagerType, false);
       ILightManager manager2 = (ILightManager) this.imanagerServiceProvider_0.GetManager(SceneInterface.LightManagerType, false);
       if (this.basicEffect_0 == null)
       {
-        this.basicEffect_0 = new BasicEffect(graphicsDevice, (EffectPool) null);
+        this.basicEffect_0 = new BasicEffect(graphicsDevice, null);
         this.basicEffect_0.TextureEnabled = false;
         this.basicEffect_0.SpecularPower = 0.0f;
         this.basicEffect_0.VertexColorEnabled = true;
@@ -170,7 +146,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     public void Unload()
     {
       this.Clear();
-      Disposable.Free<BasicEffect>(ref this.basicEffect_0);
+      Disposable.Free(ref this.basicEffect_0);
     }
   }
 }

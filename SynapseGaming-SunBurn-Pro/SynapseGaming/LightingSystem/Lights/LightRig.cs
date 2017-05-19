@@ -4,17 +4,17 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework;
-using ns3;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Editor;
-using SynapseGaming.LightingSystem.Shadows;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
+using Microsoft.Xna.Framework;
+using ns3;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Editor;
+using SynapseGaming.LightingSystem.Shadows;
 
 namespace SynapseGaming.LightingSystem.Lights
 {
@@ -27,21 +27,14 @@ namespace SynapseGaming.LightingSystem.Lights
     private string string_0 = "";
     private string string_1 = "";
     private string string_2 = "";
-    private List<ILightGroup> list_0 = new List<ILightGroup>(16);
-    private BaseLightManager baseLightManager_0 = new BaseLightManager();
+      private BaseLightManager baseLightManager_0 = new BaseLightManager();
     private bool bool_0;
     private static SerializeTypeDictionary serializeTypeDictionary_0;
 
     /// <summary>Light groups contained by the light rig.</summary>
-    public List<ILightGroup> LightGroups
-    {
-      get
-      {
-        return this.list_0;
-      }
-    }
+    public List<ILightGroup> LightGroups { get; } = new List<ILightGroup>(16);
 
-    /// <summary>The object's current name.</summary>
+      /// <summary>The object's current name.</summary>
     public string Name
     {
       get
@@ -62,37 +55,19 @@ namespace SynapseGaming.LightingSystem.Lights
 
     internal string LightRigFile
     {
-      get
-      {
-        return this.string_1;
-      }
-      set
-      {
-        this.string_1 = value;
-      }
+      get => this.string_1;
+        set => this.string_1 = value;
     }
 
     internal string ProjectFile
     {
-      get
-      {
-        return this.string_2;
-      }
-      set
-      {
-        this.string_2 = value;
-      }
+      get => this.string_2;
+        set => this.string_2 = value;
     }
 
-    string Interface0.ProjectFile
-    {
-      get
-      {
-        return this.string_2;
-      }
-    }
+    string Interface0.ProjectFile => this.string_2;
 
-    /// <summary>
+      /// <summary>
     /// Used to support serializing user defined lights and groups. Register any additional
     /// classes and their xml element names to support persisting custom lights, groups, and their contained objects.
     /// </summary>
@@ -100,29 +75,29 @@ namespace SynapseGaming.LightingSystem.Lights
     {
       get
       {
-        if (LightRig.serializeTypeDictionary_0 == null)
+        if (serializeTypeDictionary_0 == null)
         {
-          LightRig.serializeTypeDictionary_0 = new SerializeTypeDictionary();
-          LightRig.serializeTypeDictionary_0.RegisterType("PointLight", typeof (PointLight));
-          LightRig.serializeTypeDictionary_0.RegisterType("DirectionalLight", typeof (DirectionalLight));
-          LightRig.serializeTypeDictionary_0.RegisterType("SpotLight", typeof (SpotLight));
-          LightRig.serializeTypeDictionary_0.RegisterType("AmbientLight", typeof (AmbientLight));
-          LightRig.serializeTypeDictionary_0.RegisterType("LightRig", typeof (LightRig));
-          LightRig.serializeTypeDictionary_0.RegisterType("LightList", typeof (List<ILight>));
-          LightRig.serializeTypeDictionary_0.RegisterType("ShadowType", typeof (ShadowType));
-          LightRig.serializeTypeDictionary_0.RegisterType("Vector3", typeof (Vector3));
-          LightRig.serializeTypeDictionary_0.RegisterType("LightGroup", typeof (LightGroup));
-          LightRig.serializeTypeDictionary_0.RegisterType("GroupList", typeof (List<ILightGroup>));
-          LightRig.serializeTypeDictionary_0.RegisterType("List_x0060_1_-1531622459", typeof (List<ILight>));
+          serializeTypeDictionary_0 = new SerializeTypeDictionary();
+          serializeTypeDictionary_0.RegisterType("PointLight", typeof (PointLight));
+          serializeTypeDictionary_0.RegisterType("DirectionalLight", typeof (DirectionalLight));
+          serializeTypeDictionary_0.RegisterType("SpotLight", typeof (SpotLight));
+          serializeTypeDictionary_0.RegisterType("AmbientLight", typeof (AmbientLight));
+          serializeTypeDictionary_0.RegisterType("LightRig", typeof (LightRig));
+          serializeTypeDictionary_0.RegisterType("LightList", typeof (List<ILight>));
+          serializeTypeDictionary_0.RegisterType("ShadowType", typeof (ShadowType));
+          serializeTypeDictionary_0.RegisterType("Vector3", typeof (Vector3));
+          serializeTypeDictionary_0.RegisterType("LightGroup", typeof (LightGroup));
+          serializeTypeDictionary_0.RegisterType("GroupList", typeof (List<ILightGroup>));
+          serializeTypeDictionary_0.RegisterType("List_x0060_1_-1531622459", typeof (List<ILight>));
         }
-        return LightRig.serializeTypeDictionary_0;
+        return serializeTypeDictionary_0;
       }
     }
 
     /// <summary>Creates a LightRig instance.</summary>
     public LightRig()
     {
-      LightingSystemEditor.OnCreateResource((IDisposable) this);
+      LightingSystemEditor.OnCreateResource(this);
     }
 
     /// <summary />
@@ -135,7 +110,7 @@ namespace SynapseGaming.LightingSystem.Lights
         switch (serializationEntry.Name)
         {
           case "LightGroups":
-            this.list_0 = (List<ILightGroup>) serializationInfo_0.GetValue("LightGroups", typeof (List<ILightGroup>));
+            this.LightGroups = (List<ILightGroup>) serializationInfo_0.GetValue("LightGroups", typeof (List<ILightGroup>));
             continue;
           default:
             continue;
@@ -250,7 +225,7 @@ namespace SynapseGaming.LightingSystem.Lights
     public void CommitChanges()
     {
       this.baseLightManager_0.Clear();
-      foreach (ILightGroup lightGroup1 in this.list_0)
+      foreach (ILightGroup lightGroup1 in this.LightGroups)
       {
         if (lightGroup1.ShadowGroup && lightGroup1.ShadowRenderLightsTogether)
         {
@@ -261,12 +236,12 @@ namespace SynapseGaming.LightingSystem.Lights
             if (num >= BaseLightManager.MaxLightsPerGroup)
             {
               LightGroup lightGroup3 = new LightGroup();
-              lightGroup3.method_0((IShadowSource) lightGroup2);
-              lightGroup2 = (ILightGroup) lightGroup3;
+              lightGroup3.method_0(lightGroup2);
+              lightGroup2 = lightGroup3;
               num = 0;
             }
             ILight light = lightGroup1.Lights[index];
-            light.ShadowSource = (IShadowSource) lightGroup2;
+            light.ShadowSource = lightGroup2;
             this.baseLightManager_0.Submit(light);
             ++num;
           }
@@ -288,7 +263,7 @@ namespace SynapseGaming.LightingSystem.Lights
       if (this.bool_0)
         return;
       this.bool_0 = true;
-      LightingSystemEditor.OnDisposeResource((IDisposable) this);
+      LightingSystemEditor.OnDisposeResource(this);
     }
 
     /// <summary>Saves the object back to its originating file.</summary>
@@ -300,7 +275,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <summary>Removes all lights and light groups.</summary>
     public void Clear()
     {
-      this.list_0.Clear();
+      this.LightGroups.Clear();
       this.baseLightManager_0.Clear();
     }
 
@@ -308,38 +283,38 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <returns></returns>
     public ILight CreateDirectionalLight()
     {
-      return (ILight) new DirectionalLight();
+      return new DirectionalLight();
     }
 
     /// <summary>Creates an instance of a point light.</summary>
     /// <returns></returns>
     public ILight CreatePointLight()
     {
-      return (ILight) new PointLight();
+      return new PointLight();
     }
 
     /// <summary>Creates an instance of a spot light.</summary>
     /// <returns></returns>
     public ILight CreateSpotLight()
     {
-      return (ILight) new SpotLight();
+      return new SpotLight();
     }
 
     /// <summary>Creates an instance of a ambient light.</summary>
     /// <returns></returns>
     public ILight CreateAmbientLight()
     {
-      return (ILight) new AmbientLight();
+      return new AmbientLight();
     }
 
     internal void method_1(string string_3)
     {
       this.Clear();
       MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(string_3));
-      LightRig lightRig = (LightRig) new Class29(LightRig.SerializeTypeDictionary).Deserialize((Stream) memoryStream);
+      LightRig lightRig = (LightRig) new Class29(SerializeTypeDictionary).Deserialize(memoryStream);
       if (lightRig != null)
       {
-        this.list_0.AddRange((IEnumerable<ILightGroup>) lightRig.LightGroups);
+        this.LightGroups.AddRange(lightRig.LightGroups);
         lightRig.Dispose();
       }
       memoryStream.Close();
@@ -352,7 +327,7 @@ namespace SynapseGaming.LightingSystem.Lights
       if (!File.Exists(string_3))
         return;
       FileStream fileStream = File.Create(string_3);
-      new Class29(LightRig.SerializeTypeDictionary).Serialize((Stream) fileStream, (object) this);
+      new Class29(SerializeTypeDictionary).Serialize(fileStream, this);
       fileStream.Flush();
       fileStream.Close();
       fileStream.Dispose();
@@ -364,7 +339,7 @@ namespace SynapseGaming.LightingSystem.Lights
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("LightGroups", (object) this.LightGroups);
+      info.AddValue("LightGroups", this.LightGroups);
     }
   }
 }

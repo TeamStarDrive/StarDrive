@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -25,10 +25,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>World space transform of the object.</summary>
         public Matrix World
         {
-            get
-            {
-                return WorldMatrix;
-            }
+            get => WorldMatrix;
             set
             {
                 if (WorldMatrix.Equals(value))
@@ -83,10 +80,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public ObjectVisibility Visibility
         {
-            get
-            {
-                return objectVisibility_0;
-            }
+            get => objectVisibility_0;
             set
             {
                 if (objectVisibility_0 == value)

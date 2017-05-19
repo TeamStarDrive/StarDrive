@@ -4,6 +4,7 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
@@ -11,7 +12,6 @@ using ns6;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Lights;
-using System;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -21,7 +21,7 @@ namespace SynapseGaming.LightingSystem.Shadows
   /// </summary>
   public abstract class BaseShadowCubeMap : BaseShadowEffectShadowMap
   {
-    private static bool bool_0 = false;
+    private static bool bool_0;
     private static Matrix[] matrix_1 = new Matrix[6];
     private static Plane[] plane_1 = new Plane[6];
     private ShadowMapSurface[] shadowMapSurface_0 = new ShadowMapSurface[6];
@@ -30,50 +30,38 @@ namespace SynapseGaming.LightingSystem.Shadows
     private const int int_1 = 8;
 
     /// <summary>Array of the cube-map surfaces.</summary>
-    public override ShadowMapSurface[] Surfaces
-    {
-      get
-      {
-        return this.shadowMapSurface_0;
-      }
-    }
+    public override ShadowMapSurface[] Surfaces => this.shadowMapSurface_0;
 
-    /// <summary>
+      /// <summary>
     /// Unused, this object supports render targets from the ShadowMapCache.
     /// </summary>
-    public override RenderTarget CustomRenderTarget
-    {
-      get
-      {
-        return (RenderTarget) null;
-      }
-    }
+    public override RenderTarget CustomRenderTarget => null;
 
-    /// <summary>Creates a new ShadowCubeMap instance.</summary>
+      /// <summary>Creates a new ShadowCubeMap instance.</summary>
     public BaseShadowCubeMap()
     {
-      if (!BaseShadowCubeMap.bool_0)
+      if (!bool_0)
       {
-        BaseShadowCubeMap.matrix_1[0] = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitX, Vector3.UnitY);
-        BaseShadowCubeMap.matrix_1[1] = Matrix.CreateLookAt(Vector3.Zero, -Vector3.UnitX, Vector3.UnitY);
-        BaseShadowCubeMap.matrix_1[2] = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitY, Vector3.UnitZ);
-        BaseShadowCubeMap.matrix_1[3] = Matrix.CreateLookAt(Vector3.Zero, -Vector3.UnitY, Vector3.UnitZ);
-        BaseShadowCubeMap.matrix_1[4] = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY);
-        BaseShadowCubeMap.matrix_1[5] = Matrix.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY);
-        for (int index = 0; index < BaseShadowCubeMap.plane_1.Length; ++index)
-          BaseShadowCubeMap.plane_1[index] = Plane.Transform(new Plane(0.0f, 0.0f, 1f, 1f), Matrix.Invert(BaseShadowCubeMap.matrix_1[index]));
-        BaseShadowCubeMap.bool_0 = true;
+        matrix_1[0] = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitX, Vector3.UnitY);
+        matrix_1[1] = Matrix.CreateLookAt(Vector3.Zero, -Vector3.UnitX, Vector3.UnitY);
+        matrix_1[2] = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitY, Vector3.UnitZ);
+        matrix_1[3] = Matrix.CreateLookAt(Vector3.Zero, -Vector3.UnitY, Vector3.UnitZ);
+        matrix_1[4] = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY);
+        matrix_1[5] = Matrix.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY);
+        for (int index = 0; index < plane_1.Length; ++index)
+          plane_1[index] = Plane.Transform(new Plane(0.0f, 0.0f, 1f, 1f), Matrix.Invert(matrix_1[index]));
+        bool_0 = true;
       }
       for (int index = 0; index < this.shadowMapSurface_0.Length; ++index)
         this.shadowMapSurface_0[index] = new ShadowMapSurface();
-      this.shadowMapSurface_0[0].WorldToSurfaceView = BaseShadowCubeMap.matrix_1[0];
-      this.shadowMapSurface_0[1].WorldToSurfaceView = BaseShadowCubeMap.matrix_1[1];
-      this.shadowMapSurface_0[2].WorldToSurfaceView = BaseShadowCubeMap.matrix_1[2];
-      this.shadowMapSurface_0[3].WorldToSurfaceView = BaseShadowCubeMap.matrix_1[3];
-      this.shadowMapSurface_0[4].WorldToSurfaceView = BaseShadowCubeMap.matrix_1[4];
-      this.shadowMapSurface_0[5].WorldToSurfaceView = BaseShadowCubeMap.matrix_1[5];
+      this.shadowMapSurface_0[0].WorldToSurfaceView = matrix_1[0];
+      this.shadowMapSurface_0[1].WorldToSurfaceView = matrix_1[1];
+      this.shadowMapSurface_0[2].WorldToSurfaceView = matrix_1[2];
+      this.shadowMapSurface_0[3].WorldToSurfaceView = matrix_1[3];
+      this.shadowMapSurface_0[4].WorldToSurfaceView = matrix_1[4];
+      this.shadowMapSurface_0[5].WorldToSurfaceView = matrix_1[5];
       for (int index = 0; index < this.shadowMapSurface_0.Length; ++index)
-        this.plane_0[index] = BaseShadowCubeMap.plane_1[index];
+        this.plane_0[index] = plane_1[index];
     }
 
     /// <summary>
@@ -122,7 +110,7 @@ namespace SynapseGaming.LightingSystem.Shadows
           {
             Plane plane2 = this.plane_0[index2];
             float num2 = plane2.DotCoordinate(vector3);
-            if ((double) num2 < 0.0)
+            if (num2 < 0.0)
               vector3 -= plane2.Normal * num2;
           }
           float float_3 = (vector3 - translation).Length();
@@ -152,13 +140,13 @@ namespace SynapseGaming.LightingSystem.Shadows
     {
       ShadowMapSurface shadowMapSurface = this.shadowMapSurface_0[surface];
       shadowMapSurface.RenderTargetLocation = location;
-      float num1 = (float) location.Width * 0.5f;
-      float num2 = (float) shadowMapSurface.method_0(8).Width * 0.5f;
-      float fieldOfView = (double) num2 <= 0.0 ? MathHelper.ToRadians(90f) : (float) Math.Atan((double) num1 / (double) num2) * 2f;
+      float num1 = location.Width * 0.5f;
+      float num2 = shadowMapSurface.method_0(8).Width * 0.5f;
+      float fieldOfView = (double) num2 <= 0.0 ? MathHelper.ToRadians(90f) : (float) Math.Atan(num1 / (double) num2) * 2f;
       float farPlaneDistance = 10000f;
       if (this.ShadowGroup.ShadowSource is IPointSource)
         farPlaneDistance = this.ShadowGroup.BoundingSphereCentered.Radius;
-      if ((double) farPlaneDistance <= 0.0)
+      if (farPlaneDistance <= 0.0)
         farPlaneDistance = 1E-05f;
       float nearPlaneDistance = farPlaneDistance * 1E-05f;
       Matrix perspectiveFieldOfView = Matrix.CreatePerspectiveFieldOfView(fieldOfView, 1f, nearPlaneDistance, farPlaneDistance);
@@ -195,7 +183,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     {
       if (!(shadowmap is Texture2D))
       {
-        (shadoweffect as Interface3).SetShadowMapAndType((Texture2D) null, Enum5.const_0);
+        (shadoweffect as Interface3).SetShadowMapAndType(null, Enum5.const_0);
       }
       else
       {
@@ -242,7 +230,7 @@ namespace SynapseGaming.LightingSystem.Shadows
       Interface3 nterface3 = shadoweffect as Interface3;
       IShadowGenerateEffect shadowGenerateEffect = shadoweffect as IShadowGenerateEffect;
       if (nterface3 != null)
-        nterface3.SetShadowMapAndType((Texture2D) null, Enum5.const_0);
+        nterface3.SetShadowMapAndType(null, Enum5.const_0);
       if (renderableEffect != null)
         renderableEffect.SetViewAndProjection(shadowMapSurface.WorldToSurfaceView, Matrix.Identity, shadowMapSurface.Projection, this.SceneState.ProjectionToView);
       if (shadowGenerateEffect != null)

@@ -22,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Deferred
     /// <returns></returns>
     protected override Effect CreateEffect()
     {
-      return (Effect) new DeferredObjectEffect(this.Device);
+      return new DeferredObjectEffect(this.Device);
     }
   }
 }

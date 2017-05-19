@@ -4,13 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ns3;
+using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Rendering;
-using System.Collections.Generic;
-using SynapseGaming.LightingSystem.Core;
 
 namespace ns9
 {
@@ -35,10 +34,10 @@ namespace ns9
           Effect effect0 = renderableMesh_0_1.effect_0;
           if (effect0 is ILightingEffect)
           {
-            if ((enum7_0 & Enum7.flag_0) == (Enum7) 0)
+            if ((enum7_0 & Enum7.flag_0) == 0)
               continue;
           }
-          else if (!(effect0 is BasicEffect) && (enum7_0 & Enum7.flag_3) == (Enum7) 0)
+          else if (!(effect0 is BasicEffect) && (enum7_0 & Enum7.flag_3) == 0)
             continue;
           bool flag = false;
           if (effect0 is IRenderableEffect)
@@ -49,7 +48,7 @@ namespace ns9
           else if (effect0 is BasicEffect)
           {
             BasicEffect basicEffect = effect0 as BasicEffect;
-            if ((!basicEffect.LightingEnabled || (enum7_0 & Enum7.flag_1) != (Enum7) 0) && (basicEffect.LightingEnabled || (enum7_0 & Enum7.flag_2) != (Enum7) 0))
+            if ((!basicEffect.LightingEnabled || (enum7_0 & Enum7.flag_1) != 0) && (basicEffect.LightingEnabled || (enum7_0 & Enum7.flag_2) != 0))
             {
               basicEffect.View = matrix_0;
               basicEffect.Projection = matrix_2;
@@ -58,7 +57,7 @@ namespace ns9
             else
               continue;
           }
-          Class63 class63 = Class64.class21_0.New();
+          Class63 class63 = class21_0.New();
           class63.method_0();
           class63.Effect = effect0;
           list_0.Add(class63);
@@ -94,7 +93,7 @@ namespace ns9
         RenderableMesh renderableMesh_0_1 = list_1[index1];
         if (renderableMesh_0_1 != null && !renderableMesh_0_1.bool_1 && (!bool_0 || renderableMesh_0_1.bool_0))
         {
-          Class63 class63 = Class64.class21_0.New();
+          Class63 class63 = class21_0.New();
           class63.method_0();
           class63.Effect = renderableMesh_0_1.effect_0;
           class63.Transparent = renderableMesh_0_1.bool_2;
@@ -118,7 +117,7 @@ namespace ns9
 
     public void method_2()
     {
-      Class64.class21_0.RecycleAllTracked();
+      class21_0.RecycleAllTracked();
     }
   }
 }

@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
-using System;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -54,62 +54,38 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <summary>Describes the mesh vertex buffer contents.</summary>
     public VertexDeclaration VertexDeclaration
     {
-      get
-      {
-        return this.vertexDeclaration_0;
-      }
-      set
-      {
-        this.vertexDeclaration_0 = value;
-      }
+      get => this.vertexDeclaration_0;
+        set => this.vertexDeclaration_0 = value;
     }
 
     /// <summary>VertexBuffer that contains the mesh geometry.</summary>
     public VertexBuffer VertexBuffer
     {
-      get
-      {
-        return this.vertexBuffer_0;
-      }
-      set
-      {
-        this.vertexBuffer_0 = value;
-      }
+      get => this.vertexBuffer_0;
+        set => this.vertexBuffer_0 = value;
     }
 
     /// <summary>IndexBuffer that contains the mesh geometry.</summary>
     public IndexBuffer IndexBuffer
     {
-      get
-      {
-        return this.indexBuffer_0;
-      }
-      set
-      {
-        this.indexBuffer_0 = value;
-      }
+      get => this.indexBuffer_0;
+        set => this.indexBuffer_0 = value;
     }
 
     /// <summary>Effect applied to the mesh during rendering.</summary>
     public Effect Effect
     {
-      get
-      {
-        return this.effect_0;
-      }
-      set
-      {
-        this.effect_0 = value;
-      }
+      get => this.effect_0;
+        set => this.effect_0 = value;
     }
 
     /// <summary>Releases resources allocated by this object.</summary>
     public void Dispose()
     {
-      Disposable.Free<VertexDeclaration>(ref this.vertexDeclaration_0);
-      Disposable.Free<VertexBuffer>(ref this.vertexBuffer_0);
-      Disposable.Free<IndexBuffer>(ref this.indexBuffer_0);
-      Disposable.Free<Effect>(ref this.effect_0);
+      Disposable.Free(ref this.vertexDeclaration_0);
+      Disposable.Free(ref this.vertexBuffer_0);
+      Disposable.Free(ref this.indexBuffer_0);
+      Disposable.Free(ref this.effect_0);
     }
   }
 }

@@ -4,16 +4,18 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using SynapseGaming.LightingSystem.Rendering.Deferred;
+using SynapseGaming.LightingSystem.Rendering.Forward;
 using SynapseGaming.LightingSystem.Shadows;
 using SynapseGaming.LightingSystem.Shadows.Deferred;
-using System;
-using System.Collections.Generic;
+using SynapseGaming.LightingSystem.Shadows.Forward;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -30,27 +32,20 @@ namespace SynapseGaming.LightingSystem.Core
   /// </summary>
   public class SceneInterface : IUnloadable, IManager, IRenderableManager, IUpdatableManager, IManagerServiceProvider
   {
-    private static SceneInterface.Class23 class23_0 = new SceneInterface.Class23();
-    private static SceneInterface.Class24 class24_0 = new SceneInterface.Class24();
-    private static SceneInterface.Class25 class25_0 = new SceneInterface.Class25();
+    private static Class23 class23_0 = new Class23();
+    private static Class24 class24_0 = new Class24();
+    private static Class25 class25_0 = new Class25();
     private Dictionary<Type, IManagerService> dictionary_0 = new Dictionary<Type, IManagerService>(16);
     private List<IManagerService> list_0 = new List<IManagerService>(16);
     private List<IUpdatableManager> list_1 = new List<IUpdatableManager>(16);
     private List<IRenderableManager> list_2 = new List<IRenderableManager>(16);
-    private IGraphicsDeviceService igraphicsDeviceService_0;
 
-    /// <summary>
+      /// <summary>
     /// The current GraphicsDeviceManager used by this object.
     /// </summary>
-    public IGraphicsDeviceService GraphicsDeviceManager
-    {
-      get
-      {
-        return this.igraphicsDeviceService_0;
-      }
-    }
+    public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-    /// <summary>
+      /// <summary>
     /// Provides convenient access to the ResourceManager manager service contained in the provider.
     /// 
     /// Note: this property will be null if no manager service of this type is contained in the provider.
@@ -103,102 +98,54 @@ namespace SynapseGaming.LightingSystem.Core
     /// Manager type used to retrieve the IResourceManager manager service.  Use this
     /// type when creating a custom manager that replaces the built-in manager.
     /// </summary>
-    public static Type ResourceManagerType
-    {
-      get
-      {
-        return typeof (IResourceManager);
-      }
-    }
+    public static Type ResourceManagerType => typeof (IResourceManager);
 
-    /// <summary>
+      /// <summary>
     /// Manager type used to retrieve the IObjectManager manager service.  Use this
     /// type when creating a custom manager that replaces the built-in manager.
     /// </summary>
-    public static Type ObjectManagerType
-    {
-      get
-      {
-        return typeof (IObjectManager);
-      }
-    }
+    public static Type ObjectManagerType => typeof (IObjectManager);
 
-    /// <summary>
+      /// <summary>
     /// Manager type used to retrieve the IRenderManager manager service.  Use this
     /// type when creating a custom manager that replaces the built-in manager.
     /// </summary>
-    public static Type RenderManagerType
-    {
-      get
-      {
-        return typeof (IRenderManager);
-      }
-    }
+    public static Type RenderManagerType => typeof (IRenderManager);
 
-    /// <summary>
+      /// <summary>
     /// Manager type used to retrieve the ILightManager manager service.  Use this
     /// type when creating a custom manager that replaces the built-in manager.
     /// </summary>
-    public static Type LightManagerType
-    {
-      get
-      {
-        return typeof (ILightManager);
-      }
-    }
+    public static Type LightManagerType => typeof (ILightManager);
 
-    /// <summary>
+      /// <summary>
     /// Manager type used to retrieve the IShadowMapManager manager service.  Use this
     /// type when creating a custom manager that replaces the built-in manager.
     /// </summary>
-    public static Type ShadowMapManagerType
-    {
-      get
-      {
-        return typeof (IShadowMapManager);
-      }
-    }
+    public static Type ShadowMapManagerType => typeof (IShadowMapManager);
 
-    /// <summary>
+      /// <summary>
     /// Manager type used to retrieve the IPostProcessManager manager service.  Use this
     /// type when creating a custom manager that replaces the built-in manager.
     /// </summary>
-    public static Type PostProcessManagerType
-    {
-      get
-      {
-        return typeof (IPostProcessManager);
-      }
-    }
+    public static Type PostProcessManagerType => typeof (IPostProcessManager);
 
-    /// <summary>
+      /// <summary>
     /// Manager type used to retrieve the LightingSystemEditor manager service.
     /// </summary>
-    public static Type EditorType
-    {
-      get
-      {
-        return typeof (LightingSystemEditor);
-      }
-    }
+    public static Type EditorType => typeof (LightingSystemEditor);
 
-    /// <summary>
+      /// <summary>
     /// Manager type used to retrieve the IAvatarManager manager service.  Use this
     /// type when creating a custom manager that replaces the built-in manager.
     /// </summary>
-    public static Type AvatarManagerType
-    {
-      get
-      {
-        return typeof (IAvatarManager);
-      }
-    }
+    public static Type AvatarManagerType => typeof (IAvatarManager);
 
-    /// <summary>Creates a new SceneInterface instance.</summary>
+      /// <summary>Creates a new SceneInterface instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     public SceneInterface(IGraphicsDeviceService graphicsdevicemanager)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
     }
 
     /// <summary>
@@ -233,24 +180,24 @@ namespace SynapseGaming.LightingSystem.Core
     public void CreateDefaultManagers(bool usedeferredrendering, bool useavatars, bool usepostprocessing)
     {
       this.Unload();
-      this.AddManager((IManagerService) new SynapseGaming.LightingSystem.Core.ResourceManager());
-      this.AddManager((IManagerService) new SynapseGaming.LightingSystem.Rendering.ObjectManager(this.igraphicsDeviceService_0));
-      this.AddManager((IManagerService) new SynapseGaming.LightingSystem.Lights.LightManager(this.igraphicsDeviceService_0));
+      this.AddManager(new ResourceManager());
+      this.AddManager(new ObjectManager(this.GraphicsDeviceManager));
+      this.AddManager(new LightManager(this.GraphicsDeviceManager));
       if (usedeferredrendering)
       {
-        this.AddManager((IManagerService) new DeferredRenderManager(this.igraphicsDeviceService_0, (IManagerServiceProvider) this));
-        this.AddManager((IManagerService) new DeferredShadowMapManager(this.igraphicsDeviceService_0));
+        this.AddManager(new DeferredRenderManager(this.GraphicsDeviceManager, this));
+        this.AddManager(new DeferredShadowMapManager(this.GraphicsDeviceManager));
       }
       else
       {
-        this.AddManager((IManagerService) new SynapseGaming.LightingSystem.Rendering.Forward.RenderManager(this.igraphicsDeviceService_0, (IManagerServiceProvider) this));
-        this.AddManager((IManagerService) new SynapseGaming.LightingSystem.Shadows.Forward.ShadowMapManager(this.igraphicsDeviceService_0));
+        this.AddManager(new RenderManager(this.GraphicsDeviceManager, this));
+        this.AddManager(new ShadowMapManager(this.GraphicsDeviceManager));
       }
       if (useavatars)
-        this.AddManager((IManagerService) new SynapseGaming.LightingSystem.Rendering.AvatarManager(this.igraphicsDeviceService_0, (IManagerServiceProvider) this));
+        this.AddManager(new AvatarManager(this.GraphicsDeviceManager, this));
       if (!usepostprocessing)
         return;
-      this.AddManager((IManagerService) new SynapseGaming.LightingSystem.Rendering.PostProcessManager(this.igraphicsDeviceService_0));
+      this.AddManager(new PostProcessManager(this.GraphicsDeviceManager));
     }
 
     /// <summary>Adds a manager service to the provider.</summary>
@@ -278,13 +225,13 @@ namespace SynapseGaming.LightingSystem.Core
 
     private void method_0()
     {
-      this.ResourceManager = (IResourceManager) this.GetManager(SceneInterface.ResourceManagerType, false);
-      this.ObjectManager = (IObjectManager) this.GetManager(SceneInterface.ObjectManagerType, false);
-      this.RenderManager = (IRenderManager) this.GetManager(SceneInterface.RenderManagerType, false);
-      this.LightManager = (ILightManager) this.GetManager(SceneInterface.LightManagerType, false);
-      this.ShadowMapManager = (IShadowMapManager) this.GetManager(SceneInterface.ShadowMapManagerType, false);
-      this.PostProcessManager = (IPostProcessManager) this.GetManager(SceneInterface.PostProcessManagerType, false);
-      this.AvatarManager = (IAvatarManager) this.GetManager(SceneInterface.AvatarManagerType, false);
+      this.ResourceManager = (IResourceManager) this.GetManager(ResourceManagerType, false);
+      this.ObjectManager = (IObjectManager) this.GetManager(ObjectManagerType, false);
+      this.RenderManager = (IRenderManager) this.GetManager(RenderManagerType, false);
+      this.LightManager = (ILightManager) this.GetManager(LightManagerType, false);
+      this.ShadowMapManager = (IShadowMapManager) this.GetManager(ShadowMapManagerType, false);
+      this.PostProcessManager = (IPostProcessManager) this.GetManager(PostProcessManagerType, false);
+      this.AvatarManager = (IAvatarManager) this.GetManager(AvatarManagerType, false);
     }
 
     /// <summary>
@@ -309,9 +256,9 @@ namespace SynapseGaming.LightingSystem.Core
         if (managerService is IUpdatableManager)
           this.list_1.Add(managerService as IUpdatableManager);
       }
-      this.list_0.Sort((IComparer<IManagerService>) SceneInterface.class23_0);
-      this.list_2.Sort((IComparer<IRenderableManager>) SceneInterface.class24_0);
-      this.list_1.Sort((IComparer<IUpdatableManager>) SceneInterface.class25_0);
+      this.list_0.Sort(class23_0);
+      this.list_2.Sort(class24_0);
+      this.list_1.Sort(class25_0);
     }
 
     /// <summary>
@@ -326,7 +273,7 @@ namespace SynapseGaming.LightingSystem.Core
     {
       Type managertype = typeof (T);
       T manager = (T) this.GetManager(managertype, required);
-      if ((object) manager == null && required)
+      if (manager == null && required)
         throw new Exception("Service manager does not contain a service assigned to the '" + managertype.Name + "' type.");
       return manager;
     }
