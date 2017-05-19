@@ -1,29 +1,37 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-    public struct SpatialObj
+    [StructLayout(LayoutKind.Sequential, Pack=4)]
+    public struct SpatialObj // sizeof: 40 bytes, neatly fits in one cache line
     {
         public GameplayObject Obj;
-        public float X, Y, LastX, LastY;
-        public int Loyalty; // if loyalty == 0, then this is a STATIC world object !!!
+
         public int ProjCollided; // this is used to prevent projectiles colliding twice
+        public GameObjectType Type; // GameObjectType : byte
+        public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
+        public byte OverlapsQuads;  // does it overlap multiple quads?
+        public byte LastUpdate;
 
         public Vector2 Center;
         public float Radius;
-        public GameObjectType Type;
-        public bool OverlapsQuads; // does it overlap multiple quads?
+        public float X, Y, LastX, LastY;
 
         public override string ToString() => Obj.ToString();
 
         public SpatialObj(GameplayObject go)
         {
-            Obj  = go;
-            Type = go.Type;
+            Obj           = go;
+            ProjCollided  = 0;
+            Type          = go.Type;
+            Loyalty       = (byte)go.GetLoyaltyId();
+            OverlapsQuads = 0;
+            LastUpdate    = 0;
             if ((Type & GameObjectType.Beam) != 0)
             {
                 var beam = (Beam)go;
@@ -38,31 +46,29 @@ namespace Ship_Game
             }
             else
             {
-                Center = Obj.Center;
+                Center   = Obj.Center;
                 Radius   = Obj.Radius;
                 X        = Center.X - Radius;
                 Y        = Center.Y - Radius;
                 LastX    = Center.X + Radius;
                 LastY    = Center.Y + Radius;
             }
-            Loyalty       = go.GetLoyaltyId();
-            ProjCollided  = 0;
-            OverlapsQuads = false;
         }
 
         public SpatialObj(GameplayObject go, float radius)
         {
             Obj           = go;
+            ProjCollided  = 0;
             Type          = go.Type;
+            Loyalty       = (byte)go.GetLoyaltyId();
+            OverlapsQuads = 0;
+            LastUpdate    = 0;
             Center        = go.Center;
             Radius        = radius;
             X             = Center.X - radius;
             Y             = Center.Y - radius;
             LastX         = Center.X + radius;
             LastY         = Center.Y + radius;
-            Loyalty       = go.GetLoyaltyId();
-            ProjCollided  = 0;
-            OverlapsQuads = false;
         }
 
         public void UpdateBounds() // Update SpatialObj bounding box
@@ -157,12 +163,7 @@ namespace Ship_Game
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-
-    public struct SpatialCollision // two spatial objects that collided
-    {
-        public GameplayObject Obj1, Obj2;
-    }
-
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public sealed class Quadtree : IDisposable
     {
         private static readonly SpatialObj[] NoObjects = new SpatialObj[0];
@@ -209,7 +210,13 @@ namespace Ship_Game
             {
                 ref SpatialObj last = ref Items[--Count];
                 Items[index] = last;
-                last.Obj = null;
+                last.Obj = null; // prevent zombie objects
+                if (Count == 0) Items = NoObjects;
+            }
+            public void PopLast()
+            {
+                ref SpatialObj last = ref Items[--Count];
+                last.Obj = null; // prevent zombie objects
                 if (Count == 0) Items = NoObjects;
             }
             public bool Overlaps(ref Vector2 topleft, ref Vector2 topright)
@@ -236,7 +243,7 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Root = null;
+            Root    = null;
             GC.SuppressFinalize(this);
         }
 
@@ -272,7 +279,7 @@ namespace Ship_Game
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
 
-            obj.OverlapsQuads = false;
+            obj.OverlapsQuads = 0;
             if (obj.X < midX && obj.LastX < midX) // left
             {
                 if (obj.Y <  midY && obj.LastY < midY) return node.NW; // top left
@@ -283,7 +290,7 @@ namespace Ship_Game
                 if (obj.Y <  midY && obj.LastY < midY) return node.NE; // top right
                 if (obj.Y >= midY)                     return node.SE; // bot right
             }
-            obj.OverlapsQuads = true;
+            obj.OverlapsQuads = 1;
             return null; // obj does not perfectly fit inside a quadrant
         }
 
@@ -339,7 +346,14 @@ namespace Ship_Game
 
         public void Remove(GameplayObject go) => RemoveAt(Root, go);
 
-        private void UpdateNode(Node node, int level)
+        private static void FastRemoval(GameplayObject obj, Node node, int index)
+        {
+            UniverseScreen.SpaceManager.FastNonTreeRemoval(obj);
+            if (index == node.Count - 1) node.PopLast();
+            else                         node.RemoveAtSwapLast(index);
+        }
+
+        private void UpdateNode(Node node, int level, byte frameId)
         {
             if (node.Count > 0)
             {
@@ -349,16 +363,17 @@ namespace Ship_Game
                 for (int i = 0; i < node.Count; ++i)
                 {
                     ref SpatialObj obj = ref node.Items[i]; // .Items may be modified by InsertAt and RemoveAtSwapLast
-                    if (obj.Loyalty == 0)
-                        continue; // seems to be a static world object, so don't bother updating
+                    if (obj.LastUpdate == frameId) continue; // we reinserted this node so it doesn't require updating
+                    if (obj.Loyalty == 0)          continue; // loyalty 0: static world object, so don't bother updating
 
                     if (obj.Obj.Active == false)
                     {
-                        node.RemoveAtSwapLast(i--);
+                        FastRemoval(obj.Obj, node, i--);
                         continue;
                     }
 
                     obj.UpdateBounds();
+                    obj.LastUpdate = frameId;
 
                     //bool isFullyOutsideBounds = obj.LastX < nx || obj.LastY < ny ||
                     //                            obj.X > nlastX || obj.Y > nlastY;
@@ -368,19 +383,21 @@ namespace Ship_Game
                     if (obj.X < nx || obj.Y < ny || obj.LastX > nlastX || obj.LastY > nlastY) // out of Node bounds??
                     {
                         SpatialObj reinsert = obj;
-                        node.RemoveAtSwapLast(i--);
-                        InsertAt(Root, Levels, ref reinsert);
+                        if (i == node.Count - 1) node.PopLast(); // bugfix: this avoids infinite loop with RemoveAtSwapLast
+                        else                     node.RemoveAtSwapLast(i--);
+                        InsertAt(Root, Levels, ref reinsert); // warning: this call can modify our node.Items
                     }
                     // we previously overlapped the boundary, so insertion was at parent node;
                     // ... so now check if we're completely inside a subquadrant and reinsert into it
-                    else if (obj.OverlapsQuads)
+                    else if (obj.OverlapsQuads != 0)
                     {
                         Node quad = PickSubQuadrant(node, ref obj);
                         if (quad != null)
                         {
                             SpatialObj reinsert = obj;
-                            node.RemoveAtSwapLast(i--);
-                            InsertAt(quad, level-1, ref reinsert);
+                            if (i == node.Count - 1) node.PopLast(); // bugfix: this avoids infinite loop with RemoveAtSwapLast
+                            else                     node.RemoveAtSwapLast(i--);
+                            InsertAt(quad, level-1, ref reinsert); // warning: this call can modify our node.Items
                         }
                     }
                 }
@@ -388,10 +405,10 @@ namespace Ship_Game
             if (node.NW != null)
             {
                 int sublevel = level - 1;
-                UpdateNode(node.NW, sublevel);
-                UpdateNode(node.NE, sublevel);
-                UpdateNode(node.SE, sublevel);
-                UpdateNode(node.SW, sublevel);
+                UpdateNode(node.NW, sublevel, frameId);
+                UpdateNode(node.NE, sublevel, frameId);
+                UpdateNode(node.SE, sublevel, frameId);
+                UpdateNode(node.SW, sublevel, frameId);
             }
         }
 
@@ -414,11 +431,12 @@ namespace Ship_Game
 
         public void UpdateAll()
         {
-            ++FrameId;
-            UpdateNode(Root, Levels);
+            // we don't really care about int32 precision here... 
+            // actually a single bit flip would work fine as well
+            byte frameId = (byte)++FrameId;
+            UpdateNode(Root, Levels, frameId);
             RemoveEmptyChildNodes(Root);
         }
-
 
         // finds the node that fully encloses this spatial object
         private Node FindEnclosingNode(ref SpatialObj obj)
@@ -438,7 +456,6 @@ namespace Ship_Game
             return node;
         }
 
-
         // ship collision; this can collide with multiple projectiles..
         // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
         private static void CollideShipAtNode(Node node, int frameId, ref SpatialObj ship)
@@ -453,16 +470,23 @@ namespace Ship_Game
                     proj.HitTestProj(ref ship, out ShipModule hitModule))
                 {
                     proj.ProjCollided = frameId;
-                    HandleProjCollision(proj.Obj as Projectile, hitModule ?? ship.Obj);
+                    var projectile = proj.Obj as Projectile;
+                    HandleProjCollision(projectile, hitModule ?? ship.Obj);
+
+                    if (projectile.DieNextFrame) FastRemoval(projectile, node, i);
                 }
             }
-            if (node.NW == null)
-                return;
+            if (node.NW == null) return;
             CollideShipAtNode(node.NW, frameId, ref ship);
             CollideShipAtNode(node.NE, frameId, ref ship);
             CollideShipAtNode(node.SE, frameId, ref ship);
             CollideShipAtNode(node.SW, frameId, ref ship);
         }
+
+        
+        private static bool ProjectileIsDying(ref SpatialObj obj)
+            => (obj.Type & GameObjectType.Proj) != 0 && (obj.Obj as Projectile).DieNextFrame;
+
 
         // projectile collision, return the first match because the projectile destroys itself anyway
         private static bool CollideProjAtNode(Node node, int frameId, ref SpatialObj proj)
@@ -478,12 +502,15 @@ namespace Ship_Game
                     if ((item.Type & GameObjectType.Proj) != 0)
                         item.ProjCollided = frameId;
                     proj.ProjCollided = frameId;
+
                     HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj);
+
+                    if ((item.Type & GameObjectType.Proj) != 0 && (item.Obj as Projectile).DieNextFrame)
+                        FastRemoval(item.Obj, node, i);
                     return true;
                 }
             }
-            if (node.NW == null)
-                return false;
+            if (node.NW == null) return false;
             return CollideProjAtNode(node.NW, frameId, ref proj)
                 || CollideProjAtNode(node.NE, frameId, ref proj)
                 || CollideProjAtNode(node.SE, frameId, ref proj)
@@ -514,8 +541,7 @@ namespace Ship_Game
                     }
                 }
             }
-            if (node.NW == null)
-                return;
+            if (node.NW == null) return;
             CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
             CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
             CollideBeamAtNode(node.SE, frameId, ref beam, ref result);
@@ -558,7 +584,6 @@ namespace Ship_Game
                 CollideAllAt(node.SE, frameId);
                 CollideAllAt(node.SW, frameId);
             }
-
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
@@ -567,7 +592,11 @@ namespace Ship_Game
 
                 // each collision instigator type has a very specific recursive handler
                 if      ((so.Type & GameObjectType.Beam) != 0) CollideBeamAtNode(node, frameId, ref so);
-                else if ((so.Type & GameObjectType.Proj) != 0) CollideProjAtNode(node, frameId, ref so);
+                else if ((so.Type & GameObjectType.Proj) != 0)
+                {
+                    if (CollideProjAtNode(node, frameId, ref so) && ProjectileIsDying(ref so))
+                        FastRemoval(so.Obj, node, i);
+                }
                 else if ((so.Type & GameObjectType.Ship) != 0) CollideShipAtNode(node, frameId, ref so);
             }
         }
