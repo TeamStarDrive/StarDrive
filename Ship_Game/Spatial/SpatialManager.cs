@@ -34,19 +34,12 @@ namespace Ship_Game.Gameplay
 
         public void Add(GameplayObject obj)
         {
-            if (obj == null)
-            {
-                Log.Error("SpatialManager null object");
-                return;
-            }
-            if (obj.SpatialIndex != -1) // the object is already in a SpatialManager
-            {
-                Log.Error("SpatialManager cannot add object {0} because it's in another SpatialManager", obj);
-                return;
-            }
-
             if (!IsSpatialType(obj))
                 return; // not a supported spatial manager type. just ignore it
+
+            // this is related to QuadTree fast-removal
+            if (obj is Projectile proj && proj.DieNextFrame)
+                return;
 
             obj.SpatialIndex = AllObjects.Count;
             AllObjects.Add(obj);
@@ -55,24 +48,22 @@ namespace Ship_Game.Gameplay
 
         public void Remove(GameplayObject obj)
         {
-            if (obj == null)
-            {
-                Log.Error("SpatialManager null object");
-                return;
-            }
+            QuadTree?.Remove(obj);
+            AllObjects[obj.SpatialIndex] = null;
+            obj.SpatialIndex = -1;
+        }
 
+        // this should only be called from Quadtree
+        public void FastNonTreeRemoval(GameplayObject obj)
+        {
             int idx = obj.SpatialIndex;
             if (idx == -1)
             {
                 Log.Error($"SpatialManager attempted double remove of object: {obj}");
                 return; // not in any SpatialManagers, so Remove is no-op
             }
-
-            if (QuadTree == null)
-                return;
-
-            QuadTree.Remove(obj);
-            AllObjects[obj.SpatialIndex] = null;
+            AllObjects[idx] = null;
+            obj.SpatialIndex = -1;
         }
 
         // @todo OPTIMIZE THIS CLUSTERFCK
@@ -82,7 +73,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < AllObjects.Count; ++i)
             {
                 GameplayObject go = AllObjects[i];
-                if (!go.Active || !go.InDeepSpace || !go.Is(GameObjectType.Ship))
+                if (go == null || !go.Active || !go.InDeepSpace || !go.Is(GameObjectType.Ship))
                     continue;
 
                 copyTo.Add(go as Ship);
