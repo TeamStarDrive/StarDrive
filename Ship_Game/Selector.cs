@@ -95,11 +95,11 @@ namespace Ship_Game
 			Rectangle right = new Rectangle(this.Menu.X + this.Menu.Width - 24, this.Menu.Y + 24, 24, this.Menu.Height - 48);
 			Rectangle left = new Rectangle(this.Menu.X, this.Menu.Y + 24, 24, this.Menu.Height - 48);
 			Rectangle middle = new Rectangle(this.Menu.X + 24, this.Menu.Y + 24, this.Menu.Width - 48, this.Menu.Height - 48);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, top, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, bottom, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, right, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, left, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, middle, this.fill);
+			this.ScreenManager.SpriteBatch.FillRectangle(top, this.fill);
+			this.ScreenManager.SpriteBatch.FillRectangle(bottom, this.fill);
+			this.ScreenManager.SpriteBatch.FillRectangle(right, this.fill);
+			this.ScreenManager.SpriteBatch.FillRectangle(left, this.fill);
+			this.ScreenManager.SpriteBatch.FillRectangle(middle, this.fill);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_TL"], this.TL, Color.White);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.topHoriz, Color.White);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_TR"], this.TR, Color.White);

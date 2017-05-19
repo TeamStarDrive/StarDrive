@@ -80,7 +80,7 @@ namespace Ship_Game
 				return;
 			}
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.sel.Menu, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Menu, Color.Black);
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
@@ -147,7 +147,7 @@ namespace Ship_Game
 					for (int i = 0; i < this.pgs.TroopsHere[0].Level; i++)
 					{
 						Rectangle star = new Rectangle(this.LeftRect.X + this.LeftRect.Width - 20 - 12 * i, this.LeftRect.Y + 12, 12, 11);
-						if (HelperFunctions.CheckIntersection(star, MousePos))
+						if (star.HitTest(MousePos))
 						{
 							ToolTip.CreateTooltip(127, this.ScreenManager);
 						}
@@ -178,13 +178,13 @@ namespace Ship_Game
             }
 			foreach (TroopInfoUIElement.TippedItem ti in this.ToolTipItems)
 			{
-				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
+				if (!ti.r.HitTest(input.CursorPosition))
 				{
 					continue;
 				}
 				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
 			}
-			if (this.LaunchTroop != null && HelperFunctions.CheckIntersection(this.LaunchTroop.r, input.CursorPosition))
+			if (this.LaunchTroop != null && this.LaunchTroop.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(67, this.ScreenManager);
 				if (this.LaunchTroop.HandleInput(input))

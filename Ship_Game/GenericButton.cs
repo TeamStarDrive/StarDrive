@@ -118,7 +118,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.R, input.CursorPosition))
+			if (!this.R.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}

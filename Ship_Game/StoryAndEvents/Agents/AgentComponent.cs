@@ -90,7 +90,7 @@ namespace Ship_Game
 
 		public void Draworig()
 		{
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.SubRect, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.SubRect, Color.Black);
 			this.AgentSL.Draw(this.ScreenManager.SpriteBatch);
 			this.RecruitButton.Draw(this.ScreenManager);
 			Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X + 200, this.RecruitButton.r.Y + this.RecruitButton.r.Height / 2 - 10, 21, 20);
@@ -150,7 +150,7 @@ namespace Ship_Game
 			}
 			if (this.SelectedAgent != null)
 			{
-				Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.OpsSubRect, Color.Black);
+				this.ScreenManager.SpriteBatch.FillRectangle(this.OpsSubRect, Color.Black);
 				this.OpsSL.Draw(this.ScreenManager.SpriteBatch);
 				for (int i = this.OpsSL.indexAtTop; i < this.OpsSL.Entries.Count && i < this.OpsSL.indexAtTop + this.OpsSL.entriesToDisplay; i++)
 				{
@@ -168,7 +168,7 @@ namespace Ship_Game
         //added by gremlin deveksmod spy draw
         public void Draw()
         {
-            Primitives2D.FillRectangle(ScreenManager.SpriteBatch, SubRect, Color.Black);
+            ScreenManager.SpriteBatch.FillRectangle(SubRect, Color.Black);
             AgentSL.Draw(ScreenManager.SpriteBatch);
             RecruitButton.Draw(ScreenManager);
             Rectangle moneyRect = new Rectangle(RecruitButton.r.X, RecruitButton.r.Y + 30, 21, 20);
@@ -253,7 +253,7 @@ namespace Ship_Game
 
             if (SelectedAgent != null)
             {
-                Primitives2D.FillRectangle(ScreenManager.SpriteBatch, OpsSubRect, Color.Black);
+                ScreenManager.SpriteBatch.FillRectangle(OpsSubRect, Color.Black);
                 OpsSL.Draw(ScreenManager.SpriteBatch);
                 for (int i = OpsSL.indexAtTop; i < OpsSL.Entries.Count && i < OpsSL.indexAtTop + OpsSL.entriesToDisplay; i++)
                 {
@@ -303,7 +303,7 @@ namespace Ship_Game
 			{
 				this.OpsSL.HandleInput(input);
 			}
-			if (HelperFunctions.CheckIntersection(this.RecruitButton.r, input.CursorPosition))
+			if (this.RecruitButton.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(Localizer.Token(2180), this.ScreenManager);
 			}
@@ -333,7 +333,7 @@ namespace Ship_Game
 				try
 				{
 					ScrollList.Entry e = this.AgentSL.Entries[i];
-					if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+					if (e.clickRect.HitTest(input.CursorPosition))
 					{
 						this.selector = new Selector(this.ScreenManager, e.clickRect);
 						if (input.InGameSelect)
@@ -359,9 +359,9 @@ namespace Ship_Game
 					{
 						ScrollList.Entry e = this.OpsSL.Entries[i];
 						(e.item as MissionEntry).HandleInput(input);
-						if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+						if (e.clickRect.HitTest(input.CursorPosition))
 						{
-							if (!HelperFunctions.CheckIntersection((e.item as MissionEntry).DoMission.Rect, input.CursorPosition))
+							if (!(e.item as MissionEntry).DoMission.Rect.HitTest(input.CursorPosition))
 							{
 								ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex), this.ScreenManager);
 							}
@@ -386,7 +386,7 @@ namespace Ship_Game
             {
                 this.OpsSL.HandleInput(input);
             }
-            if (HelperFunctions.CheckIntersection(this.RecruitButton.r, input.CursorPosition))
+            if (this.RecruitButton.r.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Localizer.Token(2180), this.ScreenManager);
             }
@@ -420,7 +420,7 @@ namespace Ship_Game
                 try
                 {
                     ScrollList.Entry e = this.AgentSL.Entries[i];
-                    if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+                    if (e.clickRect.HitTest(input.CursorPosition))
                     {
                         this.selector = new Selector(this.ScreenManager, e.clickRect);
                         if (input.InGameSelect)
@@ -446,9 +446,9 @@ namespace Ship_Game
                     {
                         ScrollList.Entry e = this.OpsSL.Entries[i];
                         (e.item as MissionEntry).HandleInput(input);
-                        if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+                        if (e.clickRect.HitTest(input.CursorPosition))
                         {
-                            if (!HelperFunctions.CheckIntersection((e.item as MissionEntry).DoMission.Rect, input.CursorPosition))
+                            if (!(e.item as MissionEntry).DoMission.Rect.HitTest(input.CursorPosition))
                             {
                                 ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex), this.ScreenManager);
                             }

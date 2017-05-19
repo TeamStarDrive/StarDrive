@@ -118,7 +118,7 @@ namespace Ship_Game
 	        Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
 	        universe.ScreenManager.SpriteBatch.Begin();
 	        Color c = new Color(255, 255, 255, 160);
-	        Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
+	        universe.ScreenManager.SpriteBatch.FillRectangle(blackRect, new Color(12, 17, 24));
 	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
 	            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, c);
 	        else
@@ -179,7 +179,7 @@ namespace Ship_Game
 			Rectangle blackRect = new Rectangle(0, 0, width, viewport.Height);
 			universe.ScreenManager.SpriteBatch.Begin();
 			Color c = new Color(255, 255, 255, 160);
-			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
+			universe.ScreenManager.SpriteBatch.FillRectangle(blackRect, new Color(12, 17, 24));
 			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, blackRect, c);
 			Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
 			float percentX = camPos.X / 500000f;
@@ -215,7 +215,7 @@ namespace Ship_Game
 			Rectangle rectangle = new Rectangle(0, 0, viewport1.Width * 2, viewport2.Height * 2);
 			universe.ScreenManager.SpriteBatch.Begin();
 			Color color = new Color(255, 255, 255, 160);
-			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, Color.Black);
+			universe.ScreenManager.SpriteBatch.FillRectangle(blackRect, Color.Black);
 			Viewport viewport3 = universe.Viewport;
             Vector3 UpperLeft = viewport3.Project(Vector3.Zero, universe.projection, universe.view, Matrix.Identity);
 			Viewport viewport4 = universe.Viewport;

@@ -54,7 +54,7 @@ namespace Ship_Game
 
 		public void Draw()
 		{
-			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, fillRect, new Color(0, 0, 0, 220));
+			ScreenManager.SpriteBatch.FillRectangle(fillRect, new Color(0, 0, 0, 220));
             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_TL"], corner_TL, Color.White);
             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_TR"], corner_TR, Color.White);
             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_BL"], corner_BL, Color.White);

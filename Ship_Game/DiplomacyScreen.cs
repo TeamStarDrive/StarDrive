@@ -477,12 +477,12 @@ namespace Ship_Game
 			if (this.dState == DiplomacyScreen.DialogState.Negotiate)
 			{
 				Rectangle stripe = new Rectangle(0, this.R.Y, 1920, this.R.Height);
-				Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, stripe, new Color(0, 0, 0, 150));
+				base.ScreenManager.SpriteBatch.FillRectangle(stripe, new Color(0, 0, 0, 150));
 			}
 			else
 			{
 				Rectangle stripe = new Rectangle(0, this.DialogRect.Y, 1920, this.R.Height);
-				Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, stripe, new Color(0, 0, 0, 150));
+				base.ScreenManager.SpriteBatch.FillRectangle(stripe, new Color(0, 0, 0, 150));
 			}
 			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["GameScreens/Bridge"], this.BridgeRect, Color.White);
 			foreach (GenericButton taf in this.TAFButtons)
@@ -1055,11 +1055,11 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            if (HelperFunctions.CheckIntersection(new Rectangle(this.TrustRect.X - (int)Fonts.Pirulen16.MeasureString("Trust").X, this.TrustRect.Y, (int)Fonts.Pirulen16.MeasureString("Trust").X + this.TrustRect.Width, 14), input.CursorPosition))
+            if (new Rectangle(this.TrustRect.X - (int)Fonts.Pirulen16.MeasureString("Trust").X, this.TrustRect.Y, (int)Fonts.Pirulen16.MeasureString("Trust").X + this.TrustRect.Width, 14).HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(47, this.ScreenManager);
-            if (HelperFunctions.CheckIntersection(new Rectangle(this.AngerRect.X - (int)Fonts.Pirulen16.MeasureString("Anger").X, this.AngerRect.Y, (int)Fonts.Pirulen16.MeasureString("Anger").X + this.AngerRect.Width, 14), input.CursorPosition))
+            if (new Rectangle(this.AngerRect.X - (int)Fonts.Pirulen16.MeasureString("Anger").X, this.AngerRect.Y, (int)Fonts.Pirulen16.MeasureString("Anger").X + this.AngerRect.Width, 14).HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(48, this.ScreenManager);
-            if (HelperFunctions.CheckIntersection(new Rectangle(this.FearRect.X - (int)Fonts.Pirulen16.MeasureString("Fear").X, this.FearRect.Y, (int)Fonts.Pirulen16.MeasureString("Fear").X + this.FearRect.Width, 14), input.CursorPosition))
+            if (new Rectangle(this.FearRect.X - (int)Fonts.Pirulen16.MeasureString("Fear").X, this.FearRect.Y, (int)Fonts.Pirulen16.MeasureString("Fear").X + this.FearRect.Width, 14).HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(49, this.ScreenManager);
             if (this.Exit.HandleInput(input) && this.dState != DiplomacyScreen.DialogState.TheirOffer)
             {
@@ -1091,7 +1091,7 @@ namespace Ship_Game
                         this.playerEmpire.GetGSAI().DeclareWarOn(this.them, WarType.ImperialistWar);
                     }
                 }
-                else if (this.DeclareWar != null && HelperFunctions.CheckIntersection(this.DeclareWar.R, input.CursorPosition))
+                else if (this.DeclareWar != null && this.DeclareWar.R.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(128, this.ScreenManager);
                 if (this.Discuss != null && this.Discuss.HandleInput(input))
                 {
@@ -1936,10 +1936,10 @@ namespace Ship_Game
                             }
                             if (warTargets.Count > 0)
                             {
-                                IOrderedEnumerable<Empire> orderedEnumerable = Enumerable.OrderByDescending<Empire, int>((IEnumerable<Empire>)warTargets, (Func<Empire, int>)(emp => emp.TotalScore));
-                                if (Enumerable.Count<Empire>((IEnumerable<Empire>)orderedEnumerable) <= 0)
+                                IOrderedEnumerable<Empire> orderedEnumerable = ((IEnumerable<Empire>)warTargets).OrderByDescending<Empire, int>((Func<Empire, int>)(emp => emp.TotalScore));
+                                if (((IEnumerable<Empire>)orderedEnumerable).Count<Empire>() <= 0)
                                     break;
-                                this.empToDiscuss = Enumerable.First<Empire>((IEnumerable<Empire>)orderedEnumerable);
+                                this.empToDiscuss = ((IEnumerable<Empire>)orderedEnumerable).First<Empire>();
                                 DiplomacyScreen diplomacyScreen = this;
                                 string str = diplomacyScreen.TheirText + this.GetDialogueByName("Federation_Quest_DestroyEnemy");
                                 diplomacyScreen.TheirText = str;

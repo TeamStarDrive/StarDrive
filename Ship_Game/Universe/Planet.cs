@@ -2020,7 +2020,7 @@ namespace Ship_Game
                     {                        
                         if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
                         {
-                            foreach (PlanetGridSquare planetGridSquare in Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
+                            foreach (PlanetGridSquare planetGridSquare in ((IEnumerable<PlanetGridSquare>)TilesList).OrderBy<PlanetGridSquare, int>((Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
                             {
                                 if (!pgs.TroopsHere.Any())
                                     break;

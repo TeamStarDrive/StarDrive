@@ -287,7 +287,7 @@ namespace Ship_Game
                 for (int i = 0; i < FleetButtons.Count; ++i)
                 {
                     UniverseScreen.FleetButton fleetButton = FleetButtons[i];
-                    if (!HelperFunctions.CheckIntersection(fleetButton.ClickRect, input.CursorPosition))
+                    if (!fleetButton.ClickRect.HitTest(input.CursorPosition))
                         continue;
 
                     SelectedFleet = fleetButton.Fleet;
@@ -375,7 +375,7 @@ namespace Ship_Game
 
 
             //fbedard: Click button to Cycle through Planets in Combat
-            if (!HelperFunctions.CheckIntersection(PlanetsInCombat.Rect, input.CursorPosition))
+            if (!PlanetsInCombat.Rect.HitTest(input.CursorPosition))
             {
                 PlanetsInCombat.State = UIButton.PressState.Default;
             }
@@ -1753,7 +1753,7 @@ namespace Ship_Game
                 }
                 for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; ++index)
                 {
-                    if (HelperFunctions.CheckIntersection(this.SelectedShip.AreaOfOperation[index], new Vector2(vector3.X, vector3.Y)) && input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+                    if (this.SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
                         this.SelectedShip.AreaOfOperation.Remove(this.SelectedShip.AreaOfOperation[index]);
                 }
             }

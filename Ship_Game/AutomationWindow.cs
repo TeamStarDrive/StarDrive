@@ -147,7 +147,7 @@ namespace Ship_Game
             if (Checkboxes.Any(checkbox => checkbox.HandleInput(input)))
                 return true;
 
-            if (!HelperFunctions.CheckIntersection(ConstructionSubMenu.Menu, input.CursorPosition) || !input.RightMouseClick)
+            if (!ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || !input.RightMouseClick)
                 return false;
             isOpen = false;
             return true;

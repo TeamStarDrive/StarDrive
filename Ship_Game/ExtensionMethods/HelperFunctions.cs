@@ -12,12 +12,6 @@ namespace Ship_Game
 {
     internal static class HelperFunctions
     {
-
-        public static bool CheckIntersection(Rectangle rect, Vector2 pos)
-        {
-            return pos.X > rect.X && pos.Y > rect.Y && pos.X < rect.X+rect.Width && pos.Y < rect.Y+rect.Height;
-        }
-
         // return number of solutions, false if no solutions or infinite solutions
         // @note this is optimized quite well
         public static bool CircleIntersection(Circle ca, Circle cb, out Vector2 intersect1, out Vector2 intersect2)
@@ -63,7 +57,7 @@ namespace Ship_Game
 
         public static bool ClickedRect(Rectangle toClick, InputState input)
         {
-            return input.InGameSelect && CheckIntersection(toClick, input.CursorPosition);
+            return input.InGameSelect && toClick.HitTest(input.CursorPosition);
         }
 
         private static FleetDesign LoadFleetDesign(string fleetUid)
@@ -194,7 +188,7 @@ namespace Ship_Game
             var end    = new Vector2(xpos, ypos + yGridSize - 1);
             for (int x = 0; x < numberXs; ++x)
             {
-                Primitives2D.DrawLine(spriteBatch, origin, end, color, 2f);
+                spriteBatch.DrawLine(origin, end, color, 2f);
                 origin.X += xsize;
                 end.X    += xsize;
             }
@@ -202,7 +196,7 @@ namespace Ship_Game
             end    = new Vector2(xpos + xGridSize - 3, ypos);
             for (int y = 0; y < numberYs; ++y)
             {
-                Primitives2D.DrawLine(spriteBatch, origin, end, color, 2f);
+                spriteBatch.DrawLine(origin, end, color, 2f);
                 origin.Y += ysize;
                 end.Y    += ysize;
             }
