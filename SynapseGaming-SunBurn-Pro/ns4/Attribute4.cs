@@ -8,7 +8,7 @@ using System;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property)]
   internal abstract class Attribute4 : Attribute
   {
   }

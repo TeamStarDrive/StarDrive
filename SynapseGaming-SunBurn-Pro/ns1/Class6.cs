@@ -32,9 +32,9 @@ namespace ns1
       byte[] numArray1 = this.rsacryptoServiceProvider_1.SignHash(this.sha1Managed_0.ComputeHash(buffer), CryptoConfig.MapNameToOID("SHA1"));
       byte[] bytes = BitConverter.GetBytes(numArray1.Length);
       byte[] numArray2 = new byte[buffer.Length + numArray1.Length + bytes.Length];
-      bytes.CopyTo((Array) numArray2, 0);
-      numArray1.CopyTo((Array) numArray2, bytes.Length);
-      buffer.CopyTo((Array) numArray2, bytes.Length + numArray1.Length);
+      bytes.CopyTo(numArray2, 0);
+      numArray1.CopyTo(numArray2, bytes.Length);
+      buffer.CopyTo(numArray2, bytes.Length + numArray1.Length);
       return numArray2;
     }
 
@@ -43,10 +43,10 @@ namespace ns1
       int int32 = BitConverter.ToInt32(byte_0, 0);
       byte[] rgbSignature = new byte[int32];
       byte[] numArray = new byte[byte_0.Length - (int32 + 4)];
-      Array.Copy((Array) byte_0, 4, (Array) rgbSignature, 0, rgbSignature.Length);
-      Array.Copy((Array) byte_0, int32 + 4, (Array) numArray, 0, numArray.Length);
+      Array.Copy(byte_0, 4, rgbSignature, 0, rgbSignature.Length);
+      Array.Copy(byte_0, int32 + 4, numArray, 0, numArray.Length);
       if (!this.rsacryptoServiceProvider_0.VerifyHash(this.sha1Managed_0.ComputeHash(numArray), CryptoConfig.MapNameToOID("SHA1"), rgbSignature))
-        return (byte[]) null;
+        return null;
       return this.method_3(numArray);
     }
 
@@ -63,7 +63,7 @@ namespace ns1
         byte[] rgb = numArray1;
         if (length2 < rgb.Length)
           rgb = new byte[length2];
-        Array.Copy((Array) byte_0, sourceIndex, (Array) rgb, 0, length2);
+        Array.Copy(byte_0, sourceIndex, rgb, 0, length2);
         byte[] numArray2 = this.rsacryptoServiceProvider_0.Encrypt(rgb, true);
         sourceIndex += length2;
         length1 += numArray2.Length;
@@ -73,7 +73,7 @@ namespace ns1
       int index = 0;
       foreach (byte[] numArray2 in this.list_0)
       {
-        numArray2.CopyTo((Array) numArray3, index);
+        numArray2.CopyTo(numArray3, index);
         index += numArray2.Length;
       }
       return numArray3;
@@ -92,7 +92,7 @@ namespace ns1
         byte[] rgb = numArray1;
         if (length2 < rgb.Length)
           rgb = new byte[length2];
-        Array.Copy((Array) byte_0, sourceIndex, (Array) rgb, 0, length2);
+        Array.Copy(byte_0, sourceIndex, rgb, 0, length2);
         byte[] numArray2 = this.rsacryptoServiceProvider_1.Decrypt(rgb, true);
         sourceIndex += length2;
         length1 += numArray2.Length;
@@ -102,7 +102,7 @@ namespace ns1
       int index = 0;
       foreach (byte[] numArray2 in this.list_0)
       {
-        numArray2.CopyTo((Array) numArray3, index);
+        numArray2.CopyTo(numArray3, index);
         index += numArray2.Length;
       }
       return numArray3;

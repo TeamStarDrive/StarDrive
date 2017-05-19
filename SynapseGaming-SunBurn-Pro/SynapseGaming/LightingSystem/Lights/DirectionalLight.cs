@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Microsoft.Xna.Framework;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
 
 namespace SynapseGaming.LightingSystem.Lights
 {
@@ -38,40 +38,22 @@ namespace SynapseGaming.LightingSystem.Lights
     /// </summary>
     public bool Enabled
     {
-      get
-      {
-        return this.bool_0;
-      }
-      set
-      {
-        this.bool_0 = value;
-      }
+      get => this.bool_0;
+        set => this.bool_0 = value;
     }
 
     /// <summary>Direct lighting color given off by the light.</summary>
     public Vector3 DiffuseColor
     {
-      get
-      {
-        return this.vector3_0;
-      }
-      set
-      {
-        this.vector3_0 = value;
-      }
+      get => this.vector3_0;
+        set => this.vector3_0 = value;
     }
 
     /// <summary>Intensity of the light.</summary>
     public float Intensity
     {
-      get
-      {
-        return this.float_0;
-      }
-      set
-      {
-        this.float_0 = value;
-      }
+      get => this.float_0;
+        set => this.float_0 = value;
     }
 
     /// <summary>Unused.</summary>
@@ -103,38 +85,20 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <summary>
     /// The combined light color and intensity (provided for convenience).
     /// </summary>
-    public Vector3 CompositeColorAndIntensity
-    {
-      get
-      {
-        return this.vector3_0 * this.float_0;
-      }
-    }
+    public Vector3 CompositeColorAndIntensity => this.vector3_0 * this.float_0;
 
-    /// <summary>Bounding area of the light's influence.</summary>
-    public BoundingBox WorldBoundingBox
-    {
-      get
-      {
-        return DirectionalLight.boundingBox_0;
-      }
-    }
+      /// <summary>Bounding area of the light's influence.</summary>
+    public BoundingBox WorldBoundingBox => boundingBox_0;
 
-    /// <summary>Bounding area of the light's influence.</summary>
-    public BoundingSphere WorldBoundingSphere
-    {
-      get
-      {
-        return DirectionalLight.boundingSphere_0;
-      }
-    }
+      /// <summary>Bounding area of the light's influence.</summary>
+    public BoundingSphere WorldBoundingSphere => boundingSphere_0;
 
-    /// <summary>Shadow source the light's shadows are generated from.</summary>
+      /// <summary>Shadow source the light's shadows are generated from.</summary>
     public IShadowSource ShadowSource
     {
       get
       {
-        return (IShadowSource) this;
+        return this;
       }
       set
       {
@@ -147,49 +111,25 @@ namespace SynapseGaming.LightingSystem.Lights
     /// </summary>
     public ShadowType ShadowType
     {
-      get
-      {
-        return this.shadowType_0;
-      }
-      set
-      {
-        this.shadowType_0 = value;
-      }
+      get => this.shadowType_0;
+        set => this.shadowType_0 = value;
     }
 
     /// <summary>Position in world space of the shadow source.</summary>
-    public Vector3 ShadowPosition
-    {
-      get
-      {
-        return this.Direction * -1000000f;
-      }
-    }
+    public Vector3 ShadowPosition => this.Direction * -1000000f;
 
-    /// <summary>Adjusts the visual quality of casts shadows.</summary>
+      /// <summary>Adjusts the visual quality of casts shadows.</summary>
     public float ShadowQuality
     {
-      get
-      {
-        return this.float_1;
+      get => this.float_1;
+          set => this.float_1 = MathHelper.Clamp(value, 0.0f, 2f);
       }
-      set
-      {
-        this.float_1 = MathHelper.Clamp(value, 0.0f, 2f);
-      }
-    }
 
     /// <summary>Main property used to eliminate shadow artifacts.</summary>
     public float ShadowPrimaryBias
     {
-      get
-      {
-        return this.float_2;
-      }
-      set
-      {
-        this.float_2 = value;
-      }
+      get => this.float_2;
+        set => this.float_2 = value;
     }
 
     /// <summary>
@@ -197,14 +137,8 @@ namespace SynapseGaming.LightingSystem.Lights
     /// </summary>
     public float ShadowSecondaryBias
     {
-      get
-      {
-        return this.float_3;
-      }
-      set
-      {
-        this.float_3 = value;
-      }
+      get => this.float_3;
+        set => this.float_3 = value;
     }
 
     /// <summary>
@@ -212,26 +146,14 @@ namespace SynapseGaming.LightingSystem.Lights
     /// </summary>
     public bool ShadowPerSurfaceLOD
     {
-      get
-      {
-        return this.bool_1;
-      }
-      set
-      {
-        this.bool_1 = value;
-      }
+      get => this.bool_1;
+        set => this.bool_1 = value;
     }
 
     /// <summary>Unused.</summary>
-    public bool ShadowRenderLightsTogether
-    {
-      get
-      {
-        return false;
-      }
-    }
+    public bool ShadowRenderLightsTogether => false;
 
-    /// <summary>Direction in world space of the light's influence.</summary>
+      /// <summary>Direction in world space of the light's influence.</summary>
     public Vector3 Direction
     {
       get
@@ -250,11 +172,8 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <summary>World space transform of the light.</summary>
     public Matrix World
     {
-      get
-      {
-        return this.matrix_0;
-      }
-      set
+      get => this.matrix_0;
+        set
       {
         this.matrix_0 = value;
         this.matrix_0.Translation = Vector3.Zero;
@@ -265,27 +184,15 @@ namespace SynapseGaming.LightingSystem.Lights
     /// Indicates the object bounding area spans the entire world and
     /// the object is always visible.
     /// </summary>
-    public bool InfiniteBounds
-    {
-      get
-      {
-        return true;
-      }
-    }
+    public bool InfiniteBounds => true;
 
-    /// <summary>
+      /// <summary>
     /// Indicates the current move. This value increments each time the object
     /// is moved (when the World transform changes).
     /// </summary>
-    public int MoveId
-    {
-      get
-      {
-        return 0;
-      }
-    }
+    public int MoveId => 0;
 
-    /// <summary>
+      /// <summary>
     /// Defines how movement is applied. Updates to Dynamic objects
     /// are automatically applied, where Static objects must be moved
     /// manually using [manager].Move().
@@ -307,14 +214,8 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <summary>The object's current name.</summary>
     public string Name
     {
-      get
-      {
-        return this.string_0;
-      }
-      set
-      {
-        this.string_0 = value;
-      }
+      get => this.string_0;
+        set => this.string_0 = value;
     }
 
     /// <summary>
@@ -342,35 +243,35 @@ namespace SynapseGaming.LightingSystem.Lights
         switch (serializationEntry.Name)
         {
           case "Enabled":
-            Class28.smethod_0<bool>(ref this.bool_0, serializationInfo_0, "Enabled");
+            Class28.smethod_0(ref this.bool_0, serializationInfo_0, "Enabled");
             continue;
           case "DiffuseColor":
-            Class28.smethod_0<Vector3>(ref this.vector3_0, serializationInfo_0, "DiffuseColor");
+            Class28.smethod_0(ref this.vector3_0, serializationInfo_0, "DiffuseColor");
             continue;
           case "Intensity":
-            Class28.smethod_0<float>(ref this.float_0, serializationInfo_0, "Intensity");
+            Class28.smethod_0(ref this.float_0, serializationInfo_0, "Intensity");
             continue;
           case "ShadowType":
-            Class28.smethod_1<ShadowType>(ref this.shadowType_0, serializationInfo_0, "ShadowType");
+            Class28.smethod_1(ref this.shadowType_0, serializationInfo_0, "ShadowType");
             continue;
           case "Direction":
-            Class28.smethod_0<Vector3>(ref gparam_0, serializationInfo_0, "Direction");
+            Class28.smethod_0(ref gparam_0, serializationInfo_0, "Direction");
             this.Direction = gparam_0;
             continue;
           case "Name":
-            Class28.smethod_0<string>(ref this.string_0, serializationInfo_0, "Name");
+            Class28.smethod_0(ref this.string_0, serializationInfo_0, "Name");
             continue;
           case "ShadowQuality":
-            Class28.smethod_0<float>(ref this.float_1, serializationInfo_0, "ShadowQuality");
+            Class28.smethod_0(ref this.float_1, serializationInfo_0, "ShadowQuality");
             continue;
           case "ShadowPrimaryBias":
-            Class28.smethod_0<float>(ref this.float_2, serializationInfo_0, "ShadowPrimaryBias");
+            Class28.smethod_0(ref this.float_2, serializationInfo_0, "ShadowPrimaryBias");
             continue;
           case "ShadowSecondaryBias":
-            Class28.smethod_0<float>(ref this.float_3, serializationInfo_0, "ShadowSecondaryBias");
+            Class28.smethod_0(ref this.float_3, serializationInfo_0, "ShadowSecondaryBias");
             continue;
           case "ShadowPerSurfaceLOD":
-            Class28.smethod_0<bool>(ref this.bool_1, serializationInfo_0, "ShadowPerSurfaceLOD");
+            Class28.smethod_0(ref this.bool_1, serializationInfo_0, "ShadowPerSurfaceLOD");
             continue;
           default:
             continue;
@@ -393,7 +294,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <returns></returns>
     public override string ToString()
     {
-      return CoreUtils.NamedObject((INamedObject) this);
+      return CoreUtils.NamedObject(this);
     }
 
     /// <summary>
@@ -404,12 +305,12 @@ namespace SynapseGaming.LightingSystem.Lights
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("Name", (object) this.Name);
+      info.AddValue("Name", this.Name);
       info.AddValue("Enabled", this.Enabled);
-      info.AddValue("DiffuseColor", (object) this.DiffuseColor);
+      info.AddValue("DiffuseColor", this.DiffuseColor);
       info.AddValue("Intensity", this.Intensity);
-      info.AddValue("ShadowType", (object) this.ShadowType);
-      info.AddValue("Direction", (object) this.Direction);
+      info.AddValue("ShadowType", this.ShadowType);
+      info.AddValue("Direction", this.Direction);
       info.AddValue("ShadowQuality", this.ShadowQuality);
       info.AddValue("ShadowPrimaryBias", this.ShadowPrimaryBias);
       info.AddValue("ShadowSecondaryBias", this.ShadowSecondaryBias);

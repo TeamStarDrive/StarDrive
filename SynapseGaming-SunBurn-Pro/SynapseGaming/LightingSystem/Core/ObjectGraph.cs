@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework;
-using ns3;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using ns3;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -26,24 +26,17 @@ namespace SynapseGaming.LightingSystem.Core
         private Vector3[] WorldBoundsCorners = new Vector3[8];
         private List<T> list_0 = new List<T>(32);
         private Class19 class19_0 = new Class19();
-        private BoundingBox boundingBox_0;
 
         /// <summary>The current containment volume for this object.</summary>
-        public BoundingBox WorldBoundingBox
-        {
-            get
-            {
-                return this.boundingBox_0;
-            }
-        }
+        public BoundingBox WorldBoundingBox { get; private set; }
 
         /// <summary>
         /// Creates a new ObjectGraph using the default world size and tree depth.
         /// </summary>
         public ObjectGraph()
         {
-            this.boundingBox_0 = new BoundingBox(new Vector3(-1000f, -1000f, -1000f), new Vector3(1000f, 1000f, 1000f));
-            this.Resize(this.boundingBox_0, this.int_0);
+            this.WorldBoundingBox = new BoundingBox(new Vector3(-1000f, -1000f, -1000f), new Vector3(1000f, 1000f, 1000f));
+            this.Resize(this.WorldBoundingBox, this.int_0);
         }
 
         /// <summary>
@@ -67,7 +60,7 @@ namespace SynapseGaming.LightingSystem.Core
         /// scenes often need deeper trees.</param>
         public virtual void Resize(BoundingBox worldboundingbox, int worldtreemaxdepth)
         {
-            this.boundingBox_0 = worldboundingbox;
+            this.WorldBoundingBox = worldboundingbox;
             this.int_0 = worldtreemaxdepth;
             this.class9_0.method_0(ref worldboundingbox, worldtreemaxdepth);
         }
@@ -150,8 +143,8 @@ namespace SynapseGaming.LightingSystem.Core
             worldbounds.GetCorners(this.WorldBoundsCorners);
             this.list_0.Clear();
             this.class9_0.method_7(CoreUtils.smethod_11(this.WorldBoundsCorners), this.list_0);
-            bool flag1 = (objectfilter & ObjectFilter.Dynamic) != (ObjectFilter)0;
-            bool flag2 = (objectfilter & ObjectFilter.Static) != (ObjectFilter)0;
+            bool flag1 = (objectfilter & ObjectFilter.Dynamic) != 0;
+            bool flag2 = (objectfilter & ObjectFilter.Static) != 0;
             int count2 = this.list_0.Count;
             for (int index = 0; index < count2; ++index)
             {
@@ -174,8 +167,8 @@ namespace SynapseGaming.LightingSystem.Core
             int count1 = foundobjects.Count;
             this.list_0.Clear();
             this.class9_0.method_7(worldbounds, this.list_0);
-            bool flag1 = (objectfilter & ObjectFilter.Dynamic) != (ObjectFilter)0;
-            bool flag2 = (objectfilter & ObjectFilter.Static) != (ObjectFilter)0;
+            bool flag1 = (objectfilter & ObjectFilter.Dynamic) != 0;
+            bool flag2 = (objectfilter & ObjectFilter.Static) != 0;
             int count2 = this.list_0.Count;
             for (int index = 0; index < count2; ++index)
             {
@@ -196,8 +189,8 @@ namespace SynapseGaming.LightingSystem.Core
             int count1 = foundobjects.Count;
             this.list_0.Clear();
             this.class9_0.method_9(this.list_0);
-            bool flag1 = (objectfilter & ObjectFilter.Dynamic) != (ObjectFilter)0;
-            bool flag2 = (objectfilter & ObjectFilter.Static) != (ObjectFilter)0;
+            bool flag1 = (objectfilter & ObjectFilter.Dynamic) != 0;
+            bool flag2 = (objectfilter & ObjectFilter.Static) != 0;
             int count2 = this.list_0.Count;
             for (int index = 0; index < count2; ++index)
             {

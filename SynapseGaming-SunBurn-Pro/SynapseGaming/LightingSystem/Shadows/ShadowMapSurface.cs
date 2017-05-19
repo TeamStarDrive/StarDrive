@@ -16,14 +16,12 @@ namespace SynapseGaming.LightingSystem.Shadows
   /// </summary>
   public class ShadowMapSurface
   {
-    private bool bool_0 = true;
-    private Matrix matrix_0 = Matrix.Identity;
+      private Matrix matrix_0 = Matrix.Identity;
     private Matrix matrix_1 = Matrix.Identity;
     private bool bool_1 = true;
     private BoundingFrustum boundingFrustum_0 = new BoundingFrustum(Matrix.Identity);
-    private Viewport viewport_0 = new Viewport();
-    private float float_0 = 1f;
-    private Rectangle rectangle_0 = new Rectangle();
+    private Viewport viewport_0;
+      private Rectangle rectangle_0;
 
     /// <summary>
     /// View transform used to project the scene into the
@@ -31,11 +29,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public Matrix WorldToSurfaceView
     {
-      get
-      {
-        return this.matrix_0;
-      }
-      set
+      get => this.matrix_0;
+        set
       {
         this.matrix_0 = value;
         this.bool_1 = true;
@@ -48,11 +43,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public Matrix Projection
     {
-      get
-      {
-        return this.matrix_1;
-      }
-      set
+      get => this.matrix_1;
+        set
       {
         this.matrix_1 = value;
         this.bool_1 = true;
@@ -76,35 +68,16 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <summary>
     /// Viewport used when rendering to the surface render target location.
     /// </summary>
-    public Viewport Viewport
-    {
-      get
-      {
-        return this.viewport_0;
-      }
-    }
+    public Viewport Viewport => this.viewport_0;
 
-    /// <summary>Level-of-detail applied to the surface.</summary>
-    public float LevelOfDetail
-    {
-      get
-      {
-        return this.float_0;
-      }
-      set
-      {
-        this.float_0 = value;
-      }
-    }
+      /// <summary>Level-of-detail applied to the surface.</summary>
+    public float LevelOfDetail { get; set; } = 1f;
 
-    /// <summary>The surface location in the render target.</summary>
+      /// <summary>The surface location in the render target.</summary>
     public Rectangle RenderTargetLocation
     {
-      get
-      {
-        return this.rectangle_0;
-      }
-      set
+      get => this.rectangle_0;
+          set
       {
         this.rectangle_0 = value;
         this.viewport_0.X = this.rectangle_0.X;
@@ -116,19 +89,9 @@ namespace SynapseGaming.LightingSystem.Shadows
       }
     }
 
-    internal bool Enabled
-    {
-      get
-      {
-        return this.bool_0;
-      }
-      set
-      {
-        this.bool_0 = value;
-      }
-    }
+    internal bool Enabled { get; set; } = true;
 
-    internal Rectangle method_0(int int_0)
+      internal Rectangle method_0(int int_0)
     {
       return new Rectangle(this.rectangle_0.X + int_0, this.rectangle_0.Y + int_0, this.rectangle_0.Width - int_0 * 2, this.rectangle_0.Height - int_0 * 2);
     }

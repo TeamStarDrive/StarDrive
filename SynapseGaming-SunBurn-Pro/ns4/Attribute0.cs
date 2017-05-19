@@ -8,22 +8,14 @@ using System;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
   internal class Attribute0 : Attribute
   {
-    private bool jia;
+      public bool OnlyMarkedProperties { get; }
 
-    public bool OnlyMarkedProperties
+      public Attribute0(bool onlymarkedproperties)
     {
-      get
-      {
-        return this.jia;
-      }
-    }
-
-    public Attribute0(bool onlymarkedproperties)
-    {
-      this.jia = onlymarkedproperties;
+      this.OnlyMarkedProperties = onlymarkedproperties;
     }
   }
 }

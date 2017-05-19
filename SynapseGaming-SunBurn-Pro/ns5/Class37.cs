@@ -17,21 +17,15 @@ namespace ns5
 
     public Texture2D SceneDepthMap
     {
-      get
-      {
-        return this.texture2D_0;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_11);
-      }
+      get => this.texture2D_0;
+        set => EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_11);
     }
 
     public Texture2D SceneNormalSpecularMap
     {
       get
       {
-        return (Texture2D) null;
+        return null;
       }
       set
       {
@@ -50,7 +44,7 @@ namespace ns5
 
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new Class37(device);
+      return new Class37(device);
     }
   }
 }

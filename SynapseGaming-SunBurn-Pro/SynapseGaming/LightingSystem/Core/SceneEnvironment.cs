@@ -4,14 +4,14 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework;
-using ns3;
-using SynapseGaming.LightingSystem.Editor;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
+using Microsoft.Xna.Framework;
+using ns3;
+using SynapseGaming.LightingSystem.Editor;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -44,66 +44,36 @@ namespace SynapseGaming.LightingSystem.Core
     /// <summary>Maximum world space distance objects are visible.</summary>
     public float VisibleDistance
     {
-      get
-      {
-        return this.float_0;
-      }
-      set
-      {
-        this.float_0 = value;
-      }
+      get => this.float_0;
+        set => this.float_0 = value;
     }
 
     /// <summary>Enables scene fog.</summary>
     public bool FogEnabled
     {
-      get
-      {
-        return this.bool_0;
-      }
-      set
-      {
-        this.bool_0 = value;
-      }
+      get => this.bool_0;
+        set => this.bool_0 = value;
     }
 
     /// <summary>World space distance that fog begins.</summary>
     public float FogStartDistance
     {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        this.float_1 = value;
-      }
+      get => this.float_1;
+        set => this.float_1 = value;
     }
 
     /// <summary>World space distance that fog fully obscures objects.</summary>
     public float FogEndDistance
     {
-      get
-      {
-        return this.float_2;
-      }
-      set
-      {
-        this.float_2 = value;
-      }
+      get => this.float_2;
+        set => this.float_2 = value;
     }
 
     /// <summary>Color applied to scene fog.</summary>
     public Vector3 FogColor
     {
-      get
-      {
-        return this.vector3_0;
-      }
-      set
-      {
-        this.vector3_0 = value;
-      }
+      get => this.vector3_0;
+        set => this.vector3_0 = value;
     }
 
     /// <summary>
@@ -111,14 +81,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public float ShadowFadeStartDistance
     {
-      get
-      {
-        return this.float_3;
-      }
-      set
-      {
-        this.float_3 = value;
-      }
+      get => this.float_3;
+        set => this.float_3 = value;
     }
 
     /// <summary>
@@ -126,14 +90,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public float ShadowFadeEndDistance
     {
-      get
-      {
-        return this.float_4;
-      }
-      set
-      {
-        this.float_4 = value;
-      }
+      get => this.float_4;
+        set => this.float_4 = value;
     }
 
     /// <summary>
@@ -143,53 +101,29 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public float ShadowCasterDistance
     {
-      get
-      {
-        return this.float_5;
-      }
-      set
-      {
-        this.float_5 = value;
-      }
+      get => this.float_5;
+        set => this.float_5 = value;
     }
 
     /// <summary>Strength of bloom applied to the scene.</summary>
     public float BloomAmount
     {
-      get
-      {
-        return this.float_6;
-      }
-      set
-      {
-        this.float_6 = value;
-      }
+      get => this.float_6;
+        set => this.float_6 = value;
     }
 
     /// <summary>Minimum pixel intensity required for bloom to occur.</summary>
     public float BloomThreshold
     {
-      get
-      {
-        return this.float_7;
-      }
-      set
-      {
-        this.float_7 = value;
-      }
+      get => this.float_7;
+        set => this.float_7 = value;
     }
 
     /// <summary>Intensity of the scene exposure.</summary>
     public float ExposureAmount
     {
-      get
-      {
-        return this.float_8;
-      }
-      set
-      {
-        this.float_8 = value;
-      }
+      get => this.float_8;
+        set => this.float_8 = value;
     }
 
     /// <summary>
@@ -197,14 +131,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public float DynamicRangeTransitionTime
     {
-      get
-      {
-        return this.float_9;
-      }
-      set
-      {
-        this.float_9 = value;
-      }
+      get => this.float_9;
+        set => this.float_9 = value;
     }
 
     /// <summary>
@@ -213,14 +141,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public float DynamicRangeTransitionMaxScale
     {
-      get
-      {
-        return this.float_10;
-      }
-      set
-      {
-        this.float_10 = value;
-      }
+      get => this.float_10;
+        set => this.float_10 = value;
     }
 
     /// <summary>
@@ -229,14 +151,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public float DynamicRangeTransitionMinScale
     {
-      get
-      {
-        return this.float_11;
-      }
-      set
-      {
-        this.float_11 = value;
-      }
+      get => this.float_11;
+        set => this.float_11 = value;
     }
 
     /// <summary>The object's current name.</summary>
@@ -260,37 +176,19 @@ namespace SynapseGaming.LightingSystem.Core
 
     internal string SceneEnvironmentFile
     {
-      get
-      {
-        return this.string_1;
-      }
-      set
-      {
-        this.string_1 = value;
-      }
+      get => this.string_1;
+        set => this.string_1 = value;
     }
 
     internal string ProjectFile
     {
-      get
-      {
-        return this.string_2;
-      }
-      set
-      {
-        this.string_2 = value;
-      }
+      get => this.string_2;
+        set => this.string_2 = value;
     }
 
-    string Interface0.ProjectFile
-    {
-      get
-      {
-        return this.string_2;
-      }
-    }
+    string Interface0.ProjectFile => this.string_2;
 
-    /// <summary>
+      /// <summary>
     /// Used to support serializing user defined scene environment objects. Register any additional
     /// classes and their xml element names to support persisting custom scene environment objects.
     /// </summary>
@@ -298,20 +196,20 @@ namespace SynapseGaming.LightingSystem.Core
     {
       get
       {
-        if (SceneEnvironment.serializeTypeDictionary_0 == null)
+        if (serializeTypeDictionary_0 == null)
         {
-          SceneEnvironment.serializeTypeDictionary_0 = new SerializeTypeDictionary();
-          SceneEnvironment.serializeTypeDictionary_0.RegisterType("SceneEnvironment", typeof (SceneEnvironment));
-          SceneEnvironment.serializeTypeDictionary_0.RegisterType("Vector3", typeof (Vector3));
+          serializeTypeDictionary_0 = new SerializeTypeDictionary();
+          serializeTypeDictionary_0.RegisterType("SceneEnvironment", typeof (SceneEnvironment));
+          serializeTypeDictionary_0.RegisterType("Vector3", typeof (Vector3));
         }
-        return SceneEnvironment.serializeTypeDictionary_0;
+        return serializeTypeDictionary_0;
       }
     }
 
     /// <summary>Creates a new SceneEnvironment instance.</summary>
     public SceneEnvironment()
     {
-      LightingSystemEditor.OnCreateResource((IDisposable) this);
+      LightingSystemEditor.OnCreateResource(this);
     }
 
     /// <summary />
@@ -380,7 +278,7 @@ namespace SynapseGaming.LightingSystem.Core
       if (this.bool_1)
         return;
       this.bool_1 = true;
-      LightingSystemEditor.OnDisposeResource((IDisposable) this);
+      LightingSystemEditor.OnDisposeResource(this);
     }
 
     /// <summary>Saves the object back to its originating file.</summary>
@@ -392,7 +290,7 @@ namespace SynapseGaming.LightingSystem.Core
     internal static SceneEnvironment smethod_0(string string_3)
     {
       MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(string_3));
-      SceneEnvironment sceneEnvironment = (SceneEnvironment) new Class29(SceneEnvironment.SerializeTypeDictionary).Deserialize((Stream) memoryStream) ?? new SceneEnvironment();
+      SceneEnvironment sceneEnvironment = (SceneEnvironment) new Class29(SerializeTypeDictionary).Deserialize(memoryStream) ?? new SceneEnvironment();
       memoryStream.Close();
       memoryStream.Dispose();
       return sceneEnvironment;
@@ -403,7 +301,7 @@ namespace SynapseGaming.LightingSystem.Core
       if (!File.Exists(string_3))
         return;
       FileStream fileStream = File.Create(string_3);
-      new Class29(SceneEnvironment.SerializeTypeDictionary).Serialize((Stream) fileStream, (object) this);
+      new Class29(SerializeTypeDictionary).Serialize(fileStream, this);
       fileStream.Flush();
       fileStream.Close();
       fileStream.Dispose();
@@ -415,7 +313,7 @@ namespace SynapseGaming.LightingSystem.Core
     {
       info.AddValue("VisibleDistance", this.VisibleDistance);
       info.AddValue("FogEnabled", this.FogEnabled);
-      info.AddValue("FogColor", (object) this.FogColor);
+      info.AddValue("FogColor", this.FogColor);
       info.AddValue("FogStartDistance", this.FogStartDistance);
       info.AddValue("FogEndDistance", this.FogEndDistance);
       info.AddValue("ShadowFadeStartDistance", this.ShadowFadeStartDistance);

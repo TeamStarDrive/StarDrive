@@ -4,12 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
-using System;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -57,10 +57,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>Effect applied to the mesh during rendering.</summary>
         public Effect Effect
         {
-            get
-            {
-                return effect_0;
-            }
+            get => effect_0;
             set
             {
                 effect_0 = value;
@@ -97,10 +94,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>Object space transform of the mesh.</summary>
         public Matrix MeshToObject
         {
-            get
-            {
-                return meshToObject;
-            }
+            get => meshToObject;
             set
             {
                 meshToObject = value;
@@ -161,14 +155,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public BoundingSphere ObjectSpaceBoundingSphere
         {
-            get
-            {
-                return Bounds;
-            }
-            set
-            {
-                Bounds = value;
-            }
+            get => Bounds;
+            set => Bounds = value;
         }
 
         /// <summary>

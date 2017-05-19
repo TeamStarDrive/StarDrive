@@ -11,33 +11,14 @@ namespace ns8
 {
   internal class Class58
   {
-    private DeferredBufferType deferredBufferType_0 = DeferredBufferType.None;
-    private SurfaceFormat surfaceFormat_0 = SurfaceFormat.Unknown;
+      public DeferredBufferType Buffer { get; } = DeferredBufferType.None;
 
-    public DeferredBufferType Buffer
-    {
-      get
-      {
-        return this.deferredBufferType_0;
-      }
-    }
+      public SurfaceFormat Format { get; set; } = SurfaceFormat.Unknown;
 
-    public SurfaceFormat Format
+      public Class58(DeferredBufferType buffer, SurfaceFormat format)
     {
-      get
-      {
-        return this.surfaceFormat_0;
-      }
-      set
-      {
-        this.surfaceFormat_0 = value;
-      }
-    }
-
-    public Class58(DeferredBufferType buffer, SurfaceFormat format)
-    {
-      this.deferredBufferType_0 = buffer;
-      this.surfaceFormat_0 = format;
+      this.Buffer = buffer;
+      this.Format = format;
     }
   }
 }
