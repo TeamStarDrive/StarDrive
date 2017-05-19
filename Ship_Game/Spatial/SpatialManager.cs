@@ -31,7 +31,7 @@ namespace Ship_Game.Gameplay
 
         private static bool IsSpatialType(GameplayObject obj)
             => obj.Is(GameObjectType.Ship) || obj.Is(GameObjectType.Proj)/*also Beam*/;
-
+        
         public void Add(GameplayObject obj)
         {
             if (!IsSpatialType(obj))

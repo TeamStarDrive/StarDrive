@@ -86,19 +86,19 @@ namespace Ship_Game
 			{
 				r.Y = r.Y + (int)(transitionOffset * 50f);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, Color.Black);
+			base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
 			r = this.bottom_sep;
 			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
 			{
 				r.Y = r.Y + (int)(transitionOffset * 50f);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(77, 55, 25));
+			base.ScreenManager.SpriteBatch.FillRectangle(r, new Color(77, 55, 25));
 			r = this.SearchBar;
 			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
 			{
 				r.Y = r.Y + (int)(transitionOffset * 50f);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(54, 54, 54));
+			base.ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
 			Vector2 vector2 = new Vector2((float)(this.SearchBar.X + 3), (float)(r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2));
 			r = this.Fleets.r;
 			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
@@ -128,7 +128,7 @@ namespace Ship_Game
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition))
+				if (!b.Rect.HitTest(input.CursorPosition))
 				{
 					b.State = UIButton.PressState.Default;
 				}

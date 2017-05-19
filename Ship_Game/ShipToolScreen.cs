@@ -160,7 +160,7 @@ namespace Ship_Game
             WhichSelectionPos.X = WhichSelectionPos.X + 150f;
             WhichSelectionPos.Y = WhichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
             WhichSelectionPos.Y = WhichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
-            Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, this.what, Color.White);
+            base.ScreenManager.SpriteBatch.DrawRectangle(this.what, Color.White);
             foreach (SlotStruct slot in this.SlotList)
             {
                 if (!this.applyThruster && slot.PQ.isFilled)
@@ -364,7 +364,7 @@ namespace Ship_Game
                 this.ShipNameBox.HandleTextInput(ref this.HullName, input);
                 this.ShipNameBox.Text = this.HullName;
             }
-            if (!HelperFunctions.CheckIntersection(this.ShipNameBox.ClickableArea, input.CursorPosition))
+            if (!this.ShipNameBox.ClickableArea.HitTest(input.CursorPosition))
             {
                 this.ShipNameBox.Hover = false;
                 if (input.InGameSelect)
@@ -382,7 +382,7 @@ namespace Ship_Game
             }
             foreach (ToggleButton button in this.DesignStateButtons)
             {
-                if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+                if (!button.r.HitTest(input.CursorPosition))
                 {
                     button.Hover = false;
                 }

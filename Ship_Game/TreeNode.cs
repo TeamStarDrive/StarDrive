@@ -192,8 +192,8 @@ namespace Ship_Game
                     bool flag = false;
                     if (EmpireManager.Player.ResearchTopic == this.tech.UID || EmpireManager.Player.data.ResearchQueue.Contains(this.tech.UID))
                         flag = true;
-                    Primitives2D.FillRectangle(spriteBatch, this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, this.complete || flag ? new Color((byte)34, (byte)136, (byte)200) : Color.Black);
+                    spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
+                    spriteBatch.DrawRectangle(this.UnlocksRect, this.complete || flag ? new Color((byte)34, (byte)136, (byte)200) : Color.Black);
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -242,8 +242,8 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle1, Color.White);
                     break;
                 case NodeState.Hover:
-                    Primitives2D.FillRectangle(spriteBatch, this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
+                    spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
+                    spriteBatch.DrawRectangle(this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -274,8 +274,8 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle2, Color.White);
                     break;
                 case NodeState.Press:
-                    Primitives2D.FillRectangle(spriteBatch, this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
+                    spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
+                    spriteBatch.DrawRectangle(this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -313,8 +313,8 @@ namespace Ship_Game
 		{
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 			spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_underglow_base"], this.BaseRect, Color.White);
-			Primitives2D.DrawRectangleGlow(spriteBatch, this.TitleRect);
-			Primitives2D.DrawRectangleGlow(spriteBatch, this.UnlocksRect);
+			spriteBatch.DrawRectangleGlow(this.TitleRect);
+			spriteBatch.DrawRectangleGlow(this.UnlocksRect);
 		}
 
 		public bool HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager, Camera2d camera)
@@ -325,7 +325,7 @@ namespace Ship_Game
 			Rectangle moddedRect2 = new Rectangle((int)RectPos2.X, (int)RectPos2.Y, this.UnlocksRect.Width, this.UnlocksRect.Height);
 			Vector2 RectPos3 = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)this.IconRect.X, (float)this.IconRect.Y));
 			Rectangle moddedRect3 = new Rectangle((int)RectPos3.X, (int)RectPos3.Y, this.IconRect.Width, this.IconRect.Height);
-			if (HelperFunctions.CheckIntersection(moddedRect, input.CursorPosition) || HelperFunctions.CheckIntersection(moddedRect2, input.CursorPosition))
+			if (moddedRect.HitTest(input.CursorPosition) || moddedRect2.HitTest(input.CursorPosition))
 			{
 				if (this.nodeState != NodeState.Hover)
 				{
@@ -348,13 +348,13 @@ namespace Ship_Game
 			{
 				this.nodeState = NodeState.Normal;
 			}
-			if (!HelperFunctions.CheckIntersection(moddedRect3, input.CursorPosition))
+			if (!moddedRect3.HitTest(input.CursorPosition))
 			{
 				foreach (UnlocksGrid.GridItem gridItem in this.grid.GridOfUnlocks)
 				{
 					Vector2 RectPos4 = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)gridItem.rect.X, (float)gridItem.rect.Y));
 					Rectangle moddedRect4 = new Rectangle((int)RectPos4.X, (int)RectPos4.Y, gridItem.rect.Width, gridItem.rect.Height);
-					if (!HelperFunctions.CheckIntersection(moddedRect4, input.CursorPosition))
+					if (!moddedRect4.HitTest(input.CursorPosition))
 					{
 						continue;
 					}

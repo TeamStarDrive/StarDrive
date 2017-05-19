@@ -411,7 +411,7 @@ namespace Ship_Game
                             rect.Height = iconTex.Height;
                             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TechIcons/techbg"], rect, Color.White);
                             ScreenManager.SpriteBatch.Draw(iconTex, rect, Color.White);
-                            Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, rect, new Color(32, 30, 18));
+                            ScreenManager.SpriteBatch.DrawRectangle(rect, new Color(32, 30, 18));
                         }
                     }
                     if (n.RelevantEmpire != null)
@@ -441,7 +441,7 @@ namespace Ship_Game
             {
                 foreach (Notification n in NotificationList)
                 {
-                    if (!HelperFunctions.CheckIntersection(n.ClickRect, mousePos))
+                    if (!n.ClickRect.HitTest(mousePos))
                     {
                         n.ShowMessage = false;
                     }

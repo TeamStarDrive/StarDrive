@@ -202,7 +202,7 @@ namespace Ship_Game
 					if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
 					{
 						Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
-						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, war, Color.Red);
+						base.ScreenManager.SpriteBatch.FillRectangle(war, Color.Red);
 					}
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
@@ -223,11 +223,11 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, race.container, Color.Orange);
+				base.ScreenManager.SpriteBatch.DrawRectangle(race.container, Color.Orange);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.SelectedInfoRect, new Color(23, 20, 14));
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.IntelligenceRect, new Color(23, 20, 14));
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.OperationsRect, new Color(23, 20, 14));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.SelectedInfoRect, new Color(23, 20, 14));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.IntelligenceRect, new Color(23, 20, 14));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.OperationsRect, new Color(23, 20, 14));
 			Vector2 TextCursor = new Vector2((float)(this.SelectedInfoRect.X + 20), (float)(this.SelectedInfoRect.Y + 10));
 			HelperFunctions.DrawDropShadowText(base.ScreenManager, this.SelectedEmpire.data.Traits.Name, TextCursor, Fonts.Arial20Bold);
 			Rectangle FlagRect = new Rectangle(this.SelectedInfoRect.X + this.SelectedInfoRect.Width - 60, this.SelectedInfoRect.Y + 10, 40, 40);
@@ -1055,7 +1055,7 @@ namespace Ship_Game
 			{
 				foreach (SkinnableButton button in (this.ArtifactsSL.Entries[i].item as ArtifactEntry).ArtifactButtons)
 				{
-					if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+					if (!button.r.HitTest(input.CursorPosition))
 					{
 						continue;
 					}

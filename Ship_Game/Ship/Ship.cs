@@ -2090,7 +2090,7 @@ namespace Ship_Game.Gameplay
                 moduleOffset = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
                 var rect = new Rectangle(drawRect.X + drawRect.Width / 2 + (int)moduleOffset.X, drawRect.Y + drawRect.Height / 2 + (int)moduleOffset.Y, (int)moduleSize, (int)moduleSize);
 
-                Primitives2D.FillRectangle(spriteBatch, rect, module.GetHealthStatusColor());
+                spriteBatch.FillRectangle(rect, module.GetHealthStatusColor());
             }
         }
 

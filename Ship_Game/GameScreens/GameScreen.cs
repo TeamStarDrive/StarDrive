@@ -200,7 +200,7 @@ namespace Ship_Game
 
         public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
         {
-            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            if (rectangle.HitTest(mousePos))
             {
                 ToolTip.CreateTooltip(toolTipId, ScreenManager);                
             }
@@ -208,7 +208,7 @@ namespace Ship_Game
 
         public void CheckToolTip(string text, Rectangle rectangle, Vector2 mousePos)
         {
-            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            if (rectangle.HitTest(mousePos))
             {
                 ToolTip.CreateTooltip(text, ScreenManager);
             }

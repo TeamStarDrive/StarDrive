@@ -148,7 +148,7 @@ namespace Ship_Game
             ModsSL.HandleInput(input);
 			foreach (ScrollList.Entry e in ModsSL.Entries)
 			{
-				if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+				if (!e.clickRect.HitTest(input.CursorPosition))
 				{
 					e.clickRectHover = 0;
 				}

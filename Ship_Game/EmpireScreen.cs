@@ -167,7 +167,7 @@ namespace Ship_Game
 			float maxPopulation = (this.SelectedPlanet.MaxPopulation + this.SelectedPlanet.MaxPopBonus) / 1000f;
 			spriteBatch.DrawString(arial12Bold, string.Concat(str, "/", maxPopulation.ToString(fmt)), InfoCursor, new Color(255, 239, 208));
 			Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
-			if (HelperFunctions.CheckIntersection(hoverRect, MousePos))
+			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(75, base.ScreenManager);
 			}
@@ -176,7 +176,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.SelectedPlanet.Fertility.ToString(fmt), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
-			if (HelperFunctions.CheckIntersection(hoverRect, MousePos))
+			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(20, base.ScreenManager);
 			}
@@ -185,7 +185,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.SelectedPlanet.MineralRichness.ToString(fmt), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
-			if (HelperFunctions.CheckIntersection(hoverRect, MousePos))
+			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(21, base.ScreenManager);
 			}
@@ -231,9 +231,9 @@ namespace Ship_Game
 
                 if (!pgs.Habitable)
 			    {
-			        Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, pgs.ClickRect, new Color(0, 0, 0, 200));
+			        base.ScreenManager.SpriteBatch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
 			    }
-			    Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
+			    base.ScreenManager.SpriteBatch.DrawRectangle(pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
 			    if (pgs.building != null)
 			    {
 			        Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 24, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 24, 48, 48);
@@ -251,9 +251,9 @@ namespace Ship_Game
 			int xpos = (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - MapRect.Width) / 2;
 			int ypos = (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - MapRect.Height) / 2;
 			Rectangle rectangle = new Rectangle(xpos, ypos, MapRect.Width, MapRect.Height);
-			Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, MapRect, new Color(118, 102, 67, 255));
+			base.ScreenManager.SpriteBatch.DrawRectangle(MapRect, new Color(118, 102, 67, 255));
 			Rectangle GovernorRect = new Rectangle(MapRect.X + MapRect.Width, MapRect.Y, e1.TotalEntrySize.X + e1.TotalEntrySize.Width - (MapRect.X + MapRect.Width), MapRect.Height);
-			Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, GovernorRect, new Color(118, 102, 67, 255));
+			base.ScreenManager.SpriteBatch.DrawRectangle(GovernorRect, new Color(118, 102, 67, 255));
 			Rectangle portraitRect = new Rectangle(GovernorRect.X + 25, GovernorRect.Y + 25, 124, 148);
 			if ((float)portraitRect.Width > 0.35f * (float)GovernorRect.Width)
 			{
@@ -266,7 +266,7 @@ namespace Ship_Game
 			{
 				base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/x_red"], portraitRect, Color.White);
 			}
-			Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, portraitRect, new Color(118, 102, 67, 255));
+			base.ScreenManager.SpriteBatch.DrawRectangle(portraitRect, new Color(118, 102, 67, 255));
 			Vector2 TextPosition = new Vector2((float)(portraitRect.X + portraitRect.Width + 25), (float)portraitRect.Y);
 			Vector2 GovPos = TextPosition;
 			switch (this.SelectedPlanet.colonyType)
@@ -386,58 +386,58 @@ namespace Ship_Game
 				EmpireScreenEntry entry = this.ColoniesList.Entries[i].item as EmpireScreenEntry;
 				if (i % 2 == 0)
 				{
-					Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
+					base.ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
 				}
 				if (entry.p == this.SelectedPlanet)
 				{
-					Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
+					base.ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, TextColor);
 				}
 				entry.SetNewPos(this.eRect.X + 22, this.ColoniesList.Entries[i].clickRect.Y);
 				entry.Draw(base.ScreenManager);
-				Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
+				base.ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
 			}
 			Color lineColor = new Color(118, 102, 67, 255);
 			Vector2 topLeftSL = new Vector2((float)e1.SysNameRect.X, (float)(this.eRect.Y + 35));
 			Vector2 botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			topLeftSL = new Vector2((float)e1.PlanetNameRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			topLeftSL = new Vector2((float)e1.PopRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			topLeftSL = new Vector2((float)e1.FoodRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, new Color(lineColor, 100));
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
 			topLeftSL = new Vector2((float)e1.ProdRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, new Color(lineColor, 100));
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
 			topLeftSL = new Vector2((float)e1.ResRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, new Color(lineColor, 100));
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
 			topLeftSL = new Vector2((float)e1.MoneyRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, new Color(lineColor, 100));
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
 			topLeftSL = new Vector2((float)e1.SliderRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			topLeftSL = new Vector2((float)(e1.StorageRect.X + 5), (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			topLeftSL = new Vector2((float)e1.QueueRect.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			topLeftSL = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			topLeftSL = new Vector2((float)(e1.TotalEntrySize.X + e1.TotalEntrySize.Width), (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
 			Vector2 leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)PlanetInfoRect.Y);
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, leftBot, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
 			leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + 35));
 			botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
-			Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, leftBot, botSL, lineColor);
+			base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
 			Vector2 pos = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
 			this.close.Draw(base.ScreenManager);
@@ -539,7 +539,7 @@ namespace Ship_Game
 		{
 			Vector2 MousePos = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
 			this.ColoniesList.HandleInput(input);
-			if (HelperFunctions.CheckIntersection(this.pop.rect, MousePos))
+			if (this.pop.rect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(Localizer.Token(2278), base.ScreenManager);
 			}
@@ -565,7 +565,7 @@ namespace Ship_Game
 					this.pop.Ascending = false;
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.food.rect, MousePos))
+			if (this.food.rect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(139, base.ScreenManager);
 			}
@@ -590,7 +590,7 @@ namespace Ship_Game
 					this.food.Ascending = false;
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.prod.rect, MousePos))
+			if (this.prod.rect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(140, base.ScreenManager);
 			}
@@ -622,7 +622,7 @@ namespace Ship_Game
 					this.prod.Ascending = false;
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.res.rect, MousePos))
+			if (this.res.rect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(141, base.ScreenManager);
 			}
@@ -647,7 +647,7 @@ namespace Ship_Game
 					this.res.Ascending = false;
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.money.rect, MousePos))
+			if (this.money.rect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(142, base.ScreenManager);
 			}
@@ -676,7 +676,7 @@ namespace Ship_Game
 			{
 				EmpireScreenEntry entry = this.ColoniesList.Entries[i].item as EmpireScreenEntry;
 				entry.HandleInput(input, base.ScreenManager);
-				if (HelperFunctions.CheckIntersection(entry.TotalEntrySize, MousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (entry.TotalEntrySize.HitTest(MousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
 				{
 					if (this.SelectedPlanet != entry.p)
 					{

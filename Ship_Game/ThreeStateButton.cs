@@ -59,7 +59,7 @@ namespace Ship_Game
 
 		public void HandleInput(InputState input, ScreenManager screenManager)
 		{
-			if (HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
+			if (this.rect.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(string.Concat(ResourceManager.GoodsDict[this.Good].Name, " storage. \n\n Click to change Import/Export settings"), screenManager);
 				if (input.InGameSelect)

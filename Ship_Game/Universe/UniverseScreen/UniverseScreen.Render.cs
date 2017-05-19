@@ -50,7 +50,7 @@ namespace Ship_Game
                         ProjectToScreenCoords(ship.Position, ship.GetSO().WorldBoundingSphere.Radius,
                             out Vector2 screenPos, out float ScreenRadius);
 
-                        if (HelperFunctions.CheckIntersection(rect, screenPos))
+                        if (rect.HitTest(screenPos))
                         {
                             if (ScreenRadius < 7.0f) ScreenRadius = 7f;
                             ship.ScreenRadius = ScreenRadius;
@@ -201,7 +201,7 @@ namespace Ship_Game
                 Vector3 vector3_2 = this.Viewport.Project(
                     new Vector3((float) ((double) index * (double) this.UniverseRadius / 40.0), this.UniverseRadius, 0.0f),
                     this.projection, this.view, Matrix.Identity);
-                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y),
+                this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
             }
             for (int index = 0; index < 41; ++index)
@@ -212,7 +212,7 @@ namespace Ship_Game
                 Vector3 vector3_2 = this.Viewport.Project(
                     new Vector3(this.UniverseRadius, (float) ((double) index * (double) this.UniverseRadius / 40.0), 0.0f),
                     this.projection, this.view, Matrix.Identity);
-                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y),
+                this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
             }
             this.ScreenManager.SpriteBatch.End();
@@ -318,7 +318,7 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(138, this.ScreenManager);
                                     ++num3;
                                 }
@@ -336,7 +336,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(122, this.ScreenManager);
                                     ++num3;
                                 }
@@ -353,7 +353,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(123, this.ScreenManager);
                                 }
                             }
@@ -383,7 +383,7 @@ namespace Ship_Game
                                             solarSystem.Name[index2].ToString(), Pos, SystemInfoUIElement.SysFont,
                                             solarSystem.OwnerList.Count > index1
                                                 ? solarSystem.OwnerList.ToList()[index1].EmpireColor
-                                                : Enumerable.Last<Empire>((IEnumerable<Empire>) solarSystem.OwnerList)
+                                                : ((IEnumerable<Empire>) solarSystem.OwnerList).Last<Empire>()
                                                     .EmpireColor);
                                         Pos.X += SystemInfoUIElement.SysFont
                                             .MeasureString(solarSystem.Name[index2].ToString())
@@ -418,7 +418,7 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(138, this.ScreenManager);
                                     ++num3;
                                 }
@@ -436,7 +436,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(122, this.ScreenManager);
                                     ++num3;
                                 }
@@ -453,7 +453,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(123, this.ScreenManager);
                                 }
                             }

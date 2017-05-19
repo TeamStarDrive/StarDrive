@@ -129,7 +129,7 @@ namespace Ship_Game
 					if (e.clickRectHover == 1 && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
-						if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+						if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 						{
 							base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
 							ToolTip.CreateTooltip(78, base.ScreenManager);
@@ -155,7 +155,7 @@ namespace Ship_Game
 					else
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
-						if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+						if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 						{
 							base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
 							ToolTip.CreateTooltip(78, base.ScreenManager);
@@ -193,7 +193,7 @@ namespace Ship_Game
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!b.Rect.HitTest(MousePos))
 				{
 					b.State = UIButton.PressState.Default;
 				}
@@ -226,13 +226,13 @@ namespace Ship_Game
 				}
 				else if (e.item is ShipData)
 				{
-					if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+					if (!e.clickRect.HitTest(MousePos))
 					{
 						e.clickRectHover = 0;
 					}
 					else
 					{
-						if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)
+						if (e.cancel.HitTest(MousePos) && input.InGameSelect)
 						{
 							this.ShipToDelete = (e.item as ShipData).Name;
 							MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
@@ -253,13 +253,13 @@ namespace Ship_Game
 						}
 					}
 				}
-				else if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+				else if (!e.clickRect.HitTest(MousePos))
 				{
 					e.clickRectHover = 0;
 				}
 				else
 				{
-					if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave && input.InGameSelect)
+					if (e.cancel.HitTest(MousePos) && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave && input.InGameSelect)
 					{
 						this.ShipToDelete = (e.item as Ship).Name;
 						MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
@@ -293,7 +293,7 @@ namespace Ship_Game
 				}
 				this.ResetSL();
 			}
-			if (HelperFunctions.CheckIntersection(this.playerDesignsToggle.r, input.CursorPosition))
+			if (this.playerDesignsToggle.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(Localizer.Token(2225), base.ScreenManager);
 			}

@@ -190,49 +190,49 @@ namespace Ship_Game
                     PlanetListScreenEntry entry2 = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;
                     if (i % 2 == 0)
                     {
-                        Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry2.TotalEntrySize, smallHighlight);
+                        base.ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, smallHighlight);
                     }
                     if (entry2.planet == this.SelectedPlanet)
                     {
-                        Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry2.TotalEntrySize, TextColor);
+                        base.ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, TextColor);
                     }
                     entry2.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
                     entry2.Draw(base.ScreenManager, gameTime);
-                    Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, entry2.TotalEntrySize, TextColor);
+                    base.ScreenManager.SpriteBatch.DrawRectangle(entry2.TotalEntrySize, TextColor);
                 }                
                 Color lineColor = new Color(118, 102, 67, 255);
                 Vector2 topLeftSL = new Vector2((float)e1.SysNameRect.X, (float)(this.eRect.Y + 35));
                 Vector2 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)e1.PlanetNameRect.X, (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)e1.FertRect.X, (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)(e1.RichRect.X + 5), (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)e1.PopRect.X, (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)(e1.PopRect.X + e1.PopRect.Width), (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)(e1.OwnerRect.X + e1.OwnerRect.Width), (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height - 35));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((float)(e1.TotalEntrySize.X + e1.TotalEntrySize.Width), (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, topLeftSL, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
                 Vector2 leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + this.eRect.Height));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, leftBot, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
                 leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)(this.eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
-                Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, leftBot, botSL, lineColor);
+                base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
             }
             this.cb_hideUninhabitable.Draw(base.ScreenManager);
             this.cb_hideOwned.Draw(base.ScreenManager);
@@ -497,7 +497,7 @@ namespace Ship_Game
                 entry.HandleInput(input);
                 entry.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
                 if (!GlobalStats.TakingInput
-                    && HelperFunctions.CheckIntersection(entry.TotalEntrySize, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                    && entry.TotalEntrySize.HitTest(input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                 {
                     if (this.ClickTimer >= this.ClickDelay)
                     {

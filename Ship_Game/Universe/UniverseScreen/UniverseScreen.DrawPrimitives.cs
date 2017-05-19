@@ -153,7 +153,7 @@ namespace Ship_Game
             var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
             
-            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(tooltipID, ScreenManager);                
         }
 
@@ -162,7 +162,7 @@ namespace Ship_Game
             var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
 
-            if (HelperFunctions.CheckIntersection(rectangle, mousePos))
+            if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(text, ScreenManager);
         }
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)

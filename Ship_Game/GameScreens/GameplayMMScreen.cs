@@ -87,7 +87,7 @@ namespace Ship_Game
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+				if (!b.Rect.HitTest(mousePos))
 				{
 					b.State = UIButton.PressState.Default;
 				}
