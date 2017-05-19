@@ -4,6 +4,8 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,8 +16,6 @@ using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -25,33 +25,23 @@ namespace SynapseGaming.LightingSystem.Rendering
   /// </summary>
   public class AvatarManager : IQuery<IAvatar>, ISubmit<IAvatar>, IUnloadable, IManager, IRenderableManager, IManagerService, IShadowRenderer, IAvatarManager
   {
-    private int int_0 = 70;
-    private float float_0 = 0.55f;
-    private float float_1 = 1f;
-    private List<IAvatar> list_0 = new List<IAvatar>(16);
+      private List<IAvatar> list_0 = new List<IAvatar>(16);
     private List<IAvatar> list_1 = new List<IAvatar>(16);
     private List<IAvatar> list_2 = new List<IAvatar>(16);
     private List<IAvatar> list_3 = new List<IAvatar>(16);
-    private AvatarManager.Class56 class56_0 = new AvatarManager.Class56();
+    private Class56 class56_0 = new Class56();
     private ISceneState isceneState_0;
     private IManagerServiceProvider imanagerServiceProvider_0;
-    private IGraphicsDeviceService igraphicsDeviceService_0;
-    private FogEffect fogEffect_0;
+      private FogEffect fogEffect_0;
     private Class10 class10_0;
 
     /// <summary>
     /// Gets the manager specific Type used as a unique key for storing and
     /// requesting the manager from the IManagerServiceProvider.
     /// </summary>
-    public Type ManagerType
-    {
-      get
-      {
-        return SceneInterface.AvatarManagerType;
-      }
-    }
+    public Type ManagerType => SceneInterface.AvatarManagerType;
 
-    /// <summary>
+      /// <summary>
     /// Sets the order this manager is processed relative to other managers
     /// in the IManagerServiceProvider. Managers with lower processing order
     /// values are processed first.
@@ -61,71 +51,35 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// EndFrameRendering is processed in reverse order (highest to lowest) to ensure
     /// the first manager begun is the last one ended (FILO).
     /// </summary>
-    public int ManagerProcessOrder
-    {
-      get
-      {
-        return this.int_0;
-      }
-      set
-      {
-        this.int_0 = value;
-      }
-    }
+    public int ManagerProcessOrder { get; set; } = 70;
 
-    /// <summary>
+      /// <summary>
     /// The current GraphicsDeviceManager used by this object.
     /// </summary>
-    public IGraphicsDeviceService GraphicsDeviceManager
-    {
-      get
-      {
-        return this.igraphicsDeviceService_0;
-      }
-    }
+    public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-    /// <summary>
+      /// <summary>
     /// Controls avatar lighting by blending between approximate directional
     /// and ambient lighting.  A blending value of 0.0f makes avatar lighting
     /// highly directional, while a value of 1.0f makes avatar lighting highly
     /// ambient.
     /// </summary>
-    public float AmbientBlend
-    {
-      get
-      {
-        return this.float_0;
-      }
-      set
-      {
-        this.float_0 = value;
-      }
-    }
+    public float AmbientBlend { get; set; } = 0.55f;
 
-    /// <summary>
+      /// <summary>
     /// Controls avatar lighting intensity, providing a means to tune avatar
     /// lighting to the rest of the scene. An intensity of 1.0f keeps
     /// avatar lighting the same, a value of 0.5f halves the lighting
     /// intensity, while 2.0f doubles it.
     /// </summary>
-    public float LightingIntensity
-    {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        this.float_1 = value;
-      }
-    }
+    public float LightingIntensity { get; set; } = 1f;
 
-    /// <summary>Creates a new AvatarManager instance.</summary>
+      /// <summary>Creates a new AvatarManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     /// <param name="sceneinterface">Service provider used to access all other manager services in this scene.</param>
     public AvatarManager(IGraphicsDeviceService graphicsdevicemanager, IManagerServiceProvider sceneinterface)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
       this.imanagerServiceProvider_0 = sceneinterface;
     }
 
@@ -273,13 +227,13 @@ namespace SynapseGaming.LightingSystem.Rendering
       }
       if (this.list_3.Count < 1 || !(shadoweffect is IRenderableEffect) || !(shadoweffect is ISkinnedEffect))
         return;
-      GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
+      GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
       IRenderableEffect renderableEffect = shadoweffect as IRenderableEffect;
       ISkinnedEffect skinnedEffect = shadoweffect as ISkinnedEffect;
       if (this.class10_0 == null)
         this.class10_0 = new Class10(graphicsDevice);
       skinnedEffect.Skinned = false;
-      EffectHelper.SyncObjectAndShadowEffects((Effect) this.class10_0.DefaultEffect, shadoweffect);
+      EffectHelper.SyncObjectAndShadowEffects(this.class10_0.DefaultEffect, shadoweffect);
       graphicsDevice.RenderState.StencilEnable = true;
       graphicsDevice.RenderState.ReferenceStencil = 0;
       graphicsDevice.RenderState.StencilFail = StencilOperation.Keep;
@@ -308,7 +262,7 @@ namespace SynapseGaming.LightingSystem.Rendering
           graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.All;
           graphicsDevice.RenderState.CullMode = CullMode.None;
           renderableEffect.World = this.class10_0.method_0(avatar.WorldBoundingBoxProxy);
-          skinnedEffect.SkinBones = (Matrix[]) null;
+          skinnedEffect.SkinBones = null;
           shadoweffect.Begin();
           shadoweffect.CurrentTechnique.Passes[0].Begin();
           this.class10_0.method_1();
@@ -343,7 +297,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
       if (this.list_1.Count < 1)
         return;
-      GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
+      GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
       ILightManager manager = (ILightManager) this.imanagerServiceProvider_0.GetManager(SceneInterface.LightManagerType, false);
       bool fogEnabled;
       if (fogEnabled = this.isceneState_0.Environment.FogEnabled)
@@ -378,13 +332,13 @@ namespace SynapseGaming.LightingSystem.Rendering
           float num2 = visibleDistance + worldBoundingSphere.Radius;
           float result;
           Vector3.DistanceSquared(ref translation, ref worldBoundingSphere.Center, out result);
-          if ((double) result <= (double) num2 * (double) num2)
+          if (result <= num2 * (double) num2)
           {
             bool flag = false;
             if (fogEnabled)
             {
               float num3 = fogStartDistance - worldBoundingSphere.Radius;
-              flag = (double) result > (double) num3 * (double) num3;
+              flag = result > num3 * (double) num3;
             }
             if (fogEnabled)
             {
@@ -398,10 +352,10 @@ namespace SynapseGaming.LightingSystem.Rendering
             renderer.Projection = this.isceneState_0.Projection;
             if (manager != null)
             {
-              CompositeLighting compositeLighting = manager.GetCompositeLighting(avatar.WorldBoundingBox, this.float_0);
-              renderer.LightColor = compositeLighting.DiffuseColor * this.float_1;
+              CompositeLighting compositeLighting = manager.GetCompositeLighting(avatar.WorldBoundingBox, this.AmbientBlend);
+              renderer.LightColor = compositeLighting.DiffuseColor * this.LightingIntensity;
               renderer.LightDirection = compositeLighting.Direction;
-              renderer.AmbientLightColor = compositeLighting.AmbientColor * this.float_1;
+              renderer.AmbientLightColor = compositeLighting.AmbientColor * this.LightingIntensity;
             }
             else
             {
@@ -455,8 +409,8 @@ namespace SynapseGaming.LightingSystem.Rendering
     public void Unload()
     {
       this.Clear();
-      Disposable.Free<Class10>(ref this.class10_0);
-      Disposable.Free<FogEffect>(ref this.fogEffect_0);
+      Disposable.Free(ref this.class10_0);
+      Disposable.Free(ref this.fogEffect_0);
     }
 
     private class Class56

@@ -4,12 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns6;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -18,7 +18,7 @@ namespace SynapseGaming.LightingSystem.Rendering
   /// </summary>
   public class HighDynamicRangePostProcessor : BaseRenderTargetPostProcessor
   {
-    private List<HighDynamicRangePostProcessor.Class60> list_0 = new List<HighDynamicRangePostProcessor.Class60>(16);
+    private List<Class60> list_0 = new List<Class60>(16);
     private RenderTarget2D[] renderTarget2D_3 = new RenderTarget2D[2];
     private SurfaceFormat[] surfaceFormat_0 = new SurfaceFormat[3]{ SurfaceFormat.HalfVector4, SurfaceFormat.Rgba64, SurfaceFormat.Vector4 };
     private DetailPreference detailPreference_0;
@@ -37,27 +37,15 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <summary>
     /// Render target formats supported by the post processor.
     /// </summary>
-    public override SurfaceFormat[] SupportedTargetFormats
-    {
-      get
-      {
-        return this.surfaceFormat_0;
-      }
-    }
+    public override SurfaceFormat[] SupportedTargetFormats => this.surfaceFormat_0;
 
-    /// <summary>
+      /// <summary>
     /// Source texture formats supported by the post processor. Source textures are
     /// provided by the previous post processor in the processing chain.
     /// </summary>
-    public override SurfaceFormat[] SupportedSourceFormats
-    {
-      get
-      {
-        return this.surfaceFormat_0;
-      }
-    }
+    public override SurfaceFormat[] SupportedSourceFormats => this.surfaceFormat_0;
 
-    /// <summary>Creates a HighDynamicRangePostProcessor instance.</summary>
+      /// <summary>Creates a HighDynamicRangePostProcessor instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     /// <param name="uselowdynamicrange">Determines if the post processor uses high range floating point render
     /// targets or faster lower range integer targets.  Xbox 360 does not support blended floating point targets
@@ -118,7 +106,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         width = Math.Max(width / 2, 1);
         height = Math.Max(height / 2, 1);
         if (width > 1 || height > 1)
-          this.list_0.Add(new HighDynamicRangePostProcessor.Class60()
+          this.list_0.Add(new Class60
           {
             fullFrameQuad_0 = new FullFrameQuad(graphicsDevice, width, height),
             renderTarget2D_0 = new RenderTarget2D(graphicsDevice, width, height, 1, format, multiSampleType, multiSampleQuality, LightingSystemManager.Instance.GetBestRenderTargetUsage())
@@ -143,19 +131,19 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public override void Unload()
     {
-      this.renderTarget2D_4 = (RenderTarget2D) null;
-      this.renderTarget2D_5 = (RenderTarget2D) null;
-      Disposable.Free<FullFrameQuad>(ref this.fullFrameQuad_1);
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_3[0]);
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_3[1]);
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_2);
-      Disposable.Free<FullFrameQuad>(ref this.fullFrameQuad_0);
-      Disposable.Free<Class44>(ref this.class44_0);
-      Disposable.Free<Class40>(ref this.class40_0);
-      Disposable.Free<Class39>(ref this.class39_0);
-      Disposable.Free<Class43>(ref this.class43_0);
-      Disposable.Free<Class41>(ref this.class41_0);
-      Disposable.Free<Class42>(ref this.class42_0);
+      this.renderTarget2D_4 = null;
+      this.renderTarget2D_5 = null;
+      Disposable.Free(ref this.fullFrameQuad_1);
+      Disposable.Free(ref this.renderTarget2D_3[0]);
+      Disposable.Free(ref this.renderTarget2D_3[1]);
+      Disposable.Free(ref this.renderTarget2D_2);
+      Disposable.Free(ref this.fullFrameQuad_0);
+      Disposable.Free(ref this.class44_0);
+      Disposable.Free(ref this.class40_0);
+      Disposable.Free(ref this.class39_0);
+      Disposable.Free(ref this.class43_0);
+      Disposable.Free(ref this.class41_0);
+      Disposable.Free(ref this.class42_0);
       for (int index = 0; index < this.list_0.Count; ++index)
       {
         this.list_0[index].fullFrameQuad_0.Dispose();
@@ -191,13 +179,13 @@ namespace SynapseGaming.LightingSystem.Rendering
       this.class43_0.ExposureAmount = this.SceneState.Environment.ExposureAmount;
       this.class43_0.TransitionMaxScale = this.SceneState.Environment.DynamicRangeTransitionMaxScale;
       this.class43_0.TransitionMinScale = this.SceneState.Environment.DynamicRangeTransitionMinScale;
-      Texture2D texture2D1 = (Texture2D) null;
+      Texture2D texture2D1 = null;
       RenderTarget2D renderTarget2D = this.ProcessorRenderTarget;
       for (int index = 0; index < this.list_0.Count; ++index)
       {
-        HighDynamicRangePostProcessor.Class60 class60 = this.list_0[index];
+        Class60 class60 = this.list_0[index];
         graphicsDevice.SetRenderTarget(0, class60.renderTarget2D_0);
-        Class39 class39 = index != 0 ? (index != 1 ? this.class39_0 : (Class39) this.class41_0) : (Class39) this.class43_0;
+        Class39 class39 = index != 0 ? (index != 1 ? this.class39_0 : this.class41_0) : this.class43_0;
         if (texture2D1 == null)
         {
           texture2D1 = renderTarget2D.GetTexture();
@@ -205,23 +193,23 @@ namespace SynapseGaming.LightingSystem.Rendering
         }
         else
           class39.SourceTexture = renderTarget2D.GetTexture();
-        class60.fullFrameQuad_0.Render((Effect) class39);
-        graphicsDevice.SetRenderTarget(0, (RenderTarget2D) null);
+        class60.fullFrameQuad_0.Render(class39);
+        graphicsDevice.SetRenderTarget(0, null);
         renderTarget2D = this.list_0[index].renderTarget2D_0;
       }
-      Texture2D texture2D2 = (Texture2D) null;
+      Texture2D texture2D2 = null;
       if (this.detailPreference_0 != DetailPreference.Off)
       {
-        HighDynamicRangePostProcessor.Class60 class60 = this.list_0[0];
+        Class60 class60 = this.list_0[0];
         graphicsDevice.SetRenderTarget(0, this.renderTarget2D_2);
         this.class40_0.BloomDetail = this.detailPreference_0;
         this.class40_0.SourceTexture = class60.renderTarget2D_0.GetTexture();
         this.class40_0.BlurKernel = Class40.interface4_0;
-        class60.fullFrameQuad_0.Render((Effect) this.class40_0);
+        class60.fullFrameQuad_0.Render(this.class40_0);
         graphicsDevice.SetRenderTarget(0, class60.renderTarget2D_0);
         this.class40_0.SourceTexture = this.renderTarget2D_2.GetTexture();
         this.class40_0.BlurKernel = Class40.interface4_1;
-        class60.fullFrameQuad_0.Render((Effect) this.class40_0);
+        class60.fullFrameQuad_0.Render(this.class40_0);
         graphicsDevice.SetRenderTarget(0, this.renderTarget2D_4);
         texture2D2 = class60.renderTarget2D_0.GetTexture();
       }
@@ -230,7 +218,7 @@ namespace SynapseGaming.LightingSystem.Rendering
       this.class42_0.IntensityBlend = (float) this.SceneState.GameTime.ElapsedRealTime.TotalSeconds / this.SceneState.Environment.DynamicRangeTransitionTime;
       this.class42_0.IntensityTexture = texture;
       this.class42_0.SourceTexture = renderTarget2D.GetTexture();
-      this.fullFrameQuad_1.Render((Effect) this.class42_0);
+      this.fullFrameQuad_1.Render(this.class42_0);
       graphicsDevice.SetRenderTarget(0, this.PreviousRenderTarget);
       graphicsDevice.Viewport = this.PreviousViewport;
       this.class44_0.BloomAmount = this.SceneState.Environment.BloomAmount;
@@ -240,7 +228,7 @@ namespace SynapseGaming.LightingSystem.Rendering
       this.class44_0.ExposureAmount = this.SceneState.Environment.ExposureAmount;
       this.class44_0.TransitionMaxScale = this.SceneState.Environment.DynamicRangeTransitionMaxScale;
       this.class44_0.TransitionMinScale = this.SceneState.Environment.DynamicRangeTransitionMinScale;
-      this.fullFrameQuad_0.Render((Effect) this.class44_0);
+      this.fullFrameQuad_0.Render(this.class44_0);
       RenderTarget2D renderTarget2D4 = this.renderTarget2D_4;
       this.renderTarget2D_4 = this.renderTarget2D_5;
       this.renderTarget2D_5 = renderTarget2D4;

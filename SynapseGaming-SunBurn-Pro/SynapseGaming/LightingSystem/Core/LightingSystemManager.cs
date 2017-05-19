@@ -4,15 +4,14 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using ns11;
 using ns6;
-using System;
-using System.Diagnostics;
-using System.IO;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -49,7 +48,7 @@ namespace SynapseGaming.LightingSystem.Core
 
         private IServiceProvider iserviceProvider_0;
 
-        private LightingSystemManager.Class15 class15_0;
+        private Class15 class15_0;
 
 
 
@@ -57,9 +56,9 @@ namespace SynapseGaming.LightingSystem.Core
         {
             get
             {
-                if (LightingSystemManager.lightingSystemManager_0 == null)
+                if (lightingSystemManager_0 == null)
                     throw new ArgumentException("LightingSystemManager unavailable, please create an instance of the manager before using this object.");
-                return LightingSystemManager.lightingSystemManager_0;
+                return lightingSystemManager_0;
             }
         }
 
@@ -88,9 +87,9 @@ namespace SynapseGaming.LightingSystem.Core
 
         public LightingSystemManager(IServiceProvider service)
         {
-            LightingSystemManager.lightingSystemManager_0 = this;
+            lightingSystemManager_0 = this;
             this.iserviceProvider_0 = service;
-            this.class15_0 = new LightingSystemManager.Class15(service);
+            this.class15_0 = new Class15(service);
         }
 
         /// <summary>Cleans up a deleted LightingSystemManager instance.</summary>
@@ -98,9 +97,9 @@ namespace SynapseGaming.LightingSystem.Core
         ~LightingSystemManager()
         {
             this.Unload();
-            if (LightingSystemManager.lightingSystemManager_0 != this)
+            if (lightingSystemManager_0 != this)
                 return;
-            LightingSystemManager.lightingSystemManager_0 = (LightingSystemManager)null;
+            lightingSystemManager_0 = null;
         }
 
         /// <summary>
@@ -132,7 +131,7 @@ namespace SynapseGaming.LightingSystem.Core
             if (this.texture2D_1 == null)
             {
                 MemoryStream memoryStream = new MemoryStream(Class51.SplashScreen);
-                this.texture2D_1 = Texture2D.FromFile(graphicsDevice_0, (Stream)memoryStream);
+                this.texture2D_1 = Texture2D.FromFile(graphicsDevice_0, memoryStream);
                 memoryStream.Close();
                 memoryStream.Dispose();
             }
@@ -154,10 +153,10 @@ namespace SynapseGaming.LightingSystem.Core
                     {
                         for (int index3 = 1; index3 < 31; ++index3)
                         {
-                            Vector3 vector3_2 = new Vector3((float)index1, (float)index2, (float)index3);
+                            Vector3 vector3_2 = new Vector3(index1, index2, index3);
                             vector3_2 -= vector3_1;
-                            float num3 = (float)((1.0 - (double)vector3_2.LengthSquared() * (double)num1) * (double)byte.MaxValue);
-                            if ((double)num3 >= 1.0)
+                            float num3 = (float)((1.0 - vector3_2.LengthSquared() * (double)num1) * byte.MaxValue);
+                            if (num3 >= 1.0)
                             {
                                 int index4 = index1 + index2 * 32 + index3 * 32 * 32;
                                 data[index4] = (double)num3 <= (double)byte.MaxValue ? (byte)num3 : byte.MaxValue;
@@ -165,7 +164,7 @@ namespace SynapseGaming.LightingSystem.Core
                         }
                     }
                 }
-                this.texture3D_0.SetData<byte>(data);
+                this.texture3D_0.SetData(data);
             }
             return this.texture3D_0;
         }
@@ -199,7 +198,7 @@ namespace SynapseGaming.LightingSystem.Core
                             data[0] = new Vector4(0.0f, 0.0f, -1f, 5f);
                             break;
                     }
-                    this.textureCube_0.SetData<Vector4>((CubeMapFace)index, data);
+                    this.textureCube_0.SetData((CubeMapFace)index, data);
                 }
             }
             return this.textureCube_0;
@@ -212,7 +211,7 @@ namespace SynapseGaming.LightingSystem.Core
                 this.textureCube_1 = new TextureCube(graphicsDevice_0, 256, 1, TextureUsage.None, SurfaceFormat.Rgba64);
                 Short4[] data = new Short4[this.textureCube_1.Size * this.textureCube_1.Size];
                 int size = this.textureCube_1.Size;
-                float num1 = 1f / (float)(this.textureCube_1.Size - 1);
+                float num1 = 1f / (this.textureCube_1.Size - 1);
                 Vector3[] vector3Array1 = new Vector3[6] { new Vector3(1f, 0.0f, 0.0f), new Vector3(-1f, 0.0f, 0.0f), new Vector3(0.0f, 1f, 0.0f), new Vector3(0.0f, -1f, 0.0f), new Vector3(0.0f, 0.0f, 1f), new Vector3(0.0f, 0.0f, -1f) };
                 Vector3[] vector3Array2 = new Vector3[6] { new Vector3(0.0f, 0.0f, -1f), new Vector3(0.0f, 0.0f, 1f), new Vector3(1f, 0.0f, 0.0f), new Vector3(1f, 0.0f, 0.0f), new Vector3(1f, 0.0f, 0.0f), new Vector3(-1f, 0.0f, 0.0f) };
                 Vector3[] vector3Array3 = new Vector3[6] { new Vector3(0.0f, -1f, 0.0f), new Vector3(0.0f, -1f, 0.0f), new Vector3(0.0f, 0.0f, 1f), new Vector3(0.0f, 0.0f, -1f), new Vector3(0.0f, -1f, 0.0f), new Vector3(0.0f, -1f, 0.0f) };
@@ -222,7 +221,7 @@ namespace SynapseGaming.LightingSystem.Core
                     {
                         for (int index3 = 0; index3 < size; ++index3)
                         {
-                            Vector3 vector3 = vector3Array1[index1] + (float)((double)index3 * (double)num1 * 2.0 - 1.0) * vector3Array2[index1] + (float)((double)index2 * (double)num1 * 2.0 - 1.0) * vector3Array3[index1];
+                            Vector3 vector3 = vector3Array1[index1] + (float)(index3 * (double)num1 * 2.0 - 1.0) * vector3Array2[index1] + (float)(index2 * (double)num1 * 2.0 - 1.0) * vector3Array3[index1];
                             vector3.Normalize();
                             float num2;
                             float num3;
@@ -260,12 +259,12 @@ namespace SynapseGaming.LightingSystem.Core
                                     num4 = vector3.Y;
                                     break;
                             }
-                            vector3.X = MathHelper.Clamp((float)((double)num3 / (double)num2 * 0.5 + 0.5), 0.0f, 1f);
-                            vector3.Y = MathHelper.Clamp((float)((double)num4 / (double)num2 * 0.5 + 0.5), 0.0f, 1f);
-                            data[index2 * size + index3] = new Short4((float)(short)((double)vector3.X * (double)ushort.MaxValue + 0.5), (float)(short)((double)vector3.Y * (double)ushort.MaxValue + 0.5), (float)(short)((double)vector3.Z * (double)ushort.MaxValue + 0.5), 0.0f);
+                            vector3.X = MathHelper.Clamp((float)(num3 / (double)num2 * 0.5 + 0.5), 0.0f, 1f);
+                            vector3.Y = MathHelper.Clamp((float)(num4 / (double)num2 * 0.5 + 0.5), 0.0f, 1f);
+                            data[index2 * size + index3] = new Short4((short)(vector3.X * (double)ushort.MaxValue + 0.5), (short)(vector3.Y * (double)ushort.MaxValue + 0.5), (short)(vector3.Z * (double)ushort.MaxValue + 0.5), 0.0f);
                         }
                     }
-                    this.textureCube_1.SetData<Short4>((CubeMapFace)index1, data);
+                    this.textureCube_1.SetData((CubeMapFace)index1, data);
                 }
             }
             return this.textureCube_1;
@@ -277,30 +276,30 @@ namespace SynapseGaming.LightingSystem.Core
             {
                 this.texture2D_0 = new Texture2D(graphicsDevice_0, 64, 256, 0, TextureUsage.AutoGenerateMipMap, SurfaceFormat.Luminance16);
                 ushort[] data = new ushort[this.texture2D_0.Width * this.texture2D_0.Height];
-                float num1 = 1f / (float)(this.texture2D_0.Width - 1);
-                float num2 = 1f / (float)(this.texture2D_0.Height - 1);
+                float num1 = 1f / (this.texture2D_0.Width - 1);
+                float num2 = 1f / (this.texture2D_0.Height - 1);
                 int num3 = 0;
                 for (int index1 = 0; index1 < this.texture2D_0.Height; ++index1)
                 {
                     for (int index2 = 0; index2 < this.texture2D_0.Width; ++index2)
                     {
-                        float num4 = (float)index2 * num1;
-                        float num5 = (float)index1 * num2;
+                        float num4 = index2 * num1;
+                        float num5 = index1 * num2;
                         float num6 = num4 * num4;
                         float num7 = num5 * num5;
                         float num8 = 12.56637f * num6 * num7 * num7;
-                        if ((double)num8 == 0.0)
+                        if (num8 == 0.0)
                             num8 = 1E-07f;
                         float num9 = 1f / num8;
                         float num10 = num6 * num7;
-                        if ((double)num10 == 0.0)
+                        if (num10 == 0.0)
                             num10 = 1E-07f;
                         float num11 = (num7 - 1f) / num10;
-                        ushort num12 = (ushort)((double)MathHelper.Clamp(num9 * (float)Math.Exp((double)num11), 0.0f, 1f) * (double)ushort.MaxValue);
+                        ushort num12 = (ushort)(MathHelper.Clamp(num9 * (float)Math.Exp(num11), 0.0f, 1f) * (double)ushort.MaxValue);
                         data[num3++] = num12;
                     }
                 }
-                this.texture2D_0.SetData<ushort>(data);
+                this.texture2D_0.SetData(data);
             }
             return this.texture2D_0;
         }
@@ -347,15 +346,15 @@ namespace SynapseGaming.LightingSystem.Core
         public void Unload()
         {
             this.class15_0.method_0();
-            this.spriteFont_0 = (SpriteFont)null;
-            this.graphicsDeviceSupport_0 = (GraphicsDeviceSupport)null;
-            Disposable.Free<SpriteBatch>(ref this.spriteBatch_0);
-            Disposable.Free<Texture3D>(ref this.texture3D_0);
-            Disposable.Free<Texture2D>(ref this.texture2D_0);
-            Disposable.Free<Texture2D>(ref this.texture2D_1);
-            Disposable.Free<TextureCube>(ref this.textureCube_0);
-            Disposable.Free<TextureCube>(ref this.textureCube_1);
-            Disposable.Free<VertexDeclaration>(ref this.vertexDeclaration_0);
+            this.spriteFont_0 = null;
+            this.graphicsDeviceSupport_0 = null;
+            Disposable.Free(ref this.spriteBatch_0);
+            Disposable.Free(ref this.texture3D_0);
+            Disposable.Free(ref this.texture2D_0);
+            Disposable.Free(ref this.texture2D_1);
+            Disposable.Free(ref this.textureCube_0);
+            Disposable.Free(ref this.textureCube_1);
+            Disposable.Free(ref this.vertexDeclaration_0);
         }
 
         private class Class15
@@ -368,7 +367,7 @@ namespace SynapseGaming.LightingSystem.Core
                 get
                 {
                     if (this.resourceContentManager_0 == null)
-                        this.resourceContentManager_0 = new ResourceContentManager(this.iserviceProvider_0, LightingSystemManager.ResourceManager);
+                        this.resourceContentManager_0 = new ResourceContentManager(this.iserviceProvider_0, ResourceManager);
                     return this.resourceContentManager_0;
                 }
             }
@@ -383,7 +382,7 @@ namespace SynapseGaming.LightingSystem.Core
                 if (this.resourceContentManager_0 == null)
                     return;
                 this.resourceContentManager_0.Dispose();
-                this.resourceContentManager_0 = (ResourceContentManager)null;
+                this.resourceContentManager_0 = null;
             }
         }
     }

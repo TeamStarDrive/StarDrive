@@ -11,7 +11,7 @@ namespace ns9
 {
   internal class Class65
   {
-    protected Class65.Class66 Statistics = new Class65.Class66();
+    protected Class66 Statistics = new Class66();
     private bool bool_0 = true;
     private TextureAddressMode textureAddressMode_0;
     private TextureAddressMode textureAddressMode_1;
@@ -33,7 +33,7 @@ namespace ns9
       if (!flag1)
         flag1 = this.textureAddressMode_0 != textureAddressMode_3 || this.textureAddressMode_1 != textureAddressMode_4;
       if (!flag2)
-        flag2 = this.textureFilter_0 != textureFilter_3 || this.textureFilter_1 != textureFilter_4 || this.textureFilter_2 != textureFilter_5 || (double) this.float_0 != (double) float_1;
+        flag2 = this.textureFilter_0 != textureFilter_3 || this.textureFilter_1 != textureFilter_4 || this.textureFilter_2 != textureFilter_5 || this.float_0 != (double) float_1;
       this.textureAddressMode_0 = textureAddressMode_3;
       this.textureAddressMode_1 = textureAddressMode_4;
       this.textureAddressMode_2 = textureAddressMode_5;

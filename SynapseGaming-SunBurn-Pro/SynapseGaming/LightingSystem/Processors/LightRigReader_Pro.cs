@@ -20,7 +20,7 @@ namespace SynapseGaming.LightingSystem.Processors
       lightRig.LightRigFile = input.ReadString();
       lightRig.ProjectFile = input.ReadString();
       lightRig.method_1(input.ReadString());
-      Class55.smethod_0(input);
+      BlockUtil.SkipBlock(input);
       return lightRig;
     }
   }

@@ -12,12 +12,12 @@ namespace ns9
 {
   internal class Class67
   {
-    protected Class67.Class68 Statistics = new Class67.Class68();
+    protected Class68 Statistics = new Class68();
     private RenderableMesh renderableMesh_0;
 
     public void method_0()
     {
-      this.renderableMesh_0 = (RenderableMesh) null;
+      this.renderableMesh_0 = null;
     }
 
     public void method_1(GraphicsDevice graphicsDevice_0, RenderableMesh renderableMesh_1)

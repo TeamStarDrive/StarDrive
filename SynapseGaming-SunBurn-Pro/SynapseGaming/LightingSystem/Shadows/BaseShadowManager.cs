@@ -4,12 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using SynapseGaming.LightingSystem.Rendering;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -21,35 +19,21 @@ namespace SynapseGaming.LightingSystem.Shadows
     private static ShadowGroup shadowGroup_0 = new ShadowGroup();
     private static ShadowGroup shadowGroup_1 = new ShadowGroup();
     private static Dictionary<IShadowSource, ShadowGroup> dictionary_0 = new Dictionary<IShadowSource, ShadowGroup>(32);
-    private ISceneState isceneState_0 = (ISceneState) new SynapseGaming.LightingSystem.Core.SceneState();
-    private TrackingPool<ShadowGroup> TrackingPool0 = new TrackingPool<ShadowGroup>();
-    private IGraphicsDeviceService igraphicsDeviceService_0;
+      private TrackingPool<ShadowGroup> TrackingPool0 = new TrackingPool<ShadowGroup>();
 
-    /// <summary>
+      /// <summary>
     /// The current GraphicsDeviceManager used by this object.
     /// </summary>
-    public IGraphicsDeviceService GraphicsDeviceManager
-    {
-      get
-      {
-        return this.igraphicsDeviceService_0;
-      }
-    }
+    public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-    /// <summary>The current SceneState used by this object.</summary>
-    protected ISceneState SceneState
-    {
-      get
-      {
-        return this.isceneState_0;
-      }
-    }
+      /// <summary>The current SceneState used by this object.</summary>
+    protected ISceneState SceneState { get; private set; } = (ISceneState) new SceneState();
 
-    /// <summary>Creates a new BaseShadowManager instance.</summary>
+      /// <summary>Creates a new BaseShadowManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     public BaseShadowManager(IGraphicsDeviceService graphicsdevicemanager)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
     }
 
     /// <summary>
@@ -66,7 +50,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     public virtual void BeginFrameRendering(ISceneState scenestate)
     {
       //SplashScreen.CheckProductActivation();
-      this.isceneState_0 = scenestate;
+      this.SceneState = scenestate;
     }
 
     /// <summary>Cleans up frame information.</summary>
@@ -85,47 +69,47 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// single default group (recommended: true for deferred rendering and false for forward).</param>
     protected void BuildShadowGroups(List<ShadowGroup> shadowgroups, List<ILight> lights, bool usedefaultgrouping)
     {
-      BaseShadowManager.dictionary_0.Clear();
-      BaseShadowManager.shadowSource_0.ShadowType = ShadowType.None;
-      BaseShadowManager.shadowGroup_0.Shadow = (IShadow) null;
-      BaseShadowManager.shadowGroup_0.Lights.Clear();
-      BaseShadowManager.dictionary_0.Add((IShadowSource) BaseShadowManager.shadowSource_0, BaseShadowManager.shadowGroup_0);
-      BaseShadowManager.directionalLight_0.ShadowType = ShadowType.None;
-      BaseShadowManager.shadowGroup_1.Shadow = (IShadow) null;
-      BaseShadowManager.shadowGroup_1.Lights.Clear();
-      BaseShadowManager.dictionary_0.Add((IShadowSource) BaseShadowManager.directionalLight_0, BaseShadowManager.shadowGroup_1);
+      dictionary_0.Clear();
+      shadowSource_0.ShadowType = ShadowType.None;
+      shadowGroup_0.Shadow = null;
+      shadowGroup_0.Lights.Clear();
+      dictionary_0.Add(shadowSource_0, shadowGroup_0);
+      directionalLight_0.ShadowType = ShadowType.None;
+      shadowGroup_1.Shadow = null;
+      shadowGroup_1.Lights.Clear();
+      dictionary_0.Add(directionalLight_0, shadowGroup_1);
       foreach (ILight light in lights)
       {
         IShadowSource shadowSource = light.ShadowSource;
         if (usedefaultgrouping && (shadowSource == null || light == shadowSource && shadowSource.ShadowType == ShadowType.None))
         {
           if (light is IPointSource)
-            BaseShadowManager.shadowGroup_0.Lights.Add(light);
+            shadowGroup_0.Lights.Add(light);
           else
-            BaseShadowManager.shadowGroup_1.Lights.Add(light);
+            shadowGroup_1.Lights.Add(light);
         }
         else
         {
           ShadowGroup shadowGroup;
-          if (!BaseShadowManager.dictionary_0.TryGetValue(shadowSource, out shadowGroup))
+          if (!dictionary_0.TryGetValue(shadowSource, out shadowGroup))
           {
             shadowGroup = this.TrackingPool0.New();
-            shadowGroup.Shadow = (IShadow) null;
+            shadowGroup.Shadow = null;
             shadowGroup.Lights.Clear();
-            BaseShadowManager.dictionary_0.Add(shadowSource, shadowGroup);
+            dictionary_0.Add(shadowSource, shadowGroup);
           }
           shadowGroup.Lights.Add(light);
         }
       }
-      if (BaseShadowManager.shadowGroup_1.Lights.Count <= 0)
-        BaseShadowManager.dictionary_0.Remove((IShadowSource) BaseShadowManager.directionalLight_0);
-      if (BaseShadowManager.shadowGroup_0.Lights.Count <= 0)
-        BaseShadowManager.dictionary_0.Remove((IShadowSource) BaseShadowManager.shadowSource_0);
+      if (shadowGroup_1.Lights.Count <= 0)
+        dictionary_0.Remove(directionalLight_0);
+      if (shadowGroup_0.Lights.Count <= 0)
+        dictionary_0.Remove(shadowSource_0);
       else
-        BaseShadowManager.shadowSource_0.Position = (BaseShadowManager.shadowGroup_0.Lights[0] as IPointSource).Position;
-      foreach (KeyValuePair<IShadowSource, ShadowGroup> keyValuePair in BaseShadowManager.dictionary_0)
+        shadowSource_0.Position = (shadowGroup_0.Lights[0] as IPointSource).Position;
+      foreach (KeyValuePair<IShadowSource, ShadowGroup> keyValuePair in dictionary_0)
       {
-        keyValuePair.Value.Build(keyValuePair.Key, this.isceneState_0);
+        keyValuePair.Value.Build(keyValuePair.Key, this.SceneState);
         shadowgroups.Add(keyValuePair.Value);
       }
     }

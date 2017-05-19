@@ -4,9 +4,9 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Text;
 
 namespace ns3
 {
@@ -78,45 +78,45 @@ namespace ns3
 
     public Vector2 method_1(SpriteBatch spriteBatch_0, SpriteFont spriteFont_0, ref Vector2 vector2_0, Vector2 vector2_1, Color color_0)
     {
-      spriteBatch_0.DrawString(spriteFont_0, Class16.stringBuilder_0, vector2_0, color_0, 0.0f, Vector2.Zero, vector2_1, SpriteEffects.None, 0.0f);
+      spriteBatch_0.DrawString(spriteFont_0, stringBuilder_0, vector2_0, color_0, 0.0f, Vector2.Zero, vector2_1, SpriteEffects.None, 0.0f);
       vector2_0.Y = vector2_0.Y + 15f * vector2_1.Y;
-      return spriteFont_0.MeasureString(Class16.stringBuilder_0) * vector2_1;
+      return spriteFont_0.MeasureString(stringBuilder_0) * vector2_1;
     }
 
     public void method_2(string string_0, int int_1)
     {
-      Class16.stringBuilder_0.Length = 0;
-      Class16.stringBuilder_0.Append(string_0);
-      Class16.stringBuilder_0.Append(": ");
-      this.method_0(Class16.stringBuilder_0, int_1, 0);
+      stringBuilder_0.Length = 0;
+      stringBuilder_0.Append(string_0);
+      stringBuilder_0.Append(": ");
+      this.method_0(stringBuilder_0, int_1, 0);
     }
 
     private void method_3(string string_0, float float_1)
     {
-      Class16.stringBuilder_0.Length = 0;
-      Class16.stringBuilder_0.Append(string_0);
-      Class16.stringBuilder_0.Append(": ");
-      this.method_0(Class16.stringBuilder_0, (int) ((double) float_1 * 100.0), 2);
+      stringBuilder_0.Length = 0;
+      stringBuilder_0.Append(string_0);
+      stringBuilder_0.Append(": ");
+      this.method_0(stringBuilder_0, (int) (float_1 * 100.0), 2);
     }
 
     public void method_4(string string_0, GameTime gameTime_0, bool bool_0)
     {
       double totalSeconds = gameTime_0.TotalRealTime.TotalSeconds;
-      if (totalSeconds - Class16.double_0 >= 0.5)
+      if (totalSeconds - double_0 >= 0.5)
       {
-        Class16.float_0 = (float) Class16.int_0 / (float) (totalSeconds - Class16.double_0);
-        Class16.int_0 = 0;
-        Class16.double_0 = totalSeconds;
+        float_0 = int_0 / (float) (totalSeconds - double_0);
+        int_0 = 0;
+        double_0 = totalSeconds;
       }
-      this.method_3(string_0, Class16.float_0);
+      this.method_3(string_0, float_0);
       if (!bool_0)
         return;
-      ++Class16.int_0;
+      ++int_0;
     }
 
     public override string ToString()
     {
-      return Class16.stringBuilder_0.ToString();
+      return stringBuilder_0.ToString();
     }
   }
 }

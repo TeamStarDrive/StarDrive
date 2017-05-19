@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using SynapseGaming.LightingSystem.Core;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {

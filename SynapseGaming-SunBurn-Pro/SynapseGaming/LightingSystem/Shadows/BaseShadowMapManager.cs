@@ -4,14 +4,14 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -24,11 +24,9 @@ namespace SynapseGaming.LightingSystem.Shadows
     private static List<ShadowGroup> list_0 = new List<ShadowGroup>(128);
     private static List<Rectangle> list_1 = new List<Rectangle>();
     private static Dictionary<RenderTarget, ShadowRenderTargetGroup> dictionary_1 = new Dictionary<RenderTarget, ShadowRenderTargetGroup>();
-    private int int_3 = 40;
-    private float[] float_0 = new float[3]{ 0.2f, 0.53f, 1f };
-    private bool bool_0 = true;
+      private bool bool_0 = true;
     private float float_1 = 1f;
-    private BaseShadowMapManager.Enum9 enum9_0 = BaseShadowMapManager.Enum9.const_1;
+    private Enum9 enum9_0 = Enum9.const_1;
     private float float_2 = 1f;
     private DisposablePool<ShadowRenderTargetGroup> DisposablePool0 = new DisposablePool<ShadowRenderTargetGroup>();
     private const int int_0 = 67108864;
@@ -42,15 +40,9 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// Gets the manager specific Type used as a unique key for storing and
     /// requesting the manager from the IManagerServiceProvider.
     /// </summary>
-    public Type ManagerType
-    {
-      get
-      {
-        return SceneInterface.ShadowMapManagerType;
-      }
-    }
+    public Type ManagerType => SceneInterface.ShadowMapManagerType;
 
-    /// <summary>
+      /// <summary>
     /// Sets the order this manager is processed relative to other managers
     /// in the IManagerServiceProvider. Managers with lower processing order
     /// values are processed first.
@@ -60,44 +52,25 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// EndFrameRendering is processed in reverse order (highest to lowest) to ensure
     /// the first manager begun is the last one ended (FILO).
     /// </summary>
-    public int ManagerProcessOrder
-    {
-      get
-      {
-        return this.int_3;
-      }
-      set
-      {
-        this.int_3 = value;
-      }
-    }
+    public int ManagerProcessOrder { get; set; } = 40;
 
-    /// <summary>
+      /// <summary>
     /// Determines the transition range of each shadow level-of-detail. The range is normalized relative
     /// to the environment ShadowFadeEndDistance, for instance a value of 1.0 transitions at the
     /// ShadowFadeEndDistance whereas a value of 0.25 transitions at (ShadowFadeEndDistance * 0.25).
     /// Index 0 is the highest level of detail.
     /// </summary>
-    public float[] ShadowLODRangeHints
-    {
-      get
-      {
-        return this.float_0;
-      }
-    }
+    public float[] ShadowLODRangeHints { get; } = new float[3]{ 0.2f, 0.53f, 1f };
 
-    /// <summary>
+      /// <summary>
     /// True when smaller half-float format render targets are preferred. These
     /// formats consume less memory and generally perform better, but have lower
     /// accuracy on directional lights.
     /// </summary>
     public bool PreferHalfFloatTextureFormat
     {
-      get
-      {
-        return this.shadowMapCache_0.PreferHalfFloatTextureFormat;
-      }
-      set
+      get => this.shadowMapCache_0.PreferHalfFloatTextureFormat;
+          set
       {
         if (this.shadowMapCache_0.PreferHalfFloatTextureFormat == value)
           return;
@@ -111,11 +84,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public int MaxMemoryUsage
     {
-      get
-      {
-        return this.shadowMapCache_0.MaxMemoryUsage;
-      }
-      set
+      get => this.shadowMapCache_0.MaxMemoryUsage;
+        set
       {
         if (this.shadowMapCache_0.MaxMemoryUsage == value)
           return;
@@ -131,11 +101,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public int PageSize
     {
-      get
-      {
-        return this.shadowMapCache_0.PageSize;
-      }
-      set
+      get => this.shadowMapCache_0.PageSize;
+        set
       {
         if (this.shadowMapCache_0.PageSize == value)
           return;
@@ -143,15 +110,9 @@ namespace SynapseGaming.LightingSystem.Shadows
       }
     }
 
-    private int _MaxShadowLOD
-    {
-      get
-      {
-        return this.shadowMapCache_0.PageSize >> 1;
-      }
-    }
+    private int _MaxShadowLOD => this.shadowMapCache_0.PageSize >> 1;
 
-    /// <summary>Creates a new BaseShadowMapManager instance.</summary>
+      /// <summary>Creates a new BaseShadowMapManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     /// <param name="pagesize">Size in pixels of each render target (page) in the cache.
     /// For a size of 1024 the actual page dimensions are 1024x1024. Small sizes can reduce
@@ -238,13 +199,13 @@ namespace SynapseGaming.LightingSystem.Shadows
       if (this.renderTarget2D_0 == null)
         this.renderTarget2D_0 = new RenderTarget2D(graphicsDevice, 16, 16, 1, SurfaceFormat.Color);
       rendertargetgroups.Clear();
-      BaseShadowMapManager.list_0.Clear();
-      BaseShadowMapManager.dictionary_1.Clear();
-      this.BuildShadowGroups(BaseShadowMapManager.list_0, lights, usedefaultgrouping);
-      if (BaseShadowMapManager.list_0.Count < 1)
+      list_0.Clear();
+      dictionary_1.Clear();
+      this.BuildShadowGroups(list_0, lights, usedefaultgrouping);
+      if (list_0.Count < 1)
         return;
-      float num1 = (float) this._MaxShadowLOD * this.float_1 * this.float_2;
-      foreach (ShadowGroup shadowgroup in BaseShadowMapManager.list_0)
+      float num1 = this._MaxShadowLOD * this.float_1 * this.float_2;
+      foreach (ShadowGroup shadowgroup in list_0)
       {
         RenderTarget2D renderTarget2D = this.renderTarget2D_0;
         if (this.bool_0 && shadowgroup.ShadowSource.ShadowType != ShadowType.None)
@@ -258,7 +219,7 @@ namespace SynapseGaming.LightingSystem.Shadows
             shadowMap = this.CreateDirectionalShadowMap(shadowgroup.ShadowSource);
           else
             continue;
-          shadowMap.Build(graphicsDevice, this.SceneState, shadowgroup, (IShadowMapVisibility) this, this.float_1);
+          shadowMap.Build(graphicsDevice, this.SceneState, shadowgroup, this, this.float_1);
           if (shadowMap.CustomRenderTarget is RenderTarget2D)
           {
             renderTarget2D = shadowMap.CustomRenderTarget as RenderTarget2D;
@@ -271,19 +232,19 @@ namespace SynapseGaming.LightingSystem.Shadows
             do
             {
               bool flag = true;
-              BaseShadowMapManager.list_1.Clear();
+              list_1.Clear();
               foreach (ShadowMapSurface surface in shadowMap.Surfaces)
               {
-                int num4 = (int) MathHelper.Clamp((float) Math.Pow(2.0, (double) ((float) Math.Floor((double) CoreUtils.smethod_0(num3 * num2 * surface.LevelOfDetail) * 2.0) * 0.5f)), 32f, (float) this._MaxShadowLOD);
+                int num4 = (int) MathHelper.Clamp((float) Math.Pow(2.0, (float) Math.Floor(CoreUtils.smethod_0(num3 * num2 * surface.LevelOfDetail) * 2.0) * 0.5f), 32f, this._MaxShadowLOD);
                 rectangle.Width = num4;
                 rectangle.Height = num4;
-                BaseShadowMapManager.list_1.Add(rectangle);
+                list_1.Add(rectangle);
                 if (num4 > 32)
                   flag = false;
               }
-              renderTarget2D = this.shadowMapCache_0.ReserveSections(BaseShadowMapManager.list_1);
+              renderTarget2D = this.shadowMapCache_0.ReserveSections(list_1);
               if (renderTarget2D == null)
-                this.enum9_0 = BaseShadowMapManager.Enum9.const_0;
+                this.enum9_0 = Enum9.const_0;
               if (!flag)
                 num2 *= 0.5f;
               else
@@ -293,29 +254,29 @@ namespace SynapseGaming.LightingSystem.Shadows
             if (renderTarget2D != null)
             {
               for (int surface = 0; surface < shadowMap.Surfaces.Length; ++surface)
-                shadowMap.SetSurfaceRenderTargetLocation(surface, BaseShadowMapManager.list_1[surface]);
+                shadowMap.SetSurfaceRenderTargetLocation(surface, list_1[surface]);
             }
             else
               continue;
           }
-          shadowgroup.Shadow = (IShadow) shadowMap;
+          shadowgroup.Shadow = shadowMap;
         }
-        if (!BaseShadowMapManager.dictionary_1.ContainsKey((RenderTarget) renderTarget2D))
+        if (!dictionary_1.ContainsKey(renderTarget2D))
         {
           ShadowRenderTargetGroup renderTargetGroup = this.DisposablePool0.New();
           renderTargetGroup.ShadowGroups.Clear();
           renderTargetGroup.ShadowGroups.Add(shadowgroup);
-          BaseShadowMapManager.dictionary_1.Add((RenderTarget) renderTarget2D, renderTargetGroup);
+          dictionary_1.Add(renderTarget2D, renderTargetGroup);
         }
         else
-          BaseShadowMapManager.dictionary_1[(RenderTarget) renderTarget2D].ShadowGroups.Add(shadowgroup);
+          dictionary_1[renderTarget2D].ShadowGroups.Add(shadowgroup);
       }
-      foreach (KeyValuePair<RenderTarget, ShadowRenderTargetGroup> keyValuePair in BaseShadowMapManager.dictionary_1)
+      foreach (KeyValuePair<RenderTarget, ShadowRenderTargetGroup> keyValuePair in dictionary_1)
       {
         ShadowRenderTargetGroup renderTargetGroup = keyValuePair.Value;
         RenderTarget key = keyValuePair.Key;
         if (key == this.renderTarget2D_0)
-          renderTargetGroup.Build(graphicsDevice, (RenderTarget) null, this.shadowMapCache_0.DepthBuffer);
+          renderTargetGroup.Build(graphicsDevice, null, this.shadowMapCache_0.DepthBuffer);
         else
           renderTargetGroup.Build(graphicsDevice, key, this.shadowMapCache_0.DepthBuffer);
         rendertargetgroups.Add(renderTargetGroup);
@@ -337,15 +298,15 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public override void EndFrameRendering()
     {
-      if (this.enum9_0 == BaseShadowMapManager.Enum9.const_0)
+      if (this.enum9_0 == Enum9.const_0)
       {
         this.float_2 *= 0.75f;
-        this.enum9_0 = BaseShadowMapManager.Enum9.const_1;
+        this.enum9_0 = Enum9.const_1;
       }
-      else if ((double) this.float_2 < 1.0 && (this.enum9_0 == BaseShadowMapManager.Enum9.const_2 || shadowMapCache_0.method_1() < 0.330000013113022))
+      else if (this.float_2 < 1.0 && (this.enum9_0 == Enum9.const_2 || shadowMapCache_0.method_1() < 0.330000013113022))
       {
         this.float_2 = Math.Min(this.float_2 * 1.33f, 1f);
-        this.enum9_0 = BaseShadowMapManager.Enum9.const_2;
+        this.enum9_0 = Enum9.const_2;
       }
       this.shadowMapCache_0.ClearReserves();
       this.DisposablePool0.RecycleAllTracked();
@@ -372,7 +333,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     {
       const_0,
       const_1,
-      const_2,
+      const_2
     }
   }
 }

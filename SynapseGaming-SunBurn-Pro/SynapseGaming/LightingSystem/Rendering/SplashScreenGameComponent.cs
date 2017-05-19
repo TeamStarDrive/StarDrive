@@ -4,9 +4,9 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -28,14 +28,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public bool ShowDuringDevelopment
         {
-            get
-            {
-                return Splash.ShowDuringDevelopment;
-            }
-            set
-            {
-                Splash.ShowDuringDevelopment = value;
-            }
+            get => Splash.ShowDuringDevelopment;
+            set => Splash.ShowDuringDevelopment = value;
         }
 
         /// <summary>Creates a new SplashScreenGameComponent instance.</summary>

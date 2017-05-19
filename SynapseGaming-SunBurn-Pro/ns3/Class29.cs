@@ -4,7 +4,6 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Xml;
+using SynapseGaming.LightingSystem.Core;
 
 namespace ns3
 {
@@ -20,48 +20,15 @@ namespace ns3
   {
     private static Type[] type_0 = new Type[2]{ typeof (SerializationInfo), typeof (StreamingContext) };
     private const string string_0 = "root";
-    private ISurrogateSelector isurrogateSelector_0;
-    private SerializationBinder serializationBinder_0;
-    private StreamingContext streamingContext_0;
-    private SerializeTypeDictionary serializeTypeDictionary_0;
+      private SerializeTypeDictionary serializeTypeDictionary_0;
 
-    public SerializationBinder Binder
-    {
-      get
-      {
-        return this.serializationBinder_0;
-      }
-      set
-      {
-        this.serializationBinder_0 = value;
-      }
-    }
+    public SerializationBinder Binder { get; set; }
 
-    public ISurrogateSelector SurrogateSelector
-    {
-      get
-      {
-        return this.isurrogateSelector_0;
-      }
-      set
-      {
-        this.isurrogateSelector_0 = value;
-      }
-    }
+      public ISurrogateSelector SurrogateSelector { get; set; }
 
-    public StreamingContext Context
-    {
-      get
-      {
-        return this.streamingContext_0;
-      }
-      set
-      {
-        this.streamingContext_0 = value;
-      }
-    }
+      public StreamingContext Context { get; set; }
 
-    public Class29(SerializeTypeDictionary typedictionary)
+      public Class29(SerializeTypeDictionary typedictionary)
     {
       this.serializeTypeDictionary_0 = typedictionary;
     }
@@ -80,13 +47,13 @@ namespace ns3
             return this.method_0(childNode as XmlElement, dictionary_0);
         }
       }
-      return (object) null;
+      return null;
     }
 
     private object method_0(XmlElement xmlElement_0, Dictionary<Type, MemberInfo[]> dictionary_0)
     {
       if (xmlElement_0 == null || string.IsNullOrEmpty(xmlElement_0.Name))
-        return (object) null;
+        return null;
       string name = xmlElement_0.Name;
       Type type1 = this.serializeTypeDictionary_0.GetType(name);
       if (type1 == null)
@@ -94,7 +61,7 @@ namespace ns3
       object instance = Activator.CreateInstance(type1);
       if (instance == null)
         throw new Exception("Cannot create an instance of type '" + type1.FullName + "'.");
-      SerializationInfo serializationInfo = new SerializationInfo(type1, (IFormatterConverter) new FormatterConverter());
+      SerializationInfo serializationInfo = new SerializationInfo(type1, new FormatterConverter());
       foreach (XmlNode childNode1 in xmlElement_0.ChildNodes)
       {
         if (childNode1 is XmlElement && !string.IsNullOrEmpty(childNode1.Name) && !string.IsNullOrEmpty(childNode1.InnerText))
@@ -110,7 +77,7 @@ namespace ns3
             }
           }
           if (!flag)
-            serializationInfo.AddValue(childNode1.Name, (object) childNode1.InnerText);
+            serializationInfo.AddValue(childNode1.Name, childNode1.InnerText);
         }
       }
       if (instance is ICollection)
@@ -122,15 +89,15 @@ namespace ns3
           if (list != null)
             list.Add(serializationEntry.Value);
           else if (dictionary != null)
-            dictionary.Add(serializationEntry.Value, (object) null);
+            dictionary.Add(serializationEntry.Value, null);
         }
       }
       else if (instance is ISerializable)
       {
-        ConstructorInfo constructor = type1.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, (System.Reflection.Binder) null, Class29.type_0, (ParameterModifier[]) null);
+        ConstructorInfo constructor = type1.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, type_0, null);
         if (constructor == null)
           throw new Exception("Object type '" + type1.Name + "' is ISerializable but doesn't contain the required deserialization constructor.");
-        object[] parameters = new object[2]{ (object) serializationInfo, (object) this.streamingContext_0 };
+        object[] parameters = new object[2]{ serializationInfo, this.Context };
         constructor.Invoke(instance, parameters);
       }
       else
@@ -160,7 +127,7 @@ namespace ns3
             {
               int index = dictionary[serializationEntry.Name];
               MemberInfo memberInfo = serializableMembers[index];
-              Type type2 = (Type) null;
+              Type type2 = null;
               if (memberInfo is PropertyInfo)
                 type2 = (memberInfo as PropertyInfo).PropertyType;
               else if (memberInfo is FieldInfo)
@@ -181,7 +148,7 @@ namespace ns3
       Dictionary<object, int> dictionary_1 = new Dictionary<object, int>(16);
       XmlDocument xmlDocument_0 = new XmlDocument();
       XmlElement element = xmlDocument_0.CreateElement("root");
-      xmlDocument_0.AppendChild((XmlNode) element);
+      xmlDocument_0.AppendChild(element);
       this.method_1(xmlDocument_0, element, rootobj, dictionary_0, dictionary_1);
       xmlDocument_0.Save(stream);
     }
@@ -196,7 +163,7 @@ namespace ns3
       if (string.IsNullOrEmpty(name))
         throw new Exception("Type '" + type.FullName + "' not registered with the serialization type dictionary.");
       FormatterServices.CheckTypeSecurity(type, TypeFilterLevel.Low);
-      SerializationInfo info = new SerializationInfo(type, (IFormatterConverter) new FormatterConverter());
+      SerializationInfo info = new SerializationInfo(type, new FormatterConverter());
       MemberInfo[] serializableMembers;
       if (dictionary_0.ContainsKey(type))
       {
@@ -211,11 +178,11 @@ namespace ns3
       {
         int num = 0;
         foreach (object obj in object_0 as IEnumerable)
-          info.AddValue("item_" + (object) num++, obj);
+          info.AddValue("item_" + num++, obj);
       }
       else if (object_0 is ISerializable)
       {
-        (object_0 as ISerializable).GetObjectData(info, this.streamingContext_0);
+        (object_0 as ISerializable).GetObjectData(info, this.Context);
       }
       else
       {
@@ -224,11 +191,11 @@ namespace ns3
           info.AddValue(serializableMembers[index].Name, objectData[index]);
       }
       XmlElement element1 = xmlDocument_0.CreateElement(name);
-      xmlElement_0.AppendChild((XmlNode) element1);
+      xmlElement_0.AppendChild(element1);
       foreach (SerializationEntry serializationEntry in info)
       {
         XmlElement element2 = xmlDocument_0.CreateElement(serializationEntry.Name);
-        element1.AppendChild((XmlNode) element2);
+        element1.AppendChild(element2);
         if (!serializationEntry.ObjectType.IsPrimitive && !serializationEntry.ObjectType.IsEnum && !(serializationEntry.Value is string))
           this.method_1(xmlDocument_0, element2, serializationEntry.Value, dictionary_0, dictionary_1);
         else

@@ -5,6 +5,7 @@
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
 using System;
+
 namespace ns11
 {
     internal class Disposable

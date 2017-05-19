@@ -15,27 +15,27 @@ namespace SynapseGaming.LightingSystem.Core
   /// </summary>
   public class SafeSingletonBeginableObject
   {
-    private static bool bool_0 = false;
+    private static bool bool_0;
     private static object object_0;
 
     /// <summary>Verifies no other Begin is in process.</summary>
     public virtual void Begin()
     {
-      if (SafeSingletonBeginableObject.bool_0)
+      if (bool_0)
         throw new Exception("Cannot call begin within previous begin statement.  Try calling end on the previously begun object.");
-      SafeSingletonBeginableObject.bool_0 = true;
-      SafeSingletonBeginableObject.object_0 = (object) this;
+      bool_0 = true;
+      object_0 = this;
     }
 
     /// <summary>Verifies a Begin is in process on this object.</summary>
     public virtual void End()
     {
-      if (!SafeSingletonBeginableObject.bool_0)
+      if (!bool_0)
         throw new Exception("Cannot call end without first calling begin.");
-      if (SafeSingletonBeginableObject.object_0 != this)
+      if (object_0 != this)
         throw new Exception("Cannot call end on this object.  Begin was last called on another object.");
-      SafeSingletonBeginableObject.bool_0 = false;
-      SafeSingletonBeginableObject.object_0 = (object) null;
+      bool_0 = false;
+      object_0 = null;
     }
   }
 }

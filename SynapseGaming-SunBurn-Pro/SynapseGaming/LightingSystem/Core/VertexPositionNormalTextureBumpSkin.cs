@@ -16,7 +16,7 @@ namespace SynapseGaming.LightingSystem.Core
   public struct VertexPositionNormalTextureBumpSkin
   {
     /// <summary>An array of vertex elements describing this vertex.</summary>
-    public static readonly VertexElement[] VertexElements = new VertexElement[7]{ new VertexElement((short) 0, (short) 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, (byte) 0), new VertexElement((short) 0, (short) 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, (byte) 0), new VertexElement((short) 0, (short) 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, (byte) 0), new VertexElement((short) 0, (short) 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, (byte) 0), new VertexElement((short) 0, (short) 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, (byte) 0), new VertexElement((short) 0, (short) 56, VertexElementFormat.Byte4, VertexElementMethod.Default, VertexElementUsage.BlendIndices, (byte) 0), new VertexElement((short) 0, (short) 60, VertexElementFormat.Vector4, VertexElementMethod.Default, VertexElementUsage.BlendWeight, (byte) 0) };
+    public static readonly VertexElement[] VertexElements = new VertexElement[7]{ new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0), new VertexElement(0, 56, VertexElementFormat.Byte4, VertexElementMethod.Default, VertexElementUsage.BlendIndices, 0), new VertexElement(0, 60, VertexElementFormat.Vector4, VertexElementMethod.Default, VertexElementUsage.BlendWeight, 0) };
     /// <summary>The vertex position.</summary>
     public Vector3 Position;
     /// <summary>The vertex normal.</summary>
@@ -57,15 +57,9 @@ namespace SynapseGaming.LightingSystem.Core
     public Vector4 BoneWeights;
 
     /// <summary>Gets the size of this structure.</summary>
-    public static int SizeInBytes
-    {
-      get
-      {
-        return 76;
-      }
-    }
+    public static int SizeInBytes => 76;
 
-    /// <summary>
+      /// <summary>
     /// Generates tangent space data (used for bump and specular mapping) from the provided vertex information.
     /// </summary>
     /// <param name="indices">Indices that describe a list of triangles to generate tangent space
@@ -76,9 +70,9 @@ namespace SynapseGaming.LightingSystem.Core
       int index1 = 0;
       while (index1 < indices.Length)
       {
-        int index2 = (int) indices[index1];
-        int index3 = (int) indices[index1 + 1];
-        int index4 = (int) indices[index1 + 2];
+        int index2 = indices[index1];
+        int index3 = indices[index1 + 1];
+        int index4 = indices[index1 + 2];
         Vector2 textureCoordinate1 = vertices[index2].TextureCoordinate;
         Vector2 textureCoordinate2 = vertices[index3].TextureCoordinate;
         Vector2 textureCoordinate3 = vertices[index4].TextureCoordinate;
@@ -86,8 +80,8 @@ namespace SynapseGaming.LightingSystem.Core
         float num2 = textureCoordinate3.X - textureCoordinate1.X;
         float num3 = textureCoordinate2.Y - textureCoordinate1.Y;
         float num4 = textureCoordinate3.Y - textureCoordinate1.Y;
-        float num5 = (float) ((double) num1 * (double) num4 - (double) num2 * (double) num3);
-        if ((double) num5 != 0.0)
+        float num5 = (float) (num1 * (double) num4 - num2 * (double) num3);
+        if (num5 != 0.0)
         {
           float num6 = 1f / num5;
           Vector3 position1 = vertices[index2].Position;
@@ -99,8 +93,8 @@ namespace SynapseGaming.LightingSystem.Core
           float num10 = position3.Y - position1.Y;
           float num11 = position2.Z - position1.Z;
           float num12 = position3.Z - position1.Z;
-          Vector3 vector3_1 = new Vector3((float) ((double) num4 * (double) num7 - (double) num3 * (double) num8) * num6, (float) ((double) num4 * (double) num9 - (double) num3 * (double) num10) * num6, (float) ((double) num4 * (double) num11 - (double) num3 * (double) num12) * num6);
-          Vector3 vector3_2 = new Vector3((float) ((double) num1 * (double) num8 - (double) num2 * (double) num7) * num6, (float) ((double) num1 * (double) num10 - (double) num2 * (double) num9) * num6, (float) ((double) num1 * (double) num12 - (double) num2 * (double) num11) * num6);
+          Vector3 vector3_1 = new Vector3((float) (num4 * (double) num7 - num3 * (double) num8) * num6, (float) (num4 * (double) num9 - num3 * (double) num10) * num6, (float) (num4 * (double) num11 - num3 * (double) num12) * num6);
+          Vector3 vector3_2 = new Vector3((float) (num1 * (double) num8 - num2 * (double) num7) * num6, (float) (num1 * (double) num10 - num2 * (double) num9) * num6, (float) (num1 * (double) num12 - num2 * (double) num11) * num6);
           vertices[index2].Tangent += vector3_1;
           vertices[index3].Tangent += vector3_1;
           vertices[index4].Tangent += vector3_1;

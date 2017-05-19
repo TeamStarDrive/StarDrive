@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
-using System;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -16,11 +16,7 @@ namespace SynapseGaming.LightingSystem.Shadows
   /// </summary>
   public abstract class BaseShadowMap : IDisposable, IShadow, IShadowMap
   {
-    private GraphicsDevice graphicsDevice_0;
-    private ISceneState isceneState_0;
-    private ShadowGroup shadowGroup_0;
-
-    /// <summary>
+      /// <summary>
     /// Used to determine if the shadow map contents are valid or if the contents need
     /// to be re-rendered.
     /// 
@@ -69,33 +65,15 @@ namespace SynapseGaming.LightingSystem.Shadows
     public abstract RenderTarget CustomRenderTarget { get; }
 
     /// <summary>The current device used by this object.</summary>
-    protected GraphicsDevice Device
-    {
-      get
-      {
-        return this.graphicsDevice_0;
-      }
-    }
+    protected GraphicsDevice Device { get; private set; }
 
-    /// <summary>The current SceneState used by this object.</summary>
-    protected ISceneState SceneState
-    {
-      get
-      {
-        return this.isceneState_0;
-      }
-    }
+      /// <summary>The current SceneState used by this object.</summary>
+    protected ISceneState SceneState { get; private set; }
 
-    /// <summary>The current ShadowGroup used by this object.</summary>
-    protected ShadowGroup ShadowGroup
-    {
-      get
-      {
-        return this.shadowGroup_0;
-      }
-    }
+      /// <summary>The current ShadowGroup used by this object.</summary>
+    protected ShadowGroup ShadowGroup { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Builds the shadow map information based on the provided scene state and shadow
     /// group, visibility, and quality.
     /// </summary>
@@ -106,16 +84,16 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <param name="shadowquality">Shadow quality from 1.0 (highest) to 0.0 (lowest).</param>
     public virtual void Build(GraphicsDevice device, ISceneState scenestate, ShadowGroup shadowgroup, IShadowMapVisibility shadowvisibility, float shadowquality)
     {
-      this.graphicsDevice_0 = device;
-      this.isceneState_0 = scenestate;
-      this.shadowGroup_0 = shadowgroup;
+      this.Device = device;
+      this.SceneState = scenestate;
+      this.ShadowGroup = shadowgroup;
     }
 
     /// <summary>Releases resources allocated by this object.</summary>
     public virtual void Dispose()
     {
-      this.graphicsDevice_0 = (GraphicsDevice) null;
-      this.shadowGroup_0 = (ShadowGroup) null;
+      this.Device = null;
+      this.ShadowGroup = null;
     }
 
     /// <summary>

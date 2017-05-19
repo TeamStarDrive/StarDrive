@@ -4,29 +4,27 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using ns4;
 using SynapseGaming.LightingSystem.Core;
-using System;
 
 namespace SynapseGaming.LightingSystem.Effects
 {
   /// <summary>Provides basic rendering support.</summary>
   public abstract class BaseRenderableEffect : Effect, IRenderableEffect
   {
-    internal BaseRenderableEffect.Class46 class46_0 = new BaseRenderableEffect.Class46();
+    internal Class46 class46_0 = new Class46();
     private bool bool_0;
-    private bool bool_1;
-    private DetailPreference detailPreference_0;
+      private DetailPreference detailPreference_0;
     private Matrix matrix_0;
     private Matrix matrix_1;
     private Matrix matrix_2;
     private Matrix matrix_3;
     private Matrix matrix_4;
-    private Matrix matrix_5;
-    private Matrix matrix_6;
+      private Matrix matrix_6;
     private Matrix matrix_7;
     private Matrix matrix_8;
     private float float_0;
@@ -50,11 +48,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>World matrix applied to geometry using this effect.</summary>
     public Matrix World
     {
-      get
-      {
-        return this.matrix_0;
-      }
-      set
+      get => this.matrix_0;
+        set
       {
         if (this.method_1(ref value))
           return;
@@ -66,22 +61,13 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>
     /// Inverse world matrix applied to geometry using this effect.
     /// </summary>
-    public Matrix WorldToObject
-    {
-      get
-      {
-        return this.matrix_1;
-      }
-    }
+    public Matrix WorldToObject => this.matrix_1;
 
-    /// <summary>View matrix applied to geometry using this effect.</summary>
+      /// <summary>View matrix applied to geometry using this effect.</summary>
     public Matrix View
     {
-      get
-      {
-        return this.matrix_2;
-      }
-      set
+      get => this.matrix_2;
+          set
       {
         EffectHelper.smethod_2(value, ref this.matrix_2, ref this.matrix_3, ref this.effectParameter_2, ref this.effectParameter_3);
         this.SetWorldViewProjection(true, true);
@@ -91,24 +77,15 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>
     /// Inverse view matrix applied to geometry using this effect.
     /// </summary>
-    public Matrix ViewToWorld
-    {
-      get
-      {
-        return this.matrix_3;
-      }
-    }
+    public Matrix ViewToWorld => this.matrix_3;
 
-    /// <summary>
+      /// <summary>
     /// Projection matrix applied to geometry using this effect.
     /// </summary>
     public Matrix Projection
     {
-      get
-      {
-        return this.matrix_4;
-      }
-      set
+      get => this.matrix_4;
+          set
       {
         if (value != this.matrix_4)
         {
@@ -117,9 +94,9 @@ namespace SynapseGaming.LightingSystem.Effects
             this.effectParameter_4.SetValue(this.matrix_4);
           if (this.effectParameter_5 != null || this.effectParameter_10 != null)
           {
-            this.matrix_5 = Matrix.Invert(this.matrix_4);
+            this.ProjectionToView = Matrix.Invert(this.matrix_4);
             if (this.effectParameter_5 != null)
-              this.effectParameter_5.SetValue(this.matrix_5);
+              this.effectParameter_5.SetValue(this.ProjectionToView);
           }
         }
         this.SetWorldViewProjection(true, true);
@@ -129,55 +106,30 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>
     /// Inverse projection matrix applied to geometry using this effect.
     /// </summary>
-    public Matrix ProjectionToView
-    {
-      get
-      {
-        return this.matrix_5;
-      }
-    }
+    public Matrix ProjectionToView { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Determines if the effect's vertex transform differs from the built-in
     /// effects, this will cause z-fighting that must be accounted for. If
     /// the value is false (meaning it varies and is different from the built-in
     /// effects) a depth adjustment technique like depth-offset needs to be applied.
     /// </summary>
-    public virtual bool Invariant
-    {
-      get
-      {
-        return true;
-      }
-    }
+    public virtual bool Invariant => true;
 
-    /// <summary>
+      /// <summary>
     /// Surfaces rendered with the effect should be visible from both sides.
     /// </summary>
     [Attribute1(true, Description = "Double Sided", HorizontalAlignment = true, MajorGrouping = 7, MinorGrouping = 10, ToolTipText = "")]
-    public bool DoubleSided
-    {
-      get
-      {
-        return this.bool_1;
-      }
-      set
-      {
-        this.bool_1 = value;
-      }
-    }
+    public bool DoubleSided { get; set; }
 
-    /// <summary>
+      /// <summary>
     /// Applies the user's effect preference. This generally trades detail
     /// for performance based on the user's selection.
     /// </summary>
     public DetailPreference EffectDetail
     {
-      get
-      {
-        return this.detailPreference_0;
-      }
-      set
+      get => this.detailPreference_0;
+          set
       {
         if (value == this.detailPreference_0)
           return;
@@ -193,14 +145,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public bool UpdatedByBatch
     {
-      get
-      {
-        return this._UpdatedByBatch;
-      }
-      set
-      {
-        this._UpdatedByBatch = false;
-      }
+      get => this._UpdatedByBatch;
+        set => this._UpdatedByBatch = false;
     }
 
     internal BaseRenderableEffect(GraphicsDevice graphicsDevice_0, string string_0)
@@ -287,9 +233,9 @@ namespace SynapseGaming.LightingSystem.Effects
         return;
       Vector4 vector4 = Vector4.Transform(new Vector4(0.0f, 0.0f, 1f, 1f), this.ProjectionToView);
       float num = 0.0f;
-      if ((double) vector4.W != 0.0)
+      if (vector4.W != 0.0)
         num = Math.Abs(vector4.Z / vector4.W);
-      if ((double) this.float_0 == (double) num)
+      if (this.float_0 == (double) num)
         return;
       this.float_0 = num;
       this.effectParameter_10.SetValue(num);
@@ -335,10 +281,10 @@ namespace SynapseGaming.LightingSystem.Effects
         }
         if (this.effectParameter_5 != null || this.effectParameter_10 != null)
         {
-          this.matrix_5 = projectiontoview;
+          this.ProjectionToView = projectiontoview;
           if (this.effectParameter_5 != null)
           {
-            this.effectParameter_5.SetValue(this.matrix_5);
+            this.effectParameter_5.SetValue(this.ProjectionToView);
             ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
           }
         }
@@ -439,7 +385,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public override Effect Clone(GraphicsDevice device)
     {
       Effect effect = this.Create(device);
-      Class12.smethod_1((object) this, (object) effect);
+      Class12.smethod_1(this, effect);
       return effect;
     }
 

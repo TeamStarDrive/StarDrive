@@ -21,7 +21,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
       Effect effect = input.ReadObject<Effect>();
       XSIEffect xsiEffect = new XSIEffect(service.GraphicsDevice, effect);
       xsiEffect.Skinned = flag;
-      Class55.smethod_0(input);
+      BlockUtil.SkipBlock(input);
       return xsiEffect;
     }
   }

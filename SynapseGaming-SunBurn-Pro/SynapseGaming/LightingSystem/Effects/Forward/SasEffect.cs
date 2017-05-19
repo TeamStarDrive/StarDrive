@@ -36,7 +36,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <returns></returns>
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new SasEffect(device, (Effect) this);
+      return new SasEffect(device, this);
     }
 
     /// <summary>
@@ -49,14 +49,14 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <returns></returns>
     public static SasEffect CreateBestSASEffectType(GraphicsDevice graphicsdevice, Effect effect)
     {
-      return SasEffect.smethod_0(graphicsdevice, effect, true);
+      return smethod_0(graphicsdevice, effect, true);
     }
 
     internal static SasEffect smethod_0(GraphicsDevice graphicsDevice_0, Effect effect_0, bool bool_5)
     {
       SasLightingEffect sasLightingEffect = new SasLightingEffect(graphicsDevice_0, effect_0, bool_5);
       if (sasLightingEffect.MaxLightSources > 0)
-        return (SasEffect) sasLightingEffect;
+        return sasLightingEffect;
       sasLightingEffect.Dispose();
       return new SasEffect(graphicsDevice_0, effect_0, bool_5);
     }

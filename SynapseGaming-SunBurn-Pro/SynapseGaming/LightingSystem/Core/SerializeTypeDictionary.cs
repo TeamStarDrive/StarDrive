@@ -41,18 +41,18 @@ namespace SynapseGaming.LightingSystem.Core
         if (keyValuePair.Value != null && keyValuePair.Value.Count >= 1 && keyValuePair.Value[0] == objecttype)
           return keyValuePair.Key;
       }
-      return (string) null;
+      return null;
     }
 
     /// <summary />
     public Type GetType(string name)
     {
       if (!this.dictionary_0.ContainsKey(name))
-        return (Type) null;
+        return null;
       List<Type> typeList = this.dictionary_0[name];
       if (typeList != null && typeList.Count >= 1)
         return typeList[0];
-      return (Type) null;
+      return null;
     }
   }
 }
