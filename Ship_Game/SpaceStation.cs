@@ -83,8 +83,8 @@ namespace Ship_Game
 			}
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				screenManager.inter.ObjectManager.Submit(this.InnerSO);
-				screenManager.inter.ObjectManager.Submit(this.OuterSO);
+				screenManager.Submit(InnerSO);
+				screenManager.Submit(OuterSO);
 			}
 		}
 

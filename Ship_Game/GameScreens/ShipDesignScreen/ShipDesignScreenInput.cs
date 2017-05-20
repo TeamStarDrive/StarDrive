@@ -31,7 +31,7 @@ namespace Ship_Game {
             {
                 if (shipSO != null)
                 {
-                    ScreenManager.inter.ObjectManager.Remove(shipSO);
+                    ScreenManager.Remove(shipSO);
                 }
             }
             ActiveHull = new ShipData
@@ -89,7 +89,7 @@ namespace Ship_Game {
                 };
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    ScreenManager.inter.ObjectManager.Submit(shipSO);
+                    ScreenManager.Submit(this.shipSO);
                 }
             }
             else
@@ -102,7 +102,7 @@ namespace Ship_Game {
                 };
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    ScreenManager.inter.ObjectManager.Submit(shipSO);
+                    ScreenManager.Submit(this.shipSO);
                 }
             }
             foreach (ToggleButton button in CombatStatusButtons)
@@ -236,7 +236,7 @@ namespace Ship_Game {
             {
                 if (shipSO != null)
                 {
-                    ScreenManager.inter.ObjectManager.Remove(shipSO);
+                    ScreenManager.Remove(this.shipSO);
                 }
                 ModelMesh mesh = ActiveModel.Meshes[0];
                 shipSO = new SceneObject(mesh)
@@ -244,8 +244,8 @@ namespace Ship_Game {
                     ObjectType = ObjectType.Dynamic,
                     World = WorldMatrix
                 };
-                ScreenManager.inter.ObjectManager.Submit(shipSO);
-                SetupSlots();
+                ScreenManager.Submit(this.shipSO);
+                this.SetupSlots();
             }
         }
 
@@ -1050,15 +1050,15 @@ namespace Ship_Game {
                 }
                 else
                 {
-                    ScreenManager.inter.ObjectManager.Remove(shipSO);
-                    SkinnedModel sm = ResourceManager.GetSkinnedModel(ActiveHull.ModelPath);
-                    shipSO = new SceneObject(sm.Model)
+                    ScreenManager.Remove(this.shipSO);
+                    SkinnedModel sm = ResourceManager.GetSkinnedModel(this.ActiveHull.ModelPath);
+                    this.shipSO = new SceneObject(sm.Model)
                     {
                         ObjectType = ObjectType.Dynamic,
                         World = WorldMatrix
                     };
-                    ScreenManager.inter.ObjectManager.Submit(shipSO);
-                    SetupSlots();
+                    ScreenManager.Submit(this.shipSO);
+                    this.SetupSlots();
                 }
             }
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
@@ -1389,7 +1389,7 @@ namespace Ship_Game {
 
             lock (GlobalStats.ObjectManagerLocker)
             {
-                ScreenManager.inter.ObjectManager.Remove(shipSO);
+                ScreenManager.Remove(this.shipSO);
             }
             if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen)
             {
@@ -1461,18 +1461,14 @@ namespace Ship_Game {
 
             //Adds the boolean derived from the checkbox boolean (CarrierOnly) to the ShipData. Defaults to 'false'.
             toSave.CarrierShip = CarrierOnly;
-
             var serializer = new XmlSerializer(typeof(ShipData));
-            TextWriter writeFileStream =
-                new StreamWriter(string.Concat(path, "/StarDrive/Saved Designs/", name, ".xml"));
-            serializer.Serialize(writeFileStream, toSave);
-            writeFileStream.Close();
+            using (var ws = new StreamWriter($"{path}/StarDrive/Saved Designs/{name}.xml"))
+                serializer.Serialize(ws, toSave);
             ShipSaved = true;
 
             Ship newShip = Ship.CreateShipFromShipData(toSave, fromSave: false);
             if (newShip == null) // happens if module creation failed
                 return;
-            newShip.SetShipData(toSave);
             newShip.InitializeStatus(fromSave: false);
             newShip.IsPlayerDesign = true;
             ResourceManager.ShipsDict[name] = newShip;
@@ -1486,18 +1482,17 @@ namespace Ship_Game {
 
         private void SaveWIP(object sender, EventArgs e)
         {
-            ShipData savedShip = new ShipData
+            var savedShip = new ShipData
             {
-                Animated     = ActiveHull.Animated,
-                CombatState  = ActiveHull.CombatState,
-                Hull         = ActiveHull.Hull,
-                IconPath     = ActiveHull.IconPath,
-                ModelPath    = ActiveHull.ModelPath,
-                Name         = ActiveHull.Name,
-                Role         = ActiveHull.Role,
-                ShipStyle    = ActiveHull.ShipStyle,
-                ThrusterList = ActiveHull.ThrusterList,
-                ModuleSlots  = new ModuleSlotData[Slots.Count]
+                Animated     = this.ActiveHull.Animated,
+                CombatState  = this.ActiveHull.CombatState,
+                Hull         = this.ActiveHull.Hull,
+                IconPath     = this.ActiveHull.IconPath,
+                ModelPath    = this.ActiveHull.ModelPath,
+                Name         = this.ActiveHull.Name,
+                Role         = this.ActiveHull.Role,
+                ShipStyle    = this.ActiveHull.ShipStyle,
+                ThrusterList = this.ActiveHull.ThrusterList
             };
 
             for (int i = 0; i < Slots.Count; ++i)
