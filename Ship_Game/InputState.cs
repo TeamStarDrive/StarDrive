@@ -40,7 +40,17 @@ namespace Ship_Game
             Timer = 0;
             return false;
         }
-        
+        public bool RightMouseHeld(float seconds = .25f)
+        {
+            if (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Pressed)
+            {
+                Timer += .01666f;
+                return Timer >= seconds;
+            }
+            Timer = 0;
+            return false;
+        }
+
         //Ingame 
         //UniverseScreen
         public bool PauseGame            => IsNewKeyPress(Keys.Space);
