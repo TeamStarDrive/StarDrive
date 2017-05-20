@@ -76,6 +76,9 @@ namespace Ship_Game
             Screens.Add(screen);
         }
 
+        public void Submit(ISceneObject so) => inter.ObjectManager.Submit(so);
+        public void Remove(ISceneObject so) => inter.ObjectManager.Remove(so);
+
         public void Draw(GameTime gameTime)
         {
             try
@@ -171,6 +174,7 @@ namespace Ship_Game
                 coveredByOtherScreen = true;
             }
         }
+
         public bool UpdateExitTimeer(bool stopFurtherInput)
         {
             if (!stopFurtherInput)
@@ -182,6 +186,7 @@ namespace Ship_Game
             else exitScreenTimer = .025f;
             return false;
         }
+
         public void Dispose()
         {
             Dispose(true);
