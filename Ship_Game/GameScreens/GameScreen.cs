@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+// ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
     public abstract class GameScreen : IDisposable
