@@ -1025,9 +1025,7 @@ namespace Ship_Game
                         Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
                         if (shipTemplate == null) // happens if module creation failed
                             continue;
-                        shipTemplate.SetShipData(shipData);
                         shipTemplate.InitializeStatus(fromSave: false);
-
                         shipTemplate.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
                         shipTemplate.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
 
