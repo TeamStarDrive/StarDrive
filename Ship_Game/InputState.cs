@@ -21,17 +21,26 @@ namespace Ship_Game
         public int PreviousScrollWheelValue;
 
         public bool Repeat;
+        private float Timer;
 
-
-        public float RightMouseTimer  = 0.35f;
-        public bool RightMouseClick   => (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Released);
-        public bool LeftMouseClick    => (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released);
-        public bool BackMouseClick    => (CurrentMouseState.XButton1 == ButtonState.Pressed && LastMouseState.XButton1 == ButtonState.Released);
-        public bool MiddleMouseClick  => (CurrentMouseState.MiddleButton == ButtonState.Pressed && LastMouseState.MiddleButton == ButtonState.Released);
-        public bool LeftMouseRelease  => CurrentMouseState.LeftButton == ButtonState.Released;
+        public float RightMouseTimer = 0.35f;
+        public bool RightMouseClick => (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Released);
+        public bool LeftMouseClick => (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released);
+        public bool BackMouseClick => (CurrentMouseState.XButton1 == ButtonState.Pressed && LastMouseState.XButton1 == ButtonState.Released);
+        public bool MiddleMouseClick => (CurrentMouseState.MiddleButton == ButtonState.Pressed && LastMouseState.MiddleButton == ButtonState.Released);
+        public bool LeftMouseRelease => CurrentMouseState.LeftButton == ButtonState.Released;
         public Vector2 MouseScreenPos => new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
-
-
+        public bool LeftMouseHeld(float seconds = .25f)
+        {
+            if (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Pressed)
+            {
+                Timer += .01666f;
+                return Timer >= seconds;
+            }
+            Timer = 0;
+            return false;
+        }
+        
         //Ingame 
         //UniverseScreen
         public bool PauseGame            => IsNewKeyPress(Keys.Space);
@@ -84,6 +93,20 @@ namespace Ship_Game
 
         //ShipDesign Screen
         public bool ShipDesignExit => CurrentKeyboardState.IsKeyDown(Keys.Y) && !LastKeyboardState.IsKeyDown(Keys.Y);
+        public bool ShipYardArcMove()
+        {
+            if (GlobalStats.AltArcControl)
+            {
+                //The Doctor: ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
+                return CurrentMouseState.LeftButton == ButtonState.Pressed &&
+                       CurrentMouseState.LeftButton == ButtonState.Pressed &&
+                       (CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) ||
+                        LastKeyboardState.IsKeyDown(Keys.LeftAlt)
+                        || CurrentKeyboardState.IsKeyDown(Keys.RightAlt)
+                        || LastKeyboardState.IsKeyDown(Keys.RightAlt));
+            }
+            return LeftMouseHeld();
+        }
         /// <summary>
         /// below are the defaults set previously. i bleieve the idea is to set the button wanted here with a name to indicate its use.
         /// </summary>
