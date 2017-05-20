@@ -171,7 +171,7 @@ namespace Ship_Game.Gameplay
             {
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove(ProjSO);
+                    Empire.Universe.ScreenManager.Remove(ProjSO);
                 }
                 ProjSO.Clear();
             }
@@ -266,7 +266,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (Empire.Universe != null)
                     {
-                        Empire.Universe.ScreenManager.inter.ObjectManager.Submit(ProjSO);
+                        Empire.Universe.ScreenManager.Submit(ProjSO);
                     }
                 }
             }
@@ -345,7 +345,7 @@ namespace Ship_Game.Gameplay
                 WasAddedToSceneGraph = true;
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    Empire.Universe.ScreenManager.inter.ObjectManager.Submit(ProjSO);
+                    Empire.Universe.ScreenManager.Submit(ProjSO);
                 }
             }
             SetSystem(System);
@@ -381,7 +381,7 @@ namespace Ship_Game.Gameplay
                 WasAddedToSceneGraph = true;
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    Empire.Universe.ScreenManager.inter.ObjectManager.Submit(ProjSO);
+                    Empire.Universe.ScreenManager.Submit(ProjSO);
                 }
             }
             SetSystem(System);
@@ -418,7 +418,7 @@ namespace Ship_Game.Gameplay
                 WasAddedToSceneGraph = true;
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    Empire.Universe.ScreenManager.inter.ObjectManager.Submit(ProjSO);
+                    Empire.Universe.ScreenManager.Submit(ProjSO);
                 }
             }
             SetSystem(System);
@@ -654,7 +654,7 @@ namespace Ship_Game.Gameplay
             {
                 WasAddedToSceneGraph = true;
                 lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.inter.ObjectManager.Submit(ProjSO);
+                    Empire.Universe.ScreenManager.Submit(ProjSO);
             }
             if (FirstRun && ModuleAttachedTo != null)
             {

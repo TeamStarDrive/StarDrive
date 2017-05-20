@@ -4,6 +4,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
+using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
@@ -78,6 +79,9 @@ namespace Ship_Game
 
         public void Submit(ISceneObject so) => inter.ObjectManager.Submit(so);
         public void Remove(ISceneObject so) => inter.ObjectManager.Remove(so);
+        public void Submit(ILight light) => inter.LightManager.Submit(light);
+        public void Remove(ILight light) => inter.LightManager.Remove(light);
+        public void RemoveAllLights() => inter.LightManager.Clear();
 
         public void Draw(GameTime gameTime)
         {

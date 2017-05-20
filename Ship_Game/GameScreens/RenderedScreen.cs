@@ -60,7 +60,7 @@ namespace Ship_Game
 				ObjectType = ObjectType.Dynamic,
 				World = worldMatrix
 			};
-			base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+			base.ScreenManager.Submit(this.shipSO);
 			float width = (float)base.Viewport.Width;
 			Viewport viewport = base.Viewport;
 			float aspectRatio = width / (float)viewport.Height;

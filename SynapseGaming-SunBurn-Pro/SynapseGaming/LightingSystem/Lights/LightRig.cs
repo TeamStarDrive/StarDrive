@@ -22,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Lights
   /// Light rig container object used for storing, sharing, and organizing scene lights.
   /// </summary>
   [Serializable]
-  public class LightRig : IQuery<ILight>, IDisposable, INamedObject, IEditorObject, Interface0, ISerializable, ILightQuery, ILightRig, ILightFactory
+  public class LightRig : IDisposable, Interface0, ISerializable, ILightRig, ILightFactory
   {
     private string string_0 = "";
     private string string_1 = "";
