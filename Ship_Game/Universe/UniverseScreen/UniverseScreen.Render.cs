@@ -36,7 +36,7 @@ namespace Ship_Game
 
             ClickableShipsList.Clear();
             ScreenManager.SpriteBatch.Begin();
-            Rectangle rect = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
+            var rect = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
 
             using (player.KnownShips.AcquireReadLock())
@@ -47,18 +47,18 @@ namespace Ship_Game
                     if (ship != null && ship.Active &&
                         (viewState != UnivScreenState.GalaxyView || !ship.IsPlatform))
                     {
-                        ProjectToScreenCoords(ship.Position, ship.GetSO().WorldBoundingSphere.Radius,
-                            out Vector2 screenPos, out float ScreenRadius);
+                        ProjectToScreenCoords(ship.Position, ship.Radius,
+                            out Vector2 screenPos, out float screenRadius);
 
-                        if (HelperFunctions.CheckIntersection(rect, screenPos))
+                        if (rect.HitTest(screenPos))
                         {
-                            if (ScreenRadius < 7.0f) ScreenRadius = 7f;
-                            ship.ScreenRadius = ScreenRadius;
+                            if (screenRadius < 7.0f) screenRadius = 7f;
+                            ship.ScreenRadius = screenRadius;
                             ship.ScreenPosition = screenPos;
                             ClickableShipsList.Add(new ClickableShip
                             {
-                                Radius = ScreenRadius,
-                                ScreenPos = screenPos,
+                                Radius      = screenRadius,
+                                ScreenPos   = screenPos,
                                 shipToClick = ship
                             });
                         }
@@ -74,11 +74,11 @@ namespace Ship_Game
                 ClickableSystems.Clear();
             }
             Texture2D Glow_Terran = ResourceManager.TextureDict["PlanetGlows/Glow_Terran"];
-            Texture2D Glow_Red = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
-            Texture2D Glow_White = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
-            Texture2D Glow_Aqua = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
+            Texture2D Glow_Red    = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
+            Texture2D Glow_White  = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
+            Texture2D Glow_Aqua   = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
             Texture2D Glow_Orange = ResourceManager.TextureDict["PlanetGlows/Glow_Orange"];
-            Texture2D sunTexture = null;
+            Texture2D sunTexture  = null;
             string sunPath = string.Empty;
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
@@ -201,7 +201,7 @@ namespace Ship_Game
                 Vector3 vector3_2 = this.Viewport.Project(
                     new Vector3((float) ((double) index * (double) this.UniverseRadius / 40.0), this.UniverseRadius, 0.0f),
                     this.projection, this.view, Matrix.Identity);
-                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y),
+                this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
             }
             for (int index = 0; index < 41; ++index)
@@ -212,7 +212,7 @@ namespace Ship_Game
                 Vector3 vector3_2 = this.Viewport.Project(
                     new Vector3(this.UniverseRadius, (float) ((double) index * (double) this.UniverseRadius / 40.0), 0.0f),
                     this.projection, this.view, Matrix.Identity);
-                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y),
+                this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
             }
             this.ScreenManager.SpriteBatch.End();
@@ -318,7 +318,7 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(138, this.ScreenManager);
                                     ++num3;
                                 }
@@ -336,7 +336,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(122, this.ScreenManager);
                                     ++num3;
                                 }
@@ -353,7 +353,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(123, this.ScreenManager);
                                 }
                             }
@@ -383,7 +383,7 @@ namespace Ship_Game
                                             solarSystem.Name[index2].ToString(), Pos, SystemInfoUIElement.SysFont,
                                             solarSystem.OwnerList.Count > index1
                                                 ? solarSystem.OwnerList.ToList()[index1].EmpireColor
-                                                : Enumerable.Last<Empire>((IEnumerable<Empire>) solarSystem.OwnerList)
+                                                : ((IEnumerable<Empire>) solarSystem.OwnerList).Last<Empire>()
                                                     .EmpireColor);
                                         Pos.X += SystemInfoUIElement.SysFont
                                             .MeasureString(solarSystem.Name[index2].ToString())
@@ -418,7 +418,7 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(138, this.ScreenManager);
                                     ++num3;
                                 }
@@ -436,7 +436,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(122, this.ScreenManager);
                                     ++num3;
                                 }
@@ -453,7 +453,7 @@ namespace Ship_Game
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
-                                    if (HelperFunctions.CheckIntersection(rectangle2, pos))
+                                    if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(123, this.ScreenManager);
                                 }
                             }
@@ -486,35 +486,21 @@ namespace Ship_Game
 
         private void RenderThrusters()
         {
-            if (this.viewState > UniverseScreen.UnivScreenState.ShipView)
+            if (viewState > UnivScreenState.ShipView)
                 return;
-            using (player.KnownShips.AcquireReadLock())
+            for (int i = 0; i < player.KnownShips.Count; ++i)
             {
-                for (int local_0 = 0; local_0 < this.player.KnownShips.Count; ++local_0)
+                Ship ship = player.KnownShips[i];
+                if (ship != null && ship.InFrustum && ship.inSensorRange)
                 {
-                    Ship local_1 = this.player.KnownShips[local_0];
-                    if (local_1 != null && this.Frustum.Contains(new Vector3(local_1.Center, 0.0f)) !=
-                        ContainmentType.Disjoint && local_1.inSensorRange)
-                    {
-                        foreach (Thruster item_0 in local_1.GetTList())
-                        {
-                            if (item_0.technique != null)
-                            {
-                                item_0.draw(ref this.view, ref this.projection, this.ThrusterEffect);
-                                item_0.draw(ref this.view, ref this.projection, this.ThrusterEffect);
-                            }
-                            else
-                                item_0.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB",
-                                    "Effects/NoiseVolume", this.ThrusterEffect);
-                        }
-                    }
+                    ship.RenderThrusters(ref view, ref projection);
                 }
             }
         }
 
         public void Render(GameTime gameTime)
         {
-            if (Frustum == (BoundingFrustum) null)
+            if (Frustum == null)
                 Frustum = new BoundingFrustum(view * projection);
             else
                 Frustum.Matrix = view * projection;

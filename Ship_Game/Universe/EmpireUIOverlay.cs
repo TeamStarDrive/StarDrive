@@ -582,7 +582,7 @@ namespace Ship_Game
 			}
 			foreach (Button b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!b.Rect.HitTest(MousePos))
 				{
 					b.State = PressState.Normal;
 				}
@@ -738,7 +738,7 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			foreach (Button b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!b.Rect.HitTest(MousePos))
 				{
 					b.State = EmpireUIOverlay.PressState.Normal;
 				}

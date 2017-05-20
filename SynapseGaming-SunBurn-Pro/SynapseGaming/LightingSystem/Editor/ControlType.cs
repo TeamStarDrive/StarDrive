@@ -18,6 +18,6 @@ namespace SynapseGaming.LightingSystem.Editor
     TextBox,
     TextureBox,
     VectorPad,
-    Default,
+    Default
   }
 }

@@ -50,8 +50,8 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
 		{
-			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, this.BlackRect, Color.Black);
-			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, this.ResponseRect, Color.Black);
+			ScreenManager.SpriteBatch.FillRectangle(this.BlackRect, Color.Black);
+			ScreenManager.SpriteBatch.FillRectangle(this.ResponseRect, Color.Black);
 			Vector2 TheirTextPos = new Vector2((float)(this.BlackRect.X + 10), (float)(this.BlackRect.Y + 10));
 			string theirText = this.parseText(this.MessageList[this.CurrentMessage].text, (float)(this.BlackRect.Width - 20), Fonts.Verdana12Bold);
 			TheirTextPos.X = (float)((int)TheirTextPos.X);
@@ -90,7 +90,7 @@ namespace Ship_Game
 			for (int i = this.ResponseSL.indexAtTop; i < this.ResponseSL.Entries.Count && i < this.ResponseSL.indexAtTop + this.ResponseSL.entriesToDisplay; i++)
 			{
 				ScrollList.Entry e = this.ResponseSL.Entries[i];
-				if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+				if (!e.clickRect.HitTest(input.CursorPosition))
 				{
 					e.clickRectHover = 0;
 				}

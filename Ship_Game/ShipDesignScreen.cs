@@ -720,7 +720,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
+                    ScreenManager.SpriteBatch.DrawRectangle(new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
                         , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White, 2f);
                 }
                 foreach (SlotStruct slot in this.Slots)
@@ -1083,8 +1083,8 @@ namespace Ship_Game
                         Vector2 leftArc  = Center.PointFromAngle(slot.Module.Facing + -halfArc, 300f);
                         Vector2 rightArc = Center.PointFromAngle(slot.Module.Facing + halfArc, 300f);
                         Color arc = new Color(255, 165, 0, 100);
-                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
-                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
+                        base.ScreenManager.SpriteBatch.DrawLine(Center, leftArc, arc, 3f);
+                        base.ScreenManager.SpriteBatch.DrawLine(Center, rightArc, arc, 3f);
                     }
                 }
                 foreach (SlotStruct ss in this.Slots)
@@ -1107,7 +1107,7 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.Begin();
             foreach (ModuleButton mb in this.ModuleButtons)
             {
-                if (!HelperFunctions.CheckIntersection(this.ModuleSelectionArea, new Vector2((float)(mb.moduleRect.X + 30), (float)(mb.moduleRect.Y + 30))))
+                if (!this.ModuleSelectionArea.HitTest(new Vector2((float)(mb.moduleRect.X + 30), (float)(mb.moduleRect.Y + 30))))
                 {
                     continue;
                 }
@@ -1129,7 +1129,7 @@ namespace Ship_Game
             float single = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(single, (float)state.Y);
-            if (this.ActiveModule != null && !HelperFunctions.CheckIntersection(this.activeModSubMenu.Menu, MousePos) && !HelperFunctions.CheckIntersection(this.modSel.Menu, MousePos) && (!HelperFunctions.CheckIntersection(this.choosefighterrect, MousePos) || this.ActiveModule.ModuleType != ShipModuleType.Hangar || this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
+            if (this.ActiveModule != null && !this.activeModSubMenu.Menu.HitTest(MousePos) && !this.modSel.Menu.HitTest(MousePos) && (!this.choosefighterrect.HitTest(MousePos) || this.ActiveModule.ModuleType != ShipModuleType.Hangar || this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
             {
                 ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
 
@@ -2137,7 +2137,7 @@ namespace Ship_Game
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as ShipData).Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as ShipData).Role, EmpireManager.Player), tCursor, Color.Orange);
-                    if (HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+                    if (e.clickRect.HitTest(MousePos))
                     {
                         if (e.clickRectHover == 0)
                         {
@@ -2199,12 +2199,12 @@ namespace Ship_Game
                     {
                         Rectangle rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
                         base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_can_rotate"], rotateRect, Color.White);
-                        if (HelperFunctions.CheckIntersection(rotateRect, MousePos))
+                        if (rotateRect.HitTest(MousePos))
                         {
                             ToolTip.CreateTooltip("Indicates that this module can be rotated using the arrow keys", base.ScreenManager);
                         }
                     }
-                    if (HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+                    if (e.clickRect.HitTest(MousePos))
                     {
                         if (e.clickRectHover == 0)
                         {
@@ -3344,19 +3344,19 @@ namespace Ship_Game
             {
                 r.Y = r.Y + (int)(transitionOffset * 50f);
             }
-            Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, Color.Black);
+            base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
             r = this.bottom_sep;
             if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
             {
                 r.Y = r.Y + (int)(transitionOffset * 50f);
             }
-            Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(77, 55, 25));
+            base.ScreenManager.SpriteBatch.FillRectangle(r, new Color(77, 55, 25));
             r = this.SearchBar;
             if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
             {
                 r.Y = r.Y + (int)(transitionOffset * 50f);
             }
-            Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(54, 54, 54));
+            base.ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
             if (Fonts.Arial20Bold.MeasureString(this.ActiveHull.Name).X <= (float)(this.SearchBar.Width - 5))
             {
                 Vector2 Cursor = new Vector2((float)(this.SearchBar.X + 3), (float)(r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2));
@@ -3609,7 +3609,7 @@ namespace Ship_Game
         {
 
             this.CategoryList.HandleInput(input);
-            if (HelperFunctions.CheckIntersection(dropdownRect, input.CursorPosition))  //fbedard: add tooltip for CategoryList
+            if (dropdownRect.HitTest(input.CursorPosition))  //fbedard: add tooltip for CategoryList
             {                
                 switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
                 {
@@ -3719,9 +3719,9 @@ namespace Ship_Game
             }
             else
             {
-                if (!HelperFunctions.CheckIntersection(this.ModuleSelectionMenu.Menu, input.CursorPosition)
-                    && !HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition)
-                    && !HelperFunctions.CheckIntersection(this.ChooseFighterSub.Menu, input.CursorPosition))
+                if (!this.ModuleSelectionMenu.Menu.HitTest(input.CursorPosition)
+                    && !this.HullSelectionRect.HitTest(input.CursorPosition)
+                    && !this.ChooseFighterSub.Menu.HitTest(input.CursorPosition))
                 {
                     if (input.ScrollOut)
                     {
@@ -3771,7 +3771,7 @@ namespace Ship_Game
                         if ((e.item as ModuleHeader).HandleInput(input, e))
                             return;
                     }
-                    else if (HelperFunctions.CheckIntersection(e.clickRect, vector2))
+                    else if (e.clickRect.HitTest(vector2))
                     {
                         this.selector = new Selector(this.ScreenManager, e.clickRect);
                         e.clickRectHover = 1;
@@ -3810,7 +3810,7 @@ namespace Ship_Game
                             && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
                         {
                             ScrollList.Entry entry = this.ChooseFighterSL.Copied[index];
-                            if (HelperFunctions.CheckIntersection(entry.clickRect, vector2))
+                            if (entry.clickRect.HitTest(vector2))
                             {
                                 this.selector = new Selector(this.ScreenManager, entry.clickRect);
                                 entry.clickRectHover = 1;
@@ -3834,7 +3834,7 @@ namespace Ship_Game
                         && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
                     {
                         ScrollList.Entry entry = this.ChooseFighterSL.Copied[index];
-                        if (HelperFunctions.CheckIntersection(entry.clickRect, vector2))
+                        if (entry.clickRect.HitTest(vector2))
                         {
                             this.selector = new Selector(this.ScreenManager, entry.clickRect);
                             entry.clickRectHover = 1;
@@ -3858,7 +3858,7 @@ namespace Ship_Game
                         if ((e.item as ModuleHeader).HandleInput(input, e))
                             return;
                     }
-                    else if (HelperFunctions.CheckIntersection(e.clickRect, vector2))
+                    else if (e.clickRect.HitTest(vector2))
                     {
                         this.selector = new Selector(this.ScreenManager, e.clickRect);
                         e.clickRectHover = 1;
@@ -3874,14 +3874,14 @@ namespace Ship_Game
                         e.clickRectHover = 0;
                 }
                 this.weaponSL.HandleInput(input);
-                if (HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition)
+                if (this.HullSelectionRect.HitTest(input.CursorPosition)
                     && input.CurrentMouseState.LeftButton == ButtonState.Pressed
-                    || HelperFunctions.CheckIntersection(this.modSel.Menu, input.CursorPosition)
+                    || this.modSel.Menu.HitTest(input.CursorPosition)
                     && input.CurrentMouseState.LeftButton == ButtonState.Pressed
-                    || HelperFunctions.CheckIntersection(this.activeModSubMenu.Menu, input.CursorPosition)
+                    || this.activeModSubMenu.Menu.HitTest(input.CursorPosition)
                     && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                     return;
-                if (HelperFunctions.CheckIntersection(this.modSel.Menu, vector2))
+                if (this.modSel.Menu.HitTest(vector2))
                 {
                     if (this.mouseStateCurrent.ScrollWheelValue > this.mouseStatePrevious.ScrollWheelValue
                         && this.weaponSL.indexAtTop > 0)
@@ -3890,7 +3890,7 @@ namespace Ship_Game
                         && this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay < this.weaponSL.Entries.Count)
                         ++this.weaponSL.indexAtTop;
                 }
-                if (HelperFunctions.CheckIntersection(this.ArcsButton.R, input.CursorPosition))
+                if (this.ArcsButton.R.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(134, this.ScreenManager);
                 if (this.ArcsButton.HandleInput(input))
                 {
@@ -3931,7 +3931,7 @@ namespace Ship_Game
                     foreach (SlotStruct slotStruct in this.Slots)
                     {
                         Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slotStruct.PQ.enclosingRect.X, (float)slotStruct.PQ.enclosingRect.Y));
-                        if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
+                        if (new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)).HitTest(vector2))
                         {
                             if (slotStruct.Module != null)
                                 this.HoveredModule = slotStruct.Module;
@@ -3949,21 +3949,21 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (HelperFunctions.CheckIntersection(this.upArrow, vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && (this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.scrollPosition > 0))
+                if (this.upArrow.HitTest(vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && (this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.scrollPosition > 0))
                 {
                     --this.scrollPosition;
                     GameAudio.PlaySfxAsync("blip_click");
                     foreach (ModuleButton moduleButton in this.ModuleButtons)
                         moduleButton.moduleRect.Y += 128;
                 }
-                if (HelperFunctions.CheckIntersection(this.downArrow, vector2) && input.LeftMouseClick)
+                if (this.downArrow.HitTest(vector2) && input.LeftMouseClick)
                 {
                     ++this.scrollPosition;
                     GameAudio.PlaySfxAsync("blip_click");
                     foreach (ModuleButton moduleButton in this.ModuleButtons)
                         moduleButton.moduleRect.Y -= 128;
                 }
-                if (HelperFunctions.CheckIntersection(this.ModuleSelectionArea, vector2))
+                if (this.ModuleSelectionArea.HitTest(vector2))
                 {
                     if (input.ScrollIn && this.scrollPosition > 0)
                     {
@@ -3991,7 +3991,7 @@ namespace Ship_Game
                             new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y));
                         Rectangle rect = new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y
                             , (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom));
-                        if (slot.Module != null && HelperFunctions.CheckIntersection(rect, vector2)) //if clicked at this slot
+                        if (slot.Module != null && rect.HitTest(vector2)) //if clicked at this slot
                         {
                             slot.SetValidity(slot.Module);
                             DesignAction designAction = new DesignAction();
@@ -4012,9 +4012,9 @@ namespace Ship_Game
                 }
                 foreach (ModuleButton moduleButton in this.ModuleButtons)
                 {
-                    if (HelperFunctions.CheckIntersection(this.ModuleSelectionArea, new Vector2((float)(moduleButton.moduleRect.X + 30), (float)(moduleButton.moduleRect.Y + 30))))
+                    if (this.ModuleSelectionArea.HitTest(new Vector2((float)(moduleButton.moduleRect.X + 30), (float)(moduleButton.moduleRect.Y + 30))))
                     {
-                        if (HelperFunctions.CheckIntersection(moduleButton.moduleRect, vector2))
+                        if (moduleButton.moduleRect.HitTest(vector2))
                         {
                             if (input.InGameSelect)
                                 this.SetActiveModule(ShipModule.CreateNoParent(moduleButton.ModuleUID));
@@ -4030,8 +4030,8 @@ namespace Ship_Game
                     {
                         Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.PQ.enclosingRect.X
                             , (float)slot.PQ.enclosingRect.Y));
-                        if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y
-                            , (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
+                        if (new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y
+                            , (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)).HitTest(vector2))
                         {
                             GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
@@ -4094,7 +4094,7 @@ namespace Ship_Game
                 }
                 foreach (UIButton uiButton in this.Buttons)
                 {
-                    if (HelperFunctions.CheckIntersection(uiButton.Rect, vector2))
+                    if (uiButton.Rect.HitTest(vector2))
                     {
                         uiButton.State = UIButton.PressState.Hover;
                         if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
@@ -4134,7 +4134,7 @@ namespace Ship_Game
                 {
                     foreach (ToggleButton toggleButton in this.CombatStatusButtons)
                     {
-                        if (HelperFunctions.CheckIntersection(toggleButton.r, input.CursorPosition))
+                        if (toggleButton.r.HitTest(input.CursorPosition))
                         {
                             if (toggleButton.HasToolTip)
                                 ToolTip.CreateTooltip(toggleButton.WhichToolTip, this.ScreenManager);

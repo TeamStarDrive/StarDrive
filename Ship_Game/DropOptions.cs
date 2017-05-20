@@ -62,13 +62,13 @@ namespace Ship_Game
 		{
 			bool hover = false;
 			Vector2 mousePos = Mouse.GetState().Pos();
-			if (HelperFunctions.CheckIntersection(r, mousePos))
+			if (r.HitTest(mousePos))
 			{
 				hover = true;
 			}
 			if (hover)
 			{
-				Primitives2D.FillRectangle(spriteBatch, r, new Color(128, 87, 43, 50));
+				spriteBatch.FillRectangle(r, new Color(128, 87, 43, 50));
 			}
             for (int i = 0; i < Count; ++i) Border[i].Draw(spriteBatch, Color.White);
             if (!hover && Options.Count > 0)
@@ -104,7 +104,7 @@ namespace Ship_Game
 			}
 			if (Open)
 			{
-				Primitives2D.FillRectangle(spriteBatch, OpenRect, new Color(22, 22, 23));
+				spriteBatch.FillRectangle(OpenRect, new Color(22, 22, 23));
 				int i = 1;
 				foreach (Entry e in Options)
 				{
@@ -116,7 +116,7 @@ namespace Ship_Game
 					Rectangle rectangle1 = rectangle;
 					e.clickRect = rectangle;
 					e.clickRect = rectangle1;
-					if (HelperFunctions.CheckIntersection(e.clickRect, mousePos))
+					if (e.clickRect.HitTest(mousePos))
 					{
 						var hoverLeft   = new Rectangle(e.clickRect.X + 5, e.clickRect.Y + 1, 6, 15);
                         var hoverMiddle = new Rectangle(e.clickRect.X + 11, e.clickRect.Y + 1, e.clickRect.Width - 22, 15);

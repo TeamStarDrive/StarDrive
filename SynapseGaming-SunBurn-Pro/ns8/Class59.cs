@@ -8,14 +8,6 @@ namespace ns8
 {
   internal class Class59
   {
-    private Class58[] class58_0 = new Class58[4];
-
-    public Class58[] Channels
-    {
-      get
-      {
-        return this.class58_0;
-      }
-    }
+      public Class58[] Channels { get; } = new Class58[4];
   }
 }

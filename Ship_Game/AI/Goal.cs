@@ -364,18 +364,18 @@ namespace Ship_Game.AI
                         if (planet.HasShipyard)
                             list.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list, (Func<Planet, float>)(planet => planet.ConstructionQueue.Count ));
+                    IOrderedEnumerable<Planet> orderedEnumerable = ((IEnumerable<Planet>)list).OrderBy<Planet, float>((Func<Planet, float>)(planet => planet.ConstructionQueue.Count ));
 
-                    int TotalPlanets = Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable);
+                    int TotalPlanets = ((IEnumerable<Planet>)orderedEnumerable).Count<Planet>();
                     if (TotalPlanets <= 0) break;
 
-                    int leastque = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Count;
+                    int leastque = ((IEnumerable<Planet>)orderedEnumerable).ElementAt<Planet>(0).ConstructionQueue.Count;
                     float leastdist = float.MaxValue;
                     int bestplanet = 0;
 
                     for (short looper = 0; looper < TotalPlanets; looper++)
                     {                        
-                        if (Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).ConstructionQueue.Count > leastque)
+                        if (((IEnumerable<Planet>)orderedEnumerable).ElementAt<Planet>(looper).ConstructionQueue.Count > leastque)
                             break;
                         float currentdist = Vector2.Distance(orderedEnumerable.ElementAt(looper).Center, this.BuildPosition);
                         if (currentdist < leastdist)
@@ -409,7 +409,7 @@ namespace Ship_Game.AI
                         ResourceManager.ShipsDict.TryGetValue(empiredefaultShip, out this.beingBuilt);
                         this.empire.data.DefaultConstructor = empiredefaultShip;
                     }
-                    Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, bestplanet).ConstructionQueue.Add(queueItem); //Gretman
+                    ((IEnumerable<Planet>)orderedEnumerable).ElementAt<Planet>(bestplanet).ConstructionQueue.Add(queueItem); //Gretman
                     ++this.Step;
                     break;
                 case 4:
@@ -761,16 +761,16 @@ namespace Ship_Game.AI
                             if (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.scout)
                                 list2.Add(ResourceManager.ShipsDict[index]);
                         }
-                        IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.PowerFlowMax - ship.ModulePowerDraw));
-                        if (Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) <= 0)
+                        IOrderedEnumerable<Ship> orderedEnumerable = ((IEnumerable<Ship>)list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.PowerFlowMax - ship.ModulePowerDraw));
+                        if (((IEnumerable<Ship>)orderedEnumerable).Count<Ship>() <= 0)
                             break;
                         planet1.ConstructionQueue.Add(new QueueItem()
                         {
                             isShip = true,
                             QueueNumber = planet1.ConstructionQueue.Count,
-                            sData = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable).Name].GetShipData(),
+                            sData = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetShipData(),
                             Goal = this,
-                            Cost = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable).Name].GetCost(this.empire)
+                            Cost = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetCost(this.empire)
                         });
                         ++this.Step;
                         break;
@@ -859,23 +859,23 @@ namespace Ship_Game.AI
                                 if (!ResourceManager.ShipsDict[index].isColonyShip && !ResourceManager.ShipsDict[index].isConstructor && (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.freighter || ResourceManager.ShipsDict[index].shipData.ShipCategory == ShipData.Category.Civilian))
                                     list2.Add(ResourceManager.ShipsDict[index]);
                             }
-                            IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.CargoSpaceMax));
+                            IOrderedEnumerable<Ship> orderedEnumerable1 = ((IEnumerable<Ship>)list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.CargoSpaceMax));
                             Array<Ship> list3 = new Array<Ship>();
                             foreach (Ship ship in (IEnumerable<Ship>)orderedEnumerable1)
                             {
-                                if (!ship.isColonyShip && (double)ship.CargoSpaceMax >= (double)Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable1).CargoSpaceMax)
+                                if (!ship.isColonyShip && (double)ship.CargoSpaceMax >= (double)((IEnumerable<Ship>)orderedEnumerable1).First<Ship>().CargoSpaceMax)
                                     list3.Add(ship);
                             }
-                            IOrderedEnumerable<Ship> orderedEnumerable2 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.WarpThrust / ship.Mass));
-                            if (Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable2) <= 0)
+                            IOrderedEnumerable<Ship> orderedEnumerable2 = ((IEnumerable<Ship>)list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.WarpThrust / ship.Mass));
+                            if (((IEnumerable<Ship>)orderedEnumerable2).Count<Ship>() <= 0)
                                 break;
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetShipData(),
+                                sData = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable2).First<Ship>().Name].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetCost(this.empire)
+                                Cost = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable2).First<Ship>().Name].GetCost(this.empire)
                             });
                             ++this.Step;
                             break;

@@ -22,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Processors
       sceneEnvironment.method_0(string_3);
       sceneEnvironment.SceneEnvironmentFile = str1;
       sceneEnvironment.ProjectFile = str2;
-      Class55.smethod_0(input);
+      BlockUtil.SkipBlock(input);
       return sceneEnvironment;
     }
   }

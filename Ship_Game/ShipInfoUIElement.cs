@@ -289,7 +289,7 @@ namespace Ship_Game
             Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_experience_shipUI"], star, Color.White);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
-            if (HelperFunctions.CheckIntersection(star, MousePos))
+            if (star.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(161, this.ScreenManager);
             }
@@ -308,7 +308,7 @@ namespace Ship_Game
                 float damageModifier = this.ship.DamageModifier * 100f;
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), TextPos, Color.White);
                 numStatus++;
-                if (HelperFunctions.CheckIntersection(PackRect, MousePos))
+                if (PackRect.HitTest(MousePos))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2245), this.ScreenManager);
                 }
@@ -340,7 +340,7 @@ namespace Ship_Game
                 //{
                     Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], FoodRect, Color.PaleVioletRed);
-                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    if (FoodRect.HitTest(MousePos))
                     {
                         string EState = this.ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
                         ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), $"{1f - ship.FTLModifier:P0}", "\n\nEngine State: ", EState), ScreenManager);
@@ -355,7 +355,7 @@ namespace Ship_Game
                 //{
                     var rect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], rect, Color.LightGreen);
-                    if (HelperFunctions.CheckIntersection(rect, MousePos))
+                    if (rect.HitTest(MousePos))
                     {
 
                         ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), $"{ship.FTLModifier - 1f:P0}", "\n\nEngine State: FTL"), ScreenManager);
@@ -383,7 +383,7 @@ namespace Ship_Game
                 {
                     Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_gravwell"], FoodRect, Color.White);
-                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    if (FoodRect.HitTest(MousePos))
                     {
                         ToolTip.CreateTooltip(Localizer.Token(2287), this.ScreenManager);
                     }
@@ -394,7 +394,7 @@ namespace Ship_Game
                 {
                     Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
-                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    if (FoodRect.HitTest(MousePos))
                     {
                         ToolTip.CreateTooltip(117, this.ScreenManager);
                     }
@@ -404,7 +404,7 @@ namespace Ship_Game
                 {
                     Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_flux"], FoodRect, Color.White);
-                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    if (FoodRect.HitTest(MousePos))
                     {
                         ToolTip.CreateTooltip(Localizer.Token(2285), this.ScreenManager);
                     }
@@ -415,7 +415,7 @@ namespace Ship_Game
             {
                 Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_disabled"], FoodRect, Color.White);
-                if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                if (FoodRect.HitTest(MousePos))
                 {
                     ToolTip.CreateTooltip(116, this.ScreenManager);
                 }
@@ -438,7 +438,7 @@ namespace Ship_Game
            
             else
             {
-                if (HelperFunctions.CheckIntersection(this.ShipNameArea.ClickableArea, input.CursorPosition))
+                if (this.ShipNameArea.ClickableArea.HitTest(input.CursorPosition))
                 {
                     this.ShipNameArea.Hover = true;
                     if (input.InGameSelect && this.CanRename)
@@ -454,7 +454,7 @@ namespace Ship_Game
                 }
                 else
                     GlobalStats.TakingInput = false;
-                if (HelperFunctions.CheckIntersection(this.gridbutton.r, input.CursorPosition))
+                if (this.gridbutton.r.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(Localizer.Token(2204), this.ScreenManager);
                 if (this.gridbutton.HandleInput(input))
                 {
@@ -469,7 +469,7 @@ namespace Ship_Game
                         return false;
                     if (this.DoubleClickTimer > 0)
                         this.DoubleClickTimer -= 0.01666f;
-                    if (HelperFunctions.CheckIntersection(this.ShipInfoRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
+                    if (this.ShipInfoRect.HitTest(input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
                     {
                         Empire.Universe.ViewingShip = false;
                         Empire.Universe.AdjustCamTimer = 0.5f;
@@ -478,13 +478,13 @@ namespace Ship_Game
                         if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
                             Empire.Universe.transitionDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                     }
-                    else if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                    else if (this.ElementRect.HitTest(input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                         this.DoubleClickTimer = 0.25f;    
                     if (this.ship.loyalty == EmpireManager.Player && !this.ship.isConstructor)
                     {
                         foreach (ToggleButton toggleButton in this.CombatStatusButtons)
                         {
-                            if (HelperFunctions.CheckIntersection(toggleButton.r, input.CursorPosition))
+                            if (toggleButton.r.HitTest(input.CursorPosition))
                             {
                                 toggleButton.Hover = true;
                                 if (toggleButton.HasToolTip)
@@ -565,10 +565,10 @@ namespace Ship_Game
                     }
                     foreach (ShipInfoUIElement.TippedItem tippedItem in this.ToolTipItems)
                     {
-                        if (HelperFunctions.CheckIntersection(tippedItem.r, input.CursorPosition))
+                        if (tippedItem.r.HitTest(input.CursorPosition))
                             ToolTip.CreateTooltip(tippedItem.TIP_ID, this.ScreenManager);
                     }
-                    if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition))
+                    if (this.ElementRect.HitTest(input.CursorPosition))
                         return true;
                     if (this.State == UIElement.ElementState.Open)
                     {

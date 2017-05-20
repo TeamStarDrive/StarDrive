@@ -647,7 +647,7 @@ namespace Ship_Game
 					this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
 				}
 			}
-			if (!HelperFunctions.CheckIntersection(this.ShipNameEntry.ClickableArea, input.CursorPosition))
+			if (!this.ShipNameEntry.ClickableArea.HitTest(input.CursorPosition))
 			{
 				this.ShipNameEntry.Hover = false;
 			}

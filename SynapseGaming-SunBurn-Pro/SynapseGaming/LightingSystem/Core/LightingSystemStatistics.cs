@@ -4,33 +4,27 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
-using System.Collections.Generic;
-using System.IO;
 
 namespace SynapseGaming.LightingSystem.Core
 {
     /// <summary>Tracks per-frame lighting and rendering statistics.</summary>
     public class LightingSystemStatistics
     {
-        private static bool bool_0 = false;
-        private static bool bool_1 = false;
+        private static bool bool_0;
+        private static bool bool_1;
         private static Dictionary<string, LightingSystemStatistic> dictionary_0 = new Dictionary<string, LightingSystemStatistic>(32);
         private static Class16 class16_0 = new Class16();
-        private static Color color_0 = new Color((byte)0, (byte)0, (byte)0, (byte)180);
-        private static Vector2 vector2_0 = new Vector2();
+        private static Color color_0 = new Color(0, 0, 0, 180);
+        private static Vector2 vector2_0;
         private const int int_0 = 10;
 
         /// <summary>Dictionary of all statistics.</summary>
-        public static Dictionary<string, LightingSystemStatistic> Statistics
-        {
-            get
-            {
-                return LightingSystemStatistics.dictionary_0;
-            }
-        }
+        public static Dictionary<string, LightingSystemStatistic> Statistics => dictionary_0;
 
         /// <summary>Gets a statistic by name, creating it if necessary.</summary>
         /// <param name="name"></param>
@@ -39,10 +33,10 @@ namespace SynapseGaming.LightingSystem.Core
         public static LightingSystemStatistic GetStatistic(string name, LightingSystemStatisticCategory category)
         {
             LightingSystemStatistic lightingSystemStatistic1;
-            if (LightingSystemStatistics.dictionary_0.TryGetValue(name, out lightingSystemStatistic1))
+            if (dictionary_0.TryGetValue(name, out lightingSystemStatistic1))
                 return lightingSystemStatistic1;
             LightingSystemStatistic lightingSystemStatistic2 = new LightingSystemStatistic(name, category);
-            LightingSystemStatistics.dictionary_0.Add(name, lightingSystemStatistic2);
+            dictionary_0.Add(name, lightingSystemStatistic2);
             return lightingSystemStatistic2;
         }
 
@@ -51,12 +45,12 @@ namespace SynapseGaming.LightingSystem.Core
         /// </summary>
         public static void CommitChanges()
         {
-            if (!LightingSystemStatistics.bool_0)
+            if (!bool_0)
                 return;
-            foreach (KeyValuePair<string, LightingSystemStatistic> keyValuePair in LightingSystemStatistics.dictionary_0)
+            foreach (KeyValuePair<string, LightingSystemStatistic> keyValuePair in dictionary_0)
                 keyValuePair.Value.method_0();
-            LightingSystemStatistics.bool_0 = false;
-            LightingSystemStatistics.bool_1 = false;
+            bool_0 = false;
+            bool_1 = false;
         }
 
         /// <summary>
@@ -75,21 +69,21 @@ namespace SynapseGaming.LightingSystem.Core
             SpriteBatch spriteBatch_0 = LightingSystemManager.Instance.method_9(device);
             SpriteFont spriteFont_0 = LightingSystemManager.Instance.method_8();
             spriteBatch_0.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.SaveState);
-            spriteBatch_0.Draw(LightingSystemManager.Instance.method_2("White"), new Rectangle((int)screenposition.X - 10, (int)screenposition.Y - 10, (int)LightingSystemStatistics.vector2_0.X + 20, (int)LightingSystemStatistics.vector2_0.Y + 20), LightingSystemStatistics.color_0);
-            LightingSystemStatistics.class16_0.method_4("FrameRate", gametime, !LightingSystemStatistics.bool_1);
-            LightingSystemStatistics.vector2_0 = LightingSystemStatistics.class16_0.method_1(spriteBatch_0, spriteFont_0, ref screenposition, scale, color);
-            LightingSystemStatistics.bool_0 = true;
-            LightingSystemStatistics.bool_1 = true;
-            foreach (KeyValuePair<string, LightingSystemStatistic> keyValuePair in LightingSystemStatistics.dictionary_0)
+            spriteBatch_0.Draw(LightingSystemManager.Instance.method_2("White"), new Rectangle((int)screenposition.X - 10, (int)screenposition.Y - 10, (int)vector2_0.X + 20, (int)vector2_0.Y + 20), color_0);
+            class16_0.method_4("FrameRate", gametime, !bool_1);
+            vector2_0 = class16_0.method_1(spriteBatch_0, spriteFont_0, ref screenposition, scale, color);
+            bool_0 = true;
+            bool_1 = true;
+            foreach (KeyValuePair<string, LightingSystemStatistic> keyValuePair in dictionary_0)
             {
                 if ((keyValuePair.Value.Category & categories) != LightingSystemStatisticCategory.None)
                 {
-                    LightingSystemStatistics.class16_0.method_2(keyValuePair.Value.Name, keyValuePair.Value.Value);
-                    Vector2 vector2_2 = LightingSystemStatistics.class16_0.method_1(spriteBatch_0, spriteFont_0, ref screenposition, scale, color);
-                    LightingSystemStatistics.vector2_0 = Vector2.Max(LightingSystemStatistics.vector2_0, vector2_2);
+                    class16_0.method_2(keyValuePair.Value.Name, keyValuePair.Value.Value);
+                    Vector2 vector2_2 = class16_0.method_1(spriteBatch_0, spriteFont_0, ref screenposition, scale, color);
+                    vector2_0 = Vector2.Max(vector2_0, vector2_2);
                 }
             }
-            LightingSystemStatistics.vector2_0.Y = screenposition.Y - vector2_1.Y;
+            vector2_0.Y = screenposition.Y - vector2_1.Y;
             spriteBatch_0.End();
         }
 

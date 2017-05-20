@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
-using System;
 
 namespace ns6
 {
@@ -29,39 +29,24 @@ namespace ns6
 
     public Vector3 Color
     {
-      get
-      {
-        return this.vector3_2;
-      }
-      set
-      {
-        EffectHelper.smethod_4(value, ref this.vector3_2, ref this.effectParameter_13);
-      }
+      get => this.vector3_2;
+        set => EffectHelper.smethod_4(value, ref this.vector3_2, ref this.effectParameter_13);
     }
 
     public Texture2D BeamTexture
     {
-      get
-      {
-        return this.texture2D_0;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_15);
-      }
+      get => this.texture2D_0;
+        set => EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_15);
     }
 
     public Texture2D SceneDepthMap
     {
-      get
-      {
-        return this.texture2D_1;
-      }
-      set
+      get => this.texture2D_1;
+        set
       {
         EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_16);
         if (this.effectParameter_14 != null && this.texture2D_1 != null)
-          EffectHelper.smethod_7(new Vector2((float) this.texture2D_1.Width, (float) this.texture2D_1.Height), ref this.vector2_0, ref this.effectParameter_14);
+          EffectHelper.smethod_7(new Vector2(this.texture2D_1.Width, this.texture2D_1.Height), ref this.vector2_0, ref this.effectParameter_14);
         this.SetTechnique();
       }
     }
@@ -84,7 +69,7 @@ namespace ns6
       if (this.effectParameter_11 == null)
         return;
       float_1 = MathHelper.ToRadians(MathHelper.Clamp(float_1, 0.1f, 90f));
-      float num = (float) Math.Sin((double) float_1) * float_2;
+      float num = (float) Math.Sin(float_1) * float_2;
       EffectHelper.smethod_4(new Vector3(num, num, float_2), ref this.vector3_0, ref this.effectParameter_11);
     }
 
@@ -95,12 +80,12 @@ namespace ns6
       Vector3 vector3_0 = new Vector3();
       Vector4 vector4_1 = Vector4.Transform(new Vector4(0.0f, 0.0f, 0.0f, 1f), matrix_9);
       Vector4 vector4_2 = Vector4.Transform(new Vector4(0.0f, 0.0f, 1f, 1f), matrix_9);
-      if ((double) vector4_1.W != 0.0)
+      if (vector4_1.W != 0.0)
         vector3_0.X = Math.Abs(vector4_1.Z / vector4_1.W);
-      if ((double) vector4_2.W != 0.0)
+      if (vector4_2.W != 0.0)
         vector3_0.Y = Math.Abs(vector4_2.Z / vector4_2.W);
       float num = vector3_0.Y - vector3_0.X;
-      if ((double) num != 0.0)
+      if (num != 0.0)
         vector3_0.Z = 10000f / num;
       EffectHelper.smethod_4(vector3_0, ref this.vector3_1, ref this.effectParameter_12);
     }
@@ -115,7 +100,7 @@ namespace ns6
 
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new Class45(device);
+      return new Class45(device);
     }
   }
 }

@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
-using System;
 
 namespace SynapseGaming.LightingSystem.Processors.Forward
 {
@@ -41,7 +41,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
       lightingEffect.DoubleSided = input.ReadBoolean();
       TransparencyMode mode = (TransparencyMode) input.ReadInt32();
       float transparency = input.ReadSingle();
-      lightingEffect.SetTransparencyModeAndMap(mode, transparency, (Texture) lightingEffect.DiffuseMapTexture);
+      lightingEffect.SetTransparencyModeAndMap(mode, transparency, lightingEffect.DiffuseMapTexture);
       lightingEffect.SpecularPower = input.ReadSingle();
       lightingEffect.SpecularAmount = input.ReadSingle();
       lightingEffect.FresnelReflectBias = input.ReadSingle();
@@ -56,7 +56,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
       lightingEffect.AddressModeU = (TextureAddressMode) input.ReadInt32();
       lightingEffect.AddressModeV = (TextureAddressMode) input.ReadInt32();
       lightingEffect.AddressModeW = (TextureAddressMode) input.ReadInt32();
-      Class55.smethod_0(input);
+      BlockUtil.SkipBlock(input);
       if (input.ReadInt32() != 1234)
         throw new Exception("Error loading asset.");
       return lightingEffect;

@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace ns7
 {
@@ -26,26 +26,26 @@ namespace ns7
 
     public Class54(GraphicsDevice device, int slices)
     {
-      Class54.list_0.Clear();
+      list_0.Clear();
       float num1 = 1f;
-      float num2 = num1 / (float) slices;
+      float num2 = num1 / slices;
       float float_0 = num2;
       float radians = MathHelper.ToRadians(90f);
       for (int index = 0; index < slices - 1; ++index)
       {
         float num3 = float_0 / num1;
-        float num4 = (float) Math.Cos((double) radians * (double) num3);
-        this.method_1(Class54.list_0, float_0, num4 * num1, num1, 1f - num3);
+        float num4 = (float) Math.Cos(radians * (double) num3);
+        this.method_1(list_0, float_0, num4 * num1, num1, 1f - num3);
         float_0 += num2;
       }
-      this.method_0(Class54.list_0, Matrix.CreateRotationZ(MathHelper.ToRadians(180f)));
-      this.method_1(Class54.list_0, 0.0f, num1, num1, 1f);
-      this.method_0(Class54.list_0, Matrix.CreateRotationZ(MathHelper.ToRadians(90f)));
-      VertexPositionNormalTextureBump[] array = Class54.list_0.ToArray();
+      this.method_0(list_0, Matrix.CreateRotationZ(MathHelper.ToRadians(180f)));
+      this.method_1(list_0, 0.0f, num1, num1, 1f);
+      this.method_0(list_0, Matrix.CreateRotationZ(MathHelper.ToRadians(90f)));
+      VertexPositionNormalTextureBump[] array = list_0.ToArray();
       this.PrimitiveCount = array.Length / 3;
       this.VertexStride = VertexPositionNormalTextureBump.SizeInBytes;
       this.VertexBuffer = new VertexBuffer(device, typeof (VertexPositionNormalTextureBump), array.Length, BufferUsage.WriteOnly);
-      this.VertexBuffer.SetData<VertexPositionNormalTextureBump>(array);
+      this.VertexBuffer.SetData(array);
       this.VertexDeclaration = new VertexDeclaration(device, VertexPositionNormalTextureBump.VertexElements);
     }
 

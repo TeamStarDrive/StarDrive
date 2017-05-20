@@ -106,7 +106,7 @@ namespace Ship_Game
 					if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
 					{
 						Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
-						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, war, Color.Red);
+						base.ScreenManager.SpriteBatch.FillRectangle(war, Color.Red);
 					}
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
@@ -124,7 +124,7 @@ namespace Ship_Game
                     EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
                     EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
-                    if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
+                    if (EspionageDefenseIcon.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                     {
                         ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
                     }
@@ -152,7 +152,7 @@ namespace Ship_Game
                     EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
                     EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
-                    if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X,Mouse.GetState().Y)))
+                    if (EspionageDefenseIcon.HitTest(new Vector2(Mouse.GetState().X,Mouse.GetState().Y)))
                     {
                         ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
                     }
@@ -161,11 +161,11 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, race.container, Color.Orange);
+				base.ScreenManager.SpriteBatch.DrawRectangle(race.container, Color.Orange);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.SelectedInfoRect, new Color(23, 20, 14));
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.IntelligenceRect, new Color(23, 20, 14));
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.OperationsRect, new Color(23, 20, 14));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.SelectedInfoRect, new Color(23, 20, 14));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.IntelligenceRect, new Color(23, 20, 14));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.OperationsRect, new Color(23, 20, 14));
 			Vector2 TextCursor = new Vector2((float)(this.SelectedInfoRect.X + 20), (float)(this.SelectedInfoRect.Y + 10));
 			TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 4);
 			HelperFunctions.DrawDropShadowText(base.ScreenManager, Localizer.Token(6090), TextCursor, Fonts.Arial20Bold);
@@ -450,7 +450,7 @@ namespace Ship_Game
 				}
 			}
 			
-			if (!HelperFunctions.CheckIntersection(this.AgentComponent.ComponentRect, input.CursorPosition))
+			if (!this.AgentComponent.ComponentRect.HitTest(input.CursorPosition))
 			{
 				if (input.InGameSelect && !GotRace)
 				{

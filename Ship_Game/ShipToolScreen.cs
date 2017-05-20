@@ -21,7 +21,6 @@ namespace Ship_Game
         private SceneObject shipSO;
         private Model model;
 
-        private Effect ThrusterEffect;
         private InputState designInputState;
         private SpriteBatch spriteBatch;
 
@@ -135,7 +134,7 @@ namespace Ship_Game
             base.ScreenManager.GraphicsDevice.Clear(Color.Black);
             if (this.applyThruster)
             {
-                this.thruster.draw(ref this.view, ref this.projection, this.ThrusterEffect);
+                this.thruster.Draw(ref this.view, ref this.projection);
             }
             base.ScreenManager.inter.RenderManager.Render();
             Rectangle rectangle = new Rectangle(this.border.X, this.border.Y, 512, 512);
@@ -160,7 +159,7 @@ namespace Ship_Game
             WhichSelectionPos.X = WhichSelectionPos.X + 150f;
             WhichSelectionPos.Y = WhichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
             WhichSelectionPos.Y = WhichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
-            Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, this.what, Color.White);
+            base.ScreenManager.SpriteBatch.DrawRectangle(this.what, Color.White);
             foreach (SlotStruct slot in this.SlotList)
             {
                 if (!this.applyThruster && slot.PQ.isFilled)
@@ -364,7 +363,7 @@ namespace Ship_Game
                 this.ShipNameBox.HandleTextInput(ref this.HullName, input);
                 this.ShipNameBox.Text = this.HullName;
             }
-            if (!HelperFunctions.CheckIntersection(this.ShipNameBox.ClickableArea, input.CursorPosition))
+            if (!this.ShipNameBox.ClickableArea.HitTest(input.CursorPosition))
             {
                 this.ShipNameBox.Hover = false;
                 if (input.InGameSelect)
@@ -382,7 +381,7 @@ namespace Ship_Game
             }
             foreach (ToggleButton button in this.DesignStateButtons)
             {
-                if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+                if (!button.r.HitTest(input.CursorPosition))
                 {
                     button.Hover = false;
                 }
@@ -550,9 +549,8 @@ namespace Ship_Game
             this.DottedLine = TransientContent.Load<Texture2D>("Textures/UI/DottedLine");
             this.Center = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
             this.ConfigureSlots();
-            this.ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
             this.thruster = new Thruster();
-            this.thruster.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
+            this.thruster.LoadAndAssignDefaultEffects(TransientContent);
             base.LoadContent();
         }
 
@@ -687,7 +685,7 @@ namespace Ship_Game
             this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             this.designInputState.Update(gameTime);
             this.HandleInput();
-            this.thruster.update(new Vector3(this.tPos.X, this.tPos.Y, 30f), new Vector3(0f, -1f, 0f), new Vector3(this.tscale, this.tscale, this.tscale), this.heat, 0.002f, Color.OrangeRed, Color.Blue, camPos);
+            this.thruster.Update(new Vector3(this.tPos.X, this.tPos.Y, 30f), new Vector3(0f, -1f, 0f), new Vector3(this.tscale, this.tscale, this.tscale), this.heat, 0.002f, Color.OrangeRed, Color.Blue, camPos);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

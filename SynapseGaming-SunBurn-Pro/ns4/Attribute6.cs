@@ -8,22 +8,14 @@ using System;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property)]
   internal class Attribute6 : Attribute4
   {
-    private bool bool_0;
+      public bool IntegerValue { get; }
 
-    public bool IntegerValue
+      public Attribute6(bool integervalue)
     {
-      get
-      {
-        return this.bool_0;
-      }
-    }
-
-    public Attribute6(bool integervalue)
-    {
-      this.bool_0 = integervalue;
+      this.IntegerValue = integervalue;
     }
   }
 }

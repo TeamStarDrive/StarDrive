@@ -4,9 +4,9 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -19,41 +19,21 @@ namespace SynapseGaming.LightingSystem.Rendering
   /// </summary>
   public abstract class BaseOverlayPostProcessor : IPostProcessor
   {
-    private ISceneState isceneState_0;
-
-    /// <summary>
+      /// <summary>
     /// Render target formats supported by the post processor.
     /// </summary>
-    public virtual SurfaceFormat[] SupportedTargetFormats
-    {
-      get
-      {
-        return PostProcessManager.AllSupportedFormats;
-      }
-    }
+    public virtual SurfaceFormat[] SupportedTargetFormats => PostProcessManager.AllSupportedFormats;
 
-    /// <summary>
+      /// <summary>
     /// Source texture formats supported by the post processor. Source textures are
     /// provided by the previous post processor in the processing chain.
     /// </summary>
-    public virtual SurfaceFormat[] SupportedSourceFormats
-    {
-      get
-      {
-        return PostProcessManager.AllSupportedFormats;
-      }
-    }
+    public virtual SurfaceFormat[] SupportedSourceFormats => PostProcessManager.AllSupportedFormats;
 
-    /// <summary>The current SceneState used by this object.</summary>
-    protected ISceneState SceneState
-    {
-      get
-      {
-        return this.isceneState_0;
-      }
-    }
+      /// <summary>The current SceneState used by this object.</summary>
+    protected ISceneState SceneState { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Use to apply user quality and performance preferences to the resources managed by this object.
     /// </summary>
     /// <param name="preferences"></param>
@@ -63,7 +43,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <param name="scenestate"></param>
     public virtual void BeginFrameRendering(ISceneState scenestate)
     {
-      this.isceneState_0 = scenestate;
+      this.SceneState = scenestate;
     }
 
     /// <summary>

@@ -8,22 +8,14 @@ using System;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property)]
   internal class Attribute7 : Attribute4
   {
-    private int int_0;
+      public int Width { get; }
 
-    public int Width
+      public Attribute7(int width)
     {
-      get
-      {
-        return this.int_0;
-      }
-    }
-
-    public Attribute7(int width)
-    {
-      this.int_0 = width;
+      this.Width = width;
     }
   }
 }

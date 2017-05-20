@@ -10,89 +10,26 @@ namespace ns9
 {
   internal class Class63
   {
-    private bool bool_0 = true;
-    private Class62 class62_0 = new Class62();
-    private bool bool_1;
-    private bool bool_2;
-    private bool bool_3;
-    private Effect effect_0;
+      public bool HasRenderableObjects { get; set; } = true;
 
-    public bool HasRenderableObjects
-    {
-      get
-      {
-        return this.bool_0;
-      }
-      set
-      {
-        this.bool_0 = value;
-      }
-    }
+      public bool Transparent { get; set; }
 
-    public bool Transparent
-    {
-      get
-      {
-        return this.bool_1;
-      }
-      set
-      {
-        this.bool_1 = value;
-      }
-    }
+      public bool DoubleSided { get; set; }
 
-    public bool DoubleSided
-    {
-      get
-      {
-        return this.bool_2;
-      }
-      set
-      {
-        this.bool_2 = value;
-      }
-    }
+      public bool CustomShadowGeneration { get; set; }
 
-    public bool CustomShadowGeneration
-    {
-      get
-      {
-        return this.bool_3;
-      }
-      set
-      {
-        this.bool_3 = value;
-      }
-    }
+      public Effect Effect { get; set; }
 
-    public Effect Effect
-    {
-      get
-      {
-        return this.effect_0;
-      }
-      set
-      {
-        this.effect_0 = value;
-      }
-    }
+      public Class62 Objects { get; } = new Class62();
 
-    public Class62 Objects
+      public void method_0()
     {
-      get
-      {
-        return this.class62_0;
-      }
-    }
-
-    public void method_0()
-    {
-      this.bool_0 = true;
-      this.bool_1 = false;
-      this.bool_2 = false;
-      this.bool_3 = false;
-      this.effect_0 = (Effect) null;
-      this.class62_0.method_1();
+      this.HasRenderableObjects = true;
+      this.Transparent = false;
+      this.DoubleSided = false;
+      this.CustomShadowGeneration = false;
+      this.Effect = null;
+      this.Objects.method_1();
     }
   }
 }

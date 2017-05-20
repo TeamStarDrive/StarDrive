@@ -4,15 +4,15 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
+using SynapseGaming.LightingSystem.Core;
 
 namespace ns3
 {
   internal class Class18<Tkey, Tvalue>
   {
-    public static uint uint_0 = (uint) int.MaxValue;
+    public static uint uint_0 = int.MaxValue;
     private static PooledObjectFactory<Class18<Tkey, Tvalue>> pooledObjectFactory_0 = new PooledObjectFactory<Class18<Tkey, Tvalue>>();
     public List<Tvalue> list_0 = new List<Tvalue>();
     public Tkey gparam_0;
@@ -30,7 +30,7 @@ namespace ns3
 
     public Class18()
     {
-      this.uint_1 = Class18<Tkey, Tvalue>.uint_0;
+      this.uint_1 = uint_0;
     }
 
     public Class18<Tkey, Tvalue> method_0()
@@ -60,7 +60,7 @@ namespace ns3
       {
         if (this.class18_2 == null)
         {
-          this.class18_2 = Class18<Tkey, Tvalue>.pooledObjectFactory_0.New();
+          this.class18_2 = pooledObjectFactory_0.New();
           this.class18_2.uint_1 = uint_2;
           this.class18_2.class18_4 = this;
           this.method_5(this.class18_0, this, this.class18_2);
@@ -69,7 +69,7 @@ namespace ns3
       }
       if (this.class18_3 == null)
       {
-        this.class18_3 = Class18<Tkey, Tvalue>.pooledObjectFactory_0.New();
+        this.class18_3 = pooledObjectFactory_0.New();
         this.class18_3.uint_1 = uint_2;
         this.class18_3.class18_4 = this;
         this.method_5(this, this.class18_1, this.class18_3);
@@ -81,21 +81,21 @@ namespace ns3
     {
       this.gparam_0 = default (Tkey);
       this.list_0.Clear();
-      this.uint_1 = Class18<Tkey, Tvalue>.uint_0;
-      this.class18_0 = (Class18<Tkey, Tvalue>) null;
-      this.class18_1 = (Class18<Tkey, Tvalue>) null;
-      this.class18_4 = (Class18<Tkey, Tvalue>) null;
+      this.uint_1 = uint_0;
+      this.class18_0 = null;
+      this.class18_1 = null;
+      this.class18_4 = null;
       if (this.class18_2 != null)
       {
         this.class18_2.method_4();
-        Class18<Tkey, Tvalue>.pooledObjectFactory_0.Free(this.class18_2);
-        this.class18_2 = (Class18<Tkey, Tvalue>) null;
+        pooledObjectFactory_0.Free(this.class18_2);
+        this.class18_2 = null;
       }
       if (this.class18_3 == null)
         return;
       this.class18_3.method_4();
-      Class18<Tkey, Tvalue>.pooledObjectFactory_0.Free(this.class18_3);
-      this.class18_3 = (Class18<Tkey, Tvalue>) null;
+      pooledObjectFactory_0.Free(this.class18_3);
+      this.class18_3 = null;
     }
 
     private void method_5(Class18<Tkey, Tvalue> class18_5, Class18<Tkey, Tvalue> class18_6, Class18<Tkey, Tvalue> class18_7)
@@ -118,7 +118,7 @@ namespace ns3
         class18_5.class18_1.class18_0 = class18_5.class18_0;
       if (class18_5.class18_2 == null)
       {
-        if (class18_5.Equals((object) class18_5.class18_4.class18_2))
+        if (class18_5.Equals(class18_5.class18_4.class18_2))
           class18_5.class18_4.class18_2 = class18_5.class18_3;
         else
           class18_5.class18_4.class18_3 = class18_5.class18_3;
@@ -127,7 +127,7 @@ namespace ns3
       }
       else if (class18_5.class18_3 == null)
       {
-        if (class18_5.Equals((object) class18_5.class18_4.class18_2))
+        if (class18_5.Equals(class18_5.class18_4.class18_2))
           class18_5.class18_4.class18_2 = class18_5.class18_2;
         else
           class18_5.class18_4.class18_3 = class18_5.class18_2;
@@ -136,7 +136,7 @@ namespace ns3
       }
       else
       {
-        if (class18_5.Equals((object) class18_5.class18_4.class18_2))
+        if (class18_5.Equals(class18_5.class18_4.class18_2))
           class18_5.class18_4.class18_2 = class18_5.class18_3;
         else
           class18_5.class18_4.class18_3 = class18_5.class18_3;
@@ -147,10 +147,10 @@ namespace ns3
         class18.class18_2 = class18_5.class18_2;
         class18_5.class18_2.class18_4 = class18;
       }
-      class18_5.class18_2 = (Class18<Tkey, Tvalue>) null;
-      class18_5.class18_3 = (Class18<Tkey, Tvalue>) null;
+      class18_5.class18_2 = null;
+      class18_5.class18_3 = null;
       class18_5.method_4();
-      Class18<Tkey, Tvalue>.pooledObjectFactory_0.Free(class18_5);
+      pooledObjectFactory_0.Free(class18_5);
     }
 
     public static void smethod_1(Class18<Tkey, Tvalue> class18_5)
@@ -169,7 +169,7 @@ namespace ns3
         uint1 = class18.uint_1;
       }
       int int_0 = 0;
-      Class18<Tkey, Tvalue>.smethod_2(class18_5_1, ref int_0);
+      smethod_2(class18_5_1, ref int_0);
       if (num != int_0)
         throw new Exception("Tree failed comparison verification.");
     }
@@ -184,9 +184,9 @@ namespace ns3
       if (flag)
         throw new Exception("Tree failed map verification.");
       if (class18_5.class18_3 != null)
-        Class18<Tkey, Tvalue>.smethod_2(class18_5.class18_3, ref int_0);
+        smethod_2(class18_5.class18_3, ref int_0);
       if (class18_5.class18_2 != null)
-        Class18<Tkey, Tvalue>.smethod_2(class18_5.class18_2, ref int_0);
+        smethod_2(class18_5.class18_2, ref int_0);
       ++int_0;
     }
   }

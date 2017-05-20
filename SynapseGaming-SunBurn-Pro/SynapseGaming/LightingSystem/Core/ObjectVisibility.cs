@@ -21,6 +21,6 @@ namespace SynapseGaming.LightingSystem.Core
     None = 0,
     Rendered = 1,
     CastShadows = 2,
-    RenderedAndCastShadows = CastShadows | Rendered,
+    RenderedAndCastShadows = CastShadows | Rendered
   }
 }

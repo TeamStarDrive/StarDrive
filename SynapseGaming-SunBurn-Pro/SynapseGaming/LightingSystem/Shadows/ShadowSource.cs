@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Microsoft.Xna.Framework;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using System;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -34,14 +34,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <summary>The object's current name.</summary>
     public string Name
     {
-      get
-      {
-        return this.string_0;
-      }
-      set
-      {
-        this.string_0 = value;
-      }
+      get => this.string_0;
+        set => this.string_0 = value;
     }
 
     /// <summary>
@@ -57,49 +51,25 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public ShadowType ShadowType
     {
-      get
-      {
-        return this.shadowType_0;
-      }
-      set
-      {
-        this.shadowType_0 = value;
-      }
+      get => this.shadowType_0;
+        set => this.shadowType_0 = value;
     }
 
     /// <summary>Position in world space of the shadow source.</summary>
-    public Vector3 ShadowPosition
-    {
-      get
-      {
-        return this.matrix_0.Translation;
-      }
-    }
+    public Vector3 ShadowPosition => this.matrix_0.Translation;
 
-    /// <summary>Adjusts the visual quality of casts shadows.</summary>
+      /// <summary>Adjusts the visual quality of casts shadows.</summary>
     public float ShadowQuality
     {
-      get
-      {
-        return this.float_0;
+      get => this.float_0;
+          set => this.float_0 = MathHelper.Clamp(value, 0.0f, 1f);
       }
-      set
-      {
-        this.float_0 = MathHelper.Clamp(value, 0.0f, 1f);
-      }
-    }
 
     /// <summary>Main property used to eliminate shadow artifacts.</summary>
     public float ShadowPrimaryBias
     {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        this.float_1 = value;
-      }
+      get => this.float_1;
+        set => this.float_1 = value;
     }
 
     /// <summary>
@@ -107,14 +77,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public float ShadowSecondaryBias
     {
-      get
-      {
-        return this.float_2;
-      }
-      set
-      {
-        this.float_2 = value;
-      }
+      get => this.float_2;
+        set => this.float_2 = value;
     }
 
     /// <summary>
@@ -122,14 +86,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public bool ShadowPerSurfaceLOD
     {
-      get
-      {
-        return this.bool_0;
-      }
-      set
-      {
-        this.bool_0 = value;
-      }
+      get => this.bool_0;
+        set => this.bool_0 = value;
     }
 
     /// <summary>
@@ -138,27 +96,15 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public bool ShadowRenderLightsTogether
     {
-      get
-      {
-        return this.bool_1;
-      }
-      set
-      {
-        this.bool_1 = value;
-      }
+      get => this.bool_1;
+        set => this.bool_1 = value;
     }
 
     /// <summary>Position in world space of the source.</summary>
     public Vector3 Position
     {
-      get
-      {
-        return this.matrix_0.Translation;
-      }
-      set
-      {
-        this.matrix_0.Translation = value;
-      }
+      get => this.matrix_0.Translation;
+        set => this.matrix_0.Translation = value;
     }
 
     /// <summary>
@@ -178,14 +124,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <summary>World space transform of the shadow source.</summary>
     public Matrix World
     {
-      get
-      {
-        return this.matrix_0;
-      }
-      set
-      {
-        this.matrix_0 = value;
-      }
+      get => this.matrix_0;
+        set => this.matrix_0 = value;
     }
 
     /// <summary>Creates a new ShadowSource instance.</summary>
@@ -202,29 +142,29 @@ namespace SynapseGaming.LightingSystem.Shadows
         switch (serializationEntry.Name)
         {
           case "ShadowType":
-            Class28.smethod_1<ShadowType>(ref this.shadowType_0, serializationInfo_0, "ShadowType");
+            Class28.smethod_1(ref this.shadowType_0, serializationInfo_0, "ShadowType");
             continue;
           case "Position":
-            Class28.smethod_0<Vector3>(ref gparam_0, serializationInfo_0, "Position");
+            Class28.smethod_0(ref gparam_0, serializationInfo_0, "Position");
             this.Position = gparam_0;
             continue;
           case "Name":
-            Class28.smethod_0<string>(ref this.string_0, serializationInfo_0, "Name");
+            Class28.smethod_0(ref this.string_0, serializationInfo_0, "Name");
             continue;
           case "ShadowQuality":
-            Class28.smethod_0<float>(ref this.float_0, serializationInfo_0, "ShadowQuality");
+            Class28.smethod_0(ref this.float_0, serializationInfo_0, "ShadowQuality");
             continue;
           case "ShadowPrimaryBias":
-            Class28.smethod_0<float>(ref this.float_1, serializationInfo_0, "ShadowPrimaryBias");
+            Class28.smethod_0(ref this.float_1, serializationInfo_0, "ShadowPrimaryBias");
             continue;
           case "ShadowSecondaryBias":
-            Class28.smethod_0<float>(ref this.float_2, serializationInfo_0, "ShadowSecondaryBias");
+            Class28.smethod_0(ref this.float_2, serializationInfo_0, "ShadowSecondaryBias");
             continue;
           case "ShadowPerSurfaceLOD":
-            Class28.smethod_0<bool>(ref this.bool_0, serializationInfo_0, "ShadowPerSurfaceLOD");
+            Class28.smethod_0(ref this.bool_0, serializationInfo_0, "ShadowPerSurfaceLOD");
             continue;
           case "ShadowRenderLightsTogether":
-            Class28.smethod_0<bool>(ref this.bool_1, serializationInfo_0, "ShadowRenderLightsTogether");
+            Class28.smethod_0(ref this.bool_1, serializationInfo_0, "ShadowRenderLightsTogether");
             continue;
           default:
             continue;
@@ -257,9 +197,9 @@ namespace SynapseGaming.LightingSystem.Shadows
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("Name", (object) this.Name);
-      info.AddValue("ShadowType", (object) this.ShadowType);
-      info.AddValue("Position", (object) this.Position);
+      info.AddValue("Name", this.Name);
+      info.AddValue("ShadowType", this.ShadowType);
+      info.AddValue("Position", this.Position);
       info.AddValue("Radius", this.Radius);
       info.AddValue("ShadowQuality", this.ShadowQuality);
       info.AddValue("ShadowPrimaryBias", this.ShadowPrimaryBias);

@@ -74,7 +74,7 @@ namespace Ship_Game
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircle(Vector2 center, float radius, int sides, Color color, float thickness = 1.0f)
-            => Primitives2D.DrawCircle(ScreenManager.SpriteBatch, center, radius, sides, color, thickness);
+            => ScreenManager.SpriteBatch.DrawCircle(center, radius, sides, color, thickness);
 
     }
 }

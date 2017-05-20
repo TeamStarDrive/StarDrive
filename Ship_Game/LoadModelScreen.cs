@@ -80,7 +80,7 @@ namespace Ship_Game
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+				if (!b.Rect.HitTest(mousePos))
 				{
 					b.State = UIButton.PressState.Default;
 				}
@@ -113,7 +113,7 @@ namespace Ship_Game
 			this.SavesSL.HandleInput(input);
 			foreach (ScrollList.Entry e in this.SavesSL.Copied)
 			{
-				if (!HelperFunctions.CheckIntersection(e.clickRect, mousePos))
+				if (!e.clickRect.HitTest(mousePos))
 				{
 					e.clickRectHover = 0;
 				}

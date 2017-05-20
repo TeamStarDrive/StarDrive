@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
-using System;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -17,13 +17,11 @@ namespace SynapseGaming.LightingSystem.Core
   /// </summary>
   public class RenderTargetHelper : IUnloadable, IManager, IRenderableManager
   {
-    private SynapseGaming.LightingSystem.Core.SceneState sceneState_0 = new SynapseGaming.LightingSystem.Core.SceneState();
-    private RenderTargetHelper.TargetType targetType_0 = RenderTargetHelper.TargetType.Standard;
-    private Viewport viewport_0 = new Viewport();
-    private ILightingSystemPreferences ilightingSystemPreferences_0 = (ILightingSystemPreferences) new LightingSystemPreferences();
-    private Plane plane_0 = new Plane();
-    private IGraphicsDeviceService igraphicsDeviceService_0;
-    private int int_0;
+    private SceneState sceneState_0 = new SceneState();
+    private TargetType targetType_0 = TargetType.Standard;
+    private Viewport viewport_0;
+      private Plane plane_0 = new Plane();
+      private int int_0;
     private int int_1;
     private int int_2;
     private SurfaceFormat surfaceFormat_0;
@@ -42,46 +40,28 @@ namespace SynapseGaming.LightingSystem.Core
     /// <summary>
     /// The current GraphicsDeviceManager used by this object.
     /// </summary>
-    public IGraphicsDeviceService GraphicsDeviceManager
-    {
-      get
-      {
-        return this.igraphicsDeviceService_0;
-      }
-    }
+    public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-    /// <summary>
+      /// <summary>
     /// Scene rendering state used to render objects to this RenderTargetHelper. The state values
     /// may be different from those passed into BeginFrameRendering to accommodate reflection and refraction.
     /// </summary>
-    public ISceneState SceneState
-    {
-      get
-      {
-        return (ISceneState) this.sceneState_0;
-      }
-    }
+    public ISceneState SceneState => this.sceneState_0;
 
-    /// <summary>
+      /// <summary>
     /// Rendering preferences used to render objects to this RenderTargetHelper.
     /// </summary>
-    public ILightingSystemPreferences Preferences
-    {
-      get
-      {
-        return this.ilightingSystemPreferences_0;
-      }
-    }
+    public ILightingSystemPreferences Preferences { get; private set; } = (ILightingSystemPreferences) new LightingSystemPreferences();
 
-    /// <summary>Creates a new RenderTargetHelper instance.</summary>
+      /// <summary>Creates a new RenderTargetHelper instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     /// <param name="type">Type of rendering to perform on the render target.</param>
     /// <param name="width">Render target width.</param>
     /// <param name="height">Render target height.</param>
     /// <param name="format">Render target format.</param>
-    public RenderTargetHelper(IGraphicsDeviceService graphicsdevicemanager, RenderTargetHelper.TargetType type, int width, int height, SurfaceFormat format)
+    public RenderTargetHelper(IGraphicsDeviceService graphicsdevicemanager, TargetType type, int width, int height, SurfaceFormat format)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
       this.targetType_0 = type;
       this.int_0 = width;
       this.int_1 = height;
@@ -102,9 +82,9 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="multisampletype">Render target multisample type.</param>
     /// <param name="multisamplequality">Render target multisample quality.</param>
     /// <param name="usage">Render target usage.</param>
-    public RenderTargetHelper(IGraphicsDeviceService graphicsdevicemanager, RenderTargetHelper.TargetType type, int width, int height, int numberlevels, SurfaceFormat format, MultiSampleType multisampletype, int multisamplequality, RenderTargetUsage usage)
+    public RenderTargetHelper(IGraphicsDeviceService graphicsdevicemanager, TargetType type, int width, int height, int numberlevels, SurfaceFormat format, MultiSampleType multisampletype, int multisamplequality, RenderTargetUsage usage)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
       this.targetType_0 = type;
       this.int_0 = width;
       this.int_1 = height;
@@ -121,7 +101,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="preferences"></param>
     public void ApplyPreferences(ILightingSystemPreferences preferences)
     {
-      this.ilightingSystemPreferences_0 = preferences;
+      this.Preferences = preferences;
     }
 
     /// <summary>
@@ -129,7 +109,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public void Clear()
     {
-      this.ilightingSystemPreferences_0 = (ILightingSystemPreferences) new LightingSystemPreferences();
+      this.Preferences = new LightingSystemPreferences();
     }
 
     /// <summary>
@@ -139,8 +119,8 @@ namespace SynapseGaming.LightingSystem.Core
     public void Unload()
     {
       this.Clear();
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_0);
-      Disposable.Free<DepthStencilBuffer>(ref this.depthStencilBuffer_0);
+      Disposable.Free(ref this.renderTarget2D_0);
+      Disposable.Free(ref this.depthStencilBuffer_0);
     }
 
     /// <summary>
@@ -151,14 +131,14 @@ namespace SynapseGaming.LightingSystem.Core
     {
       if (this.renderTarget2D_0 != null)
         return this.renderTarget2D_0.GetTexture();
-      return (Texture2D) null;
+      return null;
     }
 
     /// <summary>Sets up the object prior to rendering.</summary>
     /// <param name="scenestate"></param>
     public void BeginFrameRendering(ISceneState scenestate)
     {
-      if (this.targetType_0 != RenderTargetHelper.TargetType.Standard)
+      if (this.targetType_0 != TargetType.Standard)
         throw new Exception("Non standard targets require a world reflection plane, please use another overload for this method.");
       this.BeginFrameRendering(scenestate, this.plane_0);
     }
@@ -179,7 +159,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// where objects and the reflection surface intersect.</param>
     public void BeginFrameRendering(ISceneState scenestate, Plane worldreflectionplane, Plane worldclippingplane)
     {
-      GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
+      GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
       if (this.renderTarget2D_0 == null)
       {
         this.renderTarget2D_0 = new RenderTarget2D(graphicsDevice, this.int_0, this.int_1, this.int_2, this.surfaceFormat_0, this.multiSampleType_0, this.int_3, this.renderTargetUsage_0);
@@ -201,14 +181,14 @@ namespace SynapseGaming.LightingSystem.Core
       this.depthStencilBuffer_1 = graphicsDevice.DepthStencilBuffer;
       this.viewport_1 = graphicsDevice.Viewport;
       graphicsDevice.SetRenderTarget(0, this.renderTarget2D_0);
-      graphicsDevice.SetRenderTarget(1, (RenderTarget2D) null);
-      graphicsDevice.SetRenderTarget(2, (RenderTarget2D) null);
-      graphicsDevice.SetRenderTarget(3, (RenderTarget2D) null);
+      graphicsDevice.SetRenderTarget(1, null);
+      graphicsDevice.SetRenderTarget(2, null);
+      graphicsDevice.SetRenderTarget(3, null);
       graphicsDevice.DepthStencilBuffer = this.depthStencilBuffer_0;
       graphicsDevice.Viewport = this.viewport_0;
-      if (this.targetType_0 != RenderTargetHelper.TargetType.Standard)
+      if (this.targetType_0 != TargetType.Standard)
       {
-        if ((double) worldclippingplane.DotCoordinate(scenestate.ViewToWorld.Translation) > 0.0)
+        if (worldclippingplane.DotCoordinate(scenestate.ViewToWorld.Translation) > 0.0)
         {
           worldclippingplane.Normal *= -1f;
           worldclippingplane.D *= -1f;
@@ -217,13 +197,13 @@ namespace SynapseGaming.LightingSystem.Core
         graphicsDevice.ClipPlanes[0].Plane = plane;
         graphicsDevice.ClipPlanes[0].IsEnabled = true;
       }
-      if (this.targetType_0 != RenderTargetHelper.TargetType.Reflection)
+      if (this.targetType_0 != TargetType.Reflection)
       {
         this.sceneState_0.BeginFrameRendering(scenestate.View, scenestate.Projection, scenestate.GameTime, scenestate.Environment, scenestate.RenderingToScreen);
       }
       else
       {
-        if ((double) worldreflectionplane.DotCoordinate(scenestate.ViewToWorld.Translation) > 0.0)
+        if (worldreflectionplane.DotCoordinate(scenestate.ViewToWorld.Translation) > 0.0)
         {
           worldreflectionplane.Normal *= -1f;
           worldreflectionplane.D *= -1f;
@@ -235,14 +215,14 @@ namespace SynapseGaming.LightingSystem.Core
     /// <summary>Finalizes rendering.</summary>
     public void EndFrameRendering()
     {
-      GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
+      GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
       graphicsDevice.SetRenderTarget(0, this.renderTarget2D_1);
       graphicsDevice.SetRenderTarget(1, this.renderTarget2D_2);
       graphicsDevice.SetRenderTarget(2, this.renderTarget2D_3);
       graphicsDevice.SetRenderTarget(3, this.renderTarget2D_4);
       graphicsDevice.DepthStencilBuffer = this.depthStencilBuffer_1;
       graphicsDevice.Viewport = this.viewport_1;
-      if (this.targetType_0 == RenderTargetHelper.TargetType.Standard)
+      if (this.targetType_0 == TargetType.Standard)
         return;
       graphicsDevice.ClipPlanes[0].IsEnabled = false;
     }
@@ -252,7 +232,7 @@ namespace SynapseGaming.LightingSystem.Core
     {
       Reflection,
       Refraction,
-      Standard,
+      Standard
     }
   }
 }

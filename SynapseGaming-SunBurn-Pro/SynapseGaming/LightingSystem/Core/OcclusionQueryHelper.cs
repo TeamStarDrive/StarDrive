@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns3;
-using System;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -23,8 +23,8 @@ namespace SynapseGaming.LightingSystem.Core
   /// <typeparam name="TKey">Object type used to store and lookup query results.</typeparam>
   public class OcclusionQueryHelper<TKey> : IDisposable
   {
-    private List<OcclusionQueryHelper<TKey>.Class20> list_0 = new List<OcclusionQueryHelper<TKey>.Class20>(32);
-    private Dictionary<TKey, OcclusionQueryHelper<TKey>.Class20> dictionary_0 = new Dictionary<TKey, OcclusionQueryHelper<TKey>.Class20>(32);
+    private List<Class20> list_0 = new List<Class20>(32);
+    private Dictionary<TKey, Class20> dictionary_0 = new Dictionary<TKey, Class20>(32);
     private GraphicsDevice graphicsDevice_0;
     private Class10 class10_0;
 
@@ -45,11 +45,11 @@ namespace SynapseGaming.LightingSystem.Core
     {
       if (this.list_0.Count < 1)
       {
-        this.dictionary_0.Add(key, new OcclusionQueryHelper<TKey>.Class20(this.graphicsDevice_0, worldbounds));
+        this.dictionary_0.Add(key, new Class20(this.graphicsDevice_0, worldbounds));
       }
       else
       {
-        OcclusionQueryHelper<TKey>.Class20 class20 = this.list_0[0];
+        Class20 class20 = this.list_0[0];
         class20.bool_0 = false;
         class20.boundingBox_0 = worldbounds;
         this.dictionary_0.Add(key, class20);
@@ -82,7 +82,7 @@ namespace SynapseGaming.LightingSystem.Core
       defaultEffect.Begin();
       defaultEffect.CurrentTechnique.Passes[0].Begin();
       Plane near = scenestate.ViewFrustum.Near;
-      foreach (KeyValuePair<TKey, OcclusionQueryHelper<TKey>.Class20> keyValuePair in this.dictionary_0)
+      foreach (KeyValuePair<TKey, Class20> keyValuePair in this.dictionary_0)
       {
         BoundingBox boundingBox0 = keyValuePair.Value.boundingBox_0;
         BoundingBox boundingBox = CoreUtils.smethod_7(boundingBox0, detectionpadding);
@@ -124,7 +124,7 @@ namespace SynapseGaming.LightingSystem.Core
     {
       if (!this.dictionary_0.ContainsKey(key))
         return true;
-      OcclusionQueryHelper<TKey>.Class20 class20 = this.dictionary_0[key];
+      Class20 class20 = this.dictionary_0[key];
       if (class20.bool_0 || !class20.occlusionQuery_0.IsSupported)
         return true;
       while (!class20.occlusionQuery_0.IsComplete)
@@ -135,7 +135,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// <summary>Removes all objects from the occlusion testing list.</summary>
     public void Clear()
     {
-      foreach (KeyValuePair<TKey, OcclusionQueryHelper<TKey>.Class20> keyValuePair in this.dictionary_0)
+      foreach (KeyValuePair<TKey, Class20> keyValuePair in this.dictionary_0)
         this.list_0.Add(keyValuePair.Value);
       this.dictionary_0.Clear();
     }
@@ -144,10 +144,10 @@ namespace SynapseGaming.LightingSystem.Core
     public void Dispose()
     {
       this.Clear();
-      foreach (OcclusionQueryHelper<TKey>.Class20 class20 in this.list_0)
+      foreach (Class20 class20 in this.list_0)
         class20.occlusionQuery_0.Dispose();
       this.list_0.Clear();
-      Disposable.Free<Class10>(ref this.class10_0);
+      Disposable.Free(ref this.class10_0);
     }
 
     private class Class20

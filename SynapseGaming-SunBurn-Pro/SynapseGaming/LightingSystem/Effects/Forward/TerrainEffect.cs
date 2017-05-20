@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Effects.Forward
 {
@@ -19,7 +19,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
   /// </summary>
   public class TerrainEffect : BaseTerrainEffect, ILightingEffect
   {
-    private ILight ilight_0 = (ILight) new AmbientLight();
+    private ILight ilight_0 = new AmbientLight();
     private const int int_3 = 1;
     private Texture3D texture3D_0;
     private EffectParameter effectParameter_31;
@@ -31,15 +31,9 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     private static Vector4 vector4_2;
 
     /// <summary>Maximum number of light sources the effect supports.</summary>
-    public int MaxLightSources
-    {
-      get
-      {
-        return 1;
-      }
-    }
+    public int MaxLightSources => 1;
 
-    /// <summary>
+      /// <summary>
     /// Light sources that apply lighting to the effect during rendering.
     /// </summary>
     public List<ILight> LightSources
@@ -59,16 +53,13 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// </summary>
     public Texture3D LightingTexture
     {
-      get
-      {
-        return this.texture3D_0;
-      }
-      set
+      get => this.texture3D_0;
+        set
       {
         if (this.texture3D_0 == value || this.effectParameter_31 == null)
           return;
         this.texture3D_0 = value;
-        this.effectParameter_31.SetValue((Texture) value);
+        this.effectParameter_31.SetValue(value);
       }
     }
 
@@ -90,27 +81,27 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     {
       if (this.effectParameter_32 == null || this.effectParameter_33 == null || (this.effectParameter_34 == null || this.ilight_0 == null))
         return;
-      TerrainEffect.vector4_0 = new Vector4(this.ilight_0.CompositeColorAndIntensity, 0.0f);
-      TerrainEffect.vector4_2 = new Vector4();
+      vector4_0 = new Vector4(this.ilight_0.CompositeColorAndIntensity, 0.0f);
+      vector4_2 = new Vector4();
       if (this.ilight_0 is ISpotSource)
       {
         ISpotSource ilight0 = this.ilight_0 as ISpotSource;
-        float w = (float) Math.Cos((double) MathHelper.ToRadians(MathHelper.Clamp(ilight0.Angle * 0.5f, 0.01f, 89.99f)));
-        float num = (float) (1.0 / (1.0 - (double) w));
-        TerrainEffect.vector4_0.W = num;
-        TerrainEffect.vector4_2 = new Vector4(ilight0.Direction, w);
-        TerrainEffect.vector4_1 = new Vector4(ilight0.Position, ilight0.Radius);
+        float w = (float) Math.Cos(MathHelper.ToRadians(MathHelper.Clamp(ilight0.Angle * 0.5f, 0.01f, 89.99f)));
+        float num = (float) (1.0 / (1.0 - w));
+        vector4_0.W = num;
+        vector4_2 = new Vector4(ilight0.Direction, w);
+        vector4_1 = new Vector4(ilight0.Position, ilight0.Radius);
       }
       else if (this.ilight_0 is IPointSource)
       {
         IPointSource ilight0 = this.ilight_0 as IPointSource;
-        TerrainEffect.vector4_1 = new Vector4(ilight0.Position, ilight0.Radius);
+        vector4_1 = new Vector4(ilight0.Position, ilight0.Radius);
       }
       else if (this.ilight_0 is IShadowSource)
-        TerrainEffect.vector4_1 = new Vector4((this.ilight_0 as IShadowSource).ShadowPosition, 1E+09f);
-      this.effectParameter_32.SetValue(TerrainEffect.vector4_0);
-      this.effectParameter_33.SetValue(TerrainEffect.vector4_1);
-      this.effectParameter_34.SetValue(TerrainEffect.vector4_2);
+        vector4_1 = new Vector4((this.ilight_0 as IShadowSource).ShadowPosition, 1E+09f);
+      this.effectParameter_32.SetValue(vector4_0);
+      this.effectParameter_33.SetValue(vector4_1);
+      this.effectParameter_34.SetValue(vector4_2);
       this.SetTechnique();
     }
 
@@ -141,7 +132,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <returns></returns>
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new TerrainEffect(device);
+      return new TerrainEffect(device);
     }
   }
 }

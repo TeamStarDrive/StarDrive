@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
-using System;
 
 namespace ns3
 {
@@ -20,7 +20,7 @@ namespace ns3
 
     public static float smethod_0(float float_2)
     {
-      return (float) Math.Log((double) float_2) * CoreUtils.float_1;
+      return (float) Math.Log(float_2) * float_1;
     }
 
     public static void smethod_1(Vector3 vector3_1, float float_2, float float_3, out Vector3 vector3_2, out Vector3 vector3_3)
@@ -38,27 +38,27 @@ namespace ns3
 
     public static Vector3 smethod_3(Vector3 vector3_1, int int_0, float float_2)
     {
-      CoreUtils.float_0[0] = vector3_1.X;
-      CoreUtils.float_0[1] = vector3_1.Y;
-      CoreUtils.float_0[2] = vector3_1.Z;
-      CoreUtils.float_0[int_0] = float_2;
-      return new Vector3(CoreUtils.float_0[0], CoreUtils.float_0[1], CoreUtils.float_0[2]);
+      float_0[0] = vector3_1.X;
+      float_0[1] = vector3_1.Y;
+      float_0[2] = vector3_1.Z;
+      float_0[int_0] = float_2;
+      return new Vector3(float_0[0], float_0[1], float_0[2]);
     }
 
     public static Vector3 smethod_4(Vector3 vector3_1, int int_0, int int_1, int int_2)
     {
-      CoreUtils.float_0[0] = vector3_1.X;
-      CoreUtils.float_0[1] = vector3_1.Y;
-      CoreUtils.float_0[2] = vector3_1.Z;
-      return new Vector3(CoreUtils.float_0[int_0], CoreUtils.float_0[int_1], CoreUtils.float_0[int_2]);
+      float_0[0] = vector3_1.X;
+      float_0[1] = vector3_1.Y;
+      float_0[2] = vector3_1.Z;
+      return new Vector3(float_0[int_0], float_0[int_1], float_0[int_2]);
     }
 
     public static BoundingBox smethod_5(BoundingBox boundingBox_0, Matrix matrix_0)
     {
-      boundingBox_0.GetCorners(CoreUtils.vector3_0);
-      for (int index = 0; index < CoreUtils.vector3_0.Length; ++index)
-        CoreUtils.vector3_0[index] = Vector3.Transform(CoreUtils.vector3_0[index], matrix_0);
-      return CoreUtils.smethod_11(CoreUtils.vector3_0);
+      boundingBox_0.GetCorners(vector3_0);
+      for (int index = 0; index < vector3_0.Length; ++index)
+        vector3_0[index] = Vector3.Transform(vector3_0[index], matrix_0);
+      return smethod_11(vector3_0);
     }
 
     public static BoundingSphere TransformSphere(BoundingSphere boundingSphere, Matrix transform)
@@ -98,10 +98,10 @@ namespace ns3
     {
       Vector3 vector2 = vector3_2 - vector3_1;
       float num1 = Vector3.Dot(plane_0.Normal, vector2);
-      if ((double) num1 == 0.0)
+      if (num1 == 0.0)
         return false;
-      float num2 = (float) -((double) Vector3.Dot(plane_0.Normal, vector3_1) + (double) plane_0.D) / num1;
-      if ((double) num2 < 0.0 || (double) num2 > 1.0)
+      float num2 = (float) -(Vector3.Dot(plane_0.Normal, vector3_1) + (double) plane_0.D) / num1;
+      if (num2 < 0.0 || num2 > 1.0)
         return false;
       vector3_3 = vector3_1 + num2 * vector2;
       return true;
@@ -138,7 +138,7 @@ namespace ns3
     {
       float w = 1f + Vector3.Dot(vector3_1, vector3_2);
       Quaternion quaternion;
-      if ((double) w < 0.0001)
+      if (w < 0.0001)
       {
         quaternion = new Quaternion(vector3_1.Z, vector3_1.X, vector3_1.Y, 0.0f);
       }
@@ -154,7 +154,7 @@ namespace ns3
     public static Matrix smethod_15(Vector3 vector3_1, Vector3 vector3_2, Vector3 vector3_3)
     {
       float num = MathHelper.Clamp(Vector3.Dot(vector3_1, vector3_2), 0.0f, 1f);
-      return Matrix.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(vector3_3, (float) Math.Acos((double) num)));
+      return Matrix.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(vector3_3, (float) Math.Acos(num)));
     }
 
     public static int smethod_16(int int_0, int int_1)
@@ -178,13 +178,13 @@ namespace ns3
       float y = quaternion_0.Y;
       float x = quaternion_0.X;
       float z = quaternion_0.Z;
-      return new Vector3() { X = (float) Math.Atan2(2.0 * ((double) w * (double) y + (double) x * (double) z), 1.0 - 2.0 * (Math.Pow((double) y, 2.0) + Math.Pow((double) x, 2.0))), Y = (float) Math.Asin(2.0 * ((double) w * (double) x - (double) z * (double) y)), Z = (float) Math.Atan2(2.0 * ((double) w * (double) z + (double) y * (double) x), 1.0 - 2.0 * (Math.Pow((double) x, 2.0) + Math.Pow((double) z, 2.0))) };
+      return new Vector3 { X = (float) Math.Atan2(2.0 * (w * (double) y + x * (double) z), 1.0 - 2.0 * (Math.Pow(y, 2.0) + Math.Pow(x, 2.0))), Y = (float) Math.Asin(2.0 * (w * (double) x - z * (double) y)), Z = (float) Math.Atan2(2.0 * (w * (double) z + y * (double) x), 1.0 - 2.0 * (Math.Pow(x, 2.0) + Math.Pow(z, 2.0))) };
     }
 
     public static Vector3 smethod_20(Vector3 vector3_1, Vector3 vector3_2, Vector3 vector3_3)
     {
       float num1 = Vector3.DistanceSquared(vector3_2, vector3_3);
-      if ((double) num1 <= 0.0)
+      if (num1 <= 0.0)
         return vector3_2;
       float num2 = MathHelper.Clamp(Vector3.Dot(vector3_1 - vector3_2, vector3_3 - vector3_2) / num1, 0.0f, 1f);
       return vector3_2 + num2 * (vector3_3 - vector3_2);
@@ -194,7 +194,7 @@ namespace ns3
     {
       Vector3 vector2 = Vector3.Cross(plane_1.Normal, plane_2.Normal);
       float num = Vector3.Dot(plane_0.Normal, vector2);
-      if ((double) num == 0.0)
+      if (num == 0.0)
       {
         vector3_1 = new Vector3();
         return false;
@@ -207,11 +207,11 @@ namespace ns3
     public static float smethod_22(float float_2, float float_3, Matrix matrix_0)
     {
       Vector4 vector4 = Vector4.Transform(new Vector4(float_2, float_2, -float_3, 1f), matrix_0);
-      if ((double) vector4.W <= 0.0)
+      if (vector4.W <= 0.0)
         return 0.0f;
       vector4 /= vector4.W;
       float num = Math.Max(Math.Abs(vector4.X), Math.Abs(vector4.Y));
-      if ((double) num <= 0.0)
+      if (num <= 0.0)
         return 0.0f;
       return num;
     }
@@ -222,37 +222,37 @@ namespace ns3
       vector.X = float_2;
       vector.Y = float_2;
       Vector4 vector4 = Vector4.Transform(vector, matrix_2);
-      if ((double) vector4.W <= 0.0)
+      if (vector4.W <= 0.0)
         return 0.0f;
       vector4 /= vector4.W;
       float num = Math.Max(Math.Abs(vector4.X), Math.Abs(vector4.Y));
-      if ((double) num <= 0.0)
+      if (num <= 0.0)
         return 0.0f;
       return num;
     }
 
     public static float smethod_24(Matrix matrix_0, Matrix matrix_1, Matrix matrix_2)
     {
-      float num = CoreUtils.smethod_23(200f, matrix_0, matrix_1, matrix_2);
-      if ((double) num > 0.0)
+      float num = smethod_23(200f, matrix_0, matrix_1, matrix_2);
+      if (num > 0.0)
         return 1f / num;
       return 0.0f;
     }
 
     public static bool smethod_25(Vector3 vector3_1, Viewport viewport_0, Matrix matrix_0, Matrix matrix_1, Matrix matrix_2, Matrix matrix_3, ref Vector3 vector3_2)
     {
-      if ((double) vector3_1.X < (double) viewport_0.X || (double) vector3_1.X - (double) viewport_0.X > (double) viewport_0.Width || ((double) vector3_1.Y < (double) viewport_0.Y || (double) vector3_1.Y - (double) viewport_0.Y > (double) viewport_0.Height))
+      if (vector3_1.X < (double) viewport_0.X || vector3_1.X - (double) viewport_0.X > viewport_0.Width || (vector3_1.Y < (double) viewport_0.Y || vector3_1.Y - (double) viewport_0.Y > viewport_0.Height))
         return false;
       vector3_2 = viewport_0.Unproject(vector3_1, matrix_3, matrix_1, matrix_0);
-      CoreUtils.boundingFrustum_0.Matrix = matrix_1 * matrix_3;
-      if ((double) CoreUtils.boundingFrustum_0.Near.DotCoordinate(vector3_2) > 0.0)
+      boundingFrustum_0.Matrix = matrix_1 * matrix_3;
+      if (boundingFrustum_0.Near.DotCoordinate(vector3_2) > 0.0)
         vector3_2 = matrix_2.Translation - vector3_2 - matrix_2.Translation;
       return true;
     }
 
     public static bool smethod_26(Vector3 vector3_1, Viewport viewport_0, Matrix matrix_0, Matrix matrix_1, Matrix matrix_2, Matrix matrix_3, ref Vector3 vector3_2)
     {
-      if ((double) CoreUtils.smethod_12(matrix_2.Forward, matrix_2.Translation).DotCoordinate(vector3_1) <= 0.0)
+      if (smethod_12(matrix_2.Forward, matrix_2.Translation).DotCoordinate(vector3_1) <= 0.0)
         return false;
       vector3_2 = viewport_0.Project(vector3_1, matrix_3, matrix_1, matrix_0);
       return true;
@@ -262,21 +262,21 @@ namespace ns3
     {
       if (boundingBox_0.Contains(matrix_1.Translation) == ContainmentType.Contains)
         return new Rectangle(viewport_0.X, viewport_0.Y, viewport_0.Width, viewport_0.Height);
-      boundingBox_0.GetCorners(CoreUtils.vector3_0);
+      boundingBox_0.GetCorners(vector3_0);
       for (int index = 0; index < 8; ++index)
       {
-        Vector4 vector4 = Vector4.Transform(CoreUtils.vector3_0[index], matrix_0);
-        if ((double) vector4.W == 0.0)
+        Vector4 vector4 = Vector4.Transform(vector3_0[index], matrix_0);
+        if (vector4.W == 0.0)
           return new Rectangle(viewport_0.X, viewport_0.Y, viewport_0.Width, viewport_0.Height);
-        if ((double) vector4.W < 0.0)
+        if (vector4.W < 0.0)
           vector4 /= vector4.W * -0.5f;
         else
           vector4 /= vector4.W;
         vector4.Y *= -1f;
         vector4 = vector4 * 0.5f + Vector4.One * 0.5f;
-        CoreUtils.vector3_0[index] = Vector3.Clamp(new Vector3(vector4.X, vector4.Y, vector4.Z), Vector3.Zero, Vector3.One) * new Vector3((float) viewport_0.Width, (float) viewport_0.Height, 0.0f);
+        vector3_0[index] = Vector3.Clamp(new Vector3(vector4.X, vector4.Y, vector4.Z), Vector3.Zero, Vector3.One) * new Vector3(viewport_0.Width, viewport_0.Height, 0.0f);
       }
-      BoundingBox boundingBox = CoreUtils.smethod_11(CoreUtils.vector3_0);
+      BoundingBox boundingBox = smethod_11(vector3_0);
       return new Rectangle(viewport_0.X + (int) boundingBox.Min.X, viewport_0.Y + (int) boundingBox.Min.Y, (int) boundingBox.Max.X - (int) boundingBox.Min.X, (int) boundingBox.Max.Y - (int) boundingBox.Min.Y);
     }
 
@@ -291,7 +291,7 @@ namespace ns3
       Texture2D texture2D = new Texture2D(graphicsDevice_0, width, height, texture2D_0.LevelCount, texture2D_0.TextureUsage, SurfaceFormat.Luminance8);
       for (int level = 0; level < texture2D_0.LevelCount; ++level)
       {
-        texture2D_0.GetData<byte>(level, new Rectangle?(), data1, 0, width * height * 4);
+        texture2D_0.GetData(level, new Rectangle?(), data1, 0, width * height * 4);
         int index1 = 0;
         int num = 0;
         for (int index2 = 0; index2 < height; ++index2)
@@ -302,7 +302,7 @@ namespace ns3
             index1 += 4;
           }
         }
-        texture2D.SetData<byte>(level, new Rectangle?(), data2, 0, width * height, SetDataOptions.None);
+        texture2D.SetData(level, new Rectangle?(), data2, 0, width * height, SetDataOptions.None);
         int val1_1 = width / 2;
         int val1_2 = height / 2;
         width = Math.Max(val1_1, 1);

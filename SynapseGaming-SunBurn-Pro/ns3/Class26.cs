@@ -15,21 +15,14 @@ namespace ns3
     private float float_5 = 1f;
     private float float_6 = 0.25f;
     private float float_7 = 1f;
-    private Vector4[] vector4_0 = new Vector4[7];
-    private const float float_0 = 0.28209f;
+      private const float float_0 = 0.28209f;
     private const float float_1 = 0.4886f;
     private const float float_2 = 0.31539f;
     private const float float_3 = 1.092548f;
 
-    public Vector4[] Coefficients
-    {
-      get
-      {
-        return this.vector4_0;
-      }
-    }
+    public Vector4[] Coefficients { get; } = new Vector4[7];
 
-    public Class26()
+      public Class26()
     {
     }
 
@@ -43,17 +36,17 @@ namespace ns3
     public void method_0()
     {
       this.float_7 = 1f;
-      for (int index = 0; index < this.vector4_0.Length; ++index)
-        this.vector4_0[index] = Vector4.Zero;
+      for (int index = 0; index < this.Coefficients.Length; ++index)
+        this.Coefficients[index] = Vector4.Zero;
     }
 
     public void method_1()
     {
-      if ((double) this.float_7 == 1.0)
+      if (this.float_7 == 1.0)
         return;
       float num = 1f / this.float_7;
-      for (int index = 0; index < this.vector4_0.Length; ++index)
-        this.vector4_0[index] *= num;
+      for (int index = 0; index < this.Coefficients.Length; ++index)
+        this.Coefficients[index] *= num;
       this.float_7 = 1f;
     }
 
@@ -100,13 +93,13 @@ namespace ns3
       float num7 = (num4 - num5) * num3;
       Vector4 vector4_1 = new Vector4(x1, y1, z1, w1);
       Vector4 vector4_2 = new Vector4(x2, y2, z2, w2);
-      this.vector4_0[0] += vector4_1 * vector3_0.X;
-      this.vector4_0[1] += vector4_1 * vector3_0.Y;
-      this.vector4_0[2] += vector4_1 * vector3_0.Z;
-      this.vector4_0[3] += vector4_2 * vector3_0.X;
-      this.vector4_0[4] += vector4_2 * vector3_0.Y;
-      this.vector4_0[5] += vector4_2 * vector3_0.Z;
-      this.vector4_0[6] += new Vector4(vector3_0, 1f) * num7;
+      this.Coefficients[0] += vector4_1 * vector3_0.X;
+      this.Coefficients[1] += vector4_1 * vector3_0.Y;
+      this.Coefficients[2] += vector4_1 * vector3_0.Z;
+      this.Coefficients[3] += vector4_2 * vector3_0.X;
+      this.Coefficients[4] += vector4_2 * vector3_0.Y;
+      this.Coefficients[5] += vector4_2 * vector3_0.Z;
+      this.Coefficients[6] += new Vector4(vector3_0, 1f) * num7;
     }
   }
 }

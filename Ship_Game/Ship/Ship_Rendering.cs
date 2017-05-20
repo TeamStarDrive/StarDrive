@@ -7,38 +7,38 @@ namespace Ship_Game.Gameplay
     public sealed partial class Ship
     {
     #if DEBUG
-        private class TimedDebugLine
-        {
-            public float Time;
-            public Vector2 Start;
-            public Vector2 End;
-        }
-        private readonly Array<TimedDebugLine> SparseGridDebug = new Array<TimedDebugLine>();
-        private void AddGridLocalDebugLine(float time, Vector2 localStart, Vector2 localEnd)
-        {
-            SparseGridDebug.Add(new TimedDebugLine {
-                Time = time, Start = localStart, End = localEnd
-            });
-        }
-        private void AddGridLocalDebugCircle(float time, Vector2 localPoint)
-        {
-            SparseGridDebug.Add(new TimedDebugLine {
-                Time = time, Start = localPoint, End = localPoint
-            });
-        }
+        //private class TimedDebugLine
+        //{
+        //    public float Time;
+        //    public Vector2 Start;
+        //    public Vector2 End;
+        //}
+        //private readonly Array<TimedDebugLine> SparseGridDebug = new Array<TimedDebugLine>();
+        //private void AddGridLocalDebugLine(float time, Vector2 localStart, Vector2 localEnd)
+        //{
+        //    SparseGridDebug.Add(new TimedDebugLine {
+        //        Time = time, Start = localStart, End = localEnd
+        //    });
+        //}
+        //private void AddGridLocalDebugCircle(float time, Vector2 localPoint)
+        //{
+        //    SparseGridDebug.Add(new TimedDebugLine {
+        //        Time = time, Start = localPoint, End = localPoint
+        //    });
+        //}
 
-        private class TimedModuleDebug
-        {
-            public float Time;
-            public int X, Y;
-        }
-        private readonly Array<TimedModuleDebug> HitModuleDebug = new Array<TimedModuleDebug>();
-        private void AddGridLocalHitIndicator(float time, int x, int y)
-        {
-            HitModuleDebug.Add(new TimedModuleDebug {
-                Time = time, X = x, Y = y
-            });
-        }
+        //private class TimedModuleDebug
+        //{
+        //    public float Time;
+        //    public int X, Y;
+        //}
+        //private readonly Array<TimedModuleDebug> HitModuleDebug = new Array<TimedModuleDebug>();
+        //private void AddGridLocalHitIndicator(float time, int x, int y)
+        //{
+        //    HitModuleDebug.Add(new TimedModuleDebug {
+        //        Time = time, X = x, Y = y
+        //    });
+        //}
 
         //private readonly Array<TimedModuleDebug> GridRayTraceDebug = new Array<TimedModuleDebug>();
         //private void AddGridRayTraceDebug(float time, int x, int y)
@@ -82,26 +82,26 @@ namespace Ship_Game.Gameplay
                 }
             }
         #if DEBUG
-            for (int i = 0; i < SparseGridDebug.Count; ++i)
-            {
-                TimedDebugLine tdp = SparseGridDebug[i];
-                Vector2 endPos = GridLocalToWorld(tdp.End);
-                if (tdp.End != tdp.Start) {
-                    Vector2 startPos = GridLocalToWorld(tdp.Start);
-                    us.DrawLineProjected(startPos, endPos, Color.Magenta);
-                    us.DrawCircleProjected(endPos, 4f, 24, Color.Orange, 1.5f);
-                } else {
-                    us.DrawCircleProjected(endPos, 4f, 24, Color.Green, 1.5f);
-                }
-                if ((tdp.Time -= 1f/60f) <= 0f) SparseGridDebug.RemoveAtSwapLast(i--);
-            }
+            //for (int i = 0; i < SparseGridDebug.Count; ++i)
+            //{
+            //    TimedDebugLine tdp = SparseGridDebug[i];
+            //    Vector2 endPos = GridLocalToWorld(tdp.End);
+            //    if (tdp.End != tdp.Start) {
+            //        Vector2 startPos = GridLocalToWorld(tdp.Start);
+            //        us.DrawLineProjected(startPos, endPos, Color.Magenta);
+            //        us.DrawCircleProjected(endPos, 4f, 24, Color.Orange, 1.5f);
+            //    } else {
+            //        us.DrawCircleProjected(endPos, 4f, 24, Color.Green, 1.5f);
+            //    }
+            //    if ((tdp.Time -= 1f/60f) <= 0f) SparseGridDebug.RemoveAtSwapLast(i--);
+            //}
 
-            for (int i = 0; i < HitModuleDebug.Count; ++i)
-            {
-                TimedModuleDebug tmd = HitModuleDebug[i];
-                us.DrawCircleProjected(GridSquareToWorld(tmd.X, tmd.Y), 10.0f, 20, Color.Cyan, 4f);
-                if ((tmd.Time -= 1f / 60f) <= 0f) HitModuleDebug.RemoveAtSwapLast(i--);
-            }
+            //for (int i = 0; i < HitModuleDebug.Count; ++i)
+            //{
+            //    TimedModuleDebug tmd = HitModuleDebug[i];
+            //    us.DrawCircleProjected(GridSquareToWorld(tmd.X, tmd.Y), 10.0f, 20, Color.Cyan, 4f);
+            //    if ((tmd.Time -= 1f / 60f) <= 0f) HitModuleDebug.RemoveAtSwapLast(i--);
+            //}
 
             //for (int i = 0; i < GridRayTraceDebug.Count; ++i)
             //{
@@ -233,7 +233,7 @@ namespace Ship_Game.Gameplay
 
         public void DrawTacticalIcon(UniverseScreen us, UniverseScreen.UnivScreenState viewState)
         {
-            float shipWorldRadius = GetSO().WorldBoundingSphere.Radius;
+            float shipWorldRadius = ShipSO.WorldBoundingSphere.Radius;
             us.ProjectToScreenCoords(Position, shipWorldRadius, out Vector2 screenPos, out float screenRadius);
 
             if (viewState == UniverseScreen.UnivScreenState.GalaxyView)
@@ -264,5 +264,70 @@ namespace Ship_Game.Gameplay
         }
 
 
+        public void RenderOverlay(SpriteBatch spriteBatch, Rectangle drawRect, bool showModules)
+        {
+            if (!ResourceManager.TryGetHull(shipData.Hull, out ShipData hullData))
+                return;
+            if (hullData.SelectionGraphic.NotEmpty() && !showModules)
+            {
+                Rectangle destinationRectangle = drawRect;
+                destinationRectangle.X += 2;
+
+                spriteBatch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic), destinationRectangle, Color.White);
+                if (shield_power > 0.0)
+                {
+                    byte alpha = (byte)(shield_percent * 255.0f);
+                    spriteBatch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
+                }
+            }
+            if (!showModules || hullData.SelectionGraphic.IsEmpty() || ModuleSlotList.Length == 0)
+                return;
+
+            ShipModule[] sortedByX = ModuleSlotList.CloneArray();
+            sortedByX.Sort(slot => slot.XMLPosition.X);
+
+            ShipModule[] sortedByY = ModuleSlotList.CloneArray();
+            sortedByY.Sort(slot => slot.XMLPosition.Y);
+
+            float spanX = sortedByX[sortedByX.Length - 1].XMLPosition.X - sortedByX[0].XMLPosition.X + 16.0f;
+            float spanY = sortedByY[sortedByY.Length - 1].XMLPosition.Y - sortedByY[0].XMLPosition.Y + 16.0f;
+
+            int maxSpan = (int)Math.Max(spanX, spanY) / 16 + 1;
+
+            float moduleSize = (drawRect.Width / maxSpan);
+            if (moduleSize < 2.0)
+                moduleSize = drawRect.Width / (float)maxSpan;
+            if (moduleSize > 10.0)
+                moduleSize = 10f;
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                Vector2 moduleOffset = module.XMLPosition - new Vector2(264f, 264f);
+                Vector2 vector2_2 = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
+                if (Math.Abs(vector2_2.X) > (drawRect.Width / 2) || Math.Abs(vector2_2.Y) > (drawRect.Height / 2))
+                {
+                    moduleSize = (float)(drawRect.Width / (maxSpan + 10));
+                    break;
+                }
+            }
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                Vector2 moduleOffset = module.XMLPosition - new Vector2(264f, 264f);
+                moduleOffset = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
+                var rect = new Rectangle(drawRect.X + drawRect.Width / 2 + (int)moduleOffset.X, drawRect.Y + drawRect.Height / 2 + (int)moduleOffset.Y, (int)moduleSize, (int)moduleSize);
+
+                spriteBatch.FillRectangle(rect, module.GetHealthStatusColor());
+            }
+        }
+
+        public void RenderThrusters(ref Matrix view, ref Matrix projection)
+        {
+            for (int i = 0; i < ThrusterList.Count; ++i)
+            {
+                Thruster thruster = ThrusterList[i];
+                Log.Assert(thruster.technique != null, "Thruster technique not initialized");
+                thruster.Draw(ref view, ref projection);
+                thruster.Draw(ref view, ref projection);
+            }
+        }
     }
 }

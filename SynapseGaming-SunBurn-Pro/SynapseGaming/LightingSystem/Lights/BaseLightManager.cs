@@ -4,11 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Lights
 {
@@ -22,7 +21,7 @@ namespace SynapseGaming.LightingSystem.Lights
     private static int int_1 = 10000;
     private static float float_0 = 0.004f;
     private List<ILight> list_1 = new List<ILight>(16);
-    private BaseLightManager.Class52 class52_0 = new BaseLightManager.Class52();
+    private Class52 class52_0 = new Class52();
     /// <summary>
     /// Current scene state information provided to BeginFrameRendering (only valid between calls to BeginFrameRendering and EndFrameRendering).
     /// </summary>
@@ -30,14 +29,8 @@ namespace SynapseGaming.LightingSystem.Lights
 
     internal static int MaxLightsPerGroup
     {
-      get
-      {
-        return BaseLightManager.int_1;
-      }
-      set
-      {
-        BaseLightManager.int_1 = value;
-      }
+      get => int_1;
+        set => int_1 = value;
     }
 
     /// <summary>Creates a new BaseLightManager instance.</summary>
@@ -82,8 +75,8 @@ namespace SynapseGaming.LightingSystem.Lights
     {
       this.list_1.Clear();
       base.Find(this.list_1, worldbounds, objectfilter);
-      bool bool_0 = (objectfilter & ObjectFilter.Enabled) != (ObjectFilter) 0;
-      bool bool_1 = (objectfilter & ObjectFilter.Disabled) != (ObjectFilter) 0;
+      bool bool_0 = (objectfilter & ObjectFilter.Enabled) != 0;
+      bool bool_1 = (objectfilter & ObjectFilter.Disabled) != 0;
       int count = this.list_1.Count;
       for (int index = 0; index < count; ++index)
       {
@@ -104,8 +97,8 @@ namespace SynapseGaming.LightingSystem.Lights
     {
       this.list_1.Clear();
       base.Find(this.list_1, worldbounds, objectfilter);
-      bool bool_0 = (objectfilter & ObjectFilter.Enabled) != (ObjectFilter) 0;
-      bool bool_1 = (objectfilter & ObjectFilter.Disabled) != (ObjectFilter) 0;
+      bool bool_0 = (objectfilter & ObjectFilter.Enabled) != 0;
+      bool bool_1 = (objectfilter & ObjectFilter.Disabled) != 0;
       int count = this.list_1.Count;
       for (int index = 0; index < count; ++index)
       {
@@ -124,8 +117,8 @@ namespace SynapseGaming.LightingSystem.Lights
     {
       this.list_1.Clear();
       base.Find(this.list_1, objectfilter);
-      bool bool_0 = (objectfilter & ObjectFilter.Enabled) != (ObjectFilter) 0;
-      bool bool_1 = (objectfilter & ObjectFilter.Disabled) != (ObjectFilter) 0;
+      bool bool_0 = (objectfilter & ObjectFilter.Enabled) != 0;
+      bool bool_1 = (objectfilter & ObjectFilter.Disabled) != 0;
       int count = this.list_1.Count;
       for (int index = 0; index < count; ++index)
       {
@@ -144,10 +137,10 @@ namespace SynapseGaming.LightingSystem.Lights
       if (!ilight_0.Enabled)
         return bool_1;
       IPointSource pointSource = ilight_0 as IPointSource;
-      if (pointSource != null && (double) pointSource.Radius <= 0.0)
+      if (pointSource != null && pointSource.Radius <= 0.0)
         return bool_1;
       Vector3 colorAndIntensity = ilight_0.CompositeColorAndIntensity;
-      if ((double) colorAndIntensity.X + (double) colorAndIntensity.Y + (double) colorAndIntensity.Z > (double) BaseLightManager.float_0)
+      if (colorAndIntensity.X + (double) colorAndIntensity.Y + colorAndIntensity.Z > float_0)
         return bool_0;
       return bool_1;
     }
@@ -204,7 +197,7 @@ namespace SynapseGaming.LightingSystem.Lights
           Vector3 result;
           Vector3.Subtract(ref vector3_2, ref position, out result);
           float num1 = result.Length();
-          if ((double) num1 > 0.0)
+          if (num1 > 0.0)
           {
             result.X /= num1;
             result.Y /= num1;
@@ -212,12 +205,12 @@ namespace SynapseGaming.LightingSystem.Lights
           }
           float num2 = 1f - MathHelper.Clamp(num1 / pointSource.Radius, 0.0f, 1f);
           float num3 = sourcelight.Intensity * num2;
-          if ((double) num3 > 0.0 && sourcelight is ISpotSource)
+          if (num3 > 0.0 && sourcelight is ISpotSource)
           {
             ISpotSource spotSource = sourcelight as ISpotSource;
-            float num4 = (float) Math.Cos((double) MathHelper.ToRadians(MathHelper.Clamp(spotSource.Angle * 0.5f, 0.01f, 89.99f)));
+            float num4 = (float) Math.Cos(MathHelper.ToRadians(MathHelper.Clamp(spotSource.Angle * 0.5f, 0.01f, 89.99f)));
             float num5 = Vector3.Dot(spotSource.Direction, result);
-            num3 *= MathHelper.Clamp((float) (((double) num5 - (double) num4) / (1.0 - (double) num4)), 0.0f, 1f);
+            num3 *= MathHelper.Clamp((float) ((num5 - (double) num4) / (1.0 - num4)), 0.0f, 1f);
           }
           zero1.X += result.X * num3;
           zero1.Y += result.Y * num3;
@@ -239,7 +232,7 @@ namespace SynapseGaming.LightingSystem.Lights
       float num = MathHelper.Clamp(ambientblend, 0.0f, 1f);
       Vector3 vector3_3 = vector3_1 + zero2 * num * 0.25f;
       Vector3 vector3_4 = zero2 * (1f - num);
-      return new CompositeLighting() { Direction = Vector3.Normalize(zero1), DiffuseColor = vector3_4, AmbientColor = vector3_3 };
+      return new CompositeLighting { Direction = Vector3.Normalize(zero1), DiffuseColor = vector3_4, AmbientColor = vector3_3 };
     }
 
     /// <summary>Sets up the object prior to rendering.</summary>

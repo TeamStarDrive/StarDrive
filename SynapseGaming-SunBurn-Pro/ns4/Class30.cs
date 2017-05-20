@@ -27,115 +27,39 @@ namespace ns4
     {
       get
       {
-        if (object.ReferenceEquals((object) Class30.resourceManager_0, (object) null))
-          Class30.resourceManager_0 = new ResourceManager("SynapseGaming.LightingSystem.Editor.EditorResources", typeof (Class30).Assembly);
-        return Class30.resourceManager_0;
+        if (ReferenceEquals(resourceManager_0, null))
+          resourceManager_0 = new ResourceManager("SynapseGaming.LightingSystem.Editor.EditorResources", typeof (Class30).Assembly);
+        return resourceManager_0;
       }
     }
 
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     internal static CultureInfo Culture
     {
-      get
-      {
-        return Class30.cultureInfo_0;
-      }
-      set
-      {
-        Class30.cultureInfo_0 = value;
-      }
+      get => cultureInfo_0;
+        set => cultureInfo_0 = value;
     }
 
-    internal static Bitmap ClearImage
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("ClearImage", Class30.cultureInfo_0);
-      }
-    }
+    internal static Bitmap ClearImage => (Bitmap) ResourceManager.GetObject("ClearImage", cultureInfo_0);
 
-    internal static Bitmap ColorSelectBg
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("ColorSelectBg", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap ColorSelectBg => (Bitmap) ResourceManager.GetObject("ColorSelectBg", cultureInfo_0);
 
-    internal static Bitmap ErrorImage
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("ErrorImage", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap ErrorImage => (Bitmap) ResourceManager.GetObject("ErrorImage", cultureInfo_0);
 
-    internal static Bitmap LightAdd
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("LightAdd", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap LightAdd => (Bitmap) ResourceManager.GetObject("LightAdd", cultureInfo_0);
 
-    internal static Bitmap LightDelete
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("LightDelete", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap LightDelete => (Bitmap) ResourceManager.GetObject("LightDelete", cultureInfo_0);
 
-    internal static Bitmap LightMove
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("LightMove", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap LightMove => (Bitmap) ResourceManager.GetObject("LightMove", cultureInfo_0);
 
-    internal static Bitmap LightRotate
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("LightRotate", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap LightRotate => (Bitmap) ResourceManager.GetObject("LightRotate", cultureInfo_0);
 
-    internal static Bitmap Redo
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("Redo", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap Redo => (Bitmap) ResourceManager.GetObject("Redo", cultureInfo_0);
 
-    internal static Bitmap Refresh
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("Refresh", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap Refresh => (Bitmap) ResourceManager.GetObject("Refresh", cultureInfo_0);
 
-    internal static Bitmap SaveAll
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("SaveAll", Class30.cultureInfo_0);
-      }
-    }
+      internal static Bitmap SaveAll => (Bitmap) ResourceManager.GetObject("SaveAll", cultureInfo_0);
 
-    internal static Bitmap Undo
-    {
-      get
-      {
-        return (Bitmap) Class30.ResourceManager.GetObject("Undo", Class30.cultureInfo_0);
-      }
-    }
-
-    internal Class30()
-    {
-    }
+      internal static Bitmap Undo => (Bitmap) ResourceManager.GetObject("Undo", cultureInfo_0);
   }
 }

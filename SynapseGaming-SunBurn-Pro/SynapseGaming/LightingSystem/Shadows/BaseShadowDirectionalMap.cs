@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using ns6;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
-using System;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -31,26 +31,14 @@ namespace SynapseGaming.LightingSystem.Shadows
     private Vector4 vector4_1;
 
     /// <summary>Array of the level-of-detail surfaces.</summary>
-    public override ShadowMapSurface[] Surfaces
-    {
-      get
-      {
-        return this.shadowMapSurface_0;
-      }
-    }
+    public override ShadowMapSurface[] Surfaces => this.shadowMapSurface_0;
 
-    /// <summary>
+      /// <summary>
     /// Unused, this object supports render targets from the ShadowMapCache.
     /// </summary>
-    public override RenderTarget CustomRenderTarget
-    {
-      get
-      {
-        return (RenderTarget) null;
-      }
-    }
+    public override RenderTarget CustomRenderTarget => null;
 
-    /// <summary>Creates a new ShadowDirectionalMap instance.</summary>
+      /// <summary>Creates a new ShadowDirectionalMap instance.</summary>
     public BaseShadowDirectionalMap()
     {
       for (int index = 0; index < this.shadowMapSurface_0.Length; ++index)
@@ -144,11 +132,11 @@ namespace SynapseGaming.LightingSystem.Shadows
       shadowMapSurface.WorldToSurfaceView = matrix1;
       shadowMapSurface.Projection = Matrix.CreateOrthographic(num, num, float3 * 0.25f, float3 * 1.75f) * Matrix.CreateScale(-1f, 1f, 1f);
       int width = location.Width;
-      Vector4 vector = (Vector4.Transform(new Vector4(position2, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4((float) width);
-      Vector4 vector4 = (Vector4.Transform(new Vector4(Vector3.Zero, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4((float) width);
+      Vector4 vector = (Vector4.Transform(new Vector4(position2, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4(width);
+      Vector4 vector4 = (Vector4.Transform(new Vector4(Vector3.Zero, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4(width);
       vector.X += vector4.X % 1f;
       vector.Y += vector4.Y % 1f;
-      vector /= new Vector4((float) width);
+      vector /= new Vector4(width);
       vector = vector * 2f - Vector4.One;
       vector = Vector4.Transform(vector, Matrix.Invert(shadowMapSurface.Frustum.Matrix));
       Matrix matrix3 = Matrix.Invert(matrix1);
@@ -169,7 +157,7 @@ namespace SynapseGaming.LightingSystem.Shadows
 
     private int method_1(float float_4, int int_1, int int_2)
     {
-      return (int) MathHelper.Clamp((float) ((double) float_4 * 0.5 + 0.5) * (float) int_1 + (float) int_2, 0.0f, (float) int_1);
+      return (int) MathHelper.Clamp((float) (float_4 * 0.5 + 0.5) * int_1 + int_2, 0.0f, int_1);
     }
 
     /// <summary>
@@ -190,7 +178,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     {
       if (!(shadowmap is Texture2D))
       {
-        (shadoweffect as Interface3).SetShadowMapAndType((Texture2D) null, Enum5.const_1);
+        (shadoweffect as Interface3).SetShadowMapAndType(null, Enum5.const_1);
       }
       else
       {
@@ -239,7 +227,7 @@ namespace SynapseGaming.LightingSystem.Shadows
       Interface3 nterface3 = shadoweffect as Interface3;
       IShadowGenerateEffect shadowGenerateEffect = shadoweffect as IShadowGenerateEffect;
       if (nterface3 != null)
-        nterface3.SetShadowMapAndType((Texture2D) null, Enum5.const_1);
+        nterface3.SetShadowMapAndType(null, Enum5.const_1);
       if (renderableEffect != null)
         renderableEffect.SetViewAndProjection(shadowMapSurface.WorldToSurfaceView, Matrix.Identity, shadowMapSurface.Projection, this.SceneState.ProjectionToView);
       if (shadowGenerateEffect != null)
