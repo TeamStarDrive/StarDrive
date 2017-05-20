@@ -589,7 +589,7 @@ namespace Ship_Game
             string planet = "Model/SpaceObjects/planet_" + RandomMath.IntBetween(1, 29);
             MoonObj = new SceneObject(TransientContent.Load<Model>(planet).Meshes[0]) { ObjectType = ObjectType.Dynamic };
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
-            ScreenManager.inter.ObjectManager.Submit(MoonObj);
+            ScreenManager.Submit(MoonObj);
 
             InitRandomShip();
 
@@ -667,7 +667,7 @@ namespace Ship_Game
         {
             if (ShipObj != null) // Allow multiple inits (mostly for testing)
             {
-                ScreenManager.inter.ObjectManager.Remove(ShipObj);
+                ScreenManager.Remove(ShipObj);
                 ShipObj.Clear();
                 ShipObj = null;
                 ShipAnim = null;
@@ -716,7 +716,7 @@ namespace Ship_Game
             //Log.Info("ship length {0} width {1} height {2}", length, width, height);
 
             ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-            ScreenManager.inter.ObjectManager.Submit(ShipObj);
+            ScreenManager.Submit(ShipObj);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
