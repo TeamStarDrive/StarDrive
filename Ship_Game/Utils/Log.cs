@@ -178,7 +178,7 @@ namespace Ship_Game
             Debugger.Break();
         }
 
-        public static void Assert(bool trueCondition, string message)
+        [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)
         {
             if (trueCondition != true) Error(message);
         }

@@ -239,6 +239,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Ship_Game\Ship\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMissionData.cs" />
     <Compile Include="Ship_Game\EspionageScreen.cs" />
