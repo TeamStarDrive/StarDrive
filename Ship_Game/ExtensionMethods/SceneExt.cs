@@ -15,21 +15,21 @@ namespace Ship_Game
         {
             // @todo Replace with specialized locks
             lock (GlobalStats.ObjectManagerLocker)
-                screen.ScreenManager.inter.LightManager.Submit(light);
+                screen.ScreenManager.Submit(light);
         }
 
         public static void RemoveFrom(this ILight light, GameScreen screen)
         {
             lock (GlobalStats.ObjectManagerLocker)
-                screen.ScreenManager.inter.LightManager.Remove(light);
+                screen.ScreenManager.Remove(light);
         }
 
         public static void Refresh(this ILight light, GameScreen screen)
         {
             lock (GlobalStats.ObjectManagerLocker)
             {
-                screen.ScreenManager.inter.LightManager.Remove(light);
-                screen.ScreenManager.inter.LightManager.Submit(light);
+                screen.ScreenManager.Remove(light);
+                screen.ScreenManager.Submit(light);
             }
         }
 

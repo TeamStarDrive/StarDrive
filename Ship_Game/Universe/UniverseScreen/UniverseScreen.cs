@@ -284,10 +284,9 @@ namespace Ship_Game
 
         public void SetLighting(bool real)
         {
-            lock (GlobalStats.ObjectManagerLocker)
-                ScreenManager.inter.LightManager.Clear();
             if (real)
             {
+                ScreenManager.RemoveAllLights();
                 foreach (SolarSystem system in SolarSystemList)
                 {
                     AddLight(system, 2.5f, 150000f, zpos: +2500f, fillLight: true);
@@ -298,8 +297,7 @@ namespace Ship_Game
             }
 
             var rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
-            lock (GlobalStats.ObjectManagerLocker)
-                ScreenManager.inter.LightManager.Submit(rig);
+            rig.AssignTo(this);
         }
 
         private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
@@ -763,7 +761,7 @@ namespace Ship_Game
                     if (planet.SO != null)
                     {
                         planet.SO.Clear();
-                        ScreenManager.inter.ObjectManager.Remove(planet.SO);
+                        ScreenManager.Remove(planet.SO);
                         planet.SO = null;
                     }
                 }
@@ -772,7 +770,7 @@ namespace Ship_Game
                     if (asteroid.So!= null)
                     {
                         asteroid.So.Clear();
-                        ScreenManager.inter.ObjectManager.Remove(asteroid.So);
+                        ScreenManager.Remove(asteroid.So);
                     }
                 }
                 solarSystem.AsteroidsList.Clear();
@@ -781,7 +779,7 @@ namespace Ship_Game
                     if (moon.So != null)
                     {
                         moon.So.Clear();
-                        ScreenManager.inter.ObjectManager.Remove(moon.So);
+                        ScreenManager.Remove(moon.So);
                         moon.So = null;
                     }
                 }
