@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
 
@@ -41,7 +42,9 @@ namespace Ship_Game
         // Create an untargeted beam with an initial destination position
         public Beam(Weapon weapon, Vector2 destination) : base(GameObjectType.Beam)
         {
-            Weapon           = weapon;
+            //there is an error here in beam creation where the weapon has no module. 
+            // i am setting these values in the weapon CreateDroneBeam where possible. 
+            Weapon = weapon;
             ModuleAttachedTo = weapon.moduleAttachedTo;
             DamageAmount = weapon.DamageAmount;
             PowerCost    = weapon.BeamPowerCostPerSecond;
@@ -49,8 +52,8 @@ namespace Ship_Game
             Duration     = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
             Thickness    = weapon.BeamThickness;
 
-            Owner  = ModuleAttachedTo.GetParent();
-            Source = ModuleAttachedTo.Center;
+            Owner  = ModuleAttachedTo?.GetParent();
+            Source = ModuleAttachedTo?.Center ?? Vector2.Zero;
             SetDestination(destination);
             ActualHitDestination = Destination;
 

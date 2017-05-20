@@ -265,8 +265,9 @@ namespace Ship_Game.Gameplay
             // repair drone beams with negative damage have their collision disabled
             var beam = new Beam(this, target)
             {
-                DisableSpatialCollision = DamageAmount < 0f
-            };
+                DisableSpatialCollision = DamageAmount < 0f,
+                Source = source.Owner.Center
+            };            
             source.Beams.Add(beam);
 
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
