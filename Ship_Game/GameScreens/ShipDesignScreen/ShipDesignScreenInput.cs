@@ -656,7 +656,6 @@ namespace Ship_Game {
                 {
                     this.StartDragPos = input.CursorPosition;
                     this.CameraVelocity.X = 0.0f;
-                    this.CameraVelocity.Y = 0.0f;
                 }
                 if (input.CurrentMouseState.RightButton == ButtonState.Pressed &&
                     input.LastMouseState.RightButton == ButtonState.Pressed)
@@ -783,81 +782,55 @@ namespace Ship_Game {
                 }
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && this.ActiveModule != null)
                 {
-                    foreach (SlotStruct slot in this.Slots)
+                    foreach (SlotStruct slot in Slots)
                     {
-                        Vector2 spaceFromWorldSpace = this.Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                            (float) slot.PQ.enclosingRect.X
-                            , (float) slot.PQ.enclosingRect.Y));
+                        Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(new Vector2(
+                            slot.PQ.enclosingRect.X,
+                            slot.PQ.enclosingRect.Y));
                         if (new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
-                                , (int) (16.0 * (double) this.Camera.Zoom), (int) (16.0 * (double) this.Camera.Zoom))
+                                , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
                             .HitTest(vector2))
                         {
                             GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
-                            if (slot.PQ.X != this.LastDesignActionPos.X || slot.PQ.Y != this.LastDesignActionPos.Y
-                                || ActiveModule.UID != this.LastActiveUID)
+                            if (slot.PQ.X != LastDesignActionPos.X || slot.PQ.Y != LastDesignActionPos.Y
+                                || ActiveModule.UID != LastActiveUID)
                             {
-                                this.InstallModule(
+                                InstallModule(
                                     slot); //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
-                                this.LastDesignActionPos.X = slot.PQ.X;
-                                this.LastDesignActionPos.Y = slot.PQ.Y;
-                                this.LastActiveUID = ActiveModule.UID;
+                                LastDesignActionPos.X = slot.PQ.X;
+                                LastDesignActionPos.Y = slot.PQ.Y;
+                                LastActiveUID = ActiveModule.UID;
                             }
                         }
                     }
                 }
-                else if (input.LeftMouseClick)
-                    this.HoldTimer -= .01666f;
-                else
-                    this.HoldTimer = 0.50f;
-
                 foreach (SlotStruct slotStruct in this.Slots)
                 {
                     if (slotStruct.ModuleUID != null && this.HighlightedModule != null &&
                         (slotStruct.Module == this.HighlightedModule &&
-                         (double) slotStruct.Module.FieldOfFire != 0.0) &&
+                         slotStruct.Module.FieldOfFire > 0.0) &&
                         slotStruct.Module.ModuleType == ShipModuleType.Turret)
                     {
-                        float num1 = slotStruct.Module.FieldOfFire / 2f;
+                        float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
                         Vector2 spaceFromWorldSpace =
                             this.Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                                (float) (slotStruct.PQ.enclosingRect.X + 16 * (int) slotStruct.Module.XSIZE / 2),
-                                (float) (slotStruct.PQ.enclosingRect.Y + 16 * (int) slotStruct.Module.YSIZE / 2)));
-                        float num2 = spaceFromWorldSpace.AngleToTarget(vector2);
-                        float num3 = this.HighlightedModule.Facing;
-                        float num4 = Math.Abs(num2 - num3);
-                        if ((double) num4 > (double) num1)
+                                slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
+                                slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
+                        float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
+                        float facing = this.HighlightedModule.Facing;
+                        float angle = Math.Abs(angleToTarget - facing);
+                        if (angle > fieldOfFire)
                         {
-                            if ((double) num2 > 180.0)
-                                num2 = (float) (-1.0 * (360.0 - (double) num2));
-                            if ((double) num3 > 180.0)
-                                num3 = (float) (-1.0 * (360.0 - (double) num3));
-                            num4 = Math.Abs(num2 - num3);
+                            if (angleToTarget > 180f)
+                                angleToTarget = -1f * (360f - angleToTarget);
+                            if (facing > 180f)
+                                facing = -1f * (360f - facing);
+                            angle = Math.Abs(angleToTarget - facing);
                         }
 
-                        if (GlobalStats.AltArcControl)
-                        {
-                            //The Doctor: ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
-                            if ((double) num4 < (double) num1 &&
-                                (this.MouseStateCurrent.LeftButton == ButtonState.Pressed &&
-                                 this.MouseStatePrevious.LeftButton == ButtonState.Pressed &&
-                                 ((input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) ||
-                                   input.LastKeyboardState.IsKeyDown(Keys.LeftAlt)) ||
-                                  (input.CurrentKeyboardState.IsKeyDown(Keys.RightAlt) ||
-                                   input.LastKeyboardState.IsKeyDown(Keys.RightAlt)))))
-                            {
-                                this.HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);
-                            }
-                        }
-                        else
-                        {
-                            //Delay method
-                            if ((this.MouseStateCurrent.LeftButton == ButtonState.Pressed &&
-                                 this.MouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
-                            {
-                                this.HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);
-                            }
-                        }
+                        if (input.ShipYardArcMove())                            
+                                this.HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);                                                                            
                     }
                 }
                 foreach (UIButton uiButton in this.Buttons)
