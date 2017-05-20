@@ -1,31 +1,27 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SgMotion;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Xml.Serialization;
-using System.Linq;
-using Ship_Game.AI;
-using System.Text;
 
 namespace Ship_Game
 {
     public sealed class ShipDesignScreen : GameScreen
     {
-        private Matrix worldMatrix = Matrix.Identity;
-        private Matrix view;
-        private Matrix projection;
-        public Camera2d camera;
+        private Matrix WorldMatrix = Matrix.Identity;
+        private Matrix View;
+        private Matrix Projection;
+        public Camera2d Camera;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         public bool Debug;
         public ShipData ActiveHull;
@@ -42,12 +38,12 @@ namespace Ship_Game
         private UIButton ToggleOverlayButton;
         private UIButton SaveButton;
         private UIButton LoadButton;
-        private Submenu modSel;
-        private Submenu statsSub;
+        private Submenu ModSel;
+        private Submenu StatsSub;
         private Menu1 ShipStats;
         private Menu1 activeModWindow;
-        private Submenu activeModSubMenu;
-        private ScrollList weaponSL;
+        private Submenu ActiveModSubMenu;
+        private ScrollList WeaponSl;
         private bool Reset = true;
         private Submenu ChooseFighterSub;
         private ScrollList ChooseFighterSL;
@@ -55,14 +51,14 @@ namespace Ship_Game
         private float LowestX;
         private float HighestX;
         private GenericButton ArcsButton;
-        private CloseButton close;
+        private CloseButton Close;
         private float OriginalZ;
-        private Rectangle choosefighterrect;
+        private Rectangle Choosefighterrect;
         private Rectangle SearchBar;
-        private Rectangle bottom_sep;
-        private ScrollList hullSL;
+        private Rectangle BottomSep;
+        private ScrollList HullSL;
         private Rectangle HullSelectionRect;
-        private Submenu hullSelectionSub;
+        private Submenu HullSelectionSub;
         private Rectangle BlackBar;
         private Rectangle SideBar;
         private Vector2 SelectedCatTextPos;
@@ -71,45 +67,44 @@ namespace Ship_Game
         private SkinnableButton def;
         private SkinnableButton spc;
         private Rectangle ModuleSelectionArea = new Rectangle();
-        private Array<ShipDesignScreen.ModuleCatButton> ModuleCatButtons = new Array<ShipDesignScreen.ModuleCatButton>();
-        private Array<ModuleButton> ModuleButtons = new Array<ModuleButton>();
-        private Rectangle upArrow;
-        private Rectangle downArrow;
-        private MouseState mouseStateCurrent;
-        private MouseState mouseStatePrevious;
+        private readonly Array<ModuleCatButton> ModuleCatButtons = new Array<ModuleCatButton>();
+        private readonly Array<ModuleButton> ModuleButtons = new Array<ModuleButton>();
+        private Rectangle UpArrow;
+        private Rectangle DownArrow;
+        private MouseState MouseStateCurrent;
+        private MouseState MouseStatePrevious;
         private ShipModule HighlightedModule;
-        private Vector2 cameraVelocity = Vector2.Zero;
+        private Vector2 CameraVelocity = Vector2.Zero;
         private Vector2 StartDragPos = new Vector2();
-        private ShipData changeto;
-        private string screenToLaunch;
+        private ShipData Changeto;
+        private string ScreenToLaunch;
         private bool ShowAllArcs;
         private ShipModule HoveredModule;
         private float TransitionZoom = 1f;
-        private ShipDesignScreen.SlotModOperation operation;
-        //private ShipDesignScreen.Colors sColor;
+        private SlotModOperation Operation;
         private int HullIndex;
         private ShipModule ActiveModule;
         private ShipModule ActiveHangarModule;
-        private ShipDesignScreen.ActiveModuleState ActiveModState;
+        private ActiveModuleState ActiveModState;
         private Selector selector;
         public bool ToggleOverlay = true;
         private Vector2 starfieldPos = Vector2.Zero;
-        private int scrollPosition;
+        private int ScrollPosition;
         private DropOptions CategoryList;
-        private Rectangle dropdownRect;
-        private Vector2 classifCursor;
+        private Rectangle DropdownRect;
+        private Vector2 ClassifCursor;
         public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
-        private string lastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
-        private Vector2 lastDesignActionPos = Vector2.Zero;
-        private Vector2 COBoxCursor;
+        private string LastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
+        private Vector2 LastDesignActionPos = Vector2.Zero;
+        private Vector2 CoBoxCursor;
         private Checkbox CarrierOnlyBox;
-        private bool fml = false;
-        private bool fmlevenmore = false;
+        private bool Fml = false;
+        private bool Fmlevenmore = false;
         public bool CarrierOnly;
         private ShipData.Category LoadCategory;
         public string HangarShipUIDLast = "Undefined";
         private float HoldTimer = .50f;
-        private HashSet<string> techs = new HashSet<string>();
+        private HashSet<string> Techs = new HashSet<string>();
 
 #if SHIPYARD
         short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0;        //For Gretman's debug shipyard
@@ -118,7 +113,7 @@ namespace Ship_Game
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI) : base(parent)
         {
-            this.EmpireUI = EmpireUI;
+            this.EmpireUI         = EmpireUI;
             base.TransitionOnTime = TimeSpan.FromSeconds(2);
 #if SHIPYARD
             Debug = true;
@@ -128,7 +123,7 @@ namespace Ship_Game
         private void AddToTechList(HashSet<string> techlist)
         {
             foreach (string tech in techlist)
-                this.techs.Add(tech);
+                this.Techs.Add(tech);
         }
 
         public void ChangeHull(ShipData hull)       //Mer
@@ -138,8 +133,8 @@ namespace Ship_Game
         #endif
             Reset = true;
             DesignStack.Clear();
-            lastDesignActionPos = Vector2.Zero;
-            lastActiveUID = "";
+            LastDesignActionPos = Vector2.Zero;
+            LastActiveUID       = "";
 
             lock (GlobalStats.ObjectManagerLocker)
             {
@@ -162,12 +157,12 @@ namespace Ship_Game
                 ShipCategory = hull.ShipCategory,
                 CarrierShip  = hull.CarrierShip
             };
-            techs.Clear();
+            Techs.Clear();
             AddToTechList(ActiveHull.HullData.techsNeeded);
             CarrierOnly  = hull.CarrierShip;
             LoadCategory = hull.ShipCategory;
-            fml = true;
-            fmlevenmore = true;
+            Fml          = true;
+            Fmlevenmore  = true;
 
             ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
@@ -199,7 +194,7 @@ namespace Ship_Game
                 this.shipSO = new SceneObject(mesh)
                 {
                     ObjectType = ObjectType.Dynamic,
-                    World = this.worldMatrix
+                    World = this.WorldMatrix
                 };
                 lock (GlobalStats.ObjectManagerLocker)
                 {
@@ -212,7 +207,7 @@ namespace Ship_Game
                 this.shipSO = new SceneObject(sm.Model)
                 {
                     ObjectType = ObjectType.Dynamic,
-                    World = this.worldMatrix
+                    World = this.WorldMatrix
                 };
                 lock (GlobalStats.ObjectManagerLocker)
                 {
@@ -422,8 +417,8 @@ namespace Ship_Game
 
         public void CreateShipModuleSelectionWindow()
         {
-            this.upArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y, 22, 30);
-            this.downArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y + this.ModuleSelectionArea.Height - 32, 20, 30);
+            this.UpArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y, 22, 30);
+            this.DownArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y + this.ModuleSelectionArea.Height - 32, 20, 30);
             Array<string> Categories = new Array<string>();
             Dictionary<string, Array<ShipModule>> moduleDict = new Map<string, Array<ShipModule>>();
             foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
@@ -499,7 +494,7 @@ namespace Ship_Game
                 this.shipSO = new SceneObject(mesh)
                 {
                     ObjectType = ObjectType.Dynamic,
-                    World = this.worldMatrix
+                    World = this.WorldMatrix
                 };
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
                 this.SetupSlots();
@@ -539,8 +534,8 @@ namespace Ship_Game
 
         protected override void Dispose(bool disposing)
         {
-            hullSL?.Dispose(ref hullSL);
-            weaponSL?.Dispose(ref weaponSL);
+            HullSL?.Dispose(ref HullSL);
+            WeaponSl?.Dispose(ref WeaponSl);
             ChooseFighterSL?.Dispose(ref ChooseFighterSL);
             base.Dispose(disposing);
         }
@@ -573,14 +568,14 @@ namespace Ship_Game
             Color activeColor;
             lock (GlobalStats.ObjectManagerLocker)
             {
-                base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
+                base.ScreenManager.sceneState.BeginFrameRendering(this.View, this.Projection, gameTime, base.ScreenManager.environment, true);
                 base.ScreenManager.editor.BeginFrameRendering(base.ScreenManager.sceneState);
                 base.ScreenManager.inter.BeginFrameRendering(base.ScreenManager.sceneState);
                 Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
                 base.ScreenManager.inter.RenderManager.Render();
             }
             base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None
-                , this.camera.get_transformation(base.ScreenManager.GraphicsDevice));
+                , this.Camera.get_transformation(base.ScreenManager.GraphicsDevice));
             if (this.ToggleOverlay)
             {
                 foreach (SlotStruct slot in this.Slots)
@@ -1129,11 +1124,11 @@ namespace Ship_Game
             float single = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(single, (float)state.Y);
-            if (this.ActiveModule != null && !this.activeModSubMenu.Menu.HitTest(MousePos) && !this.modSel.Menu.HitTest(MousePos) && (!this.choosefighterrect.HitTest(MousePos) || this.ActiveModule.ModuleType != ShipModuleType.Hangar || this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
+            if (this.ActiveModule != null && !this.ActiveModSubMenu.Menu.HitTest(MousePos) && !this.ModSel.Menu.HitTest(MousePos) && (!this.Choosefighterrect.HitTest(MousePos) || this.ActiveModule.ModuleType != ShipModuleType.Hangar || this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
             {
                 ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
 
-                Rectangle r = new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, (int)((float)(16 * this.ActiveModule.XSIZE) * this.camera.Zoom), (int)((float)(16 * this.ActiveModule.YSIZE) * this.camera.Zoom));
+                Rectangle r = new Rectangle(this.MouseStateCurrent.X, this.MouseStateCurrent.Y, (int)((float)(16 * this.ActiveModule.XSIZE) * this.Camera.Zoom), (int)((float)(16 * this.ActiveModule.YSIZE) * this.Camera.Zoom));
                 switch (this.ActiveModState)
                 {
                     case ActiveModuleState.Normal:
@@ -1143,7 +1138,7 @@ namespace Ship_Game
                     }
                     case ActiveModuleState.Left:
                     {
-                        r.Y = r.Y + (int)((16 * moduleTemplate.XSIZE) * camera.Zoom);
+                        r.Y = r.Y + (int)((16 * moduleTemplate.XSIZE) * Camera.Zoom);
                         int h = r.Height;
                         int w = r.Width;
                         r.Width = h;
@@ -1153,7 +1148,7 @@ namespace Ship_Game
                     }
                     case ActiveModuleState.Right:
                     {
-                        r.X = r.X + (int)((16 * moduleTemplate.YSIZE) * camera.Zoom);
+                        r.X = r.X + (int)((16 * moduleTemplate.YSIZE) * Camera.Zoom);
                         int h = r.Height;
                         int w = r.Width;
                         r.Width  = h;
@@ -1169,8 +1164,8 @@ namespace Ship_Game
                 }
                 if (this.ActiveModule.shield_power_max > 0f)
                 {
-                    Vector2 center = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y) + new Vector2((float)(moduleTemplate.XSIZE * 16 / 2), (float)(moduleTemplate.YSIZE * 16 / 2));
-                    DrawCircle(center, this.ActiveModule.shield_radius * this.camera.Zoom, 50, Color.LightGreen);
+                    Vector2 center = new Vector2((float)this.MouseStateCurrent.X, (float)this.MouseStateCurrent.Y) + new Vector2((float)(moduleTemplate.XSIZE * 16 / 2), (float)(moduleTemplate.YSIZE * 16 / 2));
+                    DrawCircle(center, this.ActiveModule.shield_radius * this.Camera.Zoom, 50, Color.LightGreen);
                 }
             }
             this.DrawUI(gameTime);
@@ -1183,14 +1178,14 @@ namespace Ship_Game
             {
                 Vector2 Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
                 HelperFunctions.DrawDropShadowText(base.ScreenManager, "Debug", Pos, Fonts.Arial20Bold);
-                Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.operation.ToString()).X / 2, 140f);
-                HelperFunctions.DrawDropShadowText(base.ScreenManager, this.operation.ToString(), Pos, Fonts.Arial20Bold);
+                Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.Operation.ToString()).X / 2, 140f);
+                HelperFunctions.DrawDropShadowText(base.ScreenManager, this.Operation.ToString(), Pos, Fonts.Arial20Bold);
 #if SHIPYARD
                 string Ratios = "I: " + TotalI + "      O: " + TotalO + "      E: " + TotalE + "      IO: " + TotalIO + "      IE: " + TotalIE + "      OE: " + TotalOE + "      IOE: " + TotalIOE;
                 Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
                 HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, Pos, Fonts.Arial20Bold);
 #endif
-            }			this.close.Draw(base.ScreenManager);
+            }			this.Close.Draw(base.ScreenManager);
             base.ScreenManager.SpriteBatch.End();
             lock (GlobalStats.ObjectManagerLocker)
             {
@@ -1210,8 +1205,8 @@ namespace Ship_Game
         private void DrawActiveModuleData()
         {
             float powerDraw;
-            this.activeModSubMenu.Draw();
-            Rectangle r = this.activeModSubMenu.Menu;
+            this.ActiveModSubMenu.Draw();
+            Rectangle r = this.ActiveModSubMenu.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
             Selector sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
@@ -1232,14 +1227,14 @@ namespace Ship_Game
                 mod.HealthMax = ResourceManager.GetModuleTemplate(mod.UID).HealthMax;
                  
             }
-            if (!activeModSubMenu.Tabs[0].Selected || mod == null)
+            if (!ActiveModSubMenu.Tabs[0].Selected || mod == null)
                 return;
 
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
 
             //Added by McShooterz: Changed how modules names are displayed for allowing longer names
-            Vector2 modTitlePos = new Vector2((float)(this.activeModSubMenu.Menu.X + 10), (float)(this.activeModSubMenu.Menu.Y + 35));
-            if (Fonts.Arial20Bold.MeasureString(Localizer.Token(moduleTemplate.NameIndex)).X + 16 < this.activeModSubMenu.Menu.Width)
+            Vector2 modTitlePos = new Vector2((float)(this.ActiveModSubMenu.Menu.X + 10), (float)(this.ActiveModSubMenu.Menu.Y + 35));
+            if (Fonts.Arial20Bold.MeasureString(Localizer.Token(moduleTemplate.NameIndex)).X + 16 < this.ActiveModSubMenu.Menu.Width)
             {
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex), modTitlePos, Color.White);
                 modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 6);
@@ -1464,7 +1459,7 @@ namespace Ship_Game
                 modTitlePos.X = startx;
             }
 
-            string txt = this.parseText(Localizer.Token(moduleTemplate.DescriptionIndex), (float)(this.activeModSubMenu.Menu.Width - 20), Fonts.Arial12);
+            string txt = this.parseText(Localizer.Token(moduleTemplate.DescriptionIndex), (float)(this.ActiveModSubMenu.Menu.Width - 20), Fonts.Arial12);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
             modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
@@ -2109,21 +2104,21 @@ namespace Ship_Game
 
         private void DrawHullSelection()
         {
-            Rectangle r = this.hullSelectionSub.Menu;
+            Rectangle r = this.HullSelectionSub.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
             Selector sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
             sel.Draw();
-            this.hullSL.Draw(base.ScreenManager.SpriteBatch);
+            this.HullSL.Draw(base.ScreenManager.SpriteBatch);
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
-            this.hullSelectionSub.Draw();
-            Vector2 bCursor = new Vector2((float)(this.hullSelectionSub.Menu.X + 10), (float)(this.hullSelectionSub.Menu.Y + 45));
-            for (int i = this.hullSL.indexAtTop; i < this.hullSL.Copied.Count && i < this.hullSL.indexAtTop + this.hullSL.entriesToDisplay; i++)
+            this.HullSelectionSub.Draw();
+            Vector2 bCursor = new Vector2((float)(this.HullSelectionSub.Menu.X + 10), (float)(this.HullSelectionSub.Menu.Y + 45));
+            for (int i = this.HullSL.indexAtTop; i < this.HullSL.Copied.Count && i < this.HullSL.indexAtTop + this.HullSL.entriesToDisplay; i++)
             {
-                bCursor = new Vector2((float)(this.hullSelectionSub.Menu.X + 10), (float)(this.hullSelectionSub.Menu.Y + 45));
-                ScrollList.Entry e = this.hullSL.Copied[i];
+                bCursor = new Vector2((float)(this.HullSelectionSub.Menu.X + 10), (float)(this.HullSelectionSub.Menu.Y + 45));
+                ScrollList.Entry e = this.HullSL.Copied[i];
                 bCursor.Y = (float)e.clickRect.Y;
                 if (e.item is ModuleHeader)
                 {
@@ -2155,11 +2150,11 @@ namespace Ship_Game
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
-            Vector2 bCursor = new Vector2((float)(this.modSel.Menu.X + 10), (float)(this.modSel.Menu.Y + 45));
-            for (int i = this.weaponSL.indexAtTop; i < this.weaponSL.Copied.Count && i < this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay; i++)
+            Vector2 bCursor = new Vector2((float)(this.ModSel.Menu.X + 10), (float)(this.ModSel.Menu.Y + 45));
+            for (int i = this.WeaponSl.indexAtTop; i < this.WeaponSl.Copied.Count && i < this.WeaponSl.indexAtTop + this.WeaponSl.entriesToDisplay; i++)
             {
-                bCursor = new Vector2((float)(this.modSel.Menu.X + 10), (float)(this.modSel.Menu.Y + 45));
-                ScrollList.Entry e = this.weaponSL.Copied[i];
+                bCursor = new Vector2((float)(this.ModSel.Menu.X + 10), (float)(this.ModSel.Menu.Y + 45));
+                ScrollList.Entry e = this.WeaponSl.Copied[i];
                 bCursor.Y = (float)e.clickRect.Y;
                 if (e.item is ModuleHeader)
                 {
@@ -2183,7 +2178,7 @@ namespace Ship_Game
                     base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[moduleTemplate.IconTexturePath], modRect, Color.White);
                     //Added by McShooterz: allow longer modules names
                     Vector2 tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
-                    if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 < this.modSel.Menu.Width)
+                    if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 < this.ModSel.Menu.Width)
                     {
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
                         tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2249,21 +2244,21 @@ namespace Ship_Game
 
         private void DrawModuleSelection()
         {
-            Rectangle r = this.modSel.Menu;
+            Rectangle r = this.ModSel.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
             Selector sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
             sel.Draw();
-            this.modSel.Draw();
-            this.weaponSL.Draw(base.ScreenManager.SpriteBatch);
+            this.ModSel.Draw();
+            this.WeaponSl.Draw(base.ScreenManager.SpriteBatch);
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 vector2 = new Vector2(x, (float)state.Y);
-            if (this.modSel.Tabs[0].Selected)
+            if (this.ModSel.Tabs[0].Selected)
             {
                 if (this.Reset)
                 {
-                    this.weaponSL.Entries.Clear();
+                    this.WeaponSl.Entries.Clear();
                     Array<string> WeaponCategories = new Array<string>();
                     foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                     {
@@ -2285,37 +2280,37 @@ namespace Ship_Game
                                 {
                                     WeaponCategories.Add("Flak Cannon");
                                     ModuleHeader type = new ModuleHeader("Flak Cannon", 240f);
-                                    this.weaponSL.AddItem(type);
+                                    this.WeaponSl.AddItem(type);
                                 }
                                 if (tmp.InstalledWeapon.Tag_Railgun && !WeaponCategories.Contains("Magnetic Cannon"))
                                 {
                                     WeaponCategories.Add("Magnetic Cannon");
                                     ModuleHeader type = new ModuleHeader("Magnetic Cannon", 240f);
-                                    this.weaponSL.AddItem(type);
+                                    this.WeaponSl.AddItem(type);
                                 }
                                 if (tmp.InstalledWeapon.Tag_Array && !WeaponCategories.Contains("Beam Array"))
                                 {
                                     WeaponCategories.Add("Beam Array");
                                     ModuleHeader type = new ModuleHeader("Beam Array", 240f);
-                                    this.weaponSL.AddItem(type);
+                                    this.WeaponSl.AddItem(type);
                                 }
                                 if (tmp.InstalledWeapon.Tag_Tractor && !WeaponCategories.Contains("Tractor Beam"))
                                 {
                                     WeaponCategories.Add("Tractor Beam");
                                     ModuleHeader type = new ModuleHeader("Tractor Beam", 240f);
-                                    this.weaponSL.AddItem(type);
+                                    this.WeaponSl.AddItem(type);
                                 }
                                 if (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided && !WeaponCategories.Contains("Unguided Rocket"))
                                 {
                                     WeaponCategories.Add("Unguided Rocket");
                                     ModuleHeader type = new ModuleHeader("Unguided Rocket", 240f);
-                                    this.weaponSL.AddItem(type);
+                                    this.WeaponSl.AddItem(type);
                                 }
                                 else if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
                                 {
                                     WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
                                     ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
-                                    this.weaponSL.AddItem(type);
+                                    this.WeaponSl.AddItem(type);
                                 }
                             }
                             else
@@ -2324,7 +2319,7 @@ namespace Ship_Game
                                 {
                                     WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
                                     ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
-                                    this.weaponSL.AddItem(type);
+                                    this.WeaponSl.AddItem(type);
                                 }
                             }
                         }
@@ -2332,11 +2327,11 @@ namespace Ship_Game
                         {
                             WeaponCategories.Add("Bomb");
                             ModuleHeader type = new ModuleHeader("Bomb", 240f);
-                            this.weaponSL.AddItem(type);
+                            this.WeaponSl.AddItem(type);
                         }
                         tmp = null;
                     }
-                    foreach (ScrollList.Entry e in this.weaponSL.Entries)
+                    foreach (ScrollList.Entry e in this.WeaponSl.Entries)
                     {
                         foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                         {
@@ -2396,11 +2391,11 @@ namespace Ship_Game
                 }
                 this.DrawList();
             }
-            if (this.modSel.Tabs[2].Selected)
+            if (this.ModSel.Tabs[2].Selected)
             {
                 if (this.Reset)
                 {
-                    this.weaponSL.Entries.Clear();
+                    this.WeaponSl.Entries.Clear();
                     Array<string> ModuleCategories = new Array<string>();
                     foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                     {
@@ -2418,7 +2413,7 @@ namespace Ship_Game
                         {
                             ModuleCategories.Add(tmp.ModuleType.ToString());
                             ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-                            this.weaponSL.AddItem(type);
+                            this.WeaponSl.AddItem(type);
                         }
 
                         // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
@@ -2426,18 +2421,18 @@ namespace Ship_Game
                         {
                             ModuleCategories.Add(Localizer.Token(6172));
                             ModuleHeader type = new ModuleHeader(Localizer.Token(6172), 240f);
-                            this.weaponSL.AddItem(type);
+                            this.WeaponSl.AddItem(type);
                         }
                         if (tmp.isBulkhead && tmp.ModuleType == ShipModuleType.Armor && !ModuleCategories.Contains(Localizer.Token(6173)))
                         {
                             ModuleCategories.Add(Localizer.Token(6173));
                             ModuleHeader type = new ModuleHeader(Localizer.Token(6173), 240f);
-                            this.weaponSL.AddItem(type);
+                            this.WeaponSl.AddItem(type);
                         }
 
                         tmp = null;
                     }
-                    foreach (ScrollList.Entry e in this.weaponSL.Entries)
+                    foreach (ScrollList.Entry e in this.WeaponSl.Entries)
                     {
                         foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                         {
@@ -2469,11 +2464,11 @@ namespace Ship_Game
                 }
                 this.DrawList();
             }
-            if (this.modSel.Tabs[1].Selected)
+            if (this.ModSel.Tabs[1].Selected)
             {
                 if (this.Reset)
                 {
-                    this.weaponSL.Entries.Clear();
+                    this.WeaponSl.Entries.Clear();
                     Array<string> ModuleCategories = new Array<string>();
                     foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                     {
@@ -2491,11 +2486,11 @@ namespace Ship_Game
                         {
                             ModuleCategories.Add(tmp.ModuleType.ToString());
                             ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-                            this.weaponSL.AddItem(type);
+                            this.WeaponSl.AddItem(type);
                         }
                         tmp = null;
                     }
-                    foreach (ScrollList.Entry e in this.weaponSL.Entries)
+                    foreach (ScrollList.Entry e in this.WeaponSl.Entries)
                     {
                         foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                         {
@@ -2519,11 +2514,11 @@ namespace Ship_Game
                 }
                 this.DrawList();
             }
-            if (this.modSel.Tabs[3].Selected)
+            if (this.ModSel.Tabs[3].Selected)
             {
                 if (this.Reset)
                 {
-                    this.weaponSL.Entries.Clear();
+                    this.WeaponSl.Entries.Clear();
                     Array<string> ModuleCategories = new Array<string>();
                     foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                     {
@@ -2541,11 +2536,11 @@ namespace Ship_Game
                         {
                             ModuleCategories.Add(tmp.ModuleType.ToString());
                             ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-                            this.weaponSL.AddItem(type);
+                            this.WeaponSl.AddItem(type);
                         }
                         tmp = null;
                     }
-                    foreach (ScrollList.Entry e in this.weaponSL.Entries)
+                    foreach (ScrollList.Entry e in this.WeaponSl.Entries)
                     {
                         foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                         {
@@ -2747,7 +2742,7 @@ namespace Ship_Game
             float AfterSpeed = AfterThrust / (Mass + 0.1f);
             AfterSpeed = AfterSpeed * EmpireManager.Player.data.SubLightModifier;
             Turn = (float)MathHelper.ToDegrees(Turn);
-            Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
+            Vector2 Cursor = new Vector2((float)(this.StatsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
             
             if (bonus != null) //Added by McShooterz: Draw Hull Bonuses
             {
@@ -3054,7 +3049,7 @@ namespace Ship_Game
                 this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-            Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X - 180), (float)(this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
+            Vector2 CursorReq = new Vector2((float)(this.StatsSub.Menu.X - 180), (float)(this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
             if (this.ActiveHull.Role != ShipData.RoleName.platform)
             {
                 this.DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
@@ -3066,10 +3061,6 @@ namespace Ship_Game
         private float GetMaintCostShipyard(ShipData ship, float Size, Empire empire)
         {
             float maint = 0f;
-            //string role = ship.Role;
-            //string str = role;
-            //bool nonCombat = false;
-            //added by gremlin: Maintenance changes
             float maintModReduction = 1;
 
             //Get Maintenance of ship role
@@ -3307,37 +3298,37 @@ namespace Ship_Game
 
             //Defaults based on hull types
             //Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-            if (this.ActiveHull.Role == ShipData.RoleName.freighter && this.fml)
+            if (this.ActiveHull.Role == ShipData.RoleName.freighter && this.Fml)
             {
                 this.CategoryList.ActiveIndex = 1;
-                this.fml = false;
+                this.Fml = false;
             }
             //Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-            else if (this.ActiveHull.Role == ShipData.RoleName.scout && this.fml)
+            else if (this.ActiveHull.Role == ShipData.RoleName.scout && this.Fml)
             {
                 this.CategoryList.ActiveIndex = 2;
-                this.fml = false;
+                this.Fml = false;
             }
             //All other hulls default to unclassified.
-            else if (this.fml)
+            else if (this.Fml)
             {
                 this.CategoryList.ActiveIndex = 0;
-                this.fml = false;
+                this.Fml = false;
             }
 
             //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
             foreach (Entry e in this.CategoryList.Options)
             {
-                if (e.Name == LoadCategory.ToString() && this.fmlevenmore)
+                if (e.Name == LoadCategory.ToString() && this.Fmlevenmore)
                 {
                     this.CategoryList.ActiveIndex = e.@value - 1;
-                    this.fmlevenmore = false;
+                    this.Fmlevenmore = false;
                 }
             }
             this.CategoryList.Draw(base.ScreenManager.SpriteBatch);
             this.CarrierOnlyBox.Draw(base.ScreenManager);
             string classifTitle = "Behaviour Presets";
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, classifCursor, Color.Orange);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, ClassifCursor, Color.Orange);
             float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);
             Rectangle r = this.BlackBar;
             if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
@@ -3345,7 +3336,7 @@ namespace Ship_Game
                 r.Y = r.Y + (int)(transitionOffset * 50f);
             }
             base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
-            r = this.bottom_sep;
+            r = this.BottomSep;
             if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
             {
                 r.Y = r.Y + (int)(transitionOffset * 50f);
@@ -3424,7 +3415,7 @@ namespace Ship_Game
 
         public void ExitToMenu(string launches)
         {
-            this.screenToLaunch = launches;
+            this.ScreenToLaunch = launches;
             MessageBoxScreen message;
             if (this.ShipSaved && this.CheckDesign())
             {
@@ -3609,7 +3600,7 @@ namespace Ship_Game
         {
 
             this.CategoryList.HandleInput(input);
-            if (dropdownRect.HitTest(input.CursorPosition))  //fbedard: add tooltip for CategoryList
+            if (DropdownRect.HitTest(input.CursorPosition))  //fbedard: add tooltip for CategoryList
             {                
                 switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
                 {
@@ -3666,14 +3657,14 @@ namespace Ship_Game
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
             }
-            if (this.close.HandleInput(input))
+            if (this.Close.HandleInput(input))
                 this.ExitScreen();
             else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && input.LastKeyboardState.IsKeyUp(Keys.Z)
                 && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
             {
                 if (this.DesignStack.Count <= 0)
                     return;
-                lastActiveUID = "";
+                LastActiveUID = "";
                 ShipModule shipModule = this.ActiveModule;
                 DesignAction designAction = this.DesignStack.Pop();
                 SlotStruct slot1 = new SlotStruct();
@@ -3750,22 +3741,22 @@ namespace Ship_Game
                         new XmlSerializer(typeof(ShipData)).Serialize(new StreamWriter("Content/Hulls/" + ActiveHull.ShipStyle + "/" + ActiveHull.Name + ".xml"), ActiveHull);
                     }
                     if (input.Right)
-                        ++operation;
-                    if (operation > SlotModOperation.Normal)
-                        operation = SlotModOperation.Delete;
+                        ++Operation;
+                    if (Operation > SlotModOperation.Normal)
+                        Operation = SlotModOperation.Delete;
                 }
 
                 this.HoveredModule = null;
-                this.mouseStateCurrent = Mouse.GetState();
-                Vector2 vector2 = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
+                this.MouseStateCurrent = Mouse.GetState();
+                Vector2 vector2 = new Vector2(MouseStateCurrent.X, MouseStateCurrent.Y);
                 this.selector = null;
                 this.EmpireUI.HandleInput(input, this);
-                this.activeModSubMenu.HandleInputNoReset(this);
-                this.hullSL.HandleInput(input);
-                for (int index = hullSL.indexAtTop;
-                    index < hullSL.Copied.Count && index < hullSL.indexAtTop + hullSL.entriesToDisplay; ++index)
+                this.ActiveModSubMenu.HandleInputNoReset(this);
+                this.HullSL.HandleInput(input);
+                for (int index = HullSL.indexAtTop;
+                    index < HullSL.Copied.Count && index < HullSL.indexAtTop + HullSL.entriesToDisplay; ++index)
                 {
-                    ScrollList.Entry e = hullSL.Copied[index];
+                    ScrollList.Entry e = HullSL.Copied[index];
                     if (e.item is ModuleHeader)
                     {
                         if ((e.item as ModuleHeader).HandleInput(input, e))
@@ -3784,7 +3775,7 @@ namespace Ship_Game
                                 MessageBoxScreen messageBoxScreen = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "No");
                                 messageBoxScreen.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenChangeHull);
                                 messageBoxScreen.Cancelled += new EventHandler<EventArgs>(this.JustChangeHull);
-                                this.changeto = e.item as ShipData;
+                                this.Changeto = e.item as ShipData;
                                 this.ScreenManager.AddScreen((GameScreen)messageBoxScreen);
                                 return;
                             }
@@ -3798,7 +3789,7 @@ namespace Ship_Game
                     else
                         e.clickRectHover = 0;
                 }
-                this.modSel.HandleInput((object)this);
+                this.ModSel.HandleInput((object)this);
                 if (this.ActiveModule != null)
                 {
                     if (this.ActiveModule.ModuleType == ShipModuleType.Hangar && !this.ActiveModule.IsTroopBay
@@ -3849,10 +3840,10 @@ namespace Ship_Game
                         }
                     }
                 }
-                for (int index = this.weaponSL.indexAtTop; index < this.weaponSL.Copied.Count
-                    && index < this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay; ++index)
+                for (int index = this.WeaponSl.indexAtTop; index < this.WeaponSl.Copied.Count
+                    && index < this.WeaponSl.indexAtTop + this.WeaponSl.entriesToDisplay; ++index)
                 {
-                    ScrollList.Entry e = this.weaponSL.Copied[index];
+                    ScrollList.Entry e = this.WeaponSl.Copied[index];
                     if (e.item is ModuleHeader)
                     {
                         if ((e.item as ModuleHeader).HandleInput(input, e))
@@ -3873,22 +3864,22 @@ namespace Ship_Game
                     else
                         e.clickRectHover = 0;
                 }
-                this.weaponSL.HandleInput(input);
+                this.WeaponSl.HandleInput(input);
                 if (this.HullSelectionRect.HitTest(input.CursorPosition)
                     && input.CurrentMouseState.LeftButton == ButtonState.Pressed
-                    || this.modSel.Menu.HitTest(input.CursorPosition)
+                    || this.ModSel.Menu.HitTest(input.CursorPosition)
                     && input.CurrentMouseState.LeftButton == ButtonState.Pressed
-                    || this.activeModSubMenu.Menu.HitTest(input.CursorPosition)
+                    || this.ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
                     && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                     return;
-                if (this.modSel.Menu.HitTest(vector2))
+                if (this.ModSel.Menu.HitTest(vector2))
                 {
-                    if (this.mouseStateCurrent.ScrollWheelValue > this.mouseStatePrevious.ScrollWheelValue
-                        && this.weaponSL.indexAtTop > 0)
-                        --this.weaponSL.indexAtTop;
-                    if (this.mouseStateCurrent.ScrollWheelValue < this.mouseStatePrevious.ScrollWheelValue
-                        && this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay < this.weaponSL.Entries.Count)
-                        ++this.weaponSL.indexAtTop;
+                    if (this.MouseStateCurrent.ScrollWheelValue > this.MouseStatePrevious.ScrollWheelValue
+                        && this.WeaponSl.indexAtTop > 0)
+                        --this.WeaponSl.indexAtTop;
+                    if (this.MouseStateCurrent.ScrollWheelValue < this.MouseStatePrevious.ScrollWheelValue
+                        && this.WeaponSl.indexAtTop + this.WeaponSl.entriesToDisplay < this.WeaponSl.Entries.Count)
+                        ++this.WeaponSl.indexAtTop;
                 }
                 if (this.ArcsButton.R.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(134, this.ScreenManager);
@@ -3905,33 +3896,33 @@ namespace Ship_Game
                 if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
                 {
                     this.StartDragPos = input.CursorPosition;
-                    this.cameraVelocity.X = 0.0f;
-                    this.cameraVelocity.Y = 0.0f;
+                    this.CameraVelocity.X = 0.0f;
+                    this.CameraVelocity.Y = 0.0f;
                 }
                 if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Pressed)
                 {
                     float num1 = input.CursorPosition.X - this.StartDragPos.X;
                     float num2 = input.CursorPosition.Y - this.StartDragPos.Y;
-                    this.camera._pos += new Vector2(-num1, -num2);
+                    this.Camera._pos += new Vector2(-num1, -num2);
                     this.StartDragPos = input.CursorPosition;
                     this.cameraPosition.X += -num1;
                     this.cameraPosition.Y += -num2;
                 }
                 else
                 {
-                    this.cameraVelocity.X = 0.0f;
-                    this.cameraVelocity.Y = 0.0f;
+                    this.CameraVelocity.X = 0.0f;
+                    this.CameraVelocity.Y = 0.0f;
                 }
-                this.cameraVelocity.X = MathHelper.Clamp(this.cameraVelocity.X, -10f, 10f);
-                this.cameraVelocity.Y = MathHelper.Clamp(this.cameraVelocity.Y, -10f, 10f);
+                this.CameraVelocity.X = MathHelper.Clamp(this.CameraVelocity.X, -10f, 10f);
+                this.CameraVelocity.Y = MathHelper.Clamp(this.CameraVelocity.Y, -10f, 10f);
                 if (input.Escaped)
                     this.ExitScreen();
                 if (this.ToggleOverlay)
                 {
                     foreach (SlotStruct slotStruct in this.Slots)
                     {
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slotStruct.PQ.enclosingRect.X, (float)slotStruct.PQ.enclosingRect.Y));
-                        if (new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)).HitTest(vector2))
+                        Vector2 spaceFromWorldSpace = this.Camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slotStruct.PQ.enclosingRect.X, (float)slotStruct.PQ.enclosingRect.Y));
+                        if (new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.Camera.Zoom), (int)(16.0 * (double)this.Camera.Zoom)).HitTest(vector2))
                         {
                             if (slotStruct.Module != null)
                                 this.HoveredModule = slotStruct.Module;
@@ -3940,7 +3931,7 @@ namespace Ship_Game
                                 GameAudio.PlaySfxAsync("simple_beep");
                                 if (this.Debug)
                                 {
-                                    this.DebugAlterSlot(slotStruct.SlotReference.Position, this.operation);
+                                    this.DebugAlterSlot(slotStruct.SlotReference.Position, this.Operation);
                                     return;
                                 }
                                 else if (slotStruct.Module != null)
@@ -3949,32 +3940,32 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (this.upArrow.HitTest(vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && (this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.scrollPosition > 0))
+                if (this.UpArrow.HitTest(vector2) && this.MouseStateCurrent.LeftButton == ButtonState.Released && (this.MouseStatePrevious.LeftButton == ButtonState.Pressed && this.ScrollPosition > 0))
                 {
-                    --this.scrollPosition;
+                    --this.ScrollPosition;
                     GameAudio.PlaySfxAsync("blip_click");
                     foreach (ModuleButton moduleButton in this.ModuleButtons)
                         moduleButton.moduleRect.Y += 128;
                 }
-                if (this.downArrow.HitTest(vector2) && input.LeftMouseClick)
+                if (this.DownArrow.HitTest(vector2) && input.LeftMouseClick)
                 {
-                    ++this.scrollPosition;
+                    ++this.ScrollPosition;
                     GameAudio.PlaySfxAsync("blip_click");
                     foreach (ModuleButton moduleButton in this.ModuleButtons)
                         moduleButton.moduleRect.Y -= 128;
                 }
                 if (this.ModuleSelectionArea.HitTest(vector2))
                 {
-                    if (input.ScrollIn && this.scrollPosition > 0)
+                    if (input.ScrollIn && this.ScrollPosition > 0)
                     {
-                        --this.scrollPosition;
+                        --this.ScrollPosition;
                         GameAudio.PlaySfxAsync("blip_click");
                         foreach (ModuleButton moduleButton in this.ModuleButtons)
                             moduleButton.moduleRect.Y += 128;
                     }
                     if (input.ScrollOut)
                     {
-                        ++this.scrollPosition;
+                        ++this.ScrollPosition;
                         GameAudio.PlaySfxAsync("blip_click");
                         foreach (ModuleButton moduleButton in this.ModuleButtons)
                             moduleButton.moduleRect.Y -= 128;
@@ -3987,10 +3978,10 @@ namespace Ship_Game
                     foreach (SlotStruct slot in this.Slots)
                     {
                         slot.SetValidity(null);
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(
+                        Vector2 spaceFromWorldSpace = this.Camera.GetScreenSpaceFromWorldSpace(
                             new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y));
                         Rectangle rect = new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y
-                            , (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom));
+                            , (int)(16.0 * (double)this.Camera.Zoom), (int)(16.0 * (double)this.Camera.Zoom));
                         if (slot.Module != null && rect.HitTest(vector2)) //if clicked at this slot
                         {
                             slot.SetValidity(slot.Module);
@@ -4028,20 +4019,20 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slot in this.Slots)
                     {
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.PQ.enclosingRect.X
+                        Vector2 spaceFromWorldSpace = this.Camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.PQ.enclosingRect.X
                             , (float)slot.PQ.enclosingRect.Y));
                         if (new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y
-                            , (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)).HitTest(vector2))
+                            , (int)(16.0 * (double)this.Camera.Zoom), (int)(16.0 * (double)this.Camera.Zoom)).HitTest(vector2))
                         {
                             GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
-                            if (slot.PQ.X != this.lastDesignActionPos.X || slot.PQ.Y != this.lastDesignActionPos.Y
-                                || ActiveModule.UID != this.lastActiveUID)
+                            if (slot.PQ.X != this.LastDesignActionPos.X || slot.PQ.Y != this.LastDesignActionPos.Y
+                                || ActiveModule.UID != this.LastActiveUID)
                             {
                                 this.InstallModule(slot);                       //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
-                                this.lastDesignActionPos.X = slot.PQ.X;
-                                this.lastDesignActionPos.Y = slot.PQ.Y;
-                                this.lastActiveUID = ActiveModule.UID;
+                                this.LastDesignActionPos.X = slot.PQ.X;
+                                this.LastDesignActionPos.Y = slot.PQ.Y;
+                                this.LastActiveUID = ActiveModule.UID;
                             }
                         }
                     }
@@ -4056,7 +4047,7 @@ namespace Ship_Game
                     if (slotStruct.ModuleUID != null && this.HighlightedModule != null && (slotStruct.Module == this.HighlightedModule && (double)slotStruct.Module.FieldOfFire != 0.0) && slotStruct.Module.ModuleType == ShipModuleType.Turret)
                     {
                         float num1 = slotStruct.Module.FieldOfFire / 2f;
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)(slotStruct.PQ.enclosingRect.X + 16 * (int)slotStruct.Module.XSIZE / 2), (float)(slotStruct.PQ.enclosingRect.Y + 16 * (int)slotStruct.Module.YSIZE / 2)));
+                        Vector2 spaceFromWorldSpace = this.Camera.GetScreenSpaceFromWorldSpace(new Vector2((float)(slotStruct.PQ.enclosingRect.X + 16 * (int)slotStruct.Module.XSIZE / 2), (float)(slotStruct.PQ.enclosingRect.Y + 16 * (int)slotStruct.Module.YSIZE / 2)));
                         float num2 = spaceFromWorldSpace.AngleToTarget(vector2);
                         float num3 = this.HighlightedModule.Facing;
                         float num4 = Math.Abs(num2 - num3);
@@ -4072,7 +4063,7 @@ namespace Ship_Game
                         if (GlobalStats.AltArcControl)
                         {
                             //The Doctor: ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
-                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && ((input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) || input.LastKeyboardState.IsKeyDown(Keys.LeftAlt)) || (input.CurrentKeyboardState.IsKeyDown(Keys.RightAlt) || input.LastKeyboardState.IsKeyDown(Keys.RightAlt)))))
+                            if ((double)num4 < (double)num1 && (this.MouseStateCurrent.LeftButton == ButtonState.Pressed && this.MouseStatePrevious.LeftButton == ButtonState.Pressed && ((input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) || input.LastKeyboardState.IsKeyDown(Keys.LeftAlt)) || (input.CurrentKeyboardState.IsKeyDown(Keys.RightAlt) || input.LastKeyboardState.IsKeyDown(Keys.RightAlt)))))
                             {
 
                                 this.HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);
@@ -4081,7 +4072,7 @@ namespace Ship_Game
                         else
                         {
                             //Delay method
-                            if ((this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                            if ((this.MouseStateCurrent.LeftButton == ButtonState.Pressed && this.MouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
                             {
                                 this.HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);
                             }
@@ -4097,9 +4088,9 @@ namespace Ship_Game
                     if (uiButton.Rect.HitTest(vector2))
                     {
                         uiButton.State = UIButton.PressState.Hover;
-                        if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+                        if (this.MouseStateCurrent.LeftButton == ButtonState.Pressed && this.MouseStatePrevious.LeftButton == ButtonState.Pressed)
                             uiButton.State = UIButton.PressState.Pressed;
-                        if (this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+                        if (this.MouseStateCurrent.LeftButton == ButtonState.Released && this.MouseStatePrevious.LeftButton == ButtonState.Pressed)
                         {
                             switch (uiButton.Launches)
                             {
@@ -4209,7 +4200,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                this.mouseStatePrevious = this.mouseStateCurrent;
+                this.MouseStatePrevious = this.MouseStateCurrent;
                 base.HandleInput(input);
             }
         }
@@ -4326,12 +4317,12 @@ namespace Ship_Game
         private void JustChangeHull(object sender, EventArgs e)
         {
             this.ShipSaved = true;
-            this.ChangeHull(this.changeto);
+            this.ChangeHull(this.Changeto);
         }
 
         private void LaunchScreen(object sender, EventArgs e)
         {
-            string str = this.screenToLaunch;
+            string str = this.ScreenToLaunch;
             string str1 = str;
             if (str != null)
             {
@@ -4346,7 +4337,7 @@ namespace Ship_Game
                     ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
                 }
             }
-            string str2 = this.screenToLaunch;
+            string str2 = this.ScreenToLaunch;
             string str3 = str2;
             if (str2 != null)
             {
@@ -4393,12 +4384,12 @@ namespace Ship_Game
             Rectangle leftRect = new Rectangle(5, 45, 405, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45 - (int)(0.4f * (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
             this.ModuleSelectionMenu = new Menu1(base.ScreenManager, leftRect);
             Rectangle modSelR = new Rectangle(0, (this.LowRes ? 45 : 100), 305, (this.LowRes ? 350 : 400));
-            this.modSel = new Submenu(base.ScreenManager, modSelR, true);
-            this.modSel.AddTab("Wpn");
-            this.modSel.AddTab("Pwr");
-            this.modSel.AddTab("Def");
-            this.modSel.AddTab("Spc");
-            this.weaponSL = new ScrollList(this.modSel);
+            this.ModSel = new Submenu(base.ScreenManager, modSelR, true);
+            this.ModSel.AddTab("Wpn");
+            this.ModSel.AddTab("Pwr");
+            this.ModSel.AddTab("Def");
+            this.ModSel.AddTab("Spc");
+            this.WeaponSl = new ScrollList(this.ModSel);
             Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 175), 80f);
             Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
             this.activeModWindow = new Menu1(base.ScreenManager, active);
@@ -4407,16 +4398,16 @@ namespace Ship_Game
             {
                 acsub.Height = acsub.Height + 120;
             }
-            this.activeModSubMenu = new Submenu(base.ScreenManager, acsub);
-            this.activeModSubMenu.AddTab("Active Module");
-            this.choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y-90, 240, 270);
-            if (this.choosefighterrect.Y + this.choosefighterrect.Height > base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
+            this.ActiveModSubMenu = new Submenu(base.ScreenManager, acsub);
+            this.ActiveModSubMenu.AddTab("Active Module");
+            this.Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y-90, 240, 270);
+            if (this.Choosefighterrect.Y + this.Choosefighterrect.Height > base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
             {
-                int diff = this.choosefighterrect.Y + this.choosefighterrect.Height - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-                this.choosefighterrect.Height = this.choosefighterrect.Height - (diff + 10);
+                int diff = this.Choosefighterrect.Y + this.Choosefighterrect.Height - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+                this.Choosefighterrect.Height = this.Choosefighterrect.Height - (diff + 10);
             }
-            this.choosefighterrect.Height = acsub.Height;
-            this.ChooseFighterSub = new Submenu(base.ScreenManager, this.choosefighterrect);
+            this.Choosefighterrect.Height = acsub.Height;
+            this.ChooseFighterSub = new Submenu(base.ScreenManager, this.Choosefighterrect);
             this.ChooseFighterSub.AddTab("Choose Fighter");
             this.ChooseFighterSL = new ScrollList(this.ChooseFighterSub, 40);
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
@@ -4436,15 +4427,15 @@ namespace Ship_Game
             this.offset.X = (float)(viewport1.Width / 2 - 256);
             Viewport viewport2 = base.Viewport;
             this.offset.Y = (float)(viewport2.Height / 2 - 256);
-            this.camera = new Camera2d();
-            Camera2d vector2 = this.camera;
+            this.Camera = new Camera2d();
+            Camera2d vector2 = this.Camera;
             Viewport viewport3 = base.Viewport;
             float single = (float)viewport3.Width / 2f;
             Viewport viewport4 = base.Viewport;
             vector2.Pos = new Vector2(single, (float)viewport4.Height / 2f);
             Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-            this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
+            this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            this.Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
             this.ChangeHull(this.AvailableHulls[0]);
             lock (GlobalStats.ObjectManagerLocker)
             {
@@ -4460,7 +4451,7 @@ namespace Ship_Game
                     this.shipSO = new SceneObject(sm.Model)
                     {
                         ObjectType = ObjectType.Dynamic,
-                        World = this.worldMatrix
+                        World = this.WorldMatrix
                     };
                     base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
                     this.SetupSlots();
@@ -4481,11 +4472,11 @@ namespace Ship_Game
             float xDistance = this.HighestX - this.LowestX;
             BoundingSphere bs = this.shipSO.WorldBoundingSphere;
             Viewport viewport5 = base.Viewport;
-            Vector3 pScreenSpace = viewport5.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
+            Vector3 pScreenSpace = viewport5.Project(Vector3.Zero, this.Projection, this.View, Matrix.Identity);
             Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
             Vector2 radialPos = MathExt.PointOnCircle(90f, xDistance);
             Viewport viewport6 = base.Viewport;
-            Vector3 insetRadialPos = viewport6.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
+            Vector3 insetRadialPos = viewport6.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
             Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
             float Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
             if (Radius >= xDistance)
@@ -4493,14 +4484,14 @@ namespace Ship_Game
                 while (Radius > xDistance)
                 {
                     camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-                    this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                    this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
                     bs = this.shipSO.WorldBoundingSphere;
                     Viewport viewport7 = base.Viewport;
-                    pScreenSpace = viewport7.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
+                    pScreenSpace = viewport7.Project(Vector3.Zero, this.Projection, this.View, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     radialPos = MathExt.PointOnCircle(90f, xDistance);
                     Viewport viewport8 = base.Viewport;
-                    insetRadialPos = viewport8.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
+                    insetRadialPos = viewport8.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     this.cameraPosition.Z = this.cameraPosition.Z + 1f;
@@ -4511,14 +4502,14 @@ namespace Ship_Game
                 while (Radius < xDistance)
                 {
                     camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-                    this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                    this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
                     bs = this.shipSO.WorldBoundingSphere;
                     Viewport viewport9 = base.Viewport;
-                    pScreenSpace = viewport9.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
+                    pScreenSpace = viewport9.Project(Vector3.Zero, this.Projection, this.View, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     radialPos = MathExt.PointOnCircle(90f, xDistance);
                     Viewport viewport10 = base.Viewport;
-                    insetRadialPos = viewport10.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
+                    insetRadialPos = viewport10.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     this.cameraPosition.Z = this.cameraPosition.Z - 1f;
@@ -4526,7 +4517,7 @@ namespace Ship_Game
             }
             this.BlackBar = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 3000, 70);
             this.SideBar = new Rectangle(0, 0, 280, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-            Rectangle w = new Rectangle(20, this.modSel.Menu.Y - 10, 32, 32);
+            Rectangle w = new Rectangle(20, this.ModSel.Menu.Y - 10, 32, 32);
             Rectangle p = new Rectangle(80, w.Y, 32, 32);
             Rectangle df = new Rectangle(150, w.Y, 32, 32);
             Rectangle sp = new Rectangle(220, w.Y, 32, 32);
@@ -4549,8 +4540,8 @@ namespace Ship_Game
             };
             this.SelectedCatTextPos = new Vector2(20f, (float)(w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2));
             this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);            
-            this.classifCursor = new Vector2(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height + 10 );
-            Cursor = new Vector2((float)(this.classifCursor.X), (float)(this.classifCursor.Y));
+            this.ClassifCursor = new Vector2(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height + 10 );
+            Cursor = new Vector2((float)(this.ClassifCursor.X), (float)(this.ClassifCursor.Y));
             Vector2 OrdersBarPos = new Vector2(Cursor.X, (float)((int)Cursor.Y+20 ));
             OrdersBarPos.X = OrdersBarPos.X - 15;
             ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
@@ -4646,12 +4637,12 @@ namespace Ship_Game
                 Text = Localizer.Token(106)
             };
             this.Buttons.Add(this.ToggleOverlayButton);
-            this.bottom_sep = new Rectangle(this.BlackBar.X, this.BlackBar.Y, this.BlackBar.Width, 1);
+            this.BottomSep = new Rectangle(this.BlackBar.X, this.BlackBar.Y, this.BlackBar.Width, 1);
             this.HullSelectionRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285, (this.LowRes ? 45 : 100), 280, (this.LowRes ? 350 : 400));
-            this.hullSelectionSub = new Submenu(base.ScreenManager, this.HullSelectionRect, true);
-            this.weaponSL = new ScrollList(this.modSel);
-            this.hullSelectionSub.AddTab(Localizer.Token(107));
-            this.hullSL = new ScrollList(this.hullSelectionSub);
+            this.HullSelectionSub = new Submenu(base.ScreenManager, this.HullSelectionRect, true);
+            this.WeaponSl = new ScrollList(this.ModSel);
+            this.HullSelectionSub.AddTab(Localizer.Token(107));
+            this.HullSL = new ScrollList(this.HullSelectionSub);
             Array<string> Categories = new Array<string>();
             foreach (KeyValuePair<string, ShipData> hull in Ship_Game.ResourceManager.HullsDict)
             {
@@ -4670,9 +4661,9 @@ namespace Ship_Game
             foreach (string cat in Categories)
             {
                 ModuleHeader type = new ModuleHeader(cat, 240f);
-                this.hullSL.AddItem(type);
+                this.HullSL.AddItem(type);
             }
-            foreach (ScrollList.Entry e in this.hullSL.Entries)
+            foreach (ScrollList.Entry e in this.HullSL.Entries)
             {
                 foreach (KeyValuePair<string, ShipData> hull in Ship_Game.ResourceManager.HullsDict)
                 {
@@ -4687,10 +4678,10 @@ namespace Ship_Game
 
             
             //base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
-            dropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);
+            DropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);
             //dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
                         
-            this.CategoryList = new DropOptions(dropdownRect);
+            this.CategoryList = new DropOptions(DropdownRect);
             //this.CategoryList.AddOption("Unclassified", 1);
             //this.CategoryList.AddOption("Civilian", 2);
             //this.CategoryList.AddOption("Recon", 3);
@@ -4703,14 +4694,14 @@ namespace Ship_Game
             }
 
             CarrierOnly = ActiveHull.CarrierShip;
-            COBoxCursor = new Vector2(dropdownRect.X + 106, dropdownRect.Y);
-            CarrierOnlyBox = new Checkbox(COBoxCursor.X, COBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold, "Carrier Only", 0); 
+            CoBoxCursor = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
+            CarrierOnlyBox = new Checkbox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold, "Carrier Only", 0); 
 
             this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
-            this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
-            this.statsSub.AddTab(Localizer.Token(108));
+            this.StatsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
+            this.StatsSub.AddTab(Localizer.Token(108));
             this.ArcsButton = new GenericButton(new Vector2((float)(this.HullSelectionRect.X- 32), 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);//new GenericButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 32), 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-            this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
+            this.Close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
             this.OriginalZ = this.cameraPosition.Z;
         }
 
@@ -4838,7 +4829,7 @@ namespace Ship_Game
         public void ResetLists()
         {
             this.Reset = true;
-            this.weaponSL.indexAtTop = 0;
+            this.WeaponSl.indexAtTop = 0;
         }
 
         private void ResetModuleState()
@@ -4967,7 +4958,7 @@ namespace Ship_Game
         private void SaveWIPThenChangeHull(object sender, EventArgs e)
         {
             this.SaveWIP(sender, e);
-            this.ChangeHull(this.changeto);
+            this.ChangeHull(this.Changeto);
         }
 
         private void SaveWIPThenExitToFleets(object sender, EventArgs e)        //Unused
@@ -4987,7 +4978,7 @@ namespace Ship_Game
         private void SaveWIPThenLaunchScreen(object sender, EventArgs e)
         {
             this.SaveWIP(sender, e);
-            string str = this.screenToLaunch;
+            string str = this.ScreenToLaunch;
             string str1 = str;
             if (str != null)
             {
@@ -5002,7 +4993,7 @@ namespace Ship_Game
                     base.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
                 }
             }
-            string str2 = this.screenToLaunch;
+            string str2 = this.ScreenToLaunch;
             string str3 = str2;
             if (str2 != null)
             {
@@ -5132,20 +5123,20 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float DesiredZ = MathHelper.SmoothStep(this.camera.Zoom, this.TransitionZoom, 0.2f);
-            this.camera.Zoom = DesiredZ;
-            if (this.camera.Zoom < 0.3f)
+            float DesiredZ = MathHelper.SmoothStep(this.Camera.Zoom, this.TransitionZoom, 0.2f);
+            this.Camera.Zoom = DesiredZ;
+            if (this.Camera.Zoom < 0.3f)
             {
-                this.camera.Zoom = 0.3f;
+                this.Camera.Zoom = 0.3f;
             }
-            if (this.camera.Zoom > 2.65f)
+            if (this.Camera.Zoom > 2.65f)
             {
-                this.camera.Zoom = 2.65f;
+                this.Camera.Zoom = 2.65f;
             }
 
-                this.cameraPosition.Z = this.OriginalZ / this.camera.Zoom;
+                this.cameraPosition.Z = this.OriginalZ / this.Camera.Zoom;
             Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-            this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
