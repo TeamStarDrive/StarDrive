@@ -485,11 +485,10 @@ namespace Ship_Game {
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                             if (!ShipSaved && !CheckDesign())
                             {
-                                MessageBoxScreen messageBoxScreen =
-                                    new MessageBoxScreen(this, Localizer.Token(2121), "Save", "No");
-                                messageBoxScreen.Accepted += SaveWIPThenChangeHull;
+                                var messageBoxScreen        = new MessageBoxScreen(this, 2121, "Save", "No");
+                                messageBoxScreen.Accepted  += SaveWIPThenChangeHull;
                                 messageBoxScreen.Cancelled += JustChangeHull;
-                                Changeto = e.item as ShipData;
+                                Changeto                    = e.item as ShipData;
                                 ScreenManager.AddScreen(messageBoxScreen);
                                 return;
                             }
@@ -540,19 +539,15 @@ namespace Ship_Game {
                         ++index)
                     {
                         ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-                        if (entry.clickRect.HitTest(vector2))
-                        {
-                            selector = new Selector(ScreenManager, entry.clickRect);
-                            entry.clickRectHover = 1;
-                            selector = new Selector(ScreenManager, entry.clickRect);
-                            if (input.InGameSelect)
-                            {
-                                HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
-                                HangarShipUIDLast = (entry.item as Ship).Name;
-                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                                return;
-                            }
-                        }
+                        if (!entry.clickRect.HitTest(vector2)) continue;
+                        selector = new Selector(ScreenManager, entry.clickRect);
+                        entry.clickRectHover = 1;
+                        selector = new Selector(ScreenManager, entry.clickRect);
+                        if (!input.InGameSelect) continue;
+                        HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
+                        HangarShipUIDLast = (entry.item as Ship).Name;
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        return;
                     }
                 }
                 for (int index = WeaponSl.indexAtTop;
@@ -704,26 +699,24 @@ namespace Ship_Game {
                             new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
                         var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
                             , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
-                        if (slot.Module != null && rect.HitTest(vector2)) //if clicked at this slot
+                        if (slot.Module == null || !rect.HitTest(vector2)) continue;
+                        slot.SetValidity(slot.Module);
+                        var designAction = new DesignAction
                         {
-                            slot.SetValidity(slot.Module);
-                            DesignAction designAction = new DesignAction
+                            clickedSS = new SlotStruct
                             {
-                                clickedSS = new SlotStruct
-                                {
-                                    PQ = slot.PQ,
-                                    Restrictions = slot.Restrictions,
-                                    Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
-                                    ModuleUID = slot.ModuleUID,
-                                    Module = slot.Module,
-                                    SlotReference = slot.SlotReference
-                                }
-                            };
-                            DesignStack.Push(designAction);
-                            GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                            ClearParentSlot(slot);
-                            RecalculatePower();
-                        }
+                                PQ = slot.PQ,
+                                Restrictions = slot.Restrictions,
+                                Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
+                                ModuleUID = slot.ModuleUID,
+                                Module = slot.Module,
+                                SlotReference = slot.SlotReference
+                            }
+                        };
+                        DesignStack.Push(designAction);
+                        GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                        ClearParentSlot(slot);
+                        RecalculatePower();
                     }
                 }
                 foreach (ModuleButton moduleButton in ModuleButtons)
@@ -768,25 +761,26 @@ namespace Ship_Game {
                 {
                     if (slotStruct.ModuleUID != null && HighlightedModule != null &&
                         (slotStruct.Module == HighlightedModule &&
-                         slotStruct.Module.FieldOfFire > 0.0) &&
+                         slotStruct.Module.FieldOfFire > 0f) &&
                         slotStruct.Module.ModuleType == ShipModuleType.Turret)
-                    {
-                        float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
+                    {                        
                         Vector2 spaceFromWorldSpace =
                             Camera.GetScreenSpaceFromWorldSpace(new Vector2(
                                 slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
                                 slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
-                        float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
-                        float facing = HighlightedModule.Facing;
-                        float angle = Math.Abs(angleToTarget - facing);
-                        if (angle > fieldOfFire)
-                        {
-                            if (angleToTarget > 180f)
-                                angleToTarget = -1f * (360f - angleToTarget);
-                            if (facing > 180f)
-                                facing = -1f * (360f - facing);
-                            angle = Math.Abs(angleToTarget - facing);
-                        }
+                        //I am not sure what the below was trying to do. It wasnt doing anything...
+                        //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
+                        //float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
+                        //float facing = HighlightedModule.Facing;
+                        //float angle = Math.Abs(angleToTarget - facing);
+                        //if (angle > fieldOfFire)
+                        //{
+                        //    if (angleToTarget > 180f)
+                        //        angleToTarget = -1f * (360f - angleToTarget);
+                        //    if (facing > 180f)
+                        //        facing = -1f * (360f - facing);
+                        //    angle = Math.Abs(angleToTarget - facing);
+                        //}
 
                         if (input.ShipYardArcMove())                            
                                 HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);                                                                            
@@ -965,12 +959,13 @@ namespace Ship_Game {
                 else if (str3 == "?")
                 {
                     GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                    InGameWiki wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
+                    var wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
                     {
                         TitleText = "StarDrive Help",
                         MiddleText =
                             "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
                     };
+                    ScreenManager.AddScreen(wiki);
                 }
             }
             ReallyExit();
@@ -996,9 +991,6 @@ namespace Ship_Game {
             ModSel.AddTab("Def");
             ModSel.AddTab("Spc");
             WeaponSl = new ScrollList(ModSel);
-            Vector2 Cursor =
-                new Vector2(
-                    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 175, 80f);
             Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
             activeModWindow = new Menu1(ScreenManager, active);
             Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
@@ -1082,25 +1074,23 @@ namespace Ship_Game {
                 HighestX = slot.Position.X;
             }
             float xDistance = HighestX - LowestX;
-            BoundingSphere bs = shipSO.WorldBoundingSphere;
             Viewport viewport5 = Viewport;
             Vector3 pScreenSpace = viewport5.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-            Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
+            var pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
             Vector2 radialPos = MathExt.PointOnCircle(90f, xDistance);
             Viewport viewport6 = Viewport;
             Vector3 insetRadialPos = viewport6.Project(new Vector3(radialPos, 0f), Projection, View,
                 Matrix.Identity);
             Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-            float Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-            if (Radius >= xDistance)
+            float radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
+            if (radius >= xDistance)
             {
-                while (Radius > xDistance)
+                while (radius > xDistance)
                 {
                     camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
                     View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
                                  Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
                                     new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-                    bs = shipSO.WorldBoundingSphere;
                     Viewport viewport7 = Viewport;
                     pScreenSpace = viewport7.Project(Vector3.Zero, Projection, View, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
@@ -1109,19 +1099,18 @@ namespace Ship_Game {
                     insetRadialPos = viewport8.Project(new Vector3(radialPos, 0f), Projection, View,
                         Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
+                    radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     cameraPosition.Z = cameraPosition.Z + 1f;
                 }
             }
             else
             {
-                while (Radius < xDistance)
+                while (radius < xDistance)
                 {
                     camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
                     View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
                                  Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
                                     new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-                    bs = shipSO.WorldBoundingSphere;
                     Viewport viewport9 = Viewport;
                     pScreenSpace = viewport9.Project(Vector3.Zero, Projection, View, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
@@ -1130,7 +1119,7 @@ namespace Ship_Game {
                     insetRadialPos = viewport10.Project(new Vector3(radialPos, 0f), Projection, View,
                         Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
+                    radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     cameraPosition.Z = cameraPosition.Z - 1f;
                 }
             }
@@ -1166,109 +1155,109 @@ namespace Ship_Game {
             ClassifCursor =
                 new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height + 10);
-            Cursor = new Vector2(ClassifCursor.X, ClassifCursor.Y);
-            Vector2 OrdersBarPos = new Vector2(Cursor.X, (int) Cursor.Y + 20);
-            OrdersBarPos.X = OrdersBarPos.X - 15;
-            ToggleButton AttackRuns =
-                new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            var cursor = new Vector2(ClassifCursor.X, ClassifCursor.Y);
+            Vector2 ordersBarPos = new Vector2(cursor.X, (int) cursor.Y + 20);
+            ordersBarPos.X = ordersBarPos.X - 15;
+            ToggleButton attackRuns =
+                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                     "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                     "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                     "SelectionBox/icon_formation_headon");
-            CombatStatusButtons.Add(AttackRuns);
-            AttackRuns.Action = "attack";
-            AttackRuns.HasToolTip = true;
-            AttackRuns.WhichToolTip = 1;
+            CombatStatusButtons.Add(attackRuns);
+            attackRuns.Action = "attack";
+            attackRuns.HasToolTip = true;
+            attackRuns.WhichToolTip = 1;
 
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton ShortRange =
-                new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            ordersBarPos.X = ordersBarPos.X + 29f;
+            ToggleButton shortRange =
+                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                     "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                     "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                     "SelectionBox/icon_grid");
-            CombatStatusButtons.Add(ShortRange);
-            ShortRange.Action = "short";
-            ShortRange.HasToolTip = true;
-            ShortRange.WhichToolTip = 228;
+            CombatStatusButtons.Add(shortRange);
+            shortRange.Action = "short";
+            shortRange.HasToolTip = true;
+            shortRange.WhichToolTip = 228;
 
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton Artillery = new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            ordersBarPos.X = ordersBarPos.X + 29f;
+            ToggleButton artillery = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                 "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                 "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                 "SelectionBox/icon_formation_aft");
-            CombatStatusButtons.Add(Artillery);
-            Artillery.Action = "arty";
-            Artillery.HasToolTip = true;
-            Artillery.WhichToolTip = 2;
+            CombatStatusButtons.Add(artillery);
+            artillery.Action = "arty";
+            artillery.HasToolTip = true;
+            artillery.WhichToolTip = 2;
 
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton HoldPos = new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            ordersBarPos.X = ordersBarPos.X + 29f;
+            ToggleButton holdPos = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                 "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                 "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                 "SelectionBox/icon_formation_x");
-            CombatStatusButtons.Add(HoldPos);
-            HoldPos.Action = "hold";
-            HoldPos.HasToolTip = true;
-            HoldPos.WhichToolTip = 65;
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            CombatStatusButtons.Add(holdPos);
+            holdPos.Action = "hold";
+            holdPos.HasToolTip = true;
+            holdPos.WhichToolTip = 65;
+            ordersBarPos.X = ordersBarPos.X + 29f;
+            ToggleButton orbitLeft = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                 "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                 "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                 "SelectionBox/icon_formation_left");
-            CombatStatusButtons.Add(OrbitLeft);
-            OrbitLeft.Action = "orbit_left";
-            OrbitLeft.HasToolTip = true;
-            OrbitLeft.WhichToolTip = 3;
-            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+            CombatStatusButtons.Add(orbitLeft);
+            orbitLeft.Action = "orbit_left";
+            orbitLeft.HasToolTip = true;
+            orbitLeft.WhichToolTip = 3;
+            ordersBarPos.Y = ordersBarPos.Y + 29f;
 
-            ToggleButton BroadsideLeft =
-                new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            ToggleButton broadsideLeft =
+                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                     "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                     "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                     "SelectionBox/icon_formation_bleft");
-            CombatStatusButtons.Add(BroadsideLeft);
-            BroadsideLeft.Action = "broadside_left";
-            BroadsideLeft.HasToolTip = true;
-            BroadsideLeft.WhichToolTip = 159;
-            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton OrbitRight =
-                new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            CombatStatusButtons.Add(broadsideLeft);
+            broadsideLeft.Action = "broadside_left";
+            broadsideLeft.HasToolTip = true;
+            broadsideLeft.WhichToolTip = 159;
+            ordersBarPos.Y = ordersBarPos.Y - 29f;
+            ordersBarPos.X = ordersBarPos.X + 29f;
+            ToggleButton orbitRight =
+                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                     "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                     "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                     "SelectionBox/icon_formation_right");
-            CombatStatusButtons.Add(OrbitRight);
-            OrbitRight.Action = "orbit_right";
-            OrbitRight.HasToolTip = true;
-            OrbitRight.WhichToolTip = 4;
-            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+            CombatStatusButtons.Add(orbitRight);
+            orbitRight.Action = "orbit_right";
+            orbitRight.HasToolTip = true;
+            orbitRight.WhichToolTip = 4;
+            ordersBarPos.Y = ordersBarPos.Y + 29f;
 
-            ToggleButton BroadsideRight =
-                new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            ToggleButton broadsideRight =
+                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                     "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                     "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                     "SelectionBox/icon_formation_bright");
-            CombatStatusButtons.Add(BroadsideRight);
-            BroadsideRight.Action = "broadside_right";
-            BroadsideRight.HasToolTip = true;
-            BroadsideRight.WhichToolTip = 160;
-            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton Evade = new ToggleButton(new Rectangle((int) OrdersBarPos.X, (int) OrdersBarPos.Y, 24, 24),
+            CombatStatusButtons.Add(broadsideRight);
+            broadsideRight.Action = "broadside_right";
+            broadsideRight.HasToolTip = true;
+            broadsideRight.WhichToolTip = 160;
+            ordersBarPos.Y = ordersBarPos.Y - 29f;
+            ordersBarPos.X = ordersBarPos.X + 29f;
+            ToggleButton evade = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                 "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
                 "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
                 "SelectionBox/icon_formation_stop");
-            CombatStatusButtons.Add(Evade);
-            Evade.Action = "evade";
-            Evade.HasToolTip = true;
-            Evade.WhichToolTip = 6;
+            CombatStatusButtons.Add(evade);
+            evade.Action = "evade";
+            evade.HasToolTip = true;
+            evade.WhichToolTip = 6;
 
-            Cursor = new Vector2(
+            cursor = new Vector2(
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150,
                 (float) ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47);
 
             SaveButton = new UIButton
             {
-                Rect = new Rectangle((int) Cursor.X, (int) Cursor.Y,
+                Rect = new Rectangle((int) cursor.X, (int) cursor.Y,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
                 NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
@@ -1280,7 +1269,7 @@ namespace Ship_Game {
             Buttons.Add(SaveButton);
             LoadButton = new UIButton
             {
-                Rect = new Rectangle((int) Cursor.X - 78, (int) Cursor.Y,
+                Rect = new Rectangle((int) cursor.X - 78, (int) cursor.Y,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
                 NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
@@ -1292,7 +1281,7 @@ namespace Ship_Game {
             Buttons.Add(LoadButton);
             ToggleOverlayButton = new UIButton
             {
-                Rect = new Rectangle(LoadButton.Rect.X - 140, (int) Cursor.Y,
+                Rect = new Rectangle(LoadButton.Rect.X - 140, (int) cursor.Y,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
                 NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
@@ -1310,7 +1299,7 @@ namespace Ship_Game {
             WeaponSl = new ScrollList(ModSel);
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
-            Array<string> Categories = new Array<string>();
+            var categories = new Array<string>();
             foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
             {
                 if (!EmpireManager.Player.GetHDict()[hull.Key])
@@ -1318,16 +1307,16 @@ namespace Ship_Game {
                     continue;
                 }
                 string cat = Localizer.GetRole(hull.Value.Role, EmpireManager.Player);
-                if (Categories.Contains(cat))
+                if (categories.Contains(cat))
                 {
                     continue;
                 }
-                Categories.Add(cat);
+                categories.Add(cat);
             }
-            Categories.Sort();
-            foreach (string cat in Categories)
+            categories.Sort();
+            foreach (string cat in categories)
             {
-                ModuleHeader type = new ModuleHeader(cat, 240f);
+                var type = new ModuleHeader(cat, 240f);
                 HullSL.AddItem(type);
             }
             foreach (ScrollList.Entry e in HullSL.Entries)
@@ -1335,21 +1324,21 @@ namespace Ship_Game {
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
                     if (!EmpireManager.Player.GetHDict()[hull.Key] ||
-                        !((e.item as ModuleHeader).Text == Localizer.GetRole(hull.Value.Role, EmpireManager.Player)))
+                        ((ModuleHeader) e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
                     {
                         continue;
                     }
                     e.AddItem(hull.Value);
                 }
             }
-            Rectangle ShipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
+            Rectangle shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
 
             //base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
             DropdownRect =
                 new Rectangle((int) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f),
-                    (int) OrdersBarPos.Y, 100, 18);
+                    (int) ordersBarPos.Y, 100, 18);
 
             CategoryList = new DropOptions(DropdownRect);
 
@@ -1364,8 +1353,8 @@ namespace Ship_Game {
             CarrierOnlyBox = new Checkbox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
                 "Carrier Only", 0);
 
-            ShipStats = new Menu1(ScreenManager, ShipStatsPanel);
-            StatsSub  = new Submenu(ScreenManager, ShipStatsPanel);
+            ShipStats = new Menu1(ScreenManager, shipStatsPanel);
+            StatsSub  = new Submenu(ScreenManager, shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs",
                 Fonts.Pirulen20,
@@ -1454,7 +1443,6 @@ namespace Ship_Game {
                 toSave.ModuleSlots[i] = savedSlot;
             }
             string path = Dir.ApplicationData;
-            CombatState combatState = toSave.CombatState;
             toSave.CombatState = CombatState;
             toSave.Name = name;
 
@@ -1544,20 +1532,6 @@ namespace Ship_Game {
             ChangeHull(Changeto);
         }
 
-        private void SaveWIPThenExitToFleets(object sender, EventArgs e) //Unused
-        {
-            SaveWIP(sender, e);
-            ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI));
-            ReallyExit();
-        }
-
-        private void SaveWIPThenExitToShipsList(object sender, EventArgs e) //Unused
-        {
-            SaveWIP(sender, e);
-            ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI));
-            ReallyExit();
-        }
-
         private void SaveWIPThenLaunchScreen(object sender, EventArgs e)
         {
             SaveWIP(sender, e);
@@ -1608,6 +1582,7 @@ namespace Ship_Game {
                         MiddleText =
                             "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
                     };
+                    ScreenManager.AddScreen(wiki);
                 }
             }
             ReallyExit();
