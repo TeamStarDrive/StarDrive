@@ -22,9 +22,6 @@ namespace Ship_Game
         //private bool ReadyToRoll;
         private string text;
         private Texture2D LoadingImage;
-        private Effect ThrusterEffect;
-        private Model ThrusterModel;
-        private Texture3D ThrusterTexture;
         private int systemToMake;
         private ManualResetEvent GateKeeper = new ManualResetEvent(false);
         private bool Loaded;
@@ -406,9 +403,6 @@ namespace Ship_Game
             ScreenManager.inter.ObjectManager.Clear();
             data = new UniverseData();
             RandomEventManager.ActiveEvent = savedData.RandomEvent;
-            ThrusterEffect  = Game1.GameContent.Load<Effect>("Effects/Thrust");
-            ThrusterModel   = Game1.GameContent.Load<Model>("Effects/ThrustCylinderB");
-            ThrusterTexture = Game1.GameContent.Load<Texture3D>("Effects/NoiseVolume");
             data.loadFogPath           = savedData.FogMapName;
             data.difficulty            = UniverseData.GameDifficulty.Normal;
             data.difficulty            = savedData.gameDifficulty;
@@ -506,8 +500,9 @@ namespace Ship_Game
                     {
                         shipData.data.Hull = shipData.Hull;
                         Ship newShip = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
-                        if (newShip == null/*if module creation failed*/ || !newShip.InitializeStatus(true))
+                        if (newShip == null)
                             continue;
+                        newShip.InitializeStatus(fromSave: true);
                         newShip.IsPlayerDesign = false;
                         newShip.FromSave = true;
                         ResourceManager.ShipsDict.Add(shipData.Name, newShip);
@@ -1010,13 +1005,7 @@ namespace Ship_Game
             {
                 foreach (Ship ship in data.MasterShipList)
                 {
-                    ship.CreateSceneObject();
-                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0f));
-                    ship.InitializeFromSave();
-                    if (ship.Name == "Brimstone")
-                    {
-                        ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0f));
-                    }
+                    ship.InitializeShip(loadingFromSavegame: true);
                     if (ship.GetHangars().Count > 0)
                     {
                         foreach (ShipModule hangar in ship.GetHangars())
@@ -1035,8 +1024,7 @@ namespace Ship_Game
                         Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
                         foreach (Planet p in s.PlanetList)
                         {
-                            var keys = p.Shipyards.Keys.ToArray();
-                            foreach (var station in keys)
+                            foreach (Guid station in p.Shipyards.Keys)
                             {
                                 if (station == ship.guid)
                                 {
@@ -1058,9 +1046,7 @@ namespace Ship_Game
                         foreach (SolarSystem s in data.SolarSystemsList)
                         {
                             if (s.guid != systemToDefendGuid)
-                            {
                                 continue;
-                            }
                             ship.AI.SystemToDefend = s;
                             ship.AI.State = AIState.SystemDefender;
                         }
@@ -1071,20 +1057,10 @@ namespace Ship_Game
                     foreach (Ship s in data.MasterShipList)
                     {
                         if (s.guid == escortTargetGuid)
-                        {
                             ship.AI.EscortTarget = s;
-                        }
                         if (s.guid != ship.AI.TargetGuid)
-                        {
                             continue;
-                        }
                         ship.AI.Target = s;
-                    }
-                    base.ScreenManager.inter.ObjectManager.Submit(ship.GetSO());
-                    foreach (Thruster t in ship.GetTList())
-                    {
-                        t.load_and_assign_effects(Game1.GameContent, ThrusterModel, ThrusterTexture, ThrusterEffect);
-                        t.InitializeForViewing();
                     }
                     foreach (Projectile p in ship.Projectiles)
                     {

@@ -17,10 +17,9 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public class SceneObject : IMovableObject, INamedObject, ISceneObject
     {
-        private ObjectVisibility objectVisibility_0 = ObjectVisibility.RenderedAndCastShadows;
+        private ObjectVisibility ObjVisibility = ObjectVisibility.RenderedAndCastShadows;
         private readonly List<RenderableMesh> Meshes = new List<RenderableMesh>(16);
         private Matrix WorldMatrix;
-        private Matrix WorldToObjMatrix;
 
         /// <summary>World space transform of the object.</summary>
         public Matrix World
@@ -80,15 +79,15 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public ObjectVisibility Visibility
         {
-            get => objectVisibility_0;
+            get => ObjVisibility;
             set
             {
-                if (objectVisibility_0 == value)
+                if (ObjVisibility == value)
                     return;
 
-                objectVisibility_0 = value;                
-                CastShadows = (objectVisibility_0 & ObjectVisibility.CastShadows) != ObjectVisibility.None;
-                Visible = (objectVisibility_0 & ObjectVisibility.Rendered) != ObjectVisibility.None;
+                ObjVisibility = value;                
+                CastShadows = (ObjVisibility & ObjectVisibility.CastShadows) != ObjectVisibility.None;
+                Visible = (ObjVisibility & ObjectVisibility.Rendered) != ObjectVisibility.None;
             }
         }
 
@@ -411,7 +410,6 @@ namespace SynapseGaming.LightingSystem.Rendering
             if (WorldMatrix.Equals(world))
                 return;
             WorldMatrix = world;
-            WorldToObjMatrix = worldtoobj;
             ++MoveId;
             CalculateWorldBounds();
             for (int index = 0; index < RenderableMeshes.Count; ++index)
