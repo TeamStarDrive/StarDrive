@@ -36,7 +36,7 @@ namespace Ship_Game
 
             ClickableShipsList.Clear();
             ScreenManager.SpriteBatch.Begin();
-            Rectangle rect = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
+            var rect = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
 
             using (player.KnownShips.AcquireReadLock())
@@ -47,18 +47,18 @@ namespace Ship_Game
                     if (ship != null && ship.Active &&
                         (viewState != UnivScreenState.GalaxyView || !ship.IsPlatform))
                     {
-                        ProjectToScreenCoords(ship.Position, ship.GetSO().WorldBoundingSphere.Radius,
-                            out Vector2 screenPos, out float ScreenRadius);
+                        ProjectToScreenCoords(ship.Position, ship.Radius,
+                            out Vector2 screenPos, out float screenRadius);
 
                         if (rect.HitTest(screenPos))
                         {
-                            if (ScreenRadius < 7.0f) ScreenRadius = 7f;
-                            ship.ScreenRadius = ScreenRadius;
+                            if (screenRadius < 7.0f) screenRadius = 7f;
+                            ship.ScreenRadius = screenRadius;
                             ship.ScreenPosition = screenPos;
                             ClickableShipsList.Add(new ClickableShip
                             {
-                                Radius = ScreenRadius,
-                                ScreenPos = screenPos,
+                                Radius      = screenRadius,
+                                ScreenPos   = screenPos,
                                 shipToClick = ship
                             });
                         }
@@ -74,11 +74,11 @@ namespace Ship_Game
                 ClickableSystems.Clear();
             }
             Texture2D Glow_Terran = ResourceManager.TextureDict["PlanetGlows/Glow_Terran"];
-            Texture2D Glow_Red = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
-            Texture2D Glow_White = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
-            Texture2D Glow_Aqua = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
+            Texture2D Glow_Red    = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
+            Texture2D Glow_White  = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
+            Texture2D Glow_Aqua   = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
             Texture2D Glow_Orange = ResourceManager.TextureDict["PlanetGlows/Glow_Orange"];
-            Texture2D sunTexture = null;
+            Texture2D sunTexture  = null;
             string sunPath = string.Empty;
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
@@ -486,35 +486,21 @@ namespace Ship_Game
 
         private void RenderThrusters()
         {
-            if (this.viewState > UniverseScreen.UnivScreenState.ShipView)
+            if (viewState > UnivScreenState.ShipView)
                 return;
-            using (player.KnownShips.AcquireReadLock())
+            for (int i = 0; i < player.KnownShips.Count; ++i)
             {
-                for (int local_0 = 0; local_0 < this.player.KnownShips.Count; ++local_0)
+                Ship ship = player.KnownShips[i];
+                if (ship != null && ship.InFrustum && ship.inSensorRange)
                 {
-                    Ship local_1 = this.player.KnownShips[local_0];
-                    if (local_1 != null && this.Frustum.Contains(new Vector3(local_1.Center, 0.0f)) !=
-                        ContainmentType.Disjoint && local_1.inSensorRange)
-                    {
-                        foreach (Thruster item_0 in local_1.GetTList())
-                        {
-                            if (item_0.technique != null)
-                            {
-                                item_0.draw(ref this.view, ref this.projection, this.ThrusterEffect);
-                                item_0.draw(ref this.view, ref this.projection, this.ThrusterEffect);
-                            }
-                            else
-                                item_0.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB",
-                                    "Effects/NoiseVolume", this.ThrusterEffect);
-                        }
-                    }
+                    ship.RenderThrusters(ref view, ref projection);
                 }
             }
         }
 
         public void Render(GameTime gameTime)
         {
-            if (Frustum == (BoundingFrustum) null)
+            if (Frustum == null)
                 Frustum = new BoundingFrustum(view * projection);
             else
                 Frustum.Matrix = view * projection;
