@@ -19,13 +19,10 @@ namespace ns6
 
     public float IntensityBlend
     {
-      get
+      get => this.float_1;
+        set
       {
-        return this.float_1;
-      }
-      set
-      {
-        if (this.effectParameter_13 == null || (double) value == (double) this.float_1)
+        if (this.effectParameter_13 == null || value == (double) this.float_1)
           return;
         this.float_1 = value;
         this.effectParameter_13.SetValue(MathHelper.Clamp(this.float_1, 0.0f, 1f));
@@ -34,14 +31,8 @@ namespace ns6
 
     public Texture2D IntensityTexture
     {
-      get
-      {
-        return this.texture2D_1;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_14);
-      }
+      get => this.texture2D_1;
+        set => EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_14);
     }
 
     public Class42(GraphicsDevice graphicsdevice)

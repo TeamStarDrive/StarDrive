@@ -26,179 +26,55 @@ namespace ns6
     {
       get
       {
-        if (object.ReferenceEquals((object) Class51.resourceManager_0, (object) null))
-          Class51.resourceManager_0 = new ResourceManager("SynapseGaming.LightingSystem.Effects.Resources", typeof (Class51).Assembly);
-        return Class51.resourceManager_0;
+        if (ReferenceEquals(resourceManager_0, null))
+          resourceManager_0 = new ResourceManager("SynapseGaming.LightingSystem.Effects.Resources", typeof (Class51).Assembly);
+        return resourceManager_0;
       }
     }
 
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     internal static CultureInfo Culture
     {
-      get
-      {
-        return Class51.cultureInfo_0;
-      }
-      set
-      {
-        Class51.cultureInfo_0 = value;
-      }
+      get => cultureInfo_0;
+        set => cultureInfo_0 = value;
     }
 
-    internal static byte[] BillboardEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("BillboardEffect", Class51.cultureInfo_0);
-      }
-    }
+    internal static byte[] BillboardEffect => (byte[]) ResourceManager.GetObject("BillboardEffect", cultureInfo_0);
 
-    internal static byte[] ConsoleFont
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("ConsoleFont", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] ConsoleFont => (byte[]) ResourceManager.GetObject("ConsoleFont", cultureInfo_0);
 
-    internal static byte[] DefaultEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("DefaultEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] DefaultEffect => (byte[]) ResourceManager.GetObject("DefaultEffect", cultureInfo_0);
 
-    internal static byte[] DeferredDepthEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("DeferredDepthEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] DeferredDepthEffect => (byte[]) ResourceManager.GetObject("DeferredDepthEffect", cultureInfo_0);
 
-    internal static byte[] DeferredLightingEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("DeferredLightingEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] DeferredLightingEffect => (byte[]) ResourceManager.GetObject("DeferredLightingEffect", cultureInfo_0);
 
-    internal static byte[] DeferredObjectEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("DeferredObjectEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] DeferredObjectEffect => (byte[]) ResourceManager.GetObject("DeferredObjectEffect", cultureInfo_0);
 
-    internal static byte[] DeferredTerrainEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("DeferredTerrainEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] DeferredTerrainEffect => (byte[]) ResourceManager.GetObject("DeferredTerrainEffect", cultureInfo_0);
 
-    internal static byte[] FogEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("FogEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] FogEffect => (byte[]) ResourceManager.GetObject("FogEffect", cultureInfo_0);
 
-    internal static byte[] FullSphere
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("FullSphere", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] FullSphere => (byte[]) ResourceManager.GetObject("FullSphere", cultureInfo_0);
 
-    internal static byte[] HighDynamicRange
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("HighDynamicRange", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] HighDynamicRange => (byte[]) ResourceManager.GetObject("HighDynamicRange", cultureInfo_0);
 
-    internal static byte[] LightIcons
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("LightIcons", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] LightIcons => (byte[]) ResourceManager.GetObject("LightIcons", cultureInfo_0);
 
-    internal static byte[] LightingEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("LightingEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] LightingEffect => (byte[]) ResourceManager.GetObject("LightingEffect", cultureInfo_0);
 
-    internal static byte[] Normal
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("Normal", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] Normal => (byte[]) ResourceManager.GetObject("Normal", cultureInfo_0);
 
-    internal static byte[] ShadowEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("ShadowEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] ShadowEffect => (byte[]) ResourceManager.GetObject("ShadowEffect", cultureInfo_0);
 
-    internal static byte[] SplashScreen
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("SplashScreen", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] SplashScreen => (byte[]) ResourceManager.GetObject("SplashScreen", cultureInfo_0);
 
-    internal static byte[] TerrainEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("TerrainEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] TerrainEffect => (byte[]) ResourceManager.GetObject("TerrainEffect", cultureInfo_0);
 
-    internal static byte[] VolumeLightBeam
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("VolumeLightBeam", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] VolumeLightBeam => (byte[]) ResourceManager.GetObject("VolumeLightBeam", cultureInfo_0);
 
-    internal static byte[] VolumeLightEffect
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("VolumeLightEffect", Class51.cultureInfo_0);
-      }
-    }
+      internal static byte[] VolumeLightEffect => (byte[]) ResourceManager.GetObject("VolumeLightEffect", cultureInfo_0);
 
-    internal static byte[] White
-    {
-      get
-      {
-        return (byte[]) Class51.ResourceManager.GetObject("White", Class51.cultureInfo_0);
-      }
-    }
-
-    internal Class51()
-    {
-    }
+      internal static byte[] White => (byte[]) ResourceManager.GetObject("White", cultureInfo_0);
   }
 }

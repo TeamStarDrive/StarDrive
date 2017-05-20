@@ -145,7 +145,7 @@ namespace Ship_Game
                 else
                 {
                     base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
-                    if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                    if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                     {
                         base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
                         ToolTip.CreateTooltip("Delete File", base.ScreenManager);
@@ -198,7 +198,7 @@ namespace Ship_Game
             for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Entries.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
             {
                 ScrollList.Entry e = this.SavesSL.Entries[i];
-                if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+                if (!e.clickRect.HitTest(MousePos))
                 {
                     e.clickRectHover = 0;
                 }
@@ -210,7 +210,7 @@ namespace Ship_Game
                     }
                     e.clickRectHover = 1;
                     this.selector = new Selector(base.ScreenManager, e.clickRect);
-                    if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)        // handle file delete
+                    if (e.cancel.HitTest(MousePos) && input.InGameSelect)        // handle file delete
                     {
                         this.fileToDel = (e.item as FileData).FileLink;
                         MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
@@ -228,7 +228,7 @@ namespace Ship_Game
             }
             foreach (UIButton b in this.Buttons)
             {
-                if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+                if (!b.Rect.HitTest(MousePos))
                 {
                     b.State = UIButton.PressState.Default;
                 }
@@ -260,7 +260,7 @@ namespace Ship_Game
             }
             if (SLMode.Save == this.mode)       // Only check name field change when saving
             {
-                if (!HelperFunctions.CheckIntersection(this.EnterNameArea.ClickableArea, MousePos))
+                if (!this.EnterNameArea.ClickableArea.HitTest(MousePos))
                 {
                     this.EnterNameArea.Hover = false;
                 }

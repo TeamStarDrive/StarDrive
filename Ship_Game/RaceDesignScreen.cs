@@ -933,7 +933,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.Draw(this.TextureDict[data], Portrait, new Rectangle?(Source), Color.White);
                         if (this.SelectedData == data)
                         {
-                            Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, Portrait, Color.BurlyWood);
+                            base.ScreenManager.SpriteBatch.DrawRectangle(Portrait, Color.BurlyWood);
                         }
                     }
                     else
@@ -944,7 +944,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.Draw(this.TextureDict[data], Portrait, Color.White);
                         if (this.SelectedData == data)
                         {
-                            Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, Portrait, Color.BurlyWood);
+                            base.ScreenManager.SpriteBatch.DrawRectangle(Portrait, Color.BurlyWood);
                         }
                     }
                 }
@@ -1153,7 +1153,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if (HelperFunctions.CheckIntersection(e.clickRect, new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
+                    if (e.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
                     {
                         e.clickRectHover = 1;
                     }
@@ -1183,7 +1183,7 @@ namespace Ship_Game
             //    txt = "Pre-Warp";
             //    tip = 111;
             //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-            //    if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            //    if (MathExt.HitTest(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
             //    {
             //        ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
             //    }
@@ -1194,7 +1194,7 @@ namespace Ship_Game
                 txt = Localizer.Token(2103);
                 tip = 112;
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                 {
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
@@ -1204,7 +1204,7 @@ namespace Ship_Game
                 txt = Localizer.Token(6093);
                 tip = 165;
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                 {
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
@@ -1214,7 +1214,7 @@ namespace Ship_Game
                 txt = Localizer.Token(4102);
                 tip = 229;
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                 {
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
@@ -1224,16 +1224,16 @@ namespace Ship_Game
             //    txt = "War Lords";//Localizer.Token(2103);
             //    tip = 112;
             //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-            //    if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            //    if (MathExt.HitTest(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
             //    {
             //        ToolTip.CreateTooltip(tip, base.ScreenManager);
             //    }
             //}
-            if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (this.ScaleRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
             {
                 ToolTip.CreateTooltip(125, base.ScreenManager);
             }
-            if (HelperFunctions.CheckIntersection(this.PacingRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (this.PacingRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
             {
                 ToolTip.CreateTooltip(126, base.ScreenManager);
             }
@@ -1295,7 +1295,7 @@ namespace Ship_Game
             Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
             foreach (UIButton b in this.Buttons)
             {
-                if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+                if (!b.Rect.HitTest(mousePos))
                 {
                     b.State = UIButton.PressState.Default;
                 }
@@ -1371,7 +1371,7 @@ namespace Ship_Game
                 this.selector = null;
                 foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
                 {
-                    if (!HelperFunctions.CheckIntersection(e.clickRect, mousePos) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    if (!e.clickRect.HitTest(mousePos) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                     {
                         continue;
                     }
@@ -1381,7 +1381,7 @@ namespace Ship_Game
                 }
                 this.RaceArchetypeSL.HandleInput(input);
                 this.Traits.HandleInput(this);
-                if (!HelperFunctions.CheckIntersection(this.RaceName.ClickableArea, mousePos))
+                if (!this.RaceName.ClickableArea.HitTest(mousePos))
                 {
                     this.RaceName.Hover = false;
                 }
@@ -1393,7 +1393,7 @@ namespace Ship_Game
                         this.RaceName.HandlingInput = true;
                     }
                 }
-                if (!HelperFunctions.CheckIntersection(this.SingEntry.ClickableArea, mousePos))
+                if (!this.SingEntry.ClickableArea.HitTest(mousePos))
                 {
                     this.SingEntry.Hover = false;
                 }
@@ -1405,7 +1405,7 @@ namespace Ship_Game
                         this.SingEntry.HandlingInput = true;
                     }
                 }
-                if (!HelperFunctions.CheckIntersection(this.PlurEntry.ClickableArea, mousePos))
+                if (!this.PlurEntry.ClickableArea.HitTest(mousePos))
                 {
                     this.PlurEntry.Hover = false;
                 }
@@ -1417,7 +1417,7 @@ namespace Ship_Game
                         this.PlurEntry.HandlingInput = true;
                     }
                 }
-                if (!HelperFunctions.CheckIntersection(this.HomeSystemEntry.ClickableArea, mousePos))
+                if (!this.HomeSystemEntry.ClickableArea.HitTest(mousePos))
                 {
                     this.HomeSystemEntry.Hover = false;
                 }
@@ -1449,7 +1449,7 @@ namespace Ship_Game
                 for (int i = this.traitsSL.indexAtTop; i < this.traitsSL.Entries.Count && i < this.traitsSL.indexAtTop + this.traitsSL.entriesToDisplay; i++)
                 {
                     ScrollList.Entry f = this.traitsSL.Entries[i];
-                    if (!HelperFunctions.CheckIntersection(f.clickRect, mousePos))
+                    if (!f.clickRect.HitTest(mousePos))
                     {
                         f.clickRectHover = 0;
                     }
@@ -1517,7 +1517,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (HelperFunctions.CheckIntersection(this.GalaxySizeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (this.GalaxySizeRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     RaceDesignScreen galaxysize = this;
@@ -1527,7 +1527,7 @@ namespace Ship_Game
                         this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
                     }
                 }
-                if (HelperFunctions.CheckIntersection(this.GameModeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (this.GameModeRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     //RaceDesignScreen gamemode = this;
@@ -1538,7 +1538,7 @@ namespace Ship_Game
                         this.mode = RaceDesignScreen.GameMode.Sandbox;
                     }
                 }
-                if (HelperFunctions.CheckIntersection(this.NumberStarsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (this.NumberStarsRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     RaceDesignScreen starEnum = this;
@@ -1548,7 +1548,7 @@ namespace Ship_Game
                         this.StarEnum = RaceDesignScreen.StarNum.VeryRare;
                     }
                 }
-                if (HelperFunctions.CheckIntersection(this.NumOpponentsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (this.NumOpponentsRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     //RaceDesignScreen raceDesignScreen1 = this;
@@ -1559,8 +1559,8 @@ namespace Ship_Game
                         this.numOpponents = 1;
                     }
                 }
-                //HelperFunctions.CheckIntersection(this.GameModeRect, mousePos); // I believe this is here by mistake, since the returned value would do nothing... - Gretman
-                if (HelperFunctions.CheckIntersection(this.ScaleRect, mousePos))
+                //MathExt.HitTest(this.GameModeRect, mousePos); // I believe this is here by mistake, since the returned value would do nothing... - Gretman
+                if (this.ScaleRect.HitTest(mousePos))
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
@@ -1583,7 +1583,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (HelperFunctions.CheckIntersection(this.PacingRect, mousePos))
+                if (this.PacingRect.HitTest(mousePos))
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
@@ -1606,7 +1606,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (HelperFunctions.CheckIntersection(this.DifficultyRect, mousePos))
+                if (this.DifficultyRect.HitTest(mousePos))
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
@@ -1631,7 +1631,7 @@ namespace Ship_Game
                 }
 
                 //Gretman - Remnant Presece Button
-                if (HelperFunctions.CheckIntersection(this.ExtraRemnantRect, mousePos))
+                if (this.ExtraRemnantRect.HitTest(mousePos))
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
@@ -1653,11 +1653,11 @@ namespace Ship_Game
                     }
                 }// Done adding stuff - Gretman
 
-                if (HelperFunctions.CheckIntersection(this.FlagRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (this.FlagRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     this.DrawingColorSelector = !this.DrawingColorSelector;
                 }
-                if (HelperFunctions.CheckIntersection(this.FlagRight, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (this.FlagRight.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     if (ResourceManager.FlagTextures.Count - 1 <= this.FlagIndex)
                     {
@@ -1670,7 +1670,7 @@ namespace Ship_Game
                     }
                     GameAudio.PlaySfxAsync("blip_click");
                 }
-                if (HelperFunctions.CheckIntersection(this.FlagLeft, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (this.FlagLeft.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     if (this.FlagIndex <= 0)
                     {
@@ -1684,7 +1684,7 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("blip_click");
                 }
             }
-            else if (!HelperFunctions.CheckIntersection(this.ColorSelector, input.CursorPosition))
+            else if (!this.ColorSelector.HitTest(input.CursorPosition))
             {
                 if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
@@ -1701,7 +1701,7 @@ namespace Ship_Game
                     {
                         Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), this.currentObjectColor.B);
                         Rectangle ColorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
-                        if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
+                        if (ColorRect.HitTest(input.CursorPosition))
                         {
                             this.currentObjectColor = thisColor;
                         }
@@ -1713,7 +1713,7 @@ namespace Ship_Game
                 {
                     Color thisColor = new Color(this.currentObjectColor.R, this.currentObjectColor.G, Convert.ToByte(i));
                     Rectangle ColorRect = new Rectangle(this.ColorSelector.X + 10 + 575, yPosition, 20, 2);
-                    if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
+                    if (ColorRect.HitTest(input.CursorPosition))
                     {
                         this.currentObjectColor = thisColor;
                     }
@@ -2252,7 +2252,7 @@ namespace Ship_Game
             {
                 foreach (TraitEntry t in this.AllTraits)
                 {
-                    if (!HelperFunctions.CheckIntersection(t.rect, mousePos))
+                    if (!t.rect.HitTest(mousePos))
                     {
                         continue;
                     }

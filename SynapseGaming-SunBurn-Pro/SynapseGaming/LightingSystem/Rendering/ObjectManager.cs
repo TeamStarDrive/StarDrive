@@ -4,12 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -50,7 +50,7 @@ namespace SynapseGaming.LightingSystem.Rendering
           : base(worldboundingbox, worldtreemaxdepth)
         {
             this.GraphicsDeviceManager = graphicsdevicemanager;
-            LightingSystemEditor.RegisterOnReplaceEffect(new LightingSystemEditor.EffectReplaceDelegate(this.method_0));
+            LightingSystemEditor.RegisterOnReplaceEffect(this.method_0);
         }
 
         /// <summary>Creates a new ObjectManager instance.</summary>
@@ -58,13 +58,13 @@ namespace SynapseGaming.LightingSystem.Rendering
         public ObjectManager(IGraphicsDeviceService graphicsdevicemanager)
         {
             this.GraphicsDeviceManager = graphicsdevicemanager;
-            LightingSystemEditor.RegisterOnReplaceEffect(new LightingSystemEditor.EffectReplaceDelegate(this.method_0));
+            LightingSystemEditor.RegisterOnReplaceEffect(this.method_0);
         }
 
         /// <summary />
         ~ObjectManager()
         {
-            LightingSystemEditor.UnregisterOnReplaceEffect(new LightingSystemEditor.EffectReplaceDelegate(this.method_0));
+            LightingSystemEditor.UnregisterOnReplaceEffect(this.method_0);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// both renders objects and casts shadows from them).</param>
         public void SubmitStaticSceneObject(Model model, Matrix world, ObjectVisibility visibility)
         {
-            this.Submit((ISceneObject)new SceneObject(model)
+            this.Submit(new SceneObject(model)
             {
                 ObjectType = ObjectType.Static,
                 Visibility = visibility,
@@ -160,7 +160,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// both renders objects and casts shadows from them).</param>
         public void SubmitStaticSceneObject(ModelMesh mesh, Matrix world, ObjectVisibility visibility)
         {
-            this.Submit((ISceneObject)new SceneObject(mesh)
+            this.Submit(new SceneObject(mesh)
             {
                 ObjectType = ObjectType.Static,
                 Visibility = visibility,
@@ -187,7 +187,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// both renders objects and casts shadows from them).</param>
         public void SubmitStaticSceneObject(Model model, Effect overrideeffect, Matrix world, ObjectVisibility visibility)
         {
-            this.Submit((ISceneObject)new SceneObject(model, overrideeffect, model.Root.Name)
+            this.Submit(new SceneObject(model, overrideeffect, model.Root.Name)
             {
                 ObjectType = ObjectType.Static,
                 Visibility = visibility,
@@ -232,7 +232,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// both renders objects and casts shadows from them).</param>
         public void SubmitStaticSceneObject(ModelMesh mesh, Effect overrideeffect, Matrix world, ObjectVisibility visibility)
         {
-            this.Submit((ISceneObject)new SceneObject(mesh, overrideeffect, mesh.ParentBone.Name)
+            this.Submit(new SceneObject(mesh, overrideeffect, mesh.ParentBone.Name)
             {
                 ObjectType = ObjectType.Static,
                 Visibility = visibility,

@@ -10,6 +10,6 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
   public enum DeferredBufferSizing
   {
     ResizeToBackBuffer,
-    CustomSize,
+    CustomSize
   }
 }

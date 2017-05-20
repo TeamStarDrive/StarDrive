@@ -4,6 +4,8 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
@@ -18,8 +20,6 @@ using SynapseGaming.LightingSystem.Effects.Deferred;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
 using SynapseGaming.LightingSystem.Shadows.Forward;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering.Deferred
 {
@@ -28,9 +28,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
   {
     private static Class61 class61_0 = new Class61();
     private static Class64 class64_0 = new Class64();
-    private bool bool_2 = true;
-    private bool bool_4 = true;
-    private Class59 class59_0 = new Class59();
+      private Class59 class59_0 = new Class59();
     private Class59 class59_1 = new Class59();
     private List<ILight> list_2 = new List<ILight>(4);
     private bool[] bool_6 = new bool[6];
@@ -38,16 +36,13 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private List<RenderableMesh> list_4 = new List<RenderableMesh>();
     private List<Class63> list_5 = new List<Class63>();
     private List<Class63> list_6 = new List<Class63>();
-    private List<ShadowRenderTargetGroup> list_7 = new List<ShadowRenderTargetGroup>();
-    private Class65 class65_0 = new Class65();
+      private Class65 class65_0 = new Class65();
     private Class67 class67_0 = new Class67();
     private List<RenderableMesh> list_8 = new List<RenderableMesh>();
     private List<Class63> list_9 = new List<Class63>();
     private Dictionary<ISceneObject, bool> dictionary_0 = new Dictionary<ISceneObject, bool>();
     private const float float_1 = 1.2f;
-    private bool bool_3;
-    private float float_2;
-    private const bool bool_5 = false;
+      private const bool bool_5 = false;
     private BasicEffect basicEffect_0;
     private DeferredBuffers deferredBuffers_0;
     private Class38 class38_0;
@@ -62,66 +57,26 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     /// Determines if the manager should throw an exception when the deferred buffers exceed the
     /// render target size. This helps detect performance issues due to mismatched deferred buffer sizes.
     /// </summary>
-    public bool DetectOverSizedDeferredBuffers
-    {
-      get
-      {
-        return this.bool_2;
-      }
-      set
-      {
-        this.bool_2 = value;
-      }
-    }
+    public bool DetectOverSizedDeferredBuffers { get; set; } = true;
 
-    /// <summary>
+      /// <summary>
     /// Enables occlusion querying to reduce light rendering. Helps performance with complex indoor
     /// scenes using lots of lights. May hurt performance in scenes where most tested lights are visible.
     /// </summary>
-    public bool OcclusionQueryEnabled
-    {
-      get
-      {
-        return this.bool_3;
-      }
-      set
-      {
-        this.bool_3 = value;
-      }
-    }
+    public bool OcclusionQueryEnabled { get; set; }
 
-    /// <summary>
+      /// <summary>
     /// Enables z-fill optimization to reduce bandwidth and fill rate consumption in complex
     /// scenes.  May hurt performance in high polygon scenes.
     /// </summary>
-    public bool DepthFillOptimizationEnabled
-    {
-      get
-      {
-        return this.bool_4;
-      }
-      set
-      {
-        this.bool_4 = value;
-      }
-    }
+    public bool DepthFillOptimizationEnabled { get; set; } = true;
 
-    /// <summary>
+      /// <summary>
     /// Shows light rendering debug information by rendering a constant red color where shadow groups are rendered.
     /// </summary>
-    public float LightGroupDebugAmount
-    {
-      get
-      {
-        return this.float_2;
-      }
-      set
-      {
-        this.float_2 = value;
-      }
-    }
+    public float LightGroupDebugAmount { get; set; }
 
-    /// <summary>
+      /// <summary>
     /// Current scene shadow maps provided by the ShadowManager and
     /// filled by this render manager (only valid between calls to
     /// BeginFrameRendering and EndFrameRendering).
@@ -130,15 +85,9 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     /// how to use ShadowRenderTargetGroup and the contained
     /// shadow maps to render shadows onto the scene.
     /// </summary>
-    public List<ShadowRenderTargetGroup> FrameShadowRenderTargetGroups
-    {
-      get
-      {
-        return this.list_7;
-      }
-    }
+    public List<ShadowRenderTargetGroup> FrameShadowRenderTargetGroups { get; } = new List<ShadowRenderTargetGroup>();
 
-    /// <summary>
+      /// <summary>
     /// Creates a new DeferredRenderManager instance.  Automatically creates an internal LightManager and StencilShadowManager.
     /// </summary>
     /// <param name="graphicsdevicemanager"></param>
@@ -191,7 +140,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       {
         this.class38_0 = new Class38(graphicsDevice);
         this.class37_0 = new Class37(graphicsDevice);
-        this.basicEffect_0 = new BasicEffect(graphicsDevice, (EffectPool) null);
+        this.basicEffect_0 = new BasicEffect(graphicsDevice, null);
         this.texture2D_0 = LightingSystemManager.Instance.method_2("White");
         this.deferredObjectEffect_0 = new DeferredObjectEffect(graphicsDevice);
         this.class10_0 = new Class10(graphicsDevice);
@@ -214,7 +163,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         {
           float num1 = Vector3.DistanceSquared(this.SceneState.ViewToWorld.Translation, sceneObject.WorldBoundingSphere.Center);
           float num2 = this.SceneState.Environment.VisibleDistance + sceneObject.WorldBoundingSphere.Radius;
-          if ((double) num1 <= (double) num2 * (double) num2)
+          if (num1 <= num2 * (double) num2)
           {
             ++this.class57_0.lightingSystemStatistic_1.AccumulationValue;
             for (int index2 = 0; index2 < sceneObject.RenderableMeshes.Count; ++index2)
@@ -227,7 +176,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
                 if (this.MaxLoadedMipLevelEnabled)
                 {
                   if (renderableMesh.effect_0 is BasicEffect)
-                    this.SetTextureLOD((Texture) (renderableMesh.effect_0 as BasicEffect).Texture);
+                    this.SetTextureLOD((renderableMesh.effect_0 as BasicEffect).Texture);
                   else if (renderableMesh.effect_0 is ITextureAccessEffect)
                   {
                     ITextureAccessEffect effect0 = renderableMesh.effect_0 as ITextureAccessEffect;
@@ -241,25 +190,25 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           }
         }
       }
-      this.list_4.Sort((IComparer<RenderableMesh>) DeferredRenderManager.class61_0);
-      DeferredRenderManager.class64_0.method_0(this.SceneState.View, this.SceneState.ViewToWorld, this.SceneState.Projection, this.SceneState.ProjectionToView, this.list_5, this.list_4, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
-      this.list_7.Clear();
+      this.list_4.Sort(class61_0);
+      class64_0.method_0(this.SceneState.View, this.SceneState.ViewToWorld, this.SceneState.Projection, this.SceneState.ProjectionToView, this.list_5, this.list_4, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
+      this.FrameShadowRenderTargetGroups.Clear();
       IShadowMapManager manager2 = (IShadowMapManager) this.ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
       if (manager2 == null)
       {
-        this.GetDefaultShadows(this.list_7, this.FrameLights);
+        this.GetDefaultShadows(this.FrameShadowRenderTargetGroups, this.FrameLights);
       }
       else
       {
         if (manager2 is ShadowMapManager)
           throw new Exception("Cannot use a forward shadow map manager with a deferred render manager. Please switch to a deferred shadow map manager.");
-        manager2.BuildShadows(this.list_7, this.FrameLights, true);
+        manager2.BuildShadows(this.FrameShadowRenderTargetGroups, this.FrameLights, true);
       }
       Viewport viewport = graphicsDevice.Viewport;
       RenderTarget2D renderTarget = (RenderTarget2D) graphicsDevice.GetRenderTarget(0);
       DepthStencilBuffer depthStencilBuffer = graphicsDevice.DepthStencilBuffer;
       FillMode fillMode = graphicsDevice.RenderState.FillMode;
-      if (this.bool_2 && (viewport.Width < this.deferredBuffers_0.Width || viewport.Height < this.deferredBuffers_0.Height))
+      if (this.DetectOverSizedDeferredBuffers && (viewport.Width < this.deferredBuffers_0.Width || viewport.Height < this.deferredBuffers_0.Height))
         throw new Exception("Supplied deferred buffers are too large for final target image, this will cause performance issues. Supply properly sized buffers or disable DetectOverSizedDeferredBuffers to ignore.");
       this.deferredBuffers_0.method_1(this.class59_1);
       this.deferredBuffers_0.method_1(this.class59_0);
@@ -280,24 +229,24 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       graphicsDevice.RenderState.FillMode = this.RenderFillMode;
       graphicsDevice.DepthStencilBuffer = this.deferredBuffers_0.DepthStencilBuffer;
       graphicsDevice.SetRenderTarget(0, deferredBuffer1);
-      graphicsDevice.SetRenderTarget(1, (RenderTarget2D) null);
-      graphicsDevice.SetRenderTarget(2, (RenderTarget2D) null);
-      graphicsDevice.SetRenderTarget(3, (RenderTarget2D) null);
+      graphicsDevice.SetRenderTarget(1, null);
+      graphicsDevice.SetRenderTarget(2, null);
+      graphicsDevice.SetRenderTarget(3, null);
       graphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.TransparentBlack, 1f, 0);
-      if (!this.bool_4 && !this.bool_3)
+      if (!this.DepthFillOptimizationEnabled && !this.OcclusionQueryEnabled)
       {
         graphicsDevice.SetRenderTarget(1, deferredBuffer2);
       }
       else
       {
-        DeferredRenderManager.class64_0.method_1(this.list_6, this.list_4, false, bool_5);
+        class64_0.method_1(this.list_6, this.list_4, false, bool_5);
         graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.None;
-        this.method_5(this.list_6, (ShadowGroup) null, false, DeferredEffectOutput.Depth, false, true, 0);
+        this.method_5(this.list_6, null, false, DeferredEffectOutput.Depth, false, true, 0);
         graphicsDevice.RenderState.DepthBufferWriteEnable = false;
-        if (this.bool_3)
+        if (this.OcclusionQueryEnabled)
         {
           this.occlusionQueryHelper_0.Clear();
-          foreach (ShadowRenderTargetGroup renderTargetGroup in this.list_7)
+          foreach (ShadowRenderTargetGroup renderTargetGroup in this.FrameShadowRenderTargetGroups)
           {
             foreach (ShadowGroup shadowGroup in renderTargetGroup.ShadowGroups)
               this.occlusionQueryHelper_0.SubmitObject(shadowGroup, shadowGroup.BoundingBox);
@@ -309,7 +258,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.All;
         graphicsDevice.SetRenderTarget(1, deferredBuffer2);
       }
-      this.method_5(this.list_5, (ShadowGroup) null, false, DeferredEffectOutput.GBuffer, false, true, 0);
+      this.method_5(this.list_5, null, false, DeferredEffectOutput.GBuffer, false, true, 0);
       graphicsDevice.RenderState.FillMode = FillMode.Solid;
       for (int index = 0; index < 6; ++index)
       {
@@ -326,7 +275,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         graphicsDevice.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
         graphicsDevice.RenderState.DepthBufferEnable = true;
         graphicsDevice.RenderState.DepthBufferWriteEnable = true;
-        this.BuildShadowMaps(this.list_7);
+        this.BuildShadowMaps(this.FrameShadowRenderTargetGroups);
         graphicsDevice.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
       }
       graphicsDevice.RenderState.AlphaTestEnable = false;
@@ -340,11 +289,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       if (this.EffectDetail != DetailPreference.Off)
         graphicsDevice.SetRenderTarget(1, deferredBuffer4);
       else
-        graphicsDevice.SetRenderTarget(1, (RenderTarget2D) null);
+        graphicsDevice.SetRenderTarget(1, null);
       graphicsDevice.Clear(ClearOptions.Target, Color.TransparentBlack, 1f, 0);
       this.method_1(deferredBuffer1.GetTexture(), deferredBuffer2.GetTexture());
       graphicsDevice.SetRenderTarget(0, renderTarget);
-      graphicsDevice.SetRenderTarget(1, (RenderTarget2D) null);
+      graphicsDevice.SetRenderTarget(1, null);
       graphicsDevice.DepthStencilBuffer = depthStencilBuffer;
       graphicsDevice.Viewport = viewport;
       graphicsDevice.RenderState.FillMode = fillMode;
@@ -370,7 +319,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     {
       IObjectManager manager1 = (IObjectManager) this.ServiceProvider.GetManager(SceneInterface.ObjectManagerType, false);
       IAvatarManager manager2 = (IAvatarManager) this.ServiceProvider.GetManager(SceneInterface.AvatarManagerType, false);
-      foreach (ShadowRenderTargetGroup renderTargetGroup in this.list_7)
+      foreach (ShadowRenderTargetGroup renderTargetGroup in this.FrameShadowRenderTargetGroups)
       {
         if (renderTargetGroup.HasShadows() && !renderTargetGroup.ContentsAreValid)
         {
@@ -378,7 +327,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           renderTargetGroup.Begin();
           foreach (ShadowGroup shadowGroup in renderTargetGroup.ShadowGroups)
           {
-            if (shadowGroup.Shadow is IShadowMap && (!this.bool_3 || this.occlusionQueryHelper_0.IsObjectVisible(shadowGroup)))
+            if (shadowGroup.Shadow is IShadowMap && (!this.OcclusionQueryEnabled || this.occlusionQueryHelper_0.IsObjectVisible(shadowGroup)))
             {
               IShadowMap shadow = shadowGroup.Shadow as IShadowMap;
               this.method_4(shadowGroup, shadow, manager1, manager2);
@@ -402,7 +351,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       graphicsDevice.RenderState.DepthBufferWriteEnable = true;
       graphicsDevice.RenderState.DepthBufferEnable = true;
       Texture2D texture = deferredBuffer1.GetTexture();
-      Texture2D texture2D = (Texture2D) null;
+      Texture2D texture2D = null;
       if (this.EffectDetail != DetailPreference.Off)
         texture2D = deferredBuffer2.GetTexture();
       Vector3 down = Vector3.Down;
@@ -415,7 +364,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           IDeferredObjectEffect effect = class63.Effect as IDeferredObjectEffect;
           effect.SceneLightingDiffuseMap = texture;
           effect.SceneLightingSpecularMap = texture2D;
-          effect.SetAmbientLighting((IAmbientSource) this.FrameAmbientLight, down);
+          effect.SetAmbientLighting(this.FrameAmbientLight, down);
           effect.FogEnabled = environment.FogEnabled;
           if (environment.FogEnabled)
           {
@@ -429,14 +378,14 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       }
       this.class65_0.method_0();
       this.class67_0.method_0();
-      if (this.bool_4)
+      if (this.DepthFillOptimizationEnabled)
       {
         graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.None;
-        this.method_5(this.list_6, (ShadowGroup) null, false, DeferredEffectOutput.Depth, false, true, 0);
+        this.method_5(this.list_6, null, false, DeferredEffectOutput.Depth, false, true, 0);
         graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.All;
         graphicsDevice.RenderState.DepthBufferWriteEnable = false;
       }
-      this.method_5(this.list_5, (ShadowGroup) null, false, DeferredEffectOutput.Final, false, false, 0);
+      this.method_5(this.list_5, null, false, DeferredEffectOutput.Final, false, false, 0);
       graphicsDevice.RenderState.AlphaBlendEnable = false;
       graphicsDevice.RenderState.SourceBlend = Blend.One;
       graphicsDevice.RenderState.DestinationBlend = Blend.Zero;
@@ -455,7 +404,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       if (manager != null)
         manager.RenderVolumeLights(this.deferredBuffers_0);
       this.deferredBuffers_0.EndFrameRendering();
-      DeferredRenderManager.class64_0.method_2();
+      class64_0.method_2();
     }
 
     /// <summary>
@@ -473,12 +422,12 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     public override void Unload()
     {
       base.Unload();
-      this.texture2D_0 = (Texture2D) null;
-      Disposable.Free<Class38>(ref this.class38_0);
-      Disposable.Free<DeferredObjectEffect>(ref this.deferredObjectEffect_0);
-      Disposable.Free<Class37>(ref this.class37_0);
-      Disposable.Free<Class10>(ref this.class10_0);
-      Disposable.Free<OcclusionQueryHelper<ShadowGroup>>(ref this.occlusionQueryHelper_0);
+      this.texture2D_0 = null;
+      Disposable.Free(ref this.class38_0);
+      Disposable.Free(ref this.deferredObjectEffect_0);
+      Disposable.Free(ref this.class37_0);
+      Disposable.Free(ref this.class10_0);
+      Disposable.Free(ref this.occlusionQueryHelper_0);
     }
 
     private void method_1(Texture2D texture2D_1, Texture2D texture2D_2)
@@ -495,26 +444,26 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       this.class38_0.SceneNormalSpecularMap = texture2D_2;
       this.class38_0.EffectDetail = this.EffectDetail;
       this.class38_0.ShadowDetail = this.ShadowDetail;
-      this.class38_0.LightGroupDebugAmount = this.float_2;
+      this.class38_0.LightGroupDebugAmount = this.LightGroupDebugAmount;
       this.class38_0.SetViewAndProjection(this.SceneState.View, this.SceneState.ViewToWorld, this.SceneState.Projection, this.SceneState.ProjectionToView);
       this.class38_0.Begin();
       this.class38_0.CurrentTechnique.Passes[0].Begin();
-      foreach (ShadowRenderTargetGroup renderTargetGroup in this.list_7)
+      foreach (ShadowRenderTargetGroup renderTargetGroup in this.FrameShadowRenderTargetGroups)
       {
         foreach (ShadowGroup shadowGroup in renderTargetGroup.ShadowGroups)
         {
-          if (shadowGroup.Lights.Count >= 1 && (!this.bool_3 || this.occlusionQueryHelper_0.IsObjectVisible(shadowGroup)))
+          if (shadowGroup.Lights.Count >= 1 && (!this.OcclusionQueryEnabled || this.occlusionQueryHelper_0.IsObjectVisible(shadowGroup)))
           {
             IShadowMap shadow = shadowGroup.Shadow as IShadowMap;
             IShadowSource shadowSource = shadowGroup.ShadowSource;
             bool flag1;
             bool flag2 = !(flag1 = shadowSource is IPointSource) && shadowSource is IDirectionalSource;
             if (shadow != null)
-              shadow.BeginRendering((Texture) renderTargetGroup.RenderTargetTexture, (Effect) this.class38_0);
+              shadow.BeginRendering(renderTargetGroup.RenderTargetTexture, this.class38_0);
             else if (flag1)
-              this.class38_0.SetShadowMapAndType((Texture2D) null, Enum5.const_0);
+              this.class38_0.SetShadowMapAndType(null, Enum5.const_0);
             else if (flag2)
-              this.class38_0.SetShadowMapAndType((Texture2D) null, Enum5.const_1);
+              this.class38_0.SetShadowMapAndType(null, Enum5.const_1);
             if (flag1)
             {
               if (shadowSource.ShadowRenderLightsTogether)
@@ -665,8 +614,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       this.list_8.Clear();
       ObjectFilter objectfilter = shadowGroup_0.ShadowSource.ShadowType != ShadowType.AllObjects ? ObjectFilter.Static : ObjectFilter.DynamicAndStatic;
       iobjectManager_0.Find(this.list_8, shadowGroup_0.BoundingBox, objectfilter);
-      this.list_8.Sort((IComparer<RenderableMesh>) DeferredRenderManager.class61_0);
-      DeferredRenderManager.class64_0.method_1(this.list_9, this.list_8, false, bool_5);
+      this.list_8.Sort(class61_0);
+      class64_0.method_1(this.list_9, this.list_8, false, bool_5);
       if (iavatarManager_0 != null)
         iavatarManager_0.BeginShadowGroupRendering(shadowGroup_0);
       Vector3 shadowPosition = shadowGroup_0.ShadowSource.ShadowPosition;
@@ -679,7 +628,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         ++this.class57_0.lightingSystemStatistic_12.AccumulationValue;
         if (ishadowMap_0.IsSurfaceVisible(surface1, this.SceneState.ViewFrustum))
         {
-          ishadowMap_0.BeginSurfaceRendering(surface1, (Effect) this.deferredObjectEffect_0);
+          ishadowMap_0.BeginSurfaceRendering(surface1, this.deferredObjectEffect_0);
           this.dictionary_0.Clear();
           foreach (RenderableMesh renderableMesh in this.list_8)
           {
@@ -702,11 +651,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           {
             if (class63.HasRenderableObjects)
             {
-              ISkinnedEffect skinnedEffect = (ISkinnedEffect) null;
+              ISkinnedEffect skinnedEffect = null;
               if (!class63.CustomShadowGeneration)
               {
-                EffectHelper.SyncObjectAndShadowEffects(class63.Effect, (Effect) this.deferredObjectEffect_0);
-                skinnedEffect = (ISkinnedEffect) this.deferredObjectEffect_0;
+                EffectHelper.SyncObjectAndShadowEffects(class63.Effect, this.deferredObjectEffect_0);
+                skinnedEffect = this.deferredObjectEffect_0;
               }
               else if (class63.Effect is IRenderableEffect && class63.Effect is IShadowGenerateEffect)
               {
@@ -744,7 +693,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           }
           if (iavatarManager_0 != null)
           {
-            iavatarManager_0.RenderToShadowMapSurface(shadowGroup_0, surface2, (Effect) this.deferredObjectEffect_0);
+            iavatarManager_0.RenderToShadowMapSurface(shadowGroup_0, surface2, this.deferredObjectEffect_0);
             this.class67_0.method_0();
             this.class65_0.method_0();
           }

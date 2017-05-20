@@ -4,12 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework.Graphics;
-using ns3;
-using ns9;
-using SynapseGaming.LightingSystem.Core;
 using System;
-using Buffer = ns9.Buffer;
+using Microsoft.Xna.Framework.Graphics;
+using SynapseGaming.LightingSystem.Core;
+using MeshBuffer = ns9.MeshBuffer;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -19,7 +17,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     public class SpriteManager : IManagerService
     {
         private readonly TrackingPool<RenderableMesh> MeshPool = new TrackingPool<RenderableMesh>();
-        private DisposablePool<Buffer> DisposablePool0 = new DisposablePool<Buffer>();
+        private DisposablePool<MeshBuffer> DisposablePool0 = new DisposablePool<MeshBuffer>();
         private IGraphicsDeviceService igraphicsDeviceService_0;
         private static readonly Type ThisType = typeof(SpriteManager);
 

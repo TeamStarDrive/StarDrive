@@ -113,7 +113,7 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			if (HelperFunctions.CheckIntersection(this.RootRect, input.CursorPosition))
+			if (this.RootRect.HitTest(input.CursorPosition))
 			{
 				if (this.nodeState != NodeState.Press)
 				{

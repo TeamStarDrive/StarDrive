@@ -4,6 +4,8 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
@@ -12,8 +14,6 @@ using ns7;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering.Deferred;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Lights
 {
@@ -24,27 +24,19 @@ namespace SynapseGaming.LightingSystem.Lights
   /// </summary>
   public class LightManager : BaseLightManager, IQuery<ILight>, ISubmit<ILight>, ISubmit<ILightRig>, IUnloadable, IManager, IRenderableManager, IWorldRenderableManager, IManagerService, ILightQuery, ILightManager
   {
-    private int int_2 = 30;
-    private int int_3 = 8;
+      private int int_3 = 8;
     private List<ILightRig> list_2 = new List<ILightRig>(16);
     private List<ILight> list_3 = new List<ILight>(64);
     private Class45 class45_0;
     private Class54 class54_0;
-    private IGraphicsDeviceService igraphicsDeviceService_0;
 
-    /// <summary>
+      /// <summary>
     /// Gets the manager specific Type used as a unique key for storing and
     /// requesting the manager from the IManagerServiceProvider.
     /// </summary>
-    public Type ManagerType
-    {
-      get
-      {
-        return SceneInterface.LightManagerType;
-      }
-    }
+    public Type ManagerType => SceneInterface.LightManagerType;
 
-    /// <summary>
+      /// <summary>
     /// Sets the order this manager is processed relative to other managers
     /// in the IManagerServiceProvider. Managers with lower processing order
     /// values are processed first.
@@ -54,41 +46,22 @@ namespace SynapseGaming.LightingSystem.Lights
     /// EndFrameRendering is processed in reverse order (highest to lowest) to ensure
     /// the first manager begun is the last one ended (FILO).
     /// </summary>
-    public int ManagerProcessOrder
-    {
-      get
-      {
-        return this.int_2;
-      }
-      set
-      {
-        this.int_2 = value;
-      }
-    }
+    public int ManagerProcessOrder { get; set; } = 30;
 
-    /// <summary>
+      /// <summary>
     /// The current GraphicsDeviceManager used by this object.
     /// </summary>
-    public IGraphicsDeviceService GraphicsDeviceManager
-    {
-      get
-      {
-        return this.igraphicsDeviceService_0;
-      }
-    }
+    public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-    /// <summary>
+      /// <summary>
     /// Number of geometry layers (slices) used to construct volume lights. Increasing
     /// the number of slices improves volume lighting quality, decreasing the number of
     /// slices improves performance.
     /// </summary>
     public int VolumeLightSliceCount
     {
-      get
-      {
-        return this.int_3;
-      }
-      set
+      get => this.int_3;
+          set
       {
         this.int_3 = value;
         this.method_1();
@@ -105,14 +78,14 @@ namespace SynapseGaming.LightingSystem.Lights
     public LightManager(IGraphicsDeviceService graphicsdevicemanager, BoundingBox worldboundingbox, int worldtreemaxdepth)
       : base(worldboundingbox, worldtreemaxdepth)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
     }
 
     /// <summary>Creates a new LightManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     public LightManager(IGraphicsDeviceService graphicsdevicemanager)
     {
-      this.igraphicsDeviceService_0 = graphicsdevicemanager;
+      this.GraphicsDeviceManager = graphicsdevicemanager;
     }
 
     /// <summary>
@@ -126,8 +99,8 @@ namespace SynapseGaming.LightingSystem.Lights
 
     private void method_1()
     {
-      Disposable.Free<Class45>(ref this.class45_0);
-      Disposable.Free<Class54>(ref this.class54_0);
+      Disposable.Free(ref this.class45_0);
+      Disposable.Free(ref this.class54_0);
     }
 
     /// <summary>Renders volume lighting for the contained lights.</summary>
@@ -152,10 +125,10 @@ namespace SynapseGaming.LightingSystem.Lights
       this.class45_0.View = this.SceneState.View;
       this.class45_0.Projection = this.SceneState.Projection;
       this.class45_0.method_3(this.SceneState.ProjectionToView);
-      RenderTarget2D renderTarget2D = (RenderTarget2D) null;
+      RenderTarget2D renderTarget2D = null;
       if (deferredbuffers != null)
         renderTarget2D = deferredbuffers.GetDeferredBuffer(DeferredBufferType.DepthAndSpecularPower);
-      this.class45_0.SceneDepthMap = renderTarget2D == null ? (Texture2D) null : renderTarget2D.GetTexture();
+      this.class45_0.SceneDepthMap = renderTarget2D == null ? null : renderTarget2D.GetTexture();
       this.class45_0.Begin();
       this.class45_0.CurrentTechnique.Passes[0].Begin();
       this.list_3.Clear();
@@ -165,10 +138,10 @@ namespace SynapseGaming.LightingSystem.Lights
         if (light is ISpotSource)
         {
           ISpotSource spotSource = light as ISpotSource;
-          if ((double) spotSource.Volume > 0.0)
+          if (spotSource.Volume > 0.0)
           {
             this.class45_0.World = light.World;
-            this.class45_0.Color = light.CompositeColorAndIntensity / (float) this.int_3 * spotSource.Volume;
+            this.class45_0.Color = light.CompositeColorAndIntensity / this.int_3 * spotSource.Volume;
             this.class45_0.method_2(spotSource.Angle, spotSource.Radius);
             this.class45_0.CommitChanges();
             graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, this.class54_0.PrimitiveCount);
@@ -198,15 +171,15 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <param name="shadowsecondarybias">Additional fine-tuned property used to eliminate shadow artifacts.</param>
     public void SubmitStaticDirectionalLight(Vector3 diffusecolor, Vector3 direction, float intensity, ShadowType shadowtype, float shadowquality, float shadowprimarybias, float shadowsecondarybias)
     {
-      this.Submit((ILight) new DirectionalLight()
+      this.Submit(new DirectionalLight
       {
-        DiffuseColor = diffusecolor,
-        Intensity = intensity,
-        Direction = direction,
-        ShadowType = shadowtype,
-        ShadowQuality = shadowquality,
-        ShadowPrimaryBias = shadowprimarybias,
-        ShadowSecondaryBias = shadowsecondarybias
+          DiffuseColor = diffusecolor,
+          Intensity = intensity,
+          Direction = direction,
+          ShadowType = shadowtype,
+          ShadowQuality = shadowquality,
+          ShadowPrimaryBias = shadowprimarybias,
+          ShadowSecondaryBias = shadowsecondarybias
       });
     }
 
@@ -241,8 +214,8 @@ namespace SynapseGaming.LightingSystem.Lights
       pointLight.ShadowQuality = shadowquality;
       pointLight.ShadowPrimaryBias = shadowprimarybias;
       pointLight.ShadowSecondaryBias = shadowsecondarybias;
-      pointLight.ShadowSource = shadowsource == null ? (IShadowSource) pointLight : shadowsource;
-      this.Submit((ILight) pointLight);
+      pointLight.ShadowSource = shadowsource == null ? pointLight : shadowsource;
+      this.Submit(pointLight);
     }
 
     /// <summary>
@@ -280,8 +253,8 @@ namespace SynapseGaming.LightingSystem.Lights
       spotLight.ShadowQuality = shadowquality;
       spotLight.ShadowPrimaryBias = shadowprimarybias;
       spotLight.ShadowSecondaryBias = shadowsecondarybias;
-      spotLight.ShadowSource = shadowsource == null ? (IShadowSource) spotLight : shadowsource;
-      this.Submit((ILight) spotLight);
+      spotLight.ShadowSource = shadowsource == null ? spotLight : shadowsource;
+      this.Submit(spotLight);
     }
 
     /// <summary>
@@ -292,10 +265,10 @@ namespace SynapseGaming.LightingSystem.Lights
     /// <param name="intensity">Intensity of the light.</param>
     public void SubmitStaticAmbientLight(Vector3 diffusecolor, float intensity)
     {
-      this.Submit((ILight) new AmbientLight()
+      this.Submit(new AmbientLight
       {
-        DiffuseColor = diffusecolor,
-        Intensity = intensity
+          DiffuseColor = diffusecolor,
+          Intensity = intensity
       });
     }
 

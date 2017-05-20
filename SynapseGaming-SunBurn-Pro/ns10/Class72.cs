@@ -4,37 +4,31 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace ns10
 {
   internal class Class72 : IDisposable
   {
-    private static List<Class72.Struct2> list_2 = new List<Class72.Struct2>();
+    private static List<Struct2> list_2 = new List<Struct2>();
     private Class18<int, Rectangle> class18_0 = new Class18<int, Rectangle>(128U);
     private Rectangle[] rectangle_0 = new Rectangle[2];
     private List<Rectangle> list_0 = new List<Rectangle>(8);
     private List<Rectangle> list_1 = new List<Rectangle>(8);
-    private Class72.Class73 class73_0 = new Class72.Class73();
+    private Class73 class73_0 = new Class73();
     private RenderTarget2D renderTarget2D_0;
     private int int_0;
     private int int_1;
 
-    public RenderTarget2D RenderTarget
-    {
-      get
-      {
-        return this.renderTarget2D_0;
-      }
-    }
+    public RenderTarget2D RenderTarget => this.renderTarget2D_0;
 
-    public Class72(GraphicsDevice device, int size, SurfaceFormat format)
+      public Class72(GraphicsDevice device, int size, SurfaceFormat format)
     {
       this.renderTarget2D_0 = new RenderTarget2D(device, size, size, 1, format, LightingSystemManager.Instance.GetBestRenderTargetUsage());
       int num = size / 2;
@@ -57,7 +51,7 @@ namespace ns10
     public void Dispose()
     {
       this.method_0();
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_0);
+      Disposable.Free(ref this.renderTarget2D_0);
     }
 
     public bool method_1()
@@ -157,17 +151,17 @@ namespace ns10
 
     public bool method_9(List<Rectangle> list_3)
     {
-      Class72.list_2.Clear();
+      list_2.Clear();
       for (int index = 0; index < list_3.Count; ++index)
-        Class72.list_2.Add(new Class72.Struct2()
+        list_2.Add(new Struct2
         {
           int_0 = index,
           rectangle_0 = list_3[index]
         });
-      Class72.list_2.Sort((IComparer<Class72.Struct2>) this.class73_0);
-      for (int index = 0; index < Class72.list_2.Count; ++index)
+      list_2.Sort(this.class73_0);
+      for (int index = 0; index < list_2.Count; ++index)
       {
-        Class72.Struct2 struct2 = Class72.list_2[index];
+        Struct2 struct2 = list_2[index];
         if (this.method_8(struct2.rectangle_0.Height, ref struct2.rectangle_0))
         {
           list_3[struct2.int_0] = struct2.rectangle_0;
@@ -182,9 +176,9 @@ namespace ns10
       return true;
     }
 
-    private class Class73 : IComparer<Class72.Struct2>
+    private class Class73 : IComparer<Struct2>
     {
-      public int Compare(Class72.Struct2 struct2_0, Class72.Struct2 struct2_1)
+      public int Compare(Struct2 struct2_0, Struct2 struct2_1)
       {
         return struct2_1.rectangle_0.Height - struct2_0.rectangle_0.Height;
       }

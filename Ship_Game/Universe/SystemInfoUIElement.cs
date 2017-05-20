@@ -88,7 +88,7 @@ namespace Ship_Game
                 pRadius = 5f;
             }
             Rectangle rectangle = new Rectangle((int)pPos.X - (int)pRadius, (int)pPos.Y - (int)pRadius, (int)pRadius * 2, (int)pRadius * 2);
-            Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, pPos, pRadius, Color.White);
+            this.ScreenManager.SpriteBatch.BracketRectangle(pPos, pRadius, Color.White);
             float count = 0.4f / (float)this.s.PlanetList.Count;
             if (this.SelectionTimer > 0.4f)
             {
@@ -113,7 +113,7 @@ namespace Ship_Game
                     planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
                     float fIconScale = 1.0f + ((float)(Math.Log(this.s.PlanetList[i].scale)));
                     Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));
-                    if (HelperFunctions.CheckIntersection(PlanetRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                    if (PlanetRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                     {
                         this.Hovering = true;
                         int widthplus = (int)(4f * (this.HoverTimer / 0.2f));
@@ -129,7 +129,7 @@ namespace Ship_Game
             
                     if (this.screen.SelectedPlanet == this.s.PlanetList[i])
                     {
-                        Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, PlanetRect, (this.s.PlanetList[i].Owner != null ? this.s.PlanetList[i].Owner.EmpireColor : Color.Gray), 3);
+                        ScreenManager.SpriteBatch.BracketRectangle(PlanetRect, (this.s.PlanetList[i].Owner != null ? this.s.PlanetList[i].Owner.EmpireColor : Color.Gray), 3);
                     }
                     Planet p = this.s.PlanetList[i];
                     this.PlanetTypeCursor = new Vector2((float)(PlanetRect.X + PlanetRect.Width / 2) - SystemInfoUIElement.SysFont.MeasureString(p.Name).X / 2f, (float)(PlanetRect.Y + PlanetRect.Height + 4));
@@ -202,7 +202,7 @@ namespace Ship_Game
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_anomaly_small"], flashRect, flashColor);
-                            if (HelperFunctions.CheckIntersection(flashRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                            if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121, this.ScreenManager);
                             }
@@ -218,7 +218,7 @@ namespace Ship_Game
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/marketIcon"], flashRect, flashColor);
-                            if (HelperFunctions.CheckIntersection(flashRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                            if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121, this.ScreenManager);
                             }
@@ -234,7 +234,7 @@ namespace Ship_Game
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], flashRect, flashColor);
-                            if (HelperFunctions.CheckIntersection(flashRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                            if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121, this.ScreenManager);
                             }
@@ -320,7 +320,7 @@ namespace Ship_Game
                             }
                             Rectangle Flag = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 6, PlanetRect.Y - 17, 13, 17);
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], Flag, EmpireManager.Player.EmpireColor);
-                            if (!HelperFunctions.CheckIntersection(Flag, MousePos))
+                            if (!Flag.HitTest(MousePos))
                             {
                                 continue;
                             }
@@ -351,7 +351,7 @@ namespace Ship_Game
                 return false;
             foreach (SystemInfoUIElement.ClickMe clickMe in this.ClickList)
             {
-                if (HelperFunctions.CheckIntersection(clickMe.r, input.CursorPosition) && input.InGameSelect)
+                if (clickMe.r.HitTest(input.CursorPosition) && input.InGameSelect)
                 {
                     if ((double)this.ClickTimer < (double)this.TimerDelay)
                     {
@@ -370,7 +370,7 @@ namespace Ship_Game
                     }
                 }
             }
-            return HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition);
+            return this.ElementRect.HitTest(input.CursorPosition);
         }
 
         public void SetSystem(SolarSystem s)

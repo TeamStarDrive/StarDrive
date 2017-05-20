@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns10;
 using ns11;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -19,17 +19,14 @@ namespace SynapseGaming.LightingSystem.Shadows
   /// </summary>
   public class ShadowMapCache
   {
-    private ShadowMapCache.Class74[] class74_0 = new ShadowMapCache.Class74[4]{ new ShadowMapCache.Class74(SurfaceFormat.Single, 4), new ShadowMapCache.Class74(SurfaceFormat.HalfSingle, 2), new ShadowMapCache.Class74(SurfaceFormat.HalfVector2, 4), new ShadowMapCache.Class74(SurfaceFormat.Single, 4) };
+    private Class74[] class74_0 = new Class74[4]{ new Class74(SurfaceFormat.Single, 4), new Class74(SurfaceFormat.HalfSingle, 2), new Class74(SurfaceFormat.HalfVector2, 4), new Class74(SurfaceFormat.Single, 4) };
     private DepthFormat[] depthFormat_0 = new DepthFormat[2]{ DepthFormat.Depth24Stencil8, DepthFormat.Depth24Stencil4 };
     private SurfaceFormat surfaceFormat_0 = SurfaceFormat.Unknown;
-    private int int_2 = 2048;
-    private bool bool_0 = true;
-    private List<Class72> list_0 = new List<Class72>(8);
-    internal ShadowMapCache.Class75 class75_0 = new ShadowMapCache.Class75();
+      private List<Class72> list_0 = new List<Class72>(8);
+    internal Class75 class75_0 = new Class75();
     private int int_0;
     private int int_1;
-    private int int_3;
-    private DepthStencilBuffer depthStencilBuffer_0;
+      private DepthStencilBuffer depthStencilBuffer_0;
     private IGraphicsDeviceService igraphicsDeviceService_0;
 
     /// <summary>
@@ -42,7 +39,7 @@ namespace SynapseGaming.LightingSystem.Shadows
         if (this.depthStencilBuffer_0 == null)
         {
           this.method_0();
-          this.depthStencilBuffer_0 = new DepthStencilBuffer(this.igraphicsDeviceService_0.GraphicsDevice, this.int_2, this.int_2, LightingSystemManager.Instance.GetGraphicsDeviceSupport(this.igraphicsDeviceService_0.GraphicsDevice).FindSupportedFormat(this.depthFormat_0, this.surfaceFormat_0));
+          this.depthStencilBuffer_0 = new DepthStencilBuffer(this.igraphicsDeviceService_0.GraphicsDevice, this.PageSize, this.PageSize, LightingSystemManager.Instance.GetGraphicsDeviceSupport(this.igraphicsDeviceService_0.GraphicsDevice).FindSupportedFormat(this.depthFormat_0, this.surfaceFormat_0));
         }
         return this.depthStencilBuffer_0;
       }
@@ -52,42 +49,24 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// Maximum amount of memory the cache is allowed to consume. This is an
     /// approximate value and the cache may use more memory in certain instances.
     /// </summary>
-    public int MaxMemoryUsage
-    {
-      get
-      {
-        return this.int_3;
-      }
-    }
+    public int MaxMemoryUsage { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// True when smaller half-float format render targets are preferred. These
     /// formats consume less memory and generally perform better, but have lower
     /// accuracy on directional lights.
     /// </summary>
-    public bool PreferHalfFloatTextureFormat
-    {
-      get
-      {
-        return this.bool_0;
-      }
-    }
+    public bool PreferHalfFloatTextureFormat { get; private set; } = true;
 
-    /// <summary>
+      /// <summary>
     /// Size in pixels of each render target (page) in the cache. For a size of 1024
     /// the actual page dimensions are 1024x1024. Small sizes can reduce performance by
     /// fragmenting the shadow maps, and reduce shadow quality by lowering the maximum
     /// resolution of each shadow map section.
     /// </summary>
-    public int PageSize
-    {
-      get
-      {
-        return this.int_2;
-      }
-    }
+    public int PageSize { get; private set; } = 2048;
 
-    /// <summary>Creates a new ShadowMapCache instance.</summary>
+      /// <summary>Creates a new ShadowMapCache instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
     /// <param name="pagesize">Size in pixels of each render target (page) in the cache.
     /// For a size of 1024 the actual page dimensions are 1024x1024. Small sizes can reduce
@@ -117,9 +96,9 @@ namespace SynapseGaming.LightingSystem.Shadows
     public void Resize(int pagesize, int maxmemoryusage, bool preferhalffloat)
     {
       this.Unload();
-      this.int_2 = pagesize;
-      this.int_3 = maxmemoryusage;
-      this.bool_0 = preferhalffloat;
+      this.PageSize = pagesize;
+      this.MaxMemoryUsage = maxmemoryusage;
+      this.PreferHalfFloatTextureFormat = preferhalffloat;
       this.int_1 = 0;
     }
 
@@ -129,16 +108,16 @@ namespace SynapseGaming.LightingSystem.Shadows
         return;
       GraphicsDeviceSupport graphicsDeviceSupport = LightingSystemManager.Instance.GetGraphicsDeviceSupport(this.igraphicsDeviceService_0.GraphicsDevice);
       int num = 0;
-      if (this.bool_0)
+      if (this.PreferHalfFloatTextureFormat)
         num = 1;
       for (int index = num; index < this.class74_0.Length; ++index)
       {
-        ShadowMapCache.Class74 class74 = this.class74_0[index];
+        Class74 class74 = this.class74_0[index];
         if (graphicsDeviceSupport.SurfaceFormat[class74.surfaceFormat_0].RenderTarget)
         {
           this.surfaceFormat_0 = class74.surfaceFormat_0;
           this.int_0 = class74.int_0;
-          this.int_1 = this.int_2 * this.int_2 * this.int_0;
+          this.int_1 = this.PageSize * this.PageSize * this.int_0;
           break;
         }
       }
@@ -159,14 +138,14 @@ namespace SynapseGaming.LightingSystem.Shadows
       int num = 0;
       foreach (Rectangle sectionsiz in sectionsizes)
         num += sectionsiz.Width * sectionsiz.Height;
-      if (num > this.int_2 * this.int_2)
-        return (RenderTarget2D) null;
+      if (num > this.PageSize * this.PageSize)
+        return null;
       foreach (Class72 class72 in this.list_0)
       {
         if (!class72.method_9(sectionsizes))
         {
           if (class72.method_1())
-            return (RenderTarget2D) null;
+            return null;
         }
         else
         {
@@ -174,12 +153,12 @@ namespace SynapseGaming.LightingSystem.Shadows
           return class72.RenderTarget;
         }
       }
-      if (this.list_0.Count > 0 && (this.list_0.Count + 1) * this.int_1 > this.int_3)
-        return (RenderTarget2D) null;
-      Class72 class72_1 = new Class72(this.igraphicsDeviceService_0.GraphicsDevice, this.int_2, this.surfaceFormat_0);
+      if (this.list_0.Count > 0 && (this.list_0.Count + 1) * this.int_1 > this.MaxMemoryUsage)
+        return null;
+      Class72 class72_1 = new Class72(this.igraphicsDeviceService_0.GraphicsDevice, this.PageSize, this.surfaceFormat_0);
       this.list_0.Add(class72_1);
       if (!class72_1.method_9(sectionsizes))
-        return (RenderTarget2D) null;
+        return null;
       this.method_2(sectionsizes);
       return class72_1.RenderTarget;
     }
@@ -194,7 +173,7 @@ namespace SynapseGaming.LightingSystem.Shadows
         if (!class72.method_1())
           ++num;
       }
-      return (float) num / (float) this.list_0.Count;
+      return num / (float) this.list_0.Count;
     }
 
     private void method_2(List<Rectangle> list_1)
@@ -229,7 +208,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public void Unload()
     {
-      Disposable.Free<DepthStencilBuffer>(ref this.depthStencilBuffer_0);
+      Disposable.Free(ref this.depthStencilBuffer_0);
       foreach (Class72 class72 in this.list_0)
         class72.Dispose();
       this.list_0.Clear();

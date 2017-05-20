@@ -62,7 +62,7 @@ namespace Ship_Game
 
 		public void Draw(Color bgcolor)
 		{
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), bgcolor);
+			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), bgcolor);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
 			foreach (Rectangle r in this.RepeatTops)
@@ -79,7 +79,7 @@ namespace Ship_Game
 
 		public void Draw()
 		{
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), new Color(0, 0, 0, 240));
+			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), new Color(0, 0, 0, 240));
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
 			foreach (Rectangle r in this.RepeatTops)
@@ -96,10 +96,10 @@ namespace Ship_Game
 
 		public void DrawHollow()
 		{
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(0, 0, this.Menu.Width, 10), Color.Black);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(0, 0, 10, this.Menu.Height), Color.Black);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(0, this.Menu.Height - 10, this.Menu.Width, 10), Color.Black);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(this.Menu.Width - 10, 0, 10, this.Menu.Height), Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, this.Menu.Width, 10), Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, 10, this.Menu.Height), Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, this.Menu.Height - 10, this.Menu.Width, 10), Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(this.Menu.Width - 10, 0, 10, this.Menu.Height), Color.Black);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
 			foreach (Rectangle r in this.RepeatTops)

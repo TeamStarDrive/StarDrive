@@ -150,7 +150,7 @@ namespace Ship_Game
             {
                 if (VideoPlayer.State == MediaState.Paused)
                 {
-                    if (!HelperFunctions.CheckIntersection(SmallViewer, input.CursorPosition))
+                    if (!SmallViewer.HitTest(input.CursorPosition))
                     {
                         HoverSmallVideo = false;
                     }
@@ -167,7 +167,7 @@ namespace Ship_Game
                 else if (VideoPlayer.State == MediaState.Playing)
                 {
                     HoverSmallVideo = false;
-                    if (HelperFunctions.CheckIntersection(BigViewer, input.CursorPosition) && input.InGameSelect)
+                    if (BigViewer.HitTest(input.CursorPosition) && input.InGameSelect)
                     {
                         VideoPlayer.Pause();
                         GameAudio.ResumeGenericMusic();
@@ -179,7 +179,7 @@ namespace Ship_Game
                 ScrollList.Entry e = HelpCategories.Copied[i];
                 if (e.item is ModuleHeader)                
                     ((ModuleHeader) e.item).HandleInput(input, e);
-                else if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))                
+                else if (!e.clickRect.HitTest(input.CursorPosition))                
                     e.clickRectHover = 0;                
                 else
                 {

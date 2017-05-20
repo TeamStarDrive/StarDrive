@@ -71,13 +71,11 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class31.cs" />
     <Compile Include="Class32.cs" />
-    <Compile Include="Class33.cs" />
     <Compile Include="Class34.cs" />
     <Compile Include="Class35.cs" />
     <Compile Include="Class36.cs" />
-    <Compile Include="Class55.cs" />
+    <Compile Include="BlockUtil.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\FullFrameQuad.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\TransparencyMode.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\ObjectType.cs" />
@@ -268,7 +266,7 @@
     <Compile Include="ns6\Interface1.cs" />
     <Compile Include="ns6\Interface2.cs" />
     <Compile Include="ns6\Interface3.cs" />
-    <Compile Include="ns6\Class48.cs" />
+    <Compile Include="ns6\TechniquNames.cs" />
     <Compile Include="ns6\Class39.cs" />
     <Compile Include="ns6\Class40.cs" />
     <Compile Include="ns6\Class41.cs" />
@@ -285,15 +283,13 @@
     <Compile Include="ns8\Class58.cs" />
     <Compile Include="ns8\Class59.cs" />
     <Compile Include="ns9\Enum7.cs" />
-    <Compile Include="ns9\Enum8.cs" />
     <Compile Include="ns9\Class61.cs" />
     <Compile Include="ns9\Class62.cs" />
     <Compile Include="ns9\Class63.cs" />
     <Compile Include="ns9\Class64.cs" />
     <Compile Include="ns9\Class65.cs" />
     <Compile Include="ns9\Class67.cs" />
-    <Compile Include="ns9\Struct1.cs" />
-    <Compile Include="ns9\Buffer.cs" />
+    <Compile Include="ns9\MeshBuffer.cs" />
     <Compile Include="ns9\Class70.cs" />
     <Compile Include="ns10\Class71.cs" />
     <Compile Include="ns10\Class72.cs" />

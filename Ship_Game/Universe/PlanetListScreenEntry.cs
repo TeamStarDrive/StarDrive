@@ -132,7 +132,7 @@ namespace Ship_Game
                 Color flashColor = new Color(255, 255, 255, (byte)f);
                 Rectangle flashRect = new Rectangle(this.SysNameRect.X + this.SysNameRect.Width - 40, this.SysNameRect.Y + 5, ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Width, ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/EnemyHere"], flashRect, flashColor);
-                if (HelperFunctions.CheckIntersection(flashRect, MousePos))
+                if (flashRect.HitTest(MousePos))
                 {
                     ToolTip.CreateTooltip(123, ScreenManager);
                 }
@@ -151,7 +151,7 @@ namespace Ship_Game
             {
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X - 18, (int)StatusIcons.Y, 16, 16);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], statusRect, Color.White);
-                if (HelperFunctions.CheckIntersection(statusRect, MousePos))
+                if (statusRect.HitTest(MousePos))
                 {
                     ToolTip.CreateTooltip(119, ScreenManager);
                 }
@@ -169,7 +169,7 @@ namespace Ship_Game
                     Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy_small"], statusRect, Color.White);
                     //i++;
-                    if (!HelperFunctions.CheckIntersection(statusRect, MousePos))
+                    if (!statusRect.HitTest(MousePos))
                     {
                         break;
                     }
@@ -188,7 +188,7 @@ namespace Ship_Game
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + b.Icon + "_48x48"], statusRect, Color.White);
                 i++;
-                if (!HelperFunctions.CheckIntersection(statusRect, MousePos))
+                if (!statusRect.HitTest(MousePos))
                 {
                     continue;
                     //break; 
@@ -210,7 +210,7 @@ namespace Ship_Game
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + b.Icon + "_48x48"], statusRect, Color.White);
                 i++;
-                if (!HelperFunctions.CheckIntersection(statusRect, MousePos))
+                if (!statusRect.HitTest(MousePos))
                 {
                     continue;
                     //break;
@@ -238,7 +238,7 @@ namespace Ship_Game
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], statusRect, new Color(255, 255, 255, 255));//Color..White);
                 //i++;
-                if (HelperFunctions.CheckIntersection(statusRect, MousePos))
+                if (statusRect.HitTest(MousePos))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(336) + ": " + troops.ToString(), ScreenManager);
                 }
@@ -331,7 +331,7 @@ namespace Ship_Game
 
 		public void HandleInput(InputState input)
 		{
-            if (!HelperFunctions.CheckIntersection(this.SendTroops.Rect, input.CursorPosition))
+            if (!this.SendTroops.Rect.HitTest(input.CursorPosition))
             {
                 this.SendTroops.State = UIButton.PressState.Default;              
             }
@@ -377,7 +377,7 @@ namespace Ship_Game
                         }
                 }
             }
-            if (!HelperFunctions.CheckIntersection(this.Colonize.Rect, input.CursorPosition))
+            if (!this.Colonize.Rect.HitTest(input.CursorPosition))
 			{
 				this.Colonize.State = UIButton.PressState.Default;
 			}

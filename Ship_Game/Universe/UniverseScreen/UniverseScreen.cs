@@ -130,7 +130,6 @@ namespace Ship_Game
         public Model xnaPlanetModel;
         public Texture2D RingTexture;
         public AudioListener Listener;
-        public Effect ThrusterEffect;
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
         public bool snappingToShip;
@@ -614,7 +613,6 @@ namespace Ship_Game
             AtmoEffect                      = content.Load<Effect>("Effects/PlanetHalo");
             cloudTex                        = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
             RingTexture                     = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
-            ThrusterEffect                  = content.Load<Effect>("Effects/Thrust");
             SunModel                        = content.Load<Model>("Model/SpaceObjects/star_plane");
             NebModel                        = content.Load<Model>("Model/SpaceObjects/star_plane");
             FTLManager.LoadContent(content);

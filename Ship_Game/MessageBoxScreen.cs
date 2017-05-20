@@ -134,8 +134,8 @@ namespace Ship_Game
 				Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) + 15);
 				Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(this.message).X / 2f, (float)(r.Y + 10));
 				base.ScreenManager.SpriteBatch.Begin();
-				Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, Color.Black);
-				Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, r, Color.Orange);
+				base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
+				base.ScreenManager.SpriteBatch.DrawRectangle(r, Color.Orange);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.message, this.toappend), textPosition, Color.White);
 				this.OK.Rect.X = r.X + r.Width / 2 + 5;
 				this.OK.Rect.Y = r.Y + r.Height - 28;
@@ -153,8 +153,8 @@ namespace Ship_Game
 			Rectangle r2 = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) + 15);
 			Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(this.message).X / 2f, (float)(r2.Y + 10));
 			base.ScreenManager.SpriteBatch.Begin();
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r2, Color.Black);
-			Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, r2, Color.Orange);
+			base.ScreenManager.SpriteBatch.FillRectangle(r2, Color.Black);
+			base.ScreenManager.SpriteBatch.DrawRectangle(r2, Color.Orange);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.message, textPosition2, Color.White);
 			this.OK.Rect.X = r2.X + r2.Width / 2 + 5;
 			this.OK.Rect.Y = r2.Y + r2.Height - 28;
@@ -189,7 +189,7 @@ namespace Ship_Game
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!b.Rect.HitTest(MousePos))
 				{
 					b.State = UIButton.PressState.Default;
 				}

@@ -368,7 +368,7 @@ namespace Ship_Game
 			{
 				foreach (ToggleButton button in this.CombatStatusButtons)
 				{
-					if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+					if (!button.r.HitTest(input.CursorPosition))
 					{
 						button.Hover = false;
 					}
@@ -617,7 +617,7 @@ namespace Ship_Game
 				{
 					foreach (SkinnableButton button in (this.SelectedShipsSL.Entries[i].item as SelectedShipEntry).ShipButtons)
 					{
-						if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+						if (!button.r.HitTest(input.CursorPosition))
 						{
 							button.Hover = false;
 						}
@@ -672,13 +672,13 @@ namespace Ship_Game
 			}
 			foreach (ShipListInfoUIElement.TippedItem ti in this.ToolTipItems)
 			{
-				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
+				if (!ti.r.HitTest(input.CursorPosition))
 				{
 					continue;
 				}
 				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
 			}
-			if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition))
+			if (this.ElementRect.HitTest(input.CursorPosition))
 			{
 				return true;
 			}

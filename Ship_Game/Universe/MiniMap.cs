@@ -78,11 +78,11 @@ namespace Ship_Game
 				Rectangle star = new Rectangle((int)(minimapZero.X + system.Position.X * scale), (int)(minimapZero.Y + system.Position.Y * scale), 2, 2);
 				if (system.OwnerList.Count <= 0 || !system.ExploredDict[EmpireManager.Player])
 				{
-					Primitives2D.FillRectangle(screenManager.SpriteBatch, star, Color.Gray);
+					screenManager.SpriteBatch.FillRectangle(star, Color.Gray);
 				}
 				else
 				{
-                    Primitives2D.FillRectangle(screenManager.SpriteBatch, star, system.OwnerList.ToList()[0].EmpireColor);
+                    screenManager.SpriteBatch.FillRectangle(star, system.OwnerList.ToList()[0].EmpireColor);
 				}
 			}
 			Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
@@ -106,16 +106,16 @@ namespace Ship_Game
 			{
 				LookingAt.Y = this.ActualMap.Y;
 			}
-			Primitives2D.FillRectangle(screenManager.SpriteBatch, LookingAt, new Color(255, 255, 255, 30));
-			Primitives2D.DrawRectangle(screenManager.SpriteBatch, LookingAt, Color.White);
+			screenManager.SpriteBatch.FillRectangle(LookingAt, new Color(255, 255, 255, 30));
+			screenManager.SpriteBatch.DrawRectangle(LookingAt, Color.White);
 			Vector2 topMiddleView = new Vector2((float)(LookingAt.X + LookingAt.Width / 2), (float)LookingAt.Y);
 			Vector2 botMiddleView = new Vector2(topMiddleView.X - 1f, (float)(LookingAt.Y + LookingAt.Height));
 			Vector2 leftMiddleView = new Vector2((float)LookingAt.X, (float)(LookingAt.Y + LookingAt.Height / 2));
 			Vector2 rightMiddleView = new Vector2((float)(LookingAt.X + LookingAt.Width), leftMiddleView.Y + 1f);
-			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2(topMiddleView.X, minimapZero.Y - 100), topMiddleView, Color.White);
-			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2(botMiddleView.X, (float)(this.ActualMap.Y + this.ActualMap.Height)), botMiddleView, Color.White);
-			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2((float)this.ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
-			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2((float)(this.ActualMap.X + this.ActualMap.Width), rightMiddleView.Y), rightMiddleView, Color.White);
+			screenManager.SpriteBatch.DrawLine(new Vector2(topMiddleView.X, minimapZero.Y - 100), topMiddleView, Color.White);
+			screenManager.SpriteBatch.DrawLine(new Vector2(botMiddleView.X, (float)(this.ActualMap.Y + this.ActualMap.Height)), botMiddleView, Color.White);
+			screenManager.SpriteBatch.DrawLine(new Vector2((float)this.ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
+			screenManager.SpriteBatch.DrawLine(new Vector2((float)(this.ActualMap.X + this.ActualMap.Width), rightMiddleView.Y), rightMiddleView, Color.White);
 			//ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
             if (screen.showingFTLOverlay)
             {
@@ -164,7 +164,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input, UniverseScreen screen)
 		{
-			if (HelperFunctions.CheckIntersection(this.zIn.r, input.CursorPosition))
+			if (this.zIn.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(57, screen.ScreenManager, "Page Up");
 			}
@@ -178,7 +178,7 @@ namespace Ship_Game
 				screen.ViewingShip = true;
 				return true;
 			}
-			if (HelperFunctions.CheckIntersection(this.zOut.r, input.CursorPosition))
+			if (this.zOut.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(58, screen.ScreenManager, "Page Down");
 			}
@@ -192,7 +192,7 @@ namespace Ship_Game
 				screen.transitionDestination.Z = 4200000f * UniverseScreen.GameScaleStatic;
 				return true;
 			}
-			if (HelperFunctions.CheckIntersection(this.DSB.r, input.CursorPosition))
+			if (this.DSB.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(54, screen.ScreenManager, "B");
 			}
@@ -210,7 +210,7 @@ namespace Ship_Game
 				}
 				return true;
 			}
-			if (HelperFunctions.CheckIntersection(this.pList.r, input.CursorPosition))
+			if (this.pList.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(56, screen.ScreenManager);
 			}
@@ -220,7 +220,7 @@ namespace Ship_Game
                 screen.ScreenManager.AddScreen(new PlanetListScreen(screen, screen.EmpireUI));
                 return true;
 			}
-			if (HelperFunctions.CheckIntersection(this.sList.r, input.CursorPosition))
+			if (this.sList.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(223, screen.ScreenManager, "F1");
 			}
@@ -237,7 +237,7 @@ namespace Ship_Game
                 }
 				return true;
 			}
-			if (HelperFunctions.CheckIntersection(this.Fleets.r, input.CursorPosition))
+			if (this.Fleets.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(224, screen.ScreenManager, "F2");
 			}
@@ -255,7 +255,7 @@ namespace Ship_Game
 				//screen.ScreenManager.AddScreen(new FleetDesignScreen(screen.EmpireUI));
 				return true;
 			}
-			if (HelperFunctions.CheckIntersection(this.Auto.r, input.CursorPosition))
+			if (this.Auto.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(59, screen.ScreenManager, "H");
 			}

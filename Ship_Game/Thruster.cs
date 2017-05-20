@@ -21,6 +21,7 @@ namespace Ship_Game
 
 		public Vector3 WorldPos;
 
+        public Effect Effect;
 		public EffectTechnique technique;
 
 		public EffectParameter shader_matrices;
@@ -61,16 +62,13 @@ namespace Ship_Game
 
 		private Vector2 ThrusterCenter;
 
-		public Thruster()
-		{
-		}
 
-		public void draw(ref Matrix view, ref Matrix project, Effect effect)
+		public void Draw(ref Matrix view, ref Matrix project)
 		{
 			this.matrices_combined[0] = this.world_matrix;
 			this.matrices_combined[1] = (this.world_matrix * view) * project;
 			this.matrices_combined[2] = this.inverse_scale_transpose;
-			effect.CurrentTechnique = this.technique;
+			Effect.CurrentTechnique = this.technique;
 			this.shader_matrices.SetValue(this.matrices_combined);
 			this.v4colors[0] = this.colors[0].ToVector4();
 			this.v4colors[1] = this.colors[1].ToVector4();
@@ -83,33 +81,51 @@ namespace Ship_Game
 
 		public void InitializeForViewing()
 		{
-			Vector2 RelativeShipCenter = new Vector2(512f, 512f);
-			this.ThrusterCenter = new Vector2()
+			var relativeShipCenter = new Vector2(512f, 512f);
+			ThrusterCenter = new Vector2
 			{
-				X = this.XMLPos.X + 256f,
-				Y = this.XMLPos.Y + 256f
+				X = XMLPos.X + 256f,
+				Y = XMLPos.Y + 256f
 			};
-			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.ThrusterCenter.X - RelativeShipCenter.X) * (this.ThrusterCenter.X - RelativeShipCenter.X) + (this.ThrusterCenter.Y - RelativeShipCenter.Y) * (this.ThrusterCenter.Y - RelativeShipCenter.Y)));
-			this.offsetAngle = RelativeShipCenter.AngleToTarget(ThrusterCenter);
-			this.SetPosition();
+            distanceToParentCenter = ThrusterCenter.Distance(relativeShipCenter);
+			offsetAngle            = relativeShipCenter.AngleToTarget(ThrusterCenter);
+			SetPosition();
 		}
 
-		public void load_and_assign_effects(GameContentManager content, string filename, string noisefilename, Effect effect)
-		{
-		    load_and_assign_effects(content, content.Load<Model>(filename), content.Load<Texture3D>(noisefilename), effect);
-		}
+        private static Model DefaultModel;
+        private static Texture3D DefaultNoise;
+        private static Effect DefaultEffect;
 
-	    public void load_and_assign_effects(GameContentManager content, Model model, Texture3D noiseTexture, Effect effect)
+        private static void InitializeDefaultEffects(GameContentManager content)
+        {
+            lock (content)
+            {
+                if (DefaultModel != null)
+                    return;
+                DefaultModel  = content.Load<Model>("Effects/ThrustCylinderB");
+                DefaultNoise  = content.Load<Texture3D>("Effects/NoiseVolume");
+                DefaultEffect = content.Load<Effect>("Effects/Thrust");
+            }
+        }
+
+        public void LoadAndAssignDefaultEffects(GameContentManager content)
+        {
+            if (DefaultModel == null) InitializeDefaultEffects(content);
+            LoadAndAssignEffects(DefaultModel, DefaultNoise, DefaultEffect);
+        }
+
+	    private void LoadAndAssignEffects(Model thrustCylinder, Texture3D noiseTexture, Effect effect)
 	    {
-            this.model = model;
-            this.Noise = noiseTexture;
-            this.model.Meshes[0].MeshParts[0].Effect = effect;
-            this.technique = effect.Techniques["thrust_technique"];
-            this.shader_matrices = effect.Parameters["world_matrices"];
-            this.thrust_color = effect.Parameters["thrust_color"];
-            this.effect_tick = effect.Parameters["ticks"];
-            this.effect_noise = effect.Parameters["noise_texture"];
-            this.world_matrix = Matrix.Identity;
+            this.model = thrustCylinder;
+	        thrustCylinder.Meshes[0].MeshParts[0].Effect = effect;
+            Noise           = noiseTexture;
+            Effect          = effect;
+            technique       = effect.Techniques["thrust_technique"];
+            shader_matrices = effect.Parameters["world_matrices"];
+            thrust_color    = effect.Parameters["thrust_color"];
+            effect_tick     = effect.Parameters["ticks"];
+            effect_noise    = effect.Parameters["noise_texture"];
+            world_matrix    = Matrix.Identity;
         }
 
 
@@ -156,7 +172,7 @@ namespace Ship_Game
 			this.WorldPos = new Vector3(this.ThrusterCenter, zPos);
 		}
 
-		public void update(Vector3 Put_me_at, Vector3 Point_me_at, Vector3 Scale_factors, float thrustsize, float thrustspeed, Color color_at_exhaust, Color color_at_end, Vector3 camera_position)
+		public void Update(Vector3 Put_me_at, Vector3 Point_me_at, Vector3 Scale_factors, float thrustsize, float thrustspeed, Color color_at_exhaust, Color color_at_end, Vector3 camera_position)
 		{
 			this.heat = MathHelper.Clamp(thrustsize, 0f, 1f);
 			Thruster thruster = this;

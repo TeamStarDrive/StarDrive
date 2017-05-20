@@ -13,6 +13,6 @@ namespace SynapseGaming.LightingSystem.Shadows
   {
     None,
     StaticObjects,
-    AllObjects,
+    AllObjects
   }
 }

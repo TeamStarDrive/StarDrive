@@ -4,12 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Effects.Forward
 {
@@ -33,15 +33,9 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     private EffectParameter effectParameter_24;
 
     /// <summary>Maximum number of light sources the effect supports.</summary>
-    public int MaxLightSources
-    {
-      get
-      {
-        return 1;
-      }
-    }
+    public int MaxLightSources => 1;
 
-    /// <summary>
+      /// <summary>
     /// Light sources that apply lighting to the effect during rendering.
     /// </summary>
     public List<ILight> LightSources
@@ -74,7 +68,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     {
       if (this.effectParameter_22 == null || this.effectParameter_23 == null || (this.effectParameter_24 == null || this._LightSources == null))
         return;
-      if (this._LightSources.Count > LightingEffect.vector4_1.Length)
+      if (this._LightSources.Count > vector4_1.Length)
         throw new ArgumentException("Too many light sources provided for effect.");
       if (this._LightSources.Count != 1)
         throw new ArgumentException("LightingEffect only supports a single light per-pass at this time.");
@@ -82,31 +76,31 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
       {
         ILight lightSource = this._LightSources[index];
         Vector3 colorAndIntensity = lightSource.CompositeColorAndIntensity;
-        LightingEffect.vector4_1[index] = new Vector4(colorAndIntensity, 0.0f);
-        LightingEffect.vector4_3[index] = new Vector4();
+        vector4_1[index] = new Vector4(colorAndIntensity, 0.0f);
+        vector4_3[index] = new Vector4();
         if (lightSource is ISpotSource)
         {
           ISpotSource spotSource = lightSource as ISpotSource;
-          float w = (float) Math.Cos((double) MathHelper.ToRadians(MathHelper.Clamp(spotSource.Angle * 0.5f, 0.01f, 89.99f)));
-          float num = (float) (1.0 / (1.0 - (double) w));
-          LightingEffect.vector4_1[index].W = num;
-          LightingEffect.vector4_3[index] = new Vector4(spotSource.Direction, w);
-          LightingEffect.vector4_2[index] = new Vector4(spotSource.Position, spotSource.Radius);
+          float w = (float) Math.Cos(MathHelper.ToRadians(MathHelper.Clamp(spotSource.Angle * 0.5f, 0.01f, 89.99f)));
+          float num = (float) (1.0 / (1.0 - w));
+          vector4_1[index].W = num;
+          vector4_3[index] = new Vector4(spotSource.Direction, w);
+          vector4_2[index] = new Vector4(spotSource.Position, spotSource.Radius);
         }
         else if (lightSource is IPointSource)
         {
           IPointSource pointSource = lightSource as IPointSource;
-          LightingEffect.vector4_2[index] = new Vector4(pointSource.Position, pointSource.Radius);
+          vector4_2[index] = new Vector4(pointSource.Position, pointSource.Radius);
         }
         else if (lightSource is IShadowSource)
         {
           IShadowSource shadowSource = lightSource as IShadowSource;
-          LightingEffect.vector4_2[index] = new Vector4(shadowSource.ShadowPosition, 1E+09f);
+          vector4_2[index] = new Vector4(shadowSource.ShadowPosition, 1E+09f);
         }
       }
-      this.effectParameter_22.SetValue(LightingEffect.vector4_1);
-      this.effectParameter_23.SetValue(LightingEffect.vector4_2);
-      this.effectParameter_24.SetValue(LightingEffect.vector4_3);
+      this.effectParameter_22.SetValue(vector4_1);
+      this.effectParameter_23.SetValue(vector4_2);
+      this.effectParameter_24.SetValue(vector4_3);
       this.SetTechnique();
     }
 
@@ -117,7 +111,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <returns></returns>
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new LightingEffect(device);
+      return new LightingEffect(device);
     }
 
     private void method_6(GraphicsDevice graphicsDevice_0)

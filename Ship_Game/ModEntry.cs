@@ -55,7 +55,7 @@ namespace Ship_Game
             if (PortraitTex != null)
                 screenManager.SpriteBatch.Draw(PortraitTex, Portrait, Color.White);
 
-			Primitives2D.DrawRectangle(screenManager.SpriteBatch, Portrait, Color.White);
+			screenManager.SpriteBatch.DrawRectangle(Portrait, Color.White);
 		}
 
         public void DrawMainMenuOverlay(ScreenManager screenManager, Rectangle portrait)
