@@ -83,6 +83,7 @@ namespace Ship_Game.Gameplay
                 });
             }
 
+            ship.SetShipData(data);
             ship.InitializeThrusters();
             return ship;
         }
@@ -210,12 +211,25 @@ namespace Ship_Game.Gameplay
 
         public void InitializeAI()
         {
-            AI = new ShipAI(this);
-            AI.State = AIState.AwaitingOrders;
+            AI = new ShipAI(this) { State = AIState.AwaitingOrders };
             if (shipData == null)
                 return;
             AI.CombatState = shipData.CombatState;
             AI.CombatAI = new CombatAI(this);
+        }
+
+        public void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
+        {
+            InitializeAI();
+            AI.FoodOrProd         = aiSave.FoodOrProd;
+            AI.State              = aiSave.state;
+            AI.DefaultAIState     = aiSave.defaultstate;
+            AI.GotoStep           = aiSave.GoToStep;
+            AI.MovePosition       = aiSave.MovePosition;
+            AI.OrbitTargetGuid    = aiSave.OrbitTarget;
+            AI.TargetGuid         = aiSave.AttackTarget;
+            AI.SystemToDefendGuid = aiSave.SystemToDefend;
+            AI.EscortTargetGuid   = aiSave.EscortTarget;
         }
 
         public void CreateSceneObject()
@@ -262,8 +276,11 @@ namespace Ship_Game.Gameplay
             }
             else FromSave = true;
 
-            if (AI == null) InitializeAI();
-            AI.CombatState = shipData.CombatState;
+            if (AI == null)
+            {
+                InitializeAI();
+                AI.CombatState = shipData.CombatState;
+            }
 
             InitializeStatus(loadingFromSavegame);
 

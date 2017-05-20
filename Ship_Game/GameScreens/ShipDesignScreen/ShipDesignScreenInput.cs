@@ -1520,17 +1520,14 @@ namespace Ship_Game {
             //Adds the boolean derived from the checkbox boolean (CarrierOnly) to the ShipData. Defaults to 'false'.
             toSave.CarrierShip = CarrierOnly;
 
-            XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
-            TextWriter WriteFileStream =
-                new StreamWriter(string.Concat(path, "/StarDrive/Saved Designs/", name, ".xml"));
-            Serializer.Serialize(WriteFileStream, toSave);
-            WriteFileStream.Close();
+            var serializer = new XmlSerializer(typeof(ShipData));
+            using (var ws = new StreamWriter($"{path}/StarDrive/Saved Designs/{name}.xml"))
+                serializer.Serialize(ws, toSave);
             ShipSaved = true;
 
             Ship newShip = Ship.CreateShipFromShipData(toSave, fromSave: false);
             if (newShip == null) // happens if module creation failed
                 return;
-            newShip.SetShipData(toSave);
             newShip.InitializeStatus(fromSave: false);
             newShip.IsPlayerDesign = true;
             ResourceManager.ShipsDict[name] = newShip;
@@ -1544,16 +1541,16 @@ namespace Ship_Game {
 
         private void SaveWIP(object sender, EventArgs e)
         {
-            ShipData savedShip = new ShipData()
+            var savedShip = new ShipData
             {
-                Animated = this.ActiveHull.Animated,
-                CombatState = this.ActiveHull.CombatState,
-                Hull = this.ActiveHull.Hull,
-                IconPath = this.ActiveHull.IconPath,
-                ModelPath = this.ActiveHull.ModelPath,
-                Name = this.ActiveHull.Name,
-                Role = this.ActiveHull.Role,
-                ShipStyle = this.ActiveHull.ShipStyle,
+                Animated     = this.ActiveHull.Animated,
+                CombatState  = this.ActiveHull.CombatState,
+                Hull         = this.ActiveHull.Hull,
+                IconPath     = this.ActiveHull.IconPath,
+                ModelPath    = this.ActiveHull.ModelPath,
+                Name         = this.ActiveHull.Name,
+                Role         = this.ActiveHull.Role,
+                ShipStyle    = this.ActiveHull.ShipStyle,
                 ThrusterList = this.ActiveHull.ThrusterList
             };
 
