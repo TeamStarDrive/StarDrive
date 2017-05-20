@@ -34,7 +34,7 @@ namespace Ship_Game.Gameplay
         
         public void Add(GameplayObject obj)
         {
-            if (!IsSpatialType(obj))
+            if (!IsSpatialType(obj) || QuadTree == null)
                 return; // not a supported spatial manager type. just ignore it
 
             // this is related to QuadTree fast-removal
