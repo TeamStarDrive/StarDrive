@@ -199,8 +199,8 @@ namespace Ship_Game
                 float x = (float)Mouse.GetState().X;
                 MouseState state = Mouse.GetState();
                 Vector2 mousepos = new Vector2(x, (float)state.Y);
-                spriteBatch.Draw((HelperFunctions.CheckIntersection(this.ScrollUp, mousepos) ? ResourceManager.TextureDict["NewUI/scrollbar_arrow_up_hover1"] : ResourceManager.TextureDict["NewUI/scrollbar_arrow_up"]), this.ScrollUp, Color.White);
-                spriteBatch.Draw((HelperFunctions.CheckIntersection(this.ScrollDown, mousepos) ? ResourceManager.TextureDict["NewUI/scrollbar_arrow_down_hover1"] : ResourceManager.TextureDict["NewUI/scrollbar_arrow_down"]), this.ScrollDown, Color.White);
+                spriteBatch.Draw((this.ScrollUp.HitTest(mousepos) ? ResourceManager.TextureDict["NewUI/scrollbar_arrow_up_hover1"] : ResourceManager.TextureDict["NewUI/scrollbar_arrow_up"]), this.ScrollUp, Color.White);
+                spriteBatch.Draw((this.ScrollDown.HitTest(mousepos) ? ResourceManager.TextureDict["NewUI/scrollbar_arrow_down_hover1"] : ResourceManager.TextureDict["NewUI/scrollbar_arrow_down"]), this.ScrollDown, Color.White);
             }
             if (this.DraggedEntry != null && this.DraggedEntry.item is QueueItem)
             {
@@ -297,7 +297,7 @@ namespace Ship_Game
         public bool HandleInput(InputState input)
         {
             bool hit = false;
-            if (HelperFunctions.CheckIntersection(this.ScrollUp, input.CursorPosition) && input.InGameSelect)
+            if (this.ScrollUp.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if (this.indexAtTop > 0)
                 {
@@ -309,7 +309,7 @@ namespace Ship_Game
                 float startingPercent = (float)this.indexAtTop / (float)this.Copied.Count;
                 this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
             }
-            if (HelperFunctions.CheckIntersection(this.ScrollDown, input.CursorPosition) && input.InGameSelect)
+            if (this.ScrollDown.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if (this.indexAtTop + this.entriesToDisplay < this.Copied.Count)
                 {
@@ -321,12 +321,12 @@ namespace Ship_Game
                 this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
                 hit = true;
             }
-            if (HelperFunctions.CheckIntersection(this.ScrollBarHousing, input.CursorPosition))
+            if (this.ScrollBarHousing.HitTest(input.CursorPosition))
             {
                 this.ScrollBarHover = 1;
                 //this.upScrollHover = 1;
                 //this.downScrollHover = 1;
-                if (HelperFunctions.CheckIntersection(this.ScrollBar, input.CursorPosition))
+                if (this.ScrollBar.HitTest(input.CursorPosition))
                 {
                     this.ScrollBarHover = 2;
                     if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
@@ -376,7 +376,7 @@ namespace Ship_Game
                 }
                 hit = true;
             }
-            if (HelperFunctions.CheckIntersection(this.Parent.Menu, input.CursorPosition))
+            if (this.Parent.Menu.HitTest(input.CursorPosition))
             {
                 if (input.CurrentMouseState.ScrollWheelValue > input.LastMouseState.ScrollWheelValue)
                 {
@@ -420,7 +420,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+                    if (e.clickRect.HitTest(input.CursorPosition))
                     {
                         if (input.CurrentMouseState.LeftButton != ButtonState.Pressed)
                         {
@@ -467,7 +467,7 @@ namespace Ship_Game
                 for (int i = this.indexAtTop; i < this.Entries.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
                 {
                     ScrollList.Entry e = this.Entries[i];
-                    if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+                    if (e.clickRect.HitTest(input.CursorPosition))
                     {
                         int NewIndex = 0;
                         try
@@ -502,7 +502,7 @@ namespace Ship_Game
         public bool HandleInput(InputState input, Planet p)
         {
             bool hit = false;
-            if (HelperFunctions.CheckIntersection(this.ScrollUp, input.CursorPosition) && input.InGameSelect)
+            if (this.ScrollUp.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if (this.indexAtTop > 0)
                 {
@@ -514,7 +514,7 @@ namespace Ship_Game
                 float startingPercent = (float)this.indexAtTop / (float)this.Copied.Count;
                 this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
             }
-            if (HelperFunctions.CheckIntersection(this.ScrollDown, input.CursorPosition) && input.InGameSelect)
+            if (this.ScrollDown.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if (this.indexAtTop + this.entriesToDisplay < this.Copied.Count)
                 {
@@ -526,12 +526,12 @@ namespace Ship_Game
                 float startingPercent = (float)this.indexAtTop / (float)this.Copied.Count;
                 this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
             }
-            if (HelperFunctions.CheckIntersection(this.ScrollBarHousing, input.CursorPosition))
+            if (this.ScrollBarHousing.HitTest(input.CursorPosition))
             {
                 this.ScrollBarHover = 1;
                 //this.upScrollHover = 1;
                 //this.downScrollHover = 1;
-                if (HelperFunctions.CheckIntersection(this.ScrollBar, input.CursorPosition))
+                if (this.ScrollBar.HitTest(input.CursorPosition))
                 {
                     this.ScrollBarHover = 2;
                     if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
@@ -581,7 +581,7 @@ namespace Ship_Game
                 }
                 hit = true;
             }
-            if (HelperFunctions.CheckIntersection(this.Parent.Menu, input.CursorPosition))
+            if (this.Parent.Menu.HitTest(input.CursorPosition))
             {
                 if (input.CurrentMouseState.ScrollWheelValue > input.LastMouseState.ScrollWheelValue)
                 {
@@ -619,7 +619,7 @@ namespace Ship_Game
                     try
                     {
                         ScrollList.Entry e = this.Copied[i];
-                        if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+                        if (e.clickRect.HitTest(input.CursorPosition))
                         {
                             if (input.CurrentMouseState.LeftButton != ButtonState.Pressed)
                             {
@@ -664,7 +664,7 @@ namespace Ship_Game
                     try
                     {
                         ScrollList.Entry e = this.Entries[i];
-                        if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+                        if (e.clickRect.HitTest(input.CursorPosition))
                         {
                             int NewIndex = this.Entries.IndexOf(e);
                             if (NewIndex < Dragged)

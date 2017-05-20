@@ -32,19 +32,9 @@ namespace Ship_Game
                         UpdateAllSystems(0.0f);
                         foreach (Ship ship in MasterShipList)
                         {
-                            if (viewState <= UnivScreenState.SystemView && Frustum.Contains(ship.Position, 2000f))
+                            if (ship.UpdateVisibility())
                             {
-                                ship.InFrustum = true;
-                                ship.GetSO().Visibility = ObjectVisibility.Rendered;
-                                ship.GetSO().World = Matrix.CreateRotationY(ship.yRotation)
-                                                     * Matrix.CreateRotationX(ship.xRotation)
-                                                     * Matrix.CreateRotationZ(ship.Rotation)
-                                                     * Matrix.CreateTranslation(new Vector3(ship.Center, 0.0f));
-                            }
-                            else
-                            {
-                                ship.InFrustum = false;
-                                ship.GetSO().Visibility = ObjectVisibility.None;
+                                ship.UpdateWorldTransform();
                             }
                             ship.Update(0);
                         }
@@ -678,7 +668,7 @@ namespace Ship_Game
 
             for (int i = 0; i < DeepSpaceShips.Count; i++)
             {
-                if (!DeepSpaceShips[i].shipInitialized)
+                if (!DeepSpaceShips[i].ShipInitialized)
                     continue;
 
                 if (DeepSpaceShips[i].Active && DeepSpaceShips[i].ModuleSlotList.Length != 0)
@@ -744,7 +734,7 @@ namespace Ship_Game
                     Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
                         ray.Position.Y + num * ray.Direction.Y, 0.0f);
                     Vector2 pos = new Vector2(vector3.X, vector3.Y);
-                    if (HelperFunctions.CheckIntersection(rect, pos))
+                    if (rect.HitTest(pos))
                         inFrustrum = true;
                 }
                 if (system.Explored(this.player) && inFrustrum)

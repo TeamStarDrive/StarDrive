@@ -139,7 +139,7 @@ namespace Ship_Game
                     Radius = 5f;
                 Rectangle rectangle = new Rectangle((int) Position.X - (int) Radius, (int) Position.Y - (int) Radius,
                     (int) Radius * 2, (int) Radius * 2);
-                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, Position, Radius, Color.White);
+                this.ScreenManager.SpriteBatch.BracketRectangle(Position, Radius, Color.White);
             }
             if (this.SelectedPlanet == null || this.LookingAtPlanet ||
                 this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
@@ -157,7 +157,7 @@ namespace Ship_Game
             Vector2 vector2 = new Vector2(vector3_3.X, vector3_3.Y - Radius1);
             Rectangle rectangle1 = new Rectangle((int) Position1.X - (int) Radius1, (int) Position1.Y - (int) Radius1,
                 (int) Radius1 * 2, (int) Radius1 * 2);
-            Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, Position1, Radius1,
+            this.ScreenManager.SpriteBatch.BracketRectangle(Position1, Radius1,
                 this.SelectedPlanet.Owner != null ? this.SelectedPlanet.Owner.EmpireColor : Color.Gray);
         }
 
@@ -315,7 +315,7 @@ namespace Ship_Game
             var uiNode = ResourceManager.TextureDict["UI/node"];
             foreach (Ship ship in player.GetShips())
             {
-                if (HelperFunctions.CheckIntersection(ScreenRectangle, ship.ScreenPosition))
+                if (ScreenRectangle.HitTest(ship.ScreenPosition))
                 {
                     Rectangle destinationRectangle = new Rectangle(
                         (int) (ship.Position.X * num),
@@ -726,7 +726,7 @@ namespace Ship_Game
                             Vector3 vector3_2 =
                                 Viewport.Project(
                                     new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);
-                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y),
+                            ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_2.X, vector3_2.Y),
                                 vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 20));
                         }
                         ClickableFleetsList.Add(new ClickableFleet
@@ -914,7 +914,7 @@ namespace Ship_Game
                     {
                         Color color = Color.LightGreen;
                         color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
-                        Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius,
+                        ScreenManager.SpriteBatch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius,
                             color);
                     }
                 }

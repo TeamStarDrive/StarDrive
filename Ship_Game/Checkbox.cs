@@ -54,11 +54,11 @@ namespace Ship_Game
 
         public void Draw(ScreenManager screenManager)
 		{
-			if (HelperFunctions.CheckIntersection(CheckRect, Mouse.GetState().Pos()) && !TipText.Empty())
+			if (CheckRect.HitTest(Mouse.GetState().Pos()) && !TipText.Empty())
 			{
 				ToolTip.CreateTooltip(TipText, screenManager);
 			}
-			Primitives2D.DrawRectangle(screenManager.SpriteBatch, CheckRect, new Color(96, 81, 49));
+			screenManager.SpriteBatch.DrawRectangle(CheckRect, new Color(96, 81, 49));
 			screenManager.SpriteBatch.DrawString(Font, Text, TextPos, Color.White);
 			if (Binding.Value)
 			{
@@ -68,7 +68,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (HelperFunctions.CheckIntersection(CheckRect, input.CursorPosition) && 
+			if (CheckRect.HitTest(input.CursorPosition) && 
                 input.CurrentMouseState.LeftButton == ButtonState.Pressed && 
                 input.LastMouseState.LeftButton == ButtonState.Released)
 			{

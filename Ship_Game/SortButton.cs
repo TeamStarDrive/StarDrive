@@ -77,7 +77,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (!HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
+            if (!this.rect.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}

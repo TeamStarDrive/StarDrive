@@ -4,12 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ns11;
 using SynapseGaming.LightingSystem.Core;
-using System;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -64,7 +64,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             if (this.basicEffect_0 != null)
                 return;
             GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
-            this.basicEffect_0 = new BasicEffect(graphicsDevice, (EffectPool)null);
+            this.basicEffect_0 = new BasicEffect(graphicsDevice, null);
             this.basicEffect_0.DiffuseColor = Vector3.Zero;
             this.basicEffect_0.AmbientLightColor = Vector3.Zero;
             this.basicEffect_0.EmissiveColor = Vector3.Zero;
@@ -79,26 +79,26 @@ namespace SynapseGaming.LightingSystem.Rendering
             this.basicEffect_0.Projection = Matrix.Identity;
             Vector2 screenmin = -Vector2.One;
             Vector2 one = Vector2.One;
-            float num1 = (float)texture2D.Width / (float)texture2D.Height;
-            if ((double)graphicsDevice.Viewport.AspectRatio > (double)num1)
+            float num1 = texture2D.Width / (float)texture2D.Height;
+            if (graphicsDevice.Viewport.AspectRatio > (double)num1)
             {
-                float num2 = (float)graphicsDevice.Viewport.Height * num1;
-                float num3 = num2 / (float)graphicsDevice.Viewport.Width;
+                float num2 = graphicsDevice.Viewport.Height * num1;
+                float num3 = num2 / graphicsDevice.Viewport.Width;
                 screenmin.X = -num3;
                 one.X = num3;
                 this.float_0 = num2 / 1280f;
             }
             else
             {
-                float num2 = (float)graphicsDevice.Viewport.Width / num1;
-                float num3 = num2 / (float)graphicsDevice.Viewport.Height;
+                float num2 = graphicsDevice.Viewport.Width / num1;
+                float num3 = num2 / graphicsDevice.Viewport.Height;
                 screenmin.Y = -num3;
                 one.Y = num3;
                 this.float_0 = num2 / 720f;
             }
             this.fullFrameQuad_0 = new FullFrameQuad(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, screenmin, one);
             this.vector2_0 = one * new Vector2(0.2f, 0.75f);
-            Vector2 vector2 = new Vector2((float)graphicsDevice.Viewport.Width, (float)graphicsDevice.Viewport.Height) * 0.5f;
+            Vector2 vector2 = new Vector2(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height) * 0.5f;
             this.vector2_0 = this.vector2_0 * vector2;
             this.vector2_0.Y += vector2.Y;
             this.vector2_1 = one * new Vector2(0.2f, 0.707f);

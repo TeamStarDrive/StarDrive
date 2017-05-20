@@ -90,7 +90,7 @@ namespace Ship_Game
 		public override void Draw(GameTime gameTime)
 		{
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.sel.Menu, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Menu, Color.Black);
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 vector2 = new Vector2(x, (float)state.Y);
@@ -133,7 +133,7 @@ namespace Ship_Game
 			this.LandTroops.HandleInput(input);
 			foreach (OrbitalAssetsUIElement.TippedItem ti in this.ToolTipItems)
 			{
-				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
+				if (!ti.r.HitTest(input.CursorPosition))
 				{
 					continue;
 				}

@@ -81,7 +81,7 @@ namespace Ship_Game
 
             var gradient = new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6);
             sb.Draw(SliderGradient, gradient, gradient, Color.White);
-            Primitives2D.DrawRectangle(sb, rect, Hover ? HoverColor : NormalColor);
+            sb.DrawRectangle(rect, Hover ? HoverColor : NormalColor);
 
             for (int i = 0; i < 11; i++)
             {

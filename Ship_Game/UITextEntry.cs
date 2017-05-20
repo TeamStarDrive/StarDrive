@@ -595,7 +595,7 @@ namespace Ship_Game
 
 		public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			Primitives2D.DrawRectangle(spriteBatch, this.ClickableArea, Color.Orange);
+			spriteBatch.DrawRectangle(this.ClickableArea, Color.Orange);
 			Vector2 cursor = new Vector2((float)(this.ClickableArea.X + 5), (float)(this.ClickableArea.Y + 2));
 			spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, cursor, Color.Orange);
 			cursor.X = cursor.X + Fonts.Arial12Bold.MeasureString(this.Text).X;
@@ -664,7 +664,7 @@ namespace Ship_Game
 		public void HandleTextInput(ref string text)
 		{
 			this.currentKeyboardState = Keyboard.GetState();
-			if (!HelperFunctions.CheckIntersection(this.ClickableArea, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)) && this.HandlingInput && Mouse.GetState().LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
+			if (!this.ClickableArea.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)) && this.HandlingInput && Mouse.GetState().LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
 			{
 				this.HandlingInput = false;
 			}

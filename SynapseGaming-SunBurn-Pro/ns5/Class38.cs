@@ -4,6 +4,8 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns6;
@@ -11,8 +13,6 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
-using System;
-using System.Collections.Generic;
 
 namespace ns5
 {
@@ -66,40 +66,25 @@ namespace ns5
 
     public Texture2D SceneDepthMap
     {
-      get
-      {
-        return this.texture2D_0;
-      }
-      set
+      get => this.texture2D_0;
+        set
       {
         EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_13);
         if (this.effectParameter_12 == null || this.texture2D_0 == null)
           return;
-        EffectHelper.smethod_7(new Vector2((float) this.texture2D_0.Width, (float) this.texture2D_0.Height), ref this.vector2_0, ref this.effectParameter_12);
+        EffectHelper.smethod_7(new Vector2(this.texture2D_0.Width, this.texture2D_0.Height), ref this.vector2_0, ref this.effectParameter_12);
       }
     }
 
     public Texture2D SceneNormalSpecularMap
     {
-      get
-      {
-        return this.texture2D_1;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_14);
-      }
+      get => this.texture2D_1;
+        set => EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_14);
     }
 
-    public int MaxLightSources
-    {
-      get
-      {
-        return 10;
-      }
-    }
+    public int MaxLightSources => 10;
 
-    public List<ILight> LightSources
+      public List<ILight> LightSources
     {
       set
       {
@@ -110,77 +95,50 @@ namespace ns5
 
     public float LightGroupDebugAmount
     {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_1, ref this.effectParameter_16);
-      }
+      get => this.float_1;
+        set => EffectHelper.smethod_6(value, ref this.float_1, ref this.effectParameter_16);
     }
 
     public Texture2D MicrofacetTexture
     {
-      get
-      {
-        return this.texture2D_2;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_2, ref this.effectParameter_15);
-      }
+      get => this.texture2D_2;
+        set => EffectHelper.smethod_8(value, ref this.texture2D_2, ref this.effectParameter_15);
     }
 
     public TextureCube ShadowFaceMap
     {
-      get
-      {
-        return this.textureCube_0;
-      }
-      set
+      get => this.textureCube_0;
+        set
       {
         if (this.effectParameter_25 == null || value == this.textureCube_0)
           return;
-        this.effectParameter_25.SetValue((Texture) value);
+        this.effectParameter_25.SetValue(value);
         this.textureCube_0 = value;
       }
     }
 
     public TextureCube ShadowCoordMap
     {
-      get
-      {
-        return this.textureCube_1;
-      }
-      set
+      get => this.textureCube_1;
+        set
       {
         if (this.effectParameter_26 == null || value == this.textureCube_1)
           return;
-        this.effectParameter_26.SetValue((Texture) value);
+        this.effectParameter_26.SetValue(value);
         this.textureCube_1 = value;
       }
     }
 
     public Texture2D ShadowMap
     {
-      get
-      {
-        return this.texture2D_3;
-      }
-      set
-      {
-        this.SetShadowMapAndType(value, this.enum5_0);
-      }
+      get => this.texture2D_3;
+        set => this.SetShadowMapAndType(value, this.enum5_0);
     }
 
     public Vector4 ShadowViewDistance
     {
-      get
-      {
-        return this.vector4_5;
-      }
-      set
+      get => this.vector4_5;
+        set
       {
         value.W = Math.Min(value.Z * 0.99f, value.W);
         EffectHelper.smethod_3(value, ref this.vector4_5, ref this.effectParameter_27);
@@ -192,38 +150,38 @@ namespace ns5
       set
       {
         Matrix matrix1 = new Matrix();
-        matrix1.M11 = (float) (((double) value[0].X + (double) value[1].X) * 0.5);
-        matrix1.M12 = (float) (((double) value[0].Y + (double) value[1].Y) * 0.5);
-        matrix1.M13 = (float) (((double) value[0].Z + (double) value[1].Z) * 0.5);
-        matrix1.M14 = (float) (((double) value[0].W + (double) value[1].W) * 0.5);
-        matrix1.M21 = (float) (((double) value[2].X + (double) value[3].X) * 0.5);
-        matrix1.M22 = (float) (((double) value[2].Y + (double) value[3].Y) * 0.5);
-        matrix1.M23 = (float) (((double) value[2].Z + (double) value[3].Z) * 0.5);
-        matrix1.M24 = (float) (((double) value[2].W + (double) value[3].W) * 0.5);
-        matrix1.M31 = (float) (((double) value[4].X + (double) value[5].X) * 0.5);
-        matrix1.M32 = (float) (((double) value[4].Y + (double) value[5].Y) * 0.5);
-        matrix1.M33 = (float) (((double) value[4].Z + (double) value[5].Z) * 0.5);
-        matrix1.M34 = (float) (((double) value[4].W + (double) value[5].W) * 0.5);
+        matrix1.M11 = (float) ((value[0].X + (double) value[1].X) * 0.5);
+        matrix1.M12 = (float) ((value[0].Y + (double) value[1].Y) * 0.5);
+        matrix1.M13 = (float) ((value[0].Z + (double) value[1].Z) * 0.5);
+        matrix1.M14 = (float) ((value[0].W + (double) value[1].W) * 0.5);
+        matrix1.M21 = (float) ((value[2].X + (double) value[3].X) * 0.5);
+        matrix1.M22 = (float) ((value[2].Y + (double) value[3].Y) * 0.5);
+        matrix1.M23 = (float) ((value[2].Z + (double) value[3].Z) * 0.5);
+        matrix1.M24 = (float) ((value[2].W + (double) value[3].W) * 0.5);
+        matrix1.M31 = (float) ((value[4].X + (double) value[5].X) * 0.5);
+        matrix1.M32 = (float) ((value[4].Y + (double) value[5].Y) * 0.5);
+        matrix1.M33 = (float) ((value[4].Z + (double) value[5].Z) * 0.5);
+        matrix1.M34 = (float) ((value[4].W + (double) value[5].W) * 0.5);
         Matrix matrix2 = new Matrix();
-        matrix2.M11 = (float) (((double) value[0].X - (double) value[1].X) * 0.5);
-        matrix2.M12 = (float) (((double) value[0].Y - (double) value[1].Y) * 0.5);
-        matrix2.M13 = (float) (((double) value[0].Z - (double) value[1].Z) * 0.5);
-        matrix2.M14 = (float) (((double) value[0].W - (double) value[1].W) * 0.5);
-        matrix2.M21 = (float) (((double) value[2].X - (double) value[3].X) * 0.5);
-        matrix2.M22 = (float) (((double) value[2].Y - (double) value[3].Y) * 0.5);
-        matrix2.M23 = (float) (((double) value[2].Z - (double) value[3].Z) * 0.5);
-        matrix2.M24 = (float) (((double) value[2].W - (double) value[3].W) * 0.5);
-        matrix2.M31 = (float) (((double) value[4].X - (double) value[5].X) * 0.5);
-        matrix2.M32 = (float) (((double) value[4].Y - (double) value[5].Y) * 0.5);
-        matrix2.M33 = (float) (((double) value[4].Z - (double) value[5].Z) * 0.5);
-        matrix2.M34 = (float) (((double) value[4].W - (double) value[5].W) * 0.5);
+        matrix2.M11 = (float) ((value[0].X - (double) value[1].X) * 0.5);
+        matrix2.M12 = (float) ((value[0].Y - (double) value[1].Y) * 0.5);
+        matrix2.M13 = (float) ((value[0].Z - (double) value[1].Z) * 0.5);
+        matrix2.M14 = (float) ((value[0].W - (double) value[1].W) * 0.5);
+        matrix2.M21 = (float) ((value[2].X - (double) value[3].X) * 0.5);
+        matrix2.M22 = (float) ((value[2].Y - (double) value[3].Y) * 0.5);
+        matrix2.M23 = (float) ((value[2].Z - (double) value[3].Z) * 0.5);
+        matrix2.M24 = (float) ((value[2].W - (double) value[3].W) * 0.5);
+        matrix2.M31 = (float) ((value[4].X - (double) value[5].X) * 0.5);
+        matrix2.M32 = (float) ((value[4].Y - (double) value[5].Y) * 0.5);
+        matrix2.M33 = (float) ((value[4].Z - (double) value[5].Z) * 0.5);
+        matrix2.M34 = (float) ((value[4].W - (double) value[5].W) * 0.5);
         if (this.effectParameter_31 != null)
         {
-          int num = Math.Min(value.Length, Class38.vector4_7.Length);
+          int num = Math.Min(value.Length, vector4_7.Length);
           for (int index = 0; index < num; ++index)
-            Class38.vector4_7[index] = value[index];
+            vector4_7[index] = value[index];
           this.effectParameter_31.SetArrayRange(0, 3);
-          this.effectParameter_31.SetValue(Class38.vector4_7);
+          this.effectParameter_31.SetValue(vector4_7);
         }
         if (this.effectParameter_32 == null || this.effectParameter_33 == null)
           return;
@@ -234,39 +192,24 @@ namespace ns5
 
     public BoundingSphere ShadowArea
     {
-      set
-      {
-        this.method_5(new Vector4(value.Center, value.Radius), this.matrix_9);
-      }
+      set => this.method_5(new Vector4(value.Center, value.Radius), this.matrix_9);
     }
 
     public Matrix[] ShadowViewProjection
     {
-      set
-      {
-        this.method_5(this.vector4_6, value);
-      }
+      set => this.method_5(this.vector4_6, value);
     }
 
     public Enum5 ShadowSourceType
     {
-      get
-      {
-        return this.enum5_0;
-      }
-      set
-      {
-        this.SetShadowMapAndType(this.texture2D_3, value);
-      }
+      get => this.enum5_0;
+        set => this.SetShadowMapAndType(this.texture2D_3, value);
     }
 
     public DetailPreference ShadowDetail
     {
-      get
-      {
-        return this.detailPreference_1;
-      }
-      set
+      get => this.detailPreference_1;
+        set
       {
         this.detailPreference_1 = value;
         this.method_3();
@@ -275,21 +218,12 @@ namespace ns5
 
     public BoundingSphere WorldClippingSphere
     {
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_4, ref this.effectParameter_11);
-      }
+      set => EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_4, ref this.effectParameter_11);
     }
 
-    internal static int MaxLightSourcesInternal
-    {
-      get
-      {
-        return 10;
-      }
-    }
+    internal static int MaxLightSourcesInternal => 10;
 
-    public Class38(GraphicsDevice graphicsdevice)
+      public Class38(GraphicsDevice graphicsdevice)
       : base(graphicsdevice, "DeferredLightingEffect")
     {
       this.effectParameter_13 = this.Parameters["_SceneDepthMap"];
@@ -324,10 +258,10 @@ namespace ns5
 
     public void SetShadowMapAndType(Texture2D shadowmap, Enum5 type)
     {
-      if (this.effectParameter_23 != null && shadowmap != null && (double) shadowmap.Width != (double) this.float_2)
+      if (this.effectParameter_23 != null && shadowmap != null && shadowmap.Width != (double) this.float_2)
       {
         this.effectParameter_23.SetValue(shadowmap.Width);
-        this.float_2 = (float) shadowmap.Width;
+        this.float_2 = shadowmap.Width;
       }
       EffectHelper.smethod_8(shadowmap, ref this.texture2D_3, ref this.effectParameter_24);
       this.enum5_0 = type;
@@ -378,8 +312,8 @@ namespace ns5
         if (light is ISpotSource)
         {
           ISpotSource spotSource = light as ISpotSource;
-          float num1 = (float) Math.Cos((double) MathHelper.ToRadians(MathHelper.Clamp(spotSource.Angle * 0.5f, 0.01f, 89.99f)));
-          float num2 = (float) (1.0 / (1.0 - (double) num1));
+          float num1 = (float) Math.Cos(MathHelper.ToRadians(MathHelper.Clamp(spotSource.Angle * 0.5f, 0.01f, 89.99f)));
+          float num2 = (float) (1.0 / (1.0 - num1));
           this.vector4_3[index].X = light.FalloffStrength;
           this.vector4_3[index].Z = num1;
           this.vector4_3[index].W = num2;
@@ -424,9 +358,9 @@ namespace ns5
       if (this.effectParameter_30 == null)
         return;
       for (int index = 0; index < num; ++index)
-        Class38.matrix_10[index] = translation * matrix_11[index];
+        matrix_10[index] = translation * matrix_11[index];
       this.effectParameter_30.SetArrayRange(0, 3);
-      this.effectParameter_30.SetValue(Class38.matrix_10);
+      this.effectParameter_30.SetValue(matrix_10);
     }
 
     protected override void SetTechnique()
@@ -443,7 +377,7 @@ namespace ns5
 
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new Class38(device);
+      return new Class38(device);
     }
   }
 }

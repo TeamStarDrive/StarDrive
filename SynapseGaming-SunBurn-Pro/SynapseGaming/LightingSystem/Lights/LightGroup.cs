@@ -4,12 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Shadows;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Shadows;
 
 namespace SynapseGaming.LightingSystem.Lights
 {
@@ -21,33 +21,23 @@ namespace SynapseGaming.LightingSystem.Lights
   {
     private List<ILight> list_0 = new List<ILight>(16);
     private bool bool_3;
-    private IList<ILight> ilist_0;
 
-    /// <summary>Readonly list of the contained lights.</summary>
-    public IList<ILight> Lights
-    {
-      get
-      {
-        return this.ilist_0;
-      }
-    }
+      /// <summary>Readonly list of the contained lights.</summary>
+    public IList<ILight> Lights { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Determines if the group acts as a shared shadow source for all contained
     /// lights. This allows a considerable performance increase over per-light shadows.
     /// </summary>
     public bool ShadowGroup
     {
-      get
-      {
-        return this.bool_3;
-      }
-      set
+      get => this.bool_3;
+          set
       {
         this.bool_3 = value;
-        IShadowSource shadowSource = (IShadowSource) null;
+        IShadowSource shadowSource = null;
         if (value)
-          shadowSource = (IShadowSource) this;
+          shadowSource = this;
         foreach (ILight light in this.list_0)
           light.ShadowSource = shadowSource;
       }
@@ -90,9 +80,9 @@ namespace SynapseGaming.LightingSystem.Lights
     {
       this.list_0.Add(light);
       if (this.bool_3)
-        light.ShadowSource = (IShadowSource) this;
+        light.ShadowSource = this;
       else
-        light.ShadowSource = (IShadowSource) null;
+        light.ShadowSource = null;
     }
 
     /// <summary>Removes a light to the group.</summary>
@@ -100,7 +90,7 @@ namespace SynapseGaming.LightingSystem.Lights
     public void Remove(ILight light)
     {
       this.list_0.Remove(light);
-      light.ShadowSource = (IShadowSource) null;
+      light.ShadowSource = null;
     }
 
     /// <summary>Removes the light at a specific index.</summary>
@@ -114,13 +104,13 @@ namespace SynapseGaming.LightingSystem.Lights
     public void Clear()
     {
       foreach (ILight light in this.list_0)
-        light.ShadowSource = (IShadowSource) null;
+        light.ShadowSource = null;
       this.list_0.Clear();
     }
 
     private void method_1()
     {
-      this.ilist_0 = (IList<ILight>) this.list_0.AsReadOnly();
+      this.Lights = this.list_0.AsReadOnly();
     }
 
     /// <summary />
@@ -131,7 +121,7 @@ namespace SynapseGaming.LightingSystem.Lights
     {
       base.GetObjectData(info, context);
       info.AddValue("ShadowGroup", this.bool_3);
-      info.AddValue("Lights", (object) this.list_0);
+      info.AddValue("Lights", this.list_0);
     }
   }
 }

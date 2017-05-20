@@ -290,7 +290,7 @@ namespace Ship_Game
 			this.prodDropDown.Draw(ScreenManager.SpriteBatch);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], this.foodStorageIcon, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : new Color(110, 110, 110, 255)));
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], this.prodStorageIcon, Color.White);
-			if (HelperFunctions.CheckIntersection(this.foodStorageIcon, MousePos))
+			if (this.foodStorageIcon.HitTest(MousePos))
 			{
 				if (this.p.Owner.data.Traits.Cybernetic != 0)
 				{
@@ -301,7 +301,7 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(73, ScreenManager);
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.prodStorageIcon, MousePos))
+			if (this.prodStorageIcon.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(74, ScreenManager);
 			}
@@ -367,7 +367,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 vector2 = new Vector2(x, (float)state.Y);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)(this.SliderFood.amount * (float)this.SliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)(this.SliderFood.amount * (float)this.SliderFood.sRect.Width), 6)), (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
-			Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, this.SliderFood.sRect, this.SliderFood.Color);
+			ScreenManager.SpriteBatch.DrawRectangle(this.SliderFood.sRect, this.SliderFood.Color);
 			if (this.SliderFood.cState != "normal")
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.SliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
@@ -410,7 +410,7 @@ namespace Ship_Game
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, Color.LightPink);
 			}
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_brown"], new Rectangle(this.SliderProd.sRect.X, this.SliderProd.sRect.Y, (int)(this.SliderProd.amount * (float)this.SliderProd.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderProd.sRect.X, this.SliderProd.sRect.Y, (int)(this.SliderProd.amount * (float)this.SliderProd.sRect.Width), 6)), Color.White);
-			Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, this.SliderProd.sRect, this.SliderProd.Color);
+			ScreenManager.SpriteBatch.DrawRectangle(this.SliderProd.sRect, this.SliderProd.Color);
 			if (this.SliderProd.cState != "normal")
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.SliderProd.cursor, Color.White);
@@ -452,7 +452,7 @@ namespace Ship_Game
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, prod, textPos, Color.LightPink);
 			}
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_blue"], new Rectangle(this.SliderRes.sRect.X, this.SliderRes.sRect.Y, (int)(this.SliderRes.amount * (float)this.SliderRes.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderRes.sRect.X, this.SliderRes.sRect.Y, (int)(this.SliderRes.amount * (float)this.SliderRes.sRect.Width), 6)), Color.White);
-			Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, this.SliderRes.sRect, this.SliderRes.Color);
+			ScreenManager.SpriteBatch.DrawRectangle(this.SliderRes.sRect, this.SliderRes.Color);
 			if (this.SliderRes.cState != "normal")
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.SliderRes.cursor, Color.White);
@@ -521,7 +521,7 @@ namespace Ship_Game
 		{
             this.p.UpdateIncomes(false);
 			this.currentMouse = Mouse.GetState();
-			if (!HelperFunctions.CheckIntersection(this.ApplyProductionRect, input.CursorPosition))
+			if (!this.ApplyProductionRect.HitTest(input.CursorPosition))
 			{
 				this.ApplyHover = false;
 			}
@@ -562,7 +562,7 @@ namespace Ship_Game
 			}
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
-				if (!HelperFunctions.CheckIntersection(this.FoodLock.LockRect, input.CursorPosition))
+				if (!this.FoodLock.LockRect.HitTest(input.CursorPosition))
 				{
 					this.FoodLock.Hover = false;
 				}
@@ -591,7 +591,7 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(69, ScreenManager);
 				}
 			}
-			if (!HelperFunctions.CheckIntersection(this.ProdLock.LockRect, input.CursorPosition))
+			if (!this.ProdLock.LockRect.HitTest(input.CursorPosition))
 			{
 				this.ProdLock.Hover = false;
 			}
@@ -619,7 +619,7 @@ namespace Ship_Game
 				}
 				ToolTip.CreateTooltip(69, ScreenManager);
 			}
-			if (!HelperFunctions.CheckIntersection(this.ResLock.LockRect, input.CursorPosition))
+			if (!this.ResLock.LockRect.HitTest(input.CursorPosition))
 			{
 				this.ResLock.Hover = false;
 			}
@@ -647,7 +647,7 @@ namespace Ship_Game
 				}
 				ToolTip.CreateTooltip(69, ScreenManager);
 			}
-			if (this.p.Owner.data.Traits.Cybernetic == 0 && HelperFunctions.CheckIntersection(this.foodDropDown.r, input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+			if (this.p.Owner.data.Traits.Cybernetic == 0 && this.foodDropDown.r.HitTest(input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 			{
 				this.foodDropDown.Toggle();
 				Planet planet1 = this.p;
@@ -658,7 +658,7 @@ namespace Ship_Game
 				}
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 			}
-			if (HelperFunctions.CheckIntersection(this.prodDropDown.r, input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+			if (this.prodDropDown.r.HitTest(input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 			{
 				this.prodDropDown.Toggle();
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -671,7 +671,7 @@ namespace Ship_Game
 			}
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
-				if (HelperFunctions.CheckIntersection(this.SliderFood.sRect, input.CursorPosition) || this.draggingSlider1)
+				if (this.SliderFood.sRect.HitTest(input.CursorPosition) || this.draggingSlider1)
 				{
 					this.SliderFood.state = "hover";
 					this.SliderFood.Color = new Color(164, 154, 133);
@@ -681,7 +681,7 @@ namespace Ship_Game
 					this.SliderFood.state = "normal";
 					this.SliderFood.Color = new Color(72, 61, 38);
 				}
-				if (HelperFunctions.CheckIntersection(this.SliderFood.cursor, input.CursorPosition) || this.draggingSlider1)
+				if (this.SliderFood.cursor.HitTest(input.CursorPosition) || this.draggingSlider1)
 				{
 					this.SliderFood.cState = "hover";
 				}
@@ -690,7 +690,7 @@ namespace Ship_Game
 					this.SliderFood.cState = "normal";
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderProd.sRect, input.CursorPosition) || this.draggingSlider2)
+			if (this.SliderProd.sRect.HitTest(input.CursorPosition) || this.draggingSlider2)
 			{
 				this.SliderProd.state = "hover";
 				this.SliderProd.Color = new Color(164, 154, 133);
@@ -700,7 +700,7 @@ namespace Ship_Game
 				this.SliderProd.state = "normal";
 				this.SliderProd.Color = new Color(72, 61, 38);
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderProd.cursor, input.CursorPosition) || this.draggingSlider2)
+			if (this.SliderProd.cursor.HitTest(input.CursorPosition) || this.draggingSlider2)
 			{
 				this.SliderProd.cState = "hover";
 			}
@@ -708,7 +708,7 @@ namespace Ship_Game
 			{
 				this.SliderProd.cState = "normal";
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderRes.sRect, input.CursorPosition) || this.draggingSlider3)
+			if (this.SliderRes.sRect.HitTest(input.CursorPosition) || this.draggingSlider3)
 			{
 				this.SliderRes.state = "hover";
 				this.SliderRes.Color = new Color(164, 154, 133);
@@ -718,7 +718,7 @@ namespace Ship_Game
 				this.SliderRes.state = "normal";
 				this.SliderRes.Color = new Color(72, 61, 38);
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderRes.cursor, input.CursorPosition) || this.draggingSlider3)
+			if (this.SliderRes.cursor.HitTest(input.CursorPosition) || this.draggingSlider3)
 			{
 				this.SliderRes.cState = "hover";
 			}
@@ -726,15 +726,15 @@ namespace Ship_Game
 			{
 				this.SliderRes.cState = "normal";
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderFood.cursor, input.CursorPosition) && (!this.ProdLock.Locked || !this.ResLock.Locked) && !this.FoodLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+			if (this.SliderFood.cursor.HitTest(input.CursorPosition) && (!this.ProdLock.Locked || !this.ResLock.Locked) && !this.FoodLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider1 = true;
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderProd.cursor, input.CursorPosition) && (!this.FoodLock.Locked || !this.ResLock.Locked) && !this.ProdLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+			if (this.SliderProd.cursor.HitTest(input.CursorPosition) && (!this.FoodLock.Locked || !this.ResLock.Locked) && !this.ProdLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider2 = true;
 			}
-			if (HelperFunctions.CheckIntersection(this.SliderRes.cursor, input.CursorPosition) && (!this.ProdLock.Locked || !this.FoodLock.Locked) && !this.ResLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+			if (this.SliderRes.cursor.HitTest(input.CursorPosition) && (!this.ProdLock.Locked || !this.FoodLock.Locked) && !this.ResLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider3 = true;
 			}

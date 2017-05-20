@@ -80,7 +80,7 @@ namespace SynapseGaming.LightingSystem.Core
 
         public override void Free(T obj)
         {
-            var c = EqualityComparer<T>.Default;
+            //var c = EqualityComparer<T>.Default;
             for (int i = 0; i < TrackedSize; ++i)
             {
                 if (Tracked[i].Equals(obj))

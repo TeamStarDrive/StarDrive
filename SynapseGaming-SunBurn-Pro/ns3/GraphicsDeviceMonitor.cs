@@ -4,8 +4,8 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework.Graphics;
 using System;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace ns3
 {
@@ -37,9 +37,9 @@ namespace ns3
         public GraphicsDeviceMonitor(IGraphicsDeviceService graphicsdevicemanager)
         {
             this.igraphicsDeviceService_0 = graphicsdevicemanager;
-            this.igraphicsDeviceService_0.DeviceCreated += new EventHandler(this.igraphicsDeviceService_0_DeviceDisposing);
-            this.igraphicsDeviceService_0.DeviceReset += new EventHandler(this.igraphicsDeviceService_0_DeviceDisposing);
-            this.igraphicsDeviceService_0.DeviceDisposing += new EventHandler(this.igraphicsDeviceService_0_DeviceDisposing);
+            this.igraphicsDeviceService_0.DeviceCreated += this.igraphicsDeviceService_0_DeviceDisposing;
+            this.igraphicsDeviceService_0.DeviceReset += this.igraphicsDeviceService_0_DeviceDisposing;
+            this.igraphicsDeviceService_0.DeviceDisposing += this.igraphicsDeviceService_0_DeviceDisposing;
         }
 
         private void igraphicsDeviceService_0_DeviceDisposing(object sender, EventArgs e)

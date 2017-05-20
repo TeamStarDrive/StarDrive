@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using System;
-using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {

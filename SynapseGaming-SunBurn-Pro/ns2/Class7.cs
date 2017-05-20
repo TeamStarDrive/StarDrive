@@ -4,8 +4,8 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using ns1;
 using System;
+using ns1;
 
 namespace ns2
 {
@@ -40,7 +40,7 @@ namespace ns2
         for (int index = 0; index < numArray1.Length - 16; ++index)
         {
           numArray2[0] = numArray1[index];
-          numArray2[1] = (byte) 0;
+          numArray2[1] = 0;
           string_0 += (string) (object) BitConverter.ToChar(numArray2, 0);
         }
         long int64 = BitConverter.ToInt64(numArray1, numArray1.Length - 16);
@@ -63,9 +63,9 @@ namespace ns2
         byte[] bytes = BitConverter.GetBytes(string_0[index]);
         byte_0[index] = bytes[0];
       }
-      BitConverter.GetBytes(dateTime_0.ToFileTimeUtc()).CopyTo((Array) byte_0, byte_0.Length - 16);
-      BitConverter.GetBytes(uint_0).CopyTo((Array) byte_0, byte_0.Length - 8);
-      BitConverter.GetBytes(uint_1).CopyTo((Array) byte_0, byte_0.Length - 4);
+      BitConverter.GetBytes(dateTime_0.ToFileTimeUtc()).CopyTo(byte_0, byte_0.Length - 16);
+      BitConverter.GetBytes(uint_0).CopyTo(byte_0, byte_0.Length - 8);
+      BitConverter.GetBytes(uint_1).CopyTo(byte_0, byte_0.Length - 4);
       return this.class6_0.method_0(byte_0);
     }
   }

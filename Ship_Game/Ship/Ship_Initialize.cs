@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
 using SgMotion.Controllers;
+using Ship_Game.AI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
+using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
@@ -70,15 +73,17 @@ namespace Ship_Game.Gameplay
             if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, addToShieldManager))
                 return null;
 
-            foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
+            foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
             {
                 ship.ThrusterList.Add(new Thruster
                 {
-                    tscale = thrusterZone.Scale,
-                    XMLPos = thrusterZone.Position,
-                    Parent = ship
+                    Parent = ship,
+                    tscale = t.Scale,
+                    XMLPos = t.Position
                 });
             }
+
+            ship.InitializeThrusters();
             return ship;
         }
 
@@ -111,9 +116,14 @@ namespace Ship_Game.Gameplay
 
             ship.ThrusterList.Capacity = template.ThrusterList.Count;
             foreach (Thruster t in template.ThrusterList)
-                ship.AddThruster(t);
-
-            ship.CreateSceneObject();
+            {
+                ship.ThrusterList.Add(new Thruster
+                {
+                    Parent = ship,
+                    tscale = t.tscale,
+                    XMLPos = t.XMLPos
+                });
+            }
 
             // Added by McShooterz: add automatic ship naming
             if (GlobalStats.HasMod)
@@ -126,32 +136,26 @@ namespace Ship_Game.Gameplay
             if (Empire.Universe != null && Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Normal)
                 ship.Level += (int)Empire.Universe.GameDifficulty;
 
-            ship.Initialize();
-
-            var so = ship.GetSO();
-            so.World = Matrix.CreateTranslation(new Vector3(ship.Center, 0f));
-
-            var screenManager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                screenManager.inter.ObjectManager.Submit(so);
-            }
-
-            GameContentManager content = ResourceManager.ContentManager;
-            var thrustCylinder = content.Load<Model>("Effects/ThrustCylinderB");
-            var noiseVolume    = content.Load<Texture3D>("Effects/NoiseVolume");
-            var thrusterEffect = content.Load<Effect>("Effects/Thrust");
-            foreach (Thruster t in ship.GetTList())
-            {
-                t.load_and_assign_effects(content, thrustCylinder, noiseVolume, thrusterEffect);
-                t.InitializeForViewing();
-            }
+            ship.InitializeShip(loadingFromSavegame: false);
 
             owner.AddShip(ship);
             return ship;
         }
 
-        //@bug #1002  cant add a ship to a system in readlock. 
+        private void InitializeThrusters()
+        {
+            if (ThrusterList.IsEmpty || ThrusterList.First.model != null)
+                return;
+
+            GameContentManager content = ResourceManager.ContentManager;
+            foreach (Thruster t in ThrusterList)
+            {
+                t.LoadAndAssignDefaultEffects(content);
+                t.InitializeForViewing();
+            }
+        }
+
+        // @bug #1002  cant add a ship to a system in readlock. 
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p.Center + deltaPos);
@@ -198,6 +202,272 @@ namespace Ship_Game.Gameplay
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Combat;
             return ship;
+        }
+
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public void InitializeAI()
+        {
+            AI = new ShipAI(this);
+            AI.State = AIState.AwaitingOrders;
+            if (shipData == null)
+                return;
+            AI.CombatState = shipData.CombatState;
+            AI.CombatAI = new CombatAI(this);
+        }
+
+        public void CreateSceneObject()
+        {
+            Model model;
+            if (shipData.Animated)
+            {
+                SkinnedModel skinned = ResourceManager.GetSkinnedModel(shipData.ModelPath);
+                ShipMeshAnim = new AnimationController(skinned.SkeletonBones);
+                ShipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+                model = skinned.Model;
+            }
+            else
+            {
+                model = ResourceManager.GetModel(shipData.ModelPath);
+            }
+
+            ShipSO = new SceneObject(model.Meshes[0])
+            {
+                ObjectType = ObjectType.Dynamic,
+                Visibility = ObjectVisibility.Rendered
+            };
+
+            Radius = ShipSO.WorldBoundingSphere.Radius;
+            Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
+            ShipSO.Visibility = ObjectVisibility.Rendered;
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+        }
+
+        public void InitializeShip(bool loadingFromSavegame)
+        {
+            CreateSceneObject();
+            SetShipData(GetShipData());
+
+            if (VanityName.IsEmpty())
+                VanityName = Name;
+
+            if (shipData.Role == ShipData.RoleName.platform)
+                IsPlatform = true;
+
+            if (ResourceManager.GetShipTemplate(Name, out Ship template))
+            {
+                IsPlayerDesign = template.IsPlayerDesign;
+            }
+            else FromSave = true;
+
+            if (AI == null) InitializeAI();
+            AI.CombatState = shipData.CombatState;
+
+            InitializeStatus(loadingFromSavegame);
+
+            SetSystem(System);
+            InitExternalSlots();
+            base.Initialize();
+
+            RecalculatePower();        
+            ShipStatusChange();
+            InitializeThrusters();
+            RecalculateMaxHP();
+
+            ScreenManager screenManager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
+            lock (GlobalStats.ObjectManagerLocker)
+            {
+                screenManager.inter.ObjectManager.Submit(ShipSO);
+            }
+            ShipInitialized = true;
+        }
+
+        private void InitDefendingTroopStrength()
+        {
+            TroopBoardingDefense      = 0f;
+            MechanicalBoardingDefense = 0f;
+            foreach (Troop troopList in TroopList)
+            {
+                troopList.SetOwner(loyalty);
+                troopList.SetShip(this);
+                TroopBoardingDefense += troopList.Strength;
+            }
+            MechanicalBoardingDefense *= (1 + TroopList.Count / 10);
+            if (MechanicalBoardingDefense < 1f)
+                MechanicalBoardingDefense = 1f;
+        }
+
+        private void SpawnTroopsForNewShip(ShipModule module)
+        {
+            string troopType    = "Wyvern";
+            string tankType     = "Wyvern";
+            string redshirtType = "Wyvern";
+
+            IReadOnlyList<Troop> unlockedTroops = loyalty?.GetUnlockedTroops();
+            if (unlockedTroops?.Count > 0)
+            {
+                troopType    = unlockedTroops.FindMax(troop => troop.SoftAttack).Name;
+                tankType     = unlockedTroops.FindMax(troop => troop.HardAttack).Name;
+                redshirtType = unlockedTroops.FindMin(troop => troop.SoftAttack).Name; // redshirts are weakest
+                troopType    = (troopType == redshirtType) ? tankType : troopType;
+            }
+
+            for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
+            {
+                int numTroopHangars = ModuleSlotList.Count(hangarbay => hangarbay.IsTroopBay);
+
+                string type = redshirtType;
+                if (numTroopHangars < TroopList.Count)
+                {
+                    type = troopType; // ex: "Space Marine"
+                    if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numTroopHangars / 2)
+                        type = tankType;
+                }
+                TroopList.Add(ResourceManager.CreateTroop(type, loyalty));
+            }
+        }
+
+
+        public void InitializeStatus(bool fromSave)
+        {
+            Mass                      = 0f;
+            Thrust                    = 0f;
+            WarpThrust                = 0f;
+            PowerStoreMax             = 0f;
+            PowerFlowMax              = 0f;
+            ModulePowerDraw           = 0f;
+            ShieldPowerDraw           = 0f;
+            shield_max                = 0f;
+            shield_power              = 0f;
+            armor_max                 = 0f;
+            velocityMaximum           = 0f;
+            speed                     = 0f;
+            SensorRange               = 0f;
+            OrdinanceMax              = 0f;
+            OrdAddedPerSecond         = 0f;
+            rotationRadiansPerSecond  = 0f;
+            Health                    = 0f;
+            TroopCapacity             = 0;
+            ECMValue                  = 0f;
+            FTLSpoolTime              = 0f;
+            RangeForOverlay           = 0f;
+            Size                      = Calculatesize();
+
+            foreach (Weapon w in Weapons)
+            {
+                float weaponRange = w.GetModifiedRange();
+                if (weaponRange > RangeForOverlay)
+                    RangeForOverlay = weaponRange;
+            }
+
+            InitializeStatusFromModules(fromSave);
+            InitDefendingTroopStrength();
+
+            HealthMax                = Health;
+            ActiveInternalSlotCount  = InternalSlotCount;
+            velocityMaximum          = Thrust / Mass;
+            speed                    = velocityMaximum;
+            rotationRadiansPerSecond = speed / Size;
+            ShipMass                 = Mass;
+            if (FTLSpoolTime <= 0f)
+                FTLSpoolTime = 3f;
+            UpdateShields();
+        }
+
+        private void InitializeStatusFromModules(bool fromSave)
+        {
+            if (!fromSave)
+                TroopList.Clear();
+            Hangars.Clear();
+            Transporters.Clear();
+            RepairBeams.Clear();
+
+            float sensorBonus = 0f;
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                if (module.UID == "Dummy") // ignore legacy dummy modules
+                    continue;
+
+                if (!fromSave && module.TroopsSupplied > 0)
+                    SpawnTroopsForNewShip(module);
+
+                TroopCapacity += module.TroopCapacity;
+                MechanicalBoardingDefense += module.MechanicalBoardingDefense;
+                if (MechanicalBoardingDefense < 1f)
+                    MechanicalBoardingDefense = 1f;
+
+                if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
+                if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
+                if (module.ECM > ECMValue) ECMValue = module.ECM.Clamp(0f, 1f);
+
+                if (module.ModuleType == ShipModuleType.Construction)
+                {
+                    isConstructor = true;
+                    shipData.Role = ShipData.RoleName.construction;
+                }
+                else if (module.ModuleType == ShipModuleType.PowerConduit)
+                {
+                    module.IconTexturePath = GetConduitGraphic(module);
+                }
+                else if (module.ModuleType == ShipModuleType.Hangar)
+                {
+                    Hangars.Add(module);
+                    HasTroopBay |= module.IsTroopBay;
+                }
+                else if (module.ModuleType == ShipModuleType.Transporter)
+                {
+                    Transporters.Add(module);
+                    hasTransporter = true;
+                    hasOrdnanceTransporter |= module.TransporterOrdnance > 0;
+                    hasAssaultTransporter  |= module.TransporterTroopAssault > 0;
+                }
+                else if (module.ModuleType == ShipModuleType.Colony)
+                {
+                    isColonyShip = true;
+                }
+
+                if (module.InstalledWeapon?.isRepairBeam == true)
+                {
+                    RepairBeams.Add(module);
+                    hasRepairBeam = true;
+                }
+
+                InternalSlotCount += module.Restrictions == Restrictions.I ? 1 : 0;
+                HasRepairModule |= module.IsRepairModule;
+
+                float massModifier = 1f;
+                if (module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                    massModifier = loyalty.data.ArmourMassModifier;
+                Mass += module.Mass * massModifier;
+
+                Thrust     += module.thrust;
+                WarpThrust += module.WarpThrust;
+
+                // Added by McShooterz: fuel cell modifier apply to all modules with power store
+                PowerStoreMax += module.PowerStoreMax * (loyalty?.data.FuelCellModifier ?? 0);
+                PowerCurrent  += module.PowerStoreMax;
+                PowerFlowMax  += module.PowerFlowMax     * (loyalty?.data.PowerFlowMod   ?? 0);
+                shield_max    += module.shield_power_max * (loyalty?.data.ShieldPowerMod ?? 0);
+                if (module.ModuleType == ShipModuleType.Armor)
+                    armor_max += module.HealthMax;
+
+                CargoSpaceMax += module.Cargo_Capacity;
+                OrdinanceMax  += module.OrdinanceCapacity;
+                if (module.ModuleType == ShipModuleType.Shield) ShieldPowerDraw += module.PowerDraw;
+                else                                            ModulePowerDraw += module.PowerDraw;
+                if (module.FTLSpoolTime > FTLSpoolTime)
+                    FTLSpoolTime = module.FTLSpoolTime;
+
+                if (!fromSave)
+                {
+                    Ordinance     += module.OrdinanceCapacity;
+                    Health += module.Health;
+                }
+            }
+
+            SensorRange += sensorBonus;
         }
     }
 }

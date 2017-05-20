@@ -211,7 +211,7 @@ namespace Ship_Game.AI
             if (Owner.AreaOfOperation.Count == 0)
                 return true;
             foreach (Rectangle AO in Owner.AreaOfOperation)
-                if (HelperFunctions.CheckIntersection(AO, planet.Center))
+                if (AO.HitTest(planet.Center))
                     return true;
             return false;
         }
@@ -545,7 +545,7 @@ namespace Ship_Game.AI
                     if (DistanceToFleetOffset <= 75f)
                     {
                         Owner.Velocity = Vector2.Zero;
-                        Vector2 vector2 = MathExt.PointFromRadians(Vector2.Zero, Owner.fleet.Facing, 1f);
+                        Vector2 vector2 = Vector2.Zero.PointFromRadians(Owner.fleet.Facing, 1f);
                         Vector2 fvec = Vector2.Zero.DirectionToTarget(vector2);
                         Vector2 wantedForward = Vector2.Normalize(fvec);
                         var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),

@@ -1,19 +1,14 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using SgMotion;
-using SgMotion.Controllers;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework.Media;
 
 namespace Ship_Game
@@ -411,6 +406,11 @@ namespace Ship_Game
             return ShipsDict[shipName];
         }
 
+        public static bool ShipTemplateExists(string shipName)
+        {
+            return ShipsDict.ContainsKey(shipName);
+        }
+
         public static bool GetShipTemplate(string shipName, out Ship template)
         {
             return ShipsDict.TryGetValue(shipName, out template);
@@ -419,6 +419,11 @@ namespace Ship_Game
         public static string GetShipHull(string shipName)
         {
             return ShipsDict[shipName].GetShipData().Hull;
+        }
+
+        public static bool IsPlayerDesign(string shipName)
+        {
+            return ShipsDict.TryGetValue(shipName, out Ship template) && template.IsPlayerDesign;
         }
 
         // Added by RedFox
@@ -1017,19 +1022,18 @@ namespace Ship_Game
                          * Need to investigate this process to see if we really need to intialize modules in the ships dictionary
                          * or to what degree they need to be initialized. 
                          */
-                        Ship newShip = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
-                        if (newShip == null) // happens if module creation failed
+                        Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
+                        if (shipTemplate == null) // happens if module creation failed
                             continue;
-                        newShip.SetShipData(shipData);
-                        if (!newShip.InitializeStatus(fromSave: false))
-                            continue;
+                        shipTemplate.SetShipData(shipData);
+                        shipTemplate.InitializeStatus(fromSave: false);
 
-                        newShip.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
-                        newShip.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
+                        shipTemplate.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
+                        shipTemplate.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
 
                         lock (ShipsDict)
                         {
-                            ShipsDict[shipData.Name] = newShip;
+                            ShipsDict[shipData.Name] = shipTemplate;
                         }
                     }
                     catch (Exception e)

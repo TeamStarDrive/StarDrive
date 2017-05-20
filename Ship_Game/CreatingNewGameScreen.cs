@@ -328,14 +328,7 @@ namespace Ship_Game
             foreach (Ship ship in wipSystem.ShipList)
             {
                 ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
-                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0.0f));
-                ship.Initialize();
-                ScreenManager.inter.ObjectManager.Submit(ship.GetSO());
-                foreach (Thruster thruster in ship.GetTList())
-                {
-                    thruster.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
-                    thruster.InitializeForViewing();
-                }
+                ship.InitializeShip(loadingFromSavegame: false);
             }
         }
 

@@ -11,13 +11,13 @@ namespace ns11
 {
   internal class Class78
   {
-    private Queue<Class78.Struct3> queue_0 = new Queue<Class78.Struct3>(16);
+    private Queue<Struct3> queue_0 = new Queue<Struct3>(16);
     private Class77 class77_0 = new Class77();
 
     public void method_0(Delegate delegate_0, object[] object_0)
     {
       lock (this)
-        this.queue_0.Enqueue(new Class78.Struct3()
+        this.queue_0.Enqueue(new Struct3
         {
           delegate_0 = delegate_0,
           object_0 = object_0
@@ -31,7 +31,7 @@ namespace ns11
       {
         while (this.queue_0.Count > 0)
         {
-          Class78.Struct3 local_0 = this.queue_0.Dequeue();
+          Struct3 local_0 = this.queue_0.Dequeue();
           local_0.delegate_0.DynamicInvoke(local_0.object_0);
         }
       }

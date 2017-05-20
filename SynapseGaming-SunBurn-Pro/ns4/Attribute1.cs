@@ -4,106 +4,32 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using SynapseGaming.LightingSystem.Editor;
 using System;
+using SynapseGaming.LightingSystem.Editor;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property)]
   internal class Attribute1 : Attribute
   {
-    private bool jia;
-    private string jik;
-    private string jiV;
-    private int jij;
-    private int jiq;
-    private bool jic;
-    private ControlType jiR;
+      public bool EditorVisible { get; }
 
-    public bool EditorVisible
-    {
-      get
-      {
-        return this.jia;
-      }
-    }
+      public string Description { get; set; }
 
-    public string Description
-    {
-      get
-      {
-        return this.jik;
-      }
-      set
-      {
-        this.jik = value;
-      }
-    }
+      public string ToolTipText { get; set; }
 
-    public string ToolTipText
-    {
-      get
-      {
-        return this.jiV;
-      }
-      set
-      {
-        this.jiV = value;
-      }
-    }
+      public int MajorGrouping { get; set; }
 
-    public int MajorGrouping
-    {
-      get
-      {
-        return this.jij;
-      }
-      set
-      {
-        this.jij = value;
-      }
-    }
+      public int MinorGrouping { get; set; }
 
-    public int MinorGrouping
-    {
-      get
-      {
-        return this.jiq;
-      }
-      set
-      {
-        this.jiq = value;
-      }
-    }
+      public bool HorizontalAlignment { get; set; }
 
-    public bool HorizontalAlignment
-    {
-      get
-      {
-        return this.jic;
-      }
-      set
-      {
-        this.jic = value;
-      }
-    }
+      public ControlType ControlType { get; set; }
 
-    public ControlType ControlType
+      public Attribute1(bool editorvisible)
     {
-      get
-      {
-        return this.jiR;
-      }
-      set
-      {
-        this.jiR = value;
-      }
-    }
-
-    public Attribute1(bool editorvisible)
-    {
-      this.jia = editorvisible;
-      this.jiR = ControlType.Default;
+      this.EditorVisible = editorvisible;
+      this.ControlType = ControlType.Default;
     }
   }
 }
