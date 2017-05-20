@@ -30,7 +30,7 @@ namespace Ship_Game {
             {
                 if (shipSO != null)
                 {
-                    ScreenManager.inter.ObjectManager.Remove(shipSO);
+                    ScreenManager.Remove(shipSO);
                 }
             }
             ActiveHull = new ShipData()
@@ -88,7 +88,7 @@ namespace Ship_Game {
                 };
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+                    base.ScreenManager.Submit(this.shipSO);
                 }
             }
             else
@@ -101,7 +101,7 @@ namespace Ship_Game {
                 };
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+                    base.ScreenManager.Submit(this.shipSO);
                 }
             }
             foreach (ToggleButton button in CombatStatusButtons)
@@ -235,7 +235,7 @@ namespace Ship_Game {
             {
                 if (this.shipSO != null)
                 {
-                    base.ScreenManager.inter.ObjectManager.Remove(this.shipSO);
+                    base.ScreenManager.Remove(this.shipSO);
                 }
                 ModelMesh mesh = this.ActiveModel.Meshes[0];
                 this.shipSO = new SceneObject(mesh)
@@ -243,7 +243,7 @@ namespace Ship_Game {
                     ObjectType = ObjectType.Dynamic,
                     World = this.WorldMatrix
                 };
-                base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+                base.ScreenManager.Submit(this.shipSO);
                 this.SetupSlots();
             }
         }
@@ -1099,14 +1099,14 @@ namespace Ship_Game {
                 }
                 else
                 {
-                    base.ScreenManager.inter.ObjectManager.Remove(this.shipSO);
+                    base.ScreenManager.Remove(this.shipSO);
                     SkinnedModel sm = ResourceManager.GetSkinnedModel(this.ActiveHull.ModelPath);
                     this.shipSO = new SceneObject(sm.Model)
                     {
                         ObjectType = ObjectType.Dynamic,
                         World = this.WorldMatrix
                     };
-                    base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+                    base.ScreenManager.Submit(this.shipSO);
                     this.SetupSlots();
                 }
             }
@@ -1446,7 +1446,7 @@ namespace Ship_Game {
 
             lock (GlobalStats.ObjectManagerLocker)
             {
-                base.ScreenManager.inter.ObjectManager.Remove(this.shipSO);
+                base.ScreenManager.Remove(this.shipSO);
             }
             if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen)
             {

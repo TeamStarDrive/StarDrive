@@ -564,7 +564,7 @@ namespace Ship_Game
                 ObjectType = ObjectType.Dynamic,
                 World = this.worldMatrix
             };
-            base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+            base.ScreenManager.Submit(this.shipSO);
         }
 
         public void LoadModel(Model m, string path)
@@ -580,7 +580,7 @@ namespace Ship_Game
                 ObjectType = ObjectType.Dynamic,
                 World = this.worldMatrix
             };
-            base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+            base.ScreenManager.Submit(this.shipSO);
         }
 
         private void MarkThruster()

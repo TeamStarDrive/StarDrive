@@ -936,10 +936,10 @@ namespace Ship_Game
             {
                 p.system = system;
                 p.InitializeUpdate();
-                ScreenManager.inter.ObjectManager.Submit(p.SO);
+                ScreenManager.Submit(p.SO);
             }
-            foreach (Asteroid roid in system.AsteroidsList)  ScreenManager.inter.ObjectManager.Submit(roid.So);
-            foreach (Moon moon in system.MoonList)           ScreenManager.inter.ObjectManager.Submit(moon.So);
+            foreach (Asteroid roid in system.AsteroidsList)  ScreenManager.Submit(roid.So);
+            foreach (Moon moon in system.MoonList)           ScreenManager.Submit(moon.So);
 
             ++systemToMake;
             if (systemToMake == data.SolarSystemsList.Count)

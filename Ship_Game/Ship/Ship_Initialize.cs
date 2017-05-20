@@ -296,7 +296,7 @@ namespace Ship_Game.Gameplay
             ScreenManager screenManager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
             lock (GlobalStats.ObjectManagerLocker)
             {
-                screenManager.inter.ObjectManager.Submit(ShipSO);
+                screenManager.Submit(ShipSO);
             }
             ShipInitialized = true;
         }
