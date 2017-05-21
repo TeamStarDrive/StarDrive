@@ -90,7 +90,7 @@ namespace Ship_Game
         public bool ToggleOverlay = true;
         private Vector2 starfieldPos = Vector2.Zero;
         private int ScrollPosition;
-        private DropOptions CategoryList;
+        private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
         private Vector2 ClassifCursor;
         public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
@@ -105,6 +105,13 @@ namespace Ship_Game
         public string HangarShipUIDLast = "Undefined";
         private float HoldTimer = .50f;
         private HashSet<string> Techs = new HashSet<string>();
+        private Texture2D TopBar132 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+        private Texture2D TopBar132Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+        private Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
+        private Texture2D TopBar68 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
+        private Texture2D TopBar68Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
+        private Texture2D TopBar68Pressed = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];        
+
 
 #if SHIPYARD
         short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0;        //For Gretman's debug shipyard
