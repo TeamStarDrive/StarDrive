@@ -424,14 +424,15 @@ namespace Ship_Game
 
             if (DefiningAO)
             {
+
                 if (NeedARelease)
                 {
-                    if (input.LeftMouseRelease)
+                    if (input.LeftMousePressed)
                         NeedARelease = false;
                 }
                 else
                 {
-                    DefineAO(input);
+                        DefineAO(input);
                     return;
                 }
             }
@@ -675,7 +676,7 @@ namespace Ship_Game
                     Vector2 target = new Vector2(input.CurrentMouseState.X, input.CurrentMouseState.Y);
                     float num2 = startDrag.RadiansToTarget(target);
                     Vector2 vector2_2 = Vector2.Normalize(target - startDrag);
-                    if (input.RightMouseTimer > 0.0f)
+                    if (input.RightMouseHeld())
                     {
                         if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
                         {
@@ -1097,7 +1098,7 @@ namespace Ship_Game
                     var target = new Vector2(input.CurrentMouseState.X, input.CurrentMouseState.Y);
                     float facing = startDrag.RadiansToTarget(target);
                     Vector2 fVec1 = Vector2.Normalize(target - startDrag);
-                    if (input.RightMouseTimer > 0.0)
+                    if (input.RightMouseHeld())
                         return;
                     ProjectingPosition = true;
                     if (SelectedFleet != null && SelectedFleet.Owner == player)
@@ -1203,8 +1204,7 @@ namespace Ship_Game
             vector2.Y *= -1f;
             Vector2 selectionVector = vector2 / this.pieMenu.Radius;
             this.pieMenu.HandleInput(input, selectionVector);
-            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                input.LastMouseState.LeftButton == ButtonState.Released && !this.pieMenu.Visible)
+            if (input.LeftMouseClick && !this.pieMenu.Visible)
             {
                 if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                     this.previousSelection = this.SelectedShip;
@@ -1690,24 +1690,21 @@ namespace Ship_Game
             for (int index = 0; index < EmpireManager.Player.GetGSAI().Goals.Count; ++index)
             {
                 Goal goal = player.GetGSAI().Goals[index];
-                if (goal.GoalName == "BuildConstructionShip")
+                if (goal.GoalName != "BuildConstructionShip") continue;
+                const float radius = 100f;                    
+                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), this.projection, this.view, Matrix.Identity).ToVec2();
+                Vector3 buildOffSet = this.Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
+                var underConstruction = new ClickableItemUnderConstruction
                 {
-                    float radius = 100f;
-                    Vector3 vector3_1 = this.Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), this.projection, this.view, Matrix.Identity);
-                    Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
-                    float num = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2) + 10f;
-                    ClickableItemUnderConstruction underConstruction = new ClickableItemUnderConstruction
-                    {
-                        Radius         = num,
-                        BuildPos       = goal.BuildPosition,
-                        ScreenPos      = vector2,
-                        UID            = goal.ToBuildUID,
-                        AssociatedGoal = goal
-                    };
-                    lock (GlobalStats.ClickableItemLocker)
-                        ItemsToBuild.Add(underConstruction);
-                }
+                    Radius         = num,
+                    BuildPos       = goal.BuildPosition,
+                    ScreenPos      = buildPos,
+                    UID            = goal.ToBuildUID,
+                    AssociatedGoal = goal
+                };
+                lock (GlobalStats.ClickableItemLocker)
+                    ItemsToBuild.Add(underConstruction);
             }
         }
 
@@ -1717,45 +1714,50 @@ namespace Ship_Game
             if (this.SelectedShip == null)
             {
                 this.DefiningAO = false;
+                return;
             }
-            else
+            if (input.Escaped)      //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
             {
-                if (input.Escaped)      //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
+                this.DefiningAO = false;
+                return;
+            }               
+            Vector3 position = this.Viewport.Unproject(new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0.0f)
+                , this.projection, this.view, Matrix.Identity);
+            Vector3 direction = this.Viewport.Unproject(new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 1f)
+                , this.projection, this.view, Matrix.Identity) - position;
+            direction.Normalize();
+            var ray = new Ray(position, direction);
+            float num = -ray.Position.Z / ray.Direction.Z;
+            var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
+            if (input.LeftMouseClick)
+                this.AORect = new Rectangle((int)vector3.X, (int)vector3.Y, 0, 0);
+            if (input.LeftMouseHeld())
+            {
+                int x = AORect.X;
+                int y = AORect.Y;
+                int x2 = (int)vector3.X;
+                int y2 = (int)vector3.Y;
+                    
+                this.AORect = new Rectangle(x, y,  x2 - x, y2 - y);
+            }
+            if (input.LeftMouseReleased)
+            {
+                if (this.AORect.X > vector3.X)
+                    this.AORect.X = (int)vector3.X;
+                if (this.AORect.Y > vector3.Y)
+                    this.AORect.Y = (int)vector3.Y;
+                this.AORect.Width = Math.Abs(this.AORect.Width);
+                this.AORect.Height = Math.Abs(this.AORect.Height);
+                if (this.AORect.Width > 100 && this.AORect.Height > 100)
                 {
-                    this.DefiningAO = false;
-                    return;
+                    GameAudio.PlaySfxAsync("echo_affirm");
+                    this.SelectedShip.AreaOfOperation.Add(this.AORect);
                 }
-                Vector3 position = this.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                Vector3 direction = this.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.projection, this.view, Matrix.Identity) - position;
-                direction.Normalize();
-                Ray ray = new Ray(position, direction);
-                float num = -ray.Position.Z / ray.Direction.Z;
-                Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
-                    this.AORect = new Rectangle((int)vector3.X, (int)vector3.Y, 0, 0);
-                if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
-                {
-                    this.AORect = new Rectangle(this.AORect.X, this.AORect.Y, (int)vector3.X - this.AORect.X, (int)vector3.Y - this.AORect.Y);
-                }
-                if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
-                {
-                    if (this.AORect.X > vector3.X)
-                        this.AORect.X = (int)vector3.X;
-                    if (this.AORect.Y > vector3.Y)
-                        this.AORect.Y = (int)vector3.Y;
-                    this.AORect.Width = Math.Abs(this.AORect.Width);
-                    this.AORect.Height = Math.Abs(this.AORect.Height);
-                    if (this.AORect.Width > 100 && this.AORect.Height > 100)
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        this.SelectedShip.AreaOfOperation.Add(this.AORect);
-                    }
-                }
-                for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; ++index)
-                {
-                    if (this.SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
-                        this.SelectedShip.AreaOfOperation.Remove(this.SelectedShip.AreaOfOperation[index]);
-                }
+            }
+            for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; ++index)
+            {
+                if (this.SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+                    this.SelectedShip.AreaOfOperation.Remove(this.SelectedShip.AreaOfOperation[index]);
             }
         }
 
@@ -1787,22 +1789,20 @@ namespace Ship_Game
             }
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
-                if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
-                {
-                    pickedSomethingThisFrame = true;
-                    SelectedShipList.AddUnique(clickableShip.shipToClick);
+                if(!input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius)) continue;
+                pickedSomethingThisFrame = true;
+                SelectedShipList.AddUnique(clickableShip.shipToClick);
 
-                    foreach (ClickableShip ship in ClickableShipsList)
+                foreach (ClickableShip ship in ClickableShipsList)
+                {
+                    if (clickableShip.shipToClick != ship.shipToClick &&
+                        ship.shipToClick.loyalty == clickableShip.shipToClick.loyalty &&
+                        ship.shipToClick.shipData.Role == clickableShip.shipToClick.shipData.Role)
                     {
-                        if (clickableShip.shipToClick != ship.shipToClick &&
-                            ship.shipToClick.loyalty == clickableShip.shipToClick.loyalty &&
-                            ship.shipToClick.shipData.Role == clickableShip.shipToClick.shipData.Role)
-                        {
-                            SelectedShipList.AddUnique(ship.shipToClick);
-                        }
+                        SelectedShipList.AddUnique(ship.shipToClick);
                     }
-                    break;
                 }
+                break;
             }
             if (viewState > UnivScreenState.SystemView)
             {

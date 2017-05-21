@@ -258,7 +258,17 @@ namespace Ship_Game
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
         }
-
+        public void MakeMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted,int localID, string okText, string cancelledText)
+        {
+            var messageBox = new MessageBoxScreen(screen, localID, okText, cancelledText);
+            messageBox.Cancelled += cancelled;
+            messageBox.Accepted += accepted;
+            ScreenManager.AddScreen(messageBox);            
+        }
+        public void ExitMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localID)
+        {
+            MakeMessageBox(screen, cancelled, accepted, 2137, "Save", "Exit");
+        }
         public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool LightingEnabled = false)
         {
             foreach (ModelMesh modelMesh in model.Meshes)

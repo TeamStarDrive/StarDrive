@@ -282,7 +282,7 @@ namespace Ship_Game
                             else
                                 vector2.Y += num2;
                             vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
-                            Vector2 pos = new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y);
+                            Vector2 pos = Input.CursorPosition;
                             if (solarSystem.OwnerList.Count == 0)
                             {
                                 if (this.SelectedSystem != solarSystem ||
@@ -510,9 +510,9 @@ namespace Ship_Game
                 ScreenManager.inter.BeginFrameRendering(ScreenManager.sceneState);
             RenderBackdrop();
             ScreenManager.SpriteBatch.Begin();
-            if (DefiningAO && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            if (DefiningAO && Input.LeftMousePressed)
             {
-                DrawRectangleProjected(AORect, Color.Red);
+                DrawRectangleProjected(AORect, Color.Orange);
             }
             if (DefiningAO && SelectedShip != null)
             {
@@ -522,7 +522,7 @@ namespace Ship_Game
                 for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; index++)
                 {
                     Rectangle rectangle = this.SelectedShip.AreaOfOperation[index];
-                    this.DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 10));
+                    this.DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 50));
                 }
             }
             else
