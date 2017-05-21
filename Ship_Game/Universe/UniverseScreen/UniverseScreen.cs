@@ -291,7 +291,27 @@ namespace Ship_Game
                 ScreenManager.RemoveAllLights();
                 foreach (SolarSystem system in SolarSystemList)
                 {
-                    AddLight(system, 2.5f, 150000f, zpos: +2500f, fillLight: true);
+                    float intensity = 2.5f;
+                    float radius = 150000f;
+
+                    switch (system.SunPath)
+                    {
+                        case "star_red":
+                            intensity -= 5f;
+                            radius -= 50000f;
+                            break;
+                        case "star_yellow":                            
+                        case "star_yellow2":break;
+                        case "star_green": break;
+                        case "star_blue":
+                        case "star_binary":                            
+                            intensity += .5f;
+                            radius += 50000f;
+                            break; 
+                    }
+
+
+                    AddLight(system, intensity, radius, zpos: +2500f, fillLight: true);
                     AddLight(system, 2.5f, 5000f,   zpos: -2500f, fillLight: false);
                     AddLight(system, 1.0f, 100000f, zpos: -6500f, fillLight: false);
                 }
