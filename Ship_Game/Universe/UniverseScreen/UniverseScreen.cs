@@ -243,7 +243,7 @@ namespace Ship_Game
 
         // for really specific debuggingD
         public static int FrameId;
-
+        
         private UniverseScreen() : base(null)
         {
         }
@@ -282,7 +282,9 @@ namespace Ship_Game
             SpaceManager.Setup(UniverseRadius);
         }
 
-        public void SetLighting(bool real)
+        public void ResetLighting() => SetLighting(UseRealLights);
+
+        private void SetLighting(bool real)
         {
             if (real)
             {

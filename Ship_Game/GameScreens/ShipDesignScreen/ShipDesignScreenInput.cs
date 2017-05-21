@@ -1262,8 +1262,7 @@ namespace Ship_Game {
 
         private void ReallyExit()
         {
-            LightRig rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
-            rig.AssignTo(this);
+            Empire.Universe?.ResetLighting();            
 
             lock (GlobalStats.ObjectManagerLocker)
             {

@@ -10,9 +10,9 @@ namespace Ship_Game
     {
         private const string usageText = "A button = Okay";
 
-        private bool pauseMenu;
+        private readonly bool PauseMenu;
 
-        private string message;
+        private string Message;
 
         private SpriteFont smallFont;
 
@@ -20,22 +20,22 @@ namespace Ship_Game
 
         public UIButton Cancel;
 
-        private float timer;
+        private float Timer;
 
-        private bool timed;
+        private readonly bool Timed;
 
-        private string original = "";
+        private readonly string Original = "";
 
-        private MouseState currentMouse;
+        private MouseState CurrentMouse;
 
-        private MouseState previousMouse;
+        private MouseState PreviousMouse;
 
-        private string toappend;
+        private string Toappend;
 
         public MessageBoxScreen(GameScreen parent, string message) : base(parent)
         {
-            this.message = message;
-            this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
+            this.Message = message;
+            this.Message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -66,8 +66,8 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message, string oktext, string canceltext) : base(parent)
         {
-            this.message = message;
-            this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
+            this.Message = message;
+            this.Message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -95,10 +95,10 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message, float Timer) : base(parent)
         {
-            this.timed = true;
-            this.timer = Timer;
-            this.original = message;
-            this.message = message;
+            this.Timed = true;
+            this.Timer = Timer;
+            this.Original = message;
+            this.Message = message;
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -126,20 +126,20 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message, bool pauseMenu) : this(parent, message)
         {
-            this.pauseMenu = pauseMenu;
+            this.PauseMenu = pauseMenu;
         }
 
         public override void Draw(GameTime gameTime)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            if (!this.timed)
+            if (!this.Timed)
             {
-                Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) + 15);
-                Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(this.message).X / 2f, (float)(r.Y + 10));
+                Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
+                Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Message).X / 2f, (float)(r.Y + 10));
                 base.ScreenManager.SpriteBatch.Begin();
                 base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
                 base.ScreenManager.SpriteBatch.DrawRectangle(r, Color.Orange);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.message, this.toappend), textPosition, Color.White);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
                 this.OK.Rect.X = r.X + r.Width / 2 + 5;
                 this.OK.Rect.Y = r.Y + r.Height - 28;
                 this.Cancel.Rect.X = r.X + r.Width / 2 - 73;
@@ -151,14 +151,14 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.End();
                 return;
             }
-            this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat(this.original, this.toappend), 250f);
+            this.Message = HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat(this.Original, this.Toappend), 250f);
             //renamed r, textposition
-            Rectangle r2 = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.message).Y + 40f) + 15);
-            Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(this.message).X / 2f, (float)(r2.Y + 10));
+            Rectangle r2 = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
+            Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Message).X / 2f, (float)(r2.Y + 10));
             base.ScreenManager.SpriteBatch.Begin();
             base.ScreenManager.SpriteBatch.FillRectangle(r2, Color.Black);
             base.ScreenManager.SpriteBatch.DrawRectangle(r2, Color.Orange);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.message, textPosition2, Color.White);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
             this.OK.Rect.X = r2.X + r2.Width / 2 + 5;
             this.OK.Rect.Y = r2.Y + r2.Height - 28;
             this.Cancel.Rect.X = r2.X + r2.Width / 2 - 73;
@@ -172,22 +172,16 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            this.currentMouse = input.CurrentMouseState;
-            Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            if (input.MenuSelect && (!this.pauseMenu || input.CurrentGamePadState.Buttons.A == ButtonState.Pressed))
+            this.CurrentMouse = input.CurrentMouseState;
+            Vector2 MousePos = new Vector2((float)this.CurrentMouse.X, (float)this.CurrentMouse.Y);
+            if (input.MenuSelect && (!this.PauseMenu || input.CurrentGamePadState.Buttons.A == ButtonState.Pressed))
             {
-                if (this.Accepted != null)
-                {
-                    this.Accepted(this, EventArgs.Empty);
-                }
+                Accepted?.Invoke(this, EventArgs.Empty);
                 this.ExitScreen();
             }
-            else if (input.MenuCancel || input.MenuSelect && this.pauseMenu && input.CurrentGamePadState.Buttons.A == ButtonState.Released)
+            else if (input.MenuCancel || input.MenuSelect && this.PauseMenu && input.CurrentGamePadState.Buttons.A == ButtonState.Released)
             {
-                if (this.Cancelled != null)
-                {
-                    this.Cancelled(this, EventArgs.Empty);
-                }
+                Cancelled?.Invoke(this, EventArgs.Empty);
                 this.ExitScreen();
             }
             foreach (UIButton b in this.Buttons)
@@ -203,11 +197,11 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("mouse_over4");
                     }
                     b.State = UIButton.PressState.Hover;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+                    if (this.CurrentMouse.LeftButton == ButtonState.Pressed && this.PreviousMouse.LeftButton == ButtonState.Pressed)
                     {
                         b.State = UIButton.PressState.Pressed;
                     }
-                    if (this.currentMouse.LeftButton != ButtonState.Released || this.previousMouse.LeftButton != ButtonState.Pressed)
+                    if (this.CurrentMouse.LeftButton != ButtonState.Released || this.PreviousMouse.LeftButton != ButtonState.Pressed)
                     {
                         continue;
                     }
@@ -236,7 +230,7 @@ namespace Ship_Game
                     }
                 }
             }
-            this.previousMouse = this.currentMouse;
+            this.PreviousMouse = this.CurrentMouse;
         }
 
         public override void LoadContent()
@@ -248,12 +242,12 @@ namespace Ship_Game
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             MessageBoxScreen messageBoxScreen = this;
-            messageBoxScreen.timer = messageBoxScreen.timer - elapsedTime;
-            if (this.timed)
+            messageBoxScreen.Timer = messageBoxScreen.Timer - elapsedTime;
+            if (this.Timed)
             {
                 string fmt = "0";
-                this.toappend = string.Concat(this.timer.ToString(fmt), " ", Localizer.Token(17));
-                if (this.timer <= 0f)
+                this.Toappend = string.Concat(this.Timer.ToString(fmt), " ", Localizer.Token(17));
+                if (this.Timer <= 0f)
                 {
                     if (this.Cancelled != null)
                     {
