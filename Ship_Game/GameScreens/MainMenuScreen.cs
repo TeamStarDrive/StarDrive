@@ -506,7 +506,7 @@ namespace Ship_Game
             }
             if (input.C && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
             {
-                ScreenManager.AddScreen(new ShipToolScreen());
+                ScreenManager.AddScreen(new ShipToolScreen());                
                 ExitScreen();
             }
             if (okcomet && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)

@@ -393,7 +393,11 @@ namespace Ship_Game
         {
             return UnlockedModulesDict;
         }
-
+        public bool IsModuleUnlocked(string moduleUID)
+        {
+            bool found = UnlockedModulesDict.TryGetValue(moduleUID, out found); 
+            return  found;
+        }
         public Map<string, TechEntry> GetTDict()
         {
             return TechnologyDict;
@@ -464,14 +468,14 @@ namespace Ship_Game
         {
             return OwnedShips;
         }
-        public Array<Ship> GetShipsFromOffensePools(bool OnlyAO = false)
+        public Array<Ship> GetShipsFromOffensePools(bool onlyAO = false)
         {
             Array<Ship> ships = new Array<Ship>();
             foreach (AO ao in GetGSAI().AreasOfOperations)
             {
                 ships.AddRange(ao.GetOffensiveForcePool());
             }
-            if(!OnlyAO)
+            if(!onlyAO)
                 ships.AddRange(ForcePool);
             return ships;
         }
