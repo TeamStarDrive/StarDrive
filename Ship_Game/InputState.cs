@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace Ship_Game
 {
@@ -21,35 +20,31 @@ namespace Ship_Game
         public int PreviousScrollWheelValue;
 
         public bool Repeat;
-        private float Timer;
 
-        public float RightMouseTimer = 0.35f;
-        public bool RightMouseClick => (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Released);
-        public bool LeftMouseClick => (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released);
-        public bool BackMouseClick => (CurrentMouseState.XButton1 == ButtonState.Pressed && LastMouseState.XButton1 == ButtonState.Released);
-        public bool MiddleMouseClick => (CurrentMouseState.MiddleButton == ButtonState.Pressed && LastMouseState.MiddleButton == ButtonState.Released);
-        public bool LeftMouseRelease => CurrentMouseState.LeftButton == ButtonState.Released;
-        public Vector2 MouseScreenPos => new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
-        public bool LeftMouseHeld(float seconds = .25f)
-        {
-            if (CurrentMouseState.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Pressed)
-            {
-                Timer += .01666f;
-                return Timer >= seconds;
-            }
-            Timer = 0;
-            return false;
-        }
-        public bool RightMouseHeld(float seconds = .25f)
-        {
-            if (CurrentMouseState.RightButton == ButtonState.Pressed && LastMouseState.RightButton == ButtonState.Pressed)
-            {
-                Timer += .01666f;
-                return Timer >= seconds;
-            }
-            Timer = 0;
-            return false;
-        }
+        private float RightMouseTimer;
+        private float LeftMouseTimer;
+        public bool RightMouseClick               => MouseButtonClicked(CurrentMouseState.RightButton, LastMouseState.RightButton);
+        public bool LeftMouseClick                => MouseButtonClicked(CurrentMouseState.LeftButton, LastMouseState.LeftButton);
+        public bool BackMouseClick                => MouseButtonClicked(CurrentMouseState.XButton1, LastMouseState.XButton1);
+        public bool MiddleMouseClick              => MouseButtonClicked(CurrentMouseState.MiddleButton, LastMouseState.MiddleButton);
+        public bool LeftMouseReleased             => MouseButtonReleased(CurrentMouseState.LeftButton, LastMouseState.LeftButton);
+        public bool RightMouseReleased            => MouseButtonReleased(CurrentMouseState.RightButton, LastMouseState.RightButton);
+        public Vector2 MouseScreenPos             => new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
+        public bool LeftMousePressed              => CurrentMouseState.LeftButton == ButtonState.Pressed;
+        public bool LeftMouseHeld(float seconds   = .25f) => 
+            MouseButtonHeld(CurrentMouseState.LeftButton, LastMouseState.LeftButton, seconds, LeftMouseTimer);
+
+        public bool RightMouseHeld(float seconds = .25f) => 
+            MouseButtonHeld(CurrentMouseState.RightButton,LastMouseState.RightButton, seconds, RightMouseTimer);
+
+        private static bool MouseButtonHeld(ButtonState currentbutton, ButtonState lastbutton, float seconds, float timer) =>        
+            currentbutton == ButtonState.Pressed && lastbutton == ButtonState.Pressed && timer >= seconds;
+
+        private static bool MouseButtonClicked(ButtonState currentbutton, ButtonState lastbutton) =>
+            currentbutton == ButtonState.Pressed && lastbutton == ButtonState.Released;
+        private static bool MouseButtonReleased(ButtonState currentbutton, ButtonState lastbutton) =>
+            currentbutton == ButtonState.Released && lastbutton == ButtonState.Pressed;
+
 
         //Ingame 
         //UniverseScreen
@@ -108,8 +103,7 @@ namespace Ship_Game
             if (GlobalStats.AltArcControl)
             {
                 //The Doctor: ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
-                return CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                       CurrentMouseState.LeftButton == ButtonState.Pressed &&
+                return CurrentMouseState.LeftButton == ButtonState.Pressed &&                       
                        (CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) ||
                         LastKeyboardState.IsKeyDown(Keys.LeftAlt)
                         || CurrentKeyboardState.IsKeyDown(Keys.RightAlt)
@@ -117,6 +111,7 @@ namespace Ship_Game
             }
             return LeftMouseHeld();
         }
+        public bool Undo => IsNewKeyPress(Keys.Z) && CurrentKeyboardState.IsKeyDown(Keys.LeftControl);
         /// <summary>
         /// below are the defaults set previously. i bleieve the idea is to set the button wanted here with a name to indicate its use.
         /// </summary>
@@ -424,26 +419,31 @@ namespace Ship_Game
         {
             return CurrentKeyboardState.IsKeyDown(key) && LastKeyboardState.IsKeyUp(key);
         }
+        private void UpdateTimers(float time)
+        {
+            TimerUpdate(time, LeftMouseHeld(0), ref LeftMouseTimer);
+            TimerUpdate(time, RightMouseHeld(0), ref RightMouseTimer);
 
+        }
+        private static void TimerUpdate(float time, bool update, ref float timer)
+        {
+            if (update)
+                timer += time;
+            else
+                timer = 0;
+        }
         public void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (CurrentMouseState.RightButton != ButtonState.Pressed)
-            {
-                RightMouseTimer = 0.35f;
-            }
-            else
-            {
-                InputState rightMouseTimer = this;
-                rightMouseTimer.RightMouseTimer = rightMouseTimer.RightMouseTimer - elapsedTime;
-            }
-            LastKeyboardState = CurrentKeyboardState;
-            LastGamePadState = CurrentGamePadState;
-            LastMouseState = CurrentMouseState;
+            UpdateTimers(elapsedTime);
+
+            LastKeyboardState        = CurrentKeyboardState;
+            LastGamePadState         = CurrentGamePadState;
+            LastMouseState           = CurrentMouseState;
             PreviousScrollWheelValue = CurrentMouseState.ScrollWheelValue;
-            CurrentMouseState = Mouse.GetState();
-            CursorPosition = new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
-            CurrentKeyboardState = Keyboard.GetState();
+            CurrentMouseState        = Mouse.GetState();
+            CursorPosition           = new Vector2(CurrentMouseState.X, CurrentMouseState.Y);
+            CurrentKeyboardState     = Keyboard.GetState();
         }
     }
 }

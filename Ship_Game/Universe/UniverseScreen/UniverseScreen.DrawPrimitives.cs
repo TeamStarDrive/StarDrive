@@ -115,15 +115,16 @@ namespace Ship_Game
         public void DrawRectangleProjected(Rectangle rectangle, Color edge)
         {
             Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
-            var rect = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, (int)Math.Abs(rectTopLeft.X - rectBotRight.X), (int)Math.Abs(rectTopLeft.Y - rectBotRight.Y));
+
+            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X - rectangle.Width, rectangle.Y - rectangle.Height));
+            var rect = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, (int)(rectTopLeft.X - rectBotRight.X), (int)(rectTopLeft.Y - rectBotRight.Y));
             DrawRectangle(rect, edge);
         }
 
         public void DrawRectangleProjected(Rectangle rectangle, Color edge, Color fill)
         {
             Vector2 rectTopLeft  = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
-            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X, rectangle.Y));
+            Vector2 rectBotRight = ProjectToScreenPosition(new Vector2(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height));
             var rect  = new Rectangle((int)rectTopLeft.X, (int)rectTopLeft.Y, 
                                     (int)Math.Abs(rectTopLeft.X - rectBotRight.X), (int)Math.Abs(rectTopLeft.Y - rectBotRight.Y));
             DrawRectangle(rect, edge, fill);            
