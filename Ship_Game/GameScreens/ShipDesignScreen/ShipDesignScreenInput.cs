@@ -36,17 +36,17 @@ namespace Ship_Game {
             }
             ActiveHull = new ShipData
             {
-                Animated = hull.Animated,
-                CombatState = hull.CombatState,
-                Hull = hull.Hull,
-                IconPath = hull.IconPath,
-                ModelPath = hull.ModelPath,
-                Name = hull.Name,
-                Role = hull.Role,
-                ShipStyle = hull.ShipStyle,
+                Animated     = hull.Animated,
+                CombatState  = hull.CombatState,
+                Hull         = hull.Hull,
+                IconPath     = hull.IconPath,
+                ModelPath    = hull.ModelPath,
+                Name         = hull.Name,
+                Role         = hull.Role,
+                ShipStyle    = hull.ShipStyle,
                 ThrusterList = hull.ThrusterList,
                 ShipCategory = hull.ShipCategory,
-                CarrierShip = hull.CarrierShip
+                CarrierShip  = hull.CarrierShip
             };
             Techs.Clear();
             AddToTechList(ActiveHull.HullData.techsNeeded);
@@ -282,46 +282,7 @@ namespace Ship_Game {
         public override void HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
-            if (DropdownRect.HitTest(input.CursorPosition)) //fbedard: add tooltip for CategoryList
-            {
-                switch (CategoryList.Options[CategoryList.ActiveIndex].value)
-                {
-                    case 1:
-                    {
-                        ToolTip.CreateTooltip("Repair when damaged at 75%", ScreenManager);                            
-                        break;
-                    }
-                    case 2:
-                    {
-                        ToolTip.CreateTooltip(
-                            "Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 15%",
-                            ScreenManager);
-                        break;
-                    }
-                    case 3:
-                    {
-                        ToolTip.CreateTooltip("Repair when damaged at 35%", ScreenManager);
-                        break;
-                    }
-                    case 4:
-                    case 5:
-                    case 6:
-                    {
-                        ToolTip.CreateTooltip("Repair when damaged at 55%", ScreenManager);
-                        break;
-                    }
-                    case 7:
-                    {
-                        ToolTip.CreateTooltip("Never Repair!", ScreenManager);
-                        break;
-                    }
-                    default:
-                    {
-                        ToolTip.CreateTooltip("Repair when damaged at 75%", ScreenManager);
-                        break;
-                    }
-                }
-            }
+            //HandleInputCategoryList(input);
             CarrierOnlyBox.HandleInput(input);
 
             if (ActiveModule != null && (ActiveModule.InstalledWeapon != null
@@ -343,11 +304,419 @@ namespace Ship_Game {
                 ExitScreen();
             }
             if (Close.HandleInput(input))
+            {
                 ExitScreen();
-            else if (input.Undo)
+                return;
+            }
+            if (HandleInputUndo(input)) return;
+            HandleInputZoom(input);
+
+            HandleInputDebug(input);
+
+            HoveredModule = null;
+            MouseStateCurrent = Mouse.GetState();
+            var vector2 = new Vector2(MouseStateCurrent.X, MouseStateCurrent.Y);
+            selector = null;
+            EmpireUI.HandleInput(input, this);
+            ActiveModSubMenu.HandleInputNoReset(this);
+            HullSL.HandleInput(input);
+            for (int index = HullSL.indexAtTop;
+                index < HullSL.Copied.Count && index < HullSL.indexAtTop + HullSL.entriesToDisplay;
+                ++index)
+            {
+                ScrollList.Entry e = HullSL.Copied[index];
+                if (e.item is ModuleHeader moduleHeader)
+                {
+                    if (moduleHeader.HandleInput(input, e))
+                        return;
+                }
+                else if (e.clickRect.HitTest(vector2))
+                {
+                    selector = new Selector(ScreenManager, e.clickRect);
+                    e.clickRectHover = 1;
+                    selector = new Selector(ScreenManager, e.clickRect);
+                    if (!input.InGameSelect) continue;
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    if (!ShipSaved && !CheckDesign())
+                    {
+                        Changeto = e.item as ShipData;
+                        MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
+                        return;
+                    }
+                    ChangeHull(e.item as ShipData);
+                    return;
+                }
+                else
+                    e.clickRectHover = 0;
+            }
+            ModSel.HandleInput(this);
+            if (ActiveModule != null)
+            {
+                if (ActiveModule.ModuleType == ShipModuleType.Hangar && !ActiveModule.IsTroopBay
+                    && !ActiveModule.IsSupplyBay)
+                {
+                    UpdateHangarOptions(ActiveModule);
+                    ChooseFighterSL.HandleInput(input);
+                    for (int index = ChooseFighterSL.indexAtTop;
+                        index < ChooseFighterSL.Copied.Count
+                        && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
+                        ++index)
+                    {
+                        ScrollList.Entry entry = ChooseFighterSL.Copied[index];
+                        if (entry.clickRect.HitTest(vector2))
+                        {
+                            selector = new Selector(ScreenManager, entry.clickRect);
+                            entry.clickRectHover = 1;
+                            selector = new Selector(ScreenManager, entry.clickRect);
+                            if (!input.InGameSelect) continue;
+
+                            ActiveModule.hangarShipUID = (entry.item as Ship).Name;
+                            HangarShipUIDLast = (entry.item as Ship).Name;
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                            return;
+                        }
+                    }
+                }
+            }
+            else if (HighlightedModule != null && HighlightedModule.ModuleType == ShipModuleType.Hangar
+                     && (!HighlightedModule.IsTroopBay && !HighlightedModule.IsSupplyBay))
+            {
+                ChooseFighterSL.HandleInput(input);
+                for (int index = ChooseFighterSL.indexAtTop;
+                    index < ChooseFighterSL.Copied.Count
+                    && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
+                    ++index)
+                {
+                    ScrollList.Entry entry = ChooseFighterSL.Copied[index];
+                    if (!entry.clickRect.HitTest(vector2)) continue;
+                    selector = new Selector(ScreenManager, entry.clickRect);
+                    entry.clickRectHover = 1;
+                    selector = new Selector(ScreenManager, entry.clickRect);
+                    if (!input.InGameSelect) continue;
+                    HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
+                    HangarShipUIDLast = (entry.item as Ship).Name;
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    return;
+                }
+            }
+            for (int index = WeaponSl.indexAtTop;
+                index < WeaponSl.Copied.Count
+                && index < WeaponSl.indexAtTop + WeaponSl.entriesToDisplay;
+                ++index)
+            {
+                ScrollList.Entry e = WeaponSl.Copied[index];
+                if (e.item is ModuleHeader moduleHeader)
+                {
+                    if (moduleHeader.HandleInput(input, e))
+                        return;
+                }
+                else if (e.clickRect.HitTest(vector2))
+                {
+                    selector = new Selector(ScreenManager, e.clickRect);
+                    e.clickRectHover = 1;
+                    selector = new Selector(ScreenManager, e.clickRect);
+                    if (input.InGameSelect)
+                    {
+                        SetActiveModule(ShipModule.CreateNoParent((e.item as ShipModule).UID));
+                        ResetModuleState();
+                        return;
+                    }
+                }
+                else
+                    e.clickRectHover = 0;
+            }
+            WeaponSl.HandleInput(input);
+            if (HullSelectionRect.HitTest(input.CursorPosition)
+                && input.LeftMousePressed || ModSel.Menu.HitTest(input.CursorPosition)
+                && input.LeftMousePressed || ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
+                && input.LeftMousePressed)
+                return;
+            if (ModSel.Menu.HitTest(vector2))
+            {
+                if (input.ScrollIn && WeaponSl.indexAtTop > 0)
+                    --WeaponSl.indexAtTop;
+                if (input.ScrollOut && WeaponSl.indexAtTop + WeaponSl.entriesToDisplay < WeaponSl.Entries.Count)
+                    ++WeaponSl.indexAtTop;
+            }
+            if (ArcsButton.R.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(134, ScreenManager);
+            if (ArcsButton.HandleInput(input))
+            {
+                ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
+                ShowAllArcs = ArcsButton.ToggleOn;
+            }
+            if (input.Tab)
+            {
+                ShowAllArcs = !ShowAllArcs;
+                ArcsButton.ToggleOn = ShowAllArcs;
+            }
+            if (input.RightMouseClick)
+            {
+                StartDragPos = input.CursorPosition;
+                CameraVelocity.X = 0.0f;
+            }
+            if (input.RightMouseHeld())
+            {
+                float num1 = input.CursorPosition.X - StartDragPos.X;
+                float num2 = input.CursorPosition.Y - StartDragPos.Y;
+                Camera._pos += new Vector2(-num1, -num2);
+                StartDragPos = input.CursorPosition;
+                cameraPosition.X += -num1;
+                cameraPosition.Y += -num2;
+            }
+            else
+            {
+                CameraVelocity.X = 0.0f;
+                CameraVelocity.Y = 0.0f;
+            }
+            CameraVelocity.X = MathHelper.Clamp(CameraVelocity.X, -10f, 10f);
+            CameraVelocity.Y = MathHelper.Clamp(CameraVelocity.Y, -10f, 10f);
+            if (input.Escaped)
+                ExitScreen();
+            if (ToggleOverlay)
+            {
+                foreach (SlotStruct slotStruct in Slots)
+                {
+                    Vector2 spaceFromWorldSpace =
+                        Camera.GetScreenSpaceFromWorldSpace(new Vector2(slotStruct.PQ.enclosingRect.X,
+                            slotStruct.PQ.enclosingRect.Y));
+                    if (new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y,
+                            (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom))
+                        .HitTest(vector2))
+                    {
+                        if (slotStruct.Module != null)
+                            HoveredModule = slotStruct.Module;
+                        if (input.CurrentMouseState.LeftButton == ButtonState.Pressed &&
+                            input.LastMouseState.LeftButton == ButtonState.Released)
+                        {
+                            GameAudio.PlaySfxAsync("simple_beep");
+                            if (Debug)
+                            {
+                                DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
+                                return;
+                            }
+                            if (slotStruct.Module != null)
+                                HighlightedModule = slotStruct.Module;
+                        }
+                    }
+                }
+            }
+            if (UpArrow.HitTest(vector2) && input.LeftMouseClick && ScrollPosition > 0)
+            {
+                --ScrollPosition;
+                GameAudio.PlaySfxAsync("blip_click");
+                foreach (ModuleButton moduleButton in ModuleButtons)
+                    moduleButton.moduleRect.Y += 128;
+            }
+            if (DownArrow.HitTest(vector2) && input.LeftMouseClick)
+            {
+                ++ScrollPosition;
+                GameAudio.PlaySfxAsync("blip_click");
+                foreach (ModuleButton moduleButton in ModuleButtons)
+                    moduleButton.moduleRect.Y -= 128;
+            }
+            if (ModuleSelectionArea.HitTest(vector2))
+            {
+                if (input.ScrollIn && ScrollPosition > 0)
+                {
+                    --ScrollPosition;
+                    GameAudio.PlaySfxAsync("blip_click");
+                    foreach (ModuleButton moduleButton in ModuleButtons)
+                        moduleButton.moduleRect.Y += 128;
+                }
+                if (input.ScrollOut)
+                {
+                    ++ScrollPosition;
+                    GameAudio.PlaySfxAsync("blip_click");
+                    foreach (ModuleButton moduleButton in ModuleButtons)
+                        moduleButton.moduleRect.Y -= 128;
+                }
+            }
+            if (input.RightMouseClick)
+            {
+                //this should actually clear slots
+                ActiveModule = null;
+                foreach (SlotStruct slot in Slots)
+                {
+                    slot.SetValidity();
+                    Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(
+                        new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
+                    var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
+                        , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
+                    if (slot.Module == null || !rect.HitTest(vector2)) continue;
+                    slot.SetValidity(slot.Module);
+                    var designAction = new DesignAction
+                    {
+                        clickedSS = new SlotStruct
+                        {
+                            PQ = slot.PQ,
+                            Restrictions = slot.Restrictions,
+                            Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
+                            ModuleUID = slot.ModuleUID,
+                            Module = slot.Module,
+                            SlotReference = slot.SlotReference
+                        }
+                    };
+                    DesignStack.Push(designAction);
+                    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                    ClearParentSlot(slot);
+                    RecalculatePower();
+                }
+            }
+            foreach (ModuleButton moduleButton in ModuleButtons)
+            {
+                if (ModuleSelectionArea.HitTest(new Vector2(moduleButton.moduleRect.X + 30,
+                    moduleButton.moduleRect.Y + 30)))
+                {
+                    if (moduleButton.moduleRect.HitTest(vector2))
+                    {
+                        if (input.InGameSelect)
+                            SetActiveModule(ShipModule.CreateNoParent(moduleButton.ModuleUID));
+                        moduleButton.isHighlighted = true;
+                    }
+                    else
+                        moduleButton.isHighlighted = false;
+                }
+            }
+            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && ActiveModule != null)
+            {
+                foreach (SlotStruct slot in Slots)
+                {
+                    Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(new Vector2(
+                        slot.PQ.enclosingRect.X,
+                        slot.PQ.enclosingRect.Y));
+                    if (!new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
+                            , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
+                        .HitTest(vector2)) continue;
+                    GameAudio.PlaySfxAsync("sub_bass_mouseover");
+
+                    if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
+                        ActiveModule.UID == LastActiveUID) continue;
+                    InstallModule(
+                        slot); //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
+                    LastDesignActionPos.X = slot.PQ.X;
+                    LastDesignActionPos.Y = slot.PQ.Y;
+                    LastActiveUID = ActiveModule.UID;
+                }
+            }
+            foreach (SlotStruct slotStruct in Slots)
+            {
+                if (slotStruct.ModuleUID != null && HighlightedModule != null &&
+                    (slotStruct.Module == HighlightedModule &&
+                     slotStruct.Module.FieldOfFire > 0f) &&
+                    slotStruct.Module.ModuleType == ShipModuleType.Turret)
+                {
+                    Vector2 spaceFromWorldSpace =
+                        Camera.GetScreenSpaceFromWorldSpace(new Vector2(
+                            slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
+                            slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
+                    //I am not sure what the below was trying to do. It wasnt doing anything...
+                    //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
+                    //float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
+                    //float facing = HighlightedModule.Facing;
+                    //float angle = Math.Abs(angleToTarget - facing);
+                    //if (angle > fieldOfFire)
+                    //{
+                    //    if (angleToTarget > 180f)
+                    //        angleToTarget = -1f * (360f - angleToTarget);
+                    //    if (facing > 180f)
+                    //        facing = -1f * (360f - facing);
+                    //    angle = Math.Abs(angleToTarget - facing);
+                    //}
+
+                    if (input.ShipYardArcMove())
+                        HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);
+                }
+            }
+            foreach (UIButton uiButton in Buttons)
+            {
+                if (uiButton.Rect.HitTest(vector2))
+                {
+                    uiButton.State = UIButton.PressState.Hover;
+                    if (input.LeftMouseClick)
+                        uiButton.State = UIButton.PressState.Pressed;
+                    if (!input.LeftMouseReleased) continue;
+
+                    switch (uiButton.Launches)
+                    {
+                        case "Toggle Overlay":
+                            GameAudio.PlaySfxAsync("blip_click");
+                            ToggleOverlay = !ToggleOverlay;
+                            continue;
+                        case "Save As...":
+                            if (CheckDesign())
+                            {
+                                ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
+                                continue;
+                            }
+                            else
+                            {
+                                GameAudio.PlaySfxAsync("UI_Misc20");
+                                ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
+                                continue;
+                            }
+                        case "Load":
+                            ScreenManager.AddScreen(new LoadDesigns(this));
+                            continue;
+                        default:
+                            continue;
+                    }
+                }
+                uiButton.State = UIButton.PressState.Default;
+            }
+            CheckToggleButton(input);
+            MouseStatePrevious = MouseStateCurrent;
+            base.HandleInput(input);
+        }
+
+        private void HandleInputDebug(InputState input)
+        {
+            if (!Debug) return;
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.Enter) && input.LastKeyboardState.IsKeyUp(Keys.Enter))
+            {
+                foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
+                    moduleSlotData.InstalledModuleUID = null;
+                new XmlSerializer(typeof(ShipData)).Serialize(
+                    new StreamWriter("Content/Hulls/" + ActiveHull.ShipStyle + "/" + ActiveHull.Name + ".xml"),
+                    ActiveHull);
+            }
+            if (input.Right)
+                ++Operation;
+            if (Operation > SlotModOperation.Normal)
+                Operation = SlotModOperation.Delete;
+        }
+
+        private void HandleInputZoom(InputState input)
+        {
+            if (!ModuleSelectionMenu.Menu.HitTest(input.CursorPosition)
+                && !HullSelectionRect.HitTest(input.CursorPosition)
+                && !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
+            {
+                if (input.ScrollOut)
+                {
+                    TransitionZoom -= 0.1f;
+                    if (TransitionZoom < 0.300000011920929)
+                        TransitionZoom = 0.3f;
+                    if (TransitionZoom > 2.65000009536743)
+                        TransitionZoom = 2.65f;
+                }
+                if (input.ScrollIn)
+                {
+                    TransitionZoom += 0.1f;
+                    if (TransitionZoom < 0.300000011920929)
+                        TransitionZoom = 0.3f;
+                    if (TransitionZoom > 2.65000009536743)
+                        TransitionZoom = 2.65f;
+                }
+            }
+        }
+
+        private bool HandleInputUndo(InputState input)
+        {
+            if (input.Undo)
             {
                 if (DesignStack.Count <= 0)
-                    return;
+                    return true;
                 LastActiveUID = "";
                 ShipModule shipModule = ActiveModule;
                 DesignAction designAction = DesignStack.Pop();
@@ -381,484 +750,95 @@ namespace Ship_Game {
                         ActiveModule = ShipModule.CreateNoParent(slotStruct.ModuleUID);
                         ResetModuleState();
                         InstallModuleNoStack(slot2);
-                        slot2.Facing    = slotStruct.Facing;
+                        slot2.Facing = slotStruct.Facing;
                         slot2.ModuleUID = slotStruct.ModuleUID;
                     }
                 }
                 ActiveModule = shipModule;
                 ResetModuleState();
+                return true;
             }
-            else
+            return false;
+        }
+        
+        private void CheckToggleButton(InputState input)
+        {
+            if (ActiveHull == null) return;
+            foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
-                if (!ModuleSelectionMenu.Menu.HitTest(input.CursorPosition)
-                    && !HullSelectionRect.HitTest(input.CursorPosition)
-                    && !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
+                if (toggleButton.r.HitTest(input.CursorPosition))
                 {
-                    if (input.ScrollOut)
+                    if (toggleButton.HasToolTip)
+                        ToolTip.CreateTooltip(toggleButton.WhichToolTip, ScreenManager);
+                    if (input.InGameSelect)
                     {
-                        TransitionZoom -= 0.1f;
-                        if (TransitionZoom < 0.300000011920929)
-                            TransitionZoom = 0.3f;
-                        if (TransitionZoom > 2.65000009536743)
-                            TransitionZoom = 2.65f;
-                    }
-                    if (input.ScrollIn)
-                    {
-                        TransitionZoom += 0.1f;
-                        if (TransitionZoom < 0.300000011920929)
-                            TransitionZoom = 0.3f;
-                        if (TransitionZoom > 2.65000009536743)
-                            TransitionZoom = 2.65f;
-                    }
-                }
-
-                if (Debug)
-                {
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.Enter) && input.LastKeyboardState.IsKeyUp(Keys.Enter))
-                    {
-                        foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
-                            moduleSlotData.InstalledModuleUID = null;
-                        new XmlSerializer(typeof(ShipData)).Serialize(
-                            new StreamWriter("Content/Hulls/" + ActiveHull.ShipStyle + "/" + ActiveHull.Name + ".xml"),
-                            ActiveHull);
-                    }
-                    if (input.Right)
-                        ++Operation;
-                    if (Operation > SlotModOperation.Normal)
-                        Operation = SlotModOperation.Delete;
-                }
-
-                HoveredModule     = null;
-                MouseStateCurrent = Mouse.GetState();
-                var vector2       = new Vector2(MouseStateCurrent.X, MouseStateCurrent.Y);
-                selector          = null;
-                EmpireUI.HandleInput(input, this);
-                ActiveModSubMenu.HandleInputNoReset(this);
-                HullSL.HandleInput(input);
-                for (int index = HullSL.indexAtTop;
-                    index < HullSL.Copied.Count && index < HullSL.indexAtTop + HullSL.entriesToDisplay;
-                    ++index)
-                {
-                    ScrollList.Entry e = HullSL.Copied[index];
-                    if (e.item is ModuleHeader moduleHeader)
-                    {
-                        if (moduleHeader.HandleInput(input, e))
-                            return;
-                    }
-                    else if (e.clickRect.HitTest(vector2))
-                    {
-                        selector = new Selector(ScreenManager, e.clickRect);
-                        e.clickRectHover = 1;
-                        selector = new Selector(ScreenManager, e.clickRect);
-                        if (!input.InGameSelect) continue;
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        if (!ShipSaved && !CheckDesign())
-                        {                                                        
-                            Changeto                    = e.item as ShipData;                            
-                            MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
-                            return;
-                        }
-                        ChangeHull(e.item as ShipData);
-                        return;
-                    }
-                    else
-                        e.clickRectHover = 0;
-                }
-                ModSel.HandleInput(this);
-                if (ActiveModule != null)
-                {
-                    if (ActiveModule.ModuleType == ShipModuleType.Hangar && !ActiveModule.IsTroopBay
-                        && !ActiveModule.IsSupplyBay)
-                    {
-                        UpdateHangarOptions(ActiveModule);
-                        ChooseFighterSL.HandleInput(input);
-                        for (int index = ChooseFighterSL.indexAtTop;
-                            index < ChooseFighterSL.Copied.Count
-                            && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
-                            ++index)
-                        {
-                            ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-                            if (entry.clickRect.HitTest(vector2))
-                            {
-                                selector = new Selector(ScreenManager, entry.clickRect);
-                                entry.clickRectHover = 1;
-                                selector = new Selector(ScreenManager, entry.clickRect);
-                                if (!input.InGameSelect) continue;
-
-                                ActiveModule.hangarShipUID = (entry.item as Ship).Name;
-                                HangarShipUIDLast = (entry.item as Ship).Name;
-                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                                return;
-                            }
-                        }
-                    }
-                }
-                else if (HighlightedModule != null && HighlightedModule.ModuleType == ShipModuleType.Hangar
-                         && (!HighlightedModule.IsTroopBay && !HighlightedModule.IsSupplyBay))
-                {
-                    ChooseFighterSL.HandleInput(input);
-                    for (int index = ChooseFighterSL.indexAtTop;
-                        index < ChooseFighterSL.Copied.Count
-                        && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
-                        ++index)
-                    {
-                        ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-                        if (!entry.clickRect.HitTest(vector2)) continue;
-                        selector = new Selector(ScreenManager, entry.clickRect);
-                        entry.clickRectHover = 1;
-                        selector = new Selector(ScreenManager, entry.clickRect);
-                        if (!input.InGameSelect) continue;
-                        HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
-                        HangarShipUIDLast = (entry.item as Ship).Name;
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        return;
-                    }
-                }
-                for (int index = WeaponSl.indexAtTop;
-                    index < WeaponSl.Copied.Count
-                    && index < WeaponSl.indexAtTop + WeaponSl.entriesToDisplay;
-                    ++index)
-                {
-                    ScrollList.Entry e = WeaponSl.Copied[index];
-                    if (e.item is ModuleHeader moduleHeader)
-                    {
-                        if (moduleHeader.HandleInput(input, e))
-                            return;
-                    }
-                    else if (e.clickRect.HitTest(vector2))
-                    {
-                        selector = new Selector(ScreenManager, e.clickRect);
-                        e.clickRectHover = 1;
-                        selector = new Selector(ScreenManager, e.clickRect);
-                        if (input.InGameSelect)
-                        {
-                            SetActiveModule(ShipModule.CreateNoParent((e.item as ShipModule).UID));
-                            ResetModuleState();
-                            return;
-                        }
-                    }
-                    else
-                        e.clickRectHover = 0;
-                }
-                WeaponSl.HandleInput(input);
-                if (HullSelectionRect.HitTest(input.CursorPosition)
-                    && input.LeftMousePressed || ModSel.Menu.HitTest(input.CursorPosition)
-                    && input.LeftMousePressed || ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
-                    && input.LeftMousePressed)
-                    return;
-                if (ModSel.Menu.HitTest(vector2))
-                {
-                    if (input.ScrollIn && WeaponSl.indexAtTop > 0)
-                        --WeaponSl.indexAtTop;
-                    if (input.ScrollOut && WeaponSl.indexAtTop + WeaponSl.entriesToDisplay < WeaponSl.Entries.Count)
-                        ++WeaponSl.indexAtTop;
-                }
-                if (ArcsButton.R.HitTest(input.CursorPosition))
-                    ToolTip.CreateTooltip(134, ScreenManager);
-                if (ArcsButton.HandleInput(input))
-                {
-                    ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
-                    ShowAllArcs = ArcsButton.ToggleOn;
-                }
-                if (input.Tab)
-                {
-                    ShowAllArcs = !ShowAllArcs;
-                    ArcsButton.ToggleOn = ShowAllArcs;
-                }
-                if (input.RightMouseClick)
-                {
-                    StartDragPos = input.CursorPosition;
-                    CameraVelocity.X = 0.0f;
-                }
-                if (input.RightMouseHeld())
-                {
-                    float num1 = input.CursorPosition.X - StartDragPos.X;
-                    float num2 = input.CursorPosition.Y - StartDragPos.Y;
-                    Camera._pos += new Vector2(-num1, -num2);
-                    StartDragPos = input.CursorPosition;
-                    cameraPosition.X += -num1;
-                    cameraPosition.Y += -num2;
-                }
-                else
-                {
-                    CameraVelocity.X = 0.0f;
-                    CameraVelocity.Y = 0.0f;
-                }
-                CameraVelocity.X = MathHelper.Clamp(CameraVelocity.X, -10f, 10f);
-                CameraVelocity.Y = MathHelper.Clamp(CameraVelocity.Y, -10f, 10f);
-                if (input.Escaped)
-                    ExitScreen();
-                if (ToggleOverlay)
-                {
-                    foreach (SlotStruct slotStruct in Slots)
-                    {
-                        Vector2 spaceFromWorldSpace =
-                            Camera.GetScreenSpaceFromWorldSpace(new Vector2(slotStruct.PQ.enclosingRect.X,
-                                slotStruct.PQ.enclosingRect.Y));
-                        if (new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y,
-                                (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom))
-                            .HitTest(vector2))
-                        {
-                            if (slotStruct.Module != null)
-                                HoveredModule = slotStruct.Module;
-                            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                                input.LastMouseState.LeftButton == ButtonState.Released)
-                            {
-                                GameAudio.PlaySfxAsync("simple_beep");
-                                if (Debug)
-                                {
-                                    DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
-                                    return;
-                                }
-                                if (slotStruct.Module != null)
-                                    HighlightedModule = slotStruct.Module;
-                            }
-                        }
-                    }
-                }
-                if (UpArrow.HitTest(vector2) && input.LeftMouseClick && ScrollPosition > 0)
-                {
-                    --ScrollPosition;
-                    GameAudio.PlaySfxAsync("blip_click");
-                    foreach (ModuleButton moduleButton in ModuleButtons)
-                        moduleButton.moduleRect.Y += 128;
-                }
-                if (DownArrow.HitTest(vector2) && input.LeftMouseClick)
-                {
-                    ++ScrollPosition;
-                    GameAudio.PlaySfxAsync("blip_click");
-                    foreach (ModuleButton moduleButton in ModuleButtons)
-                        moduleButton.moduleRect.Y -= 128;
-                }
-                if (ModuleSelectionArea.HitTest(vector2))
-                {
-                    if (input.ScrollIn && ScrollPosition > 0)
-                    {
-                        --ScrollPosition;
-                        GameAudio.PlaySfxAsync("blip_click");
-                        foreach (ModuleButton moduleButton in ModuleButtons)
-                            moduleButton.moduleRect.Y += 128;
-                    }
-                    if (input.ScrollOut)
-                    {
-                        ++ScrollPosition;
-                        GameAudio.PlaySfxAsync("blip_click");
-                        foreach (ModuleButton moduleButton in ModuleButtons)
-                            moduleButton.moduleRect.Y -= 128;
-                    }
-                }
-                if (input.RightMouseClick)
-                {
-                    //this should actually clear slots
-                    ActiveModule = null;
-                    foreach (SlotStruct slot in Slots)
-                    {
-                        slot.SetValidity();
-                        Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(
-                            new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
-                        var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
-                            , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
-                        if (slot.Module == null || !rect.HitTest(vector2)) continue;
-                        slot.SetValidity(slot.Module);
-                        var designAction = new DesignAction
-                        {
-                            clickedSS = new SlotStruct
-                            {
-                                PQ = slot.PQ,
-                                Restrictions = slot.Restrictions,
-                                Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
-                                ModuleUID = slot.ModuleUID,
-                                Module = slot.Module,
-                                SlotReference = slot.SlotReference
-                            }
-                        };
-                        DesignStack.Push(designAction);
-                        GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                        ClearParentSlot(slot);
-                        RecalculatePower();
-                    }
-                }
-                foreach (ModuleButton moduleButton in ModuleButtons)
-                {
-                    if (ModuleSelectionArea.HitTest(new Vector2(moduleButton.moduleRect.X + 30,
-                        moduleButton.moduleRect.Y + 30)))
-                    {
-                        if (moduleButton.moduleRect.HitTest(vector2))
-                        {
-                            if (input.InGameSelect)
-                                SetActiveModule(ShipModule.CreateNoParent(moduleButton.ModuleUID));
-                            moduleButton.isHighlighted = true;
-                        }
-                        else
-                            moduleButton.isHighlighted = false;
-                    }
-                }
-                if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && ActiveModule != null)
-                {
-                    foreach (SlotStruct slot in Slots)
-                    {
-                        Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                            slot.PQ.enclosingRect.X,
-                            slot.PQ.enclosingRect.Y));
-                        if (!new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
-                                , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
-                            .HitTest(vector2)) continue;
-                        GameAudio.PlaySfxAsync("sub_bass_mouseover");
-
-                        if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
-                            ActiveModule.UID == LastActiveUID) continue;
-                        InstallModule(slot); //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
-                        LastDesignActionPos.X = slot.PQ.X;
-                        LastDesignActionPos.Y = slot.PQ.Y;
-                        LastActiveUID = ActiveModule.UID;
-                    }
-                }
-                foreach (SlotStruct slotStruct in Slots)
-                {
-                    if (slotStruct.ModuleUID != null && HighlightedModule != null &&
-                        (slotStruct.Module == HighlightedModule &&
-                         slotStruct.Module.FieldOfFire > 0f) &&
-                        slotStruct.Module.ModuleType == ShipModuleType.Turret)
-                    {                        
-                        Vector2 spaceFromWorldSpace =
-                            Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                                slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
-                                slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
-                        //I am not sure what the below was trying to do. It wasnt doing anything...
-                        //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
-                        //float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
-                        //float facing = HighlightedModule.Facing;
-                        //float angle = Math.Abs(angleToTarget - facing);
-                        //if (angle > fieldOfFire)
-                        //{
-                        //    if (angleToTarget > 180f)
-                        //        angleToTarget = -1f * (360f - angleToTarget);
-                        //    if (facing > 180f)
-                        //        facing = -1f * (360f - facing);
-                        //    angle = Math.Abs(angleToTarget - facing);
-                        //}
-
-                        if (input.ShipYardArcMove())                            
-                                HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);                                                                            
-                    }
-                }
-                foreach (UIButton uiButton in Buttons)
-                {
-                    if (uiButton.Rect.HitTest(vector2))
-                    {
-                        uiButton.State = UIButton.PressState.Hover;
-                        if (input.LeftMouseClick)
-                            uiButton.State = UIButton.PressState.Pressed;
-                        if (!input.LeftMouseReleased) continue;
-
-                        switch (uiButton.Launches)
-                        {
-                            case "Toggle Overlay":
-                                GameAudio.PlaySfxAsync("blip_click");
-                                ToggleOverlay = !ToggleOverlay;
-                                continue;
-                            case "Save As...":
-                                if (CheckDesign())
-                                {
-                                    ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
-                                    continue;
-                                }
-                                else
-                                {
-                                    GameAudio.PlaySfxAsync("UI_Misc20");
-                                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
-                                    continue;
-                                }
-                            case "Load":
-                                ScreenManager.AddScreen(new LoadDesigns(this));
-                                continue;
-                            default:
-                                continue;
-                        }
-                    }                    
-                    uiButton.State = UIButton.PressState.Default;
-                }
-                if (ActiveHull != null)
-                {
-                    foreach (ToggleButton toggleButton in CombatStatusButtons)
-                    {
-                        if (toggleButton.r.HitTest(input.CursorPosition))
-                        {
-                            if (toggleButton.HasToolTip)
-                                ToolTip.CreateTooltip(toggleButton.WhichToolTip, ScreenManager);
-                            if (input.InGameSelect)
-                            {
-                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                                switch (toggleButton.Action)
-                                {
-                                    case "attack":
-                                        CombatState = CombatState.AttackRuns;
-                                        break;
-                                    case "arty":
-                                        CombatState = CombatState.Artillery;
-                                        break;
-                                    case "hold":
-                                        CombatState = CombatState.HoldPosition;
-                                        break;
-                                    case "orbit_left":
-                                        CombatState = CombatState.OrbitLeft;
-                                        break;
-                                    case "broadside_left":
-                                        CombatState = CombatState.BroadsideLeft;
-                                        break;
-                                    case "orbit_right":
-                                        CombatState = CombatState.OrbitRight;
-                                        break;
-                                    case "broadside_right":
-                                        CombatState = CombatState.BroadsideRight;
-                                        break;
-                                    case "evade":
-                                        CombatState = CombatState.Evade;
-                                        break;
-                                    case "short":
-                                        CombatState = CombatState.ShortRange;
-                                        break;
-                                }
-                            }
-                        }
-                        else
-                            toggleButton.Hover = false;
                         switch (toggleButton.Action)
                         {
                             case "attack":
-                                toggleButton.Active = CombatState == CombatState.AttackRuns;
-                                continue;
+                                CombatState = CombatState.AttackRuns;
+                                break;
                             case "arty":
-                                toggleButton.Active = CombatState == CombatState.Artillery;
-                                continue;
+                                CombatState = CombatState.Artillery;
+                                break;
                             case "hold":
-                                toggleButton.Active = CombatState == CombatState.HoldPosition;
-                                continue;
+                                CombatState = CombatState.HoldPosition;
+                                break;
                             case "orbit_left":
-                                toggleButton.Active = CombatState == CombatState.OrbitLeft;
-                                continue;
+                                CombatState = CombatState.OrbitLeft;
+                                break;
                             case "broadside_left":
-                                toggleButton.Active = CombatState == CombatState.BroadsideLeft;
-                                continue;
+                                CombatState = CombatState.BroadsideLeft;
+                                break;
                             case "orbit_right":
-                                toggleButton.Active = CombatState == CombatState.OrbitRight;
-                                continue;
+                                CombatState = CombatState.OrbitRight;
+                                break;
                             case "broadside_right":
-                                toggleButton.Active = CombatState == CombatState.BroadsideRight;
-                                continue;
+                                CombatState = CombatState.BroadsideRight;
+                                break;
                             case "evade":
-                                toggleButton.Active = CombatState == CombatState.Evade;
-                                continue;
+                                CombatState = CombatState.Evade;
+                                break;
                             case "short":
-                                toggleButton.Active = CombatState == CombatState.ShortRange;
-                                continue;
-                            default:
-                                continue;
+                                CombatState = CombatState.ShortRange;
+                                break;
                         }
                     }
                 }
-                MouseStatePrevious = MouseStateCurrent;
-                base.HandleInput(input);
+                else
+                    toggleButton.Hover = false;
+                switch (toggleButton.Action)
+                {
+                    case "attack":
+                        toggleButton.Active = CombatState == CombatState.AttackRuns;
+                        continue;
+                    case "arty":
+                        toggleButton.Active = CombatState == CombatState.Artillery;
+                        continue;
+                    case "hold":
+                        toggleButton.Active = CombatState == CombatState.HoldPosition;
+                        continue;
+                    case "orbit_left":
+                        toggleButton.Active = CombatState == CombatState.OrbitLeft;
+                        continue;
+                    case "broadside_left":
+                        toggleButton.Active = CombatState == CombatState.BroadsideLeft;
+                        continue;
+                    case "orbit_right":
+                        toggleButton.Active = CombatState == CombatState.OrbitRight;
+                        continue;
+                    case "broadside_right":
+                        toggleButton.Active = CombatState == CombatState.BroadsideRight;
+                        continue;
+                    case "evade":
+                        toggleButton.Active = CombatState == CombatState.Evade;
+                        continue;
+                    case "short":
+                        toggleButton.Active = CombatState == CombatState.ShortRange;
+                        continue;
+                    default:
+                        continue;
+                }
             }
         }
 
@@ -936,16 +916,16 @@ namespace Ship_Game {
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45 -
                 (int) (0.4f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
             ModuleSelectionMenu = new Menu1(ScreenManager, leftRect);
-            Rectangle modSelR = new Rectangle(0, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
-            ModSel = new Submenu(ScreenManager, modSelR, true);
+            Rectangle modSelR   = new Rectangle(0, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
+            ModSel              = new Submenu(ScreenManager, modSelR, true);
             ModSel.AddTab("Wpn");
             ModSel.AddTab("Pwr");
             ModSel.AddTab("Def");
             ModSel.AddTab("Spc");
-            WeaponSl = new ScrollList(ModSel);
+            WeaponSl         = new ScrollList(ModSel);
             Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
-            activeModWindow = new Menu1(ScreenManager, active);
-            Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
+            activeModWindow  = new Menu1(ScreenManager, active);
+            Rectangle acsub  = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
             {
                 acsub.Height = acsub.Height + 120;
@@ -961,7 +941,7 @@ namespace Ship_Game {
                 Choosefighterrect.Height = Choosefighterrect.Height - (diff + 10);
             }
             Choosefighterrect.Height = acsub.Height;
-            ChooseFighterSub = new Submenu(ScreenManager, Choosefighterrect);
+            ChooseFighterSub         = new Submenu(ScreenManager, Choosefighterrect);
             ChooseFighterSub.AddTab("Choose Fighter");
             ChooseFighterSL = new ScrollList(ChooseFighterSub, 40);
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
@@ -973,22 +953,22 @@ namespace Ship_Game {
                 AvailableHulls.Add(ResourceManager.HullsDict[hull.Key]);
             }
             PrimitiveQuad.graphicsDevice = ScreenManager.GraphicsDevice;
-            float width = Viewport.Width;
-            Viewport viewport = Viewport;
-            float aspectRatio = width / viewport.Height;
-            offset = new Vector2();
-            Viewport viewport1 = Viewport;
-            offset.X = viewport1.Width / 2 - 256;
-            Viewport viewport2 = Viewport;
-            offset.Y = viewport2.Height / 2 - 256;
-            Camera = new Camera2d();
-            Camera2d vector2 = Camera;
-            Viewport viewport3 = Viewport;
-            float single = viewport3.Width / 2f;
-            Viewport viewport4 = Viewport;
-            vector2.Pos = new Vector2(single, viewport4.Height / 2f);
-            Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
-            View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
+            float width                  = Viewport.Width;
+            Viewport viewport            = Viewport;
+            float aspectRatio            = width / viewport.Height;
+            offset                       = new Vector2();
+            Viewport viewport1           = Viewport;
+            offset.X                     = viewport1.Width / 2 - 256;
+            Viewport viewport2           = Viewport;
+            offset.Y                     = viewport2.Height / 2 - 256;
+            Camera                       = new Camera2d();
+            Camera2d vector2             = Camera;
+            Viewport viewport3           = Viewport;
+            float single                 = viewport3.Width / 2f;
+            Viewport viewport4           = Viewport;
+            vector2.Pos                  = new Vector2(single, viewport4.Height / 2f);
+            Vector3 camPos               = cameraPosition * new Vector3(-1f, 1f, 1f);
+            View                         = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
                          Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
                             new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
@@ -1079,11 +1059,11 @@ namespace Ship_Game {
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 3000, 70);
             SideBar = new Rectangle(0, 0, 280,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-            Rectangle w = new Rectangle(20, ModSel.Menu.Y - 10, 32, 32);
-            Rectangle p = new Rectangle(80, w.Y, 32, 32);
+            Rectangle w  = new Rectangle(20, ModSel.Menu.Y - 10, 32, 32);
+            Rectangle p  = new Rectangle(80, w.Y, 32, 32);
             Rectangle df = new Rectangle(150, w.Y, 32, 32);
             Rectangle sp = new Rectangle(220, w.Y, 32, 32);
-            wpn = new SkinnableButton(w, "Modules/FlakTurret3x3")
+            wpn          = new SkinnableButton(w, "Modules/FlakTurret3x3")
             {
                 IsToggle = true,
                 Toggled = true
@@ -1110,137 +1090,71 @@ namespace Ship_Game {
             var cursor = new Vector2(ClassifCursor.X, ClassifCursor.Y);
             Vector2 ordersBarPos = new Vector2(cursor.X, (int) cursor.Y + 20);
             ordersBarPos.X = ordersBarPos.X - 15;
-            ToggleButton attackRuns =
-                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                    "SelectionBox/icon_formation_headon");
-            CombatStatusButtons.Add(attackRuns);
-            attackRuns.Action = "attack";
-            attackRuns.HasToolTip = true;
-            attackRuns.WhichToolTip = 1;
+            CombatStatusButton(ordersBarPos,"attack", "SelectionBox/icon_formation_headon",1);
 
             ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton shortRange =
-                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                    "SelectionBox/icon_grid");
-            CombatStatusButtons.Add(shortRange);
-            shortRange.Action = "short";
-            shortRange.HasToolTip = true;
-            shortRange.WhichToolTip = 228;
+            CombatStatusButton(ordersBarPos, "short", "SelectionBox/icon_formation_aft", 2);
 
             ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton artillery = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                "SelectionBox/icon_formation_aft");
-            CombatStatusButtons.Add(artillery);
-            artillery.Action = "arty";
-            artillery.HasToolTip = true;
-            artillery.WhichToolTip = 2;
+            CombatStatusButton(ordersBarPos, "arty", "SelectionBox/icon_grid", 228);
+    
 
             ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton holdPos = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                "SelectionBox/icon_formation_x");
-            CombatStatusButtons.Add(holdPos);
-            holdPos.Action = "hold";
-            holdPos.HasToolTip = true;
-            holdPos.WhichToolTip = 65;
+            CombatStatusButton(ordersBarPos, "hold", "SelectionBox/icon_formation_x", 65);
+
             ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton orbitLeft = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                "SelectionBox/icon_formation_left");
-            CombatStatusButtons.Add(orbitLeft);
-            orbitLeft.Action = "orbit_left";
-            orbitLeft.HasToolTip = true;
-            orbitLeft.WhichToolTip = 3;
+            CombatStatusButton(ordersBarPos, "orbit_left", "SelectionBox/icon_formation_left", 3);
+
             ordersBarPos.Y = ordersBarPos.Y + 29f;
+            CombatStatusButton(ordersBarPos, "broadside_left", "SelectionBox/icon_formation_bleft", 159);
 
-            ToggleButton broadsideLeft =
-                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                    "SelectionBox/icon_formation_bleft");
-            CombatStatusButtons.Add(broadsideLeft);
-            broadsideLeft.Action = "broadside_left";
-            broadsideLeft.HasToolTip = true;
-            broadsideLeft.WhichToolTip = 159;
             ordersBarPos.Y = ordersBarPos.Y - 29f;
             ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton orbitRight =
-                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                    "SelectionBox/icon_formation_right");
-            CombatStatusButtons.Add(orbitRight);
-            orbitRight.Action = "orbit_right";
-            orbitRight.HasToolTip = true;
-            orbitRight.WhichToolTip = 4;
-            ordersBarPos.Y = ordersBarPos.Y + 29f;
+            CombatStatusButton(ordersBarPos, "orbit_right", "SelectionBox/icon_formation_right", 4);
 
-            ToggleButton broadsideRight =
-                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                    "SelectionBox/icon_formation_bright");
-            CombatStatusButtons.Add(broadsideRight);
-            broadsideRight.Action = "broadside_right";
-            broadsideRight.HasToolTip = true;
-            broadsideRight.WhichToolTip = 160;
+            ordersBarPos.Y = ordersBarPos.Y + 29f;
+            CombatStatusButton(ordersBarPos, "broadside_right", "SelectionBox/icon_formation_bright", 160);
+ 
             ordersBarPos.Y = ordersBarPos.Y - 29f;
             ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton evade = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press",
-                "SelectionBox/icon_formation_stop");
-            CombatStatusButtons.Add(evade);
-            evade.Action = "evade";
-            evade.HasToolTip = true;
-            evade.WhichToolTip = 6;
-
+            CombatStatusButton(ordersBarPos, "evade", "SelectionBox/icon_formation_stop", 6);
+ 
             cursor = new Vector2(
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150,
                 (float) ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47);
-
+            
             SaveButton = new UIButton
             {
                 Rect = new Rectangle((int) cursor.X, (int) cursor.Y,
-                    ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width,
-                    ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = Localizer.Token(105),
-                Launches = "Save As..."
+                    TopBar132.Width,
+                    TopBar132.Height),
+                NormalTexture  = TopBar132,
+                HoverTexture   = TopBar132Hover,
+                PressedTexture = TopBar132Pressed,
+                Text           = Localizer.Token(105),
+                Launches       = "Save As..."
             };
             Buttons.Add(SaveButton);
             LoadButton = new UIButton
             {
-                Rect = new Rectangle((int) cursor.X - 78, (int) cursor.Y,
-                    ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width,
-                    ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = Localizer.Token(8),
-                Launches = "Load"
+                Rect           = new Rectangle((int) cursor.X - 78, (int) cursor.Y, TopBar68.Width, TopBar68.Height),
+                NormalTexture  = TopBar68,
+                HoverTexture   = TopBar68Hover,
+                PressedTexture = TopBar68Pressed,
+                Text           = Localizer.Token(8),
+                Launches       = "Load"
             };
             Buttons.Add(LoadButton);
             ToggleOverlayButton = new UIButton
             {
                 Rect = new Rectangle(LoadButton.Rect.X - 140, (int) cursor.Y,
-                    ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width,
-                    ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Launches = "Toggle Overlay",
-                Text = Localizer.Token(106)
+                    TopBar132.Width,
+                    TopBar68.Height),
+                NormalTexture  = TopBar132,
+                HoverTexture   = TopBar68Hover,
+                PressedTexture = TopBar132Pressed,
+                Launches       = "Toggle Overlay",
+                Text           = Localizer.Token(106)
             };
             Buttons.Add(ToggleOverlayButton);
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
@@ -1248,7 +1162,7 @@ namespace Ship_Game {
                 new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285,
                     (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
             HullSelectionSub = new Submenu(ScreenManager, HullSelectionRect, true);
-            WeaponSl = new ScrollList(ModSel);
+            WeaponSl         = new ScrollList(ModSel);
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
             var categories = new Array<string>();
@@ -1283,16 +1197,15 @@ namespace Ship_Game {
                     e.AddItem(hull.Value);
                 }
             }
-            Rectangle shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
+            var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-
-            //base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
+            
             DropdownRect =
                 new Rectangle((int) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f),
                     (int) ordersBarPos.Y, 100, 18);
 
-            CategoryList = new DropOptions(DropdownRect);
+            CategoryList = new CategoryDropDown(DropdownRect,this);
 
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category))
                 .Cast<ShipData.Category>())
@@ -1300,8 +1213,8 @@ namespace Ship_Game {
                 CategoryList.AddOption(item.ToString(), (int) item + 1);
             }
 
-            CarrierOnly = ActiveHull.CarrierShip;
-            CoBoxCursor = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
+            CarrierOnly    = ActiveHull.CarrierShip;
+            CoBoxCursor    = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
             CarrierOnlyBox = new Checkbox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
                 "Carrier Only", 0);
 
@@ -1314,6 +1227,19 @@ namespace Ship_Game {
             Close = new CloseButton(new Rectangle(
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
             OriginalZ = cameraPosition.Z;
+        }
+
+        private void CombatStatusButton(Vector2 ordersBarPos, string action, string iconPath, int toolTipIndex)
+        {
+            ToggleButton toggleButton =
+                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", iconPath
+                    );
+            CombatStatusButtons.Add(toggleButton);
+            toggleButton.Action       = action;
+            toggleButton.HasToolTip   = true;
+            toggleButton.WhichToolTip = toolTipIndex;
         }
 
         private string parseText(string text, float width, SpriteFont font)
@@ -1478,63 +1404,7 @@ namespace Ship_Game {
             SaveWIP(sender, e);
             ChangeHull(Changeto);
         }
-
-        private void SaveWIPThenLaunchScreen(object sender, EventArgs e)
-        {
-            SaveWIP(sender, e);
-            string str  = ScreenToLaunch;
-            string str1 = str;
-            if (str    != null)
-            {
-                if (str1 == "Research")
-                {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
-                }
-                else if (str1 == "Budget")
-                {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
-                }
-            }
-            string str2 = ScreenToLaunch;
-            string str3 = str2;
-            if (str2 != null)
-            {
-                if (str3 == "Main Menu")
-                {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
-                }
-                else if (str3 == "Shipyard")
-                {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                }
-                else if (str3 == "Empire")
-                {
-                    ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, EmpireUI));
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                }
-                else if (str3 == "Diplomacy")
-                {
-                    ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                }
-                else if (str3 == "?")
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                    InGameWiki wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
-                    {
-                        TitleText = "StarDrive Help",
-                        MiddleText =
-                            "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
-                    };
-                    ScreenManager.AddScreen(wiki);
-                }
-            }
-            ReallyExit();
-        }
-
+        
         private void SetupSlots()
         {
             Slots.Clear();
