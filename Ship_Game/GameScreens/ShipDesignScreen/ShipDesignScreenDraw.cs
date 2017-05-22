@@ -1886,69 +1886,7 @@ new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.Bac
                 }
                 this.DrawList();
             }
-            if (this.ModSel.Tabs[3].Selected)
-            {
-                if (this.Reset)
-                {
-                    this.WeaponSl.Entries.Clear();
-                    Array<string> ModuleCategories = new Array<string>();
-                    foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                    {
-                        if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
-                        {
-                            continue;
-                        }
-                        module.Value.ModuleType.ToString();
-                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
-                        tmp.SetAttributesNoParent();
-
-                        if (RestrictedModCheck(this.ActiveHull.Role, tmp)) continue;
-
-                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
-                             tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
-                             tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
-                             tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter ||
-                             tmp.ModuleType == ShipModuleType.Ordnance ||
-                             tmp.ModuleType == ShipModuleType.Construction) &&
-                            !ModuleCategories.Contains(tmp.ModuleType.ToString()))
-                        {
-                            ModuleCategories.Add(tmp.ModuleType.ToString());
-                            ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-                            this.WeaponSl.AddItem(type);
-                        }
-                        tmp = null;
-                    }
-                    foreach (ScrollList.Entry e in this.WeaponSl.Entries)
-                    {
-                        foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                        {
-                            if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
-                            {
-                                continue;
-                            }
-                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
-                            tmp.SetAttributesNoParent();
-
-                            if (RestrictedModCheck(this.ActiveHull.Role, tmp)) continue;
-
-                            if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
-                                 tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
-                                 tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
-                                 tmp.ModuleType == ShipModuleType.Special ||
-                                 tmp.ModuleType == ShipModuleType.Transporter ||
-                                 tmp.ModuleType == ShipModuleType.Ordnance ||
-                                 tmp.ModuleType == ShipModuleType.Construction) &&
-                                (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
-                            {
-                                e.AddItem(module.Value);
-                            }
-                            tmp = null;
-                        }
-                    }
-                    this.Reset = false;
-                }
-                this.DrawList();
-            }
+            WeaponSl.DrawModules();
         }
 
         private void DrawRequirement(ref Vector2 Cursor, string words, bool met)
