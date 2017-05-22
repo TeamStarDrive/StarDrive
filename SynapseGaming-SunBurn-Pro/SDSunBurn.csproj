@@ -240,7 +240,7 @@
     <Compile Include="ns1\Class6.cs" />
     <Compile Include="ns2\Class7.cs" />
     <Compile Include="ns2\Class8.cs" />
-    <Compile Include="ns3\Class9.cs" />
+    <Compile Include="ns3\RTreeNode.cs" />
     <Compile Include="ns3\Class10.cs" />
     <Compile Include="ns3\Class11.cs" />
     <Compile Include="ns3\Class12.cs" />
