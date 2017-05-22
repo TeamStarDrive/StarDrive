@@ -22,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Lights
   /// a view or bounding box for lights that affect the area
   /// (acts as a light scenegraph).
   /// </summary>
-  public class LightManager : BaseLightManager, IQuery<ILight>, ISubmit<ILight>, ISubmit<ILightRig>, IUnloadable, IManager, IRenderableManager, IWorldRenderableManager, IManagerService, ILightQuery, ILightManager
+  public class LightManager : BaseLightManager, ILightManager
   {
       private int int_3 = 8;
     private List<ILightRig> list_2 = new List<ILightRig>(16);

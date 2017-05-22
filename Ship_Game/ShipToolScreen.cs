@@ -128,15 +128,15 @@ namespace Ship_Game
         public override void Draw(GameTime gameTime)
         {
             this.spriteBatch = base.ScreenManager.SpriteBatch;
-            base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
-            base.ScreenManager.editor.BeginFrameRendering(base.ScreenManager.sceneState);
-            base.ScreenManager.inter.BeginFrameRendering(base.ScreenManager.sceneState);
+
+            ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
+
             base.ScreenManager.GraphicsDevice.Clear(Color.Black);
             if (this.applyThruster)
             {
                 this.thruster.Draw(ref this.view, ref this.projection);
             }
-            base.ScreenManager.inter.RenderManager.Render();
+            ScreenManager.RenderSceneObjects();
             Rectangle rectangle = new Rectangle(this.border.X, this.border.Y, 512, 512);
             this.spriteBatch.Begin();
             Vector2 TitlePos = new Vector2(20f, 20f);
@@ -206,9 +206,7 @@ namespace Ship_Game
             this.SaveHullButton.Draw(base.ScreenManager);
             this.LoadModelButton.Draw(base.ScreenManager);
             this.spriteBatch.End();
-            base.ScreenManager.inter.EndFrameRendering();
-            base.ScreenManager.editor.EndFrameRendering();
-            base.ScreenManager.sceneState.EndFrameRendering();
+            ScreenManager.EndFrameRendering();
         }
 
         private void DrawHorizontalLine(int thePositionY)
@@ -512,7 +510,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            base.ScreenManager.inter.ObjectManager.Clear();
+            ScreenManager.RemoveAllObjects();
             PrimitiveQuad.graphicsDevice = base.ScreenManager.GraphicsDevice;
             this.aspect = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
             this.border = new PrimitiveQuad(this.aspect.X / 2f - 512f, this.aspect.Y / 2f - 512f, 1024f, 1024f);
@@ -536,8 +534,7 @@ namespace Ship_Game
                 ClickableArea = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 200, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 115, 180, 20),
                 Text = this.HullName
             };
-            LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
-            rig.AssignTo(this);
+            AssignLightRig("example/ShipyardLightrig");
             base.ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
             float width = (float)base.Viewport.Width;
             Viewport viewport = base.Viewport;
@@ -554,23 +551,23 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        public void LoadModel(string ModelPath)
+        public void LoadModel(string modelPath)
         {
-            this.ModelPath = ModelPath;
-            this.model = TransientContent.Load<Model>(ModelPath);
-            ModelMesh mesh = this.model.Meshes[0];
-            this.shipSO = new SceneObject(mesh)
+            ModelPath = modelPath;
+            model = TransientContent.Load<Model>(modelPath);
+            ModelMesh mesh = model.Meshes[0];
+            shipSO = new SceneObject(mesh)
             {
                 ObjectType = ObjectType.Dynamic,
-                World = this.worldMatrix
+                World = worldMatrix
             };
-            base.ScreenManager.Submit(this.shipSO);
+            AddObject(shipSO);
         }
 
         public void LoadModel(Model m, string path)
         {
+            ScreenManager.RemoveAllObjects();
             this.ModelPath = path;
-            base.ScreenManager.inter.ObjectManager.Clear();
             this.model = m;
             this.HullName = path;
             this.ShipNameBox.Text = path;
@@ -580,7 +577,7 @@ namespace Ship_Game
                 ObjectType = ObjectType.Dynamic,
                 World = this.worldMatrix
             };
-            base.ScreenManager.Submit(this.shipSO);
+            AddObject(shipSO);
         }
 
         private void MarkThruster()

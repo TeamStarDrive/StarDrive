@@ -30,15 +30,15 @@ namespace SynapseGaming.LightingSystem.Core
   /// to BeginFrameRendering, EndFrameRendering, Update, and more, allowing custom managers
   /// to be plugged in and run with out writing any additional code to specifically handle them.
   /// </summary>
-  public class SceneInterface : IUnloadable, IManager, IRenderableManager, IUpdatableManager, IManagerServiceProvider
+  public class SceneInterface : IRenderableManager, IUpdatableManager, IManagerServiceProvider
   {
-    private static Class23 class23_0 = new Class23();
-    private static Class24 class24_0 = new Class24();
-    private static Class25 class25_0 = new Class25();
+    private static ManagerServiceComparer ManagerServiceComparer0 = new ManagerServiceComparer();
+    private static RenderableComparer RenderableComparer0 = new RenderableComparer();
+    private static UpdatableComparer UpdatableComparer0 = new UpdatableComparer();
     private Dictionary<Type, IManagerService> dictionary_0 = new Dictionary<Type, IManagerService>(16);
-    private List<IManagerService> list_0 = new List<IManagerService>(16);
-    private List<IUpdatableManager> list_1 = new List<IUpdatableManager>(16);
-    private List<IRenderableManager> list_2 = new List<IRenderableManager>(16);
+    private List<IManagerService> Services = new List<IManagerService>(16);
+    private List<IUpdatableManager> Updateables = new List<IUpdatableManager>(16);
+    private List<IRenderableManager> Renderables = new List<IRenderableManager>(16);
 
       /// <summary>
     /// The current GraphicsDeviceManager used by this object.
@@ -244,21 +244,21 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public virtual void ResortServices()
     {
-      this.list_0.Clear();
-      this.list_2.Clear();
-      this.list_1.Clear();
+      this.Services.Clear();
+      this.Renderables.Clear();
+      this.Updateables.Clear();
       foreach (KeyValuePair<Type, IManagerService> keyValuePair in this.dictionary_0)
       {
         IManagerService managerService = keyValuePair.Value;
-        this.list_0.Add(managerService);
+        this.Services.Add(managerService);
         if (managerService is IRenderableManager)
-          this.list_2.Add(managerService as IRenderableManager);
+          this.Renderables.Add(managerService as IRenderableManager);
         if (managerService is IUpdatableManager)
-          this.list_1.Add(managerService as IUpdatableManager);
+          this.Updateables.Add(managerService as IUpdatableManager);
       }
-      this.list_0.Sort(class23_0);
-      this.list_2.Sort(class24_0);
-      this.list_1.Sort(class25_0);
+      this.Services.Sort(ManagerServiceComparer0);
+      this.Renderables.Sort(RenderableComparer0);
+      this.Updateables.Sort(UpdatableComparer0);
     }
 
     /// <summary>
@@ -310,7 +310,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="preferences"></param>
     public virtual void ApplyPreferences(ILightingSystemPreferences preferences)
     {
-      foreach (IManager manager in this.list_0)
+      foreach (IManagerService manager in this.Services)
         manager.ApplyPreferences(preferences);
     }
 
@@ -322,7 +322,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public virtual void Clear()
     {
-      foreach (IManager manager in this.list_0)
+      foreach (IManagerService manager in this.Services)
         manager.Clear();
     }
 
@@ -333,7 +333,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public virtual void Unload()
     {
-      foreach (IUnloadable unloadable in this.list_0)
+      foreach (IManagerService unloadable in this.Services)
         unloadable.Unload();
     }
 
@@ -343,7 +343,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="gameTime"></param>
     public virtual void Update(GameTime gameTime)
     {
-      foreach (IUpdatableManager updatableManager in this.list_1)
+      foreach (IUpdatableManager updatableManager in this.Updateables)
         updatableManager.Update(gameTime);
     }
 
@@ -353,7 +353,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="scenestate"></param>
     public virtual void BeginFrameRendering(ISceneState scenestate)
     {
-      foreach (IRenderableManager renderableManager in this.list_2)
+      foreach (IRenderableManager renderableManager in this.Renderables)
         renderableManager.BeginFrameRendering(scenestate);
     }
 
@@ -364,7 +364,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="deferredbuffers"></param>
     public virtual void BeginFrameRendering(ISceneState scenestate, DeferredBuffers deferredbuffers)
     {
-      foreach (IRenderableManager renderableManager in this.list_2)
+      foreach (IRenderableManager renderableManager in this.Renderables)
       {
         if (renderableManager is DeferredRenderManager)
           (renderableManager as DeferredRenderManager).BeginFrameRendering(scenestate, deferredbuffers);
@@ -378,12 +378,12 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public virtual void EndFrameRendering()
     {
-      for (int index = this.list_2.Count - 1; index >= 0; --index)
-        this.list_2[index].EndFrameRendering();
+      for (int index = this.Renderables.Count - 1; index >= 0; --index)
+        this.Renderables[index].EndFrameRendering();
       LightingSystemStatistics.CommitChanges();
     }
 
-    internal class Class23 : IComparer<IManagerService>
+    internal class ManagerServiceComparer : IComparer<IManagerService>
     {
       public int Compare(IManagerService imanagerService_0, IManagerService imanagerService_1)
       {
@@ -395,7 +395,7 @@ namespace SynapseGaming.LightingSystem.Core
       }
     }
 
-    internal class Class24 : IComparer<IRenderableManager>
+    internal class RenderableComparer : IComparer<IRenderableManager>
     {
       public int Compare(IRenderableManager irenderableManager_0, IRenderableManager irenderableManager_1)
       {
@@ -407,7 +407,7 @@ namespace SynapseGaming.LightingSystem.Core
       }
     }
 
-    internal class Class25 : IComparer<IUpdatableManager>
+    internal class UpdatableComparer : IComparer<IUpdatableManager>
     {
       public int Compare(IUpdatableManager iupdatableManager_0, IUpdatableManager iupdatableManager_1)
       {

@@ -504,10 +504,9 @@ namespace Ship_Game
                 Frustum = new BoundingFrustum(view * projection);
             else
                 Frustum.Matrix = view * projection;
-            ScreenManager.sceneState.BeginFrameRendering(view, projection, gameTime, ScreenManager.environment, true);
-            ScreenManager.editor.BeginFrameRendering(ScreenManager.sceneState);
-            lock (GlobalStats.ObjectManagerLocker)
-                ScreenManager.inter.BeginFrameRendering(ScreenManager.sceneState);
+
+            ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
+
             RenderBackdrop();
             ScreenManager.SpriteBatch.Begin();
             if (DefiningAO && Input.LeftMousePressed)
@@ -555,8 +554,8 @@ namespace Ship_Game
             }
             this.ScreenManager.SpriteBatch.End();
             this.DrawBombs();
-            lock (GlobalStats.ObjectManagerLocker)
-                this.ScreenManager.inter.RenderManager.Render();
+            ScreenManager.RenderSceneObjects();
+
             if (viewState < UnivScreenState.SectorView)
             {
                 using (player.KnownShips.AcquireReadLock())
@@ -596,6 +595,7 @@ namespace Ship_Game
             foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
                 anomaly.Draw();
             if (viewState < UnivScreenState.SectorView)
+            {
                 for (int i = 0; i < SolarSystemList.Count; i++)
                 {
                     SolarSystem solarSystem = SolarSystemList[i];
@@ -616,6 +616,7 @@ namespace Ship_Game
                         }
                     }
                 }
+            }
             renderState.AlphaBlendEnable = true;
             renderState.SourceBlend = Blend.SourceAlpha;
             renderState.DestinationBlend = Blend.One;
@@ -671,12 +672,7 @@ namespace Ship_Game
                 lightning.Update(gameTime);
                 flash.Update(gameTime);
             }
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                ScreenManager.inter.EndFrameRendering();
-                ScreenManager.editor.EndFrameRendering();
-                ScreenManager.sceneState.EndFrameRendering();
-            }
+            ScreenManager.EndFrameRendering();
             if (viewState < UnivScreenState.SectorView)
                 DrawShields();
             renderState.DepthBufferWriteEnable = true;

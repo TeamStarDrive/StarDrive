@@ -12,7 +12,7 @@ namespace SynapseGaming.LightingSystem.Rendering
   /// Interface that provides access to the scene's render manager. The render manager
   /// provides methods for controlling scene rendering.
   /// </summary>
-  public interface IRenderManager : IUnloadable, IManager, IRenderableManager, IManagerService
+  public interface IRenderManager : IRenderableManager, IManagerService
   {
     /// <summary>Renders the scene.</summary>
     void Render();

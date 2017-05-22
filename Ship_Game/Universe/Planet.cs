@@ -1151,8 +1151,8 @@ namespace Ship_Game
                 }
             }
             UpdateDescription();
-            lock (GlobalStats.ObjectManagerLocker)
-                Empire.Universe.ScreenManager.Remove(SO);
+
+            Empire.Universe.RemoveObject(SO);
             SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)planetType).Meshes[0]);
             SO.ObjectType = ObjectType.Dynamic;
             SO.World = Matrix.Identity * Matrix.CreateScale(3f) 
@@ -1161,8 +1161,7 @@ namespace Ship_Game
             RingWorld = Matrix.Identity 
                 * Matrix.CreateRotationX(ringTilt.ToRadians()) 
                 * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-            lock (GlobalStats.ObjectManagerLocker)
-                Empire.Universe.ScreenManager.Submit(SO);
+            Empire.Universe.AddObject(SO);
         }
 
         public void LoadAttributes()
@@ -2518,43 +2517,31 @@ namespace Ship_Game
             if (Fertility <= 0.0)
             {
                 Fertility = 0.0f;
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Remove(SO);
                 planetType = 7;
                 Terraform();
             }
             else if (Type == "Barren" && Fertility > 0.01)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Remove(SO);
                 planetType = 14;
                 Terraform();
             }
             else if (Type == "Desert" && Fertility > 0.35)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Remove(SO);
                 planetType = 18;
                 Terraform();
             }
             else if (Type == "Ice" && Fertility > 0.35)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Remove(SO);
                 planetType = 19;
                 Terraform();
             }
             else if (Type == "Swamp" && Fertility > 0.75)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Remove(SO);
                 planetType = 21;
                 Terraform();
             }
             else if (Type == "Steppe" && Fertility > 0.6)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Remove(SO);
                 planetType = 11;
                 Terraform();
             }
@@ -2562,8 +2549,6 @@ namespace Ship_Game
             {
                 if (!(Type == "Tundra") || Fertility <= 0.95)
                     return;
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Remove(SO);
                 planetType = 22;
                 Terraform();
             }
@@ -2585,43 +2570,31 @@ namespace Ship_Game
                 Fertility += TerraformToAdd;
                 if (Type == "Barren" && Fertility > 0.01)
                 {
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Empire.Universe.ScreenManager.Remove(SO);
                     planetType = 14;
                     Terraform();
                 }
                 else if (Type == "Desert" && Fertility > 0.35)
                 {
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Empire.Universe.ScreenManager.Remove(SO);
                     planetType = 18;
                     Terraform();
                 }
                 else if (Type == "Ice" && Fertility > 0.35)
                 {
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Empire.Universe.ScreenManager.Remove(SO);
                     planetType = 19;
                     Terraform();
                 }
                 else if (Type == "Swamp" && Fertility > 0.75)
                 {
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Empire.Universe.ScreenManager.Remove(SO);
                     planetType = 21;
                     Terraform();
                 }
                 else if (Type == "Steppe" && Fertility > 0.6)
                 {
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Empire.Universe.ScreenManager.Remove(SO);
                     planetType = 11;
                     Terraform();
                 }
                 else if (Type == "Tundra" && Fertility > 0.95)
                 {
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Empire.Universe.ScreenManager.Remove(SO);
                     planetType = 22;
                     Terraform();
                 }

@@ -17,59 +17,53 @@ namespace Microsoft.Xna.Framework
 {
     public class Game : IDisposable
     {
-        private readonly TimeSpan maximumElapsedTime = TimeSpan.FromMilliseconds(500.0);
-        private GameTime gameTime = new GameTime();
-        private int updatesSinceRunningSlowly1 = int.MaxValue;
-        private int updatesSinceRunningSlowly2 = int.MaxValue;
-        private readonly List<IUpdateable> updateableComponents = new List<IUpdateable>();
-        private readonly List<IUpdateable> currentlyUpdatingComponents = new List<IUpdateable>();
-        private readonly List<IDrawable> drawableComponents = new List<IDrawable>();
-        private readonly List<IDrawable> currentlyDrawingComponents = new List<IDrawable>();
-        private readonly List<IGameComponent> notYetInitialized = new List<IGameComponent>();
-        private IGraphicsDeviceManager graphicsDeviceManager;
-        private IGraphicsDeviceService graphicsDeviceService;
-        private GameHost host;
-        private TimeSpan inactiveSleepTime;
-        private bool isMouseVisible;
-        private bool inRun;
-        private readonly GameClock clock;
-        private TimeSpan lastFrameElapsedRealTime;
-        private TimeSpan totalGameTime;
-        private TimeSpan targetElapsedTime;
-        private TimeSpan accumulatedElapsedGameTime;
-        private TimeSpan lastFrameElapsedGameTime;
-        private bool drawRunningSlowly;
-        private bool doneFirstUpdate;
-        private bool doneFirstDraw;
-        private bool forceElapsedTimeToZero;
-        private bool suppressDraw;
+        private readonly TimeSpan MaximumElapsedTime = TimeSpan.FromMilliseconds(500.0);
+        private readonly GameTime Time = new GameTime();
+        private int UpdatesSinceRunningSlowly1 = int.MaxValue;
+        private int UpdatesSinceRunningSlowly2 = int.MaxValue;
+        private readonly List<IUpdateable> UpdateableComponents = new List<IUpdateable>();
+        private readonly List<IUpdateable> CurrentlyUpdatingComponents = new List<IUpdateable>();
+        private readonly List<IDrawable> DrawableComponents = new List<IDrawable>();
+        private readonly List<IDrawable> CurrentlyDrawingComponents = new List<IDrawable>();
+        private readonly List<IGameComponent> NotYetInitialized = new List<IGameComponent>();
+        private IGraphicsDeviceManager GraphicsDeviceManager;
+        private IGraphicsDeviceService GraphicsDeviceService;
+        private GameHost Host;
+        private TimeSpan InactiveSleep;
+        private bool MouseVisible;
+        private bool InRun;
+        private readonly GameClock Clock;
+        private TimeSpan LastFrameElapsedRealTime;
+        private TimeSpan TotalGameTime;
+        private TimeSpan TargetElapsedGameTime;
+        private TimeSpan AccumulatedElapsedGameTime;
+        private TimeSpan LastFrameElapsedGameTime;
+        private bool DrawRunningSlowly;
+        private bool DoneFirstUpdate;
+        private bool DoneFirstDraw;
+        private bool ForceElapsedTimeToZero;
+        private bool DrawSuppressed;
 
         public GameComponentCollection Components { get; }
         public GameServiceContainer Services { get; } = new GameServiceContainer();
 
         public TimeSpan InactiveSleepTime
         {
-            get
-            {
-                return inactiveSleepTime;
-            }
+            get => InactiveSleep;
             set
             {
                 if (value < TimeSpan.Zero)
                     throw new ArgumentOutOfRangeException(nameof(value), Resources.InactiveSleepTimeCannotBeZero);
-                inactiveSleepTime = value;
+                InactiveSleep = value;
             }
         }
 
         public bool IsMouseVisible
         {
-            get
-            {
-                return isMouseVisible;
-            }
+            get => MouseVisible;
             set
             {
-                isMouseVisible = value;
+                MouseVisible = value;
                 if (Window == null)
                     return;
                 Window.IsMouseVisible = value;
@@ -78,21 +72,18 @@ namespace Microsoft.Xna.Framework
 
         public TimeSpan TargetElapsedTime
         {
-            get
-            {
-                return targetElapsedTime;
-            }
+            get => TargetElapsedGameTime;
             set
             {
                 if (value <= TimeSpan.Zero)
                     throw new ArgumentOutOfRangeException(nameof(value), Resources.TargetElaspedCannotBeZero);
-                targetElapsedTime = value;
+                TargetElapsedGameTime = value;
             }
         }
 
         public bool IsFixedTimeStep { get; set; } = true;
 
-        public GameWindow Window => host?.Window;
+        public GameWindow Window => Host?.Window;
 
         public bool IsActive
         {
@@ -111,13 +102,13 @@ namespace Microsoft.Xna.Framework
         {
             get
             {
-                if (graphicsDeviceService == null)
+                if (GraphicsDeviceService == null)
                 {
-                    graphicsDeviceService = Services.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
-                    if (graphicsDeviceService == null)
+                    GraphicsDeviceService = Services.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
+                    if (GraphicsDeviceService == null)
                         throw new InvalidOperationException(Resources.NoGraphicsDeviceService);
                 }
-                return graphicsDeviceService.GraphicsDevice;
+                return GraphicsDeviceService.GraphicsDevice;
             }
         }
 
@@ -137,13 +128,13 @@ namespace Microsoft.Xna.Framework
             Components.ComponentAdded += GameComponentAdded;
             Components.ComponentRemoved += GameComponentRemoved;
             Content                    = new ContentManager(Services);
-            host.Window.Paint += Paint;
-            clock                      = new GameClock();
-            totalGameTime              = TimeSpan.Zero;
-            accumulatedElapsedGameTime = TimeSpan.Zero;
-            lastFrameElapsedGameTime   = TimeSpan.Zero;
-            targetElapsedTime          = TimeSpan.FromTicks(166667L);
-            inactiveSleepTime          = TimeSpan.FromMilliseconds(20.0);
+            Host.Window.Paint += Paint;
+            Clock                      = new GameClock();
+            TotalGameTime              = TimeSpan.Zero;
+            AccumulatedElapsedGameTime = TimeSpan.Zero;
+            LastFrameElapsedGameTime   = TimeSpan.Zero;
+            TargetElapsedGameTime          = TimeSpan.FromTicks(166667L);
+            InactiveSleep          = TimeSpan.FromMilliseconds(20.0);
         }
 
         ~Game()
@@ -155,19 +146,19 @@ namespace Microsoft.Xna.Framework
         {
             try
             {
-                graphicsDeviceManager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
-                graphicsDeviceManager?.CreateDevice();
+                GraphicsDeviceManager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
+                GraphicsDeviceManager?.CreateDevice();
                 Initialize();
-                inRun = true;
+                InRun = true;
                 BeginRun();
-                gameTime.ElapsedGameTime = TimeSpan.Zero;
-                gameTime.ElapsedRealTime = TimeSpan.Zero;
-                gameTime.TotalGameTime = totalGameTime;
-                gameTime.TotalRealTime = clock.CurrentTime;
-                gameTime.IsRunningSlowly = false;
-                Update(gameTime);
-                doneFirstUpdate = true;
-                host?.Run();
+                Time.ElapsedGameTime = TimeSpan.Zero;
+                Time.ElapsedRealTime = TimeSpan.Zero;
+                Time.TotalGameTime = TotalGameTime;
+                Time.TotalRealTime = Clock.CurrentTime;
+                Time.IsRunningSlowly = false;
+                Update(Time);
+                DoneFirstUpdate = true;
+                Host?.Run();
                 EndRun();
             }
             catch (NoSuitableGraphicsDeviceException ex)
@@ -184,7 +175,7 @@ namespace Microsoft.Xna.Framework
             }
             finally
             {
-                inRun = false;
+                InRun = false;
             }
         }
 
@@ -194,87 +185,87 @@ namespace Microsoft.Xna.Framework
                 return;
             if (!IsActiveIgnoringGuide)
             {
-                Thread.Sleep((int)inactiveSleepTime.TotalMilliseconds);
+                Thread.Sleep((int)InactiveSleep.TotalMilliseconds);
             }
 
-            clock.Step();
+            Clock.Step();
             bool flag = true;
-            gameTime.TotalRealTime   = clock.CurrentTime;
-            gameTime.ElapsedRealTime = clock.ElapsedTime;
-            lastFrameElapsedRealTime += clock.ElapsedTime;
-            TimeSpan timeSpan1 = clock.ElapsedAdjustedTime;
+            Time.TotalRealTime   = Clock.CurrentTime;
+            Time.ElapsedRealTime = Clock.ElapsedTime;
+            LastFrameElapsedRealTime += Clock.ElapsedTime;
+            TimeSpan timeSpan1 = Clock.ElapsedAdjustedTime;
             if (timeSpan1 < TimeSpan.Zero)
                 timeSpan1 = TimeSpan.Zero;
-            if (forceElapsedTimeToZero)
+            if (ForceElapsedTimeToZero)
             {
                 TimeSpan zero;
                 timeSpan1 = zero = TimeSpan.Zero;
-                lastFrameElapsedRealTime = zero;
-                gameTime.ElapsedRealTime = zero;
-                forceElapsedTimeToZero = false;
+                LastFrameElapsedRealTime = zero;
+                Time.ElapsedRealTime = zero;
+                ForceElapsedTimeToZero = false;
             }
-            if (timeSpan1 > maximumElapsedTime)
-                timeSpan1 = maximumElapsedTime;
+            if (timeSpan1 > MaximumElapsedTime)
+                timeSpan1 = MaximumElapsedTime;
             if (IsFixedTimeStep)
             {
-                if (Math.Abs(timeSpan1.Ticks - targetElapsedTime.Ticks) < targetElapsedTime.Ticks >> 6)
-                    timeSpan1 = targetElapsedTime;
-                accumulatedElapsedGameTime += timeSpan1;
-                long num = accumulatedElapsedGameTime.Ticks / targetElapsedTime.Ticks;
-                accumulatedElapsedGameTime = new TimeSpan(accumulatedElapsedGameTime.Ticks % targetElapsedTime.Ticks);
-                lastFrameElapsedGameTime = TimeSpan.Zero;
+                if (Math.Abs(timeSpan1.Ticks - TargetElapsedGameTime.Ticks) < TargetElapsedGameTime.Ticks >> 6)
+                    timeSpan1 = TargetElapsedGameTime;
+                AccumulatedElapsedGameTime += timeSpan1;
+                long num = AccumulatedElapsedGameTime.Ticks / TargetElapsedGameTime.Ticks;
+                AccumulatedElapsedGameTime = new TimeSpan(AccumulatedElapsedGameTime.Ticks % TargetElapsedGameTime.Ticks);
+                LastFrameElapsedGameTime = TimeSpan.Zero;
                 if (num == 0L)
                     return;
-                TimeSpan targetElapsed = targetElapsedTime;
+                TimeSpan targetElapsed = TargetElapsedGameTime;
                 if (num > 1L)
                 {
-                    updatesSinceRunningSlowly2 = updatesSinceRunningSlowly1;
-                    updatesSinceRunningSlowly1 = 0;
+                    UpdatesSinceRunningSlowly2 = UpdatesSinceRunningSlowly1;
+                    UpdatesSinceRunningSlowly1 = 0;
                 }
                 else
                 {
-                    if (updatesSinceRunningSlowly1 < int.MaxValue) ++updatesSinceRunningSlowly1;
-                    if (updatesSinceRunningSlowly2 < int.MaxValue) ++updatesSinceRunningSlowly2;
+                    if (UpdatesSinceRunningSlowly1 < int.MaxValue) ++UpdatesSinceRunningSlowly1;
+                    if (UpdatesSinceRunningSlowly2 < int.MaxValue) ++UpdatesSinceRunningSlowly2;
                 }
-                drawRunningSlowly = updatesSinceRunningSlowly2 < 20;
+                DrawRunningSlowly = UpdatesSinceRunningSlowly2 < 20;
                 while (num > 0L && !ShouldExit)
                 {
                     --num;
                     try
                     {
-                        gameTime.ElapsedGameTime = targetElapsed;
-                        gameTime.TotalGameTime   = totalGameTime;
-                        gameTime.IsRunningSlowly = drawRunningSlowly;
-                        Update(gameTime);
-                        flag &= suppressDraw;
-                        suppressDraw = false;
+                        Time.ElapsedGameTime = targetElapsed;
+                        Time.TotalGameTime   = TotalGameTime;
+                        Time.IsRunningSlowly = DrawRunningSlowly;
+                        Update(Time);
+                        flag &= DrawSuppressed;
+                        DrawSuppressed = false;
                     }
                     finally
                     {
-                        lastFrameElapsedGameTime += targetElapsed;
-                        totalGameTime            += targetElapsed;
+                        LastFrameElapsedGameTime += targetElapsed;
+                        TotalGameTime            += targetElapsed;
                     }
                 }
             }
             else
             {
-                drawRunningSlowly = false;
-                updatesSinceRunningSlowly1 = int.MaxValue;
-                updatesSinceRunningSlowly2 = int.MaxValue;
+                DrawRunningSlowly = false;
+                UpdatesSinceRunningSlowly1 = int.MaxValue;
+                UpdatesSinceRunningSlowly2 = int.MaxValue;
                 if (!ShouldExit)
                 {
                     try
                     {
-                        gameTime.ElapsedGameTime = lastFrameElapsedGameTime = timeSpan1;
-                        gameTime.TotalGameTime   = totalGameTime;
-                        gameTime.IsRunningSlowly = false;
-                        Update(gameTime);
-                        flag &= suppressDraw;
-                        suppressDraw = false;
+                        Time.ElapsedGameTime = LastFrameElapsedGameTime = timeSpan1;
+                        Time.TotalGameTime   = TotalGameTime;
+                        Time.IsRunningSlowly = false;
+                        Update(Time);
+                        flag &= DrawSuppressed;
+                        DrawSuppressed = false;
                     }
                     finally
                     {
-                        totalGameTime += timeSpan1;
+                        TotalGameTime += timeSpan1;
                     }
                 }
             }
@@ -285,13 +276,13 @@ namespace Microsoft.Xna.Framework
 
         public void SuppressDraw()
         {
-            suppressDraw = true;
+            DrawSuppressed = true;
         }
 
         public void Exit()
         {
             ShouldExit = true;
-            host.Exit();
+            Host.Exit();
         }
 
         protected virtual void BeginRun()
@@ -304,49 +295,49 @@ namespace Microsoft.Xna.Framework
 
         protected virtual void Update(GameTime time)
         {
-            for (int i = 0; i < updateableComponents.Count; ++i)
+            for (int i = 0; i < UpdateableComponents.Count; ++i)
             {
-                currentlyUpdatingComponents.Add(updateableComponents[i]);
+                CurrentlyUpdatingComponents.Add(UpdateableComponents[i]);
             }
-            for (int i = 0; i < currentlyUpdatingComponents.Count; ++i)
+            for (int i = 0; i < CurrentlyUpdatingComponents.Count; ++i)
             {
-                IUpdateable updatingComponent = currentlyUpdatingComponents[i];
+                IUpdateable updatingComponent = CurrentlyUpdatingComponents[i];
                 if (updatingComponent.Enabled)
                     updatingComponent.Update(time);
             }
-            currentlyUpdatingComponents.Clear();
+            CurrentlyUpdatingComponents.Clear();
             FrameworkDispatcher.Update();
-            doneFirstUpdate = true;
+            DoneFirstUpdate = true;
         }
 
         protected virtual bool BeginDraw()
         {
-            return graphicsDeviceManager == null || graphicsDeviceManager.BeginDraw();
+            return GraphicsDeviceManager == null || GraphicsDeviceManager.BeginDraw();
         }
 
         protected virtual void Draw(GameTime time)
         {
-            for (int i = 0; i < drawableComponents.Count; ++i)
+            for (int i = 0; i < DrawableComponents.Count; ++i)
             {
-                currentlyDrawingComponents.Add(drawableComponents[i]);
+                CurrentlyDrawingComponents.Add(DrawableComponents[i]);
             }
-            for (int i = 0; i < currentlyDrawingComponents.Count; ++i)
+            for (int i = 0; i < CurrentlyDrawingComponents.Count; ++i)
             {
-                IDrawable drawingComponent = currentlyDrawingComponents[i];
+                IDrawable drawingComponent = CurrentlyDrawingComponents[i];
                 if (drawingComponent.Visible)
                     drawingComponent.Draw(time);
             }
-            currentlyDrawingComponents.Clear();
+            CurrentlyDrawingComponents.Clear();
         }
 
         protected virtual void EndDraw()
         {
-            graphicsDeviceManager?.EndDraw();
+            GraphicsDeviceManager?.EndDraw();
         }
 
         private void Paint(object sender, EventArgs e)
         {
-            if (!doneFirstDraw)
+            if (!DoneFirstDraw)
                 return;
             DrawFrame();
         }
@@ -354,90 +345,90 @@ namespace Microsoft.Xna.Framework
         protected virtual void Initialize()
         {
             HookDeviceEvents();
-            while (notYetInitialized.Count != 0)
+            while (NotYetInitialized.Count != 0)
             {
-                notYetInitialized[0].Initialize();
-                notYetInitialized.RemoveAt(0);
+                NotYetInitialized[0].Initialize();
+                NotYetInitialized.RemoveAt(0);
             }
-            if (graphicsDeviceService?.GraphicsDevice == null)
+            if (GraphicsDeviceService?.GraphicsDevice == null)
                 return;
             LoadContent();
         }
 
         public void ResetElapsedTime()
         {
-            forceElapsedTimeToZero = true;
-            drawRunningSlowly = false;
-            updatesSinceRunningSlowly1 = int.MaxValue;
-            updatesSinceRunningSlowly2 = int.MaxValue;
+            ForceElapsedTimeToZero = true;
+            DrawRunningSlowly = false;
+            UpdatesSinceRunningSlowly1 = int.MaxValue;
+            UpdatesSinceRunningSlowly2 = int.MaxValue;
         }
 
         private void DrawFrame()
         {
             try
             {
-                if (ShouldExit || !doneFirstUpdate || (Window.IsMinimized || !BeginDraw()))
+                if (ShouldExit || !DoneFirstUpdate || (Window.IsMinimized || !BeginDraw()))
                     return;
-                gameTime.TotalRealTime = clock.CurrentTime;
-                gameTime.ElapsedRealTime = lastFrameElapsedRealTime;
-                gameTime.TotalGameTime = totalGameTime;
-                gameTime.ElapsedGameTime = lastFrameElapsedGameTime;
-                gameTime.IsRunningSlowly = drawRunningSlowly;
-                Draw(gameTime);
+                Time.TotalRealTime = Clock.CurrentTime;
+                Time.ElapsedRealTime = LastFrameElapsedRealTime;
+                Time.TotalGameTime = TotalGameTime;
+                Time.ElapsedGameTime = LastFrameElapsedGameTime;
+                Time.IsRunningSlowly = DrawRunningSlowly;
+                Draw(Time);
                 EndDraw();
-                doneFirstDraw = true;
+                DoneFirstDraw = true;
             }
             finally
             {
-                lastFrameElapsedRealTime = TimeSpan.Zero;
-                lastFrameElapsedGameTime = TimeSpan.Zero;
+                LastFrameElapsedRealTime = TimeSpan.Zero;
+                LastFrameElapsedGameTime = TimeSpan.Zero;
             }
         }
 
         private void GameComponentRemoved(object sender, GameComponentCollectionEventArgs e)
         {
-            if (!inRun)
-                notYetInitialized.Remove(e.GameComponent);
+            if (!InRun)
+                NotYetInitialized.Remove(e.GameComponent);
             if (e.GameComponent is IUpdateable updateable)
             {
-                updateableComponents.Remove(updateable);
+                UpdateableComponents.Remove(updateable);
                 updateable.UpdateOrderChanged -= UpdateableUpdateOrderChanged;
             }
             if (e.GameComponent is IDrawable drawable)
             {
-                drawableComponents.Remove(drawable);
+                DrawableComponents.Remove(drawable);
                 drawable.DrawOrderChanged -= DrawableDrawOrderChanged;
             }
         }
 
         private void GameComponentAdded(object sender, GameComponentCollectionEventArgs e)
         {
-            if (inRun)
+            if (InRun)
                 e.GameComponent.Initialize();
             else
-                notYetInitialized.Add(e.GameComponent);
+                NotYetInitialized.Add(e.GameComponent);
 
             if (e.GameComponent is IUpdateable updateable)
             {
-                int num = updateableComponents.BinarySearch(updateable, UpdateOrderComparer.Default);
+                int num = UpdateableComponents.BinarySearch(updateable, UpdateOrderComparer.Default);
                 if (num < 0)
                 {
                     int i = ~num;
-                    while (i < updateableComponents.Count && updateableComponents[i].UpdateOrder == updateable.UpdateOrder)
+                    while (i < UpdateableComponents.Count && UpdateableComponents[i].UpdateOrder == updateable.UpdateOrder)
                         ++i;
-                    updateableComponents.Insert(i, updateable);
+                    UpdateableComponents.Insert(i, updateable);
                     updateable.UpdateOrderChanged += UpdateableUpdateOrderChanged;
                 }
             }
             if (e.GameComponent is IDrawable drawable)
             {
-                int num1 = drawableComponents.BinarySearch(drawable, DrawOrderComparer.Default);
+                int num1 = DrawableComponents.BinarySearch(drawable, DrawOrderComparer.Default);
                 if (num1 < 0)
                 {
                     int i = ~num1;
-                    while (i < drawableComponents.Count && drawableComponents[i].DrawOrder == drawable.DrawOrder)
+                    while (i < DrawableComponents.Count && DrawableComponents[i].DrawOrder == drawable.DrawOrder)
                         ++i;
-                    drawableComponents.Insert(i, drawable);
+                    DrawableComponents.Insert(i, drawable);
                     drawable.DrawOrderChanged += DrawableDrawOrderChanged;
                 }
             }
@@ -447,14 +438,14 @@ namespace Microsoft.Xna.Framework
         {
             if (sender is IDrawable drawable)
             {
-                drawableComponents.Remove(drawable);
-                int num = drawableComponents.BinarySearch(drawable, DrawOrderComparer.Default);
+                DrawableComponents.Remove(drawable);
+                int num = DrawableComponents.BinarySearch(drawable, DrawOrderComparer.Default);
                 if (num < 0)
                 {
                     int i = ~num;
-                    while (i < drawableComponents.Count && drawableComponents[i].DrawOrder == drawable.DrawOrder)
+                    while (i < DrawableComponents.Count && DrawableComponents[i].DrawOrder == drawable.DrawOrder)
                         ++i;
-                    drawableComponents.Insert(i, drawable);
+                    DrawableComponents.Insert(i, drawable);
                 }
             }
         }
@@ -463,14 +454,14 @@ namespace Microsoft.Xna.Framework
         {
             if (sender is IUpdateable updateable)
             {
-                updateableComponents.Remove(updateable);
-                int num = updateableComponents.BinarySearch(updateable, UpdateOrderComparer.Default);
+                UpdateableComponents.Remove(updateable);
+                int num = UpdateableComponents.BinarySearch(updateable, UpdateOrderComparer.Default);
                 if (num < 0)
                 {
                     int i = ~num;
-                    while (i < updateableComponents.Count && updateableComponents[i].UpdateOrder == updateable.UpdateOrder)
+                    while (i < UpdateableComponents.Count && UpdateableComponents[i].UpdateOrder == updateable.UpdateOrder)
                         ++i;
-                    updateableComponents.Insert(i, updateable);
+                    UpdateableComponents.Insert(i, updateable);
                 }
             }
         }
@@ -492,30 +483,30 @@ namespace Microsoft.Xna.Framework
 
         private void EnsureHost()
         {
-            if (host != null)
+            if (Host != null)
                 return;
-            host = new WindowsGameHost(this);
-            host.Activated   += HostActivated;
-            host.Deactivated += HostDeactivated;
-            host.Suspend     += HostSuspend;
-            host.Resume      += HostResume;
-            host.Idle        += HostIdle;
-            host.Exiting     += HostExiting;
+            Host = new WindowsGameHost(this);
+            Host.Activated   += HostActivated;
+            Host.Deactivated += HostDeactivated;
+            Host.Suspend     += HostSuspend;
+            Host.Resume      += HostResume;
+            Host.Idle        += HostIdle;
+            Host.Exiting     += HostExiting;
         }
 
         private void HostSuspend(object sender, EventArgs e)
         {
-            clock.Suspend();
+            Clock.Suspend();
         }
 
         private void HostResume(object sender, EventArgs e)
         {
-            clock.Resume();
+            Clock.Resume();
         }
 
         private void HostExiting(object sender, EventArgs e)
         {
-            OnExiting((object)this, EventArgs.Empty);
+            OnExiting(this, EventArgs.Empty);
         }
 
         private void HostIdle(object sender, EventArgs e)
@@ -541,23 +532,23 @@ namespace Microsoft.Xna.Framework
 
         private void HookDeviceEvents()
         {
-            graphicsDeviceService = Services.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
-            if (graphicsDeviceService == null)
+            GraphicsDeviceService = Services.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
+            if (GraphicsDeviceService == null)
                 return;
-            graphicsDeviceService.DeviceCreated   += DeviceCreated;
-            graphicsDeviceService.DeviceResetting += DeviceResetting;
-            graphicsDeviceService.DeviceReset     += DeviceReset;
-            graphicsDeviceService.DeviceDisposing += DeviceDisposing;
+            GraphicsDeviceService.DeviceCreated   += DeviceCreated;
+            GraphicsDeviceService.DeviceResetting += DeviceResetting;
+            GraphicsDeviceService.DeviceReset     += DeviceReset;
+            GraphicsDeviceService.DeviceDisposing += DeviceDisposing;
         }
 
         private void UnhookDeviceEvents()
         {
-            if (graphicsDeviceService == null)
+            if (GraphicsDeviceService == null)
                 return;
-            graphicsDeviceService.DeviceCreated   -= DeviceCreated;
-            graphicsDeviceService.DeviceResetting -= DeviceResetting;
-            graphicsDeviceService.DeviceReset     -= DeviceReset;
-            graphicsDeviceService.DeviceDisposing -= DeviceDisposing;
+            GraphicsDeviceService.DeviceCreated   -= DeviceCreated;
+            GraphicsDeviceService.DeviceResetting -= DeviceResetting;
+            GraphicsDeviceService.DeviceReset     -= DeviceReset;
+            GraphicsDeviceService.DeviceDisposing -= DeviceDisposing;
         }
 
         private void DeviceResetting(object sender, EventArgs e)
@@ -605,7 +596,7 @@ namespace Microsoft.Xna.Framework
                 {
                     (components[i] as IDisposable)?.Dispose();
                 }
-                (graphicsDeviceManager as IDisposable)?.Dispose();
+                (GraphicsDeviceManager as IDisposable)?.Dispose();
                 UnhookDeviceEvents();
                 Disposed?.Invoke(this, EventArgs.Empty);
             }
@@ -613,7 +604,7 @@ namespace Microsoft.Xna.Framework
 
         protected virtual bool ShowMissingRequirementMessage(Exception exception)
         {
-            return host != null && host.ShowMissingRequirementMessage(exception);
+            return Host != null && Host.ShowMissingRequirementMessage(exception);
         }
     }
 }
