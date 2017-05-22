@@ -43,7 +43,7 @@ namespace Ship_Game
         private Menu1 ShipStats;
         private Menu1 activeModWindow;
         private Submenu ActiveModSubMenu;
-        private ScrollList WeaponSl;
+        private WeaponScrollList WeaponSl;
         private bool Reset = true;
         private Submenu ChooseFighterSub;
         private ScrollList ChooseFighterSL;
@@ -105,12 +105,12 @@ namespace Ship_Game
         public string HangarShipUIDLast = "Undefined";
         private float HoldTimer = .50f;
         private HashSet<string> Techs = new HashSet<string>();
-        private Texture2D TopBar132 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-        private Texture2D TopBar132Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
-        private Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
-        private Texture2D TopBar68 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
-        private Texture2D TopBar68Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
-        private Texture2D TopBar68Pressed = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];        
+        private readonly Texture2D TopBar132 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+        private readonly Texture2D TopBar132Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+        private readonly Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
+        private readonly Texture2D TopBar68 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
+        private readonly Texture2D TopBar68Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
+        private readonly Texture2D TopBar68Pressed = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];        
 
 
 #if SHIPYARD
@@ -649,16 +649,20 @@ namespace Ship_Game
         {
             if (SlotStructFits(slot))
             {
-                DesignAction designAction = new DesignAction();
-                designAction.clickedSS = new SlotStruct();
-                designAction.clickedSS.PQ = slot.PQ;
-                designAction.clickedSS.Restrictions  = slot.Restrictions;
-                designAction.clickedSS.Facing        = slot.Module != null ? slot.Module.Facing : 0.0f;
-                designAction.clickedSS.ModuleUID     = slot.ModuleUID;
-                designAction.clickedSS.Module        = slot.Module;
-                designAction.clickedSS.Tex           = slot.Tex;
-                designAction.clickedSS.SlotReference = slot.SlotReference;
-                designAction.clickedSS.State         = slot.State;
+                DesignAction designAction = new DesignAction
+                {
+                    clickedSS = new SlotStruct
+                    {
+                        PQ = slot.PQ,
+                        Restrictions = slot.Restrictions,
+                        Facing = slot.Module?.Facing ?? 0.0f,
+                        ModuleUID = slot.ModuleUID,
+                        Module = slot.Module,
+                        Tex = slot.Tex,
+                        SlotReference = slot.SlotReference,
+                        State = slot.State
+                    }
+                };
                 DesignStack.Push(designAction);
                 ClearSlot(slot);
                 ClearDestinationSlots(slot);
@@ -1389,6 +1393,107 @@ namespace Ship_Game
             IOE,
             Normal
 
+        }
+        private class WeaponScrollList: ScrollList
+        {
+            private readonly ShipDesignScreen Screen;
+            public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
+            {            
+                Screen = shipDesignScreen;
+            }
+            public override bool HandleInput(InputState input)
+            {                
+                Vector2 mousePos = input.CursorPosition;
+                for (int index = indexAtTop;
+                    index < Copied.Count
+                    && index < indexAtTop + entriesToDisplay;
+                    ++index)
+                {
+                    Entry e = Copied[index];
+                    if (e.item is ModuleHeader moduleHeader)
+                    {
+                        if (moduleHeader.HandleInput(input, e))
+                            return true;
+                    }
+                    else if (e.clickRect.HitTest(mousePos))
+                    {                        
+                        e.clickRectHover = 1;
+                        if (!input.InGameSelect) continue;
+                        Screen.SetActiveModule(ShipModule.CreateNoParent(((ShipModule) e.item).UID));
+                        Screen.ResetModuleState();
+                        return true;
+                    }
+                    else
+                        e.clickRectHover = 0;
+                }
+                return base.HandleInput(input);
+
+            }
+            public void DrawModules()
+            {
+                if (!Screen.ModSel.Tabs[3].Selected) return;
+                if (!Screen.Reset)
+                {
+                    Screen.DrawList();
+                    return;
+                }
+                Entries.Clear();
+                var moduleCategories = new Array<string>();
+                foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+                {
+                    if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
+                    {
+                        continue;
+                    }
+                    module.Value.ModuleType.ToString();
+                    ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                    tmp.SetAttributesNoParent();
+
+                    if (Screen.RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
+
+                    if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
+                         tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
+                         tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
+                         tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter ||
+                         tmp.ModuleType == ShipModuleType.Ordnance ||
+                         tmp.ModuleType == ShipModuleType.Construction) &&
+                        !moduleCategories.Contains(tmp.ModuleType.ToString()))
+                    {
+                        moduleCategories.Add(tmp.ModuleType.ToString());
+                        ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
+                        AddItem(type);
+                    }
+                    tmp = null;
+                }
+                foreach (Entry e in Entries)
+                {
+                    foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+                    {
+                        if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
+                        {
+                            continue;
+                        }
+                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                        tmp.SetAttributesNoParent();
+
+                        if (Screen.RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
+
+                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
+                             tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
+                             tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
+                             tmp.ModuleType == ShipModuleType.Special ||
+                             tmp.ModuleType == ShipModuleType.Transporter ||
+                             tmp.ModuleType == ShipModuleType.Ordnance ||
+                             tmp.ModuleType == ShipModuleType.Construction) &&
+                            ((ModuleHeader) e.item).Text == tmp.ModuleType.ToString())
+                        {
+                            e.AddItem(module.Value);
+                        }
+                        tmp = null;
+                    }
+                }
+                Screen.Reset = false;
+            }
         }
     }
 }

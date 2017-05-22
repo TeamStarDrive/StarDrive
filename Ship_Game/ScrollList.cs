@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-    public sealed class ScrollList : IDisposable
+    public class ScrollList : IDisposable
     {
         private Submenu Parent;
 
@@ -294,7 +294,7 @@ namespace Ship_Game
             }
         }
 
-        public bool HandleInput(InputState input)
+        public virtual bool HandleInput(InputState input)
         {
             bool hit = false;
             if (this.ScrollUp.HitTest(input.CursorPosition) && input.InGameSelect)
