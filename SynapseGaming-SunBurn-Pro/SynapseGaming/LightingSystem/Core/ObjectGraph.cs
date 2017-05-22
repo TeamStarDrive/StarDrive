@@ -20,12 +20,12 @@ namespace SynapseGaming.LightingSystem.Core
     /// <typeparam name="T"></typeparam>
     public class ObjectGraph<T> : IQuery<T>, ISubmit<T> where T : IMovableObject
     {
-        private int int_0 = 20;
-        private Dictionary<T, int> dictionary_0 = new Dictionary<T, int>(32);
-        private Class9<T> class9_0 = new Class9<T>();
+        private int WorldTreeMaxDepth = 20;
+        private Dictionary<T, int> DynamicObjects = new Dictionary<T, int>(32);
+        private RTreeNode<T> Root = new RTreeNode<T>();
         private Vector3[] WorldBoundsCorners = new Vector3[8];
-        private List<T> list_0 = new List<T>(32);
-        private Class19 class19_0 = new Class19();
+        private List<T> TempList = new List<T>(32);
+        private Statistics Stats = new Statistics();
 
         /// <summary>The current containment volume for this object.</summary>
         public BoundingBox WorldBoundingBox { get; private set; }
@@ -35,8 +35,8 @@ namespace SynapseGaming.LightingSystem.Core
         /// </summary>
         public ObjectGraph()
         {
-            this.WorldBoundingBox = new BoundingBox(new Vector3(-1000f, -1000f, -1000f), new Vector3(1000f, 1000f, 1000f));
-            this.Resize(this.WorldBoundingBox, this.int_0);
+            WorldBoundingBox = new BoundingBox(new Vector3(-1000f, -1000f, -1000f), new Vector3(1000f, 1000f, 1000f));
+            Resize(WorldBoundingBox, WorldTreeMaxDepth);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace SynapseGaming.LightingSystem.Core
         /// scenes often need deeper trees.</param>
         public ObjectGraph(BoundingBox worldboundingbox, int worldtreemaxdepth)
         {
-            this.Resize(worldboundingbox, worldtreemaxdepth);
+            Resize(worldboundingbox, worldtreemaxdepth);
         }
 
         /// <summary>Resizes the tree used to store contained objects.</summary>
@@ -60,26 +60,26 @@ namespace SynapseGaming.LightingSystem.Core
         /// scenes often need deeper trees.</param>
         public virtual void Resize(BoundingBox worldboundingbox, int worldtreemaxdepth)
         {
-            this.WorldBoundingBox = worldboundingbox;
-            this.int_0 = worldtreemaxdepth;
-            this.class9_0.method_0(ref worldboundingbox, worldtreemaxdepth);
+            WorldBoundingBox = worldboundingbox;
+            WorldTreeMaxDepth = worldtreemaxdepth;
+            Root.Create(ref worldboundingbox, worldtreemaxdepth);
         }
 
         /// <summary>Optimizes the tree used to store contained objects.</summary>
         public virtual void Optimize()
         {
-            BoundingBox boundingBox = new BoundingBox();
-            this.list_0.Clear();
-            this.class9_0.method_9(this.list_0);
-            foreach (T obj in this.list_0)
+            var boundingBox = new BoundingBox();
+            this.TempList.Clear();
+            this.Root.RecursiveGetObjects(this.TempList);
+            foreach (T obj in this.TempList)
             {
                 if (!obj.InfiniteBounds)
                     boundingBox = BoundingBox.CreateMerged(boundingBox, obj.WorldBoundingBox);
             }
-            int worldtreemaxdepth = Math.Max(1, this.list_0.Count / 40);
+            int worldtreemaxdepth = Math.Max(1, this.TempList.Count / 40);
             this.Resize(boundingBox, worldtreemaxdepth);
-            foreach (T gparam_0 in this.list_0)
-                this.class9_0.method_2(gparam_0.WorldBoundingBox, gparam_0);
+            foreach (T gparam_0 in this.TempList)
+                this.Root.Insert(gparam_0.WorldBoundingBox, gparam_0);
         }
 
         /// <summary>
@@ -91,12 +91,12 @@ namespace SynapseGaming.LightingSystem.Core
         {
             if (obj.ObjectType == ObjectType.Dynamic)
             {
-                if (this.dictionary_0.ContainsKey(obj))
+                if (DynamicObjects.ContainsKey(obj))
                     return;
-                this.dictionary_0.Add(obj, obj.MoveId);
+                DynamicObjects.Add(obj, obj.MoveId);
             }
-            this.class9_0.method_2(obj.WorldBoundingBox, obj);
-            ++this.class19_0.lightingSystemStatistic_0.AccumulationValue;
+            Root.Insert(obj.WorldBoundingBox, obj);
+            ++Stats.ObjectsSubmitted.AccumulationValue;
         }
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace SynapseGaming.LightingSystem.Core
         /// <param name="obj"></param>
         public virtual void Move(T obj)
         {
-            this.class9_0.method_3(obj.WorldBoundingBox, obj);
-            ++this.class19_0.lightingSystemStatistic_1.AccumulationValue;
+            Root.Update(obj.WorldBoundingBox, obj);
+            ++Stats.ObjectsMoved.AccumulationValue;
         }
 
         /// <summary>
@@ -115,19 +115,19 @@ namespace SynapseGaming.LightingSystem.Core
         /// </summary>
         public virtual void MoveDynamicObjects()
         {
-            this.list_0.Clear();
-            foreach (KeyValuePair<T, int> keyValuePair in this.dictionary_0)
+            TempList.Clear();
+            foreach (KeyValuePair<T, int> kv in DynamicObjects)
             {
-                if (keyValuePair.Key.MoveId != keyValuePair.Value)
+                if (kv.Key.MoveId != kv.Value)
                 {
-                    T key = keyValuePair.Key;
-                    this.class9_0.method_3(key.WorldBoundingBox, key);
-                    this.list_0.Add(key);
-                    ++this.class19_0.lightingSystemStatistic_2.AccumulationValue;
+                    T key = kv.Key;
+                    Root.Update(key.WorldBoundingBox, key);
+                    TempList.Add(key);
+                    ++Stats.ObjectsMovedDynamic.AccumulationValue;
                 }
             }
-            foreach (T index in this.list_0)
-                this.dictionary_0[index] = index.MoveId;
+            foreach (T obj in TempList)
+                DynamicObjects[obj] = obj.MoveId;
         }
 
         /// <summary>
@@ -141,18 +141,18 @@ namespace SynapseGaming.LightingSystem.Core
         {
             int count1 = foundobjects.Count;
             worldbounds.GetCorners(this.WorldBoundsCorners);
-            this.list_0.Clear();
-            this.class9_0.method_7(CoreUtils.smethod_11(this.WorldBoundsCorners), this.list_0);
+            this.TempList.Clear();
+            this.Root.FindInBounds(CoreUtils.smethod_11(this.WorldBoundsCorners), this.TempList);
             bool flag1 = (objectfilter & ObjectFilter.Dynamic) != 0;
             bool flag2 = (objectfilter & ObjectFilter.Static) != 0;
-            int count2 = this.list_0.Count;
+            int count2 = this.TempList.Count;
             for (int index = 0; index < count2; ++index)
             {
-                T obj = this.list_0[index];
+                T obj = this.TempList[index];
                 if ((flag1 && obj.ObjectType == ObjectType.Dynamic || flag2 && obj.ObjectType == ObjectType.Static) && worldbounds.Contains(obj.WorldBoundingBox) != ContainmentType.Disjoint)
                     foundobjects.Add(obj);
             }
-            this.class19_0.lightingSystemStatistic_4.AccumulationValue += foundobjects.Count - count1;
+            this.Stats.ObjectsRetrieved.AccumulationValue += foundobjects.Count - count1;
         }
 
         /// <summary>
@@ -165,18 +165,18 @@ namespace SynapseGaming.LightingSystem.Core
         public virtual void Find(List<T> foundobjects, BoundingBox worldbounds, ObjectFilter objectfilter)
         {
             int count1 = foundobjects.Count;
-            this.list_0.Clear();
-            this.class9_0.method_7(worldbounds, this.list_0);
+            this.TempList.Clear();
+            this.Root.FindInBounds(worldbounds, this.TempList);
             bool flag1 = (objectfilter & ObjectFilter.Dynamic) != 0;
             bool flag2 = (objectfilter & ObjectFilter.Static) != 0;
-            int count2 = this.list_0.Count;
-            for (int index = 0; index < count2; ++index)
+            int count2 = this.TempList.Count;
+            for (int i = 0; i < count2; ++i)
             {
-                T obj = this.list_0[index];
+                T obj = this.TempList[i];
                 if ((flag1 && obj.ObjectType == ObjectType.Dynamic || flag2 && obj.ObjectType == ObjectType.Static) && worldbounds.Contains(obj.WorldBoundingBox) != ContainmentType.Disjoint)
                     foundobjects.Add(obj);
             }
-            this.class19_0.lightingSystemStatistic_4.AccumulationValue += foundobjects.Count - count1;
+            this.Stats.ObjectsRetrieved.AccumulationValue += foundobjects.Count - count1;
         }
 
         /// <summary>
@@ -187,18 +187,18 @@ namespace SynapseGaming.LightingSystem.Core
         public virtual void Find(List<T> foundobjects, ObjectFilter objectfilter)
         {
             int count1 = foundobjects.Count;
-            this.list_0.Clear();
-            this.class9_0.method_9(this.list_0);
-            bool flag1 = (objectfilter & ObjectFilter.Dynamic) != 0;
-            bool flag2 = (objectfilter & ObjectFilter.Static) != 0;
-            int count2 = this.list_0.Count;
-            for (int index = 0; index < count2; ++index)
+            TempList.Clear();
+            Root.RecursiveGetObjects(TempList);
+            bool isDynamic = (objectfilter & ObjectFilter.Dynamic) != 0;
+            bool isStatic  = (objectfilter & ObjectFilter.Static) != 0;
+            int count2 = TempList.Count;
+            for (int i = 0; i < count2; ++i)
             {
-                T obj = this.list_0[index];
-                if (flag1 && obj.ObjectType == ObjectType.Dynamic || flag2 && obj.ObjectType == ObjectType.Static)
+                T obj = TempList[i];
+                if (isDynamic && obj.ObjectType == ObjectType.Dynamic || isStatic && obj.ObjectType == ObjectType.Static)
                     foundobjects.Add(obj);
             }
-            this.class19_0.lightingSystemStatistic_4.AccumulationValue += foundobjects.Count - count1;
+            Stats.ObjectsRetrieved.AccumulationValue += foundobjects.Count - count1;
         }
 
         /// <summary>
@@ -211,8 +211,8 @@ namespace SynapseGaming.LightingSystem.Core
         public void FindFast(List<T> foundobjects, BoundingBox worldbounds)
         {
             int count = foundobjects.Count;
-            this.class9_0.method_7(worldbounds, foundobjects);
-            this.class19_0.lightingSystemStatistic_4.AccumulationValue += foundobjects.Count - count;
+            this.Root.FindInBounds(worldbounds, foundobjects);
+            this.Stats.ObjectsRetrieved.AccumulationValue += foundobjects.Count - count;
         }
 
         /// <summary>
@@ -223,17 +223,17 @@ namespace SynapseGaming.LightingSystem.Core
         public void FindFast(List<T> foundobjects)
         {
             int count = foundobjects.Count;
-            this.class9_0.method_9(foundobjects);
-            this.class19_0.lightingSystemStatistic_4.AccumulationValue += foundobjects.Count - count;
+            Root.RecursiveGetObjects(foundobjects);
+            Stats.ObjectsRetrieved.AccumulationValue += foundobjects.Count - count;
         }
 
         /// <summary>Removes an object from the container.</summary>
         /// <param name="obj"></param>
         public virtual void Remove(T obj)
         {
-            this.dictionary_0.Remove(obj);
-            this.class9_0.method_4(obj.WorldBoundingBox, obj);
-            ++this.class19_0.lightingSystemStatistic_3.AccumulationValue;
+            DynamicObjects.Remove(obj);
+            Root.Remove(obj.WorldBoundingBox, obj);
+            ++Stats.ObjectsRemoved.AccumulationValue;
         }
 
         /// <summary>
@@ -241,17 +241,17 @@ namespace SynapseGaming.LightingSystem.Core
         /// </summary>
         public virtual void Clear()
         {
-            this.dictionary_0.Clear();
-            this.class9_0.method_1();
+            DynamicObjects.Clear();
+            Root.Clear();
         }
 
-        private class Class19
+        private class Statistics
         {
-            public LightingSystemStatistic lightingSystemStatistic_0 = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsSubmitted", LightingSystemStatisticCategory.SceneGraph);
-            public LightingSystemStatistic lightingSystemStatistic_1 = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsMoved", LightingSystemStatisticCategory.SceneGraph);
-            public LightingSystemStatistic lightingSystemStatistic_2 = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsMovedDynamic", LightingSystemStatisticCategory.SceneGraph);
-            public LightingSystemStatistic lightingSystemStatistic_3 = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsRemoved", LightingSystemStatisticCategory.SceneGraph);
-            public LightingSystemStatistic lightingSystemStatistic_4 = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsRetrieved", LightingSystemStatisticCategory.SceneGraph);
+            public readonly LightingSystemStatistic ObjectsSubmitted    = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsSubmitted", LightingSystemStatisticCategory.SceneGraph);
+            public readonly LightingSystemStatistic ObjectsMoved        = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsMoved", LightingSystemStatisticCategory.SceneGraph);
+            public readonly LightingSystemStatistic ObjectsMovedDynamic = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsMovedDynamic", LightingSystemStatisticCategory.SceneGraph);
+            public readonly LightingSystemStatistic ObjectsRemoved      = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsRemoved", LightingSystemStatisticCategory.SceneGraph);
+            public readonly LightingSystemStatistic ObjectsRetrieved    = LightingSystemStatistics.GetStatistic("SceneGraph_ObjectsRetrieved", LightingSystemStatisticCategory.SceneGraph);
         }
     }
 }

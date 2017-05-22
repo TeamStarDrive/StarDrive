@@ -123,7 +123,7 @@ namespace Ship_Game
         public float ShipBuildingModifier;
         public float consumption;
         private float unfed;
-        private Shield shield;
+        private Shield Shield;
         public float FoodHere;
         public int developmentLevel;
         public bool CorsairPresence;
@@ -284,10 +284,6 @@ namespace Ship_Game
                         od.Target.Habitable = false;
                         od.Target.highlighted = false;
                         od.Target.Biosphere = false;
-                        //this.TerraformPoints--;
-                        //Building Wasteland = new Building;
-                        //Wasteland.Name="Fissionables";
-                        //od.Target.building=Wasteland;
                         if (flag)
                         {
                             foreach (Building bios in BuildingList)
@@ -305,12 +301,6 @@ namespace Ship_Game
                                 od.Target.building = null;
                             }
                         }
-
-                   
-
-
-
-
                     }
                 }
                 if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
@@ -387,22 +377,22 @@ namespace Ship_Game
             {
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    PlayPlanetSfx("sd_impact_shield_01", shield.Center);
+                    PlayPlanetSfx("sd_impact_shield_01", Shield.Center);
                 }
-                shield.Rotation = Center.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
-                shield.displacement = 0f;
-                shield.texscale = 2.8f;
-                shield.Radius = SO.WorldBoundingSphere.Radius + 100f;
-                shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                shield.texscale = 2.8f;
-                shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                shield.Center = new Vector3(Center.X, Center.Y, 2500f);
-                shield.pointLight.World = bomb.World;
-                shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                shield.pointLight.Radius = 50f;
-                shield.pointLight.Intensity = 8f;
-                shield.pointLight.Enabled = true;
-                Vector3 vel = Vector3.Normalize(bomb.Position - shield.Center);
+                Shield.Rotation = Center.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
+                Shield.displacement = 0f;
+                Shield.texscale = 2.8f;
+                Shield.Radius = SO.WorldBoundingSphere.Radius + 100f;
+                Shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
+                Shield.texscale = 2.8f;
+                Shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
+                Shield.Center = new Vector3(Center.X, Center.Y, 2500f);
+                Shield.pointLight.World = bomb.World;
+                Shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+                Shield.pointLight.Radius = 50f;
+                Shield.pointLight.Intensity = 8f;
+                Shield.pointLight.Enabled = true;
+                Vector3 vel = Vector3.Normalize(bomb.Position - Shield.Center);
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
@@ -1153,7 +1143,7 @@ namespace Ship_Game
             UpdateDescription();
 
             Empire.Universe.RemoveObject(SO);
-            SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)planetType).Meshes[0]);
+            SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + planetType).Meshes[0]);
             SO.ObjectType = ObjectType.Dynamic;
             SO.World = Matrix.Identity * Matrix.CreateScale(3f) 
                 * Matrix.CreateScale(scale) 
@@ -5756,13 +5746,13 @@ output = maxp * take10 = 5
 
         public void InitializeUpdate()
         {
-            shield = ShieldManager.AddPlanetaryShield(Center);
-            //this.initializing = true;
+            Shield = ShieldManager.AddPlanetaryShield(Center);
             UpdateDescription();
-            SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)planetType).Meshes[0]);
+            SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + planetType).Meshes[0]);
             SO.ObjectType = ObjectType.Dynamic;
-            SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-            RingWorld = Matrix.Identity * Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+            SO.World = Matrix.CreateScale(3f * scale) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+            RingWorld = Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f)
+                        * Matrix.CreateTranslation(new Vector3(Center, 2500f));
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(scale)) / 1.5)));
         }
 

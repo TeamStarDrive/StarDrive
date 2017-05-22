@@ -555,8 +555,7 @@ namespace Ship_Game
         {
             ModelPath = modelPath;
             model = TransientContent.Load<Model>(modelPath);
-            ModelMesh mesh = model.Meshes[0];
-            shipSO = new SceneObject(mesh)
+            shipSO = new SceneObject(model.Meshes[0])
             {
                 ObjectType = ObjectType.Dynamic,
                 World = worldMatrix
@@ -567,12 +566,11 @@ namespace Ship_Game
         public void LoadModel(Model m, string path)
         {
             ScreenManager.RemoveAllObjects();
-            this.ModelPath = path;
-            this.model = m;
-            this.HullName = path;
-            this.ShipNameBox.Text = path;
-            ModelMesh mesh = this.model.Meshes[0];
-            this.shipSO = new SceneObject(mesh)
+            ModelPath = path;
+            model = m;
+            HullName = path;
+            ShipNameBox.Text = path;
+            shipSO = new SceneObject(model.Meshes[0])
             {
                 ObjectType = ObjectType.Dynamic,
                 World = this.worldMatrix
