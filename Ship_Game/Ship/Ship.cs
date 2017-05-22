@@ -2769,8 +2769,7 @@ namespace Ship_Game.Gameplay
             TroopList.Clear();
             ClearFleet();
             ShipSO.Clear();
-            lock (GlobalStats.ObjectManagerLocker)
-                Empire.Universe.ScreenManager.Remove(ShipSO);
+            Empire.Universe.RemoveObject(ShipSO);
 
             loyalty.RemoveShip(this);
             SetSystem(null);

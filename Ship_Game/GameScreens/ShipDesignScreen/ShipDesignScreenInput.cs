@@ -27,13 +27,7 @@ namespace Ship_Game {
             LastDesignActionPos = Vector2.Zero;
             LastActiveUID = "";
 
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                if (shipSO != null)
-                {
-                    ScreenManager.Remove(shipSO);
-                }
-            }
+            RemoveObject(shipSO);
             ActiveHull = new ShipData
             {
                 Animated     = hull.Animated,
@@ -78,33 +72,9 @@ namespace Ship_Game {
             #endif
             }
             CombatState = hull.CombatState;
-            if (!hull.Animated)
-            {
-                ActiveModel = ResourceManager.GetModel(ActiveHull.ModelPath);
-                ModelMesh mesh = ActiveModel.Meshes[0];
-                shipSO = new SceneObject(mesh)
-                {
-                    ObjectType = ObjectType.Dynamic,
-                    World = WorldMatrix
-                };
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    ScreenManager.Submit(this.shipSO);
-                }
-            }
-            else
-            {
-                SkinnedModel sm = ResourceManager.GetSkinnedModel(ActiveHull.ModelPath);
-                shipSO = new SceneObject(sm.Model)
-                {
-                    ObjectType = ObjectType.Dynamic,
-                    World = WorldMatrix
-                };
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    ScreenManager.Submit(this.shipSO);
-                }
-            }
+
+            CreateSOFromActiveHull();
+
             foreach (ToggleButton button in CombatStatusButtons)
             {
                 switch (button.Action)
@@ -216,23 +186,22 @@ namespace Ship_Game {
             }
         }
 
-        private void CreateSOFromHull()
+        private void CreateSOFromActiveHull()
         {
-            lock (GlobalStats.ObjectManagerLocker)
+            if (shipSO != null)
+                RemoveObject(shipSO);
+
+            Model model = ActiveHull.Animated
+                        ? ResourceManager.GetSkinnedModel(ActiveHull.ModelPath).Model
+                        : TransientContent.Load<Model>(ActiveHull.ModelPath);
+
+            shipSO = new SceneObject(model)
             {
-                if (shipSO != null)
-                {
-                    ScreenManager.Remove(this.shipSO);
-                }
-                ModelMesh mesh = ActiveModel.Meshes[0];
-                shipSO = new SceneObject(mesh)
-                {
-                    ObjectType = ObjectType.Dynamic,
-                    World = WorldMatrix
-                };
-                ScreenManager.Submit(this.shipSO);
-                this.SetupSlots();
-            }
+                ObjectType = ObjectType.Dynamic, World = WorldMatrix
+            };
+
+            AddObject(shipSO);
+            SetupSlots();
         }
 
         private void DoExit(object sender, EventArgs e)
@@ -879,8 +848,7 @@ namespace Ship_Game {
 
         public override void LoadContent()
         {
-            LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
-            rig.AssignTo(this);
+            AssignLightRig("example/ShipyardLightrig");
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280 || ScreenManager
                     .GraphicsDevice.PresentationParameters.BackBufferHeight <= 768)
             {
@@ -947,26 +915,12 @@ namespace Ship_Game {
                             new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
             ChangeHull(AvailableHulls[0]);
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                if (!ActiveHull.Animated)
-                {
-                    ActiveModel = TransientContent.Load<Model>(ActiveHull.ModelPath);
-                    CreateSOFromHull();
-                }
-                else
-                {
-                    ScreenManager.Remove(this.shipSO);
-                    SkinnedModel sm = ResourceManager.GetSkinnedModel(this.ActiveHull.ModelPath);
-                    this.shipSO = new SceneObject(sm.Model)
-                    {
-                        ObjectType = ObjectType.Dynamic,
-                        World = WorldMatrix
-                    };
-                    ScreenManager.Submit(this.shipSO);
-                    this.SetupSlots();
-                }
-            }
+
+
+            CreateSOFromActiveHull();
+
+
+
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
                 if (slot.Position.X < LowestX)
@@ -1236,17 +1190,14 @@ namespace Ship_Game {
 
         private void ReallyExit()
         {
-            Empire.Universe?.ResetLighting();            
+            Empire.Universe.ResetLighting();
+            RemoveObject(shipSO);
 
-            lock (GlobalStats.ObjectManagerLocker)
+            if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
             {
-                ScreenManager.Remove(this.shipSO);
+                colonyScreen.Reset = true;
             }
-            if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen)
-            {
-                (Empire.Universe.workersPanel as ColonyScreen).Reset = true;
-            }
-            //this should go some where else, need to find it a home
+            // this should go some where else, need to find it a home
             ScreenManager.RemoveScreen(this);
             base.ExitScreen();
         }

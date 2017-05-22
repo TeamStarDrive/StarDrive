@@ -153,7 +153,6 @@ namespace Ship_Game
 	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
 	        {
 	            float x1 = cam.Pos.X;
-	            Viewport viewport3 = universe.Viewport;
 	            bgRect = new Rectangle((int) (x1 - universe.Viewport.Width / 2f - cam.Pos.X / 15f - 200f),
 	                (int) (cam.Pos.Y - universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight /
 	                       2f - cam.Pos.Y / 15f) - 200, 2600, 2600);

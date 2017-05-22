@@ -61,6 +61,6 @@ namespace SynapseGaming.LightingSystem.Core
     ISceneEnvironment Environment { get; }
 
     /// <summary />
-    void ApplyEditorUpdate(Matrix view, Matrix viewtoworld, Matrix projection);
+    void ApplyEditorUpdate(ref Matrix view, ref Matrix viewtoworld, ref Matrix projection);
   }
 }

@@ -23,7 +23,7 @@ namespace Ship_Game
 				Visibility = ObjectVisibility.RenderedAndCastShadows,
 				World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position)
 			};
-		    screenManager.Submit(SceneObject);
+            screenManager.AddObject(SceneObject);
 		}
 
 		public void Update(ISceneState scenestate)

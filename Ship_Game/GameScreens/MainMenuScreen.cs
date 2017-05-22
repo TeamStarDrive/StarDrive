@@ -71,18 +71,13 @@ namespace Ship_Game
                 this.CometList.Add(c);
             }
             Vector2 cometOrigin = new Vector2(TexComet.Width, TexComet.Height) / 2f;
-            if (SplashScreen.DisplayComplete )
+            if (SplashScreen.DisplayComplete)
             {
-                ScreenManager.splashScreenGameComponent.Visible = false;
-                ScreenManager.sceneState.BeginFrameRendering(this.View, this.Projection, gameTime, ScreenManager.environment, true);
-                ScreenManager.editor.BeginFrameRendering(ScreenManager.sceneState);
-                try
-                {
-                    ScreenManager.inter.BeginFrameRendering(ScreenManager.sceneState);
-                }
-                catch { }
-                this.DrawNew(gameTime);
-                ScreenManager.inter.RenderManager.Render();
+                ScreenManager.HideSplashScreen();
+                ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
+                DrawNew(gameTime);
+                ScreenManager.RenderSceneObjects();
+
                 ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
                 ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.InverseDestinationColor;
                 ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
@@ -244,9 +239,7 @@ namespace Ship_Game
                     LogoAnimation.RemoveAt(0);
                 }
                 ScreenManager.SpriteBatch.End();
-                ScreenManager.inter.EndFrameRendering();
-                ScreenManager.editor.EndFrameRendering();
-                ScreenManager.sceneState.EndFrameRendering();
+                ScreenManager.EndFrameRendering();
             }
         }
 
@@ -557,8 +550,7 @@ namespace Ship_Game
             Button(ref pos, "Info", "BlackBox Info");
             Button(ref pos, "Exit", localization: 5);
 
-            ScreenManager.inter.ObjectManager.Clear();
-            ScreenManager.inter.LightManager.Clear();
+            ScreenManager.ClearScene();
 
             // @todo Why are these global inits here??
             ShieldManager.LoadContent(Game1.GameContent);
@@ -589,12 +581,11 @@ namespace Ship_Game
             string planet = "Model/SpaceObjects/planet_" + RandomMath.IntBetween(1, 29);
             MoonObj = new SceneObject(TransientContent.Load<Model>(planet).Meshes[0]) { ObjectType = ObjectType.Dynamic };
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
-            ScreenManager.Submit(MoonObj);
+            ScreenManager.AddObject(MoonObj);
 
             InitRandomShip();
 
-            LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
-            rig.AssignTo(this);
+            AssignLightRig("example/ShipyardLightrig");
             ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
             Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
@@ -667,7 +658,7 @@ namespace Ship_Game
         {
             if (ShipObj != null) // Allow multiple inits (mostly for testing)
             {
-                ScreenManager.Remove(ShipObj);
+                RemoveObject(ShipObj);
                 ShipObj.Clear();
                 ShipObj = null;
                 ShipAnim = null;
@@ -716,12 +707,12 @@ namespace Ship_Game
             //Log.Info("ship length {0} width {1} height {2}", length, width, height);
 
             ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-            ScreenManager.Submit(ShipObj);
+            AddObject(ShipObj);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            ScreenManager.inter.Update(gameTime);
+            ScreenManager.UpdateSceneObjects(gameTime);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             MoonPosition.X += deltaTime * 0.6f; // 0.6 units/s
@@ -746,7 +737,7 @@ namespace Ship_Game
                 }
             }
 
-            ScreenManager.inter.Update(gameTime);
+            ScreenManager.UpdateSceneObjects(gameTime);
 
             if (!GlobalStats.HasMod || GlobalStats.ActiveMod.MainMenuMusic.IsEmpty())
             {

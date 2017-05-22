@@ -27,7 +27,6 @@ namespace Ship_Game
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
         private Menu1 ModuleSelectionMenu;
-        private Model ActiveModel;
         private SceneObject shipSO;
         private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
         public Array<SlotStruct> Slots = new Array<SlotStruct>();
@@ -82,7 +81,6 @@ namespace Ship_Game
         private ShipModule HoveredModule;
         private float TransitionZoom = 1f;
         private SlotModOperation Operation;
-        private int HullIndex;
         private ShipModule ActiveModule;
         private ShipModule ActiveHangarModule;
         private ActiveModuleState ActiveModState;
@@ -103,7 +101,6 @@ namespace Ship_Game
         public bool CarrierOnly;
         private ShipData.Category LoadCategory;
         public string HangarShipUIDLast = "Undefined";
-        private float HoldTimer = .50f;
         private HashSet<string> Techs = new HashSet<string>();
         private readonly Texture2D TopBar132 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
         private readonly Texture2D TopBar132Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");

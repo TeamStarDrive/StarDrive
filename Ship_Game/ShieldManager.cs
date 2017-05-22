@@ -185,10 +185,7 @@ namespace Ship_Game
                     if (shield.Owner == null || shield.Owner.Active)
                         continue;
                     ShieldList.RemoveAt(i);
-                    lock (GlobalStats.ObjectManagerLocker)
-                    {
-                        Empire.Universe.ScreenManager.inter.LightManager.Remove(shield.pointLight);
-                    }
+                    Empire.Universe.RemoveLight(shield.pointLight);
                 }
             }
         }

@@ -45,7 +45,6 @@ namespace Ship_Game
         public static object SensorNodeLocker     = new object();
         public static object BorderNodeLocker     = new object();
         public static object BombLock             = new object();
-        public static object ObjectManagerLocker  = new object();
         public static object ExplosionLocker      = new object();
         public static object KnownShipsLock       = new object();
         public static object AddShipLocker        = new object();
