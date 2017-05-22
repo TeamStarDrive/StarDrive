@@ -203,7 +203,7 @@ namespace Ship_Game
         public DeepSpaceBuildingWindow dsbw;
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
-        public InputState Input;
+        //public InputState Input;
         private float Memory;
         public bool Paused;
         public bool SkipRightOnce;
