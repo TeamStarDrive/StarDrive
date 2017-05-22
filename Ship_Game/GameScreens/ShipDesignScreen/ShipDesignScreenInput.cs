@@ -282,7 +282,6 @@ namespace Ship_Game {
         public override void HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
-            //HandleInputCategoryList(input);
             CarrierOnlyBox.HandleInput(input);
 
             if (ActiveModule != null && (ActiveModule.InstalledWeapon != null
@@ -314,8 +313,7 @@ namespace Ship_Game {
             HandleInputDebug(input);
 
             HoveredModule = null;
-            MouseStateCurrent = Mouse.GetState();
-            var vector2 = new Vector2(MouseStateCurrent.X, MouseStateCurrent.Y);
+            var mousePos = input.CursorPosition;
             selector = null;
             EmpireUI.HandleInput(input, this);
             ActiveModSubMenu.HandleInputNoReset(this);
@@ -330,7 +328,7 @@ namespace Ship_Game {
                     if (moduleHeader.HandleInput(input, e))
                         return;
                 }
-                else if (e.clickRect.HitTest(vector2))
+                else if (e.clickRect.HitTest(mousePos))
                 {
                     selector = new Selector(ScreenManager, e.clickRect);
                     e.clickRectHover = 1;
@@ -363,7 +361,7 @@ namespace Ship_Game {
                         ++index)
                     {
                         ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-                        if (entry.clickRect.HitTest(vector2))
+                        if (entry.clickRect.HitTest(mousePos))
                         {
                             selector = new Selector(ScreenManager, entry.clickRect);
                             entry.clickRectHover = 1;
@@ -388,7 +386,7 @@ namespace Ship_Game {
                     ++index)
                 {
                     ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-                    if (!entry.clickRect.HitTest(vector2)) continue;
+                    if (!entry.clickRect.HitTest(mousePos)) continue;
                     selector = new Selector(ScreenManager, entry.clickRect);
                     entry.clickRectHover = 1;
                     selector = new Selector(ScreenManager, entry.clickRect);
@@ -399,39 +397,14 @@ namespace Ship_Game {
                     return;
                 }
             }
-            for (int index = WeaponSl.indexAtTop;
-                index < WeaponSl.Copied.Count
-                && index < WeaponSl.indexAtTop + WeaponSl.entriesToDisplay;
-                ++index)
-            {
-                ScrollList.Entry e = WeaponSl.Copied[index];
-                if (e.item is ModuleHeader moduleHeader)
-                {
-                    if (moduleHeader.HandleInput(input, e))
-                        return;
-                }
-                else if (e.clickRect.HitTest(vector2))
-                {
-                    selector = new Selector(ScreenManager, e.clickRect);
-                    e.clickRectHover = 1;
-                    selector = new Selector(ScreenManager, e.clickRect);
-                    if (input.InGameSelect)
-                    {
-                        SetActiveModule(ShipModule.CreateNoParent((e.item as ShipModule).UID));
-                        ResetModuleState();
-                        return;
-                    }
-                }
-                else
-                    e.clickRectHover = 0;
-            }
+           
             WeaponSl.HandleInput(input);
             if (HullSelectionRect.HitTest(input.CursorPosition)
                 && input.LeftMousePressed || ModSel.Menu.HitTest(input.CursorPosition)
                 && input.LeftMousePressed || ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
                 && input.LeftMousePressed)
                 return;
-            if (ModSel.Menu.HitTest(vector2))
+            if (ModSel.Menu.HitTest(mousePos))
             {
                 if (input.ScrollIn && WeaponSl.indexAtTop > 0)
                     --WeaponSl.indexAtTop;
@@ -482,7 +455,7 @@ namespace Ship_Game {
                             slotStruct.PQ.enclosingRect.Y));
                     if (new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y,
                             (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom))
-                        .HitTest(vector2))
+                        .HitTest(mousePos))
                     {
                         if (slotStruct.Module != null)
                             HoveredModule = slotStruct.Module;
@@ -501,21 +474,21 @@ namespace Ship_Game {
                     }
                 }
             }
-            if (UpArrow.HitTest(vector2) && input.LeftMouseClick && ScrollPosition > 0)
+            if (UpArrow.HitTest(mousePos) && input.LeftMouseClick && ScrollPosition > 0)
             {
                 --ScrollPosition;
                 GameAudio.PlaySfxAsync("blip_click");
                 foreach (ModuleButton moduleButton in ModuleButtons)
                     moduleButton.moduleRect.Y += 128;
             }
-            if (DownArrow.HitTest(vector2) && input.LeftMouseClick)
+            if (DownArrow.HitTest(mousePos) && input.LeftMouseClick)
             {
                 ++ScrollPosition;
                 GameAudio.PlaySfxAsync("blip_click");
                 foreach (ModuleButton moduleButton in ModuleButtons)
                     moduleButton.moduleRect.Y -= 128;
             }
-            if (ModuleSelectionArea.HitTest(vector2))
+            if (ModuleSelectionArea.HitTest(mousePos))
             {
                 if (input.ScrollIn && ScrollPosition > 0)
                 {
@@ -543,7 +516,7 @@ namespace Ship_Game {
                         new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
                     var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
                         , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
-                    if (slot.Module == null || !rect.HitTest(vector2)) continue;
+                    if (slot.Module == null || !rect.HitTest(mousePos)) continue;
                     slot.SetValidity(slot.Module);
                     var designAction = new DesignAction
                     {
@@ -568,7 +541,7 @@ namespace Ship_Game {
                 if (ModuleSelectionArea.HitTest(new Vector2(moduleButton.moduleRect.X + 30,
                     moduleButton.moduleRect.Y + 30)))
                 {
-                    if (moduleButton.moduleRect.HitTest(vector2))
+                    if (moduleButton.moduleRect.HitTest(mousePos))
                     {
                         if (input.InGameSelect)
                             SetActiveModule(ShipModule.CreateNoParent(moduleButton.ModuleUID));
@@ -578,7 +551,7 @@ namespace Ship_Game {
                         moduleButton.isHighlighted = false;
                 }
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && ActiveModule != null)
+            if (input.LeftMousePressed && ActiveModule != null)
             {
                 foreach (SlotStruct slot in Slots)
                 {
@@ -587,7 +560,7 @@ namespace Ship_Game {
                         slot.PQ.enclosingRect.Y));
                     if (!new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
                             , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
-                        .HitTest(vector2)) continue;
+                        .HitTest(mousePos)) continue;
                     GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
                     if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
@@ -596,7 +569,7 @@ namespace Ship_Game {
                         slot); //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
                     LastDesignActionPos.X = slot.PQ.X;
                     LastDesignActionPos.Y = slot.PQ.Y;
-                    LastActiveUID = ActiveModule.UID;
+                    LastActiveUID         = ActiveModule.UID;
                 }
             }
             foreach (SlotStruct slotStruct in Slots)
@@ -611,6 +584,7 @@ namespace Ship_Game {
                             slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
                             slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
                     //I am not sure what the below was trying to do. It wasnt doing anything...
+                    //Ok i remember what this does. it restricts the arc change 
                     //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
                     //float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
                     //float facing = HighlightedModule.Facing;
@@ -625,12 +599,12 @@ namespace Ship_Game {
                     //}
 
                     if (input.ShipYardArcMove())
-                        HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(vector2);
+                        HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(mousePos);
                 }
             }
             foreach (UIButton uiButton in Buttons)
             {
-                if (uiButton.Rect.HitTest(vector2))
+                if (uiButton.Rect.HitTest(mousePos))
                 {
                     uiButton.State = UIButton.PressState.Hover;
                     if (input.LeftMouseClick)
@@ -922,7 +896,7 @@ namespace Ship_Game {
             ModSel.AddTab("Pwr");
             ModSel.AddTab("Def");
             ModSel.AddTab("Spc");
-            WeaponSl         = new ScrollList(ModSel);
+            WeaponSl         = new WeaponScrollList(ModSel,this);
             Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
             activeModWindow  = new Menu1(ScreenManager, active);
             Rectangle acsub  = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
@@ -1162,7 +1136,7 @@ namespace Ship_Game {
                 new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285,
                     (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
             HullSelectionSub = new Submenu(ScreenManager, HullSelectionRect, true);
-            WeaponSl         = new ScrollList(ModSel);
+            WeaponSl         = new WeaponScrollList(ModSel,this);
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
             var categories = new Array<string>();
