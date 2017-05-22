@@ -168,7 +168,7 @@ namespace Ship_Game
             e.ParentList = this;
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
             if (this.Copied.Count > this.entriesToDisplay)
             {
