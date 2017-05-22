@@ -9,6 +9,7 @@ namespace Ship_Game
 {
     public abstract class GameScreen : IDisposable
     {
+        public InputState Input;
         public bool IsLoaded;
         public bool AlwaysUpdate;
         private bool OtherScreenHasFocus;
@@ -43,6 +44,8 @@ namespace Ship_Game
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
             UpdateViewport();
+            if(Input == null)
+                Input = ScreenManager.input;
         }
 
         public void UpdateViewport() => Viewport = Game1.Instance.Viewport;
