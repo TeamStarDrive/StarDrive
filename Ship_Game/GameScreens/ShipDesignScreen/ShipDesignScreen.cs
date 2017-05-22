@@ -1445,7 +1445,6 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    module.Value.ModuleType.ToString();
                     ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                     tmp.SetAttributesNoParent();
 
@@ -1463,13 +1462,12 @@ namespace Ship_Game
                         ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
                         AddItem(type);
                     }
-                    tmp = null;
                 }
                 foreach (Entry e in Entries)
                 {
                     foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                     {
-                        if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
+                        if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
                         {
                             continue;
                         }
@@ -1489,10 +1487,81 @@ namespace Ship_Game
                         {
                             e.AddItem(module.Value);
                         }
-                        tmp = null;
                     }
                 }
                 Screen.Reset = false;
+                Screen.DrawList();
+            }
+        }
+        private class SpecialScrollList : ScrollList
+        {
+            private readonly ShipDesignScreen Screen;
+            public SpecialScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
+            {
+                Screen = shipDesignScreen;
+            }
+            public void DrawModules()
+            {
+                if (!Screen.ModSel.Tabs[3].Selected) return;
+                if (!Screen.Reset)
+                {
+                    Screen.DrawList();
+                    return;
+                }
+                Entries.Clear();
+                var moduleCategories = new Array<string>();
+                foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+                {
+                    if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
+                    {
+                        continue;
+                    }
+                    ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                    tmp.SetAttributesNoParent();
+
+                    if (Screen.RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
+
+                    if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
+                         tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
+                         tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
+                         tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter ||
+                         tmp.ModuleType == ShipModuleType.Ordnance ||
+                         tmp.ModuleType == ShipModuleType.Construction) &&
+                        !moduleCategories.Contains(tmp.ModuleType.ToString()))
+                    {
+                        moduleCategories.Add(tmp.ModuleType.ToString());
+                        ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
+                        AddItem(type);
+                    }
+                }
+                foreach (Entry e in Entries)
+                {
+                    foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+                    {
+                        if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
+                        {
+                            continue;
+                        }
+                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                        tmp.SetAttributesNoParent();
+
+                        if (Screen.RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
+
+                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
+                             tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
+                             tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
+                             tmp.ModuleType == ShipModuleType.Special ||
+                             tmp.ModuleType == ShipModuleType.Transporter ||
+                             tmp.ModuleType == ShipModuleType.Ordnance ||
+                             tmp.ModuleType == ShipModuleType.Construction) &&
+                            ((ModuleHeader)e.item).Text == tmp.ModuleType.ToString())
+                        {
+                            e.AddItem(module.Value);
+                        }
+                    }
+                }
+                Screen.Reset = false;
+                Screen.DrawList();
             }
         }
     }
