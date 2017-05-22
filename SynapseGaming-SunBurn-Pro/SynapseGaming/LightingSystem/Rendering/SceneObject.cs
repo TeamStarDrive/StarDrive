@@ -412,8 +412,8 @@ namespace SynapseGaming.LightingSystem.Rendering
             WorldMatrix = world;
             ++MoveId;
             CalculateWorldBounds();
-            for (int index = 0; index < RenderableMeshes.Count; ++index)
-                RenderableMeshes[index].SetWorldAndWorldToObject(world, worldtoobj);
+            for (int i = 0; i < RenderableMeshes.Count; ++i)
+                RenderableMeshes[i].SetWorldAndWorldToObject(world, worldtoobj);
         }
 
         /// <summary>Returns a String that represents the current Object.</summary>

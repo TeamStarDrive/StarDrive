@@ -120,31 +120,24 @@ namespace Ship_Game
 				else
 				{
 					if (e.clickRectHover == 0)
-					{
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");
-					}
+
 					e.clickRectHover = 1;
-					this.selector = new Selector(base.ScreenManager, e.clickRect);
+					selector = new Selector(ScreenManager, e.clickRect);
 					if (!input.InGameSelect)
-					{
 						continue;
-					}
-					if (!(e.item is ModuleHeader) || !(e.item as ModuleHeader).HandleInput(input, e))
+					if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))
 					{
-						if (!(e.item is ModelData))
-						{
+                        var modelData = e.item as ModelData;
+						if (modelData == null)
 							continue;
-						}
-						this.activeFile = (e.item as ModelData).FileInfo;
+						activeFile = modelData.FileInfo;
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         //Added by McShooterz: Temp fix for ship tool
 						//this.EnterNameArea.Text = Path.GetFileNameWithoutExtension(this.activeFile.Name);
-						this.screen.LoadModel((e.item as ModelData).model, Path.GetFileNameWithoutExtension((e.item as ModelData).FileInfo.Name));
+						screen.LoadModel(modelData.model, modelData.FileInfo.NameNoExt());
 					}
-					else
-					{
-						return;
-					}
+					else return;
 				}
 			}
 			this.previousMouse = input.LastMouseState;
