@@ -251,15 +251,11 @@ namespace Ship_Game
 		public override void Draw(GameTime gameTime)
 		{
 			Viewport viewport;
-			Rectangle? nullable;
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
-				base.ScreenManager.editor.BeginFrameRendering(base.ScreenManager.sceneState);
-				base.ScreenManager.inter.BeginFrameRendering(base.ScreenManager.sceneState);
-			}
+
+            ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
+
 			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
-			FleetDesignScreen.screen.bg.Draw(FleetDesignScreen.screen, FleetDesignScreen.screen.starfield);
+			screen.bg.Draw(screen, screen.starfield);
 			base.ScreenManager.SpriteBatch.Begin();
 			this.DrawGrid();
 			if (this.SelectedNodeList.Count == 1)
@@ -274,8 +270,7 @@ namespace Ship_Game
 				float SSRadius = (float)Math.Abs(insetRadialSS.X - screenPos.X);
 				Rectangle nodeRect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)SSRadius * 2, (int)SSRadius * 2);
 				Vector2 Origin = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["UI/node"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["UI/node"].Height / 2));
-				nullable = null;
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/node1"], nodeRect, nullable, new Color(0, 255, 0, 75), 0f, Origin, SpriteEffects.None, 1f);
+				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/node1"], nodeRect, null, new Color(0, 255, 0, 75), 0f, Origin, SpriteEffects.None, 1f);
 			}
 			this.ClickableNodes.Clear();
 			foreach (FleetDataNode node in this.fleet.DataNodes)
@@ -291,7 +286,7 @@ namespace Ship_Game
 					Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
 					Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
 					float Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-					FleetDesignScreen.ClickableNode cs = new FleetDesignScreen.ClickableNode()
+					ClickableNode cs = new ClickableNode
 					{
 						Radius = Radius,
 						ScreenPos = pPos,
@@ -424,10 +419,9 @@ namespace Ship_Game
 			this.DrawFleetManagementIndicators();
 			base.ScreenManager.SpriteBatch.DrawRectangle(this.SelectionBox, Color.Green, 1f);
 			base.ScreenManager.SpriteBatch.End();
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				base.ScreenManager.inter.RenderManager.Render();
-			}
+
+            ScreenManager.RenderSceneObjects();
+
 			base.ScreenManager.SpriteBatch.Begin();
 			this.TitleBar.Draw();
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", this.TitlePos, new Color(255, 239, 208));
@@ -665,19 +659,14 @@ namespace Ship_Game
                 Texture2D item = Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)];
 				float single = (float)Mouse.GetState().X;
 				state = Mouse.GetState();
-				nullable = null;
-				spriteBatch1.Draw(item, new Vector2(single, (float)state.Y), nullable, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+				spriteBatch1.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
 			}
 			this.DrawSelectedData(gameTime);
 			this.close.Draw(base.ScreenManager);
 			ToolTip.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				base.ScreenManager.inter.EndFrameRendering();
-				base.ScreenManager.editor.EndFrameRendering();
-				base.ScreenManager.sceneState.EndFrameRendering();
-			}
+
+            ScreenManager.EndFrameRendering();
 		}
 
 		private void DrawFleetManagementIndicators()
@@ -856,8 +845,7 @@ namespace Ship_Game
 
 		public override void ExitScreen()
 		{
-			LightRig rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
-            rig.AssignTo(this);
+            AssignLightRig("example/NewGamelight_rig");
             Empire.Universe.RecomputeFleetButtons(true);
 			this.starfield.UnloadContent();
 			base.ExitScreen();
@@ -1719,8 +1707,7 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
-			LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
-            rig.AssignTo(this);
+		    AssignLightRig("example/ShipyardLightrig");
 			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
 			this.starfield.LoadContent();
 			Rectangle titleRect = new Rectangle(2, 44, 250, 80);
