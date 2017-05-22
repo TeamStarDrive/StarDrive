@@ -974,7 +974,7 @@ namespace Ship_Game
                         Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
                         foreach (Planet p in s.PlanetList)
                         {
-                            foreach (Guid station in p.Shipyards.Keys)
+                            foreach (Guid station in p.Shipyards.Keys.ToArray())
                             {
                                 if (station == ship.guid)
                                 {
