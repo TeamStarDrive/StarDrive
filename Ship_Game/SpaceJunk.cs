@@ -113,8 +113,7 @@ namespace Ship_Game
             }
 
             // now lock and add to scene
-            lock (GlobalStats.ObjectManagerLocker)
-                foreach (var j in junk) Empire.Universe.ScreenManager.Submit(j.So);
+            foreach (var j in junk) Empire.Universe.AddObject(j.So);
             UniverseScreen.JunkList.AddRange(junk);
         }
 
@@ -140,17 +139,13 @@ namespace Ship_Game
         public void RemoveFromScene()
         {
             UniverseScreen.JunkList.QueuePendingRemoval(this);
-            lock (GlobalStats.ObjectManagerLocker)
-                Empire.Universe.ScreenManager.Remove(So);
-            So.Clear();
-            So = null;
-            TrailEmitter = null;
+            DestroySceneObject();
         }
 
         // Not synchronized, lock it yourself if needed
         public void DestroySceneObject()
         {
-            Empire.Universe.ScreenManager.Remove(So);
+            Empire.Universe.RemoveObject(So);
             So.Clear();
             So = null;
             TrailEmitter = null;

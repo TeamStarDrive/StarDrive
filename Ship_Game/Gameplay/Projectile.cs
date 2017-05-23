@@ -126,12 +126,7 @@ namespace Ship_Game.Gameplay
             if (Active)
             {
                 if (Light != null)
-                {
-                    lock (GlobalStats.ObjectManagerLocker)
-                    {
-                        Empire.Universe.ScreenManager.inter.LightManager.Remove(Light);
-                    }
-                }
+                    Empire.Universe.RemoveLight(Light);
 
                 if (InFlightSfx.IsPlaying)
                     InFlightSfx.Stop();
@@ -169,10 +164,7 @@ namespace Ship_Game.Gameplay
             }
             if (ProjSO != null && Active)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    Empire.Universe.ScreenManager.Remove(ProjSO);
-                }
+                Empire.Universe.RemoveObject(ProjSO);
                 ProjSO.Clear();
             }
             if (DroneAI != null)
@@ -185,10 +177,7 @@ namespace Ship_Game.Gameplay
             }
             if (MuzzleFlashAdded)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    Empire.Universe.ScreenManager.inter.LightManager.Remove(MuzzleFlash);
-                }
+                Empire.Universe.RemoveLight(MuzzleFlash);
             }
             SetSystem(null);
             base.Die(source, cleanupOnly);
@@ -262,13 +251,7 @@ namespace Ship_Game.Gameplay
             else if (ProjSO != null)
             {
                 WasAddedToSceneGraph = true;
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    if (Empire.Universe != null)
-                    {
-                        Empire.Universe.ScreenManager.Submit(ProjSO);
-                    }
-                }
+                Empire.Universe?.AddObject(ProjSO);
             }
             SetSystem(System);
             Initialize();
@@ -343,10 +326,7 @@ namespace Ship_Game.Gameplay
             if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
             {
                 WasAddedToSceneGraph = true;
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    Empire.Universe.ScreenManager.Submit(ProjSO);
-                }
+                Empire.Universe.AddObject(ProjSO);
             }
             SetSystem(System);
             Initialize();
@@ -379,10 +359,7 @@ namespace Ship_Game.Gameplay
             if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
             {
                 WasAddedToSceneGraph = true;
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    Empire.Universe.ScreenManager.Submit(ProjSO);
-                }
+                Empire.Universe.AddObject(ProjSO);
             }
             SetSystem(System);
             Initialize();
@@ -416,10 +393,7 @@ namespace Ship_Game.Gameplay
             if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
             {
                 WasAddedToSceneGraph = true;
-                lock (GlobalStats.ObjectManagerLocker)
-                {
-                    Empire.Universe.ScreenManager.Submit(ProjSO);
-                }
+                Empire.Universe.AddObject(ProjSO);
             }
             SetSystem(System);
             Initialize();
@@ -653,8 +627,7 @@ namespace Ship_Game.Gameplay
                 (System != null && System.isVisible && (!WasAddedToSceneGraph && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)))
             {
                 WasAddedToSceneGraph = true;
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.Submit(ProjSO);
+                Empire.Universe.AddObject(ProjSO);
             }
             if (FirstRun && ModuleAttachedTo != null)
             {
@@ -715,7 +688,7 @@ namespace Ship_Game.Gameplay
                     case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
                     case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
                 }
-                Light.AddTo(Empire.Universe);
+                Empire.Universe.AddLight(Light);
             }
             else if (Weapon.Light != null && LightWasAddedToSceneGraph)
             {
@@ -740,7 +713,7 @@ namespace Ship_Game.Gameplay
                         FillLight    = false,
                         Enabled      = true
                     };
-                    MuzzleFlash.AddTo(Empire.Universe);
+                    Empire.Universe.AddLight(MuzzleFlash);
                     FlashTimer -= elapsedTime;
                     Flash = new MuzzleFlash
                     {
@@ -760,8 +733,7 @@ namespace Ship_Game.Gameplay
             }
             if (FlashTimer <= 0f && MuzzleFlashAdded)
             {
-                lock (GlobalStats.ObjectManagerLocker)
-                    Empire.Universe.ScreenManager.inter.LightManager.Remove(MuzzleFlash);
+                Empire.Universe.RemoveLight(MuzzleFlash);
             }
             base.Update(elapsedTime);
         }

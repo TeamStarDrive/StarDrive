@@ -200,7 +200,6 @@
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\SceneExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\StringExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />

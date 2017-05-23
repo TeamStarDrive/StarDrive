@@ -400,7 +400,7 @@ namespace Ship_Game
 
         private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
         {
-            ScreenManager.inter.ObjectManager.Clear();
+            ScreenManager.RemoveAllObjects();
             data = new UniverseData();
             RandomEventManager.ActiveEvent = savedData.RandomEvent;
             data.loadFogPath           = savedData.FogMapName;
@@ -936,10 +936,10 @@ namespace Ship_Game
             {
                 p.system = system;
                 p.InitializeUpdate();
-                ScreenManager.Submit(p.SO);
+                AddObject(p.SO);
             }
-            foreach (Asteroid roid in system.AsteroidsList)  ScreenManager.Submit(roid.So);
-            foreach (Moon moon in system.MoonList)           ScreenManager.Submit(moon.So);
+            foreach (Asteroid roid in system.AsteroidsList)  AddObject(roid.So);
+            foreach (Moon moon in system.MoonList)           AddObject(moon.So);
 
             ++systemToMake;
             if (systemToMake == data.SolarSystemsList.Count)

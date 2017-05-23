@@ -673,7 +673,7 @@ namespace Ship_Game.Gameplay
                         shield.Rotation = source.Rotation - 3.14159274f;
                     shield.displacement = 0f;
                     shield.texscale = 2.8f;
-                    shield.pointLight.Refresh(Empire.Universe);
+                    Empire.Universe.AddLight(shield.pointLight);
 
                     if (beam != null)
                     {

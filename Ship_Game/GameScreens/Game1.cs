@@ -104,10 +104,6 @@ namespace Ship_Game
                 return;
 
             GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
-            if (!SplashScreen.DisplayComplete)
-            {
-                ScreenManager.splashScreenGameComponent.Draw(gameTime);
-            }
             ScreenManager.Draw(gameTime);
             base.Draw(gameTime);
         }
@@ -115,11 +111,7 @@ namespace Ship_Game
         protected override void Initialize()
         {
             Window.Title = "StarDrive";
-            ScreenManager = new ScreenManager(this, Graphics)
-            {
-                splashScreenGameComponent = new SplashScreenGameComponent(this, Graphics)
-            };
-            Components.Add(ScreenManager.splashScreenGameComponent);
+            ScreenManager = new ScreenManager(this, Graphics);
             GameAudio.Initialize("Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
 
             ResourceManager.ScreenManager = ScreenManager;
