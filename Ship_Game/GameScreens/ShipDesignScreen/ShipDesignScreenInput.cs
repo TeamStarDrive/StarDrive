@@ -313,8 +313,7 @@ namespace Ship_Game {
             HandleInputDebug(input);
 
             HoveredModule = null;
-            var mousePos = input.CursorPosition;
-            selector = null;
+            var mousePos = input.CursorPosition;            
             EmpireUI.HandleInput(input, this);
             ActiveModSubMenu.HandleInputNoReset(this);
             HullSL.HandleInput(input);
@@ -398,19 +397,15 @@ namespace Ship_Game {
                 }
             }
            
-            WeaponSl.HandleInput(input);
             if (HullSelectionRect.HitTest(input.CursorPosition)
                 && input.LeftMousePressed || ModSel.Menu.HitTest(input.CursorPosition)
                 && input.LeftMousePressed || ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
                 && input.LeftMousePressed)
                 return;
-            if (ModSel.Menu.HitTest(mousePos))
-            {
-                if (input.ScrollIn && WeaponSl.indexAtTop > 0)
-                    --WeaponSl.indexAtTop;
-                if (input.ScrollOut && WeaponSl.indexAtTop + WeaponSl.entriesToDisplay < WeaponSl.Entries.Count)
-                    ++WeaponSl.indexAtTop;
-            }
+
+            if (WeaponSl.HandleInput(input))
+                return;
+
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134, ScreenManager);
             if (ArcsButton.HandleInput(input))

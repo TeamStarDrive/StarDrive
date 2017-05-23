@@ -1416,19 +1416,33 @@ namespace Ship_Game
                             return true;
                     }
                     else if (e.clickRect.HitTest(mousePos))
-                    {                        
+                    {
+                        //selector = new Selector(ScreenManager, e.clickRect);
                         e.clickRectHover = 1;
+                        //selector = new Selector(ScreenManager, e.clickRect);
                         if (!input.InGameSelect) continue;
-                        Screen.SetActiveModule(ShipModule.CreateNoParent(((ShipModule) e.item).UID));
+                        Screen.SetActiveModule(ShipModule.CreateNoParent((e.item as ShipModule).UID));
                         Screen.ResetModuleState();
                         return true;
                     }
                     else
                         e.clickRectHover = 0;
                 }
-                return base.HandleInput(input);
+                base.HandleInput(input);
+                if (Screen.HullSelectionRect.HitTest(input.CursorPosition)
+                    && input.LeftMousePressed || Screen.ModSel.Menu.HitTest(input.CursorPosition)
+                    && input.LeftMousePressed || Screen.ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
+                    && input.LeftMousePressed)
+                    return true;
+                if (!Screen.ModSel.Menu.HitTest(mousePos)) return false;
+                if (input.ScrollIn && indexAtTop > 0)
+                    --indexAtTop;
+                if (input.ScrollOut && indexAtTop + entriesToDisplay < Entries.Count)
+                    ++indexAtTop;
+                return false;
 
             }
+
             public override void Draw(SpriteBatch spriteBatch )
             {
                 if (Screen.ModSel.Tabs[0].Selected)
