@@ -34,7 +34,6 @@ namespace Ship_Game.Gameplay
             Radius   = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
             Position = Center = new Vector2(Position3D.X, Position3D.Y);
             So.AffineTransform(Position3D, RotationRadians, Scale);
-            base.Initialize();
         }
 
         //private static int LogicFlip = 0;

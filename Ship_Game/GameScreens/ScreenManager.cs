@@ -5,6 +5,7 @@ using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using SynapseGaming.LightingSystem.Lights;
+using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -12,18 +13,20 @@ namespace Ship_Game
     {
         private readonly Array<GameScreen> Screens = new Array<GameScreen>();
         public InputState input = new InputState();
-        private readonly IGraphicsDeviceService graphicsDeviceService;
-        private Texture2D blankTexture;
-        public LightingSystemManager lightingSystemManager;
+        private readonly IGraphicsDeviceService GraphicsDeviceService;
+        private Texture2D BlankTexture;
+        public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
-        public SceneState sceneState;
+        private readonly SceneState GameSceneState;
         public SceneEnvironment environment;
         public LightingSystemPreferences preferences;
-        public SplashScreenGameComponent splashScreenGameComponent;
-        public SceneInterface inter;
-        public SceneInterface buffer1;
-        public SceneInterface buffer2;
-        public SceneInterface renderBuffer;
+        private SplashScreenGameComponent SplashScreen;
+        private readonly SceneInterface SceneInter;
+        private readonly object InterfaceLock = new object();
+        private Game1 GameInstance;
+        //public SceneInterface buffer1;
+        //public SceneInterface buffer2;
+        //public SceneInterface renderBuffer;
         public AudioHandle Music;
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
@@ -31,26 +34,29 @@ namespace Ship_Game
         public float exitScreenTimer;
 
         public Rectangle TitleSafeArea { get; private set; }
-
         public int NumScreens => Screens.Count;
 
         public ScreenManager(Game1 game, GraphicsDeviceManager graphics)
         {
-            this.GraphicsDevice = graphics.GraphicsDevice;
-            this.graphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
-            if (this.graphicsDeviceService == null)
+            GameInstance = game;
+            GraphicsDevice = graphics.GraphicsDevice;
+            GraphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
+            if (GraphicsDeviceService == null)
             {
                 throw new InvalidOperationException("No graphics device service.");
             }
-            this.lightingSystemManager = new LightingSystemManager(game.Services);
-            this.sceneState = new SceneState();
-            this.inter = new SceneInterface(graphics);
-            this.inter.CreateDefaultManagers(false, false, true);
-            this.editor = new LightingSystemEditor(game.Services, graphics, game)
+            LightSysManager = new LightingSystemManager(game.Services);
+            GameSceneState = new SceneState();
+            SceneInter = new SceneInterface(graphics);
+            SceneInter.CreateDefaultManagers(false, false, true);
+            editor = new LightingSystemEditor(game.Services, graphics, game)
             {
                 UserHandledView = true
             };
-            this.inter.AddManager(this.editor);
+            SceneInter.AddManager(editor);
+
+            SplashScreen = new SplashScreenGameComponent(game, graphics);
+            game.Components.Add(SplashScreen);
         }
 
         public void UpdateViewports()
@@ -64,7 +70,7 @@ namespace Ship_Game
             foreach (GameScreen gs in Screens)
                 if (gs is DiplomacyScreen)
                     return;
-            if (graphicsDeviceService?.GraphicsDevice != null)
+            if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.LoadContent();
             Screens.Add(screen);
         }
@@ -77,11 +83,135 @@ namespace Ship_Game
             Screens.Add(screen);
         }
 
-        public void Submit(ISceneObject so) => inter.ObjectManager.Submit(so);
-        public void Remove(ISceneObject so) => inter.ObjectManager.Remove(so);
-        public void Submit(ILight light) => inter.LightManager.Submit(light);
-        public void Remove(ILight light) => inter.LightManager.Remove(light);
-        public void RemoveAllLights() => inter.LightManager.Clear();
+        
+        public void HideSplashScreen()
+        {
+            if (SplashScreen == null)
+                return;
+            SplashScreen.Visible = false;
+            GameInstance.Components.Remove(SplashScreen);
+            SplashScreen = null;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        public void AddObject(ISceneObject so)
+        {
+            if (so == null) return;
+            lock (InterfaceLock)
+                SceneInter.ObjectManager.Submit(so);
+        }
+
+        public void AddObjects(IEnumerable<ISceneObject> sceneObjects)
+        {
+            lock (InterfaceLock)
+                foreach (ISceneObject so in sceneObjects)
+                    SceneInter.ObjectManager.Submit(so);
+        }
+
+        public void RemoveObject(ISceneObject so)
+        {
+            if (so == null) return;
+            lock (InterfaceLock)
+                SceneInter.ObjectManager.Remove(so);
+        }
+
+        public void RemoveAllObjects()
+        {
+            lock (InterfaceLock)
+                SceneInter.ObjectManager.Clear();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        public void AddLight(ILight light)
+        {
+            if (light == null) return;
+            lock (InterfaceLock)
+                SceneInter.LightManager.Submit(light);
+        }
+
+        public void RemoveLight(ILight light)
+        {
+            if (light == null) return;
+            lock (InterfaceLock)
+                SceneInter.LightManager.Remove(light);
+        }
+
+        public void RefreshLight(ILight light)
+        {
+            if (light == null) return;
+            lock (InterfaceLock)
+            {
+                SceneInter.LightManager.Remove(light);
+                SceneInter.LightManager.Submit(light);
+            }
+        }
+
+        public void RemoveAllLights()
+        {
+            lock (InterfaceLock)
+                SceneInter.LightManager.Clear();
+        }
+
+        public void AssignLightRig(LightRig rig)
+        {
+            lock (InterfaceLock)
+            {
+                SceneInter.LightManager.Clear();
+                SceneInter.LightManager.Submit(rig);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////
+         
+        public void ClearScene()
+        {
+            RemoveAllObjects();
+            RemoveAllLights();
+        }
+
+        public void UnloadSceneObjects()
+        {
+            SceneInter.Unload();
+            LightSysManager.Unload();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        public void UpdateSceneObjects(GameTime gameTime)
+        {
+            lock (InterfaceLock)
+                SceneInter.Update(gameTime);
+        }
+
+        public void RenderSceneObjects()
+        {
+            lock (InterfaceLock)
+                SceneInter.RenderManager.Render();
+        }
+
+        public void BeginFrameRendering(GameTime gameTime, ref Matrix view, ref Matrix projection)
+        {
+            lock (InterfaceLock)
+            {
+                GameSceneState.BeginFrameRendering(ref view, ref projection, gameTime, environment, true);
+                editor.BeginFrameRendering(GameSceneState);
+                SceneInter.BeginFrameRendering(GameSceneState);
+            }
+        }
+
+        public void EndFrameRendering()
+        {
+            lock (InterfaceLock)
+            {
+                SceneInter.EndFrameRendering();
+                editor.EndFrameRendering();
+                GameSceneState.EndFrameRendering();
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////
 
         public void Draw(GameTime gameTime)
         {
@@ -117,14 +247,14 @@ namespace Ship_Game
         public void FadeBackBufferToBlack(int alpha, SpriteBatch spriteBatch)
         {
             Viewport viewport = Game1.Instance.Viewport;
-            spriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
+            spriteBatch.Draw(BlankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
         }
 
         public void FadeBackBufferToBlack(int alpha)
         {
             Viewport viewport = Game1.Instance.Viewport;
             SpriteBatch.Begin();
-            SpriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
+            SpriteBatch.Draw(BlankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
             SpriteBatch.End();
         }
 
@@ -133,7 +263,7 @@ namespace Ship_Game
         public void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            blankTexture = ResourceManager.LoadTexture("blank");
+            BlankTexture = ResourceManager.LoadTexture("blank");
             foreach (GameScreen screen in Screens)
             {
                 screen.LoadContent();
@@ -149,7 +279,7 @@ namespace Ship_Game
 
         public void RemoveScreen(GameScreen screen)
         {
-            if (graphicsDeviceService?.GraphicsDevice != null)
+            if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.UnloadContent();
             Screens.Remove(screen);
             exitScreenTimer = .025f;

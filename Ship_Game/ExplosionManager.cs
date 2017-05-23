@@ -52,7 +52,7 @@ namespace Ship_Game
                 Intensity    = intensity,
                 Enabled      = true
             };
-            newExp.light.AddTo(Universe);
+            Universe.AddLight(newExp.light);
         }
 
         private static void PickRandomExplosion(Explosion newExp)
@@ -230,7 +230,7 @@ namespace Ship_Game
                 if (explosion.duration <= 0f)
                 {
                     ExplosionList.QueuePendingRemoval(explosion);
-                    explosion.light?.RemoveFrom(Universe);
+                    Universe.RemoveLight(explosion.light);
                 }
             }
 			ExplosionList.ApplyPendingRemovals();

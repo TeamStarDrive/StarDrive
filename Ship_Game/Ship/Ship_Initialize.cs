@@ -257,6 +257,10 @@ namespace Ship_Game.Gameplay
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             ShipSO.Visibility = ObjectVisibility.Rendered;
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+
+            // Universe will be null during loading, so we need to grab the Global ScreenManager instance from somewhere else
+            var manager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
+            manager.AddObject(ShipSO);
         }
 
         public void InitializeShip(bool loadingFromSavegame)
@@ -293,11 +297,6 @@ namespace Ship_Game.Gameplay
             InitializeThrusters();
             RecalculateMaxHP();
 
-            ScreenManager screenManager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                screenManager.Submit(ShipSO);
-            }
             ShipInitialized = true;
         }
 

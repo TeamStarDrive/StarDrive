@@ -3,6 +3,8 @@ using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Rendering;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -49,6 +51,20 @@ namespace Ship_Game
         }
 
         public void UpdateViewport() => Viewport = Game1.Instance.Viewport;
+
+        
+
+        public void AddObject(ISceneObject so)    => ScreenManager.AddObject(so);
+        public void RemoveObject(ISceneObject so) => ScreenManager.RemoveObject(so);
+        public void AddLight(ILight light)        => ScreenManager.AddLight(light);
+        public void RemoveLight(ILight light)     => ScreenManager.RemoveLight(light);
+        public void RefreshLight(ILight light)    => ScreenManager.RefreshLight(light);
+        public void RemoveAllLights()             => ScreenManager.RemoveAllLights();
+        public void AssignLightRig(string rigContentPath)
+        {
+            var lightRig = TransientContent.Load<LightRig>(rigContentPath);
+            ScreenManager.AssignLightRig(lightRig);
+        }
 
         public abstract void Draw(GameTime gameTime);
 
