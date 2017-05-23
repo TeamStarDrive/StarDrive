@@ -144,10 +144,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            // Refactored by RedFox
-            ScreenManager.inter.ObjectManager.Clear();
-            ScreenManager.inter.LightManager.Clear();
-
+            ScreenManager.ClearScene();
             LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);
             string adviceString  = ResourceManager.LoadRandomAdvice();
             text = HelperFunctions.ParseText(Fonts.Arial12Bold, adviceString, 500f);
@@ -309,7 +306,7 @@ namespace Ship_Game
                 planet.system = wipSystem;
                 planet.Center += wipSystem.Position;
                 planet.InitializeUpdate();
-                ScreenManager.Submit(planet.SO);
+                AddObject(planet.SO);
                 foreach (Empire key in Data.EmpireList)
                     planet.ExploredDict.Add(key, false);
             }
@@ -318,12 +315,12 @@ namespace Ship_Game
                 asteroid.Position3D.X += wipSystem.Position.X;
                 asteroid.Position3D.Y += wipSystem.Position.Y;
                 asteroid.Initialize();
-                ScreenManager.Submit(asteroid.So);
+                AddObject(asteroid.So);
             }
             foreach (Moon moon in wipSystem.MoonList)
             {
                 moon.Initialize();
-                ScreenManager.Submit(moon.So);
+                AddObject(moon.So);
             }
             foreach (Ship ship in wipSystem.ShipList)
             {

@@ -318,8 +318,7 @@ namespace Ship_Game
                 return;
             }
 
-            var rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
-            rig.AssignTo(this);
+            AssignLightRig("example/NewGamelight_rig");
         }
 
         private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
@@ -335,7 +334,7 @@ namespace Ship_Game
                 Enabled      = true
             };
             light.World = Matrix.Identity * Matrix.CreateTranslation(light.Position);
-            light.AddTo(this);
+            AddLight(light);
         }
 
         public void ContactLeader(object sender)
@@ -663,16 +662,10 @@ namespace Ship_Game
             };
         }
 
-        private void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
-        {
-            e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
-        }
-
         public override void UnloadContent()
         {
             starfield?.UnloadContent();
-            ScreenManager.inter.Unload();
-            ScreenManager.lightingSystemManager.Unload();
+            ScreenManager.UnloadSceneObjects();
             base.UnloadContent();
         }
 
@@ -701,9 +694,8 @@ namespace Ship_Game
             }
 
             Listener.Position = new Vector3(camPos.X, camPos.Y, 0.0f);
-            lock (GlobalStats.ObjectManagerLocker)
-                ScreenManager.inter.Update(gameTime);
 
+            ScreenManager.UpdateSceneObjects(gameTime);
             EmpireUI.Update(deltaTime);
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
@@ -783,7 +775,7 @@ namespace Ship_Game
                     if (planet.SO != null)
                     {
                         planet.SO.Clear();
-                        ScreenManager.Remove(planet.SO);
+                        ScreenManager.RemoveObject(planet.SO);
                         planet.SO = null;
                     }
                 }
@@ -792,7 +784,7 @@ namespace Ship_Game
                     if (asteroid.So!= null)
                     {
                         asteroid.So.Clear();
-                        ScreenManager.Remove(asteroid.So);
+                        ScreenManager.RemoveObject(asteroid.So);
                     }
                 }
                 solarSystem.AsteroidsList.Clear();
@@ -801,7 +793,7 @@ namespace Ship_Game
                     if (moon.So != null)
                     {
                         moon.So.Clear();
-                        ScreenManager.Remove(moon.So);
+                        ScreenManager.RemoveObject(moon.So);
                         moon.So = null;
                     }
                 }
@@ -852,15 +844,14 @@ namespace Ship_Game
             MinimapButtons.screen                 = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
-            Empire.Universe                   = null;
-            ShipAI.UniverseScreen = null;
+            Empire.Universe                       = null;
+            ShipAI.UniverseScreen                 = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
             ExplosionManager.Universe             = null;
             DroneAI.UniverseScreen                = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
-            ScreenManager.inter.Unload();
             HelperFunctions.CollectMemory();
             Dispose();
             base.ExitScreen();

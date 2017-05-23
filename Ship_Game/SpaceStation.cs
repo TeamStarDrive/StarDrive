@@ -81,11 +81,8 @@ namespace Ship_Game
                     * Matrix.CreateRotationZ(1.57079637f)) 
                     * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
 			}
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				screenManager.Submit(InnerSO);
-				screenManager.Submit(OuterSO);
-			}
+            screenManager.AddObject(InnerSO);
+            screenManager.AddObject(OuterSO);
 		}
 
 		public void SetVisibility(bool vis, ScreenManager screenManager, Planet p)

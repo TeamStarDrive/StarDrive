@@ -7,26 +7,20 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game {
+namespace Ship_Game
+{
     public sealed partial class ShipDesignScreen
     {
         public override void Draw(GameTime gameTime)
         {
-            Color unpoweredColored;
-            Color activeColor;
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                ScreenManager.sceneState.BeginFrameRendering(this.View, this.Projection, gameTime,
-                    ScreenManager.environment, true);
-                ScreenManager.editor.BeginFrameRendering(ScreenManager.sceneState);
-                ScreenManager.inter.BeginFrameRendering(ScreenManager.sceneState);
-                Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
-                ScreenManager.inter.RenderManager.Render();
-            }
+            ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
+
+            Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
+            ScreenManager.RenderSceneObjects();
+
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-                SaveStateMode.None
-                , this.Camera.get_transformation(ScreenManager.GraphicsDevice));
-            if (this.ToggleOverlay)
+                SaveStateMode.None, Camera.get_transformation(ScreenManager.GraphicsDevice));
+            if (ToggleOverlay)
             {
                 foreach (SlotStruct slot in this.Slots)
                 {
@@ -43,16 +37,9 @@ namespace Ship_Game {
                         {
                             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                             Texture2D item = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
-                            Rectangle rectangle = slot.PQ.enclosingRect;
-                            if (slot.ShowValid)
-                            {
-                                activeColor = Color.LightGreen;
-                            }
-                            else
-                            {
-                                activeColor = (slot.ShowValid ? Color.White : Color.Red);
-                            }
-                            spriteBatch.Draw(item, rectangle, activeColor);
+                            Color activeColor = slot.ShowValid ? Color.LightGreen : Color.Red;
+
+                            spriteBatch.Draw(item, slot.PQ.enclosingRect, activeColor);
                             if (slot.Powered)
                             {
                                 ScreenManager.SpriteBatch.Draw(
@@ -71,6 +58,7 @@ namespace Ship_Game {
                             SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
                             Texture2D texture2D = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
                             Rectangle rectangle1 = slot.PQ.enclosingRect;
+                            Color unpoweredColored;
                             if (slot.ShowValid)
                             {
                                 unpoweredColored = Color.LightGreen;
@@ -326,39 +314,26 @@ namespace Ship_Game {
                 }
             }
             this.DrawUI(gameTime);
-            if (this.selector != null)
+            selector?.Draw();
+            ArcsButton.DrawWithShadowCaps(ScreenManager);
+            if (Debug)
             {
-                this.selector.Draw();
-            }
-            this.ArcsButton.DrawWithShadowCaps(ScreenManager);
-            if (this.Debug)
-            {
-                Vector2 Pos =
-                    new Vector2(
-                        (float) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) -
-                        Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
-                HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", Pos, Fonts.Arial20Bold);
-                Pos = new Vector2(
-                    (float) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) -
-                    Fonts.Arial20Bold.MeasureString(this.Operation.ToString()).X / 2, 140f);
-                HelperFunctions.DrawDropShadowText(ScreenManager, this.Operation.ToString(), Pos,
-                    Fonts.Arial20Bold);
+                float width2 = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2f;
+
+                var pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
+                HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
+                pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
+                HelperFunctions.DrawDropShadowText(ScreenManager, Operation.ToString(), pos, Fonts.Arial20Bold);
 #if SHIPYARD
-                string Ratios =
-"I: " + TotalI + "      O: " + TotalO + "      E: " + TotalE + "      IO: " + TotalIO + "      IE: " + TotalIE + "      OE: " + TotalOE + "      IOE: " + TotalIOE;
-                Pos =
-new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
-                HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, Pos, Fonts.Arial20Bold);
+                string ratios = $"I: {TotalI}       O: {TotalO}      E: {TotalE}      IO: {TotalIO}      " +
+                                $"IE: {TotalIE}      OE: {TotalOE}      IOE: {TotalIOE}";
+                pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
+                HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, pos, Fonts.Arial20Bold);
 #endif
             }
-            this.Close.Draw(ScreenManager);
+            Close.Draw(ScreenManager);
             ScreenManager.SpriteBatch.End();
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                ScreenManager.inter.EndFrameRendering();
-                ScreenManager.editor.EndFrameRendering();
-                ScreenManager.sceneState.EndFrameRendering();
-            }
+            ScreenManager.EndFrameRendering();
         }
 
         private void DrawString(ref Vector2 cursorPos, string text, SpriteFont font = null)
