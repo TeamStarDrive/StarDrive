@@ -62,7 +62,7 @@ namespace Ship_Game
 			else
 			{
 				this.Hover = true;
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (input.LeftMouseClick)
 				{
 					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					this.Open = !this.Open;
