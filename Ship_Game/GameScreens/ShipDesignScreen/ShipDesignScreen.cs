@@ -1391,63 +1391,72 @@ namespace Ship_Game
             Normal
 
         }
-        private class WeaponScrollList: ScrollList
+        public class WeaponScrollList: ScrollList
         {
             private readonly ShipDesignScreen Screen;
+            Selector SelectionBox;
             public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
             {            
                 Screen = shipDesignScreen;
             }
             public override bool HandleInput(InputState input)
-            {                
-                Vector2 mousePos = input.CursorPosition;
+            {
+                
                 for (int index = indexAtTop;
                     index < Copied.Count
                     && index < indexAtTop + entriesToDisplay;
                     ++index)
                 {
                     Entry e = Copied[index];
+                     
                     if (e.item is ModuleHeader moduleHeader)
-                    {
+                    {                        
                         if (moduleHeader.HandleInput(input, e))
+                        {
+                            SelectionBox = null;
                             return true;
+                        }
+                        if(moduleHeader.Hover)
+                            SelectionBox = null;
                     }
-                    else if (e.clickRect.HitTest(mousePos))
+                    else if (e.clickRect.HitTest(input.CursorPosition))
                     {
-                        //selector = new Selector(ScreenManager, e.clickRect);
-                        e.clickRectHover = 1;
-                        //selector = new Selector(ScreenManager, e.clickRect);
-                        if (!input.InGameSelect) continue;
-                        Screen.SetActiveModule(ShipModule.CreateNoParent((e.item as ShipModule).UID));
+                        SelectionBox = new Selector(Screen.ScreenManager, e.clickRect);
+                        e.clickRectHover = 1;                        
+                        if (!Screen.Input.InGameSelect) continue;
+                        Screen.SetActiveModule(ShipModule.CreateNoParent(((ShipModule) e.item).UID));
                         Screen.ResetModuleState();
                         return true;
                     }
                     else
                         e.clickRectHover = 0;
                 }
+                
                 base.HandleInput(input);
-                if (Screen.HullSelectionRect.HitTest(input.CursorPosition)
-                    && input.LeftMousePressed || Screen.ModSel.Menu.HitTest(input.CursorPosition)
-                    && input.LeftMousePressed || Screen.ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
-                    && input.LeftMousePressed)
-                    return true;
-                if (!Screen.ModSel.Menu.HitTest(mousePos)) return false;
+                if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
+                {
+                    SelectionBox = null;
+                    return false;
+                }
+                
                 if (input.ScrollIn && indexAtTop > 0)
                     --indexAtTop;
                 if (input.ScrollOut && indexAtTop + entriesToDisplay < Entries.Count)
                     ++indexAtTop;
+                
                 return false;
 
             }
 
             public override void Draw(SpriteBatch spriteBatch )
             {
+                SelectionBox?.Draw();
                 if (Screen.ModSel.Tabs[0].Selected)
                 {
                     if (Screen.Reset)
                     {
                         Entries.Clear();
-                        var WeaponCategories = new Array<string>();
+                        var weaponCategories = new Array<string>();
                         foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                         {
                             if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
@@ -1464,57 +1473,57 @@ namespace Ship_Game
                             {
                                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats)
                                 {
-                                    if (tmp.InstalledWeapon.Tag_Flak && !WeaponCategories.Contains("Flak Cannon"))
+                                    if (tmp.InstalledWeapon.Tag_Flak && !weaponCategories.Contains("Flak Cannon"))
                                     {
-                                        WeaponCategories.Add("Flak Cannon");
+                                        weaponCategories.Add("Flak Cannon");
                                         ModuleHeader type = new ModuleHeader("Flak Cannon", 240f);
                                         Screen.WeaponSl.AddItem(type);
                                     }
-                                    if (tmp.InstalledWeapon.Tag_Railgun && !WeaponCategories.Contains("Magnetic Cannon"))
+                                    if (tmp.InstalledWeapon.Tag_Railgun && !weaponCategories.Contains("Magnetic Cannon"))
                                     {
-                                        WeaponCategories.Add("Magnetic Cannon");
+                                        weaponCategories.Add("Magnetic Cannon");
                                         ModuleHeader type = new ModuleHeader("Magnetic Cannon", 240f);
                                         Screen.WeaponSl.AddItem(type);
                                     }
-                                    if (tmp.InstalledWeapon.Tag_Array && !WeaponCategories.Contains("Beam Array"))
+                                    if (tmp.InstalledWeapon.Tag_Array && !weaponCategories.Contains("Beam Array"))
                                     {
-                                        WeaponCategories.Add("Beam Array");
+                                        weaponCategories.Add("Beam Array");
                                         ModuleHeader type = new ModuleHeader("Beam Array", 240f);
                                         Screen.WeaponSl.AddItem(type);
                                     }
-                                    if (tmp.InstalledWeapon.Tag_Tractor && !WeaponCategories.Contains("Tractor Beam"))
+                                    if (tmp.InstalledWeapon.Tag_Tractor && !weaponCategories.Contains("Tractor Beam"))
                                     {
-                                        WeaponCategories.Add("Tractor Beam");
+                                        weaponCategories.Add("Tractor Beam");
                                         ModuleHeader type = new ModuleHeader("Tractor Beam", 240f);
                                         Screen.WeaponSl.AddItem(type);
                                     }
                                     if (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided &&
-                                        !WeaponCategories.Contains("Unguided Rocket"))
+                                        !weaponCategories.Contains("Unguided Rocket"))
                                     {
-                                        WeaponCategories.Add("Unguided Rocket");
+                                        weaponCategories.Add("Unguided Rocket");
                                         ModuleHeader type = new ModuleHeader("Unguided Rocket", 240f);
                                         Screen.WeaponSl.AddItem(type);
                                     }
-                                    else if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
+                                    else if (!weaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
                                     {
-                                        WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
+                                        weaponCategories.Add(tmp.InstalledWeapon.WeaponType);
                                         ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
                                         Screen.WeaponSl.AddItem(type);
                                     }
                                 }
                                 else
                                 {
-                                    if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
+                                    if (!weaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
                                     {
-                                        WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
+                                        weaponCategories.Add(tmp.InstalledWeapon.WeaponType);
                                         ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
                                         Screen.WeaponSl.AddItem(type);
                                     }
                                 }
                             }
-                            else if (tmp.ModuleType == ShipModuleType.Bomb && !WeaponCategories.Contains("Bomb"))
+                            else if (tmp.ModuleType == ShipModuleType.Bomb && !weaponCategories.Contains("Bomb"))
                             {
-                                WeaponCategories.Add("Bomb");
+                                weaponCategories.Add("Bomb");
                                 ModuleHeader type = new ModuleHeader("Bomb", 240f);
                                 Screen.WeaponSl.AddItem(type);
                             }

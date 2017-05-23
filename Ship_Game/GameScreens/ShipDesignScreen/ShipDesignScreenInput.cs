@@ -6,11 +6,9 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SgMotion;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
 // ReSharper disable once CheckNamespace
@@ -127,65 +125,7 @@ namespace Ship_Game {
                 && emptySlots;
         }
 
-        public void CreateShipModuleSelectionWindow()
-        {
-            UpArrow = new Rectangle(ModuleSelectionArea.X + ModuleSelectionArea.Width - 22,
-                ModuleSelectionArea.Y, 22, 30);
-            DownArrow = new Rectangle(ModuleSelectionArea.X + ModuleSelectionArea.Width - 22,
-                ModuleSelectionArea.Y + ModuleSelectionArea.Height - 32, 20, 30);
-            var categories = new Array<string>();
-            //var moduleDict = new Map<string, Array<ShipModule>>();
-            foreach (var kv in ResourceManager.ShipModules)
-            {
-                if (!EmpireManager.Player.IsModuleUnlocked(kv.Key) || kv.Value.UID == "Dummy")                
-                    continue;
-                
-                string cat = kv.Value.ModuleType.ToString();
-                categories.AddUnique(cat);
-                //moduleDict[cat].AddUniqueRef(kv.Value);
-                
-                var mb = new ModuleButton
-                {
-                    moduleRect = new Rectangle(0, 0, 128, 128),
-                    ModuleUID = kv.Key
-                };
-                ModuleButtons.Add(mb);
-            }
-            categories.Sort();
-            int i = 0;
-            foreach (string cat in categories)
-            {
-                var moduleCatButton = new ModuleCatButton
-                {
-                    mRect = new Rectangle(ModuleSelectionArea.X + 10, ModuleSelectionArea.Y + 10 + i * 25, 45,
-                        25),
-                    Category = cat
-                };
-                ModuleCatButtons.Add(moduleCatButton);
-                i++;
-            }
-            int x = 0;
-            int y = 0;
-            foreach (ModuleButton mb in ModuleButtons)
-            {
-                mb.moduleRect.X = ModuleSelectionArea.X + 20 + x * 128;
-                mb.moduleRect.Y = ModuleSelectionArea.Y + 10 + y * 128;
-                x++;
-                if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
-                {
-                    if (x <= 1) continue;
-                    y++;
-                    x = 0;
-                }
-                else
-                {
-                    if (x <= 2) continue;
-                    y++;
-                    x = 0;
-                }
-            }
-        }
-
+       
         private void CreateSOFromActiveHull()
         {
             if (shipSO != null)
@@ -365,14 +305,12 @@ namespace Ship_Game {
                     return;
                 }
             }
-           
+            if (WeaponSl.HandleInput(input))
+                return;
             if (HullSelectionRect.HitTest(input.CursorPosition)
                 && input.LeftMousePressed || ModSel.Menu.HitTest(input.CursorPosition)
                 && input.LeftMousePressed || ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
                 && input.LeftMousePressed)
-                return;
-
-            if (WeaponSl.HandleInput(input))
                 return;
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
@@ -452,23 +390,6 @@ namespace Ship_Game {
                 foreach (ModuleButton moduleButton in ModuleButtons)
                     moduleButton.moduleRect.Y -= 128;
             }
-            if (ModuleSelectionArea.HitTest(mousePos))
-            {
-                if (input.ScrollIn && ScrollPosition > 0)
-                {
-                    --ScrollPosition;
-                    GameAudio.PlaySfxAsync("blip_click");
-                    foreach (ModuleButton moduleButton in ModuleButtons)
-                        moduleButton.moduleRect.Y += 128;
-                }
-                if (input.ScrollOut)
-                {
-                    ++ScrollPosition;
-                    GameAudio.PlaySfxAsync("blip_click");
-                    foreach (ModuleButton moduleButton in ModuleButtons)
-                        moduleButton.moduleRect.Y -= 128;
-                }
-            }
             if (input.RightMouseClick)
             {
                 //this should actually clear slots
@@ -500,21 +421,7 @@ namespace Ship_Game {
                     RecalculatePower();
                 }
             }
-            foreach (ModuleButton moduleButton in ModuleButtons)
-            {
-                if (ModuleSelectionArea.HitTest(new Vector2(moduleButton.moduleRect.X + 30,
-                    moduleButton.moduleRect.Y + 30)))
-                {
-                    if (moduleButton.moduleRect.HitTest(mousePos))
-                    {
-                        if (input.InGameSelect)
-                            SetActiveModule(ShipModule.CreateNoParent(moduleButton.ModuleUID));
-                        moduleButton.isHighlighted = true;
-                    }
-                    else
-                        moduleButton.isHighlighted = false;
-                }
-            }
+        
             if (input.LeftMousePressed && ActiveModule != null)
             {
                 foreach (SlotStruct slot in Slots)
