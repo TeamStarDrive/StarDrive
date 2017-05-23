@@ -226,37 +226,10 @@ namespace Ship_Game
             }
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
-            foreach (ModuleButton mb in this.ModuleButtons)
-            {
-                if (!this.ModuleSelectionArea.HitTest(
-                    new Vector2((float) (mb.moduleRect.X + 30), (float) (mb.moduleRect.Y + 30))))
-                {
-                    continue;
-                }
-                if (mb.isHighlighted)
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/blueHighlight"],
-                        mb.moduleRect, Color.White);
-                }
-                ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mb.ModuleUID);
-                Rectangle modRect = new Rectangle(0, 0, moduleTemplate.XSIZE * 16, moduleTemplate.YSIZE * 16);
-                //{
-                modRect.X = mb.moduleRect.X + 64 - modRect.Width / 2;
-                modRect.Y = mb.moduleRect.Y + 64 - modRect.Height / 2;
-                //};
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(moduleTemplate.IconTexturePath), modRect,
-                    Color.White);
-                float nWidth = Fonts.Arial12.MeasureString(Localizer.Token(moduleTemplate.NameIndex)).X;
-                Vector2 nameCursor = new Vector2((float) (mb.moduleRect.X + 64) - nWidth / 2f,
-                    (float) (mb.moduleRect.Y + 128 - Fonts.Arial12.LineSpacing - 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Localizer.Token(moduleTemplate.NameIndex),
-                    nameCursor, Color.White);
-            }
-            float single = (float) Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(single, (float) state.Y);
-            if (this.ActiveModule != null && !this.ActiveModSubMenu.Menu.HitTest(MousePos) &&
-                !this.ModSel.Menu.HitTest(MousePos) && (!this.Choosefighterrect.HitTest(MousePos) ||
+            
+            Vector2 mousePos = Input.CursorPosition;
+            if (this.ActiveModule != null && !this.ActiveModSubMenu.Menu.HitTest(mousePos) &&
+                !this.ModSel.Menu.HitTest(mousePos) && (!this.Choosefighterrect.HitTest(mousePos) ||
                                                         this.ActiveModule.ModuleType != ShipModuleType.Hangar ||
                                                         this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
             {
@@ -1451,7 +1424,7 @@ namespace Ship_Game
             float h;
             float x = (float) Mouse.GetState().X;
             MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float) state.Y);
+            Vector2 MousePos = Input.CursorPosition;//  new Vector2(x, (float) state.Y);
             Vector2 bCursor = new Vector2((float) (this.ModSel.Menu.X + 10), (float) (this.ModSel.Menu.Y + 45));
             for (int i = this.WeaponSl.indexAtTop;
                 i < this.WeaponSl.Copied.Count && i < this.WeaponSl.indexAtTop + this.WeaponSl.entriesToDisplay;
