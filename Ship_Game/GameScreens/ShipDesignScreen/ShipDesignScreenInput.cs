@@ -376,20 +376,20 @@ namespace Ship_Game {
                     }
                 }
             }
-            if (UpArrow.HitTest(mousePos) && input.LeftMouseClick && ScrollPosition > 0)
-            {
-                --ScrollPosition;
-                GameAudio.PlaySfxAsync("blip_click");
-                foreach (ModuleButton moduleButton in ModuleButtons)
-                    moduleButton.moduleRect.Y += 128;
-            }
-            if (DownArrow.HitTest(mousePos) && input.LeftMouseClick)
-            {
-                ++ScrollPosition;
-                GameAudio.PlaySfxAsync("blip_click");
-                foreach (ModuleButton moduleButton in ModuleButtons)
-                    moduleButton.moduleRect.Y -= 128;
-            }
+            //if (UpArrow.HitTest(mousePos) && input.LeftMouseClick && ScrollPosition > 0)
+            //{
+            //    --ScrollPosition;
+            //    GameAudio.PlaySfxAsync("blip_click");
+            //    foreach (ModuleButton moduleButton in ModuleButtons)
+            //        moduleButton.moduleRect.Y += 128;
+            //}
+            //if (DownArrow.HitTest(mousePos) && input.LeftMouseClick)
+            //{
+            //    ++ScrollPosition;
+            //    GameAudio.PlaySfxAsync("blip_click");
+            //    foreach (ModuleButton moduleButton in ModuleButtons)
+            //        moduleButton.moduleRect.Y -= 128;
+            //}
             if (input.RightMouseClick)
             {
                 //this should actually clear slots
