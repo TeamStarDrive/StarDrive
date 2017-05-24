@@ -19,8 +19,8 @@ namespace Ship_Game {
         {
 #if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
-        #endif
-            Reset = true;
+        #endif            
+            WeaponSl.Reset = true;
             DesignStack.Clear();
             LastDesignActionPos = Vector2.Zero;
             LastActiveUID = "";
@@ -390,128 +390,146 @@ namespace Ship_Game {
             //    foreach (ModuleButton moduleButton in ModuleButtons)
             //        moduleButton.moduleRect.Y -= 128;
             //}
-            if (input.RightMouseClick)
-            {
-                //this should actually clear slots
-                ActiveModule = null;
-                foreach (SlotStruct slot in Slots)
-                {
-                    slot.SetValidity();
-                    Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(
-                        new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
-                    var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
-                        , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
-                    if (slot.Module == null || !rect.HitTest(mousePos)) continue;
-                    slot.SetValidity(slot.Module);
-                    var designAction = new DesignAction
-                    {
-                        clickedSS = new SlotStruct
-                        {
-                            PQ = slot.PQ,
-                            Restrictions = slot.Restrictions,
-                            Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
-                            ModuleUID = slot.ModuleUID,
-                            Module = slot.Module,
-                            SlotReference = slot.SlotReference
-                        }
-                    };
-                    DesignStack.Push(designAction);
-                    GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                    ClearParentSlot(slot);
-                    RecalculatePower();
-                }
-            }
+            HandleIntputClearModule(input);
         
-            if (input.LeftMousePressed && ActiveModule != null)
-            {
-                foreach (SlotStruct slot in Slots)
-                {
-                    Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                        slot.PQ.enclosingRect.X,
-                        slot.PQ.enclosingRect.Y));
-                    if (!new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
-                            , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
-                        .HitTest(mousePos)) continue;
-                    GameAudio.PlaySfxAsync("sub_bass_mouseover");
-
-                    if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
-                        ActiveModule.UID == LastActiveUID) continue;
-                    InstallModule(
-                        slot); //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
-                    LastDesignActionPos.X = slot.PQ.X;
-                    LastDesignActionPos.Y = slot.PQ.Y;
-                    LastActiveUID         = ActiveModule.UID;
-                }
-            }
-            foreach (SlotStruct slotStruct in Slots)
-            {
-                if (slotStruct.ModuleUID != null && HighlightedModule != null &&
-                    (slotStruct.Module == HighlightedModule &&
-                     slotStruct.Module.FieldOfFire > 0f) &&
-                    slotStruct.Module.ModuleType == ShipModuleType.Turret)
-                {
-                    Vector2 spaceFromWorldSpace =
-                        Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                            slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
-                            slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
-                    //I am not sure what the below was trying to do. It wasnt doing anything...
-                    //Ok i remember what this does. it restricts the arc change 
-                    //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
-                    //float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
-                    //float facing = HighlightedModule.Facing;
-                    //float angle = Math.Abs(angleToTarget - facing);
-                    //if (angle > fieldOfFire)
-                    //{
-                    //    if (angleToTarget > 180f)
-                    //        angleToTarget = -1f * (360f - angleToTarget);
-                    //    if (facing > 180f)
-                    //        facing = -1f * (360f - facing);
-                    //    angle = Math.Abs(angleToTarget - facing);
-                    //}
-
-                    if (input.ShipYardArcMove())
-                        HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(mousePos);
-                }
-            }
-            foreach (UIButton uiButton in Buttons)
-            {
-                if (uiButton.Rect.HitTest(mousePos))
-                {
-                    uiButton.State = UIButton.PressState.Hover;
-                    if (input.LeftMouseClick)
-                        uiButton.State = UIButton.PressState.Pressed;
-                    if (!input.LeftMouseReleased) continue;
-
-                    switch (uiButton.Launches)
-                    {
-                        case "Toggle Overlay":
-                            GameAudio.PlaySfxAsync("blip_click");
-                            ToggleOverlay = !ToggleOverlay;
-                            continue;
-                        case "Save As...":
-                            if (CheckDesign())
-                            {
-                                ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
-                                continue;
-                            }
-                            else
-                            {
-                                GameAudio.PlaySfxAsync("UI_Misc20");
-                                ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
-                                continue;
-                            }
-                        case "Load":
-                            ScreenManager.AddScreen(new LoadDesigns(this));
-                            continue;
-                        default:
-                            continue;
-                    }
-                }
-                uiButton.State = UIButton.PressState.Default;
-            }
+            HandleInputPlaceModule(input);
+            HandleInputMoveArcs(input);
+            UIButtonHandleInput(input);
             CheckToggleButton(input);
             MouseStatePrevious = MouseStateCurrent;
             base.HandleInput(input);
+        }
+
+        private void HandleInputMoveArcs(InputState input)
+        {
+            Vector2 mousePos = input.CursorPosition;
+            foreach (SlotStruct slotStruct in Slots)
+            {
+                if (slotStruct.ModuleUID == null || HighlightedModule == null ||
+                    (slotStruct.Module != HighlightedModule || !(slotStruct.Module.FieldOfFire > 0f)) ||
+                    slotStruct.Module.ModuleType != ShipModuleType.Turret) continue;
+                Vector2 spaceFromWorldSpace =
+                    Camera.GetScreenSpaceFromWorldSpace(new Vector2(
+                        slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
+                        slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
+                //I am not sure what the below was trying to do. It wasnt doing anything...
+                //Ok i remember what this does. it restricts the arc change 
+                //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
+                //float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
+                //float facing = HighlightedModule.Facing;
+                //float angle = Math.Abs(angleToTarget - facing);
+                //if (angle > fieldOfFire)
+                //{
+                //    if (angleToTarget > 180f)
+                //        angleToTarget = -1f * (360f - angleToTarget);
+                //    if (facing > 180f)
+                //        facing = -1f * (360f - facing);
+                //    angle = Math.Abs(angleToTarget - facing);
+                //}
+
+                if (input.ShipYardArcMove())
+                    HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(mousePos);
+            }
+        }
+
+        private void HandleInputPlaceModule(InputState input)
+        {
+            Vector2 mousePos = input.CursorPosition;
+            if (!input.LeftMousePressed || ActiveModule == null) return;
+            foreach (SlotStruct slot in Slots)
+            {
+                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(new Vector2(
+                    slot.PQ.enclosingRect.X,
+                    slot.PQ.enclosingRect.Y));
+                if (!new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
+                        , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
+                    .HitTest(mousePos)) continue;
+                GameAudio.PlaySfxAsync("sub_bass_mouseover");
+
+                if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
+                    ActiveModule.UID == LastActiveUID) continue;
+                InstallModule(
+                    slot); //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
+                LastDesignActionPos.X = slot.PQ.X;
+                LastDesignActionPos.Y = slot.PQ.Y;
+                LastActiveUID = ActiveModule.UID;
+            }
+        }
+
+        private void HandleIntputClearModule(InputState input)
+        {
+            Vector2 mousePos = input.CursorPosition;
+            if (!input.RightMouseClick) return;
+            //this should actually clear slots
+            ActiveModule = null;
+            foreach (SlotStruct slot in Slots)
+            {
+                slot.SetValidity();
+                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(
+                    new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
+                var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
+                    , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
+                if (slot.Module == null || !rect.HitTest(mousePos)) continue;
+                slot.SetValidity(slot.Module);
+                var designAction = new DesignAction
+                {
+                    clickedSS = new SlotStruct
+                    {
+                        PQ = slot.PQ,
+                        Restrictions = slot.Restrictions,
+                        Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
+                        ModuleUID = slot.ModuleUID,
+                        Module = slot.Module,
+                        SlotReference = slot.SlotReference
+                    }
+                };
+                DesignStack.Push(designAction);
+                GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                ClearParentSlot(slot);
+                RecalculatePower();
+            }
+        }
+
+        private void UIButtonHandleInput(InputState input)
+        {
+            Vector2 mousePos = input.CursorPosition;
+            foreach (UIButton uiButton in Buttons)
+            {
+                if (!uiButton.Rect.HitTest(mousePos))
+                {
+                    uiButton.State = UIButton.PressState.Default;
+                    continue;
+                }
+                uiButton.State = UIButton.PressState.Hover;
+                if (input.LeftMouseClick)
+                    uiButton.State = UIButton.PressState.Pressed;
+                if (!input.LeftMouseReleased) continue;
+
+                switch (uiButton.Launches)
+                {
+                    case "Toggle Overlay":
+                        GameAudio.PlaySfxAsync("blip_click");
+                        ToggleOverlay = !ToggleOverlay;
+                        continue;
+                    case "Save As...":
+                        if (CheckDesign())
+                        {
+                            ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
+                            continue;
+                        }
+                        else
+                        {
+                            GameAudio.PlaySfxAsync("UI_Misc20");
+                            ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
+                            continue;
+                        }
+                    case "Load":
+                        ScreenManager.AddScreen(new LoadDesigns(this));
+                        continue;
+                    default:
+                        continue;
+                }
+            }
         }
 
         private void HandleInputDebug(InputState input)
@@ -1106,11 +1124,12 @@ namespace Ship_Game {
 
         public void ResetLists()
         {
-            Reset = true;
+            WeaponSl.Reset = true;
+
             WeaponSl.indexAtTop = 0;
         }
 
-        private void ResetModuleState()
+        public void ResetModuleState()
         {
             ActiveModState = ActiveModuleState.Normal;
         }
