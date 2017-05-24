@@ -281,8 +281,8 @@ namespace Ship_Game
                 if (this.ActiveModule.shield_power_max > 0f)
                 {
                     Vector2 center = new Vector2((float) this.MouseStateCurrent.X, (float) this.MouseStateCurrent.Y) +
-                                     new Vector2((float) (moduleTemplate.XSIZE * 16 / 2),
-                                         (float) (moduleTemplate.YSIZE * 16 / 2));
+                                     new Vector2(moduleTemplate.XSIZE * 16 / 2f,
+                                         moduleTemplate.YSIZE * 16 / 2f);
                     DrawCircle(center, this.ActiveModule.shield_radius * this.Camera.Zoom, 50, Color.LightGreen);
                 }
             }
@@ -1419,121 +1419,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawList()
-        {
-            float h;
-            float x = (float) Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = Input.CursorPosition;//  new Vector2(x, (float) state.Y);
-            Vector2 bCursor = new Vector2((float) (this.ModSel.Menu.X + 10), (float) (this.ModSel.Menu.Y + 45));
-            for (int i = this.WeaponSl.indexAtTop;
-                i < this.WeaponSl.Copied.Count && i < this.WeaponSl.indexAtTop + this.WeaponSl.entriesToDisplay;
-                i++)
-            {
-                bCursor = new Vector2((float) (this.ModSel.Menu.X + 10), (float) (this.ModSel.Menu.Y + 45));
-                ScrollList.Entry e = this.WeaponSl.Copied[i];
-                bCursor.Y = (float) e.clickRect.Y;
-                if (e.item is ModuleHeader)
-                {
-                    (e.item as ModuleHeader).Draw(ScreenManager, bCursor);
-                }
-                else if (e.item is ShipModule mod)
-                {
-                    bCursor.X += 5f;
-                    ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
-                    Rectangle modRect = new Rectangle((int) bCursor.X, (int) bCursor.Y,
-                        ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width,
-                        ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height);
-                    Vector2 vector2 = new Vector2(bCursor.X + 15f, bCursor.Y + 15f);
-                    Vector2 vector21 =
-                        new Vector2(
-                            (float) (ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width / 2),
-                            (float) (ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height / 2));
-                    float aspectRatio =
-                        (float) ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width /
-                        (float) ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height;
-                    float w = (float) modRect.Width;
-                    for (h = (float) modRect.Height; w > 30f || h > 30f; h = h - 1.6f)
-                    {
-                        w = w - aspectRatio * 1.6f;
-                    }
-                    modRect.Width = (int) w;
-                    modRect.Height = (int) h;
-                    ScreenManager.SpriteBatch.Draw(
-                        ResourceManager.TextureDict[moduleTemplate.IconTexturePath], modRect, Color.White);
-                    //Added by McShooterz: allow longer modules names
-                    Vector2 tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
-                    if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 <
-                        this.ModSel.Menu.Width)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
-                        tCursor.Y = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
-                    }
-                    else
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold,
-                            Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
-                        tCursor.Y = tCursor.Y + (float) Fonts.Arial11Bold.LineSpacing;
-                    }
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, moduleTemplate.Restrictions.ToString(),
-                        tCursor, Color.Orange);
-                    tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(moduleTemplate.Restrictions.ToString()).X;
-                    if (moduleTemplate.InstalledWeapon != null && moduleTemplate.ModuleType != ShipModuleType.Turret ||
-                        moduleTemplate.XSIZE != moduleTemplate.YSIZE)
-                    {
-                        Rectangle rotateRect = new Rectangle((int) bCursor.X + 240, (int) bCursor.Y + 3, 20, 22);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_can_rotate"],
-                            rotateRect, Color.White);
-                        if (rotateRect.HitTest(MousePos))
-                        {
-                            ToolTip.CreateTooltip("Indicates that this module can be rotated using the arrow keys",
-                                ScreenManager);
-                        }
-                    }
-                    if (e.clickRect.HitTest(MousePos))
-                    {
-                        if (e.clickRectHover == 0)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                        }
-                        e.clickRectHover = 1;
-                    }
-                }
-            }
-        }
 
-        private bool RestrictedModCheck(ShipData.RoleName Role, ShipModule Mod)
-        {
-            if (Mod.FighterModule || Mod.CorvetteModule || Mod.FrigateModule || Mod.StationModule ||
-                Mod.DestroyerModule || Mod.CruiserModule
-                || Mod.CarrierModule || Mod.CapitalModule || Mod.FreighterModule || Mod.PlatformModule ||
-                Mod.DroneModule)
-            {
-                if (Role == ShipData.RoleName.drone && Mod.DroneModule == false) return true;
-                if (Role == ShipData.RoleName.scout && Mod.FighterModule == false) return true;
-                if (Role == ShipData.RoleName.fighter && Mod.FighterModule == false) return true;
-                if (Role == ShipData.RoleName.corvette && Mod.CorvetteModule == false) return true;
-                if (Role == ShipData.RoleName.gunboat && Mod.CorvetteModule == false) return true;
-                if (Role == ShipData.RoleName.frigate && Mod.FrigateModule == false) return true;
-                if (Role == ShipData.RoleName.destroyer && Mod.DestroyerModule == false) return true;
-                if (Role == ShipData.RoleName.cruiser && Mod.CruiserModule == false) return true;
-                if (Role == ShipData.RoleName.carrier && Mod.CarrierModule == false) return true;
-                if (Role == ShipData.RoleName.capital && Mod.CapitalModule == false) return true;
-                if (Role == ShipData.RoleName.freighter && Mod.FreighterModule == false) return true;
-                if (Role == ShipData.RoleName.platform && Mod.PlatformModule == false) return true;
-                if (Role == ShipData.RoleName.station && Mod.StationModule == false) return true;
-            }
-            else if (Mod.FightersOnly)
-            {
-                if (Role == ShipData.RoleName.fighter) return true;
-                if (Role == ShipData.RoleName.scout) return true;
-                if (Role == ShipData.RoleName.corvette) return true;
-                if (Role == ShipData.RoleName.gunboat) return true;
-            }
-
-            return false;
-        }
 
         private void DrawModuleSelection()
         {
