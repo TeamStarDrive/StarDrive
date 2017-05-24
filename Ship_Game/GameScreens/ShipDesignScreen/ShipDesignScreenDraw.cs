@@ -235,7 +235,7 @@ namespace Ship_Game
             {
                 ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
 
-                Rectangle r = new Rectangle(this.MouseStateCurrent.X, this.MouseStateCurrent.Y,
+                Rectangle r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
                     (int) ((float) (16 * this.ActiveModule.XSIZE) * this.Camera.Zoom),
                     (int) ((float) (16 * this.ActiveModule.YSIZE) * this.Camera.Zoom));
                 switch (this.ActiveModState)
