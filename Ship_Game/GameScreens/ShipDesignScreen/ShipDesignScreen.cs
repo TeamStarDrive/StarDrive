@@ -1401,7 +1401,11 @@ namespace Ship_Game
             }
             public override bool HandleInput(InputState input)
             {
-                
+                if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
+                {
+                    SelectionBox = null;
+                    return false;
+                }
                 for (int index = indexAtTop;
                     index < Copied.Count
                     && index < indexAtTop + entriesToDisplay;
@@ -1433,11 +1437,7 @@ namespace Ship_Game
                 }
                 
                 base.HandleInput(input);
-                if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
-                {
-                    SelectionBox = null;
-                    return false;
-                }
+               
                 
                 if (input.ScrollIn && indexAtTop > 0)
                     --indexAtTop;
