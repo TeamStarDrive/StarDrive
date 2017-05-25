@@ -18,7 +18,7 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen : GameScreen
     {
-        private Matrix WorldMatrix = Matrix.Identity;
+        private readonly Matrix WorldMatrix = Matrix.Identity;
         private Matrix View;
         private Matrix Projection;
         public Camera2d Camera;
@@ -37,12 +37,12 @@ namespace Ship_Game
         private UIButton ToggleOverlayButton;
         private UIButton SaveButton;
         private UIButton LoadButton;
-        public Submenu ModSel;
+        public ModuleSelection ModSel;
         private Submenu StatsSub;
         private Menu1 ShipStats;
-        private Menu1 activeModWindow;
-        private Submenu ActiveModSubMenu;
-        private WeaponScrollList WeaponSl;
+        //private Menu1 activeModWindow;
+        //private Submenu ActiveModSubMenu;
+        //private WeaponScrollList WeaponSl;
         private Submenu ChooseFighterSub;
         private ScrollList ChooseFighterSL;
         private bool LowRes;
@@ -71,7 +71,7 @@ namespace Ship_Game
         private Rectangle DownArrow;
         private MouseState MouseStateCurrent;
         private MouseState MouseStatePrevious;
-        private ShipModule HighlightedModule;
+        public ShipModule HighlightedModule;
         private Vector2 CameraVelocity = Vector2.Zero;
         private Vector2 StartDragPos = new Vector2();
         private ShipData Changeto;
@@ -80,7 +80,7 @@ namespace Ship_Game
         private ShipModule HoveredModule;
         private float TransitionZoom = 1f;
         private SlotModOperation Operation;
-        private ShipModule ActiveModule;
+        public ShipModule ActiveModule;
         private ShipModule ActiveHangarModule;
         private ActiveModuleState ActiveModState;
         private Selector selector;
@@ -329,8 +329,7 @@ namespace Ship_Game
         protected override void Dispose(bool disposing)
         {
             HullSL?.Dispose(ref HullSL);
-            WeaponSl?.Dispose(ref WeaponSl);
-            ChooseFighterSL?.Dispose(ref ChooseFighterSL);
+            ModSel?.Dispose();
             base.Dispose(disposing);
         }
 
@@ -422,28 +421,44 @@ namespace Ship_Game
             float maint = 0f;
 
             // Calculate maintenance by proportion of ship cost, Duh.
-            if (ship.Role == ShipData.RoleName.fighter || ship.Role == ShipData.RoleName.scout)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (ship.Role == ShipData.RoleName.corvette || ship.Role == ShipData.RoleName.gunboat)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCorvette;
-            else if (ship.Role == ShipData.RoleName.frigate || ship.Role == ShipData.RoleName.destroyer)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFrigate;
-            else if (ship.Role == ShipData.RoleName.cruiser)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCruiser;
-            else if (ship.Role == ShipData.RoleName.carrier)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCarrier;
-            else if (ship.Role == ShipData.RoleName.capital)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCapital;
-            else if (ship.Role == ShipData.RoleName.freighter)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFreighter;
-            else if (ship.Role == ShipData.RoleName.platform)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepPlatform;
-            else if (ship.Role == ShipData.RoleName.station)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepStation;
-            else if (ship.Role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepDrone;
-            else
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
+            switch (ship.Role) {
+                case ShipData.RoleName.fighter:
+                case ShipData.RoleName.scout:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepFighter;
+                    break;
+                case ShipData.RoleName.corvette:
+                case ShipData.RoleName.gunboat:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCorvette;
+                    break;
+                case ShipData.RoleName.frigate:
+                case ShipData.RoleName.destroyer:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepFrigate;
+                    break;
+                case ShipData.RoleName.cruiser:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCruiser;
+                    break;
+                case ShipData.RoleName.carrier:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCarrier;
+                    break;
+                case ShipData.RoleName.capital:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCapital;
+                    break;
+                case ShipData.RoleName.freighter:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepFreighter;
+                    break;
+                case ShipData.RoleName.platform:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepPlatform;
+                    break;
+                case ShipData.RoleName.station:
+                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepStation;
+                    break;
+                default:
+                    if (ship.Role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
+                        maint = fCost * GlobalStats.ActiveModInfo.UpkeepDrone;
+                    else
+                        maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
+                    break;
+            }
             if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
                 maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
             else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
@@ -890,467 +905,6 @@ namespace Ship_Game
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        //Added by McShooterz: modifies weapon stats to reflect weapon tag bonuses
-        private float ModifiedWeaponStat(Weapon weapon, string stat)
-        {
-            float value=0;
-
-            switch (stat)
-            {
-                case "damage":
-                    value = weapon.DamageAmount;
-                    break;
-                case "range":
-                    value = weapon.Range;
-                    break;
-                case "speed":
-                    value = weapon.ProjectileSpeed;
-                    break;
-                case "firedelay":
-                    value = weapon.fireDelay;
-                    break;
-                case "armor":
-                    value = weapon.EffectVsArmor;
-                    break;
-                case "shield":
-                    value = weapon.EffectVSShields;
-                    break;
-            }
-
-            if (weapon.Tag_Missile)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Missile"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Energy)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Energy"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Torpedo)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Torpedo"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Kinetic)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Kinetic"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Hybrid)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Hybrid"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Railgun)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Railgun"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Explosive)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Explosive"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Guided)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Guided"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Intercept)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Intercept"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_PD)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["PD"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_SpaceBomb)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_BioWeapon)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Drone)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Drone"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Subspace)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Subspace"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Warp)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Warp"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Cannon)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Cannon"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Beam)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Beam"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Bomb)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Bomb"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].ShieldDamage;
-                        break;
-                }
-            }
-            return value;
-        }
 
         public enum ActiveModuleState
         {
