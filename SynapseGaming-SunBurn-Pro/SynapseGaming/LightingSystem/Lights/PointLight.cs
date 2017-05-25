@@ -166,7 +166,7 @@ namespace SynapseGaming.LightingSystem.Lights
             {
                 this.matrix_0.Translation = value;
                 ++this.MoveId;
-                this.method_0();
+                this.UpdateBounds();
             }
         }
 
@@ -179,7 +179,7 @@ namespace SynapseGaming.LightingSystem.Lights
             set
             {
                 this.float_5 = value;
-                this.method_0();
+                this.UpdateBounds();
             }
         }
 
@@ -191,7 +191,7 @@ namespace SynapseGaming.LightingSystem.Lights
             {
                 this.matrix_0 = value;
                 ++this.MoveId;
-                this.method_0();
+                this.UpdateBounds();
             }
         }
 
@@ -239,7 +239,7 @@ namespace SynapseGaming.LightingSystem.Lights
         public PointLight()
         {
             this.ishadowSource_0 = this;
-            this.method_0();
+            this.UpdateBounds();
         }
 
         /// <summary>
@@ -249,59 +249,59 @@ namespace SynapseGaming.LightingSystem.Lights
         /// <param name="context"></param>
         protected PointLight(SerializationInfo serializationInfo_0, StreamingContext streamingContext_0)
         {
-            Vector3 gparam_0 = new Vector3();
+            Vector3 position = new Vector3();
             foreach (SerializationEntry serializationEntry in serializationInfo_0)
             {
                 switch (serializationEntry.Name)
                 {
                     case "Enabled":
-                        Class28.smethod_0(ref this.bool_0, serializationInfo_0, "Enabled");
+                        serializationInfo_0.GetValue("Enabled", out this.bool_0);
                         continue;
                     case "DiffuseColor":
-                        Class28.smethod_0(ref this.vector3_0, serializationInfo_0, "DiffuseColor");
+                        serializationInfo_0.GetValue("DiffuseColor", out this.vector3_0);
                         continue;
                     case "Intensity":
-                        Class28.smethod_0(ref this.float_1, serializationInfo_0, "Intensity");
+                        serializationInfo_0.GetValue("Intensity", out this.float_1);
                         continue;
                     case "FillLight":
-                        Class28.smethod_0(ref this.bool_1, serializationInfo_0, "FillLight");
+                        serializationInfo_0.GetValue("FillLight", out this.bool_1);
                         continue;
                     case "FalloffStrength":
-                        Class28.smethod_0(ref this.float_0, serializationInfo_0, "FalloffStrength");
+                        serializationInfo_0.GetValue("FalloffStrength", out this.float_0);
                         continue;
                     case "ShadowType":
-                        Class28.smethod_1(ref this.shadowType_0, serializationInfo_0, "ShadowType");
+                        serializationInfo_0.GetEnum("ShadowType", out this.shadowType_0);
                         continue;
                     case "Position":
-                        Class28.smethod_0(ref gparam_0, serializationInfo_0, "Position");
-                        this.Position = gparam_0;
+                        serializationInfo_0.GetValue("Position", out position);
+                        this.Position = position;
                         continue;
                     case "Radius":
-                        Class28.smethod_0(ref this.float_5, serializationInfo_0, "Radius");
+                        serializationInfo_0.GetValue("Radius", out this.float_5);
                         continue;
                     case "Name":
-                        Class28.smethod_0(ref this.string_0, serializationInfo_0, "Name");
+                        serializationInfo_0.GetValue("Name", out this.string_0);
                         continue;
                     case "ShadowQuality":
-                        Class28.smethod_0(ref this.float_2, serializationInfo_0, "ShadowQuality");
+                        serializationInfo_0.GetValue("ShadowQuality", out this.float_2);
                         continue;
                     case "ShadowPrimaryBias":
-                        Class28.smethod_0(ref this.float_3, serializationInfo_0, "ShadowPrimaryBias");
+                        serializationInfo_0.GetValue("ShadowPrimaryBias", out this.float_3);
                         continue;
                     case "ShadowSecondaryBias":
-                        Class28.smethod_0(ref this.float_4, serializationInfo_0, "ShadowSecondaryBias");
+                        serializationInfo_0.GetValue("ShadowSecondaryBias", out this.float_4);
                         continue;
                     case "ShadowPerSurfaceLOD":
-                        Class28.smethod_0(ref this.bool_2, serializationInfo_0, "ShadowPerSurfaceLOD");
+                        serializationInfo_0.GetValue("ShadowPerSurfaceLOD", out this.bool_2);
                         continue;
                     default:
                         continue;
                 }
             }
-            this.method_0();
+            this.UpdateBounds();
         }
 
-        private void method_0()
+        private void UpdateBounds()
         {
             Vector3 vector3 = new Vector3(this.float_5, this.float_5, this.float_5);
             Vector3 translation = this.matrix_0.Translation;
