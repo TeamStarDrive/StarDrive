@@ -1596,7 +1596,7 @@ namespace Ship_Game.Gameplay
                 JumpSfx.Stop();
 
             if (engineState == MoveState.Warp && 
-                Center.InRadius(Empire.Universe.camPos.ToVec2(), 100000f) && Empire.Universe.camHeight < 250000)
+                Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                 FTLManager.AddFTL(Center);

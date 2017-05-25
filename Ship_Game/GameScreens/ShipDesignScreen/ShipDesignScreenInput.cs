@@ -1013,7 +1013,7 @@ namespace Ship_Game {
                 new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285,
                     (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
             HullSelectionSub = new Submenu(ScreenManager, HullSelectionRect, true);
-            WeaponSl         = new WeaponScrollList(ModSel,this);
+            WeaponSL         = new WeaponScrollList(ModSel,this);
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
             var categories = new Array<string>();
@@ -1111,9 +1111,8 @@ namespace Ship_Game {
 
         public void ResetLists()
         {
-            WeaponSl.Reset = true;
-
-            WeaponSl.indexAtTop = 0;
+            WeaponSL.Reset = true;
+            WeaponSL.indexAtTop = 0;
         }
 
         public void ResetModuleState()

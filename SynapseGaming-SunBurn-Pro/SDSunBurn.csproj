@@ -252,7 +252,7 @@
     <Compile Include="ns3\Class18.cs" />
     <Compile Include="ns3\Class26.cs" />
     <Compile Include="ns3\Class27.cs" />
-    <Compile Include="ns3\Class28.cs" />
+    <Compile Include="ns3\Serialize.cs" />
     <Compile Include="ns3\Class29.cs" />
     <Compile Include="ns4\Attribute0.cs" />
     <Compile Include="ns4\Attribute1.cs" />

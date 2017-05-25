@@ -55,6 +55,7 @@ namespace Ship_Game
         private Rectangle SearchBar;
         private Rectangle BottomSep;
         private ScrollList HullSL;
+        private WeaponScrollList WeaponSL;
         private Rectangle HullSelectionRect;
         private Submenu HullSelectionSub;
         private Rectangle BlackBar;

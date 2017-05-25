@@ -508,7 +508,7 @@ namespace Ship_Game
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
-                Screen.HeightOnSnap = this.Screen.camHeight;
+                Screen.HeightOnSnap = this.Screen.CamHeight;
             }
             Screen.OpenCombatMenu(null);
         }
@@ -519,7 +519,7 @@ namespace Ship_Game
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
-                Screen.HeightOnSnap = Screen.camHeight;
+                Screen.HeightOnSnap = Screen.CamHeight;
             }
             Screen.SnapViewPlanet(p);
         }

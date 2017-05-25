@@ -10,7 +10,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns9;
 using SynapseGaming.LightingSystem.Core;
-using MeshBuffer = ns9.MeshBuffer;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {

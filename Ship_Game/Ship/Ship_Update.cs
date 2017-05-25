@@ -180,7 +180,7 @@ namespace Ship_Game.Gameplay
 
                     if (JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                     {
-                        if (Empire.Universe.camHeight < 250000 && Empire.Universe.camPos.InRadius(Center, 100000f)
+                        if (Empire.Universe.CamHeight < 250000 && Empire.Universe.CamPos.InRadius(Center, 100000f)
                             && JumpSfx.IsStopped)
                         {
                             JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
@@ -235,7 +235,7 @@ namespace Ship_Game.Gameplay
                         pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
                         scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
                         thruster.Update(thruster.WorldPos, pointat, scalefactors, thruster.heat, 0.004f,
-                            Color.OrangeRed, Color.LightBlue, Empire.Universe.camPos);
+                            Color.OrangeRed, Color.LightBlue, Empire.Universe.CamPos);
                     }
                     else
                     {
@@ -246,7 +246,7 @@ namespace Ship_Game.Gameplay
                         pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
                         scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
                         thruster.Update(thruster.WorldPos, pointat, scalefactors, thruster.heat, 1.0f / 500.0f,
-                            Color.OrangeRed, Color.LightBlue, Empire.Universe.camPos);
+                            Color.OrangeRed, Color.LightBlue, Empire.Universe.CamPos);
                     }
                 }
                 else
@@ -255,7 +255,7 @@ namespace Ship_Game.Gameplay
                     scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
                     thruster.heat = 0.01f;
                     thruster.Update(thruster.WorldPos, pointat, scalefactors, 0.1f, 1.0f / 500.0f, Color.OrangeRed,
-                        Color.LightBlue, Empire.Universe.camPos);
+                        Color.LightBlue, Empire.Universe.CamPos);
                 }
             }
         }

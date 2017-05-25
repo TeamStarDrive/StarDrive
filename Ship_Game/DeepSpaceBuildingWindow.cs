@@ -234,7 +234,7 @@ namespace Ship_Game
 			{
 				float scale = (float)((float)this.itemToBuild.Size) / (float)ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width;
 				Vector2 IconOrigin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2));
-				scale = scale * 4000f / this.screen.camHeight;
+				scale = scale * 4000f / this.screen.CamHeight;
 				if (scale > 1f)
 				{
 					scale = 1f;

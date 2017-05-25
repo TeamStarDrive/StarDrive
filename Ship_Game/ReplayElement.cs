@@ -94,7 +94,7 @@ namespace Ship_Game
 			float single;
 			Rectangle MapRect = new Rectangle(this.ElementRect.X + 30, this.ElementRect.Y + 30, this.ElementRect.Width - 60, this.ElementRect.Height - 60);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EndGameScreen/ReplayHousing"], this.ElementRect, Color.White);
-			float scale = (float)(this.ElementRect.Width - 60) / (Empire.Universe.UniverseRadius * 2);        //Correction for negative map values -Gretman
+			float scale = (float)(this.ElementRect.Width - 60) / (Empire.Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
             if (this.Grid)
 			{
 				for (int x = 0; x < 21; x++)
