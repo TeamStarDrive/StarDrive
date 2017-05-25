@@ -50,7 +50,7 @@ namespace Ship_Game
 		public void Draw(ScreenManager screenManager, UniverseScreen screen)
 		{
 			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
-			float scale = (float)this.ActualMap.Width / (screen.UniverseRadius * 2);        //Updated to play nice with the new negative map values
+			float scale = (float)this.ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
 			Vector2 minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
             var uiNode  = ResourceManager.TextureDict["UI/node"];
             var uiNode1 = ResourceManager.TextureDict["UI/node1"];
@@ -173,7 +173,7 @@ namespace Ship_Game
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				screen.AdjustCamTimer = 1f;
 				screen.transitionElapsedTime = 0f;
-				screen.transitionDestination.Z = 4500f;
+				screen.CamDestination.Z = 4500f;
 				screen.snappingToShip = true;
 				screen.ViewingShip = true;
 				return true;
@@ -187,9 +187,9 @@ namespace Ship_Game
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				screen.AdjustCamTimer = 1f;
 				screen.transitionElapsedTime = 0f;
-				screen.transitionDestination.X = screen.camPos.X;
-				screen.transitionDestination.Y = screen.camPos.Y;
-				screen.transitionDestination.Z = 4200000f * UniverseScreen.GameScaleStatic;
+				screen.CamDestination.X = screen.CamPos.X;
+				screen.CamDestination.Y = screen.CamPos.Y;
+				screen.CamDestination.Z = 4200000f * UniverseScreen.GameScaleStatic;
 				return true;
 			}
 			if (this.DSB.r.HitTest(input.CursorPosition))

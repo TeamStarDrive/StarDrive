@@ -122,25 +122,25 @@ namespace SynapseGaming.LightingSystem.Core
         switch (serializationEntry.Name)
         {
           case "TextureSampling":
-            Class28.smethod_1(ref this.samplingPreference_0, serializationInfo_0, "TextureSampling");
+            serializationInfo_0.GetEnum("TextureSampling", out this.samplingPreference_0);
             continue;
           case "TextureQuality":
-            Class28.smethod_1(ref this.detailPreference_0, serializationInfo_0, "TextureQuality");
+            serializationInfo_0.GetEnum("TextureQuality", out this.detailPreference_0);
             continue;
           case "MaxAnisotropy":
-            Class28.smethod_0(ref this.int_0, serializationInfo_0, "MaxAnisotropy");
+            serializationInfo_0.GetValue("MaxAnisotropy", out this.int_0);
             continue;
           case "ShadowDetail":
-            Class28.smethod_1(ref this.detailPreference_1, serializationInfo_0, "ShadowDetail");
+            serializationInfo_0.GetEnum("ShadowDetail", out this.detailPreference_1);
             continue;
           case "ShadowQuality":
-            Class28.smethod_0(ref this.float_0, serializationInfo_0, "ShadowQuality");
+            serializationInfo_0.GetValue("ShadowQuality", out this.float_0);
             continue;
           case "EffectDetail":
-            Class28.smethod_1(ref this.detailPreference_2, serializationInfo_0, "EffectDetail");
+            serializationInfo_0.GetEnum("EffectDetail", out this.detailPreference_2);
             continue;
           case "PostProcessingDetail":
-            Class28.smethod_1(ref this.detailPreference_3, serializationInfo_0, "PostProcessingDetail");
+            serializationInfo_0.GetEnum("PostProcessingDetail", out this.detailPreference_3);
             continue;
           default:
             continue;

@@ -14,13 +14,13 @@ namespace Ship_Game
         public Background3D(UniverseScreen screen)
         {
             Screen = screen;
-            int nebsize = (int) RandomMath.AvgRandomBetween(1000000+ screen.UniverseRadius / 4f, screen.UniverseRadius);
+            int nebsize = (int) RandomMath.AvgRandomBetween(1000000+ screen.UniverseSize / 4f, screen.UniverseSize);
             
             CreateRandomLargeNebula(new Rectangle(
-                (int) RandomMath.AvgRandomBetween(-screen.UniverseRadius * 1.5f, screen.UniverseRadius * 2 - nebsize),
-                (int) RandomMath.AvgRandomBetween(-screen.UniverseRadius * 1.5f, screen.UniverseRadius * 2 - nebsize),
+                (int) RandomMath.AvgRandomBetween(-screen.UniverseSize * 1.5f, screen.UniverseSize * 2 - nebsize),
+                (int) RandomMath.AvgRandomBetween(-screen.UniverseSize * 1.5f, screen.UniverseSize * 2 - nebsize),
                 nebsize, nebsize)); //Updated to take full advantage of the bigger maps -Gretman
-            for (int i = 0; i < 4 + (int) (Screen.UniverseRadius / 2000000); i++) //And add more nedulas and stuff
+            for (int i = 0; i < 4 + (int) (Screen.UniverseSize / 2000000); i++) //And add more nedulas and stuff
                 CreateRandomSmallObject();
         }
 
@@ -86,13 +86,13 @@ namespace Ship_Game
                     (int) RandomMath.RandomBetween(0f, ResourceManager.SmallNebulas.Count)]
             };
             Vector2 nebUpperLeft = new Vector2(
-                RandomMath.RandomBetween(-Screen.UniverseRadius * 1.5f, Screen.UniverseRadius * 0.75f),
-                RandomMath.RandomBetween(-Screen.UniverseRadius * 1.5f,
-                    Screen.UniverseRadius * 0.75f)); //More Random Here -Gretman
+                RandomMath.RandomBetween(-Screen.UniverseSize * 1.5f, Screen.UniverseSize * 0.75f),
+                RandomMath.RandomBetween(-Screen.UniverseSize * 1.5f,
+                    Screen.UniverseSize * 0.75f)); //More Random Here -Gretman
             //float zPos = (float)RandomMath.RandomBetween(200000f, 2500000f);
             //float xSize = RandomMath.RandomBetween(800000f, 1800000f);
             float zPos = RandomMath.RandomBetween(100000f, 5000000f);
-            float xSize = RandomMath.RandomBetween(800000f, Screen.UniverseRadius * 0.75f);
+            float xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
             float ySize = BigNeb_1.Texture.Height / BigNeb_1.Texture.Width * xSize;
             BigNeb_1.UpperLeft = new Vector3(nebUpperLeft, zPos);
             BigNeb_1.LowerLeft = BigNeb_1.UpperLeft + new Vector3(0f, ySize, 0f);
@@ -110,7 +110,7 @@ namespace Ship_Game
             //zPos = zPos + 200000f;
             zPos = zPos + RandomMath.RandomBetween(100000f, 400000f);
             //xSize = RandomMath.RandomBetween(800000f, 1800000f);
-            xSize = RandomMath.RandomBetween(800000f, Screen.UniverseRadius * 0.75f);
+            xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
             ySize = BigNeb_2.Texture.Height / BigNeb_2.Texture.Width * xSize;
             BigNeb_2.UpperLeft = new Vector3(nebUpperLeft, zPos);
             BigNeb_2.LowerLeft = BigNeb_2.UpperLeft + new Vector3(0f, ySize, 0f);
@@ -128,7 +128,7 @@ namespace Ship_Game
             //zPos = zPos + 200000f;
             zPos = zPos + RandomMath.RandomBetween(100000f, 400000f);
             //xSize = RandomMath.RandomBetween(800000f, 1800000f);
-            xSize = RandomMath.RandomBetween(800000f, Screen.UniverseRadius * 0.75f);
+            xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
             ySize = BigNeb_3.Texture.Height / BigNeb_3.Texture.Width * xSize;
             BigNeb_3.UpperLeft = new Vector3(nebUpperLeft, zPos);
             BigNeb_3.LowerLeft = BigNeb_3.UpperLeft + new Vector3(0f, ySize, 0f);
@@ -149,7 +149,7 @@ namespace Ship_Game
             Screen.ScreenManager.GraphicsDevice.RenderState.DestinationBlend       = Blend.One;
             Screen.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
             Screen.ScreenManager.GraphicsDevice.RenderState.CullMode               = CullMode.None;
-            float alpha = Screen.camHeight / (Screen.GetZfromScreenState(UniverseScreen.UnivScreenState.SectorView) * 2);
+            float alpha = Screen.CamHeight / (Screen.GetZfromScreenState(UniverseScreen.UnivScreenState.SectorView) * 2);
             for (int i = 0; i < BGItems.Count; i++)
             {
                 BackgroundItem bgi = BGItems[i];

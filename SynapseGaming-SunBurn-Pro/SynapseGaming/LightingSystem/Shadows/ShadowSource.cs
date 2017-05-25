@@ -142,29 +142,29 @@ namespace SynapseGaming.LightingSystem.Shadows
         switch (serializationEntry.Name)
         {
           case "ShadowType":
-            Class28.smethod_1(ref this.shadowType_0, serializationInfo_0, "ShadowType");
+            serializationInfo_0.GetEnum("ShadowType", out this.shadowType_0);
             continue;
           case "Position":
-            Class28.smethod_0(ref gparam_0, serializationInfo_0, "Position");
+            serializationInfo_0.GetValue("Position", out gparam_0);
             this.Position = gparam_0;
             continue;
           case "Name":
-            Class28.smethod_0(ref this.string_0, serializationInfo_0, "Name");
+            serializationInfo_0.GetValue("Name", out this.string_0);
             continue;
           case "ShadowQuality":
-            Class28.smethod_0(ref this.float_0, serializationInfo_0, "ShadowQuality");
+            serializationInfo_0.GetValue("ShadowQuality", out this.float_0);
             continue;
           case "ShadowPrimaryBias":
-            Class28.smethod_0(ref this.float_1, serializationInfo_0, "ShadowPrimaryBias");
+            serializationInfo_0.GetValue("ShadowPrimaryBias", out this.float_1);
             continue;
           case "ShadowSecondaryBias":
-            Class28.smethod_0(ref this.float_2, serializationInfo_0, "ShadowSecondaryBias");
+            serializationInfo_0.GetValue("ShadowSecondaryBias", out this.float_2);
             continue;
           case "ShadowPerSurfaceLOD":
-            Class28.smethod_0(ref this.bool_0, serializationInfo_0, "ShadowPerSurfaceLOD");
+            serializationInfo_0.GetValue("ShadowPerSurfaceLOD", out this.bool_0);
             continue;
           case "ShadowRenderLightsTogether":
-            Class28.smethod_0(ref this.bool_1, serializationInfo_0, "ShadowRenderLightsTogether");
+            serializationInfo_0.GetValue("ShadowRenderLightsTogether", out this.bool_1);
             continue;
           default:
             continue;

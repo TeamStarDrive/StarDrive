@@ -23,9 +23,9 @@ namespace Ship_Game
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                 {
                     Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
-                    float num = MinimapDisplayRect.Width / (UniverseRadius * 2);
-                    transitionDestination.X = -UniverseRadius + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
-                    transitionDestination.Y = -UniverseRadius + (pos.Y / num);
+                    float num = MinimapDisplayRect.Width / (UniverseSize * 2);
+                    CamDestination.X = -UniverseSize + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
+                    CamDestination.Y = -UniverseSize + (pos.Y / num);
                     snappingToShip = false;
                     ViewingShip = false;
                 }
@@ -244,10 +244,10 @@ namespace Ship_Game
                     ViewingShip = true;
                     returnToShip = false;
                     snappingToShip = true;
-                    transitionDestination.Z = transitionStartPosition.Z;
+                    CamDestination.Z = transitionStartPosition.Z;
                 }
                 else
-                    transitionDestination = transitionStartPosition;
+                    CamDestination = transitionStartPosition;
                 transitionElapsedTime = 0.0f;
                 LookingAtPlanet = false;
             }
@@ -259,10 +259,10 @@ namespace Ship_Game
                     ViewingShip = true;
                     returnToShip = false;
                     snappingToShip = true;
-                    transitionDestination.Z = transitionStartPosition.Z;
+                    CamDestination.Z = transitionStartPosition.Z;
                 }
                 else
-                    transitionDestination = transitionStartPosition;
+                    CamDestination = transitionStartPosition;
                 transitionElapsedTime = 0.0f;
                 LookingAtPlanet = false;
             }
@@ -313,10 +313,10 @@ namespace Ship_Game
 
                     ViewingShip = false;
                     AdjustCamTimer = 0.5f;
-                    transitionDestination = SelectedFleet.FindAveragePosition().ToVec3();
+                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
 
                     if (viewState < UnivScreenState.SystemView)
-                        transitionDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
                     return;
                 }
             }
@@ -589,10 +589,10 @@ namespace Ship_Game
                     {
                         ViewingShip = false;
                         AdjustCamTimer = 0.5f;
-                        transitionDestination = SelectedFleet.FindAveragePosition().ToVec3();
+                        CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
 
-                        if (camHeight < GetZfromScreenState(UnivScreenState.SystemView))
-                            transitionDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                        if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                            CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
                     }
                     else if (SelectedFleet != null)
                         ClickTimer = 0.0f;
@@ -1782,7 +1782,7 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("sub_bass_whoosh");
                         SelectedPlanet = clickablePlanets.planetToClick;
                         if (!SnapBackToSystem)
-                            HeightOnSnap = camHeight;
+                            HeightOnSnap = CamHeight;
                         ViewPlanet(SelectedPlanet);
                     }
                 }
@@ -1814,7 +1814,7 @@ namespace Ship_Game
                         if (system.systemToClick.ExploredDict[player])
                         {
                             GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                            HeightOnSnap = camHeight;
+                            HeightOnSnap = CamHeight;
                             ViewSystem(system.systemToClick);
                         }
                         else
@@ -1946,9 +1946,9 @@ namespace Ship_Game
                         pInfoUI.SetPlanet(PlanetToView);
                         lastplanetcombat++;
 
-                        transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
+                        CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
                         LookingAtPlanet = false;
-                        transitionStartPosition = camPos;
+                        transitionStartPosition = CamPos;
                         AdjustCamTimer = 2f;
                         transitionElapsedTime = 0.0f;
                         transDuration = 5f;
@@ -2096,32 +2096,32 @@ namespace Ship_Game
             input.Repeat = true;
             if (input.CursorPosition.X <= 1f || input.Left)
             {
-                transitionDestination.X -= 0.008f * num;
+                CamDestination.X -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             if (input.CursorPosition.X >= (p.BackBufferWidth - 1) || input.Right )
             {
-                transitionDestination.X += 0.008f * num;
+                CamDestination.X += 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             if (input.CursorPosition.Y <= 0.0f || input.Up )
             {
-                transitionDestination.Y -= 0.008f * num;
+                CamDestination.Y -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             if (input.CursorPosition.Y >= (p.BackBufferHeight - 1) || input.Down )
             {
-                transitionDestination.Y += 0.008f * num;
+                CamDestination.Y += 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             input.Repeat = false;
 
-            transitionDestination.X = transitionDestination.X.Clamp(-UniverseRadius, UniverseRadius);
-            transitionDestination.Y = transitionDestination.Y.Clamp(-UniverseRadius, UniverseRadius);
+            CamDestination.X = CamDestination.X.Clamp(-UniverseSize, UniverseSize);
+            CamDestination.Y = CamDestination.Y.Clamp(-UniverseSize, UniverseSize);
 
             //fbedard: remove middle button scrolling
             //if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
@@ -2144,33 +2144,33 @@ namespace Ship_Game
             if ((double)this.AdjustCamTimer >= 0.0)
                 return;
 
-            float scrollAmount = 1500.0f * camHeight / 3000.0f + 100.0f;
+            float scrollAmount = 1500.0f * CamHeight / 3000.0f + 100.0f;
 
             if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
             {
-                this.transitionDestination.X = this.camPos.X;
-                this.transitionDestination.Y = this.camPos.Y;
-                this.transitionDestination.Z = this.camHeight + scrollAmount;
-                if ((double)this.camHeight > 12000.0)
+                this.CamDestination.X = this.CamPos.X;
+                this.CamDestination.Y = this.CamPos.Y;
+                this.CamDestination.Z = this.CamHeight + scrollAmount;
+                if ((double)this.CamHeight > 12000.0)
                 {
-                    this.transitionDestination.Z += 3000f;
+                    this.CamDestination.Z += 3000f;
                     this.viewState = UniverseScreen.UnivScreenState.SectorView;
-                    if ((double)this.camHeight > 32000.0)
-                        this.transitionDestination.Z += 15000f;
-                    if ((double)this.camHeight > 100000.0)
-                        this.transitionDestination.Z += 40000f;
+                    if ((double)this.CamHeight > 32000.0)
+                        this.CamDestination.Z += 15000f;
+                    if ((double)this.CamHeight > 100000.0)
+                        this.CamDestination.Z += 40000f;
                 }
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
                 {
-                    if ((double)this.camHeight < 55000.0)
+                    if ((double)this.CamHeight < 55000.0)
                     {
-                        this.transitionDestination.Z = 60000f;
+                        this.CamDestination.Z = 60000f;
                         this.AdjustCamTimer = 1f;
                         this.transitionElapsedTime = 0.0f;
                     }
                     else
                     {
-                        this.transitionDestination.Z = 4200000f * this.GameScale;
+                        this.CamDestination.Z = 4200000f * this.GameScale;
                         this.AdjustCamTimer = 1f;
                         this.transitionElapsedTime = 0.0f;
                     }
@@ -2179,50 +2179,50 @@ namespace Ship_Game
             if (!input.YButtonHeld && !input.ScrollIn || this.LookingAtPlanet)
                 return;
 
-            this.transitionDestination.Z = this.camHeight - scrollAmount;
-            if ((double)this.camHeight >= 16000.0)
+            this.CamDestination.Z = this.CamHeight - scrollAmount;
+            if ((double)this.CamHeight >= 16000.0)
             {
-                this.transitionDestination.Z -= 2000f;
-                if ((double)this.camHeight > 32000.0)
-                    this.transitionDestination.Z -= 7500f;
-                if ((double)this.camHeight > 150000.0)
-                    this.transitionDestination.Z -= 40000f;
+                this.CamDestination.Z -= 2000f;
+                if ((double)this.CamHeight > 32000.0)
+                    this.CamDestination.Z -= 7500f;
+                if ((double)this.CamHeight > 150000.0)
+                    this.CamDestination.Z -= 40000f;
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && (double)this.camHeight > 10000.0)
-                this.transitionDestination.Z = (double)this.camHeight <= 65000.0 ? 10000f : 60000f;
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && (double)this.CamHeight > 10000.0)
+                this.CamDestination.Z = (double)this.CamHeight <= 65000.0 ? 10000f : 60000f;
             if (this.ViewingShip)
                 return;
-            if ((double)this.camHeight <= 450.0f)
-                this.camHeight = 450f;
-            float num2 = this.transitionDestination.Z;
+            if ((double)this.CamHeight <= 450.0f)
+                this.CamHeight = 450f;
+            float num2 = this.CamDestination.Z;
             
             //fbedard: add a scroll on selected object
             if ((!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && GlobalStats.ZoomTracking) || (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !GlobalStats.ZoomTracking))
             {
                 if (this.SelectedShip != null && this.SelectedShip.Active)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
                 }
                 else
                 if (this.SelectedPlanet != null)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedPlanet.Center.X, this.SelectedPlanet.Center.Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedPlanet.Center.X, this.SelectedPlanet.Center.Y, num2);
                 }  
                 else
                 if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedFleet.FindAveragePosition().X, this.SelectedFleet.FindAveragePosition().Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedFleet.FindAveragePosition().X, this.SelectedFleet.FindAveragePosition().Y, num2);
                 }
                 else
                 if (this.SelectedShipList.Count > 0 && this.SelectedShipList[0] != null && this.SelectedShipList[0].Active)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedShipList[0].Position.X, this.SelectedShipList[0].Position.Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedShipList[0].Position.X, this.SelectedShipList[0].Position.Y, num2);
                 }
                 else
-                    this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+                    this.CamDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
             }
             else
-                this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+                this.CamDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
         }
 
         private void HandleScrollsSectorMiniMap(InputState input)
@@ -2232,9 +2232,9 @@ namespace Ship_Game
                 this.SectorMiniMapHeight = 6000f;
             if (input.InGameSelect)
             {
-                this.transitionDestination.Z = this.SectorMiniMapHeight;
-                this.transitionDestination.X = this.playerShip.Center.X;
-                this.transitionDestination.Y = this.playerShip.Center.Y;
+                this.CamDestination.Z = this.SectorMiniMapHeight;
+                this.CamDestination.X = this.playerShip.Center.X;
+                this.CamDestination.Y = this.playerShip.Center.Y;
             }
             if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
             {
@@ -2267,9 +2267,9 @@ namespace Ship_Game
                         this.desiredSectorZ -= 40000f;
                 }
             }
-            if ((double)this.camHeight <= 168471840.0 * (double)this.GameScale)
+            if ((double)this.CamHeight <= 168471840.0 * (double)this.GameScale)
                 return;
-            this.camHeight = 1.684718E+08f * this.GameScale;
+            this.CamHeight = 1.684718E+08f * this.GameScale;
         }
 
         public bool IsShipUnderFleetIcon(Ship ship, Vector2 screenPos, float fleetIconScreenRadius)
