@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class Submenu
+	public class Submenu
 	{
 		public Rectangle Menu;
 
@@ -128,9 +128,9 @@ namespace Ship_Game
 			this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BR.Height - 2);
 		}
 
-		public void AddTab(string Title)
+		public void AddTab(string title)
 		{
-			int w = (int)this.toUse.MeasureString(Title).X;
+			int w = (int)this.toUse.MeasureString(title).X;
 			float tabX = (float)(this.UpperLeft.X + this.UpperLeft.Width);
 			foreach (Submenu.Tab ta in this.Tabs)
 			{
@@ -141,7 +141,7 @@ namespace Ship_Game
 			Submenu.Tab t = new Submenu.Tab()
 			{
 				tabRect = tabRect,
-				Title = Title
+				Title = title
 			};
 			if (this.Tabs.Count != 0)
 			{
@@ -364,7 +364,7 @@ namespace Ship_Game
 			}
 		}
 
-		public void HandleInput(object caller)
+		public void HandleInput(Object caller)
 		{
 			this.currentMouse = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -390,9 +390,10 @@ namespace Ship_Game
 							}
 							t1.Selected = false;
 						}
+                        
 						if (caller is ColonyScreen)
-						{
-							(caller as ColonyScreen).ResetLists();
+						{                            
+                            (caller as ColonyScreen).ResetLists();
 						}
 						if (caller is ShipDesignScreen)
 						{
@@ -411,8 +412,39 @@ namespace Ship_Game
 			}
 			this.previousMouse = this.currentMouse;
 		}
+	    public bool HandleInput(InputState input)
+	    {
+            Vector2 mousePos = input.CursorPosition;
+	        for (int i = 0; i < this.Tabs.Count; i++)
+	        {
+	            Submenu.Tab t = this.Tabs[i];
+	            if (!t.tabRect.HitTest(mousePos))
+	            {
+	                t.Hover = false;
+	            }
+	            else
+	            {
+	                t.Hover = true;
+	                if (input.LeftMouseClick)
+	                {
+	                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+	                    t.Selected = true;
+	                    foreach (Submenu.Tab t1 in this.Tabs)
+	                    {
+	                        if (t1 == t)
+	                        {
+	                            continue;
+	                        }
+	                        t1.Selected = false;
+	                    }
+                        return true;
+	                }
+	            }
 
-		public void HandleInputNoReset(object caller)
+	        }
+            return false;
+	    }
+        public void HandleInputNoReset(object caller)
 		{
 			this.currentMouse = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);

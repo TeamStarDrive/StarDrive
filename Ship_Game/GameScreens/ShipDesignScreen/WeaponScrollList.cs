@@ -19,7 +19,13 @@ namespace Ship_Game
             Input = Screen.Input;
         }
         public override bool HandleInput(InputState input)
-        {            
+        {
+            base.HandleInput(input);
+            if (input.ScrollIn && indexAtTop > 0)
+                --indexAtTop;
+            if (input.ScrollOut && indexAtTop + entriesToDisplay < Entries.Count)
+                ++indexAtTop;
+
             if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
             {
                 SelectionBox = null;
@@ -55,13 +61,7 @@ namespace Ship_Game
                     e.clickRectHover = 0;
             }
 
-            base.HandleInput(input);
 
-
-            if (input.ScrollIn && indexAtTop > 0)
-                --indexAtTop;
-            if (input.ScrollOut && indexAtTop + entriesToDisplay < Entries.Count)
-                ++indexAtTop;
 
             return false;
 
@@ -81,8 +81,7 @@ namespace Ship_Game
                         if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
                         {
                             continue;
-                        }
-                        module.Value.ModuleType.ToString();
+                        }                        
                         ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                         tmp.SetAttributesNoParent();
 
@@ -143,7 +142,7 @@ namespace Ship_Game
                         else if (tmp.ModuleType == ShipModuleType.Bomb && !weaponCategories.Contains("Bomb"))
                         {
                             weaponCategories.Add("Bomb");
-                            ModuleHeader type = new ModuleHeader("Bomb", 240f);
+                            var type = new ModuleHeader("Bomb", 240f);
                             AddItem(type);
                         }
                         tmp = null;
@@ -507,7 +506,7 @@ namespace Ship_Game
             }
         }
 
-        private bool RestrictedModCheck(ShipData.RoleName role, ShipModule mod)
+        private static bool RestrictedModCheck(ShipData.RoleName role, ShipModule mod)
         {
             if (mod.FighterModule || mod.CorvetteModule || mod.FrigateModule || mod.StationModule ||
                 mod.DestroyerModule || mod.CruiserModule

@@ -19,8 +19,8 @@ namespace Ship_Game {
         {
 #if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
-        #endif            
-            WeaponSl.Reset = true;
+#endif
+            ModSel.ResetLists();
             DesignStack.Clear();
             LastDesignActionPos = Vector2.Zero;
             LastActiveUID = "";
@@ -224,7 +224,7 @@ namespace Ship_Game {
             HoveredModule = null;
             var mousePos = input.CursorPosition;            
             EmpireUI.HandleInput(input, this);
-            ActiveModSubMenu.HandleInputNoReset(this);
+            //ActiveModSubMenu.HandleInputNoReset(this);
             HullSL.HandleInput(input);
             for (int index = HullSL.indexAtTop;
                 index < HullSL.Copied.Count && index < HullSL.indexAtTop + HullSL.entriesToDisplay;
@@ -255,7 +255,8 @@ namespace Ship_Game {
                 else
                     e.clickRectHover = 0;
             }
-            ModSel.HandleInput(this);
+            if (ModSel.HandleInput(input))
+                return;
             if (ActiveModule != null)
             {
                 if (ActiveModule.ModuleType == ShipModuleType.Hangar && !ActiveModule.IsTroopBay
@@ -305,12 +306,13 @@ namespace Ship_Game {
                     return;
                 }
             }
-            if (WeaponSl.HandleInput(input))
-                return;
+            //if (WeaponSl.HandleInput(input))
+            //    return;
             if (HullSelectionRect.HitTest(input.CursorPosition)
                 && input.LeftMousePressed || ModSel.Menu.HitTest(input.CursorPosition)
-                && input.LeftMousePressed || ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
                 && input.LeftMousePressed)
+                //|| ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
+                //&& input.LeftMousePressed)
                 return;
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
@@ -552,8 +554,8 @@ namespace Ship_Game {
         private void HandleInputZoom(InputState input)
         {
             if (!ModuleSelectionMenu.Menu.HitTest(input.CursorPosition)
-                && !HullSelectionRect.HitTest(input.CursorPosition)
-                && !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
+                && !HullSelectionRect.HitTest(input.CursorPosition))
+                //&& !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
             {
                 if (input.ScrollOut)
                 {
@@ -779,33 +781,34 @@ namespace Ship_Game {
                 (int) (0.4f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
             ModuleSelectionMenu = new Menu1(ScreenManager, leftRect);
             Rectangle modSelR   = new Rectangle(0, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
-            ModSel              = new Submenu(ScreenManager, modSelR, true);
-            ModSel.AddTab("Wpn");
-            ModSel.AddTab("Pwr");
-            ModSel.AddTab("Def");
-            ModSel.AddTab("Spc");
-            WeaponSl         = new WeaponScrollList(ModSel,this);
-            Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
-            activeModWindow  = new Menu1(ScreenManager, active);
-            Rectangle acsub  = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
-            {
-                acsub.Height = acsub.Height + 120;
-            }
-            ActiveModSubMenu = new Submenu(ScreenManager, acsub);
-            ActiveModSubMenu.AddTab("Active Module");
-            Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
-            if (Choosefighterrect.Y + Choosefighterrect.Height >
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
-            {
-                int diff = Choosefighterrect.Y + Choosefighterrect.Height - ScreenManager.GraphicsDevice
-                               .PresentationParameters.BackBufferHeight;
-                Choosefighterrect.Height = Choosefighterrect.Height - (diff + 10);
-            }
-            Choosefighterrect.Height = acsub.Height;
-            ChooseFighterSub         = new Submenu(ScreenManager, Choosefighterrect);
-            ChooseFighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = new ScrollList(ChooseFighterSub, 40);
+            //ModSel              = new Submenu(ScreenManager, modSelR, true);
+            ModSel = new ModuleSelection(this, modSelR);
+            //ModSel.AddTab("Wpn");
+            //ModSel.AddTab("Pwr");
+            //ModSel.AddTab("Def");
+            //ModSel.AddTab("Spc");
+            //WeaponSl         = new WeaponScrollList(ModSel,this);
+            //Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
+            //activeModWindow  = new Menu1(ScreenManager, active);
+            //Rectangle acsub  = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
+            //if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
+            //{
+            //    acsub.Height = acsub.Height + 120;
+            //}
+            //ActiveModSubMenu = new Submenu(ScreenManager, acsub);
+            //ActiveModSubMenu.AddTab("Active Module");
+            //Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
+            //if (Choosefighterrect.Y + Choosefighterrect.Height >
+            //    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
+            //{
+            //    int diff = Choosefighterrect.Y + Choosefighterrect.Height - ScreenManager.GraphicsDevice
+            //                   .PresentationParameters.BackBufferHeight;
+            //    Choosefighterrect.Height = Choosefighterrect.Height - (diff + 10);
+            //}
+            //Choosefighterrect.Height = acsub.Height;
+            //ChooseFighterSub         = new Submenu(ScreenManager, Choosefighterrect);
+            //ChooseFighterSub.AddTab("Choose Fighter");
+            //ChooseFighterSL = new ScrollList(ChooseFighterSub, 40);
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
             {
                 if (!hull.Value)
@@ -1090,23 +1093,7 @@ namespace Ship_Game {
             toggleButton.WhichToolTip = toolTipIndex;
         }
 
-        private string parseText(string text, float width, SpriteFont font)
-        {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            string[] strArrays = text.Split(' ');
-            for (int i = 0; i < strArrays.Length; i++)
-            {
-                string word = strArrays[i];
-                if (font.MeasureString(string.Concat(line, word)).Length() > width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                line = string.Concat(line, word, ' ');
-            }
-            return string.Concat(returnString, line);
-        }
+
 
         private void ReallyExit()
         {
@@ -1288,28 +1275,8 @@ namespace Ship_Game {
             ActiveModState = ActiveModuleState.Normal;
         }
 
-        private float GetHullDamageBonus()
-        {
-            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
-                return 1f;
-            HullBonus bonus;
-            if (ResourceManager.HullBonuses.TryGetValue(ActiveHull.Hull, out bonus))
-            {
-                return 1f + bonus.DamageBonus;
-            }
-            return 1f;
-        }
 
-        private float GetHullFireRateBonus()
-        {
-            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
-                return 1f;
-            HullBonus bonus;
-            if (ResourceManager.HullBonuses.TryGetValue(ActiveHull.Hull, out bonus))
-            {
-                return 1f - bonus.FireRateBonus;
-            }
-            return 1f;
-        }
+
+
     }
 }
