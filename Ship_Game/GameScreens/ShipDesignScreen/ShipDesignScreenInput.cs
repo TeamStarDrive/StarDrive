@@ -398,7 +398,6 @@ namespace Ship_Game {
             HandleInputMoveArcs(input);
             UIButtonHandleInput(input);
             CheckToggleButton(input);
-            MouseStatePrevious = MouseStateCurrent;
             base.HandleInput(input);
         }
 
