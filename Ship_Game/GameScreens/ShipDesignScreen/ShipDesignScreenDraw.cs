@@ -282,7 +282,7 @@ namespace Ship_Game
                 }
                 if (this.ActiveModule.shield_power_max > 0f)
                 {
-                    Vector2 center = new Vector2((float) this.MouseStateCurrent.X, (float) this.MouseStateCurrent.Y) +
+                    Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y) +
                                      new Vector2(moduleTemplate.XSIZE * 16 / 2f,
                                          moduleTemplate.YSIZE * 16 / 2f);
                     DrawCircle(center, this.ActiveModule.shield_radius * this.Camera.Zoom, 50, Color.LightGreen);
