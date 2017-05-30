@@ -120,25 +120,29 @@ namespace Ship_Game
         public bool ChaseCam             => MiddleMouseClick;
         public bool TacticalIcons        => IsKeyDown(Keys.LeftAlt);
 
+        public bool IsAltKeyDown    => IsKeyDown(Keys.LeftAlt)     || IsKeyDown(Keys.RightAlt);
+        public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);
+        public bool IsShiftKeyDown  => IsKeyDown(Keys.LeftShift)   || IsKeyDown(Keys.RightShift);
 
-        public bool ShipDesignExit => KeysCurr.IsKeyDown(Keys.Y) && !KeysPrev.IsKeyDown(Keys.Y);
+
+        public bool ShipDesignExit => KeyPressed(Keys.Y);
         public bool ShipYardArcMove()
         {
             if (GlobalStats.AltArcControl)
             {
-                return LeftMouseDown && (IsKeyDown(Keys.LeftAlt) || KeysCurr.IsKeyDown(Keys.RightAlt));
+                return LeftMouseDown && IsAltKeyDown;
             }
             return LeftMouseHeld();
         }
 
         public Vector2 CursorPosition { get; private set; }
 
-        public bool Undo              => KeyPressed(Keys.Z) && KeysCurr.IsKeyDown(Keys.LeftControl);
-        public bool LeftCtrlShift     => KeysCurr.IsKeyDown(Keys.LeftControl) && KeysCurr.IsKeyDown(Keys.LeftShift);
+        public bool Undo              => KeyPressed(Keys.Z) && IsKeyDown(Keys.LeftControl);
+        public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
 
         public bool AButtonDown       => GamepadClicked(Buttons.A);
         public bool BButtonDown       => GamepadClicked(Buttons.B);
-        public bool BButtonHeld       => GamepadCurr.Buttons.B == ButtonState.Pressed;
+        public bool BButtonHeld       => GamepadHeld(Buttons.B);
         public bool C                 => KeyPressed(Keys.C);
 
         public bool OpenInventory     => KeyPressed(Keys.I) || GamepadClicked(Buttons.DPadDown);
@@ -152,9 +156,9 @@ namespace Ship_Game
         public bool LeftShoulderDown  => GamepadClicked(Buttons.LeftShoulder);
 
         public bool MenuCancel => KeyPressed(Keys.Escape) || GamepadClicked(Buttons.B) || GamepadClicked(Buttons.Back);
-        public bool MenuSelect => KeyPressed(Keys.Space)  || KeyPressed(Keys.Enter) || GamepadClicked(Buttons.A) || GamepadClicked(Buttons.Start);
-        public bool MenuUp     => KeyPressed(Keys.Up)   || GamepadClicked(Buttons.DPadUp)   || LeftStickFlickUp;
-        public bool MenuDown   => KeyPressed(Keys.Down) || GamepadClicked(Buttons.DPadDown) || LeftStickFlickDown;
+        public bool MenuSelect => KeyPressed(Keys.Space)  || KeyPressed(Keys.Enter)    || GamepadClicked(Buttons.A) || GamepadClicked(Buttons.Start);
+        public bool MenuUp     => KeyPressed(Keys.Up)     || GamepadClicked(Buttons.DPadUp)   || LeftStickFlickUp;
+        public bool MenuDown   => KeyPressed(Keys.Down)   || GamepadClicked(Buttons.DPadDown) || LeftStickFlickDown;
 
         public Vector2 NormalizedCursorPosition { get; set; }
 

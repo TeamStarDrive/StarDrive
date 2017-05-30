@@ -1068,24 +1068,21 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship2 in SelectedShipList)
                                 {
-                                    if (ship1.guid == ship2.guid)
+                                    if (ship1.guid != ship2.guid)
+                                        continue;
+
+                                    float facing = num2 - 1.570796f;
+                                    Vector2 pos = ship1.projectedPosition;
+
+                                    if (input.IsShiftKeyDown)
                                     {
-                                        if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
-                                        {
-                                            if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
-                                                ship2.AI.OrderMoveDirectlyTowardsPosition(ship1.projectedPosition,
-                                                    num2 - 1.570796f, fVec, false);
-                                            else
-                                                ship2.AI.OrderMoveTowardsPosition(ship1.projectedPosition,
-                                                    num2 - 1.570796f, fVec, false, null);
-                                        }
-                                        else if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
-                                            ship2.AI.OrderMoveDirectlyTowardsPosition(ship1.projectedPosition,
-                                                num2 - 1.570796f, fVec, true);
-                                        else
-                                            ship2.AI.OrderMoveTowardsPosition(ship1.projectedPosition, num2 - 1.570796f,
-                                                fVec, true, null);
+                                        if (input.IsAltKeyDown) ship2.AI.OrderMoveDirectlyTowardsPosition(pos, facing, fVec, false);
+                                        else                    ship2.AI.OrderMoveTowardsPosition(pos, facing, fVec, false, null);
                                     }
+                                    else if (input.IsAltKeyDown)
+                                        ship2.AI.OrderMoveDirectlyTowardsPosition(pos, facing, fVec, true);
+                                    else
+                                        ship2.AI.OrderMoveTowardsPosition(pos, facing, fVec, true, null);
                                 }
                             }
                             projectedGroup = fleet;
