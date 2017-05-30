@@ -74,9 +74,9 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			this.currentMouse = input.CurrentMouseState;
+			this.currentMouse = input.MouseCurr;
 			Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
+            if (input.KeysCurr.IsKeyDown(Keys.O) && !input.KeysPrev.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
@@ -151,7 +151,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			previousMouse = input.LastMouseState;
+			previousMouse = input.MousePrev;
 			base.HandleInput(input);
 		} 
         public override void LoadContent()

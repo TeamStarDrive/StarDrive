@@ -509,7 +509,7 @@ namespace Ship_Game
 
             RenderBackdrop();
             ScreenManager.SpriteBatch.Begin();
-            if (DefiningAO && Input.LeftMousePressed)
+            if (DefiningAO && Input.LeftMouseDown)
             {
                 DrawRectangleProjected(AORect, Color.Orange);
             }

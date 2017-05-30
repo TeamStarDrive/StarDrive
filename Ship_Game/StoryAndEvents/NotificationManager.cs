@@ -435,7 +435,7 @@ namespace Ship_Game
         public bool HandleInput(InputState input)
         {
             bool retValue = false;
-            Vector2 mousePos = new Vector2(input.CurrentMouseState.X, input.CurrentMouseState.Y);
+            Vector2 mousePos = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
             bool recalculate = false;
             lock (NotificationLocker)
             {
@@ -447,7 +447,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
+                        if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed)
                         {
                             NotificationList.QueuePendingRemoval(n);
                             recalculate = true;
@@ -474,7 +474,7 @@ namespace Ship_Game
                             }
                             retValue = true;
                         }
-                        if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released && n.Action != "LoadEvent")
+                        if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released && n.Action != "LoadEvent")
                         {
                             GameAudio.PlaySfxAsync("sub_bass_whoosh");
                             NotificationList.QueuePendingRemoval(n);

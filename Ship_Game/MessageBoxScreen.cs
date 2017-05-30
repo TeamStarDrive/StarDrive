@@ -172,14 +172,14 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            this.CurrentMouse = input.CurrentMouseState;
+            this.CurrentMouse = input.MouseCurr;
             Vector2 MousePos = new Vector2((float)this.CurrentMouse.X, (float)this.CurrentMouse.Y);
-            if (input.MenuSelect && (!this.PauseMenu || input.CurrentGamePadState.Buttons.A == ButtonState.Pressed))
+            if (input.MenuSelect && (!this.PauseMenu || input.GamepadCurr.Buttons.A == ButtonState.Pressed))
             {
                 Accepted?.Invoke(this, EventArgs.Empty);
                 this.ExitScreen();
             }
-            else if (input.MenuCancel || input.MenuSelect && this.PauseMenu && input.CurrentGamePadState.Buttons.A == ButtonState.Released)
+            else if (input.MenuCancel || input.MenuSelect && this.PauseMenu && input.GamepadCurr.Buttons.A == ButtonState.Released)
             {
                 Cancelled?.Invoke(this, EventArgs.Empty);
                 this.ExitScreen();

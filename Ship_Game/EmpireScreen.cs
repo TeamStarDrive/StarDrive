@@ -537,7 +537,7 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			Vector2 MousePos = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
+			Vector2 MousePos = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
 			this.ColoniesList.HandleInput(input);
 			if (this.pop.rect.HitTest(MousePos))
 			{
@@ -676,7 +676,7 @@ namespace Ship_Game
 			{
 				EmpireScreenEntry entry = this.ColoniesList.Entries[i].item as EmpireScreenEntry;
 				entry.HandleInput(input, base.ScreenManager);
-				if (entry.TotalEntrySize.HitTest(MousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (entry.TotalEntrySize.HitTest(MousePos) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 				{
 					if (this.SelectedPlanet != entry.p)
 					{
@@ -734,7 +734,7 @@ namespace Ship_Game
 					this.SelectedPlanet.ResLocked = false;
 				}
 			}
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.U) && !input.LastKeyboardState.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
+            if (input.KeysCurr.IsKeyDown(Keys.U) && !input.KeysPrev.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
