@@ -9,49 +9,26 @@ namespace Ship_Game
     public class ScrollList : IDisposable
     {
         private Submenu Parent;
-
         public Rectangle ScrollUp;
-
         public Rectangle ScrollDown;
-
         public Rectangle ScrollBarHousing;
-
         public Rectangle ScrollBar;
 
         private int entryHeight = 40;
-
         private int ScrollBarHover;
-
-        //private int upScrollHover;
-
-        //private int downScrollHover;
-
         private int startDragPos;
-
         private bool dragging;
-
         private float ScrollBarStartDragPos;
-
         private float ClickTimer;
-
         private float TimerDelay = 0.05f;
 
-        //private float ScrollBarPercent;
-
         public int entriesToDisplay;
-
         public int indexAtTop;
-
         public BatchRemovalCollection<Entry> Entries = new BatchRemovalCollection<Entry>();
-
         public bool IsDraggable;
-
         public Entry DraggedEntry;
-
         public BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>();
-
         public Rectangle DraggableArea = new Rectangle();
-
         private Vector2 DraggedOffset;
 
         // Added by EVWeb to not waste space when a list won't use certain buttons
@@ -329,7 +306,7 @@ namespace Ship_Game
                 if (this.ScrollBar.HitTest(input.CursorPosition))
                 {
                     this.ScrollBarHover = 2;
-                    if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                    if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                     {
                         this.startDragPos = (int)input.CursorPosition.Y;
                         this.ScrollBarStartDragPos = (float)this.ScrollBar.Y;
@@ -344,7 +321,7 @@ namespace Ship_Game
                 //this.upScrollHover = 0;
                 //this.downScrollHover = 0;
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed && this.dragging)
+            if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && this.dragging)
             {
                 float difference = input.CursorPosition.Y - (float)this.startDragPos;
                 float count = 1f / (float)this.Copied.Count;
@@ -378,7 +355,7 @@ namespace Ship_Game
             }
             if (this.Parent.Menu.HitTest(input.CursorPosition))
             {
-                if (input.CurrentMouseState.ScrollWheelValue > input.LastMouseState.ScrollWheelValue)
+                if (input.MouseCurr.ScrollWheelValue > input.MousePrev.ScrollWheelValue)
                 {
                     if (this.indexAtTop > 0)
                     {
@@ -390,7 +367,7 @@ namespace Ship_Game
                     float startingPercent = (float)this.indexAtTop / (float)this.Copied.Count;
                     this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
                 }
-                if (input.CurrentMouseState.ScrollWheelValue < input.LastMouseState.ScrollWheelValue)
+                if (input.MouseCurr.ScrollWheelValue < input.MousePrev.ScrollWheelValue)
                 {
                     if (this.indexAtTop + this.entriesToDisplay < this.Copied.Count)
                     {
@@ -403,7 +380,7 @@ namespace Ship_Game
                     this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
                 }
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed && this.dragging)
+            if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed && this.dragging)
             {
                 this.dragging = false;
             }
@@ -422,7 +399,7 @@ namespace Ship_Game
                     }
                     if (e.clickRect.HitTest(input.CursorPosition))
                     {
-                        if (input.CurrentMouseState.LeftButton != ButtonState.Pressed)
+                        if (input.MouseCurr.LeftButton != ButtonState.Pressed)
                         {
                             this.ClickTimer = 0f;
                         }
@@ -440,12 +417,12 @@ namespace Ship_Game
                     }
                 }
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+            if (input.MouseCurr.LeftButton == ButtonState.Released)
             {
                 this.ClickTimer = 0f;
                 this.DraggedEntry = null;
             }
-            if (this.DraggedEntry != null && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+            if (this.DraggedEntry != null && input.MouseCurr.LeftButton == ButtonState.Pressed)
             {
                 int Dragged = 0;
                 for (int i = this.indexAtTop; i < this.Entries.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
@@ -534,7 +511,7 @@ namespace Ship_Game
                 if (this.ScrollBar.HitTest(input.CursorPosition))
                 {
                     this.ScrollBarHover = 2;
-                    if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                    if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                     {
                         this.startDragPos = (int)input.CursorPosition.Y;
                         this.ScrollBarStartDragPos = (float)this.ScrollBar.Y;
@@ -549,7 +526,7 @@ namespace Ship_Game
                 //this.upScrollHover = 0;
                 //this.downScrollHover = 0;
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed && this.dragging)
+            if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && this.dragging)
             {
                 float difference = input.CursorPosition.Y - (float)this.startDragPos;
                 float count = 1f / (float)this.Copied.Count;
@@ -583,7 +560,7 @@ namespace Ship_Game
             }
             if (this.Parent.Menu.HitTest(input.CursorPosition))
             {
-                if (input.CurrentMouseState.ScrollWheelValue > input.LastMouseState.ScrollWheelValue)
+                if (input.MouseCurr.ScrollWheelValue > input.MousePrev.ScrollWheelValue)
                 {
                     if (this.indexAtTop > 0)
                     {
@@ -595,7 +572,7 @@ namespace Ship_Game
                     float startingPercent = (float)this.indexAtTop / (float)this.Copied.Count;
                     this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
                 }
-                if (input.CurrentMouseState.ScrollWheelValue < input.LastMouseState.ScrollWheelValue)
+                if (input.MouseCurr.ScrollWheelValue < input.MousePrev.ScrollWheelValue)
                 {
                     if (this.indexAtTop + this.entriesToDisplay < this.Copied.Count)
                     {
@@ -608,7 +585,7 @@ namespace Ship_Game
                     this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y + (int)(startingPercent * (float)this.ScrollBarHousing.Height), ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, (int)((float)this.ScrollBarHousing.Height * percentViewed));
                 }
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed && this.dragging)
+            if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed && this.dragging)
             {
                 this.dragging = false;
             }
@@ -621,7 +598,7 @@ namespace Ship_Game
                         ScrollList.Entry e = this.Copied[i];
                         if (e.clickRect.HitTest(input.CursorPosition))
                         {
-                            if (input.CurrentMouseState.LeftButton != ButtonState.Pressed)
+                            if (input.MouseCurr.LeftButton != ButtonState.Pressed)
                             {
                                 this.ClickTimer = 0f;
                             }
@@ -643,12 +620,12 @@ namespace Ship_Game
                     }
                 }
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+            if (input.MouseCurr.LeftButton == ButtonState.Released)
             {
                 this.ClickTimer = 0f;
                 this.DraggedEntry = null;
             }
-            if (this.DraggedEntry != null && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+            if (this.DraggedEntry != null && input.MouseCurr.LeftButton == ButtonState.Pressed)
             {
                 int Dragged = 0;
                 for (int i = this.indexAtTop; i < this.Entries.Count && i < this.indexAtTop + this.entriesToDisplay; i++)

@@ -191,7 +191,7 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            this.currentMouse = input.CurrentMouseState;
+            this.currentMouse = input.MouseCurr;
             Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
             this.SavesSL.HandleInput(input);
             this.selector = null;
@@ -276,13 +276,13 @@ namespace Ship_Game
                 if (this.EnterNameArea.HandlingInput)
                 {
                     this.EnterNameArea.HandleTextInput(ref this.EnterNameArea.Text);
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.Enter))
+                    if (input.KeysCurr.IsKeyDown(Keys.Enter))
                     {
                         this.EnterNameArea.HandlingInput = false;
                     }
                 }
             }
-            this.previousMouse = input.LastMouseState;
+            this.previousMouse = input.MousePrev;
             base.HandleInput(input);
         }
 

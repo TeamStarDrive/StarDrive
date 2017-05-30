@@ -309,8 +309,8 @@ namespace Ship_Game {
             //if (WeaponSl.HandleInput(input))
             //    return;
             if (HullSelectionRect.HitTest(input.CursorPosition)
-                && input.LeftMousePressed || ModSel.Menu.HitTest(input.CursorPosition)
-                && input.LeftMousePressed)
+                && input.LeftMouseDown || ModSel.Menu.HitTest(input.CursorPosition)
+                && input.LeftMouseDown)
                 //|| ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
                 //&& input.LeftMousePressed)
                 return;
@@ -363,8 +363,8 @@ namespace Ship_Game {
                     {
                         if (slotStruct.Module != null)
                             HoveredModule = slotStruct.Module;
-                        if (input.CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                            input.LastMouseState.LeftButton == ButtonState.Released)
+                        if (input.MouseCurr.LeftButton == ButtonState.Pressed &&
+                            input.MousePrev.LeftButton == ButtonState.Released)
                         {
                             GameAudio.PlaySfxAsync("simple_beep");
                             if (Debug)
@@ -437,7 +437,7 @@ namespace Ship_Game {
         private void HandleInputPlaceModule(InputState input)
         {
             Vector2 mousePos = input.CursorPosition;
-            if (!input.LeftMousePressed || ActiveModule == null) return;
+            if (!input.LeftMouseDown || ActiveModule == null) return;
             foreach (SlotStruct slot in Slots)
             {
                 Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(new Vector2(
@@ -537,7 +537,7 @@ namespace Ship_Game {
         private void HandleInputDebug(InputState input)
         {
             if (!Debug) return;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.Enter) && input.LastKeyboardState.IsKeyUp(Keys.Enter))
+            if (input.KeysCurr.IsKeyDown(Keys.Enter) && input.KeysPrev.IsKeyUp(Keys.Enter))
             {
                 foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
                     moduleSlotData.InstalledModuleUID = null;

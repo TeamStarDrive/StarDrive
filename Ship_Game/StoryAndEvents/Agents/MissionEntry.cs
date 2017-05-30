@@ -72,7 +72,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("mouse_over4");
 					}
 					this.DoMission.State = UIButton.PressState.Hover;
-					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+					if (input.MouseCurr.LeftButton == ButtonState.Pressed)
 					{
 						this.DoMission.State = UIButton.PressState.Pressed;
 					}
@@ -101,7 +101,7 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("mouse_over4");
                     }
                     this.DoMission.State = UIButton.PressState.Hover;
-                    if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+                    if (input.MouseCurr.LeftButton == ButtonState.Pressed)
                     {
                         this.DoMission.State = UIButton.PressState.Pressed;
                     }

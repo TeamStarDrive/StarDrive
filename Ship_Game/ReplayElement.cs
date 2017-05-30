@@ -330,7 +330,7 @@ namespace Ship_Game
 					this.ShowPopulation = true;
 				}
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.Right))
+			if (input.KeysCurr.IsKeyDown(Keys.Right))
 			{
 				this.state = ReplayElement.State.Paused;
 				if (StatTracker.SnapshotsDict.ContainsKey((this.StarDate + 0.1f).ToString("#.0")))
@@ -339,7 +339,7 @@ namespace Ship_Game
 					starDate.StarDate = starDate.StarDate + 0.1f;
 				}
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.Left))
+			if (input.KeysCurr.IsKeyDown(Keys.Left))
 			{
 				this.state = ReplayElement.State.Paused;
 				ReplayElement replayElement = this;
@@ -349,7 +349,7 @@ namespace Ship_Game
 					this.StarDate = 1000.1f;
 				}
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.Space) && input.LastKeyboardState.IsKeyUp(Keys.Space))
+			if (input.KeysCurr.IsKeyDown(Keys.Space) && input.KeysPrev.IsKeyUp(Keys.Space))
 			{
 				if (this.state == ReplayElement.State.Playing)
 				{

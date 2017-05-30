@@ -389,15 +389,17 @@ namespace Ship_Game
             return UnlockedBuildingsDict;
         }
 
-        public Map<string, bool> GetMDict()
-        {
-            return UnlockedModulesDict;
-        }
         public bool IsModuleUnlocked(string moduleUID)
         {
             bool found = UnlockedModulesDict.TryGetValue(moduleUID, out found); 
             return  found;
         }
+
+        public void UnlockModuleForEmpire(string moduleUID)
+        {
+            UnlockedModulesDict[moduleUID] = true;
+        }
+
         public Map<string, TechEntry> GetTDict()
         {
             return TechnologyDict;

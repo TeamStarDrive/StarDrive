@@ -817,7 +817,7 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.TakingInput || disabled || !hasCommand)
                 return;
             if (Empire.Universe.Input != null)
-                currentKeyBoardState = Empire.Universe.Input.CurrentKeyboardState;
+                currentKeyBoardState = Empire.Universe.Input.KeysCurr;
             if (currentKeyBoardState.IsKeyDown(Keys.D))
                 AI.State = AIState.ManualControl;
             if (currentKeyBoardState.IsKeyDown(Keys.A))

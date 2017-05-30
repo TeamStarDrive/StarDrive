@@ -208,8 +208,8 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			currentMouse = input.CurrentMouseState;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
+			currentMouse = input.MouseCurr;
+            if (input.KeysCurr.IsKeyDown(Keys.T) && !input.KeysPrev.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 ExitScreen();
@@ -239,11 +239,11 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(66, base.ScreenManager);
             }
-			if (input.CurrentMouseState.RightButton == ButtonState.Released && input.LastMouseState.RightButton == ButtonState.Pressed)
+			if (input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed)
 			{
 				ExitScreen();
 			}
-			previousMouse = input.LastMouseState;
+			previousMouse = input.MousePrev;
 			base.HandleInput(input);
 		}
 

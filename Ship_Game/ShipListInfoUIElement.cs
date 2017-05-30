@@ -634,7 +634,7 @@ namespace Ship_Game
 								continue;
 							}
                             //added by gremlin filter by selected ship in shiplist.
-                            if (input.CurrentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
+                            if (input.KeysCurr.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
                             {
                                
                                 foreach(Ship filter in this.screen.SelectedShipList)
