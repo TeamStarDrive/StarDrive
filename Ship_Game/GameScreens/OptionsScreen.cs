@@ -349,7 +349,7 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			currentMouse = input.CurrentMouseState;
+			currentMouse = input.MouseCurr;
 			Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
 			GamespeedCap.HandleInput(input);
 			ForceFullSim.HandleInput(input);
@@ -423,7 +423,7 @@ namespace Ship_Game
 		        }
 		    }
 		    ResolutionDropDown.HandleInput(input);
-			previousMouse = input.LastMouseState;
+			previousMouse = input.MousePrev;
 			base.HandleInput(input);
 		}
 

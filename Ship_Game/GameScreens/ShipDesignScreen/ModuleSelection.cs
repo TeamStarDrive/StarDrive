@@ -60,7 +60,7 @@ namespace Ship_Game
                 return true;
 
             ChooseFighterSL.HandleInput(input);
-            ActiveModSubMenu.HandleInputNoReset(ParentScreen);
+            ActiveModSubMenu.HandleInputNoReset();
             if (!base.HandleInput(input)) return false;
             WeaponSl.Reset = true;
             WeaponSl.indexAtTop = 0;

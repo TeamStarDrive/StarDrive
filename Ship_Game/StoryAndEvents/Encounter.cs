@@ -146,7 +146,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (this.MessageList[this.CurrentMessage].EndTransmission && (input.Escaped || input.CurrentMouseState.RightButton == ButtonState.Released && input.LastMouseState.RightButton == ButtonState.Pressed))
+			if (this.MessageList[this.CurrentMessage].EndTransmission && (input.Escaped || input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed))
 			{
 				caller.ExitScreen();
 			}

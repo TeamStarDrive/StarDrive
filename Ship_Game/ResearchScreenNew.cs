@@ -107,15 +107,13 @@ namespace Ship_Game
                     {
                         if (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered)
                         {
-                            bool Complete = false;
-                            if (EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
-                                Complete = true;
-                            Vector2 vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
+                            bool complete = EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked;
+                            var vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             --vector2_3.Y;
-                            if ((double)vector2_3.Y > (double)vector2_2.Y)
-                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_2, vector2_3, Complete);
+                            if (vector2_3.Y > vector2_2.Y)
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_2, vector2_3, complete);
                             else
-                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_3, vector2_2, Complete);
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_3, vector2_2, complete);
                         }
                     }
                 }
@@ -131,14 +129,12 @@ namespace Ship_Game
                     {
                         if ((!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered) && (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered))
                         {
-                            bool Complete = false;
-                            if (EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
-                                Complete = true;
-                            Vector2 vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
+                            bool complete = EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked;
+                            var vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             if ((double)vector2_3.Y > (double)vector2_2.Y)
-                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_2, vector2_3, Complete);
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_2, vector2_3, complete);
                             else
-                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_3, vector2_2, Complete);
+                                this.ScreenManager.SpriteBatch.DrawResearchLineVertical(vector2_3, vector2_2, complete);
                         }
                     }
                 }
@@ -254,7 +250,7 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
+            if (input.KeysCurr.IsKeyDown(Keys.R) && !input.KeysPrev.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
@@ -265,13 +261,13 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
-            if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+            if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
 			{
 				this.StartDragPos = input.CursorPosition;
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
 			}
-            if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed || this.RightClicked) 
+            if (input.MouseCurr.RightButton != ButtonState.Pressed || input.MousePrev.RightButton != ButtonState.Pressed || this.RightClicked) 
 			{
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
@@ -286,20 +282,18 @@ namespace Ship_Game
 				vector2._pos = vector2._pos + new Vector2(-xDiff, -yDiff);
 				this.StartDragPos = input.CursorPosition;
 			}
-			this.cameraVelocity.X = MathHelper.Clamp(this.cameraVelocity.X, -10f, 10f);
-			this.cameraVelocity.Y = MathHelper.Clamp(this.cameraVelocity.Y, -10f, 10f);
-			this.camera._pos.X = MathHelper.Clamp(this.camera._pos.X, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), 3200f);
-			this.camera._pos.Y = MathHelper.Clamp(this.camera._pos.Y, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), 3200f);
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F1) && input.LastKeyboardState.IsKeyUp(Keys.F1))
+			this.cameraVelocity.X = MathHelper.Clamp(cameraVelocity.X, -10f, 10f);
+			this.cameraVelocity.Y = MathHelper.Clamp(cameraVelocity.Y, -10f, 10f);
+			this.camera._pos.X = MathHelper.Clamp(camera._pos.X, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), 3200f);
+			this.camera._pos.Y = MathHelper.Clamp(camera._pos.Y, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), 3200f);
+			if (input.KeysCurr.IsKeyDown(Keys.RightControl) && input.KeysCurr.IsKeyDown(Keys.F1) && input.KeysPrev.IsKeyUp(Keys.F1))
 			{
                
                 foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
                 {
-                    this.UnlockTree(tech.Key);
+                    UnlockTree(tech.Key);
                     foreach(Technology.UnlockedMod unlockmod in tech.Value.ModulesUnlocked)
-                    {
-                        EmpireManager.Player.GetMDict()[unlockmod.ModuleUID] = true;
-                    }
+                        EmpireManager.Player.UnlockModuleForEmpire(unlockmod.ModuleUID);
                 }
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
@@ -321,7 +315,7 @@ namespace Ship_Game
                 EmpireManager.Player.UpdateShipsWeCanBuild();
 			}
             //Added by McShooterz: new cheat to only unlock tech
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F2) && input.LastKeyboardState.IsKeyUp(Keys.F2))
+            if (input.KeysCurr.IsKeyDown(Keys.RightControl) && input.KeysCurr.IsKeyDown(Keys.F2) && input.KeysPrev.IsKeyUp(Keys.F2))
             {
                 foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
                 {
@@ -330,7 +324,7 @@ namespace Ship_Game
                 EmpireManager.Player.UpdateShipsWeCanBuild();
             }
             //Added by McShooterz: new cheat to only unlock tech
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F3) && input.LastKeyboardState.IsKeyUp(Keys.F3))
+            if (input.KeysCurr.IsKeyDown(Keys.RightControl) && input.KeysCurr.IsKeyDown(Keys.F3) && input.KeysPrev.IsKeyUp(Keys.F3))
             {
                 foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
                 {
@@ -411,7 +405,7 @@ namespace Ship_Game
 			{
 				this.ExitScreen();
 			}
-			Vector2 vector21 = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
+			Vector2 vector21 = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
 			if (!this.RightClicked)
 			{
 				bool rightMouseClick = input.RightMouseClick;

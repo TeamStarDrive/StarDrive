@@ -101,7 +101,7 @@ namespace Ship_Game
 			}
 			Rectangle clickCursor = this.cursor;
 			clickCursor.X = clickCursor.X - this.cursor.Width / 2;
-			if (clickCursor.HitTest(input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (clickCursor.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed)
 			{
 				this.dragging = true;
 			}
@@ -116,7 +116,7 @@ namespace Ship_Game
 				{
 					this.cursor.X = this.rect.X;
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Released)
 				{
 					this.dragging = false;
 				}

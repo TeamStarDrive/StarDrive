@@ -675,21 +675,21 @@ namespace Ship_Game
 			{
 				this.SliderRes.cState = "normal";
 			}
-			if (this.p.Owner.data.Traits.Cybernetic == 0 && this.SliderFood.cursor.HitTest(mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (this.p.Owner.data.Traits.Cybernetic == 0 && this.SliderFood.cursor.HitTest(mousePos) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider1 = true;
 			}
-			if (this.SliderProd.cursor.HitTest(mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (this.SliderProd.cursor.HitTest(mousePos) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider2 = true;
 			}
-			if (this.SliderRes.cursor.HitTest(mousePos) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (this.SliderRes.cursor.HitTest(mousePos) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider3 = true;
 			}
 			if (this.draggingSlider1 && !this.FoodLock.Locked && (!this.ProdLock.Locked || !this.ResLock.Locked) && this.p.Owner.data.Traits.Cybernetic == 0)
 			{
-				this.SliderFood.cursor.X = input.CurrentMouseState.X;
+				this.SliderFood.cursor.X = input.MouseCurr.X;
 				if (this.SliderFood.cursor.X > this.SliderFood.sRect.X + this.SliderFood.sRect.Width)
 				{
 					this.SliderFood.cursor.X = this.SliderFood.sRect.X + this.SliderFood.sRect.Width;
@@ -698,7 +698,7 @@ namespace Ship_Game
 				{
 					this.SliderFood.cursor.X = this.SliderFood.sRect.X;
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Released)
 				{
 					this.draggingSlider1 = false;
 				}
@@ -749,7 +749,7 @@ namespace Ship_Game
 			}
 			if (this.draggingSlider2 && !this.ProdLock.Locked && (!this.FoodLock.Locked || !this.ResLock.Locked))
 			{
-				this.SliderProd.cursor.X = input.CurrentMouseState.X;
+				this.SliderProd.cursor.X = input.MouseCurr.X;
 				if (this.SliderProd.cursor.X > this.SliderProd.sRect.X + this.SliderProd.sRect.Width)
 				{
 					this.SliderProd.cursor.X = this.SliderProd.sRect.X + this.SliderProd.sRect.Width;
@@ -758,7 +758,7 @@ namespace Ship_Game
 				{
 					this.SliderProd.cursor.X = this.SliderProd.sRect.X;
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Released)
 				{
 					this.draggingSlider2 = false;
 				}
@@ -809,7 +809,7 @@ namespace Ship_Game
 			}
 			if (this.draggingSlider3 && !this.ResLock.Locked && (!this.FoodLock.Locked || !this.ProdLock.Locked))
 			{
-				this.SliderRes.cursor.X = input.CurrentMouseState.X;
+				this.SliderRes.cursor.X = input.MouseCurr.X;
 				if (this.SliderRes.cursor.X > this.SliderRes.sRect.X + this.SliderRes.sRect.Width)
 				{
 					this.SliderRes.cursor.X = this.SliderRes.sRect.X + this.SliderRes.sRect.Width;
@@ -818,7 +818,7 @@ namespace Ship_Game
 				{
 					this.SliderRes.cursor.X = this.SliderRes.sRect.X;
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Released)
 				{
 					this.draggingSlider3 = false;
 				}

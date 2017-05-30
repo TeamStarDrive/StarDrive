@@ -148,7 +148,7 @@ namespace Ship_Game
 					GameAudio.PlaySfxAsync("sd_ui_mouseover");
 				}
 				this.Hover = true;
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+				if (input.MouseCurr.LeftButton == ButtonState.Pressed)
 				{
 					this.Pressed = true;
 				}

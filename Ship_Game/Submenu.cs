@@ -9,41 +9,28 @@ namespace Ship_Game
 	public class Submenu
 	{
 		public Rectangle Menu;
-
-		private Ship_Game.ScreenManager ScreenManager;
-
-		public Array<Submenu.Tab> Tabs = new Array<Submenu.Tab>();
-
+		private readonly ScreenManager ScreenManager;
+		public Array<Tab> Tabs = new Array<Tab>();
 		public bool LowRes;
 
 		private Rectangle UpperLeft;
-
-		private Rectangle TR;
-
+		private readonly Rectangle TR;
 		private Rectangle topHoriz;
-
 		private Rectangle botHoriz;
-
 		private Rectangle BL;
-
 		private Rectangle BR;
-
 		private Rectangle VL;
-
 		private Rectangle VR;
-
 		private Rectangle TL;
 
 		private SpriteFont toUse;
+		private bool Blue;
 
-		private bool blue;
+        private InputState Input;
 
-		private MouseState currentMouse;
-
-		private MouseState previousMouse;
-
-		public Submenu(Ship_Game.ScreenManager sm, Rectangle theMenu)
+		public Submenu(ScreenManager sm, Rectangle theMenu)
 		{
+            Input = sm.input;
 			if (sm.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				this.LowRes = true;
@@ -70,21 +57,14 @@ namespace Ship_Game
 			this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BR.Height - 2);
 		}
 
-		public Submenu(bool Blue, Ship_Game.ScreenManager sm, Rectangle theMenu)
+		public Submenu(bool blue, Ship_Game.ScreenManager sm, Rectangle theMenu)
 		{
-			this.blue = Blue;
+			Blue = blue;
 			if (sm.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
-				this.LowRes = true;
+				LowRes = true;
 			}
-			if (!this.LowRes)
-			{
-				this.toUse = Fonts.Arial12Bold;
-			}
-			else
-			{
-				this.toUse = Fonts.Arial12Bold;
-			}
+
 			this.toUse = Fonts.Pirulen12;
 			this.ScreenManager = sm;
 			this.Menu = theMenu;
@@ -157,7 +137,7 @@ namespace Ship_Game
 
 		public void Draw()
 		{
-			if (!this.blue)
+			if (!this.Blue)
 			{
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_TL"], this.TL, Color.White);
 				if (this.Tabs.Count > 0 && this.Tabs[0].Selected)
@@ -260,7 +240,7 @@ namespace Ship_Game
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.VL, Color.White);
 				return;
 			}
-			if (this.blue)
+			if (this.Blue)
 			{
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"], this.TL, Color.White);
 				if (this.Tabs.Count > 0 && this.Tabs[0].Selected)
@@ -364,74 +344,49 @@ namespace Ship_Game
 			}
 		}
 
-		public void HandleInput(Object caller)
+        /// TODO: there are 3 pretty much identical functions here... what the hell??
+		public void HandleInput(IListScreen caller)
 		{
-			this.currentMouse = Mouse.GetState();
-			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-			for (int i = 0; i < this.Tabs.Count; i++)
+			for (int i = 0; i < Tabs.Count; i++)
 			{
-				Submenu.Tab t = this.Tabs[i];
-				if (!t.tabRect.HitTest(MousePos))
+				Tab tab = Tabs[i];
+				if (!tab.tabRect.HitTest(Input.CursorPosition))
 				{
-					t.Hover = false;
+					tab.Hover = false;
+                    continue;
 				}
-				else
-				{
-					t.Hover = true;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-					{
-						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-						t.Selected = true;
-						foreach (Submenu.Tab t1 in this.Tabs)
-						{
-							if (t1 == t)
-							{
-								continue;
-							}
-							t1.Selected = false;
-						}
-                        
-						if (caller is ColonyScreen)
-						{                            
-                            (caller as ColonyScreen).ResetLists();
-						}
-						if (caller is ShipDesignScreen)
-						{
-							(caller as ShipDesignScreen).ResetLists();
-						}
-						if (caller is RaceDesignScreen)
-						{
-							(caller as RaceDesignScreen).ResetLists();
-						}
-						if (caller is FleetDesignScreen)
-						{
-							(caller as FleetDesignScreen).PopulateShipSL();
-						}
-					}
-				}
+				tab.Hover = true;
+			    if (Input.LeftMouseClick)
+			    {
+			        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+			        tab.Selected = true;
+			        foreach (Tab otherTab in Tabs)
+			            if (otherTab != tab) otherTab.Selected = false;
+
+			        caller.ResetLists();
+                }
 			}
-			this.previousMouse = this.currentMouse;
 		}
 	    public bool HandleInput(InputState input)
 	    {
             Vector2 mousePos = input.CursorPosition;
-	        for (int i = 0; i < this.Tabs.Count; i++)
+	        for (int i = 0; i < Tabs.Count; i++)
 	        {
-	            Submenu.Tab t = this.Tabs[i];
-	            if (!t.tabRect.HitTest(mousePos))
+	            Tab tab = Tabs[i];
+	            if (!tab.tabRect.HitTest(mousePos))
 	            {
-	                t.Hover = false;
+	                tab.Hover = false;
 	            }
 	            else
 	            {
-	                t.Hover = true;
+	                tab.Hover = true;
 	                if (input.LeftMouseClick)
 	                {
 	                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-	                    t.Selected = true;
-	                    foreach (Submenu.Tab t1 in this.Tabs)
+	                    tab.Selected = true;
+	                    foreach (Tab t1 in Tabs)
 	                    {
-	                        if (t1 == t)
+	                        if (t1 == tab)
 	                        {
 	                            continue;
 	                        }
@@ -444,50 +399,33 @@ namespace Ship_Game
 	        }
             return false;
 	    }
-        public void HandleInputNoReset(object caller)
+        public void HandleInputNoReset()
 		{
-			this.currentMouse = Mouse.GetState();
-			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-			foreach (Submenu.Tab t in this.Tabs)
+			foreach (Tab tab in Tabs)
 			{
-				if (!t.tabRect.HitTest(MousePos))
+				if (!tab.tabRect.HitTest(Input.CursorPosition))
 				{
-					t.Hover = false;
+					tab.Hover = false;
+                    continue;
 				}
-				else
+
+				tab.Hover = true;
+				if (Input.LeftMouseClick)
+					continue;
+				tab.Selected = true;
+				foreach (Tab otherTab in Tabs)
 				{
-					t.Hover = true;
-					if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-					{
-						continue;
-					}
-					t.Selected = true;
-					foreach (Submenu.Tab t1 in this.Tabs)
-					{
-						if (t1 == t)
-						{
-							continue;
-						}
-						t1.Selected = false;
-					}
+					if (otherTab != tab) otherTab.Selected = false;
 				}
 			}
-			this.previousMouse = this.currentMouse;
 		}
 
 		public class Tab
 		{
 			public string Title;
-
 			public Rectangle tabRect;
-
 			public bool Selected;
-
 			public bool Hover;
-
-			public Tab()
-			{
-			}
 		}
 	}
 }

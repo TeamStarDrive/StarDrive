@@ -312,7 +312,7 @@ namespace Ship_Game
 			{
 				ShipListScreenEntry entry = this.ShipSL.Copied[i].item as ShipListScreenEntry;
 				entry.HandleInput(input);
-				if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 				{
 					if (this.ClickTimer >= this.ClickDelay)
 					{
@@ -331,12 +331,12 @@ namespace Ship_Game
 					if (this.SelectedShip != entry.ship)
 					{
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+                        if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && !input.KeysCurr.IsKeyDown(Keys.LeftControl))
                         {
                             foreach (ScrollList.Entry sel in this.ShipSL.Entries)
                                 (sel.item as ShipListScreenEntry).Selected = false;
 			            }
-                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && this.SelectedShip != null)
+                        if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && this.SelectedShip != null)
                             if (i >= CurrentLine)
                                 for (int l = CurrentLine; l <= i; l++)
                                     (this.ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
@@ -580,7 +580,7 @@ namespace Ship_Game
 				}
 				this.ResetPos();
 			}
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.K) && !input.LastKeyboardState.IsKeyDown(Keys.K) && !GlobalStats.TakingInput)
+            if (input.KeysCurr.IsKeyDown(Keys.K) && !input.KeysPrev.IsKeyDown(Keys.K) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
