@@ -654,13 +654,31 @@ namespace Ship_Game
 
         public static Vector2 ProjectTo2D(this Viewport viewport, Vector3 source, ref Matrix projection, ref Matrix view)
         {
-            Matrix.Multiply(ref view, ref projection, out Matrix matrix);
-            Vector3.Transform(ref source, ref matrix, out Vector3 vector3);
-            float len = source.X*matrix.M14 + source.Y*matrix.M24 + source.Z*matrix.M34 + matrix.M44;
+            Matrix.Multiply(ref view, ref projection, out Matrix viewProjection);
+            Vector3.Transform(ref source, ref viewProjection, out Vector3 clipSpacePoint);
+            float len = source.X*viewProjection.M14 + source.Y*viewProjection.M24 + source.Z*viewProjection.M34 + viewProjection.M44;
             if (!len.AlmostEqual(1f)) // normalize
-                vector3 /= len;
-            return new Vector2((vector3.X + 1.0f)  * 0.5f * viewport.Width  + viewport.X,
-                               (-vector3.Y + 1.0f) * 0.5f * viewport.Height + viewport.Y);
+                clipSpacePoint /= len;
+            return new Vector2((clipSpacePoint.X + 1.0f)  * 0.5f * viewport.Width  + viewport.X,
+                               (-clipSpacePoint.Y + 1.0f) * 0.5f * viewport.Height + viewport.Y);
+        }
+
+        public static Vector3 UnprojectToWorld(this Viewport viewport, int screenX, int screenY, float depth, 
+                                               ref Matrix projection, ref Matrix view)
+        {
+            Matrix.Multiply(ref view, ref projection, out Matrix viewProjection);
+            Matrix.Invert(ref viewProjection, out Matrix invViewProj);
+
+            var source = new Vector3(
+                (screenX - viewport.X)  / (viewport.Width * 2.0f) - 1.0f,
+                (screenY - viewport.Y)  / (viewport.Height * 2.0f) - 1.0f,
+                (depth - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
+
+            Vector3.Transform(ref source, ref invViewProj, out Vector3 worldPos);
+            float len = source.X*invViewProj.M14 + source.Y*invViewProj.M24 + source.Z*invViewProj.M34 + invViewProj.M44;
+            if (!len.AlmostEqual(1f))
+                worldPos /= len;
+            return worldPos;
         }
     }
 }
