@@ -391,8 +391,7 @@ namespace Ship_Game
 
         public bool IsModuleUnlocked(string moduleUID)
         {
-            bool found = UnlockedModulesDict.TryGetValue(moduleUID, out found); 
-            return  found;
+            return UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
         }
 
         public void UnlockModuleForEmpire(string moduleUID)
