@@ -48,7 +48,7 @@ namespace Ship_Game
         private Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
         public Background bg            = new Background();
-        public float UniverseRadius     = 5000000f; // universe size in world units
+        public float UniverseSize       = 5000000f; // universe width and height in world units
         public float FTLModifier        = 1f;
         public float EnemyFTLModifier   = 1f;
         public bool FTLInNuetralSystems = true;
@@ -63,8 +63,8 @@ namespace Ship_Game
         public BatchRemovalCollection<Bomb> BombList    = new BatchRemovalCollection<Bomb>();
         private AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
         private AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
-        public float camHeight = 2550f;
-        public Vector3 camPos = Vector3.Zero;
+        public float CamHeight = 2550f;
+        public Vector3 CamPos = Vector3.Zero;
         public Array<Ship> ShipsToAdd = new Array<Ship>();
         private float TooltipTimer = 0.5f;
         private float sTooltipTimer = 0.5f;
@@ -134,7 +134,7 @@ namespace Ship_Game
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
-        public Vector3 transitionDestination;
+        public Vector3 CamDestination;
         public Texture2D cloudTex;
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
@@ -250,7 +250,7 @@ namespace Ship_Game
 
         public UniverseScreen(UniverseData data) : base(null)
         {
-            UniverseRadius              = data.Size.X;
+            UniverseSize                = data.Size.X;
             FTLModifier                 = data.FTLSpeedModifier;
             EnemyFTLModifier            = data.EnemyFTLSpeedModifier;
             GravityWells                = data.GravityWells;
@@ -261,12 +261,12 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
             PlayerEmpire.isPlayer       = true;
-            SpaceManager.Setup(UniverseRadius);
+            SpaceManager.Setup(UniverseSize);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
         {
-            UniverseRadius        = data.Size.X;
+            UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
             GravityWells          = data.GravityWells;
@@ -279,46 +279,44 @@ namespace Ship_Game
             ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
-            SpaceManager.Setup(UniverseRadius);
+            SpaceManager.Setup(UniverseSize);
         }
 
         public void ResetLighting() => SetLighting(UseRealLights);
 
-        private void SetLighting(bool real)
+        private void SetLighting(bool useRealLights)
         {
-            if (real)
+            if (!useRealLights)
             {
-                ScreenManager.RemoveAllLights();
-                foreach (SolarSystem system in SolarSystemList)
-                {
-                    float intensity = 2.5f;
-                    float radius = 150000f;
-
-                    switch (system.SunPath)
-                    {
-                        case "star_red":
-                            intensity -= 5f;
-                            radius -= 50000f;
-                            break;
-                        case "star_yellow":                            
-                        case "star_yellow2":break;
-                        case "star_green": break;
-                        case "star_blue":
-                        case "star_binary":                            
-                            intensity += .5f;
-                            radius += 50000f;
-                            break; 
-                    }
-
-
-                    AddLight(system, intensity, radius, zpos: +2500f, fillLight: true);
-                    AddLight(system, 2.5f, 5000f,   zpos: -2500f, fillLight: false);
-                    AddLight(system, 1.0f, 100000f, zpos: -6500f, fillLight: false);
-                }
+                AssignLightRig("example/NewGamelight_rig");
                 return;
             }
 
-            AssignLightRig("example/NewGamelight_rig");
+            ScreenManager.RemoveAllLights();
+            foreach (SolarSystem system in SolarSystemList)
+            {
+                float intensity = 2.5f;
+                float radius = 150000f;
+                switch (system.SunPath)
+                {
+                    case "star_red":
+                        intensity -= 5f;
+                        radius -= 50000f;
+                        break;
+                    case "star_yellow":                            
+                    case "star_yellow2":break;
+                    case "star_green":  break;
+                    case "star_blue":
+                    case "star_binary":                            
+                        intensity += .5f;
+                        radius += 50000f;
+                        break; 
+                }
+                // standard 3 point lighting
+                AddLight(system, intensity, radius, zpos: +2500f, fillLight: true);
+                AddLight(system, 2.5f, 5000f,   zpos: -2500f, fillLight: false);
+                AddLight(system, 1.0f, 100000f, zpos: -6500f, fillLight: false);
+            }
         }
 
         private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
@@ -333,7 +331,7 @@ namespace Ship_Game
                 Position     = new Vector3(system.Position, zpos),
                 Enabled      = true
             };
-            light.World = Matrix.Identity * Matrix.CreateTranslation(light.Position);
+            light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);
         }
 
@@ -365,25 +363,29 @@ namespace Ship_Game
         public override void LoadContent()
         {
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
-            SystemInfoUIElement.SysFont = Fonts.Arial12Bold;
+            SystemInfoUIElement.SysFont  = Fonts.Arial12Bold;
             SystemInfoUIElement.DataFont = Fonts.Arial10;
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = new AutomationWindow(ScreenManager, this);
-            for (int i = 0; i < UniverseRadius / 5000.0f; ++i)
+            for (int i = 0; i < UniverseSize / 5000.0f; ++i)
             {
-                NebulousOverlay nebulousOverlay = new NebulousOverlay();
-                float z = RandomMath.RandomBetween(-200000f, -2E+07f);
-                nebulousOverlay.Path = "Textures/smoke";
-                nebulousOverlay.Position = new Vector3(
-                    RandomMath.RandomBetween(-0.5f * UniverseRadius, UniverseRadius + 0.5f * UniverseRadius), 
-                    RandomMath.RandomBetween(-0.5f * UniverseRadius, UniverseRadius + 0.5f * UniverseRadius), z);
-                float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
-                nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 100f);
-                nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
+                var nebulousOverlay = new NebulousOverlay
+                {
+                    Path = "Textures/smoke",
+                    Position = new Vector3(
+                        RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
+                        RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
+                        RandomMath.RandomBetween(-200000f, -2E+07f)),
+                    Scale = RandomMath.RandomBetween(10f, 100f)
+                };
+                nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f)
+                    * Matrix.CreateScale(nebulousOverlay.Scale)
+                    * Matrix.CreateRotationZ(RandomMath.RandomBetween(0.0f, 6.283185f))
+                    * Matrix.CreateTranslation(nebulousOverlay.Position);
                 Stars.Add(nebulousOverlay);
             }
-            LoadGraphics();
 
+            LoadGraphics();
             DoParticleLoad();
             bg3d = new Background3D(this);
             starfield = new Starfield(Vector2.Zero, ScreenManager.GraphicsDevice, TransientContent);
@@ -393,128 +395,89 @@ namespace Ship_Game
             SetLighting(UseRealLights);
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                foreach (string FleetUID in solarSystem.DefensiveFleets)
-                {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, solarSystem.PlanetList[0].Center);
-                    MilitaryTask militaryTask = new MilitaryTask();
-                    militaryTask.AO = solarSystem.PlanetList[0].Center;
-                    militaryTask.AORadius = 120000f;
-                    militaryTask.type = MilitaryTask.TaskType.DefendSystem;
-                    defensiveFleetAt.FleetTask = militaryTask;
-                    defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
-                    EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
-                    militaryTask.Step = 2;
-                }
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
-                {
+                foreach (string fleetUid in solarSystem.DefensiveFleets)
+                    CreateDefensiveRemnantFleet(fleetUid, solarSystem.PlanetList[0].Center, 120000f);
+
+                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.customRemnantElements)
                     foreach (Planet p in solarSystem.PlanetList)
-                    {
-                        foreach (string FleetUID in p.PlanetFleets)
-                        {
-                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, p.Center);
-                            MilitaryTask militaryTask = new MilitaryTask();
-                            militaryTask.AO = solarSystem.PlanetList[0].Center;
-                            militaryTask.AORadius = 120000f;
-                            militaryTask.type = MilitaryTask.TaskType.DefendSystem;
-                            planetFleetAt.FleetTask = militaryTask;
-                            planetFleetAt.TaskStep = 3;
-                            militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
-                            EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, planetFleetAt);
-                            EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
-                            militaryTask.Step = 2;
-                        }
-                    }
-                }
+                        foreach (string fleetUid in p.PlanetFleets)
+                            CreateDefensiveRemnantFleet(fleetUid, p.Center, 120000f);
 
                 foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
-                {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.Remnants, solarSystem.Position + fleetAndPos.Pos);
-                    MilitaryTask militaryTask = new MilitaryTask();
-                    militaryTask.AO = solarSystem.Position + fleetAndPos.Pos;
-                    militaryTask.AORadius = 75000f;
-                    militaryTask.type = MilitaryTask.TaskType.DefendSystem;
-                    defensiveFleetAt.FleetTask = militaryTask;
-                    defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
-                    EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
-                    militaryTask.Step = 2;
-                }
+                    CreateDefensiveRemnantFleet(fleetAndPos.fleetname, solarSystem.Position + fleetAndPos.Pos, 75000f);
+
                 foreach (string key in solarSystem.ShipsToSpawn)
                     Ship.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
+
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     if (p.Owner != null)
                     {
                         foreach (string key in p.Guardians)
                             Ship.CreateShipAt(key, p.Owner, p, true);
+                        continue;
+                    }
+                    // Added by McShooterz: alternate hostile fleets populate universe
+                    if (GlobalStats.HasMod && ResourceManager.HostileFleets.Fleets.Count > 0)
+                    {
+                        if (p.Guardians.Count > 0)
+                        {
+                            int randomFleet  = RandomMath.InRange(ResourceManager.HostileFleets.Fleets.Count);
+                            var hostileFleet = ResourceManager.HostileFleets.Fleets[randomFleet];
+                            var empire       = EmpireManager.GetEmpireByName(hostileFleet.Empire);
+                            foreach (string ship in hostileFleet.Ships)
+                                Ship.CreateShipAt(ship, empire, p, true);
+                        }
                     }
                     else
                     {
-                        // Added by McShooterz: alternate hostile fleets populate universe
-                        if (GlobalStats.HasMod && ResourceManager.HostileFleets.Fleets.Count > 0)
+                        // Remnants or Corsairs may be null if Mods disable default Races
+                        if (EmpireManager.Remnants != null)
                         {
-                            if (p.Guardians.Count > 0)
-                            {
-                                int randomFleet  = RandomMath.InRange(ResourceManager.HostileFleets.Fleets.Count);
-                                var hostileFleet = ResourceManager.HostileFleets.Fleets[randomFleet];
-                                var empire       = EmpireManager.GetEmpireByName(hostileFleet.Empire);
-                                foreach (string ship in hostileFleet.Ships)
-                                {
-                                    Ship.CreateShipAt(ship, empire, p, true);
-                                }
-                            }
+                            foreach (string key in p.Guardians)
+                                Ship.CreateShipAt(key, EmpireManager.Remnants, p, true);
                         }
-                        else
+                        if (p.CorsairPresence && EmpireManager.Corsairs != null)
                         {
-                            // Remnants or Corsairs may be null if Mods disable default Races
-                            if (EmpireManager.Remnants != null)
-                            {
-                                foreach (string key in p.Guardians)
-                                    Ship.CreateShipAt(key, EmpireManager.Remnants, p, true);
-                            }
-                            if (p.CorsairPresence && EmpireManager.Corsairs != null)
-                            {
-                                Ship.CreateShipAt("Corsair Asteroid Base", EmpireManager.Corsairs, p, true).TetherToPlanet(p);
-                                Ship.CreateShipAt("Corsair", EmpireManager.Corsairs, p, true);
-                                Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
-                                Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
-                            }
+                            Ship.CreateShipAt("Corsair Asteroid Base", EmpireManager.Corsairs, p, true).TetherToPlanet(p);
+                            Ship.CreateShipAt("Corsair", EmpireManager.Corsairs, p, true);
+                            Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
+                            Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
                         }
                     }
                 }
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
-                        this.anomalyManager.AnomaliesList.Add((Anomaly)new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(solarSystem.Position + anomaly.Position));
                 }
             }
-            float num = 10f;
-            Matrix matrix = this.view;
-            this.MaxCamHeight = 4E+07f;
-            while ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
+            float univSizeOnScreen = 10f;
+            MaxCamHeight = 4E+07f;
+            while (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
             {
-                Vector2 vector2_1 = new Vector2(UniverseRadius / 2f, UniverseRadius / 2f);
-                Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) * Matrix.CreateRotationX(0.0f.ToRadians()) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
-                Vector3 vector3_1 = this.Viewport.Project(Vector3.Zero, this.projection, view, Matrix.Identity);
-                Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.Viewport.Project(new Vector3(UniverseRadius, UniverseRadius, 0.0f), this.projection, view, Matrix.Identity);
-                num = new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X;
-                if ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
-                    this.MaxCamHeight -= 0.1f * this.MaxCamHeight;
+                float univRadius = UniverseSize / 2f;
+                Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight), 
+                                                                new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
+
+                Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, projection, camMaxToUnivCenter, Matrix.Identity);
+                Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), projection, camMaxToUnivCenter, Matrix.Identity);
+                univSizeOnScreen = univBotRight.X - univTopLeft.X;
+                if (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
+                    MaxCamHeight -= 0.1f * MaxCamHeight;
             }
-            if (MaxCamHeight > 23000000) MaxCamHeight = 23000000; 
-            if (!this.loading)
+            if (MaxCamHeight > 23000000)
+                MaxCamHeight = 23000000;
+
+            if (!loading)
             {
-                this.camPos.X = this.playerShip.Center.X;
-                this.camPos.Y = this.playerShip.Center.Y;
-                this.camHeight = 2750f;
+                CamPos.X = playerShip.Center.X;
+                CamPos.Y = playerShip.Center.Y;
+                CamHeight = 2750f;
             }
-            transitionDestination = new Vector3(camPos.X, camPos.Y, camHeight);
+            CamDestination = new Vector3(CamPos.X, CamPos.Y, CamHeight);
             foreach (NebulousOverlay nebulousOverlay in Stars)
-                this.star_particles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
+                star_particles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
 
             PlanetsDict.Clear();
             SolarSystemDict.Clear();
@@ -534,6 +497,23 @@ namespace Ship_Game
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
+        }
+
+        private void CreateDefensiveRemnantFleet(string fleetUid, Vector2 where, float defenseRadius)
+        {
+            Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetUid, EmpireManager.Remnants, where);
+            var militaryTask = new MilitaryTask
+            {
+                AO = where,
+                AORadius = defenseRadius,
+                type = MilitaryTask.TaskType.DefendSystem
+            };
+            defensiveFleetAt.FleetTask = militaryTask;
+            defensiveFleetAt.TaskStep = 3;
+            militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+            EmpireManager.Remnants.GetFleetsDict().Add(militaryTask.WhichFleet, defensiveFleetAt);
+            EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
+            militaryTask.Step = 2;
         }
 
         private void DoParticleLoad()
@@ -693,7 +673,7 @@ namespace Ship_Game
                     ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
 
-            Listener.Position = new Vector3(camPos.X, camPos.Y, 0.0f);
+            Listener.Position = new Vector3(CamPos.X, CamPos.Y, 0.0f);
 
             ScreenManager.UpdateSceneObjects(gameTime);
             EmpireUI.Update(deltaTime);

@@ -196,10 +196,10 @@ namespace Ship_Game
             for (int index = 0; index < 41; ++index)
             {
                 Vector3 vector3_1 = this.Viewport.Project(
-                    new Vector3((float) ((double) index * (double) this.UniverseRadius / 40.0), 0.0f, 0.0f), this.projection,
+                    new Vector3((float) ((double) index * (double) this.UniverseSize / 40.0), 0.0f, 0.0f), this.projection,
                     this.view, Matrix.Identity);
                 Vector3 vector3_2 = this.Viewport.Project(
-                    new Vector3((float) ((double) index * (double) this.UniverseRadius / 40.0), this.UniverseRadius, 0.0f),
+                    new Vector3((float) ((double) index * (double) this.UniverseSize / 40.0), this.UniverseSize, 0.0f),
                     this.projection, this.view, Matrix.Identity);
                 this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
@@ -207,10 +207,10 @@ namespace Ship_Game
             for (int index = 0; index < 41; ++index)
             {
                 Vector3 vector3_1 = this.Viewport.Project(
-                    new Vector3(0.0f, (float) ((double) index * (double) this.UniverseRadius / 40.0), 40f), this.projection,
+                    new Vector3(0.0f, (float) ((double) index * (double) this.UniverseSize / 40.0), 40f), this.projection,
                     this.view, Matrix.Identity);
                 Vector3 vector3_2 = this.Viewport.Project(
-                    new Vector3(this.UniverseRadius, (float) ((double) index * (double) this.UniverseRadius / 40.0), 0.0f),
+                    new Vector3(this.UniverseSize, (float) ((double) index * (double) this.UniverseSize / 40.0), 0.0f),
                     this.projection, this.view, Matrix.Identity);
                 this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
@@ -224,14 +224,14 @@ namespace Ship_Game
                 this.Viewport.Project(Vector3.Zero, this.projection, this.view,
                     Matrix.Identity);
             Vector3 vector3_2 = this.Viewport.Project(
-                new Vector3(this.UniverseRadius, this.UniverseRadius, 0.0f), this.projection, this.view, Matrix.Identity);
-            this.Viewport.Project(new Vector3(this.UniverseRadius / 2f, this.UniverseRadius / 2f, 0.0f),
+                new Vector3(this.UniverseSize, this.UniverseSize, 0.0f), this.projection, this.view, Matrix.Identity);
+            this.Viewport.Project(new Vector3(this.UniverseSize / 2f, this.UniverseSize / 2f, 0.0f),
                 this.projection, this.view, Matrix.Identity);
             Rectangle rectangle1 = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                 (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
             if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
             {
-                float num = (float) ((double) byte.MaxValue * (double) this.camHeight / 9000000.0);
+                float num = (float) ((double) byte.MaxValue * (double) this.CamHeight / 9000000.0);
                 if ((double) num > (double) byte.MaxValue)
                     num = (float) byte.MaxValue;
                 Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) num);
@@ -509,7 +509,7 @@ namespace Ship_Game
 
             RenderBackdrop();
             ScreenManager.SpriteBatch.Begin();
-            if (DefiningAO && Input.LeftMousePressed)
+            if (DefiningAO && Input.LeftMouseDown)
             {
                 DrawRectangleProjected(AORect, Color.Orange);
             }

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-    public class RaceDesignScreen : GameScreen
+    public class RaceDesignScreen : GameScreen, IListScreen
     {
         protected RacialTrait RaceSummary = new RacialTrait();
 

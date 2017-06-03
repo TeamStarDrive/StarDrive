@@ -212,7 +212,7 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			this.currentMouse = input.CurrentMouseState;
+			this.currentMouse = input.MouseCurr;
 			Vector2 vector2 = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			if (this.numThatFit > 0 && this.AssignNow.HandleInput(input))
 			{
@@ -228,7 +228,7 @@ namespace Ship_Game
 			{
 				this.ExitScreen();
 			}
-			this.previousMouse = input.LastMouseState;
+			this.previousMouse = input.MousePrev;
 			base.HandleInput(input);
 		}
 

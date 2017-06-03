@@ -69,8 +69,8 @@ namespace Ship_Game
 		public bool HandleInput(InputState input)
 		{
 			if (CheckRect.HitTest(input.CursorPosition) && 
-                input.CurrentMouseState.LeftButton == ButtonState.Pressed && 
-                input.LastMouseState.LeftButton == ButtonState.Released)
+                input.MouseCurr.LeftButton == ButtonState.Pressed && 
+                input.MousePrev.LeftButton == ButtonState.Released)
 			{
 				Binding.Value = !Binding.Value;
 			}

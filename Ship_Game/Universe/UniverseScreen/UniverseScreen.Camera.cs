@@ -26,8 +26,8 @@ namespace Ship_Game
                 ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
             Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) *
                           Matrix.CreateRotationX(0.0f.ToRadians()) *
-                          Matrix.CreateLookAt(new Vector3(this.camPos.X, this.camPos.Y, DesiredCamHeight),
-                              new Vector3(this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+                          Matrix.CreateLookAt(new Vector3(this.CamPos.X, this.CamPos.Y, DesiredCamHeight),
+                              new Vector3(this.CamPos.X, this.CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Vector3 vector3 =
                 this.Viewport.Project(source, this.projection, view, Matrix.Identity);
             Vector2 vector2_2 = new Vector2((float) (int) vector3.X - vector2_1.X,
@@ -65,8 +65,8 @@ namespace Ship_Game
                     return;
                 this.ShipToView = this.SelectedShip;
                 this.snappingToShip = true;
-                this.HeightOnSnap = this.camHeight;
-                this.transitionDestination.Z = 3500f;
+                this.HeightOnSnap = this.CamHeight;
+                this.CamDestination.Z = 3500f;
                 if (this.playerShip != null)
                 {
                     this.playerShip.PlayerShip = false;
@@ -83,7 +83,7 @@ namespace Ship_Game
                 }
                 this.AdjustCamTimer = 1.5f;
                 this.transitionElapsedTime = 0.0f;
-                this.transitionDestination.Z = 4500f;
+                this.CamDestination.Z = 4500f;
                 this.snappingToShip = true;
                 this.ViewingShip = true;
                 if (!this.playerShip.isSpooling)
@@ -104,11 +104,11 @@ namespace Ship_Game
             this.SelectedSystem = (SolarSystem) null;
             this.SelectedPlanet = (Planet) null;
             this.snappingToShip = true;
-            this.HeightOnSnap = this.camHeight;
-            this.transitionDestination.Z = 3500f;
+            this.HeightOnSnap = this.CamHeight;
+            this.CamDestination.Z = 3500f;
             this.AdjustCamTimer = 1.0f;
             this.transitionElapsedTime = 0.0f;
-            this.transitionDestination.Z = 4500f;
+            this.CamDestination.Z = 4500f;
             this.snappingToShip = true;
             this.ViewingShip = true;
         }
@@ -139,8 +139,8 @@ namespace Ship_Game
                         ? new UnexploredPlanetScreen(SelectedPlanet, ScreenManager)
                         : (PlanetScreen) new UnownedPlanetScreen(SelectedPlanet, ScreenManager));
                 LookingAtPlanet = true;
-                transitionStartPosition = camPos;
-                transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
+                transitionStartPosition = CamPos;
+                CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
                 AdjustCamTimer = 2f;
                 transitionElapsedTime = 0.0f;
                 transDuration = 5f;
@@ -160,8 +160,8 @@ namespace Ship_Game
         public void SnapViewSystem(SolarSystem system, UnivScreenState camHeight)
         {
             float x = this.GetZfromScreenState(camHeight);
-            this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, x);
-            this.transitionStartPosition = this.camPos;
+            this.CamDestination = new Vector3(system.Position.X, system.Position.Y + 400f, x);
+            this.transitionStartPosition = this.CamPos;
             this.AdjustCamTimer = 2f;
             this.transitionElapsedTime = 0.0f;
             this.transDuration = 5f;
@@ -184,7 +184,7 @@ namespace Ship_Game
             ShowShipNames = false;
             if (SelectedPlanet == null)
                 return;
-            transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
+            CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
             if (!SelectedPlanet.system.ExploredDict[player])
             {
                 PlayNegativeSound();
@@ -198,18 +198,18 @@ namespace Ship_Game
                 else if (SelectedPlanet.Owner != null)
                 {
                     workersPanel = new UnownedPlanetScreen(SelectedPlanet, ScreenManager);
-                    transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
+                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
                         95000f);
                 }
                 else
                 {
                     workersPanel = new UnexploredPlanetScreen(SelectedPlanet, ScreenManager);
-                    transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
+                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
                         95000f);
                 }
                 SelectedPlanet.ExploredDict[player] = true;
                 LookingAtPlanet = true;
-                transitionStartPosition = camPos;
+                transitionStartPosition = CamPos;
                 AdjustCamTimer = 2f;
                 transitionElapsedTime = 0.0f;
                 transDuration = 5f;
@@ -227,7 +227,7 @@ namespace Ship_Game
 
         private void ViewSystem(SolarSystem system)
         {
-            transitionDestination = new Vector3(system.Position, 147000f);
+            CamDestination = new Vector3(system.Position, 147000f);
             ViewingShip = false;
             AdjustCamTimer = 1f;
             transDuration = 3f;
@@ -249,12 +249,12 @@ namespace Ship_Game
             this.AdjustCamTimer -= elapsedTime;
             if (this.ViewingShip && !this.snappingToShip)
             {
-                this.camPos.X = this.ShipToView.Center.X;
-                this.camPos.Y = this.ShipToView.Center.Y;
-                this.camHeight =
-                    (float) (int) MathHelper.SmoothStep(this.camHeight, this.transitionDestination.Z, 0.2f);
-                if (camHeight < minCamHeight)
-                    camHeight = minCamHeight;
+                this.CamPos.X = this.ShipToView.Center.X;
+                this.CamPos.Y = this.ShipToView.Center.Y;
+                this.CamHeight =
+                    (float) (int) MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, 0.2f);
+                if (CamHeight < minCamHeight)
+                    CamHeight = minCamHeight;
             }
             if (this.AdjustCamTimer > 0.0)
             {
@@ -262,18 +262,18 @@ namespace Ship_Game
                     this.snappingToShip = false;
                 if (this.snappingToShip)
                 {
-                    this.transitionDestination.X = this.ShipToView.Center.X;
-                    this.transitionDestination.Y = this.ShipToView.Center.Y;
+                    this.CamDestination.X = this.ShipToView.Center.X;
+                    this.CamDestination.Y = this.ShipToView.Center.Y;
                     this.transitionElapsedTime += elapsedTime;
                     float amount = (float) Math.Pow((double) this.transitionElapsedTime / (double) this.transDuration,
                         0.699999988079071);
                     this.camTransitionPosition.X =
-                        MathHelper.SmoothStep(this.camPos.X, this.transitionDestination.X, amount);
-                    float num1 = MathHelper.SmoothStep(this.camPos.Y, this.transitionDestination.Y, amount);
-                    float num2 = MathHelper.SmoothStep(this.camHeight, this.transitionDestination.Z, amount);
+                        MathHelper.SmoothStep(this.CamPos.X, this.CamDestination.X, amount);
+                    float num1 = MathHelper.SmoothStep(this.CamPos.Y, this.CamDestination.Y, amount);
+                    float num2 = MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, amount);
                     this.camTransitionPosition.Y = num1;
-                    this.camHeight = (float) (int) num2;
-                    this.camPos = this.camTransitionPosition;
+                    this.CamHeight = (float) (int) num2;
+                    this.CamPos = this.camTransitionPosition;
                     if ((double) this.AdjustCamTimer - (double) elapsedTime <= 0.0)
                     {
                         this.ViewingShip = true;
@@ -288,59 +288,59 @@ namespace Ship_Game
                     float amount = (float) Math.Pow((double) this.transitionElapsedTime / (double) this.transDuration,
                         0.699999988079071);
                     this.camTransitionPosition.X =
-                        MathHelper.SmoothStep(this.camPos.X, this.transitionDestination.X, amount);
-                    float num1 = MathHelper.SmoothStep(this.camPos.Y, this.transitionDestination.Y, amount);
-                    float num2 = MathHelper.SmoothStep(this.camHeight, this.transitionDestination.Z, amount);
+                        MathHelper.SmoothStep(this.CamPos.X, this.CamDestination.X, amount);
+                    float num1 = MathHelper.SmoothStep(this.CamPos.Y, this.CamDestination.Y, amount);
+                    float num2 = MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, amount);
                     this.camTransitionPosition.Y = num1;
-                    this.camHeight = num2;
-                    this.camPos = this.camTransitionPosition;
+                    this.CamHeight = num2;
+                    this.CamPos = this.camTransitionPosition;
                     if ((double) this.transitionElapsedTime > (double) this.transDuration ||
-                        (double) Vector2.Distance(new Vector2(this.camPos.X, this.camPos.Y),
-                            new Vector2(this.transitionDestination.X, this.transitionDestination.Y)) < 50.0 &&
-                        (double) Math.Abs(this.camHeight - this.transitionDestination.Z) < 50.0)
+                        (double) Vector2.Distance(new Vector2(this.CamPos.X, this.CamPos.Y),
+                            new Vector2(this.CamDestination.X, this.CamDestination.Y)) < 50.0 &&
+                        (double) Math.Abs(this.CamHeight - this.CamDestination.Z) < 50.0)
                     {
                         this.transitionElapsedTime = 0.0f;
                         this.AdjustCamTimer = -1f;
                     }
                 }
-                if (camHeight < minCamHeight)
-                    camHeight = minCamHeight;
+                if (CamHeight < minCamHeight)
+                    CamHeight = minCamHeight;
             }
             else if (this.LookingAtPlanet && this.SelectedPlanet != null)
             {
                 this.camTransitionPosition.X =
-                    MathHelper.SmoothStep(this.camPos.X, this.SelectedPlanet.Center.X, 0.2f);
+                    MathHelper.SmoothStep(this.CamPos.X, this.SelectedPlanet.Center.X, 0.2f);
                 this.camTransitionPosition.Y =
-                    MathHelper.SmoothStep(this.camPos.Y, this.SelectedPlanet.Center.Y + 400f, 0.2f);
-                this.camPos = this.camTransitionPosition;
+                    MathHelper.SmoothStep(this.CamPos.Y, this.SelectedPlanet.Center.Y + 400f, 0.2f);
+                this.CamPos = this.camTransitionPosition;
             }
             else if (!this.ViewingShip)
             {
-                this.camTransitionPosition.X = MathHelper.SmoothStep(this.camPos.X, this.transitionDestination.X, 0.2f);
-                float num1 = MathHelper.SmoothStep(this.camPos.Y, this.transitionDestination.Y, 0.2f);
-                float num2 = MathHelper.SmoothStep(this.camHeight, this.transitionDestination.Z, 0.2f);
+                this.camTransitionPosition.X = MathHelper.SmoothStep(this.CamPos.X, this.CamDestination.X, 0.2f);
+                float num1 = MathHelper.SmoothStep(this.CamPos.Y, this.CamDestination.Y, 0.2f);
+                float num2 = MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, 0.2f);
                 this.camTransitionPosition.Y = num1;
-                this.camHeight = num2;
-                if (camHeight < minCamHeight)
-                    camHeight = minCamHeight;
-                this.camPos = this.camTransitionPosition;
+                this.CamHeight = num2;
+                if (CamHeight < minCamHeight)
+                    CamHeight = minCamHeight;
+                this.CamPos = this.camTransitionPosition;
             }
 
-            if (this.camPos.X > this.UniverseRadius)
-                this.camPos.X = this.UniverseRadius;
-            if (this.camPos.X < -this.UniverseRadius) //So the camera can pan out into the new negative map coordinates -Gretman
-                this.camPos.X = -this.UniverseRadius;
-            if (this.camPos.Y > (double) this.UniverseRadius)
-                this.camPos.Y = this.UniverseRadius;
-            if ((double) this.camPos.Y < -this.UniverseRadius)
-                this.camPos.Y = -this.UniverseRadius;
-            if ((double) this.camHeight > (double) this.MaxCamHeight * (double) this.GameScale)
-                this.camHeight = this.MaxCamHeight * this.GameScale;
-            else if (camHeight < minCamHeight)
-                camHeight = minCamHeight;
+            if (this.CamPos.X > this.UniverseSize)
+                this.CamPos.X = this.UniverseSize;
+            if (this.CamPos.X < -this.UniverseSize) //So the camera can pan out into the new negative map coordinates -Gretman
+                this.CamPos.X = -this.UniverseSize;
+            if (this.CamPos.Y > (double) this.UniverseSize)
+                this.CamPos.Y = this.UniverseSize;
+            if ((double) this.CamPos.Y < -this.UniverseSize)
+                this.CamPos.Y = -this.UniverseSize;
+            if ((double) this.CamHeight > (double) this.MaxCamHeight * (double) this.GameScale)
+                this.CamHeight = this.MaxCamHeight * this.GameScale;
+            else if (CamHeight < minCamHeight)
+                CamHeight = minCamHeight;
             foreach (UnivScreenState screenHeight in Enum.GetValues(typeof(UnivScreenState)))
             {
-                if (camHeight <= GetZfromScreenState(screenHeight))
+                if (CamHeight <= GetZfromScreenState(screenHeight))
                 {
                     viewState = screenHeight;
                     break;
@@ -353,7 +353,7 @@ namespace Ship_Game
             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
             AdjustCamTimer = 1f;
             transitionElapsedTime = 0.0f;
-            transitionDestination.Z = 4500f;
+            CamDestination.Z = 4500f;
             snappingToShip = true;
             ViewingShip = true;
         }
@@ -363,30 +363,30 @@ namespace Ship_Game
             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
             AdjustCamTimer = 1f;
             transitionElapsedTime = 0.0f;
-            transitionDestination.X = camPos.X;
-            transitionDestination.Y = camPos.Y;
-            transitionDestination.Z = 4200000f * UniverseScreen.GameScaleStatic;
+            CamDestination.X = CamPos.X;
+            CamDestination.Y = CamPos.Y;
+            CamDestination.Z = 4200000f * UniverseScreen.GameScaleStatic;
         }
 
         private void DefaultZoomPoints()
         {
             snappingToShip = false;
             ViewingShip = false;
-            if (camHeight < GetZfromScreenState(UnivScreenState.GalaxyView) &&
-                camHeight > GetZfromScreenState(UnivScreenState.SectorView))
+            if (CamHeight < GetZfromScreenState(UnivScreenState.GalaxyView) &&
+                CamHeight > GetZfromScreenState(UnivScreenState.SectorView))
             {
                 AdjustCamTimer = 1f;
                 transitionElapsedTime = 0.0f;
-                transitionDestination = new Vector3(camPos.X, camPos.Y, 1175000f);
+                CamDestination = new Vector3(CamPos.X, CamPos.Y, 1175000f);
             }
-            else if (camHeight > GetZfromScreenState(UnivScreenState.ShipView))
+            else if (CamHeight > GetZfromScreenState(UnivScreenState.ShipView))
             {
                 AdjustCamTimer = 1f;
                 transitionElapsedTime = 0.0f;
-                transitionDestination = new Vector3(camPos.X, camPos.Y, 147000f);
+                CamDestination = new Vector3(CamPos.X, CamPos.Y, 147000f);
             }
             else if (viewState < UniverseScreen.UnivScreenState.SystemView)
-                transitionDestination = new Vector3(camPos.X, camPos.Y,
+                CamDestination = new Vector3(CamPos.X, CamPos.Y,
                     GetZfromScreenState(UnivScreenState.SystemView));
         }
 

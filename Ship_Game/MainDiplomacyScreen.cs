@@ -971,7 +971,7 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.I) && !input.LastKeyboardState.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
+            if (input.KeysCurr.IsKeyDown(Keys.I) && !input.KeysPrev.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
@@ -1064,7 +1064,7 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(Text, base.ScreenManager);
 				}
 			}
-			if (input.Escaped || input.CurrentMouseState.RightButton == ButtonState.Pressed)
+			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
 			}

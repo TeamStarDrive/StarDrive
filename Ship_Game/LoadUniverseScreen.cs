@@ -924,8 +924,8 @@ namespace Ship_Game
                     GameDifficulty = data.difficulty,
                     StarDate       = savedData.StarDate,
                     ScreenManager  = ScreenManager,
-                    camPos         = new Vector3(savedData.campos.X, savedData.campos.Y, savedData.camheight),
-                    camHeight      = savedData.camheight,
+                    CamPos         = new Vector3(savedData.campos.X, savedData.campos.Y, savedData.camheight),
+                    CamHeight      = savedData.camheight,
                     player         = EmpireManager.Player
                 };
             }

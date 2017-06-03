@@ -5,7 +5,6 @@
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
 using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Core
 {

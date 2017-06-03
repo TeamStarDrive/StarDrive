@@ -20,12 +20,12 @@ namespace Ship_Game
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
                 HandleScrolls(input);
-                if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+                if (input.MouseCurr.LeftButton == ButtonState.Pressed)
                 {
                     Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
-                    float num = MinimapDisplayRect.Width / (UniverseRadius * 2);
-                    transitionDestination.X = -UniverseRadius + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
-                    transitionDestination.Y = -UniverseRadius + (pos.Y / num);
+                    float num = MinimapDisplayRect.Width / (UniverseSize * 2);
+                    CamDestination.X = -UniverseSize + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
+                    CamDestination.Y = -UniverseSize + (pos.Y / num);
                     snappingToShip = false;
                     ViewingShip = false;
                 }
@@ -116,8 +116,8 @@ namespace Ship_Game
                 }
 
                 //This little sections added to stress-test the resource manager, and load lots of models into memory.      -Gretman
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) &&
-                    input.CurrentKeyboardState.IsKeyDown(Keys.B) && !input.LastKeyboardState.IsKeyDown(Keys.B))
+                if (input.KeysCurr.IsKeyDown(Keys.LeftShift) &&
+                    input.KeysCurr.IsKeyDown(Keys.B) && !input.KeysPrev.IsKeyDown(Keys.B))
                 {
                     if (DebugInfoScreen.Loadmodels == 5) //Repeat
                         DebugInfoScreen.Loadmodels = 0;
@@ -244,10 +244,10 @@ namespace Ship_Game
                     ViewingShip = true;
                     returnToShip = false;
                     snappingToShip = true;
-                    transitionDestination.Z = transitionStartPosition.Z;
+                    CamDestination.Z = transitionStartPosition.Z;
                 }
                 else
-                    transitionDestination = transitionStartPosition;
+                    CamDestination = transitionStartPosition;
                 transitionElapsedTime = 0.0f;
                 LookingAtPlanet = false;
             }
@@ -259,10 +259,10 @@ namespace Ship_Game
                     ViewingShip = true;
                     returnToShip = false;
                     snappingToShip = true;
-                    transitionDestination.Z = transitionStartPosition.Z;
+                    CamDestination.Z = transitionStartPosition.Z;
                 }
                 else
-                    transitionDestination = transitionStartPosition;
+                    CamDestination = transitionStartPosition;
                 transitionElapsedTime = 0.0f;
                 LookingAtPlanet = false;
             }
@@ -313,10 +313,10 @@ namespace Ship_Game
 
                     ViewingShip = false;
                     AdjustCamTimer = 0.5f;
-                    transitionDestination = SelectedFleet.FindAveragePosition().ToVec3();
+                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
 
                     if (viewState < UnivScreenState.SystemView)
-                        transitionDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
                     return;
                 }
             }
@@ -427,7 +427,7 @@ namespace Ship_Game
 
                 if (NeedARelease)
                 {
-                    if (input.LeftMousePressed)
+                    if (input.LeftMouseDown)
                         NeedARelease = false;
                 }
                 else
@@ -453,7 +453,7 @@ namespace Ship_Game
                 HandleInputLookingAtPlanet(input);
 
             if (input.InGameSelect && !pickedSomethingThisFrame &&
-                (!input.RepeatingKeyCheck(Keys.LeftShift) && !pieMenu.Visible))
+                (!input.IsKeyDown(Keys.LeftShift) && !pieMenu.Visible))
                 HandleFleetButtonClick(input);
 
             cState = SelectedShip != null || SelectedShipList.Count > 0
@@ -589,10 +589,10 @@ namespace Ship_Game
                     {
                         ViewingShip = false;
                         AdjustCamTimer = 0.5f;
-                        transitionDestination = SelectedFleet.FindAveragePosition().ToVec3();
+                        CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
 
-                        if (camHeight < GetZfromScreenState(UnivScreenState.SystemView))
-                            transitionDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                        if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                            CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
                     }
                     else if (SelectedFleet != null)
                         ClickTimer = 0.0f;
@@ -624,28 +624,28 @@ namespace Ship_Game
         {
             if (SkipRightOnce)
             {
-                if (input.CurrentMouseState.RightButton != ButtonState.Released ||
-                    input.LastMouseState.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released ||
+                    input.MousePrev.RightButton != ButtonState.Released)
                     return;
                 SkipRightOnce = false;
             }
             else
             {
                 Viewport viewport;
-                if (input.CurrentMouseState.RightButton == ButtonState.Pressed &&
-                    input.LastMouseState.RightButton == ButtonState.Released)
+                if (input.MouseCurr.RightButton == ButtonState.Pressed &&
+                    input.MousePrev.RightButton == ButtonState.Released)
                 {
                     SelectedSomethingTimer = 3f;
-                    startDrag = new Vector2(input.CurrentMouseState.X, input.CurrentMouseState.Y);
+                    startDrag = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
                     startDragWorld = UnprojectToWorldPosition(startDrag);
                     ProjectedPosition = UnprojectToWorldPosition(startDrag);
                     Vector3 position =
                         Viewport.Unproject(
-                            new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0.0f), this.projection,
+                            new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0.0f), this.projection,
                             this.view, Matrix.Identity);
                     viewport = Viewport;
                     Vector3 direction = viewport.Unproject(
-                                            new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 1f),
+                                            new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f),
                                             projection, view, Matrix.Identity) - position;
                     direction.Normalize();
                     Ray ray = new Ray(position, direction);
@@ -656,16 +656,16 @@ namespace Ship_Game
                 if (SelectedShip != null && SelectedShip.AI.State == AIState.ManualControl &&
                     Vector2.Distance(startDragWorld, SelectedShip.Center) < 5000.0)
                     return;
-                if (input.CurrentMouseState.RightButton == ButtonState.Released &&
-                    input.LastMouseState.RightButton == ButtonState.Pressed)
+                if (input.MouseCurr.RightButton == ButtonState.Released &&
+                    input.MousePrev.RightButton == ButtonState.Pressed)
                 {
                     viewport = Viewport;
                     Vector3 position = viewport.Unproject(
-                        new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0.0f), projection, view,
+                        new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0.0f), projection, view,
                         Matrix.Identity);
                     viewport = Viewport;
                     Vector3 direction = viewport.Unproject(
-                                            new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 1f),
+                                            new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f),
                                             projection, view, Matrix.Identity) - position;
                     direction.Normalize();
                     Ray ray = new Ray(position, direction);
@@ -673,7 +673,7 @@ namespace Ship_Game
                     Vector3 vector3 = new Vector3(ray.Position.X + num1 * ray.Direction.X,
                         ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
                     Vector2 vector2_1 = new Vector2(vector3.X, vector3.Y);
-                    Vector2 target = new Vector2(input.CurrentMouseState.X, input.CurrentMouseState.Y);
+                    Vector2 target = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
                     float num2 = startDrag.RadiansToTarget(target);
                     Vector2 vector2_2 = Vector2.Normalize(target - startDrag);
                     if (input.RightMouseHeld())
@@ -699,7 +699,7 @@ namespace Ship_Game
                                 {
                                     if (ship2.shipData.Role == ShipData.RoleName.troop)
                                         ship2.AI.OrderTroopToBoardShip(ship1);
-                                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                    else if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                         ship2.AI.OrderQueueSpecificTarget(ship1);
                                     else
                                         ship2.AI.OrderAttackSpecificTarget(ship1);
@@ -713,9 +713,9 @@ namespace Ship_Game
                                     RightClickship(ship2, planet, false);
                                 }
                             }
-                            else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                            else if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                 SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget, true);
-                            else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
+                            else if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                                 SelectedFleet.MoveToDirectly(vector2_1, num3, vectorToTarget);
                             else
                                 SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget);
@@ -753,7 +753,7 @@ namespace Ship_Game
                                     }
                                     else if (SelectedShip.shipData.Role == ShipData.RoleName.troop)
                                         SelectedShip.AI.OrderTroopToBoardShip(ship);
-                                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                    else if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                         SelectedShip.AI.OrderQueueSpecificTarget(ship);
                                     else
                                         SelectedShip.AI.OrderAttackSpecificTarget(ship);
@@ -788,18 +788,18 @@ namespace Ship_Game
                             else
                             {
                                 GameAudio.PlaySfxAsync("echo_affirm1");
-                                if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                 {
-                                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
+                                    if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                                         SelectedShip.AI.OrderMoveDirectlyTowardsPosition(vector2_1, num2, vector2_2,
                                             false);
                                     else
                                         SelectedShip.AI.OrderMoveTowardsPosition(vector2_1, num2, vector2_2, false,
                                             null);
                                 }
-                                else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
+                                else if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                                     SelectedShip.AI.OrderMoveDirectlyTowardsPosition(vector2_1, num2, vector2_2, true);
-                                else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+                                else if (input.KeysCurr.IsKeyDown(Keys.LeftControl))
                                 {
                                     SelectedShip.AI.OrderMoveTowardsPosition(vector2_1, num2, vector2_2, true, null);
                                     SelectedShip.AI.OrderQueue.Enqueue(new ShipAI.ShipGoal(ShipAI.Plan.HoldPosition,
@@ -849,7 +849,7 @@ namespace Ship_Game
                                         }
                                         else if (ship2.shipData.Role == ShipData.RoleName.troop)
                                             ship2.AI.OrderTroopToBoardShip(ship1);
-                                        else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                        else if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                             ship2.AI.OrderQueueSpecificTarget(ship1);
                                         else
                                             ship2.AI.OrderAttackSpecificTarget(ship1);
@@ -918,16 +918,16 @@ namespace Ship_Game
                                     {
                                         if (ship2.guid == ship3.guid)
                                         {
-                                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                            if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                             {
-                                                if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
+                                                if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                                                     ship3.AI.OrderMoveDirectlyTowardsPosition(ship2.projectedPosition,
                                                         num2 - 1.570796f, fVec, false);
                                                 else
                                                     ship3.AI.OrderMoveTowardsPosition(ship2.projectedPosition,
                                                         num2 - 1.570796f, fVec, false, null);
                                             }
-                                            else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
+                                            else if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                                                 ship3.AI.OrderMoveDirectlyTowardsPosition(ship2.projectedPosition,
                                                     num2 - 1.570796f, fVec, true);
                                             else
@@ -971,7 +971,7 @@ namespace Ship_Game
                         if (SelectedFleet != null && SelectedFleet.Owner == player)
                         {
                             SelectedSomethingTimer = 3f;
-                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                            if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                 SelectedFleet.FormationWarpTo(ProjectedPosition, num2, vector2_2, true);
                             else
                                 SelectedFleet.FormationWarpTo(ProjectedPosition, num2, vector2_2);
@@ -994,16 +994,16 @@ namespace Ship_Game
                             else
                             {
                                 GameAudio.PlaySfxAsync("echo_affirm1");
-                                if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                 {
-                                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
+                                    if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                                         SelectedShip.AI.OrderMoveDirectlyTowardsPosition(ProjectedPosition, num2,
                                             vector2_2, false);
                                     else
                                         SelectedShip.AI.OrderMoveTowardsPosition(ProjectedPosition, num2, vector2_2,
                                             false, null);
                                 }
-                                else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
+                                else if (input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                                     SelectedShip.AI.OrderMoveDirectlyTowardsPosition(ProjectedPosition, num2, vector2_2,
                                         true);
                                 else
@@ -1068,34 +1068,31 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship2 in SelectedShipList)
                                 {
-                                    if (ship1.guid == ship2.guid)
+                                    if (ship1.guid != ship2.guid)
+                                        continue;
+
+                                    float facing = num2 - 1.570796f;
+                                    Vector2 pos = ship1.projectedPosition;
+
+                                    if (input.IsShiftKeyDown)
                                     {
-                                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                        {
-                                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
-                                                ship2.AI.OrderMoveDirectlyTowardsPosition(ship1.projectedPosition,
-                                                    num2 - 1.570796f, fVec, false);
-                                            else
-                                                ship2.AI.OrderMoveTowardsPosition(ship1.projectedPosition,
-                                                    num2 - 1.570796f, fVec, false, null);
-                                        }
-                                        else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
-                                            ship2.AI.OrderMoveDirectlyTowardsPosition(ship1.projectedPosition,
-                                                num2 - 1.570796f, fVec, true);
-                                        else
-                                            ship2.AI.OrderMoveTowardsPosition(ship1.projectedPosition, num2 - 1.570796f,
-                                                fVec, true, null);
+                                        if (input.IsAltKeyDown) ship2.AI.OrderMoveDirectlyTowardsPosition(pos, facing, fVec, false);
+                                        else                    ship2.AI.OrderMoveTowardsPosition(pos, facing, fVec, false, null);
                                     }
+                                    else if (input.IsAltKeyDown)
+                                        ship2.AI.OrderMoveDirectlyTowardsPosition(pos, facing, fVec, true);
+                                    else
+                                        ship2.AI.OrderMoveTowardsPosition(pos, facing, fVec, true, null);
                                 }
                             }
                             projectedGroup = fleet;
                         }
                     }
                 }
-                if (input.CurrentMouseState.RightButton == ButtonState.Pressed &&
-                    input.LastMouseState.RightButton == ButtonState.Pressed)
+                if (input.MouseCurr.RightButton == ButtonState.Pressed &&
+                    input.MousePrev.RightButton == ButtonState.Pressed)
                 {
-                    var target = new Vector2(input.CurrentMouseState.X, input.CurrentMouseState.Y);
+                    var target = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
                     float facing = startDrag.RadiansToTarget(target);
                     Vector2 fVec1 = Vector2.Normalize(target - startDrag);
                     if (input.RightMouseHeld())
@@ -1187,7 +1184,7 @@ namespace Ship_Game
             {
                 //if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R))  //fbedard: what is that !!!!
                 //    this.SelectedShip.FightersOut = !this.SelectedShip.FightersOut;
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.Q) && !input.LastKeyboardState.IsKeyDown(Keys.Q))
+                if (input.KeysCurr.IsKeyDown(Keys.Q) && !input.KeysPrev.IsKeyDown(Keys.Q))
                 {
                     if (!this.pieMenu.Visible)
                     {
@@ -1258,7 +1255,7 @@ namespace Ship_Game
                             if ((double) Vector2.Distance(input.CursorPosition, clickableShip.ScreenPos) <=
                                 (double) clickableShip.Radius)
                             {
-                                if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) &&
+                                if (input.KeysCurr.IsKeyDown(Keys.LeftControl) &&
                                     this.SelectedShipList.Count > 1 &&
                                     this.SelectedShipList.Contains(clickableShip.shipToClick))
                                 {
@@ -1270,7 +1267,7 @@ namespace Ship_Game
                                 else
                                 {
                                     if (this.SelectedShipList.Count > 0 &&
-                                        !input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) &&
+                                        !input.KeysCurr.IsKeyDown(Keys.LeftShift) &&
                                         !this.pickedSomethingThisFrame)
                                         this.SelectedShipList.Clear();
                                     this.pickedSomethingThisFrame = true;
@@ -1352,8 +1349,8 @@ namespace Ship_Game
                 }
             }
             if (this.SelectedShip == null && this.SelectedShipList.Count == 0 &&
-                (this.SelectedPlanet != null && input.CurrentKeyboardState.IsKeyDown(Keys.Q)) &&
-                !input.LastKeyboardState.IsKeyDown(Keys.Q))
+                (this.SelectedPlanet != null && input.KeysCurr.IsKeyDown(Keys.Q)) &&
+                !input.KeysPrev.IsKeyDown(Keys.Q))
             {
                 if (!this.pieMenu.Visible)
                 {
@@ -1367,9 +1364,9 @@ namespace Ship_Game
                 else
                     this.pieMenu.ChangeTo((PieMenuNode) null);
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                input.LastMouseState.LeftButton == ButtonState.Released)
-                this.SelectionBox = new Rectangle(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0, 0);
+            if (input.MouseCurr.LeftButton == ButtonState.Pressed &&
+                input.MousePrev.LeftButton == ButtonState.Released)
+                this.SelectionBox = new Rectangle(input.MouseCurr.X, input.MouseCurr.Y, 0, 0);
             if (this.SelectedShipList.Count == 1)
             {
                 if (this.SelectedShip != null && this.previousSelection != this.SelectedShip &&
@@ -1377,22 +1374,22 @@ namespace Ship_Game
                     this.previousSelection = this.SelectedShip;
                 this.SelectedShip = this.SelectedShipList[0];
             }
-            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+            if (input.MouseCurr.LeftButton == ButtonState.Pressed)
             {
                 this.SelectingWithBox = true;
                 if (this.SelectionBox.X == 0 || this.SelectionBox.Y == 0)
                     return;
                 this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y,
-                    input.CurrentMouseState.X - this.SelectionBox.X, input.CurrentMouseState.Y - this.SelectionBox.Y);
+                    input.MouseCurr.X - this.SelectionBox.X, input.MouseCurr.Y - this.SelectionBox.Y);
             }
-            else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) &&
-                     input.CurrentMouseState.LeftButton == ButtonState.Released &&
-                     input.LastMouseState.LeftButton == ButtonState.Pressed)
+            else if (input.KeysCurr.IsKeyDown(Keys.LeftShift) &&
+                     input.MouseCurr.LeftButton == ButtonState.Released &&
+                     input.MousePrev.LeftButton == ButtonState.Pressed)
             {
-                if (input.CurrentMouseState.X < this.SelectionBox.X)
-                    this.SelectionBox.X = input.CurrentMouseState.X;
-                if (input.CurrentMouseState.Y < this.SelectionBox.Y)
-                    this.SelectionBox.Y = input.CurrentMouseState.Y;
+                if (input.MouseCurr.X < this.SelectionBox.X)
+                    this.SelectionBox.X = input.MouseCurr.X;
+                if (input.MouseCurr.Y < this.SelectionBox.Y)
+                    this.SelectionBox.Y = input.MouseCurr.Y;
                 this.SelectionBox.Width = Math.Abs(this.SelectionBox.Width);
                 this.SelectionBox.Height = Math.Abs(this.SelectionBox.Height);
                 bool flag1 = true;
@@ -1469,14 +1466,14 @@ namespace Ship_Game
             }
             else
             {
-                if (input.CurrentMouseState.LeftButton != ButtonState.Released ||
-                    input.LastMouseState.LeftButton != ButtonState.Pressed)
+                if (input.MouseCurr.LeftButton != ButtonState.Released ||
+                    input.MousePrev.LeftButton != ButtonState.Pressed)
                     return;
                 this.SelectingWithBox = false;
-                if (input.CurrentMouseState.X < this.SelectionBox.X)
-                    this.SelectionBox.X = input.CurrentMouseState.X;
-                if (input.CurrentMouseState.Y < this.SelectionBox.Y)
-                    this.SelectionBox.Y = input.CurrentMouseState.Y;
+                if (input.MouseCurr.X < this.SelectionBox.X)
+                    this.SelectionBox.X = input.MouseCurr.X;
+                if (input.MouseCurr.Y < this.SelectionBox.Y)
+                    this.SelectionBox.Y = input.MouseCurr.Y;
                 this.SelectionBox.Width = Math.Abs(this.SelectionBox.Width);
                 this.SelectionBox.Height = Math.Abs(this.SelectionBox.Height);
                 bool flag1 = false;
@@ -1620,7 +1617,7 @@ namespace Ship_Game
                 {
                     if (planet.Owner != null && planet.Owner == this.player && (!ship.HasTroopBay && !ship.hasTransporter))
                     {
-                        if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                        if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
                             ship.AI.OrderToOrbit(planet, false);
                         else
                             ship.AI.OrderRebase(planet, true);
@@ -1628,7 +1625,7 @@ namespace Ship_Game
                     else if (planet.habitable && (planet.Owner == null || planet.Owner != player && (ship.loyalty.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)))
                     {
                         //add new right click troop and troop ship options on planets
-                        if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                        if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
                             ship.AI.OrderToOrbit(planet, false);
                         else
                         {
@@ -1649,7 +1646,7 @@ namespace Ship_Game
                     {
                         if (planet.Owner == null || this.player.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
                         {
-                            if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                            if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
                                 ship.AI.OrderBombardPlanet(planet);
                             else if (enemies > friendlies || planet.Population > 0f)
                                 ship.AI.OrderBombardPlanet(planet);
@@ -1665,14 +1662,14 @@ namespace Ship_Game
 
 
                     }
-                    else if (enemies > friendlies && Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                    else if (enemies > friendlies && Input.KeysCurr.IsKeyDown(Keys.LeftShift))
                     {
                         ship.AI.OrderBombardPlanet(planet);
                     }
                     else
                         ship.AI.OrderToOrbit(planet, true);
                 }
-                else if (Input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                else if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
                     ship.AI.OrderToOrbit(planet, false);
                 else
                     ship.AI.OrderToOrbit(planet, true);
@@ -1721,9 +1718,9 @@ namespace Ship_Game
                 this.DefiningAO = false;
                 return;
             }               
-            Vector3 position = this.Viewport.Unproject(new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0.0f)
+            Vector3 position = this.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0.0f)
                 , this.projection, this.view, Matrix.Identity);
-            Vector3 direction = this.Viewport.Unproject(new Vector3(input.CurrentMouseState.X, input.CurrentMouseState.Y, 1f)
+            Vector3 direction = this.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f)
                 , this.projection, this.view, Matrix.Identity) - position;
             direction.Normalize();
             var ray = new Ray(position, direction);
@@ -1756,7 +1753,7 @@ namespace Ship_Game
             }
             for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; ++index)
             {
-                if (this.SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+                if (this.SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
                     this.SelectedShip.AreaOfOperation.Remove(this.SelectedShip.AreaOfOperation[index]);
             }
         }
@@ -1782,7 +1779,7 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("sub_bass_whoosh");
                         SelectedPlanet = clickablePlanets.planetToClick;
                         if (!SnapBackToSystem)
-                            HeightOnSnap = camHeight;
+                            HeightOnSnap = CamHeight;
                         ViewPlanet(SelectedPlanet);
                     }
                 }
@@ -1814,7 +1811,7 @@ namespace Ship_Game
                         if (system.systemToClick.ExploredDict[player])
                         {
                             GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                            HeightOnSnap = camHeight;
+                            HeightOnSnap = CamHeight;
                             ViewSystem(system.systemToClick);
                         }
                         else
@@ -1946,9 +1943,9 @@ namespace Ship_Game
                         pInfoUI.SetPlanet(PlanetToView);
                         lastplanetcombat++;
 
-                        transitionDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
+                        CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
                         LookingAtPlanet = false;
-                        transitionStartPosition = camPos;
+                        transitionStartPosition = CamPos;
                         AdjustCamTimer = 2f;
                         transitionElapsedTime = 0.0f;
                         transDuration = 5f;
@@ -2096,32 +2093,32 @@ namespace Ship_Game
             input.Repeat = true;
             if (input.CursorPosition.X <= 1f || input.Left)
             {
-                transitionDestination.X -= 0.008f * num;
+                CamDestination.X -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             if (input.CursorPosition.X >= (p.BackBufferWidth - 1) || input.Right )
             {
-                transitionDestination.X += 0.008f * num;
+                CamDestination.X += 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             if (input.CursorPosition.Y <= 0.0f || input.Up )
             {
-                transitionDestination.Y -= 0.008f * num;
+                CamDestination.Y -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             if (input.CursorPosition.Y >= (p.BackBufferHeight - 1) || input.Down )
             {
-                transitionDestination.Y += 0.008f * num;
+                CamDestination.Y += 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
             input.Repeat = false;
 
-            transitionDestination.X = transitionDestination.X.Clamp(-UniverseRadius, UniverseRadius);
-            transitionDestination.Y = transitionDestination.Y.Clamp(-UniverseRadius, UniverseRadius);
+            CamDestination.X = CamDestination.X.Clamp(-UniverseSize, UniverseSize);
+            CamDestination.Y = CamDestination.Y.Clamp(-UniverseSize, UniverseSize);
 
             //fbedard: remove middle button scrolling
             //if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
@@ -2144,33 +2141,33 @@ namespace Ship_Game
             if ((double)this.AdjustCamTimer >= 0.0)
                 return;
 
-            float scrollAmount = 1500.0f * camHeight / 3000.0f + 100.0f;
+            float scrollAmount = 1500.0f * CamHeight / 3000.0f + 100.0f;
 
             if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
             {
-                this.transitionDestination.X = this.camPos.X;
-                this.transitionDestination.Y = this.camPos.Y;
-                this.transitionDestination.Z = this.camHeight + scrollAmount;
-                if ((double)this.camHeight > 12000.0)
+                this.CamDestination.X = this.CamPos.X;
+                this.CamDestination.Y = this.CamPos.Y;
+                this.CamDestination.Z = this.CamHeight + scrollAmount;
+                if ((double)this.CamHeight > 12000.0)
                 {
-                    this.transitionDestination.Z += 3000f;
+                    this.CamDestination.Z += 3000f;
                     this.viewState = UniverseScreen.UnivScreenState.SectorView;
-                    if ((double)this.camHeight > 32000.0)
-                        this.transitionDestination.Z += 15000f;
-                    if ((double)this.camHeight > 100000.0)
-                        this.transitionDestination.Z += 40000f;
+                    if ((double)this.CamHeight > 32000.0)
+                        this.CamDestination.Z += 15000f;
+                    if ((double)this.CamHeight > 100000.0)
+                        this.CamDestination.Z += 40000f;
                 }
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+                if (input.KeysCurr.IsKeyDown(Keys.LeftControl))
                 {
-                    if ((double)this.camHeight < 55000.0)
+                    if ((double)this.CamHeight < 55000.0)
                     {
-                        this.transitionDestination.Z = 60000f;
+                        this.CamDestination.Z = 60000f;
                         this.AdjustCamTimer = 1f;
                         this.transitionElapsedTime = 0.0f;
                     }
                     else
                     {
-                        this.transitionDestination.Z = 4200000f * this.GameScale;
+                        this.CamDestination.Z = 4200000f * this.GameScale;
                         this.AdjustCamTimer = 1f;
                         this.transitionElapsedTime = 0.0f;
                     }
@@ -2179,50 +2176,50 @@ namespace Ship_Game
             if (!input.YButtonHeld && !input.ScrollIn || this.LookingAtPlanet)
                 return;
 
-            this.transitionDestination.Z = this.camHeight - scrollAmount;
-            if ((double)this.camHeight >= 16000.0)
+            this.CamDestination.Z = this.CamHeight - scrollAmount;
+            if ((double)this.CamHeight >= 16000.0)
             {
-                this.transitionDestination.Z -= 2000f;
-                if ((double)this.camHeight > 32000.0)
-                    this.transitionDestination.Z -= 7500f;
-                if ((double)this.camHeight > 150000.0)
-                    this.transitionDestination.Z -= 40000f;
+                this.CamDestination.Z -= 2000f;
+                if ((double)this.CamHeight > 32000.0)
+                    this.CamDestination.Z -= 7500f;
+                if ((double)this.CamHeight > 150000.0)
+                    this.CamDestination.Z -= 40000f;
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && (double)this.camHeight > 10000.0)
-                this.transitionDestination.Z = (double)this.camHeight <= 65000.0 ? 10000f : 60000f;
+            if (input.KeysCurr.IsKeyDown(Keys.LeftControl) && (double)this.CamHeight > 10000.0)
+                this.CamDestination.Z = (double)this.CamHeight <= 65000.0 ? 10000f : 60000f;
             if (this.ViewingShip)
                 return;
-            if ((double)this.camHeight <= 450.0f)
-                this.camHeight = 450f;
-            float num2 = this.transitionDestination.Z;
+            if ((double)this.CamHeight <= 450.0f)
+                this.CamHeight = 450f;
+            float num2 = this.CamDestination.Z;
             
             //fbedard: add a scroll on selected object
-            if ((!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && GlobalStats.ZoomTracking) || (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !GlobalStats.ZoomTracking))
+            if ((!input.KeysCurr.IsKeyDown(Keys.LeftShift) && GlobalStats.ZoomTracking) || (input.KeysCurr.IsKeyDown(Keys.LeftShift) && !GlobalStats.ZoomTracking))
             {
                 if (this.SelectedShip != null && this.SelectedShip.Active)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
                 }
                 else
                 if (this.SelectedPlanet != null)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedPlanet.Center.X, this.SelectedPlanet.Center.Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedPlanet.Center.X, this.SelectedPlanet.Center.Y, num2);
                 }  
                 else
                 if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedFleet.FindAveragePosition().X, this.SelectedFleet.FindAveragePosition().Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedFleet.FindAveragePosition().X, this.SelectedFleet.FindAveragePosition().Y, num2);
                 }
                 else
                 if (this.SelectedShipList.Count > 0 && this.SelectedShipList[0] != null && this.SelectedShipList[0].Active)
                 {
-                    this.transitionDestination = new Vector3(this.SelectedShipList[0].Position.X, this.SelectedShipList[0].Position.Y, num2);
+                    this.CamDestination = new Vector3(this.SelectedShipList[0].Position.X, this.SelectedShipList[0].Position.Y, num2);
                 }
                 else
-                    this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+                    this.CamDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y), num2), num2);
             }
             else
-                this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+                this.CamDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y), num2), num2);
         }
 
         private void HandleScrollsSectorMiniMap(InputState input)
@@ -2232,9 +2229,9 @@ namespace Ship_Game
                 this.SectorMiniMapHeight = 6000f;
             if (input.InGameSelect)
             {
-                this.transitionDestination.Z = this.SectorMiniMapHeight;
-                this.transitionDestination.X = this.playerShip.Center.X;
-                this.transitionDestination.Y = this.playerShip.Center.Y;
+                this.CamDestination.Z = this.SectorMiniMapHeight;
+                this.CamDestination.X = this.playerShip.Center.X;
+                this.CamDestination.Y = this.playerShip.Center.Y;
             }
             if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
             {
@@ -2267,9 +2264,9 @@ namespace Ship_Game
                         this.desiredSectorZ -= 40000f;
                 }
             }
-            if ((double)this.camHeight <= 168471840.0 * (double)this.GameScale)
+            if ((double)this.CamHeight <= 168471840.0 * (double)this.GameScale)
                 return;
-            this.camHeight = 1.684718E+08f * this.GameScale;
+            this.CamHeight = 1.684718E+08f * this.GameScale;
         }
 
         public bool IsShipUnderFleetIcon(Ship ship, Vector2 screenPos, float fleetIconScreenRadius)

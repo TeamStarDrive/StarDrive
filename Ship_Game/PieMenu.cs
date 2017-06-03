@@ -226,7 +226,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			return this.HandleInput(input, input.CurrentGamePadState.ThumbSticks.Left);
+			return this.HandleInput(input, input.GamepadCurr.ThumbSticks.Left);
 		}
 
 		private void NewMenu(object sender)

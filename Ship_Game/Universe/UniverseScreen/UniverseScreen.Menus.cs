@@ -32,8 +32,8 @@ namespace Ship_Game {
         {
             this.workersPanel = new CombatScreen(this.ScreenManager, this.SelectedPlanet);
             this.LookingAtPlanet = true;
-            this.transitionStartPosition = this.camPos;
-            this.transitionDestination = new Vector3(this.SelectedPlanet.Center.X,
+            this.transitionStartPosition = this.CamPos;
+            this.CamDestination = new Vector3(this.SelectedPlanet.Center.X,
                 this.SelectedPlanet.Center.Y + 400f, 2500f);
             this.AdjustCamTimer = 2f;
             this.transitionElapsedTime = 0.0f;
