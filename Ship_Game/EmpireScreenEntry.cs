@@ -533,7 +533,7 @@ namespace Ship_Game
 			if (HelperFunctions.ClickedRect(this.ApplyProductionRect, input) && this.p.ConstructionQueue.Count > 0)
 			{
 				this.eScreen.ClickTimer = 0.25f;
-				if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+				if (input.KeysCurr.IsKeyDown(Keys.LeftControl))
 				{
                     bool flag=true;
                     while (this.p.ApplyStoredProduction(0))

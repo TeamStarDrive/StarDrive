@@ -615,7 +615,7 @@ namespace Ship_Game.AI {
             foreach (var kv in OwnerEmpire.AllRelations.OrderByDescending(anger =>
                 {
                     float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(), OwnerEmpire.GetWeightedCenter());
-                    angerMod = (Empire.Universe.UniverseRadius - angerMod) / UniverseData.UniverseWidth;
+                    angerMod = (Empire.Universe.UniverseSize - angerMod) / UniverseData.UniverseWidth;
                     if (anger.Value.AtWar)
                         angerMod *= 100;
                     return anger.Value.TotalAnger * angerMod;

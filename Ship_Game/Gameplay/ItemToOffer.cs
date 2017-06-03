@@ -87,7 +87,7 @@ namespace Ship_Game.Gameplay
 						ToolTip.CreateTooltip(133, Empire.Universe.ScreenManager);
 					}
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 				{
 					this.Selected = !this.Selected;
 					e.ShowingSub = !e.ShowingSub;

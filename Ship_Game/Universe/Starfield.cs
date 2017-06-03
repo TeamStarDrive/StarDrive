@@ -145,7 +145,7 @@ namespace Ship_Game
 					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + RandomMath.InRange(starfieldRectangle.Width));
 					this.stars[i].Position.Y = (float)this.starfieldRectangle.Y;
 				}
-				float alpha = 4.08E+07f / universe.camHeight;
+				float alpha = 4.08E+07f / universe.CamHeight;
 				if (alpha > 255f)
 				{
 					alpha = 255f;

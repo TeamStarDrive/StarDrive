@@ -440,7 +440,7 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("sd_bomb_impact_01");
                 }
             }
-            CurrentMouse = input.CurrentMouseState;
+            CurrentMouse = input.MouseCurr;
             bool okcomet = true;
             foreach (UIButton b in Buttons)
             {
@@ -497,12 +497,12 @@ namespace Ship_Game
                     }
                 }
             }
-            if (input.C && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+            if (input.C && input.KeysCurr.IsKeyDown(Keys.LeftShift))
             {
                 ScreenManager.AddScreen(new ShipToolScreen());                
                 ExitScreen();
             }
-            if (okcomet && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+            if (okcomet && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
             {
                 Comet c = new Comet
                 {
@@ -513,7 +513,7 @@ namespace Ship_Game
                 c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
                 CometList.Add(c);
             }
-            PreviousMouse = input.LastMouseState;
+            PreviousMouse = input.MousePrev;
             base.HandleInput(input);
         }
 

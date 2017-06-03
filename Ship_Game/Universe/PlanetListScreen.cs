@@ -497,7 +497,7 @@ namespace Ship_Game
                 entry.HandleInput(input);
                 entry.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
                 if (!GlobalStats.TakingInput
-                    && entry.TotalEntrySize.HitTest(input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                    && entry.TotalEntrySize.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                 {
                     if (this.ClickTimer >= this.ClickDelay)
                     {
@@ -510,11 +510,11 @@ namespace Ship_Game
                         Empire.Universe.SelectedPlanet = entry.planet;
                         Empire.Universe.ViewingShip = false;
                         Empire.Universe.returnToShip = false;
-                        Empire.Universe.transitionDestination = new Vector3(entry.planet.Center.X, entry.planet.Center.Y, 10000f);
+                        Empire.Universe.CamDestination = new Vector3(entry.planet.Center.X, entry.planet.Center.Y, 10000f);
                     }
                 }
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.L) && !input.LastKeyboardState.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
+            if (input.KeysCurr.IsKeyDown(Keys.L) && !input.KeysPrev.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();

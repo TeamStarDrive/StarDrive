@@ -413,7 +413,7 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
+            if (input.KeysCurr.IsKeyDown(Keys.E) && !input.KeysPrev.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
@@ -461,7 +461,7 @@ namespace Ship_Game
 					this.AgentComponent.Reinitialize();
 				}
 			}
-			if (input.Escaped || input.CurrentMouseState.RightButton == ButtonState.Pressed)
+			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
 			}

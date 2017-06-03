@@ -108,7 +108,7 @@ namespace Ship_Game
         private void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
-            int granularity = (int) (this.UniverseRadius / this.reducer);
+            int granularity = (int) (this.UniverseSize / this.reducer);
             foreach (var node in empire.BorderNodes)
             {
                 SolarSystem ss = node.SourceObject as SolarSystem;
@@ -501,7 +501,7 @@ namespace Ship_Game
         private void RebuildPathStuff()
         {
             reducer = (int) (Empire.ProjectorRadius * .75f);
-            int granularity = (int) (UniverseRadius / reducer);
+            int granularity = (int) (UniverseSize / reducer);
             int elegran = granularity * 2;
             int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
             byte[,] grid = new byte[elements, elements];
@@ -739,9 +739,9 @@ namespace Ship_Game
                 }
                 if (system.Explored(this.player) && inFrustrum)
                 {
-                    system.isVisible = camHeight < GetZfromScreenState(UnivScreenState.GalaxyView);
+                    system.isVisible = CamHeight < GetZfromScreenState(UnivScreenState.GalaxyView);
                 }
-                if (system.isVisible && camHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
                 {
                     foreach (Asteroid asteroid in system.AsteroidsList)
                     {
@@ -771,7 +771,7 @@ namespace Ship_Game
                     if (planet.HasShipyard && system.isVisible)
                         planet.Station.Update(elapsedTime);
                 }
-                if (system.isVisible && camHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
                 {
                     foreach (Asteroid asteroid in system.AsteroidsList)
                         asteroid.Update(elapsedTime);

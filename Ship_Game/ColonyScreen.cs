@@ -3,141 +3,85 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Audio;
-using System.Runtime.CompilerServices;
 using System.Linq;
 using Ship_Game.AI;
 
 namespace Ship_Game
 {
-    public sealed class ColonyScreen : PlanetScreen, IDisposable
+    public sealed class ColonyScreen : PlanetScreen, IDisposable, IListScreen
     {
         public Planet p;
-
         public ToggleButton playerDesignsToggle;
 
         private Menu2 TitleBar;
-
         private Vector2 TitlePos;
-
         private Menu1 LeftMenu;
-
         private Menu1 RightMenu;
-
         private Submenu PlanetInfo;
-
         private Submenu pDescription;
-
         private Submenu pLabor;
-
         private Submenu pStorage;
-
         private Submenu pFacilities;
-
         private Submenu build;
-
         private Submenu queue;
-
         private Checkbox GovSliders;
-
         private Checkbox GovBuildings;
-
         private UITextEntry PlanetName = new UITextEntry();
-
         private Rectangle PlanetIcon;
-
         private EmpireUIOverlay eui;
-
         private bool LowRes;
-
         private Lock FoodLock;
         private Lock ProdLock;
         private Lock ResLock;
-
         private float ClickTimer;
-
         private float TimerDelay = 0.25f;
-
         private ToggleButton LeftColony;
         private ToggleButton RightColony;
-
         private UIButton launchTroops;
         private UIButton SendTroops;  //fbedard
         private DropOptions GovernorDropdown;
-
         public CloseButton close;
-
         private Rectangle MoneyRect;
-
         private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
-
         private ScrollList CommoditiesSL;
-
         private Rectangle gridPos;
-
         private Submenu subColonyGrid;
-
         private ScrollList buildSL;
-
         private ScrollList QSL;
-
         private DropDownMenu foodDropDown;
-
         private DropDownMenu prodDropDown;
-
         private ProgressBar FoodStorage;
-
         private ProgressBar ProdStorage;
-
         private Rectangle foodStorageIcon;
-
         private Rectangle profStorageIcon;
-
         private Slider SliderFood;
         private Slider SliderProd;
         private Slider SliderRes;
 
         private object detailInfo;
-
         private Building toScrap;
-
         private ScrollList.Entry ActiveBuildingEntry;
 
         public bool ClickedTroop;
-
         private float fPercentLast;
         private float pPercentLast;
         private float rPercentLast;
 
         private bool draggingSlider1;
-
         private bool draggingSlider2;
-
         private bool draggingSlider3;
-
         private Selector selector;
-
         private int buildingsHereLast;
-
         private int buildingsCanBuildLast;
-
         private int shipsCanBuildLast;
-
         public bool Reset;
-
         private int editHoverState;
 
         private Rectangle edit_name_button;
-
         private Array<Building> BuildingsCanBuild = new Array<Building>();
-
         private GenericButton ChangeGovernor = new GenericButton(new Rectangle(), Localizer.Token(370), Fonts.Pirulen16);
-
         private MouseState currentMouse;
-
         private MouseState previousMouse;
-
         private bool rmouse;
         private static bool popup;  //fbedard
 
@@ -2043,7 +1987,7 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            this.pFacilities.HandleInputNoReset(this);
+            this.pFacilities.HandleInputNoReset();
             if (this.RightColony.r.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Localizer.Token(2279), this.ScreenManager);
@@ -2068,7 +2012,7 @@ namespace Ship_Game
                 {
                     Log.Error(ex, "Colony Screen HandleInput(). Likely null reference.");
                 }
-                if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
                     Empire.Universe.ShipsInCombat.Active = true;
                     Empire.Universe.PlanetsInCombat.Active = true;
@@ -2084,7 +2028,7 @@ namespace Ship_Game
                     this.p = this.p.Owner.GetPlanets()[thisindex];
                     Empire.Universe.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
                 }
-                if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
                     Empire.Universe.ShipsInCombat.Active = true;
                     Empire.Universe.PlanetsInCombat.Active = true;
@@ -2101,7 +2045,7 @@ namespace Ship_Game
             if (this.p.Owner != EmpireManager.Player)
             {
                 this.HandleDetailInfo(input);
-                if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
                     Empire.Universe.ShipsInCombat.Active = true;
                     Empire.Universe.PlanetsInCombat.Active = true;
@@ -2482,7 +2426,7 @@ namespace Ship_Game
                     if (e.up.HitTest(MousePos))
                     {
                         ToolTip.CreateTooltip(63, Empire.Universe.ScreenManager);
-                        if (!input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                        if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i > 0)
                             {
@@ -2504,7 +2448,7 @@ namespace Ship_Game
                     if (e.down.HitTest(MousePos))
                     {
                         ToolTip.CreateTooltip(64, Empire.Universe.ScreenManager);
-                        if (!input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                        if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i + 1 < this.QSL.Copied.Count)
                             {
@@ -2525,7 +2469,7 @@ namespace Ship_Game
                     }
                     if (e.apply.HitTest(MousePos) && !this.p.RecentCombat && this.p.Crippled_Turns <= 0)
                     {
-                        if (!input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                        if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                             {
@@ -2780,14 +2724,14 @@ namespace Ship_Game
 
             if (popup)
             {
-                if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
                     return;
                 popup = false;
             }
             else 
                 {
                 if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
-                if (!rmouse && (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
+                if (!rmouse && (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
                 {
                     Empire.Universe.ShipsInCombat.Active = true;
                     Empire.Universe.PlanetsInCombat.Active = true;

@@ -234,7 +234,7 @@ namespace Ship_Game
 			{
 				float scale = (float)((float)this.itemToBuild.Size) / (float)ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width;
 				Vector2 IconOrigin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2));
-				scale = scale * 4000f / this.screen.camHeight;
+				scale = scale * 4000f / this.screen.CamHeight;
 				if (scale > 1f)
 				{
 					scale = 1f;
@@ -292,16 +292,16 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
-					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+					if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 					{
 						this.itemToBuild = e.item as Ship;
 						return true;
 					}
 				}
 			}
-			if (this.itemToBuild == null || this.win.HitTest(MousePos) || input.CurrentMouseState.LeftButton != ButtonState.Pressed || input.LastMouseState.LeftButton != ButtonState.Released)
+			if (this.itemToBuild == null || this.win.HitTest(MousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
 			{
-				if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+				if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
 				{
 					this.itemToBuild = null;
 				}
@@ -312,8 +312,8 @@ namespace Ship_Game
 				this.screen.showingDSBW = false;
 				return true;
 			}
-			Vector3 nearPoint = screen.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
-			Vector3 farPoint = screen.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
+			Vector3 nearPoint = screen.Viewport.Unproject(new Vector3((float)input.MouseCurr.X, (float)input.MouseCurr.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
+			Vector3 farPoint = screen.Viewport.Unproject(new Vector3((float)input.MouseCurr.X, (float)input.MouseCurr.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
 			Vector3 direction = farPoint - nearPoint;
 			direction.Normalize();
 			Ray pickRay = new Ray(nearPoint, direction);
@@ -331,7 +331,7 @@ namespace Ship_Game
 			{
 				this.screen.UpdateClickableItems();
 			}
-			if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && (!input.CurrentKeyboardState.IsKeyDown(Keys.RightShift)))
+			if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && (!input.KeysCurr.IsKeyDown(Keys.RightShift)))
 			{
 				this.itemToBuild = null;
 			}

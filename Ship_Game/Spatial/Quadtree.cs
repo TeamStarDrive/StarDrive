@@ -562,19 +562,6 @@ namespace Ship_Game
 
         public void CollideAll() => CollideAllAt(Root, FrameId);
 
-        private static int CountItemsRecursive(Node node)
-        {
-            int count = node.Count;
-            if (node.NW != null)
-            {
-                count += CountItemsRecursive(node.NW);
-                count += CountItemsRecursive(node.NE);
-                count += CountItemsRecursive(node.SE);
-                count += CountItemsRecursive(node.SW);
-            }
-            return count;
-        }
-
         private static void CollideAllAt(Node node, int frameId)
         {
             if (node.NW != null) // depth first approach, to early filter LastCollided
@@ -599,6 +586,20 @@ namespace Ship_Game
                 }
                 else if ((so.Type & GameObjectType.Ship) != 0) CollideShipAtNode(node, frameId, ref so);
             }
+        }
+
+
+        private static int CountItemsRecursive(Node node)
+        {
+            int count = node.Count;
+            if (node.NW != null)
+            {
+                count += CountItemsRecursive(node.NW);
+                count += CountItemsRecursive(node.NE);
+                count += CountItemsRecursive(node.SE);
+                count += CountItemsRecursive(node.SW);
+            }
+            return count;
         }
 
 
