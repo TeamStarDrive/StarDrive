@@ -1012,11 +1012,11 @@ namespace Ship_Game
             
             if (popup)
             {
-                if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
                         return;
                     popup = false;
             }
-            else if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+            else if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
             {
                 Empire.Universe.ShipsInCombat.Active = true;
                 Empire.Universe.PlanetsInCombat.Active = true;

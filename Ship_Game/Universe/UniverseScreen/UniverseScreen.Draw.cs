@@ -311,7 +311,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.Clear(Color.TransparentWhite);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             this.ScreenManager.SpriteBatch.Draw(this.FogMap, new Rectangle(0, 0, 512, 512), Color.White);
-            float num = 512f / UniverseRadius;
+            float num = 512f / UniverseSize;
             var uiNode = ResourceManager.TextureDict["UI/node"];
             foreach (Ship ship in player.GetShips())
             {
@@ -333,7 +333,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.LightsTarget);
             this.ScreenManager.GraphicsDevice.Clear(Color.White);
 
-            this.Viewport.Project(new Vector3(this.UniverseRadius / 2f, this.UniverseRadius / 2f, 0.0f),
+            this.Viewport.Project(new Vector3(this.UniverseSize / 2f, this.UniverseSize / 2f, 0.0f),
                 this.projection, this.view, Matrix.Identity);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
@@ -342,7 +342,7 @@ namespace Ship_Game
                     Viewport.Project(Vector3.Zero, this.projection, this.view,
                         Matrix.Identity);
                 Vector3 vector3_2 =
-                    Viewport.Project(new Vector3(this.UniverseRadius, this.UniverseRadius, 0.0f),
+                    Viewport.Project(new Vector3(this.UniverseSize, this.UniverseSize, 0.0f),
                         this.projection, this.view, Matrix.Identity);
 
                 Rectangle fogRect = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
@@ -372,12 +372,12 @@ namespace Ship_Game
                 Beam.BeamEffect.Parameters["Projection"].SetValue(projection);
             }
             AdjustCamera((float) gameTime.ElapsedGameTime.TotalSeconds);
-            camPos.Z = camHeight;
+            CamPos.Z = CamHeight;
             view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)
                    * Matrix.CreateRotationY(180f.ToRadians())
                    * Matrix.CreateRotationX(0.0f.ToRadians())
-                   * Matrix.CreateLookAt(new Vector3(-camPos.X, camPos.Y, camHeight),
-                       new Vector3(-camPos.X, camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+                   * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamHeight),
+                       new Vector3(-CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Matrix matrix = view;
 
             var graphics = ScreenManager.GraphicsDevice;
@@ -416,7 +416,7 @@ namespace Ship_Game
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
                 // set the alpha value depending on camera height
-                int alpha = (int) (90.0f * camHeight / 1800000.0f);
+                int alpha = (int) (90.0f * CamHeight / 1800000.0f);
                 if (alpha > 90) alpha = 90;
                 else if (alpha < 10) alpha = 0;
                 var color = new Color(255, 255, 255, (byte) alpha);
@@ -933,7 +933,7 @@ namespace Ship_Game
                     if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
                     {
                         //float scale2 = 0.07f;
-                        float scale = ((float) buildTemplate.Size / platform.Width) * 4000f / camHeight;
+                        float scale = ((float) buildTemplate.Size / platform.Width) * 4000f / CamHeight;
                         DrawTextureProjected(platform, item.BuildPos, scale, 0.0f, new Color(0, 255, 0, 100));
                         if (showingDSBW)
                         {
@@ -974,7 +974,7 @@ namespace Ship_Game
                                                      (ship.isConstructor ? "construction" : ship.shipData.GetRole()));
 
                 float num = ship.Size / (30f + symbol.Width);
-                float scale = num * 4000f / camHeight;
+                float scale = num * 4000f / CamHeight;
                 if (scale > 1.0f) scale = 1f;
                 else if (scale <= 0.1f)
                     scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView

@@ -71,8 +71,8 @@ namespace Ship_Game
             SaveData.GravityWells        = screenToSave.GravityWells;
             SaveData.PlayerLoyalty       = screenToSave.PlayerLoyalty;
             SaveData.RandomEvent         = RandomEventManager.ActiveEvent;
-            SaveData.campos              = new Vector2(screenToSave.camPos.X, screenToSave.camPos.Y);
-            SaveData.camheight           = screenToSave.camHeight;
+            SaveData.campos              = new Vector2(screenToSave.CamPos.X, screenToSave.CamPos.Y);
+            SaveData.camheight           = screenToSave.CamHeight;
             SaveData.MinimumWarpRange    = GlobalStats.MinimumWarpRange;
             SaveData.TurnTimer           = (byte)GlobalStats.TurnTimer;
             SaveData.IconSize            = GlobalStats.IconSize;
@@ -549,7 +549,7 @@ namespace Ship_Game
             string path = Dir.ApplicationData;
             SaveData.path       = path;
             SaveData.SaveAs     = saveAs;
-            SaveData.Size       = new Vector2(screenToSave.UniverseRadius);
+            SaveData.Size       = new Vector2(screenToSave.UniverseSize);
             SaveData.FogMapName = saveAs + "fog";
             screenToSave.FogMap.Save(path + "/StarDrive/Saved Games/Fog Maps/" + saveAs + "fog.png", ImageFileFormat.Png);
             SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};

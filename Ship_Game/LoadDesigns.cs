@@ -184,7 +184,7 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			this.currentMouse = input.CurrentMouseState;
+			this.currentMouse = input.MouseCurr;
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			this.ShipDesigns.HandleInput(input);
 			if (input.Escaped || input.RightMouseClick)
@@ -245,7 +245,7 @@ namespace Ship_Game
 							GameAudio.PlaySfxAsync("sd_ui_mouseover");
 						}
 						e.clickRectHover = 1;
-						if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+						if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 						{
 							this.EnterNameArea.Text = (e.item as ShipData).Name;
 							this.selectedWIP = e.item as ShipData;
@@ -272,7 +272,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
-					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+					if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 					{
 						this.EnterNameArea.Text = (e.item as Ship).Name;
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -297,7 +297,7 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(Localizer.Token(2225), base.ScreenManager);
 			}
-			this.previousMouse = input.LastMouseState;
+			this.previousMouse = input.MousePrev;
 			base.HandleInput(input);
 		}
 

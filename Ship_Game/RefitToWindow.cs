@@ -122,7 +122,7 @@ namespace Ship_Game
 		public override void HandleInput(InputState input)
 		{
 			this.ShipSL.HandleInput(input);
-			if (input.Escaped || input.CurrentMouseState.RightButton == ButtonState.Pressed)
+			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
 			}

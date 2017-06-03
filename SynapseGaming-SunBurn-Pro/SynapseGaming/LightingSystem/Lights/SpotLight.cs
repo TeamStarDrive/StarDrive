@@ -290,54 +290,54 @@ namespace SynapseGaming.LightingSystem.Lights
                 switch (serializationEntry.Name)
                 {
                     case "Enabled":
-                        Class28.smethod_0(ref this.bool_0, serializationInfo_0, "Enabled");
+                        serializationInfo_0.GetValue("Enabled", out this.bool_0);
                         continue;
                     case "DiffuseColor":
-                        Class28.smethod_0(ref this.vector3_0, serializationInfo_0, "DiffuseColor");
+                        serializationInfo_0.GetValue("DiffuseColor", out this.vector3_0);
                         continue;
                     case "Intensity":
-                        Class28.smethod_0(ref this.float_1, serializationInfo_0, "Intensity");
+                        serializationInfo_0.GetValue("Intensity", out this.float_1);
                         continue;
                     case "FillLight":
-                        Class28.smethod_0(ref this.bool_1, serializationInfo_0, "FillLight");
+                        serializationInfo_0.GetValue("FillLight", out this.bool_1);
                         continue;
                     case "FalloffStrength":
-                        Class28.smethod_0(ref this.float_0, serializationInfo_0, "FalloffStrength");
+                        serializationInfo_0.GetValue("FalloffStrength", out this.float_0);
                         continue;
                     case "ShadowType":
-                        Class28.smethod_1(ref this.shadowType_0, serializationInfo_0, "ShadowType");
+                        serializationInfo_0.GetEnum("ShadowType", out this.shadowType_0);
                         continue;
                     case "Position":
-                        Class28.smethod_0(ref gparam_0, serializationInfo_0, "Position");
+                        serializationInfo_0.GetValue("Position", out gparam_0);
                         this.Position = gparam_0;
                         continue;
                     case "Radius":
-                        Class28.smethod_0(ref this.LightRadius, serializationInfo_0, "Radius");
+                        serializationInfo_0.GetValue("Radius", out this.LightRadius);
                         continue;
                     case "Direction":
-                        Class28.smethod_0(ref gparam_0, serializationInfo_0, "Direction");
+                        serializationInfo_0.GetValue("Direction", out gparam_0);
                         this.Direction = gparam_0;
                         continue;
                     case "Angle":
-                        Class28.smethod_0(ref this.LightInfluenceAngle, serializationInfo_0, "Angle");
+                        serializationInfo_0.GetValue("Angle", out this.LightInfluenceAngle);
                         continue;
                     case "Volume":
-                        Class28.smethod_0(ref this.LightVolume, serializationInfo_0, "Volume");
+                        serializationInfo_0.GetValue("Volume", out this.LightVolume);
                         continue;
                     case "Name":
-                        Class28.smethod_0(ref this.ObjectName, serializationInfo_0, "Name");
+                        serializationInfo_0.GetValue("Name", out this.ObjectName);
                         continue;
                     case "ShadowQuality":
-                        Class28.smethod_0(ref this.float_2, serializationInfo_0, "ShadowQuality");
+                        serializationInfo_0.GetValue("ShadowQuality", out this.float_2);
                         continue;
                     case "ShadowPrimaryBias":
-                        Class28.smethod_0(ref this.float_3, serializationInfo_0, "ShadowPrimaryBias");
+                        serializationInfo_0.GetValue("ShadowPrimaryBias", out this.float_3);
                         continue;
                     case "ShadowSecondaryBias":
-                        Class28.smethod_0(ref this.float_4, serializationInfo_0, "ShadowSecondaryBias");
+                        serializationInfo_0.GetValue("ShadowSecondaryBias", out this.float_4);
                         continue;
                     case "ShadowPerSurfaceLOD":
-                        Class28.smethod_0(ref this.bool_2, serializationInfo_0, "ShadowPerSurfaceLOD");
+                        serializationInfo_0.GetValue("ShadowPerSurfaceLOD", out this.bool_2);
                         continue;
                     default:
                         continue;

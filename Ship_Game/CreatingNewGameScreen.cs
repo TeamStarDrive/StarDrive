@@ -848,7 +848,7 @@ namespace Ship_Game
             us = new UniverseScreen(Data)
             {
                 player         = PlayerEmpire,
-                camPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
+                CamPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
                 ScreenManager  = ScreenManager,
                 GameDifficulty = Difficulty,
                 GameScale      = Scale

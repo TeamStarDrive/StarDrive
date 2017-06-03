@@ -817,7 +817,7 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.TakingInput || disabled || !hasCommand)
                 return;
             if (Empire.Universe.Input != null)
-                currentKeyBoardState = Empire.Universe.Input.CurrentKeyboardState;
+                currentKeyBoardState = Empire.Universe.Input.KeysCurr;
             if (currentKeyBoardState.IsKeyDown(Keys.D))
                 AI.State = AIState.ManualControl;
             if (currentKeyBoardState.IsKeyDown(Keys.A))
@@ -1596,7 +1596,7 @@ namespace Ship_Game.Gameplay
                 JumpSfx.Stop();
 
             if (engineState == MoveState.Warp && 
-                Center.InRadius(Empire.Universe.camPos.ToVec2(), 100000f) && Empire.Universe.camHeight < 250000)
+                Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                 FTLManager.AddFTL(Center);

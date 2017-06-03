@@ -121,8 +121,8 @@ namespace Ship_Game
 			Rectangle clickCursor = cursor;
 			clickCursor.X -= cursor.Width / 2;
 			if (clickCursor.HitTest(input.CursorPosition) && 
-                input.CurrentMouseState.LeftButton == ButtonState.Pressed && 
-                input.LastMouseState.LeftButton    == ButtonState.Pressed)
+                input.MouseCurr.LeftButton == ButtonState.Pressed && 
+                input.MousePrev.LeftButton    == ButtonState.Pressed)
 			{
 				dragging = true;
 			}
@@ -132,7 +132,7 @@ namespace Ship_Game
 				if (cursor.X > rect.X + rect.Width) cursor.X = rect.X + rect.Width;
 				else if (cursor.X < rect.X)         cursor.X = rect.X;
 
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Released)
 					dragging = false;
 				amount = 1f - (rect.X + rect.Width - cursor.X) / (float)rect.Width;
 			}

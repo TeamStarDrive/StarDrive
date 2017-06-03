@@ -311,7 +311,7 @@ namespace Ship_Game.AI
                     if (aoSize < Vector2.Distance(planet2.Center, system.Position))
                         aoSize = Vector2.Distance(planet2.Center, system.Position);
                 }
-                float aomax = Empire.Universe.UniverseRadius * .2f;
+                float aomax = Empire.Universe.UniverseSize * .2f;
                 if (aoSize > aomax)
                     aoSize = aomax;
                 bool flag1 = true;

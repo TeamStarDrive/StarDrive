@@ -58,11 +58,6 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-		    Viewport viewport = Game1.Instance.Viewport;
-            input.CursorPosition = this.Position;
-			float x = this.Position.X / (float)viewport.Width;
-			float y = this.Position.Y;
-			input.NormalizedCursorPosition = new Vector2(x, y / (float)viewport.Height);
 			bool retVal = this.pieMenu.Visible;
 			if (this.CurrentCursorMode != CursorMode.GamePad)
 			{
@@ -75,7 +70,7 @@ namespace Ship_Game
 			{
 				this.pieMenu.HandleInput(input);
 			}
-			this.deltaMovement = input.CurrentGamePadState.ThumbSticks.Left;
+			this.deltaMovement = input.GamepadCurr.ThumbSticks.Left;
 			this.deltaMovement.Y = this.deltaMovement.Y * -1f;
 			return retVal;
 		}

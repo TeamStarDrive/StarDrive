@@ -159,7 +159,7 @@ namespace Ship_Game.Gameplay
 
                 us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, Color.White);
 
-                if (us.camHeight > 6000.0f) // long distance view, draw the modules as colored icons
+                if (us.CamHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
                     us.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColor());
                 }
@@ -193,7 +193,7 @@ namespace Ship_Game.Gameplay
                     if (enableModuleDebug)
                     {
                         ModulePosToGridPoint(slot.Position, out int x, out int y);
-                        us.DrawString(posOnScreen, shipRotation, 350f / us.camHeight, Color.Magenta, $"X {x}, Y {y}");
+                        us.DrawString(posOnScreen, shipRotation, 350f / us.CamHeight, Color.Magenta, $"X {x}, Y {y}");
                     }
                 }
 
