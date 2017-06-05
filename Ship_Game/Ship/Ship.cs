@@ -980,7 +980,7 @@ namespace Ship_Game.Gameplay
                     return false;
             }
             float attackRunRange = 50f;
-            if (w.PrimaryTarget && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            if (w.FireTarget != null && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
                 attackRunRange = speed;
                 if (attackRunRange < 50f)
@@ -998,9 +998,7 @@ namespace Ship_Game.Gameplay
             if (w.MassDamage > 0 || w.RepulsionDamage > 0)
             {
                 if (targetShip != null && (targetShip.EnginesKnockedOut || targetShip.IsTethered()))
-                {
                     return false;
-                }
             }
             if (targetShip != null && (loyalty == targetShip.loyalty || !loyalty.isFaction &&
                 loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
@@ -2700,7 +2698,6 @@ namespace Ship_Game.Gameplay
         {
             Active            = false;
             AI.Target         = null;
-            AI.TargetShip     = null;
             AI.ColonizeTarget = null;
             AI.EscortTarget   = null;
             AI.start = null;
