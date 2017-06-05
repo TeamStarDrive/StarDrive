@@ -78,18 +78,18 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo) : this()
+        public Projectile(Ship owner, Vector2 origin, Vector2 direction, ShipModule moduleAttachedTo) : this()
         {
-            Init(owner, direction, moduleAttachedTo);
+            Init(owner, origin, direction, moduleAttachedTo);
         }
-        public void Init(Ship parent, Vector2 direction, ShipModule moduleAttachedTo)
+        private void Init(Ship parent, Vector2 origin, Vector2 direction, ShipModule moduleAttachedTo)
         {
             Loyalty = parent.loyalty;
             Owner = parent;
             SetSystem(parent.System);
             ModuleAttachedTo = moduleAttachedTo;
-            Center = Position = moduleAttachedTo.Center;
-            Emitter.Position = new Vector3(Position, 0f);
+            Center = Position = origin;
+            Emitter.Position = new Vector3(origin, 0f);
         }
 
         public Projectile(Planet p, Vector2 direction) : this()
