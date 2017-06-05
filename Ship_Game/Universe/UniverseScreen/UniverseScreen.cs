@@ -65,7 +65,6 @@ namespace Ship_Game
         private AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
         public float CamHeight = 2550f;
         public Vector3 CamPos = Vector3.Zero;
-        public Array<Ship> ShipsToAdd = new Array<Ship>();
         private float TooltipTimer = 0.5f;
         private float sTooltipTimer = 0.5f;
         private float TimerDelay = 0.25f;
