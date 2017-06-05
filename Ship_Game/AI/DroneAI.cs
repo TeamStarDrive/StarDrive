@@ -84,7 +84,7 @@ namespace Ship_Game.AI
 
 		public void Think(float elapsedTime)
 		{
-			DroneWeapon.timeToNextFire = DroneWeapon.timeToNextFire - elapsedTime;
+			DroneWeapon.CooldownTimer -= elapsedTime;
 
             Beams.ApplyPendingRemovals();
 			ThinkTimer -= elapsedTime;
@@ -104,7 +104,7 @@ namespace Ship_Game.AI
 				return;
 			}
 			if (DroneTarget.Health / DroneTarget.HealthMax < 1f
-                && DroneWeapon.timeToNextFire <= 0f
+                && DroneWeapon.CooldownTimer <= 0f
                 && DroneTarget != null && Owner.Center.Distance(DroneTarget.Center) < 15000f)
 			{
 				DroneWeapon.FireDroneBeam(DroneTarget, this);

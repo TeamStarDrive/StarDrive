@@ -34,7 +34,7 @@ namespace Ship_Game.AI
                 float fireRate = 0;
                 foreach(Weapon w in ship.Weapons)
                 {
-                    if(w.isBeam || w.isMainGun || w.moduleAttachedTo.XSIZE*w.moduleAttachedTo.YSIZE > 4)
+                    if(w.isBeam || w.isMainGun || w.Module.XSIZE*w.Module.YSIZE > 4)
                         mains++;
                     if(w.SalvoCount > 2 || w.Tag_PD )
                         pd++;

@@ -33,27 +33,25 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public GameplayObject Target { get; }
 
-        // Create a targeted beam that follows GameplayObject [target]
-        public Beam(Weapon weapon, GameplayObject target) : this(weapon, target.Center)
-        {
-            Target = target;
-        }
-
-        // Create an untargeted beam with an initial destination position
-        public Beam(Weapon weapon, Vector2 destination) : base(GameObjectType.Beam)
+        // Create a beam with an initial destination position that optionally follows GameplayObject [target]
+        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null) : base(GameObjectType.Beam)
         {
             //there is an error here in beam creation where the weapon has no module. 
             // i am setting these values in the weapon CreateDroneBeam where possible. 
             Weapon = weapon;
-            ModuleAttachedTo = weapon.moduleAttachedTo;
+            Target = target;
+            ModuleAttachedTo = weapon.Module;
             DamageAmount = weapon.DamageAmount;
             PowerCost    = weapon.BeamPowerCostPerSecond;
             Range        = weapon.Range;
             Duration     = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
             Thickness    = weapon.BeamThickness;
 
+            // for repair weapons, we ignore all collisions
+            DisableSpatialCollision = DamageAmount < 0f;
+
             Owner  = ModuleAttachedTo?.GetParent();
-            Source = ModuleAttachedTo?.Center ?? Vector2.Zero;
+            Source = source;
             SetDestination(destination);
             ActualHitDestination = Destination;
 
@@ -84,7 +82,7 @@ namespace Ship_Game
         private void SetDestination(Vector2 destination)
         {
             Vector2 deltaVec = destination - Source;
-            Destination = Source + deltaVec.Normalized()*Math.Min(Range, deltaVec.Length());
+            Destination = Source + deltaVec.Normalized() * Math.Min(Range, deltaVec.Length());
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)

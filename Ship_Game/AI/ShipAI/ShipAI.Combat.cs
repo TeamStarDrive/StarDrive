@@ -60,9 +60,9 @@ namespace Ship_Game.AI
         private bool CanFireWeapon(Weapon weapon)
         {
             // Reasons for this weapon not to fire 
-            if (!weapon.moduleAttachedTo.Active
-                || weapon.timeToNextFire > 0f
-                || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam
+            if (!weapon.Module.Active
+                || weapon.CooldownTimer > 0f
+                || !weapon.Module.Powered || weapon.IsRepairDrone || weapon.isRepairBeam
                 || weapon.PowerRequiredToFire > Owner.PowerCurrent
                 || weapon.TargetChangeTimer > 0f
             )
@@ -90,7 +90,7 @@ namespace Ship_Game.AI
                 !weapon.PrimaryTarget && projTarget == null && Owner.CheckIfInsideFireArc(weapon, Target)
             )
             {
-                weapon.TargetChangeTimer = 0.1f * weapon.moduleAttachedTo.XSIZE * weapon.moduleAttachedTo.YSIZE;
+                weapon.TargetChangeTimer = 0.1f * weapon.Module.XSIZE * weapon.Module.YSIZE;
                 weapon.fireTarget = null;
                 if (weapon.isTurret) weapon.TargetChangeTimer *= .5f;
                 if (weapon.Tag_PD)   weapon.TargetChangeTimer *= .5f;
@@ -156,7 +156,8 @@ namespace Ship_Game.AI
                     }
                 }
                 //If a ship was found to fire on, change to target an internal module if target is visible  || weapon.Tag_Intercept
-                if (weapon.fireTarget is Ship targetShip && (GlobalStats.ForceFullSim || Owner.InFrustum || targetShip.InFrustum))
+                if (weapon.fireTarget is Ship targetShip 
+                    && (GlobalStats.ForceFullSim || Owner.InFrustum || targetShip.InFrustum))
                 {
                     weapon.fireTarget = targetShip.GetRandomInternalModule(weapon);
                 }
@@ -236,109 +237,19 @@ namespace Ship_Game.AI
         // This code is very expensive. 
         private void FireWeapons()
         {
-            float lag = Empire.Universe.Lag;
-            int weaponsFired = 0;
-            foreach (Weapon weapon in Owner.Weapons)
+            for (int i = 0; i < Owner.Weapons.Count; ++i)
             {
-                if (weapon.fireTarget == null || !weapon.moduleAttachedTo.Active || !(weapon.timeToNextFire <= 0f) ||
-                    !weapon.moduleAttachedTo.Powered) continue;
-                if (weapon.fireTarget is Ship)
-                {
-                    FireOnTargetNonVisible(weapon, weapon.fireTarget);
-                }
-                else
-                {
-                    GameplayObject target = weapon.fireTarget;
-                    if (weapon.isBeam)
-                    {
-                        weapon.FireTargetedBeam(target);
-                    }
-                    else if (weapon.Tag_Guided)
-                    {
-                        if (weaponsFired > 10 && lag > 0.05 && !GlobalStats.ForceFullSim && !weapon.Tag_Intercept && weapon.fireTarget is ShipModule targetModule)
-                            FireOnTargetNonVisible(weapon, targetModule.GetParent());
-                        else
-                        {
-                            float rotation = Owner.Rotation + weapon.moduleAttachedTo.Facing.ToRadians();
-                            weapon.Fire(new Vector2((float)Math.Sin(rotation), -(float)Math.Cos(rotation)), target);
-                        }
-                        ++weaponsFired;
-                    }
-                    else
-                    {
-                        if (weaponsFired > 10 && lag > 0.05 && !GlobalStats.ForceFullSim && weapon.fireTarget is ShipModule targetModule)
-                            FireOnTargetNonVisible(weapon, targetModule.GetParent());
-                        else
-                            CalculateAndFire(weapon, target, false);
-                        ++weaponsFired;
-                    }
-                }
+                Weapon weapon = Owner.Weapons[i];
+
+                // note: these are all optimizations
+                if (weapon.fireTarget == null || !weapon.Module.Active || weapon.CooldownTimer > 0f || !weapon.Module.Powered)
+                    continue;
+
+                weapon.FireAtAssignedTarget();
             }
         }
 
-        public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
-        {
-            GameplayObject realTarget = (target is ShipModule sm) ? sm.GetParent() : target;
-
-            Vector2 predictedPos = weapon.Center.FindPredictedTargetPosition(
-                weapon.Owner.Velocity, weapon.ProjectileSpeed, target.Center, realTarget.Velocity);
-
-            if (Owner.CheckIfInsideFireArc(weapon, predictedPos))
-            {
-                Vector2 direction = (predictedPos - weapon.Center).Normalized();
-                if (SalvoFire) weapon.FireSalvo(direction, target);
-                else weapon.Fire(direction, target);
-            }
-        }
-
-        private void FireOnTargetNonVisible(Weapon w, GameplayObject fireTarget)
-        {
-            if (Owner.Ordinance < w.OrdinanceRequiredToFire || Owner.PowerCurrent < w.PowerRequiredToFire)
-                return;
-            w.timeToNextFire = w.fireDelay;
-            if (w.IsRepairDrone)
-                return;
-            if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !w.TargetValid(TargetShip.shipData.Role)
-                || TargetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(w, TargetShip))
-                return;
-
-            Owner.Ordinance -= w.OrdinanceRequiredToFire;
-            Owner.PowerCurrent -= w.PowerRequiredToFire;
-            Owner.PowerCurrent -= w.BeamPowerCostPerSecond * w.BeamDuration;
-            Owner.InCombatTimer = 15f;
-
-            if (fireTarget is Projectile)
-            {
-                fireTarget.Damage(w.Owner, w.DamageAmount);
-                return;
-            }
-
-            if (!(fireTarget is Ship targetShip))
-            {
-                if (fireTarget is ShipModule shipModule)
-                    targetShip = shipModule.GetParent();
-                else return; // aaarggh!
-            }
-
-            w.timeToNextFire = w.fireDelay;
-            if (targetShip.NumExternalSlots == 0)
-            {
-                targetShip.Die(null, true);
-                return;
-            } //@todo invisible ecm and such should match visible
-
-
-            if (targetShip.AI.CombatState == CombatState.Evade) // fbedard: firing on evading ship can miss !
-                if (RandomMath.RandomBetween(0f, 100f) < 5f + targetShip.experience)
-                    return;
-
-            if (targetShip.shield_power > 0f)
-                targetShip.DamageShieldInvisible(Owner, w.InvisibleDamageAmount);
-            else
-                targetShip.FindClosestUnshieldedModule(Owner.Center)?.Damage(Owner, w.InvisibleDamageAmount);
-        }
-
-        public GameplayObject ScanForCombatTargets(Vector2 Position, float Radius)
+        public GameplayObject ScanForCombatTargets(Vector2 position, float radius)
         {
             BadGuysNear = false;
             FriendliesNearby.Clear();
@@ -381,7 +292,7 @@ namespace Ship_Game.AI
                 {
                     Planet p = thisSystem.PlanetList[i];
                     BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) &&
-                                  Owner.Center.InRadius(p.Center, Radius);             
+                                  Owner.Center.InRadius(p.Center, radius);             
                 }
             {
                 if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
@@ -398,7 +309,7 @@ namespace Ship_Game.AI
                 {
                     var nearbyShip = (Ship)go;
                     if (!nearbyShip.Active || nearbyShip.dying
-                        || Owner.Center.OutsideRadius(nearbyShip.Center, Radius + (Radius < 0.01f ? 10000 : 0)))
+                        || Owner.Center.OutsideRadius(nearbyShip.Center, radius + (radius < 0.01f ? 10000 : 0)))
                         continue;
 
                     Empire empire = nearbyShip.loyalty;
@@ -410,7 +321,7 @@ namespace Ship_Game.AI
                     bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
                     if (!isAttackable) continue;
                     BadGuysNear = true;
-                    if (Radius < 1)
+                    if (radius < 1)
                         continue;
                     var sw = new ShipWeight
                     {

@@ -952,7 +952,7 @@ namespace Ship_Game.Gameplay
         private void ConfigWeapon(bool addToParent)
         {
             InstalledWeapon = ResourceManager.CreateWeapon(ResourceManager.GetModuleTemplate(UID).WeaponType);
-            InstalledWeapon.moduleAttachedTo = this;
+            InstalledWeapon.Module = this;
             InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
             isWeapon = true;

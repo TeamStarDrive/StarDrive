@@ -839,19 +839,18 @@ namespace Ship_Game.AI {
 
         private void DoRepairBeamLogic(Weapon w)
         {
-            var repairMe = FriendliesNearby.FindMinFiltered
-            (filter: ship => ship.Active && ship != w.Owner
-                             && ship.Health / ship.HealthMax < .9f
-                             && Owner.Center.Distance(ship.Center) <= w.Range + 500f,
-                selector: ship => ship.Health);
+            Ship repairMe = FriendliesNearby.FindMinFiltered(
+                    filter: ship => ship.Active && ship != w.Owner
+                                 && ship.Health / ship.HealthMax < .9f
+                                 && Owner.Center.Distance(ship.Center) <= w.Range + 500f,
+                    selector: ship => ship.Health);
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);
         }
 
         private void DoOrdinanceTransporterLogic(ShipModule module)
         {
-            Ship repairMe =
-                module.GetParent()
+            Ship repairMe = module.GetParent()
                     .loyalty.GetShips()
                     .FindMinFiltered(
                         filter: ship => Owner.Center.Distance(ship.Center) <= module.TransporterRange + 500f
@@ -860,20 +859,16 @@ namespace Ship_Game.AI {
             if (repairMe != null)
             {
                 module.TransporterTimer = module.TransporterTimerConstant;
-                var TransferAmount = 0f;
-                //check how much can be taken
-                if (module.TransporterOrdnance > module.GetParent().Ordinance)
-                    TransferAmount = module.GetParent().Ordinance;
-                else
-                    TransferAmount = module.TransporterOrdnance;
+                float transferAmount = module.TransporterOrdnance > module.GetParent().Ordinance
+                                     ? module.GetParent().Ordinance : module.TransporterOrdnance;
                 //check how much can be given
-                if (TransferAmount > repairMe.OrdinanceMax - repairMe.Ordinance)
-                    TransferAmount = repairMe.OrdinanceMax - repairMe.Ordinance;
+                if (transferAmount > repairMe.OrdinanceMax - repairMe.Ordinance)
+                    transferAmount = repairMe.OrdinanceMax - repairMe.Ordinance;
                 //Transfer
-                repairMe.Ordinance += TransferAmount;
-                module.GetParent().Ordinance -= TransferAmount;
+                repairMe.Ordinance += transferAmount;
+                module.GetParent().Ordinance -= transferAmount;
                 module.GetParent().PowerCurrent -= module.TransporterPower *
-                                                   (TransferAmount / module.TransporterOrdnance);
+                                                   (transferAmount / module.TransporterOrdnance);
 
                 if (Owner.InFrustum)
                 {
@@ -884,12 +879,10 @@ namespace Ship_Game.AI {
 
         private void DoAssaultTransporterLogic(ShipModule module)
         {
-            var ship =
-                NearbyShips.FindMinFiltered(
+            var ship = NearbyShips.FindMinFiltered(
                     filter:
-                    Ship =>
-                        Ship.Ship.loyalty != null && Ship.Ship.loyalty != Owner.loyalty && Ship.Ship.shield_power <= 0
-                        && Owner.Center.Distance(Ship.Ship.Center) <= module.TransporterRange + 500f,
+                    s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
+                         && Owner.Center.Distance(s.Ship.Center) <= module.TransporterRange + 500f,
                     selector: Ship => Owner.Center.SqDist(Ship.Ship.Center));
             if (ship != null)
             {
