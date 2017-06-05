@@ -353,21 +353,21 @@ namespace Ship_Game.AI
                     //Added by McShooterz: logic for repair beams
                     if (Owner.hasRepairBeam)
                         foreach (ShipModule module in Owner.RepairBeams)
-                            if (module.InstalledWeapon.timeToNextFire <= 0f &&
-                                module.InstalledWeapon.moduleAttachedTo.Powered &&
+                            if (module.InstalledWeapon.CooldownTimer <= 0f &&
+                                module.InstalledWeapon.Module.Powered &&
                                 Owner.Ordinance >= module.InstalledWeapon.OrdinanceRequiredToFire &&
                                 Owner.PowerCurrent >= module.InstalledWeapon.PowerRequiredToFire)
                                 DoRepairBeamLogic(module.InstalledWeapon);
                     if (Owner.HasRepairModule)
                         foreach (Weapon weapon in Owner.Weapons)
                         {
-                            if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered ||
+                            if (weapon.CooldownTimer > 0f || !weapon.Module.Powered ||
                                 Owner.Ordinance < weapon.OrdinanceRequiredToFire ||
                                 Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
                             {
                                 //Gretman -- Added this so repair drones would cooldown outside combat (+15s)
-                                if (weapon.timeToNextFire > 0f)
-                                    weapon.timeToNextFire = MathHelper.Max(weapon.timeToNextFire - 1, 0f);
+                                if (weapon.CooldownTimer > 0f)
+                                    weapon.CooldownTimer = MathHelper.Max(weapon.CooldownTimer - 1, 0f);
                                 continue;
                             }
                             DoRepairDroneLogic(weapon);
