@@ -159,18 +159,17 @@ namespace Ship_Game.Debug
                     continue;
                 foreach (Weapon weapon in ship.Weapons)
                 {
-                    var module = weapon.fireTarget as ShipModule;
+                    var module = weapon.FireTarget as ShipModule;
                     if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided)
                         continue;                        
 
                     Vector2 projDest1 = weapon.Center.FindPredictedTargetPosition1(ship.Velocity,
-                        weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
+                        weapon.ProjectileSpeed, module.Center, ship.AI.Target.Velocity);
 
                     Vector2 projDest0 = weapon.Center.FindPredictedTargetPosition0(ship.Velocity,
-                        weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
+                        weapon.ProjectileSpeed, module.Center, ship.AI.Target.Velocity);
 
-                    if (weapon.fireTarget != null)
-                        Screen.DrawCircleProjected(weapon.fireTarget.Center, 8f, 6, Color.Pink);
+                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.Pink);
     
                     Screen.DrawLineProjected(weapon.Center, projDest1, Color.Yellow);
                     Screen.DrawLineProjected(weapon.Center, projDest0, Color.LightYellow);

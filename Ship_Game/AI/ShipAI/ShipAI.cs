@@ -710,19 +710,16 @@ namespace Ship_Game.AI
             {
                 using (OrderQueue.AcquireWriteLock())
                 {
-                    var docombat = false;
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
                     if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0 || Owner.Transporters.Count > 0)
                     {
-
-                        if (Target != null)
-                            docombat = !HasPriorityOrder && !IgnoreCombat && State != AIState.Resupply &&
-                                       (OrderQueue.IsEmpty ||
-                                        firstgoal != null && firstgoal.Plan != Plan.DoCombat && firstgoal.Plan != Plan.Bombard &&
-                                        firstgoal.Plan != Plan.BoardShip);
-
-                        if (docombat)
+                        if (Target != null && !HasPriorityOrder && !IgnoreCombat && State != AIState.Resupply &&
+                            (OrderQueue.IsEmpty ||
+                            firstgoal != null && firstgoal.Plan != Plan.DoCombat && firstgoal.Plan != Plan.Bombard &&
+                            firstgoal.Plan != Plan.BoardShip))
+                        {
                             OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f));
+                        }
                         if (TriggerDelay < 0)
                         {
                             TriggerDelay = elapsedTime * 2;
@@ -734,14 +731,8 @@ namespace Ship_Game.AI
             else
             {
                 foreach (Weapon purge in Owner.Weapons)
-                {
-                    if (purge.fireTarget != null)
-                    {
-                        purge.PrimaryTarget = false;
-                        purge.fireTarget = null;
-                        purge.SalvoTarget = null;
-                    }
-                }
+                    purge.ClearFireTarget();
+
                 if (Owner.GetHangars().Count > 0 && Owner.loyalty != UniverseScreen.player)
                     foreach (ShipModule hangar in Owner.GetHangars())
                     {
