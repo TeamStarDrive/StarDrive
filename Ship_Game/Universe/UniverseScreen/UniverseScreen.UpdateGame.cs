@@ -478,21 +478,13 @@ namespace Ship_Game
                 return true;
 
             EmpireUpdatePerf.Start();
-            for (var index = 0; index < EmpireManager.Empires.Count; index++)
+            for (var i = 0; i < EmpireManager.Empires.Count; i++)
             {
-                Empire empire = EmpireManager.Empires[index];
+                Empire empire = EmpireManager.Empires[i];
                 empire.Update(elapsedTime);
             }
             MasterShipList.ApplyPendingRemovals();
 
-            lock (GlobalStats.AddShipLocker) //needed to fix Issue #629
-            {
-                foreach (Ship ship in ShipsToAdd)
-                {
-                    MasterShipList.Add(ship);
-                }
-                ShipsToAdd.Clear();
-            }
             shiptimer -= elapsedTime; // 0.01666667f;//
             EmpireUpdatePerf.Stop();
             return false;
