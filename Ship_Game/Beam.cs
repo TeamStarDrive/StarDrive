@@ -33,31 +33,36 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public GameplayObject Target { get; }
 
-        // Create a targeted beam that follows GameplayObject [target]
-        public Beam(Weapon weapon, GameplayObject target) : this(weapon, target.Center)
-        {
-            Target = target;
-        }
-
-        // Create an untargeted beam with an initial destination position
-        public Beam(Weapon weapon, Vector2 destination) : base(GameObjectType.Beam)
+        // Create a beam with an initial destination position that optionally follows GameplayObject [target]
+        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null) : base(GameObjectType.Beam)
         {
             //there is an error here in beam creation where the weapon has no module. 
             // i am setting these values in the weapon CreateDroneBeam where possible. 
             Weapon = weapon;
-            ModuleAttachedTo = weapon.moduleAttachedTo;
-            DamageAmount = weapon.DamageAmount;
+            Target = target;
+            Module = weapon.Module;
+            DamageAmount = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost    = weapon.BeamPowerCostPerSecond;
             Range        = weapon.Range;
             Duration     = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
             Thickness    = weapon.BeamThickness;
+            WeaponEffectType = weapon.WeaponEffectType;
+            WeaponType       = weapon.WeaponType;
+            // for repair weapons, we ignore all collisions
+            DisableSpatialCollision = DamageAmount < 0f;
 
-            Owner  = ModuleAttachedTo?.GetParent();
-            Source = ModuleAttachedTo?.Center ?? Vector2.Zero;
+            Owner  = weapon.Owner;
+            Source = source;
             SetDestination(destination);
             ActualHitDestination = Destination;
 
             Initialize();
+            weapon.ModifyProjectile(this);
+
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
+            {
+                weapon.PlayToggleAndFireSfx(Emitter);
+            }
         }
 
         // Create a spatially fixed beam spawned from a ship center
@@ -74,6 +79,8 @@ namespace Ship_Game
         public override void Initialize()
         {
             base.Initialize();
+
+            Loyalty = Owner.loyalty; // set loyalty before adding to spatial manager
             SetSystem(Owner.System);
             InitBeamMeshIndices();
             UpdateBeamMesh();
@@ -84,7 +91,7 @@ namespace Ship_Game
         private void SetDestination(Vector2 destination)
         {
             Vector2 deltaVec = destination - Source;
-            Destination = Source + deltaVec.Normalized()*Math.Min(Range, deltaVec.Length());
+            Destination = Source + deltaVec.Normalized() * Math.Min(Range, deltaVec.Length());
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -97,7 +104,7 @@ namespace Ship_Game
             }
             else if (Weapon.drowner != null)
             {
-                (Weapon.drowner as Projectile)?.GetDroneAI().Beams.QueuePendingRemoval(this);
+                (Weapon.drowner as Projectile)?.DroneAI.Beams.QueuePendingRemoval(this);
                 SetSystem(Weapon.drowner.System);
             }
             Weapon.ResetToggleSound();

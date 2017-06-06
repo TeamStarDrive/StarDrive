@@ -7,6 +7,10 @@ using static System.Math;
 namespace Ship_Game
 {
     // Added by RedFox
+    // Note about StarDrive coordinate system:
+    //   +X is right on screen
+    //   +Y is down on screen
+    //   +Z is out of the screen
     public static class MathExt
     {
         // clamp a value between [min, max]: min <= value <= max
@@ -254,16 +258,7 @@ namespace Ship_Game
             return new Vector2(dx / len, dy / len);
         }
 
-        public static Vector2 FindPredictedTargetPosition(this Vector2 weaponPos, Vector2 ownerVelocity,
-            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
-        {
-            //Vector2 pos0 = weaponPos.FindPredictedTargetPosition0(ownerVelocity, projectileSpeed , targetPos, targetVelocity);
-            Vector2 pos1 = weaponPos.FindPredictedTargetPosition1(ownerVelocity, projectileSpeed , targetPos, targetVelocity);
-            //Log.Info("PredictTargetPos 0={0}  1={1}", pos0, pos1);
-            return pos1;
-        }
-
-        public static Vector2 FindPredictedTargetPosition0(this Vector2 weaponPos, Vector2 ownerVelocity,
+        public static Vector2 FindProjectedImpactPointOld(this Vector2 weaponPos, Vector2 ownerVelocity,
             float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
         {
             Vector2 vectorToTarget     = targetPos - weaponPos;
@@ -273,7 +268,7 @@ namespace Ship_Game
             return targetPos + targetVelocity * time;
         }
 
-        public static Vector2 FindPredictedTargetPosition1(this Vector2 weaponPos, Vector2 ownerVelocity, 
+        public static Vector2 FindProjectedImpactPoint(this Vector2 weaponPos, Vector2 ownerVelocity, 
             float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
         {
             Vector2 delta = targetPos - weaponPos;

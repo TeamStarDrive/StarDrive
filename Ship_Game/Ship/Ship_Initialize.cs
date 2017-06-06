@@ -140,6 +140,7 @@ namespace Ship_Game.Gameplay
             ship.InitializeShip(loadingFromSavegame: false);
 
             owner.AddShip(ship);
+            Empire.Universe?.MasterShipList.Add(ship);
             return ship;
         }
 
