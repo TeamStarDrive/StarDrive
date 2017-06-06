@@ -167,7 +167,12 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-        
+
+        public void AddProjectile(Projectile projectile)
+        {
+            Projectiles.Add(projectile);
+        }
+
         //added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb)
         {
@@ -2317,7 +2322,7 @@ namespace Ship_Game
                                 if(target != null)
                                 {
                                     building.theWeapon.Center = Center;
-                                    building.theWeapon.FireFromPlanet(target.Center + target.Velocity - Center, this, target.GetRandomInternalModule(building.theWeapon));
+                                    building.theWeapon.FireFromPlanet(this, target);
                                     building.WeaponTimer = building.theWeapon.fireDelay;
                                     break;
                                 }
