@@ -40,8 +40,8 @@ namespace Ship_Game
             // i am setting these values in the weapon CreateDroneBeam where possible. 
             Weapon = weapon;
             Target = target;
-            ModuleAttachedTo = weapon.Module;
-            DamageAmount = weapon.DamageAmount;
+            Module = weapon.Module;
+            DamageAmount = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost    = weapon.BeamPowerCostPerSecond;
             Range        = weapon.Range;
             Duration     = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
@@ -50,12 +50,18 @@ namespace Ship_Game
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
 
-            Owner  = ModuleAttachedTo?.GetParent();
+            Owner  = weapon.Owner;
             Source = source;
             SetDestination(destination);
             ActualHitDestination = Destination;
 
             Initialize();
+            weapon.ModifyProjectile(this);
+
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
+            {
+                weapon.PlayToggleAndFireSfx(Emitter);
+            }
         }
 
         // Create a spatially fixed beam spawned from a ship center
@@ -95,7 +101,7 @@ namespace Ship_Game
             }
             else if (Weapon.drowner != null)
             {
-                (Weapon.drowner as Projectile)?.GetDroneAI().Beams.QueuePendingRemoval(this);
+                (Weapon.drowner as Projectile)?.DroneAI.Beams.QueuePendingRemoval(this);
                 SetSystem(Weapon.drowner.System);
             }
             Weapon.ResetToggleSound();
