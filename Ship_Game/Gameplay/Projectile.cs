@@ -37,7 +37,6 @@ namespace Ship_Game.Gameplay
         public bool Miss;
         public Empire Loyalty;
         private float InitialDuration;
-        private Vector2 Direction;
         private float SwitchFrames;
         private float FrameTimer;
         public float RotationRadsPerSecond;
@@ -122,10 +121,9 @@ namespace Ship_Game.Gameplay
 
         private void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
         {
+            ++DebugInfoScreen.ProjCreated;
             Position = origin;
             Center   = origin;
-            Velocity = direction;
-            Rotation = direction.ToRadians();
             Emitter.Position = new Vector3(origin, 0f);
 
             Range                 = Weapon.Range;
@@ -150,11 +148,10 @@ namespace Ship_Game.Gameplay
             else if (Weapon.Tag_Missile) durationMod = 2.0f;
             else if (Planet != null)     durationMod = 2.0f;
 
-            ++DebugInfoScreen.ProjCreated;
-            Direction       = direction;
-            VelocityMax     = Speed + (Owner?.Velocity.Length() ?? 0f);
-            Velocity        = (Speed*direction) + (Owner?.Velocity ?? Vector2.Zero);
-            Rotation        = Center.RadiansToTarget(Center + Velocity);
+            Velocity = Speed*direction + (Owner?.Velocity ?? Vector2.Zero);
+            Rotation = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
+            VelocityMax = Speed + (Owner?.Velocity.Length() ?? 0f);
+
             InitialDuration = Duration = (Range/Speed) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
 
@@ -571,7 +568,7 @@ namespace Ship_Game.Gameplay
                 float durationLimit = InitialDuration * (WeaponEffectType == "Plasma" ? 0.7f : 0.97f);
                 if (ParticleDelay <= 0.0f && Duration > durationLimit)
                 {
-                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Direction.Normalized() * Speed * 1.75f);
+                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Velocity.Normalized() * Speed * 1.75f);
                 }
                 //FiretrailEmitter.Update(elapsedTime, newPosition);
 

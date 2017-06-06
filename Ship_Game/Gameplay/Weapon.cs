@@ -319,19 +319,22 @@ namespace Ship_Game.Gameplay
 
         private void ContinueSalvo()
         {
-            if (!PrepareToFire(continueSalvo: true)
-                || (SalvoTarget != null && !Owner.CheckRangeToTarget(this, SalvoTarget)))
+            if (SalvoTarget != null && !Owner.CheckRangeToTarget(this, SalvoTarget))
+                return;
+            if (!PrepareToFire(continueSalvo: true))
                 return;
             SpawnSalvo(SalvoDirection, SalvoTarget);
         }
 
         private void FireAtTarget(Vector2 targetPos, GameplayObject target)
         {
-            if (!PrepareToFire(continueSalvo: false)
-                || (target != null && !Owner.CheckIfInsideFireArc(this, target)))
+            if (target != null && !Owner.CheckIfInsideFireArc(this, target))
+                return;
+            if (!PrepareToFire(continueSalvo: false))
                 return;
 
-            Vector2 direction = (targetPos - Module.Center).Normalized();
+            Vector2 pos = target != null ? FindProjectedImpactPoint(target) : targetPos;
+            Vector2 direction = (pos - Module.Center).Normalized();
             SpawnSalvo(direction, target);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
@@ -467,10 +470,10 @@ namespace Ship_Game.Gameplay
             FireBeam(Module.Center, target.Center, target);
         }
 
-        public void MouseFireAtTarget(Vector2 target)
+        public void MouseFireAtTarget(Vector2 targetPos)
         {
-            if (isBeam) FireBeam(Module.Center, target);
-            else        FireAtTarget(target, null);
+            if (isBeam) FireBeam(Module.Center, targetPos);
+            else        FireAtTarget(targetPos, null);
         }
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
@@ -484,7 +487,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            Vector2 impact = GetProjectedImpactPoint(target);
+            Vector2 impact = FindProjectedImpactPoint(target);
             Vector2 direction = (impact - Center).Normalized();
             if (FireArc != 0)
             {
@@ -510,28 +513,20 @@ namespace Ship_Game.Gameplay
                 FireAtAssignedTargetNonVisible(targetShip);
                 return;
             }
+            if (!CanFireWeapon())
+                return;
 
-            if (isBeam)
-            {
-                FireBeam(Module.Center, FireTarget.Center, FireTarget);
-            }
-            else if (Tag_Guided)
-            {
-                FireAtTarget(FireTarget.Center, FireTarget);
-            }
-            else if (CanFireWeapon()) // optimization
-            {
-                FireAtTarget(GetProjectedImpactPoint(FireTarget), FireTarget);
-            }
+            if (isBeam) FireBeam(Module.Center, FireTarget.Center, FireTarget);
+            else        FireAtTarget(FireTarget.Center, FireTarget);
         }
 
-        private Vector2 GetProjectedImpactPoint(GameplayObject target)
+        public Vector2 FindProjectedImpactPoint(GameplayObject target)
         {
-            GameplayObject realTarget = target is ShipModule sm ? sm.GetParent() : target;
+            GameplayObject targetShip = target is ShipModule sm ? sm.GetParent() : target;
             Vector2 center = Module?.Center ?? Center;
 
-            return center.FindPredictedTargetPosition(
-                Owner.Velocity, ProjectileSpeed, realTarget.Center, realTarget.Velocity);
+            return center.FindProjectedImpactPoint(
+                Owner.Velocity, ProjectileSpeed, target.Center, targetShip.Velocity);
         }
 
         private void FireAtAssignedTargetNonVisible(Ship targetShip)
