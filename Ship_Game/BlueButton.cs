@@ -81,7 +81,7 @@ namespace Ship_Game
 			else
 			{
 				this.Hover = true;
-				if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+				if (input.LeftMouseClick)
 				{
 					GameAudio.PlaySfxAsync("echo_affirm");
 					return true;

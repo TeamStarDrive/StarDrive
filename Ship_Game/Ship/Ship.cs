@@ -245,7 +245,7 @@ namespace Ship_Game.Gameplay
                 return false;
             }
         }
-
+        public ShipData.RoleName DesignRole { get; private set; }
         private int Calculatesize()
         {
             int size = 0;
@@ -2838,5 +2838,71 @@ namespace Ship_Game.Gameplay
         }
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty}";
+
+        private ShipData.RoleName GetDesignRole()
+        {
+            ShipData.RoleName str = shipData.HullRole;
+
+            if (isConstructor)
+                return ShipData.RoleName.construction;
+            if (isConstructor)
+                return ShipData.RoleName.colony;
+            if (this.IsSupplyShip)
+                return ShipData.RoleName.supply;
+                
+            int ModuleSize(ShipModule module)
+            {
+                return module.XSIZE * module.YSIZE;
+            }
+            //carrier
+            if (Hangars.Count >0 && str >= ShipData.RoleName.freighter)
+            {
+                if(Hangars.Sum(fighters => fighters.MaximumHangarShipSize > 0 ? ModuleSize(fighters) : 0) > Size * .20f)
+                    return ShipData.RoleName.carrier;
+            }
+            //troops ship
+            if (this.TroopCapacity >0 && (HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
+            {
+                if (Hangars.FilterBy(troopbay => troopbay.IsTroopBay)
+                    .Sum(ModuleSize)
+                    + Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding >0)
+                    .Sum(ModuleSize) > Size * .10f)
+                return ShipData.RoleName.troopShip;
+            }
+
+            if (hasOrdnanceTransporter || hasRepairBeam || HasSupplyBays || hasOrdnanceTransporter || InhibitionRadius > 0)            
+            {
+                int spaceUsed = 0;
+                foreach(ShipModule module in this.ModuleSlotList)
+                {
+                    if (module.TransporterOrdnance < 1 && !module.IsSupplyBay && module.InhibitionRadius < 1)
+                        continue;
+                    spaceUsed += module.XSIZE * module.YSIZE;
+                }
+                foreach (ShipModule module in RepairBeams)
+                    spaceUsed += module.XSIZE * module.YSIZE;
+
+                if (spaceUsed > Size * .2f)
+                    return ShipData.RoleName.support;
+            }
+            if (BombBays.Count * 4 > Size * .20f && str >= ShipData.RoleName.freighter)
+            {
+                return ShipData.RoleName.bomber;
+            }
+            if (str == ShipData.RoleName.corvette
+               || str == ShipData.RoleName.gunboat)
+                return ShipData.RoleName.corvette;
+            if (str == ShipData.RoleName.carrier || str == ShipData.RoleName.capital)
+                return ShipData.RoleName.capital;
+            if (str == ShipData.RoleName.destroyer || str == ShipData.RoleName.frigate)
+                return ShipData.RoleName.frigate;
+            if (str == ShipData.RoleName.scout || str == ShipData.RoleName.fighter)
+            {
+                return Weapons.Count == 0 ? ShipData.RoleName.scout : ShipData.RoleName.fighter;
+            }
+
+            return str;
+        }
     }
 }
+
