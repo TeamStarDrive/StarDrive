@@ -46,7 +46,8 @@ namespace Ship_Game
             Range        = weapon.Range;
             Duration     = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
             Thickness    = weapon.BeamThickness;
-
+            WeaponEffectType = weapon.WeaponEffectType;
+            WeaponType       = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
 
@@ -78,6 +79,8 @@ namespace Ship_Game
         public override void Initialize()
         {
             base.Initialize();
+
+            Loyalty = Owner.loyalty; // set loyalty before adding to spatial manager
             SetSystem(Owner.System);
             InitBeamMeshIndices();
             UpdateBeamMesh();
