@@ -47,7 +47,6 @@ namespace Ship_Game
         public static object BombLock             = new object();
         public static object ExplosionLocker      = new object();
         public static object KnownShipsLock       = new object();
-        public static object AddShipLocker        = new object();
         public static object BucketLock           = new object();
         public static object OwnedPlanetsLock     = new object();
         public static object DeepSpaceLock        = new object();

@@ -898,15 +898,7 @@ namespace Ship_Game
 
             e.AddShip(ship);
             foreach (SavedGame.ProjectileSaveData pdata in shipData.Projectiles)
-            {
-                Weapon w = ResourceManager.CreateWeapon(pdata.Weapon);
-                Projectile p = w.LoadProjectiles(pdata.Velocity, ship);
-                p.Velocity = pdata.Velocity;
-                p.Position = pdata.Position;
-                p.Center   = pdata.Position;
-                p.Duration = pdata.Duration;
-                ship.AddProjectile(p);
-            }
+                Projectile.Create(ship, pdata);
             data.MasterShipList.Add(ship);
         }
 

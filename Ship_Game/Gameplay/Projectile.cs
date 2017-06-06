@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
@@ -27,22 +26,21 @@ namespace Ship_Game.Gameplay
         public float ExplosionRadiusMod;
         public float Duration;
         public bool Explodes;
-        public ShipModule ModuleAttachedTo;
+        public ShipModule Module;
         public string WeaponEffectType;
-        private Matrix WorldMatrix;
         private ParticleEmitter TrailEmitter;
         private ParticleEmitter FiretrailEmitter;
-        private SceneObject ProjSO;
+        private SceneObject ProjSO; // this is null for sprite based projectiles
+        public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
         public AudioEmitter Emitter = new AudioEmitter();
         public bool Miss;
         public Empire Loyalty;
         private float InitialDuration;
-        private Vector2 Direction;
         private float SwitchFrames;
         private float FrameTimer;
         public float RotationRadsPerSecond;
-        private DroneAI DroneAI;
+        public DroneAI DroneAI { get; private set; }
         public Weapon Weapon;
         public string TexturePath;
         public string ModelPath;
@@ -55,63 +53,205 @@ namespace Ship_Game.Gameplay
         private float FlashTimer = 0.142f;
         public float Scale = 1f;
         private int AnimationFrame;
-        private const string Fmt = "00000.##";
         public bool DieNextFrame { get; private set; }
         public bool DieSound;
-        private AudioHandle InFlightSfx;
+        private AudioHandle InFlightSfx = default(AudioHandle);
         public string DieCueName = "";
-        private bool WasAddedToSceneGraph;
         private bool LightWasAddedToSceneGraph;
+        private bool UsesVisibleMesh;
         private bool MuzzleFlashAdded;
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
-        public bool IsSecondary;
 
         public Ship Owner { get; protected set; }
-        public Planet Planet { get; }
+        public Planet Planet { get; private set; }
 
         public Projectile() : base(GameObjectType.Proj)
         {
         }
+
         public Projectile(GameObjectType typeFlags) : base(typeFlags | GameObjectType.Proj)
         {
         }
 
-        public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo) : this()
+        public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
         {
-            Init(owner, direction, moduleAttachedTo);
-        }
-        public void Init(Ship parent, Vector2 direction, ShipModule moduleAttachedTo)
-        {
-            Loyalty = parent.loyalty;
-            Owner = parent;
-            SetSystem(parent.System);
-            ModuleAttachedTo = moduleAttachedTo;
-            Center = Position = moduleAttachedTo.Center;
-            Emitter.Position = new Vector3(Position, 0f);
-        }
-
-        public Projectile(Planet p, Vector2 direction) : this()
-        {
-            SetSystem(p.system);
-            Planet   = p;
-            Position = p.Center;
-            Loyalty  = p.Owner;
-            Velocity = direction;
-            Rotation = p.Center.RadiansToTarget(p.Center + Velocity);
-            Center   = p.Center;
-            Emitter.Position = new Vector3(p.Center, 0f);
+            var projectile = new Projectile
+            {
+                Weapon  = weapon,
+                Owner   = weapon.Owner,
+                Loyalty = weapon.Owner.loyalty,
+                Module  = weapon.Module
+            };
+            direction = weapon.GetFireConeSpread(direction);
+            projectile.Initialize(origin, direction, target, playSound);
+            return projectile;
         }
 
-        public Projectile(Ship owner, Vector2 direction) : this()
+        public static Projectile Create(Weapon weapon, Planet planet, Vector2 direction, GameplayObject target)
         {
-            Owner = owner;
-            Loyalty = owner.loyalty;
-            Rotation = (float)Math.Acos(Vector2.Dot(Vector2.UnitY, direction)) - 3.14159274f;
-            if (direction.X > 0f) Rotation = -Rotation;
+            var projectile = new Projectile
+            {
+                Weapon  = weapon,
+                Planet  = planet,
+                Loyalty = planet.Owner,
+                ZStart  = -2500f
+            };
+            direction = weapon.GetFireConeSpread(direction);
+            projectile.Initialize(planet.Center, direction, target, playSound: true);
+            return projectile;
         }
 
+        // loading from savegame
+        public static Projectile Create(Ship owner, SavedGame.ProjectileSaveData pdata)
+        {
+            Weapon weapon = ResourceManager.CreateWeapon(pdata.Weapon);
+            var projectile = new Projectile
+            {
+                Weapon  = weapon,
+                Owner   = owner,
+                Loyalty = owner.loyalty,
+                Module  = weapon.Module,
+            };
+            projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false);
+            projectile.Duration = pdata.Duration; // apply duration after default init
+            return projectile;
+        }
+
+        private void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
+        {
+            ++DebugInfoScreen.ProjCreated;
+            Position = origin;
+            Center   = origin;
+            Emitter.Position = new Vector3(origin, 0f);
+
+            Range                 = Weapon.Range;
+            Radius                = Weapon.ProjectileRadius;
+            Explodes              = Weapon.explodes;
+            DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
+            DamageRadius          = Weapon.DamageRadius;
+            ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
+            Health                = Weapon.HitPoints;
+            Speed                 = Weapon.ProjectileSpeed;
+            WeaponEffectType      = Weapon.WeaponEffectType;
+            WeaponType            = Weapon.WeaponType;
+            RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
+            ArmorPiercing         = (int)Weapon.ArmourPen;
+
+            Weapon.ModifyProjectile(this); // apply all buffs before initializing
+            if (Weapon.RangeVariance)
+                Range *= RandomMath.RandomBetween(0.9f, 1.1f);
+
+            float durationMod = 1.2f;
+            if (Weapon.IsRepairDrone)    durationMod = 1.25f;
+            else if (Weapon.Tag_Missile) durationMod = 2.0f;
+            else if (Planet != null)     durationMod = 2.0f;
+
+            Velocity = Speed*direction + (Owner?.Velocity ?? Vector2.Zero);
+            Rotation = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
+            VelocityMax = Speed + (Owner?.Velocity.Length() ?? 0f);
+
+            InitialDuration = Duration = (Range/Speed) * durationMod;
+            ParticleDelay  += Weapon.particleDelay;
+
+            if (Owner?.loyalty.data.ArmorPiercingBonus > 0 
+                && (Weapon.WeaponType == "Missile" || Weapon.WeaponType == "Ballistic Cannon"))
+            {
+                ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
+            }
+        
+            if (Weapon.IsRepairDrone)   DroneAI   = new DroneAI(this);
+            else if (Weapon.Tag_Guided) MissileAI = new MissileAI(this, target);
+            else // unguided projectile
+            {
+                if (Owner?.loyalty.data.Traits.Blind > 0 && UniverseRandom.IntBetween(0, 10) <= 1)
+                    Miss = true;
+            }
+            
+            LoadContent();
+            Initialize();
+
+            if (Owner != null)
+            {
+                Loyalty = Owner.loyalty;
+                SetSystem(Owner.System);
+                Owner.AddProjectile(this);
+            }
+            else if (Planet != null)
+            {
+                Loyalty = Planet.Owner;
+                SetSystem(Planet.system);
+                Planet.AddProjectile(this);
+            }
+
+            if (playSound && (System != null && System.isVisible || Owner?.InFrustum == true))
+            {
+                Weapon.PlayToggleAndFireSfx(Emitter);
+                DieSound = true;
+
+                string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).dieCue;
+                if (cueName.NotEmpty())     DieCueName  = cueName;
+                if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
+            }
+        }
+
+        private void LoadContent()
+        {
+            if (Weapon.Animated == 1)
+            {
+                SwitchFrames = InitialDuration / Weapon.Frames;
+                if (Weapon.LoopAnimation == 1)
+                    AnimationFrame = UniverseRandom.InRange(Weapon.Frames);
+                TexturePath = Weapon.AnimationPath + AnimationFrame.ToString("00000.##");
+            }
+            else
+            {
+                TexturePath = Weapon.ProjectileTexturePath;
+            }
+
+            ModelPath = Weapon.ModelPath;
+            UsesVisibleMesh = (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket");
+
+            if (Empire.Universe == null)
+                return;
+
+            switch (Weapon.WeaponEffectType)
+            {
+                case "RocketTrail":
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    break;
+                case "Plasma":
+                    FiretrailEmitter = Empire.Universe.flameParticles.NewEmitter(500f, Center);
+                    break;
+                case "SmokeTrail":
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    break;
+                case "MuzzleSmoke":
+                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
+                    break;
+                case "MuzzleSmokeFire":
+                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
+                    TrailEmitter     = Empire.Universe.fireTrailParticles.NewEmitter(750f, Center, -ZStart);
+                    break;
+                case "FullSmokeMuzzleFire":
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    break;
+            }
+        }
+
+        public void DrawProjectile(UniverseScreen screen)
+        {
+            // if not using visible mesh (rockets, etc), we draw a transparent mesh manually
+            if (!UsesVisibleMesh && screen.Frustum.Contains(Center, Radius))
+            {
+                var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
+                var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
+                screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Scale);
+            }
+        }
 
         public void DamageMissile(GameplayObject source, float damageAmount)
         {
@@ -184,263 +324,29 @@ namespace Ship_Game.Gameplay
             Owner = null;
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch)
+        public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos)
         {
-        }
+            Vector2 currentForward = Rotation.RadiansToDirection();
+            Vector2 desiredForward = Center.DirectionToTarget(targetPos);
 
-        public DroneAI GetDroneAI()
-        {
-            return DroneAI;
-        }
+            float angleDiff = (float)Math.Acos(desiredForward.Dot(currentForward));
+            if (angleDiff > 0.1f)
+            {
+                Vector2 currentRight = currentForward.RightVector();
+                float   rotationDir  = desiredForward.Dot(currentRight) > 0f ? 1f : -1f;
 
-        public SceneObject GetSO()
-        {
-            return ProjSO;
-        }
+                float rotationRadsPerSec = RotationRadsPerSecond;
+                if (rotationRadsPerSec <= 0f)
+                    rotationRadsPerSec = Speed / 350f;
 
-        public Matrix GetWorld()
-        {
-            return WorldMatrix;
-        }
+                Log.Assert(rotationRadsPerSec > 0f, "Invalid RotationRadsPerSecond");
 
-        public void Initialize(float initialSpeed, Vector2 dir, Vector2 pos)
-        {
-            DebugInfoScreen.ProjCreated = DebugInfoScreen.ProjCreated + 1;
-            Direction = dir;
-            Velocity = initialSpeed * dir;
-            if (ModuleAttachedTo == null)
-            {
-                Center = pos;
-                Rotation = Center.RadiansToTarget(Center + Velocity);
-            }
-            else
-            {
-                Center = ModuleAttachedTo.Center;
-                Rotation = ModuleAttachedTo.Center.RadiansToTarget(ModuleAttachedTo.Center + Velocity);
-            }
-            Radius          = 1f;
-            VelocityMax     = initialSpeed + Owner.Velocity.Length();
-            Velocity        = Velocity.Normalized() * VelocityMax;
-            Duration        = Range / initialSpeed * 1.2f;
-            InitialDuration = Duration;
-            if (Weapon.Animated == 1)
-            {
-                SwitchFrames = InitialDuration / Weapon.Frames;
-                if (Weapon.LoopAnimation == 1)
-                {
-                    AnimationFrame = UniverseRandom.InRange(Weapon.Frames);
-                }
-            }
-            if (Owner.loyalty.data.ArmorPiercingBonus > 0 && (Weapon.WeaponType == "Missile" || Weapon.WeaponType == "Ballistic Cannon"))
-            {
-                ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
-            }
-            ParticleDelay += Weapon.particleDelay;
-            if (Weapon.Tag_Guided)
-            {
-                MissileAI = new MissileAI(this);
-            }
-            if (WeaponType != "Missile" && WeaponType != "Drone" && WeaponType != "Rocket" || (System == null || !System.isVisible) && !InDeepSpace)
-            {
-                if (Owner.loyalty.data.Traits.Blind > 0)
-                {
-                    if (UniverseRandom.IntBetween(0, 10) <= 1)
-                        Miss = true;
-                }
-            }
-            else if (ProjSO != null)
-            {
-                WasAddedToSceneGraph = true;
-                Empire.Universe?.AddObject(ProjSO);
-            }
-            SetSystem(System);
-            Initialize();
-        }
-
-        public void InitializeDrone(float initialSpeed, Vector2 direction)
-        {
-            Direction = direction;
-            if (ModuleAttachedTo != null)
-            {
-                Center = ModuleAttachedTo.Center;
-            }
-            Velocity        = (initialSpeed * direction) + (Owner?.Velocity ?? Vector2.Zero);
-            Radius          = 1f;
-            VelocityMax     = initialSpeed + (Owner?.Velocity.Length() ?? 0f);
-            Duration = Range / initialSpeed;
-            Duration += Duration * 0.25f;
-            InitialDuration = Duration;
-            if (Weapon.Animated == 1)
-            {
-                SwitchFrames = InitialDuration / Weapon.Frames;
-                if (Weapon.LoopAnimation == 1)
-                {
-                    AnimationFrame = UniverseRandom.InRange(Weapon.Frames);
-                }
-            }
-            ParticleDelay += Weapon.particleDelay;
-            if (Weapon.IsRepairDrone)
-            {
-                DroneAI = new DroneAI(this);
-            }
-            SetSystem(System);
-            Initialize();
-        }
-
-        public void InitializeMissile(float initialSpeed, Vector2 direction, GameplayObject target)
-        {
-            Direction = direction;
-            if (ModuleAttachedTo != null)
-                Center = ModuleAttachedTo.Center;
-            Velocity        = (initialSpeed * direction) + (Owner?.Velocity ?? Vector2.Zero);
-            Radius          = 1f;
-            VelocityMax     = initialSpeed + (Owner?.Velocity.Length() ?? 0f);
-            Duration = Range / initialSpeed * 2f;
-            InitialDuration = Duration;
-            if (ModuleAttachedTo != null)
-            {
-                Center = ModuleAttachedTo.Center;
-                if (ModuleAttachedTo.Facing == 0f)
-                {
-                    Rotation = Owner?.Rotation ?? 0f;
-                }
-                else
-                {
-                    Rotation = ModuleAttachedTo.Center.RadiansToTarget(ModuleAttachedTo.Center + Velocity);
-                }
-            }
-            if (Weapon.Animated == 1)
-            {
-                SwitchFrames = InitialDuration / Weapon.Frames;
-                if (Weapon.LoopAnimation == 1)
-                {
-                    AnimationFrame = UniverseRandom.InRange(Weapon.Frames);
-                }
-            }
-            ParticleDelay += Weapon.particleDelay;
-            if (Weapon.Tag_Guided)
-            {
-                MissileAI = new MissileAI(this);
-                MissileAI.SetTarget(target);
-            }
-            if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
-            {
-                WasAddedToSceneGraph = true;
-                Empire.Universe.AddObject(ProjSO);
-            }
-            SetSystem(System);
-            Initialize();
-        }
-
-        public void InitializeMissilePlanet(float initialSpeed, Vector2 dir, GameplayObject target)
-        {
-            Direction       = dir;
-            Center          = Planet.Center;
-            ZStart          = -2500f;
-            Velocity        = (initialSpeed * dir) + (Owner?.Velocity ?? Vector2.Zero);
-            Radius          = 1f;
-            VelocityMax     = initialSpeed + (Owner?.Velocity.Length() ?? 0f);
-            Duration = Range / initialSpeed * 2f;
-            InitialDuration = Duration;
-            if (Weapon.Animated == 1)
-            {
-                SwitchFrames = InitialDuration / Weapon.Frames;
-                if (Weapon.LoopAnimation == 1)
-                {
-                    AnimationFrame = UniverseRandom.InRange(Weapon.Frames);
-                }
-            }
-            ParticleDelay += Weapon.particleDelay;
-            if (Weapon.Tag_Guided)
-            {
-                MissileAI = new MissileAI(this);
-                MissileAI.SetTarget(target);
-            }
-            if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
-            {
-                WasAddedToSceneGraph = true;
-                Empire.Universe.AddObject(ProjSO);
-            }
-            SetSystem(System);
-            Initialize();
-        }
-
-        public void InitializePlanet(float initialSpeed, Vector2 direction, Vector2 pos)
-        {
-            ZStart          = -2500f;
-            Direction       = direction;
-            Center          = ModuleAttachedTo?.Center ?? pos;
-            Velocity        = (initialSpeed * direction) + (Owner?.Velocity ?? Vector2.Zero);
-            Radius          = 1f;
-            VelocityMax     = initialSpeed + (Owner?.Velocity.Length() ?? 0f);
-            Velocity        = Velocity.Normalized() * VelocityMax;
-            Duration = Range / initialSpeed * 1.25f;
-            InitialDuration = Duration;
-            if (Weapon.Animated == 1)
-            {
-                SwitchFrames = InitialDuration / Weapon.Frames;
-                if (Weapon.LoopAnimation == 1)
-                {
-                    AnimationFrame = UniverseRandom.InRange(Weapon.Frames);
-                }
+                Rotation += Math.Min(angleDiff, rotationDir * elapsedTime * rotationRadsPerSec);
             }
 
-            ParticleDelay += Weapon.particleDelay;
-            if (Weapon.Tag_Guided)
-            {
-                MissileAI = new MissileAI(this);
-            }
-            if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
-            {
-                WasAddedToSceneGraph = true;
-                Empire.Universe.AddObject(ProjSO);
-            }
-            SetSystem(System);
-            Initialize();
-        }
-
-        public void LoadContent(string texPath, string modelFilePath)
-        {
-            TexturePath = texPath;
-            ModelPath = modelFilePath;
-
-            ProjSO = new SceneObject(ResourceManager.ProjectileMeshDict[modelFilePath])
-            {
-                Visibility = ObjectVisibility.Rendered,
-                ObjectType = ObjectType.Dynamic
-            };
-            if (Empire.Universe != null && ProjSO !=null)
-            {
-                switch (Weapon.WeaponEffectType)
-                {
-                    case "RocketTrail":
-                        TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
-                        FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
-                        break;
-                    case "Plasma":
-                        FiretrailEmitter = Empire.Universe.flameParticles.NewEmitter(500f, Center);
-                        break;
-                    case "SmokeTrail":
-                        TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
-                        break;
-                    case "MuzzleSmoke":
-                        FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
-                        break;
-                    case "MuzzleSmokeFire":
-                        FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
-                        TrailEmitter     = Empire.Universe.fireTrailParticles.NewEmitter(750f, Center, -ZStart);
-                        break;
-                    case "FullSmokeMuzzleFire":
-                        TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
-                        FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
-                        break;
-                }
-
-            }
-            if (Weapon.Animated == 1 && ProjSO !=null)
-            {
-                TexturePath = Weapon.AnimationPath + AnimationFrame.ToString(Fmt);
-            }
+            Velocity = Rotation.RadiansToDirection() * (elapsedTime * Speed);
+            if (Velocity.Length() > VelocityMax)
+                Velocity = Velocity.Normalized() * VelocityMax;
         }
 
         public override bool Touch(GameplayObject target)
@@ -604,7 +510,7 @@ namespace Ship_Game.Gameplay
                     if (AnimationFrame >= Weapon.Frames)
                         AnimationFrame = 0;
                 }
-                TexturePath = Weapon.AnimationPath + AnimationFrame.ToString(Fmt);
+                TexturePath = Weapon.AnimationPath + AnimationFrame.ToString("00000.##");
             }
 
             if (InFlightSfx.IsStopped)
@@ -623,29 +529,37 @@ namespace Ship_Game.Gameplay
             }
             MissileAI?.Think(elapsedTime);
             DroneAI?.Think(elapsedTime);
-            if (ProjSO != null && (WeaponType == "Rocket" || WeaponType == "Drone" || WeaponType == "Missile") && 
-                (System != null && System.isVisible && (!WasAddedToSceneGraph && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)))
+            if (FirstRun && Module != null)
             {
-                WasAddedToSceneGraph = true;
-                Empire.Universe.AddObject(ProjSO);
-            }
-            if (FirstRun && ModuleAttachedTo != null)
-            {
-                Position = ModuleAttachedTo.Center;
-                Center = ModuleAttachedTo.Center;
+                Position = Module.Center;
+                Center = Module.Center;
                 FirstRun = false;
             }
             else
                 Center = Position;
             Emitter.Position = new Vector3(Center, 0.0f);
-            if (ProjSO != null && (InDeepSpace || System != null && System.isVisible) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && (InDeepSpace || System != null && System.isVisible))
             {
                 if (ZStart < -25.0)
                     ZStart += VelocityMax * elapsedTime;
                 else
                     ZStart = -25f;
-                ProjSO.World = Matrix.CreateScale(Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -ZStart);
-                WorldMatrix = ProjSO.World;
+
+                WorldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -ZStart);
+
+                if (UsesVisibleMesh) // lazy init rocket projectile meshes
+                {
+                    if (ProjSO == null)
+                    {
+                        ProjSO = new SceneObject(ResourceManager.ProjectileMeshDict[ModelPath])
+                        {
+                            Visibility = ObjectVisibility.Rendered,
+                            ObjectType = ObjectType.Dynamic
+                        };
+                        Empire.Universe.AddObject(ProjSO);
+                    }
+                    ProjSO.World = WorldMatrix;
+                }
             }
             var newPosition = new Vector3(Center.X, Center.Y, -ZStart);
 
@@ -654,7 +568,7 @@ namespace Ship_Game.Gameplay
                 float durationLimit = InitialDuration * (WeaponEffectType == "Plasma" ? 0.7f : 0.97f);
                 if (ParticleDelay <= 0.0f && Duration > durationLimit)
                 {
-                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Direction.Normalized() * Speed * 1.75f);
+                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Velocity.Normalized() * Speed * 1.75f);
                 }
                 //FiretrailEmitter.Update(elapsedTime, newPosition);
 
@@ -695,13 +609,13 @@ namespace Ship_Game.Gameplay
                 Light.Position = new Vector3(Center.X, Center.Y, -25f);
                 Light.World = Matrix.CreateTranslation(Light.Position);
             }
-            if (ModuleAttachedTo != null)
+            if (Module != null)
             {
                 if (System != null && System.isVisible && MuzzleFlash == null && 
-                    ModuleAttachedTo.InstalledWeapon.MuzzleFlash != null && Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView && !MuzzleFlashAdded)
+                    Module.InstalledWeapon.MuzzleFlash != null && Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView && !MuzzleFlashAdded)
                 {
                     MuzzleFlashAdded = true;
-                    var pos = new Vector3(ModuleAttachedTo.Center.X, ModuleAttachedTo.Center.Y, -45f);
+                    var pos = new Vector3(Module.Center.X, Module.Center.Y, -45f);
                     MuzzleFlash = new PointLight
                     {
                         Position     = pos,
@@ -723,10 +637,10 @@ namespace Ship_Game.Gameplay
                     lock (GlobalStats.ExplosionLocker)
                         MuzzleFlashManager.FlashList.Add(Flash);
                 }
-                else if (FlashTimer > 0f && ModuleAttachedTo.InstalledWeapon.MuzzleFlash != null && MuzzleFlashAdded)
+                else if (FlashTimer > 0f && Module.InstalledWeapon.MuzzleFlash != null && MuzzleFlashAdded)
                 {
                     FlashTimer -= elapsedTime;
-                    MuzzleFlash.Position = new Vector3(ModuleAttachedTo.Center.X, ModuleAttachedTo.Center.Y, -45f);
+                    MuzzleFlash.Position = new Vector3(Module.Center.X, Module.Center.Y, -45f);
                     Flash.WorldMatrix = Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(MuzzleFlash.Position);
                     MuzzleFlash.World = Matrix.CreateTranslation(MuzzleFlash.Position);
                 }
@@ -748,7 +662,8 @@ namespace Ship_Game.Gameplay
 
         protected virtual void Dispose(bool disposing)
         {
-            DroneAI?.Dispose(ref DroneAI);
+            DroneAI?.Dispose();
+            DroneAI = null;
         }
 
         public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Center} Rad={Radius} Loy=[{Loyalty}]";

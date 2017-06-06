@@ -444,13 +444,7 @@ namespace Ship_Game
                 {
                     foreach (Projectile projectile in planet.Projectiles)
                     {
-                        if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" &&
-                            projectile.WeaponType != "Drone")
-                            DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
-                                projectile.GetWorld(),
-                                view, projection, projectile.Weapon.Animated != 0
-                                    ? ResourceManager.TextureDict[projectile.TexturePath]
-                                    : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
+                        projectile.DrawProjectile(this);
                     }
                 }
             }
@@ -1024,7 +1018,7 @@ namespace Ship_Game
                 for (int i = 0; i < this.BombList.Count; i++)
                 {
                     Bomb bomb = this.BombList[i];
-                    this.DrawTransparentModel(bomb.Model, bomb.World, this.view, this.projection, bomb.Texture, 0.5f);
+                    DrawTransparentModel(bomb.Model, bomb.World, bomb.Texture, 0.5f);
                 }
             }
         }
@@ -1037,17 +1031,7 @@ namespace Ship_Game
             for (int i = 0; i < ship.Projectiles.Count; i++)
             {
                 Projectile projectile = ship.Projectiles[i];
-                if (projectile.WeaponType != "Missile" &&
-                    projectile.WeaponType != "Rocket" &&
-                    projectile.WeaponType != "Drone" &&
-                    (ship.InFrustum || Frustum.Contains(projectile.Center, projectile.Radius)))
-                {
-                    DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
-                        projectile.GetWorld(), this.view, this.projection,
-                        projectile.Weapon.Animated != 0
-                            ? ResourceManager.Texture(projectile.TexturePath)
-                            : ResourceManager.ProjTexture(projectile.TexturePath), projectile.Scale);
-                }
+                projectile.DrawProjectile(this);
             }
         }
 
@@ -1266,7 +1250,13 @@ namespace Ship_Game
         }
 
         public void DrawSunModel(Matrix world, Texture2D texture, float scale)
-            => DrawTransparentModel(SunModel, world, view, projection, texture, scale);
+            => DrawTransparentModel(SunModel, world, texture, scale);
+
+        public void DrawTransparentModel(Model model, Matrix world, Texture2D projTex, float scale)
+        {
+            DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
+            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+        }
 
     }
 }

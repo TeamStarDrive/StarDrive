@@ -354,9 +354,9 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < beams.Count; i++)
             {
                 Beam beam = beams[i];
-                if (beam.ModuleAttachedTo != null)
+                if (beam.Module != null)
                 {
-                    ShipModule shipModule = beam.ModuleAttachedTo;
+                    ShipModule shipModule = beam.Module;
 
                     Vector2 slotForward  = (beam.Owner.Rotation + shipModule.Rotation.ToRadians()).RadiansToDirection();
                     Vector2 muzzleOrigin = shipModule.Center + slotForward * (shipModule.YSIZE * 8f);

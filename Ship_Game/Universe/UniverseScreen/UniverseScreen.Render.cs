@@ -146,12 +146,10 @@ namespace Ship_Game
                             sunTexture = ResourceManager.Texture("Suns/" + solarSystem.SunPath);
                         DrawTransparentModel(SunModel,
                             Matrix.CreateRotationZ(Zrotate) *
-                            Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
-                            projection, sunTexture, 10.0f);
+                            Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
                         DrawTransparentModel(SunModel,
                             Matrix.CreateRotationZ((float) (-Zrotate / 2.0)) *
-                            Matrix.CreateTranslation(solarSystem.Position.ToVec3()), view,
-                            projection, sunTexture, 10.0f);
+                            Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
                         if (solarSystem.Explored(EmpireManager.Player))
                         {
                             for (int i = 0; i < solarSystem.PlanetList.Count; i++)
@@ -569,10 +567,10 @@ namespace Ship_Game
                         {
                             //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
                             Projectile projectile = renderProj[i];
-                            if (projectile.Weapon.IsRepairDrone && projectile.GetDroneAI() != null)
+                            if (projectile.Weapon.IsRepairDrone && projectile.DroneAI != null)
                             {
-                                for (int k = 0; k < projectile.GetDroneAI().Beams.Count; ++k)
-                                    projectile.GetDroneAI().Beams[k].Draw(ScreenManager);
+                                for (int k = 0; k < projectile.DroneAI.Beams.Count; ++k)
+                                    projectile.DroneAI.Beams[k].Draw(ScreenManager);
                             }
                         }
 
@@ -632,9 +630,8 @@ namespace Ship_Game
                 {
                     for (int i = 0; i < MuzzleFlashManager.FlashList.Count; i++)
                     {
-                        MuzzleFlash flash = MuzzleFlashManager.FlashList[i];
-                        DrawTransparentModel(MuzzleFlashManager.flashModel, flash.WorldMatrix, view,
-                            projection, MuzzleFlashManager.FlashTexture, flash.scale);
+                        MuzzleFlash f = MuzzleFlashManager.FlashList[i];
+                        DrawTransparentModel(MuzzleFlashManager.flashModel, f.WorldMatrix, MuzzleFlashManager.FlashTexture, f.scale);
                     }
                     MuzzleFlashManager.FlashList.ApplyPendingRemovals();
                 }

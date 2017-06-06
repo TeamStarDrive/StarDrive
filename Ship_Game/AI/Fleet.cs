@@ -81,7 +81,7 @@ namespace Ship_Game.AI
             if (updateOnly) return;
             if (shiptoadd.fleet != null || Ships.Contains(shiptoadd))
             {
-                Log.Error("ship already in a fleet");
+                Log.Warning("ship already in a fleet");
                 return; // recover
             }
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
