@@ -946,23 +946,9 @@ namespace Ship_Game.Gameplay
                     MouseState state = Mouse.GetState();
                     if (state.RightButton == ButtonState.Pressed)
                     {
-                        Vector3 pickedPos3D = Empire.Universe.UnprojectToWorldPosition3D(new Vector2(state.X, state.Y));
-                        Vector2 pickedPos2D = pickedPos3D.ToVec2();
-
+                        Vector2 pickedPos = Empire.Universe.UnprojectToWorldPosition(new Vector2(state.X, state.Y));
                         foreach (Weapon w in Weapons)
-                        {
-                            if (w.timeToNextFire <= 0.0 && w.moduleAttachedTo.Powered)
-                            {
-                                if (CheckIfInsideFireArc(w, pickedPos3D))
-                                {
-                                    Vector2 fireDirection = (pickedPos2D - w.Center).Normalized();
-                                    if (w.isBeam)
-                                        w.FireMouseBeam(fireDirection);
-                                    else
-                                        w.FireMouse(fireDirection);
-                                }
-                            }
-                        }
+                            w.MouseFireAtTarget(pickedPos);
                     }
                 }
                 else GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
@@ -975,8 +961,9 @@ namespace Ship_Game.Gameplay
                 return false;
             if (engineState == MoveState.Warp)
                 return false;
-            Ship targetship = target as Ship;
-            ShipModule targetModule = target as ShipModule;
+
+            var targetship = target as Ship;
+            var targetModule = target as ShipModule;
             if (targetship == null && targetModule != null)
                 targetship = targetModule.GetParent();
             if (targetship == null && targetModule == null && w.isBeam)
@@ -992,22 +979,15 @@ namespace Ship_Game.Gameplay
                     )
                     return false;
             }
-            Vector2 PickedPos = target.Center;
-            //radius = target.Radius;
-            //added by gremlin attackrun compensator
-            float modifyRangeAR = 50f;
-            Vector2 pos = PickedPos;
-            if (w.PrimaryTarget && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            float attackRunRange = 50f;
+            if (w.FireTarget != null && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
-                modifyRangeAR = speed;
-                if (modifyRangeAR < 50)
-                    modifyRangeAR = 50;
+                attackRunRange = speed;
+                if (attackRunRange < 50f)
+                    attackRunRange = 50f;
             }
-            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR)//+radius)
-            {
-                return false;
-            }
-            return true;
+
+            return target.Center.InRadius(w.Module.Center, w.GetModifiedRange() + attackRunRange);
         }
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, GameplayObject target)
@@ -1018,25 +998,18 @@ namespace Ship_Game.Gameplay
             if (w.MassDamage > 0 || w.RepulsionDamage > 0)
             {
                 if (targetShip != null && (targetShip.EnginesKnockedOut || targetShip.IsTethered()))
-                {
                     return false;
-                }
             }
-            Relationship enemy;
-            if
-            (target != null && targetShip != null && (loyalty == targetShip.loyalty ||
-             !loyalty.isFaction &&
-           loyalty.TryGetRelations(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
+            if (targetShip != null && (loyalty == targetShip.loyalty || !loyalty.isFaction &&
+                loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
                 return false;
 
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
-            Vector2 PickedPos = target.Center;
-            Vector2 pos = PickedPos;
+            float halfArc = w.Module.FieldOfFire / 2f;
 
-            Vector2 toTarget = pos - w.Center;
+            Vector2 toTarget = target.Center - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
-            float facing = w.moduleAttachedTo.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
 
 
             if (facing > 360f)
@@ -1070,16 +1043,16 @@ namespace Ship_Game.Gameplay
         {
             //added by gremlin attackrun compensator
 
-            if (w.moduleAttachedTo.Center.OutsideRadius(pos, w.GetModifiedRange()))
+            if (w.Module.Center.OutsideRadius(pos, w.GetModifiedRange()))
             {
                 return false;
             }
 
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            float halfArc = w.Module.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.moduleAttachedTo.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -1117,16 +1090,16 @@ namespace Ship_Game.Gameplay
                 if (modifyRangeAR < 50)
                     modifyRangeAR = 50;
             }
-            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR)
+            if (Vector2.Distance(pos, w.Module.Center) > w.GetModifiedRange() + modifyRangeAR)
             {
                 return false;
             }
 
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            float halfArc = w.Module.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.moduleAttachedTo.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -1160,7 +1133,7 @@ namespace Ship_Game.Gameplay
             float radius = ship.Radius;
             ++GlobalStats.WeaponArcChecks;
             float modifyRangeAr = 50f;
-            float distance = w.moduleAttachedTo.Center.Distance(pickedPos);
+            float distance = w.Module.Center.Distance(pickedPos);
 
             if (w.MassDamage > 0 || w.RepulsionDamage > 0)
             {
@@ -1175,11 +1148,11 @@ namespace Ship_Game.Gameplay
             if (distance > w.GetModifiedRange() + modifyRangeAr + radius)
                 return false;
 
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            float halfArc = w.Module.FieldOfFire / 2f;
             Vector2 toTarget = pickedPos - w.Center;
             float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - radians.ToDegrees();
-            float facing = w.moduleAttachedTo.Facing + Rotation.ToDegrees();
+            float facing = w.Module.Facing + Rotation.ToDegrees();
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -1203,14 +1176,14 @@ namespace Ship_Game.Gameplay
         // Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector2 pickedPos, float rotation)
         {
-            if (w.moduleAttachedTo.Center.OutsideRadius(pickedPos, w.GetModifiedRange() + 50f))
+            if (w.Module.Center.OutsideRadius(pickedPos, w.GetModifiedRange() + 50f))
                 return false;
 
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
+            float halfArc = w.Module.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
             Vector2 toTarget = pickedPos - w.Center;
             float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - radians.ToDegrees();
-            float facing = w.moduleAttachedTo.Facing + rotation.ToDegrees();
+            float facing = w.Module.Facing + rotation.ToDegrees();
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -2190,7 +2163,9 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-            else if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) || MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim) 
+            else if (Active && AI.BadGuysNear 
+                || InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
+                || MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim) 
             {
                 if (elapsedTime > 0.0f || UpdatedModulesOnce)
                 {
@@ -2723,7 +2698,6 @@ namespace Ship_Game.Gameplay
         {
             Active            = false;
             AI.Target         = null;
-            AI.TargetShip     = null;
             AI.ColonizeTarget = null;
             AI.EscortTarget   = null;
             AI.start = null;
