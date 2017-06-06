@@ -833,7 +833,7 @@ namespace Ship_Game.AI {
                 if (friendliesNearby == null) return;
                 Vector2 target = w.Center.DirectionToTarget(friendliesNearby.Center);
                 target.Y = target.Y * -1f;
-                w.FireDrone(Vector2.Normalize(target));
+                w.FireDrone(target);
             }
         }
 

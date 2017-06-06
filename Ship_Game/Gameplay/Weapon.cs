@@ -71,9 +71,6 @@ namespace Ship_Game.Gameplay
         public bool isBeam;
         public float EffectVsArmor = 1f;
         public float EffectVSShields = 1f;
-        public bool PlaySoundOncePerSalvo;
-        public int SalvoCount = 1;
-        public readonly float SalvoTimer;
         public bool TruePD;
         public float TroopDamageChance;
         public float MassDamage;
@@ -134,8 +131,6 @@ namespace Ship_Game.Gameplay
         public byte LoopAnimation;
         public float Scale = 1f;
         public float RotationRadsPerSecond = 2f;
-        [XmlIgnore][JsonIgnore]
-        private AudioEmitter planetEmitter;
         public string InFlightCue = "";
         public float particleDelay;
         public float ECMResist;
@@ -160,6 +155,9 @@ namespace Ship_Game.Gameplay
         public GameplayObject FireTarget { get; private set; }
         private float TargetChangeTimer;
 
+        public bool PlaySoundOncePerSalvo;
+        public int SalvoCount = 1;
+        public float SalvoTimer;
         [XmlIgnore][JsonIgnore]
         private int SalvosToFire;
         private Vector2 SalvoDirection;
@@ -196,22 +194,30 @@ namespace Ship_Game.Gameplay
             Weapon wep = (Weapon)MemberwiseClone();
             wep.SalvoTarget      = null;
             wep.FireTarget       = null;
-            wep.planetEmitter    = null;
             wep.Module           = null;
             wep.Owner            = null;
             wep.drowner          = null;
             return wep;
         }
 
-        /// modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
-        private float GetOrdnanceDamageBonus()
+        // modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
+        public float GetDamageWithBonuses(Ship owner)
         {
-            if (Owner?.loyalty?.data != null && OrdinanceRequiredToFire > 0 && DamageAmount > 0)
-                return Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageAmount;
-            return 0;            
+            float damageAmount = DamageAmount;
+            if (owner?.loyalty?.data != null && OrdinanceRequiredToFire > 0)
+                damageAmount += damageAmount * Owner.loyalty.data.OrdnanceEffectivenessBonus;
+
+            if (owner?.Level > 0)
+                damageAmount += damageAmount * owner.Level * 0.05f;
+
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses) // Hull bonus damage increase
+                if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
+                    damageAmount += damageAmount * mod.DamageBonus;
+
+            return damageAmount;            
         }
 
-        private void PlayToggleAndFireSfx(AudioEmitter emitter = null)
+        public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
             if (ToggleCue.IsPlaying)
                 return;
@@ -222,64 +228,13 @@ namespace Ship_Game.Gameplay
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
 
-        private void CreateProjectile(Ship owner, Vector2 origin, Vector2 direction, 
-            ShipModule attachedTo, GameplayObject target, bool playSound, bool isSecondary)
+        public void FireDrone(Vector2 direction)
         {
-            direction = ApplyFireConeSpread(direction);
-
-            var projectile = new Projectile(owner, origin, direction, attachedTo)
-            {
-                Range                 = Range,
-                Weapon                = this,
-                Explodes              = explodes,
-                DamageAmount          = DamageAmount + GetOrdnanceDamageBonus(),
-                DamageRadius          = DamageRadius,
-                ExplosionRadiusMod    = ExplosionRadiusVisual,
-                Health                = HitPoints,
-                Speed                 = ProjectileSpeed,
-                WeaponEffectType      = WeaponEffectType,
-                WeaponType            = WeaponType,
-                RotationRadsPerSecond = RotationRadsPerSecond,
-                ArmorPiercing         = (int)ArmourPen,
-                IsSecondary           = isSecondary
-            };
-
-            if (owner.Level > 0)
-                projectile.DamageAmount += projectile.DamageAmount * owner.Level * 0.05f;
-
-            if (RangeVariance)
-                projectile.Range *= RandomMath.RandomBetween(0.9f, 1.1f);
-
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses) // Hull bonus damage increase
-            {
-                if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
-                    projectile.DamageAmount += projectile.DamageAmount * mod.DamageBonus;
-            }
-
-            projectile.LoadContent(ProjectileTexturePath, ModelPath);
-            ModifyProjectile(projectile);
-
-            if (Tag_Guided) projectile.InitializeMissile(projectile.Speed, direction, target);
-            else            projectile.Initialize(projectile.Speed, direction, attachedTo.Center);
-            projectile.Radius = ProjectileRadius;
-
-            if (Animated == 1)
-                projectile.TexturePath = AnimationPath + "00000.00";
-
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
-            {
-                PlayToggleAndFireSfx();
-                projectile.DieSound = true;
-
-                string dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
-                if (dieCueName.NotEmpty())  projectile.DieCueName  = dieCueName;
-                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
-            }
-
-            Owner.AddProjectile(projectile);
+            if (PrepareToFire(continueSalvo: false))
+                Projectile.Create(this, Module.Center, direction, null, playSound: true);
         }
 
-        private Vector2 ApplyFireConeSpread(Vector2 direction)
+        public Vector2 GetFireConeSpread(Vector2 direction)
         {
             if (FireCone <= 0)
                 return direction;
@@ -307,19 +262,25 @@ namespace Ship_Game.Gameplay
             if (secondary && AltFireWeapon == null)
                 AltFireWeapon = ResourceManager.CreateWeapon(SecondaryFire);
 
-            Weapon weapon  = secondary ? AltFireWeapon : this;
+            Weapon  weapon = secondary ? AltFireWeapon : this;
             Vector2 origin = Module.Center;
-            bool playSound = !PlaySoundOncePerSalvo;
+            bool playSound = true;
 
             if (FireArc != 0)
             {
                 foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
-                    weapon.CreateProjectile(Owner, origin, fireDir, Module, target, playSound, secondary);
+                {
+                    Projectile.Create(weapon, origin, fireDir, target, playSound);
+                    if (PlaySoundOncePerSalvo) playSound = false;
+                }
             }
             else
             {
                 for (int i = 0; i < ProjectileCount; ++i)
-                    weapon.CreateProjectile(Owner, origin, direction, Module, target, playSound, secondary);
+                {
+                    Projectile.Create(weapon, origin, direction, target, playSound);
+                    if (PlaySoundOncePerSalvo) playSound = false;
+                }
             }
         }
 
@@ -381,7 +342,6 @@ namespace Ship_Game.Gameplay
                 SalvoTarget    = target;
             }
         }
-
 
         public void ClearFireTarget()
         {
@@ -487,151 +447,18 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
-        {
-            var projectile = new Projectile(p, direction)
-            {
-                Weapon                = this,
-                Range                 = Range,
-                Explodes              = explodes,
-                DamageAmount          = DamageAmount + GetOrdnanceDamageBonus(),
-                DamageRadius          = DamageRadius,
-                ExplosionRadiusMod    = ExplosionRadiusVisual,
-                Health                = HitPoints,
-                Speed                 = ProjectileSpeed,
-                WeaponEffectType      = WeaponEffectType,
-                WeaponType            = WeaponType,
-                RotationRadsPerSecond = RotationRadsPerSecond,
-                ArmorPiercing         = (int)ArmourPen
-            };
-
-            projectile.LoadContent(ProjectileTexturePath, ModelPath);
-
-            if (RangeVariance)
-            {
-                projectile.Range *= RandomMath.RandomBetween(0.9f, 1.1f);
-            }
-            ModifyProjectile(projectile);
-            if (Tag_Guided) projectile.InitializeMissilePlanet(projectile.Speed, direction, target);
-            else            projectile.InitializePlanet(projectile.Speed, direction, p.Center);
-            projectile.Radius = ProjectileRadius;
-            if (Animated == 1)
-            {
-                projectile.TexturePath = AnimationPath + 0.ToString("00000.##");
-            }
-            p.Projectiles.Add(projectile);
-            planetEmitter = new AudioEmitter
-            {
-                Position = new Vector3(p.Center, 2500f)
-            };
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-            {
-                planetEmitter.Position = new Vector3(p.Center, -2500f);
-                PlayToggleAndFireSfx(planetEmitter);
-
-                projectile.DieSound = true;
-
-                string dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
-                if (dieCueName.NotEmpty())  projectile.DieCueName  = dieCueName;
-                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
-            }
-        }
-
-        public void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
-        {
-            if (target is ShipModule shipModule)
-                shipModule.GetParent().InCombatTimer = 15f;
-
-            if (FireArc != 0)
-            {
-                foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
-                    CreateProjectilesFromPlanet(fireDir, p, target);
-            }
-            else if (FireCone <= 0)
-            {
-                if (!isBeam)
-                {
-                    Vector2 dir = WeaponType != "Missile" ? direction : Vector2.Normalize(direction);
-                    for (int i = 0; i < ProjectileCount; i++)
-                        CreateProjectilesFromPlanet(dir, p, target);
-                }
-            }
-            else
-            {
-                CreateProjectilesFromPlanet(ApplyFireConeSpread(direction), p, target);
-            }
-        }
-
-        public void FireDrone(Vector2 direction)
-        {
-            if (!PrepareToFire(continueSalvo: false))
-                return;
-
-            direction.Normalize();
-            var projectile = new Projectile(Owner, Module.Center, direction, Module)
-            {
-                Range                 = Range,
-                Weapon                = this,
-                Explodes              = explodes,
-                DamageAmount          = DamageAmount,
-                DamageRadius          = DamageRadius,
-                ExplosionRadiusMod    = ExplosionRadiusVisual,
-                Speed                 = ProjectileSpeed,
-                Health                = HitPoints,
-                WeaponEffectType      = WeaponEffectType,
-                WeaponType            = WeaponType,
-                RotationRadsPerSecond = RotationRadsPerSecond
-            };
-            projectile.LoadContent(ProjectileTexturePath, ModelPath);
-            ModifyProjectile(projectile);
-            projectile.InitializeDrone(projectile.Speed, direction);
-            projectile.Radius = ProjectileRadius;
-            Owner.AddProjectile(projectile);
-
-            if (Owner.InFrustum)
-            {
-                PlayToggleAndFireSfx();
-                projectile.DieSound = true;
-
-                string dieCueName = ResourceManager.GetWeaponTemplate(UID).dieCue;
-                if (dieCueName.NotEmpty())  projectile.DieCueName  = dieCueName;
-                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
-            }
-        }
-
-
-
         private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
             if (!PrepareToFire(continueSalvo: false) || !Owner.CheckIfInsideFireArc(this, target))
                 return;
 
             var beam = new Beam(this, source, destination, target);
-
-            if (Owner.Level > 0) // damage increase by level
-            {
-                beam.DamageAmount += beam.DamageAmount * Owner.Level * 0.05f;
-            }
-
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses) // Hull bonus damage increase
-            {
-                if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
-                    beam.DamageAmount += beam.DamageAmount * mod.DamageBonus;
-            }
-
-            ModifyProjectile(beam);
-
-            Ship owner = Module.GetParent();
-            owner.AddBeam(beam);
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && owner.InFrustum)
-            {
-                PlayToggleAndFireSfx(Owner.SoundEmitter);
-            }
+            Module.GetParent().AddBeam(beam);
         }
 
         public void FireDroneBeam(GameplayObject target, DroneAI droneAI)
         {
-            drowner = droneAI.Owner;
+            drowner = droneAI.Drone;
             FireBeam(drowner.Center, target.Center, target);
         }
 
@@ -640,12 +467,40 @@ namespace Ship_Game.Gameplay
             FireBeam(Module.Center, target.Center, target);
         }
 
-
-
         public void MouseFireAtTarget(Vector2 target)
         {
-            if (isBeam) FireBeam(Module.Center, target, null);
+            if (isBeam) FireBeam(Module.Center, target);
             else        FireAtTarget(target, null);
+        }
+
+        public void FireFromPlanet(Planet planet, Ship targetShip)
+        {
+            targetShip.InCombatTimer = 15f;
+            GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
+
+            if (isBeam)
+            {
+                FireBeam(planet.Center, target.Center, target);
+                return;
+            }
+
+            Vector2 impact = GetProjectedImpactPoint(target);
+            Vector2 direction = (impact - Center).Normalized();
+            if (FireArc != 0)
+            {
+                foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
+                    Projectile.Create(this, planet, fireDir, target);
+            }
+            else if (FireCone <= 0)
+            {
+                Vector2 dir = WeaponType != "Missile" ? direction : direction.Normalized();
+                for (int i = 0; i < ProjectileCount; i++)
+                    Projectile.Create(this, planet, dir, target);
+            }
+            else
+            {
+                Projectile.Create(this, planet, direction, target);
+            }
         }
 
         public void FireAtAssignedTarget()
@@ -666,13 +521,17 @@ namespace Ship_Game.Gameplay
             }
             else if (CanFireWeapon()) // optimization
             {
-                GameplayObject realTarget = FireTarget is ShipModule sm ? sm.GetParent() : FireTarget;
-
-                Vector2 predictedPos = Center.FindPredictedTargetPosition(
-                    Owner.Velocity, ProjectileSpeed, FireTarget.Center, realTarget.Velocity);
-
-                FireAtTarget(predictedPos, FireTarget);
+                FireAtTarget(GetProjectedImpactPoint(FireTarget), FireTarget);
             }
+        }
+
+        private Vector2 GetProjectedImpactPoint(GameplayObject target)
+        {
+            GameplayObject realTarget = target is ShipModule sm ? sm.GetParent() : target;
+            Vector2 center = Module?.Center ?? Center;
+
+            return center.FindPredictedTargetPosition(
+                Owner.Velocity, ProjectileSpeed, realTarget.Center, realTarget.Velocity);
         }
 
         private void FireAtAssignedTargetNonVisible(Ship targetShip)
@@ -715,36 +574,8 @@ namespace Ship_Game.Gameplay
                 targetShip.FindClosestUnshieldedModule(Owner.Center)?.Damage(Owner, InvisibleDamageAmount);
         }
 
-
-        public Projectile LoadProjectiles(Vector2 direction, Ship owner)
-        {
-            var projectile = new Projectile(owner, direction)
-            {
-                Range              = Range,
-                Weapon             = this,
-                Explodes           = explodes,
-                DamageAmount       = DamageAmount,
-                DamageRadius       = DamageRadius,
-                ExplosionRadiusMod = ExplosionRadiusVisual,
-                Speed              = ProjectileSpeed,
-                WeaponEffectType   = WeaponEffectType,
-                WeaponType         = WeaponType
-            };
-            projectile.Initialize(ProjectileSpeed, direction, owner.Center);
-            projectile.Radius = ProjectileRadius;
-            projectile.LoadContent(ProjectileTexturePath, ModelPath);
-            if (owner.System != null && owner.System.isVisible || owner.InDeepSpace)
-            {
-                projectile.DieSound = true;
-
-                string cueName = ResourceManager.WeaponsDict[UID].dieCue;
-                if (cueName.NotEmpty())     projectile.DieCueName = cueName;
-                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
-            }
-            return projectile;
-        }
-
-        private void ModifyProjectile(Projectile projectile)
+        // @todo This requires optimiziation
+        public void ModifyProjectile(Projectile projectile)
         {
             if (Owner == null)
                 return;
@@ -885,7 +716,6 @@ namespace Ship_Game.Gameplay
             Owner         = null;
             drowner       = null;
             Module        = null;
-            planetEmitter = null;
             AltFireWeapon = null;
             FireTarget    = null;
             SalvoTarget   = null;

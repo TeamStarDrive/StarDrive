@@ -594,31 +594,14 @@ namespace Ship_Game.Gameplay
                     return false;
                 }
 
-                if (ModuleType == ShipModuleType.Armor && source is Projectile)
+                if (ModuleType == ShipModuleType.Armor)
                 {
-                    if (proj.IsSecondary)
-                    {
-                        Weapon secondary = ResourceManager.GetWeaponTemplate(proj.Weapon.SecondaryFire);
-                        damageAmount *= secondary.EffectVsArmor; 
-                    }
-                    else
-                    {
-                        damageAmount *= proj.Weapon.EffectVsArmor;
-                    }
-                }
-                else if (ModuleType == ShipModuleType.Armor && beam != null)
-                {
-                    damageAmount *= beam.Weapon.EffectVsArmor;
+                    if      (beam != null) damageAmount *= beam.Weapon.EffectVsArmor;
+                    else if (proj != null) damageAmount *= proj.Weapon.EffectVsArmor;
                 }
 
-                if (damageAmount > Health)
-                {
-                    Health = 0;
-                }
-                else
-                {
-                    Health -= damageAmount;
-                }
+                if (damageAmount > Health) Health = 0;
+                else                       Health -= damageAmount;
 
             #if DEBUG
                 if (Empire.Universe.Debug && Parent.VanityName == "Perseverance")
@@ -727,7 +710,7 @@ namespace Ship_Game.Gameplay
                         shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         shield.texscale     = 2.8f;
                         shield.texscale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                        shield.pointLight.World        = proj.GetWorld();
+                        shield.pointLight.World        = proj.WorldMatrix;
                         shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                         shield.pointLight.Radius       = Radius;
                         shield.pointLight.Intensity    = 8f;

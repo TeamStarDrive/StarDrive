@@ -7,6 +7,10 @@ using static System.Math;
 namespace Ship_Game
 {
     // Added by RedFox
+    // Note about StarDrive coordinate system:
+    //   +X is right on screen
+    //   +Y is down on screen
+    //   +Z is out of the screen
     public static class MathExt
     {
         // clamp a value between [min, max]: min <= value <= max
