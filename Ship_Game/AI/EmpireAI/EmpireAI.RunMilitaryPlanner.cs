@@ -541,7 +541,7 @@ namespace Ship_Game.AI {
                 if (item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
                     || item.AI.State == AIState.Scrap) continue;
 
-                ShipData.RoleName str = item.shipData.HullRole;
+                ShipData.RoleName str = item.DesignRole;
                 float upkeep;
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     upkeep = item.GetMaintCostRealism();
@@ -549,9 +549,7 @@ namespace Ship_Game.AI {
                     upkeep = item.GetMaintCost();                
 
                 //carrier
-                if (item.GetHangars().Sum(fighters => fighters.MaximumHangarShipSize > 0 ? fighters.XSIZE 
-                * fighters.YSIZE : 0) > item.Size * .20f 
-                && str >= ShipData.RoleName.freighter)
+                if (str == ShipData.RoleName.carrier)
                 {
                     numCarriers += upkeep;
                     totalMilShipCount++;
@@ -559,10 +557,7 @@ namespace Ship_Game.AI {
                     totalUpkeep += upkeep;
                 }
                 //troops ship
-                else if ((item.HasTroopBay || item.hasTransporter || item.hasAssaultTransporter) && str >= ShipData.RoleName.freighter
-                         && item.GetHangars().Where(troopbay => troopbay.IsTroopBay).Sum(size => size.XSIZE * size.YSIZE)
-                         + item.Transporters.Sum(troopbay => (troopbay.TransporterTroopAssault > 0 ? troopbay.YSIZE * troopbay.XSIZE : 0)) > item.Size * .10f
-                )
+                else if (str == ShipData.RoleName.troopShip)                
                 {
                     numTroops += upkeep;
                     totalMilShipCount++;
@@ -571,16 +566,14 @@ namespace Ship_Game.AI {
 
                 }
 
-                else if (item.hasOrdnanceTransporter || item.hasRepairBeam || item.HasSupplyBays 
-                    || item.hasOrdnanceTransporter || item.InhibitionRadius > 0
-                )
+                else if (str == ShipData.RoleName.support)                
                 {
                     numSupport++;
                     totalUpkeep += upkeep;
                     totalMilShipCount++;
                     capSupport += upkeep;
                 }
-                else if (item.BombBays.Count * 4 > item.Size * .20f && str >= ShipData.RoleName.freighter)
+                else if (str == ShipData.RoleName.bomber)
                 {
                     numBombers += upkeep;
                     totalMilShipCount++;
@@ -854,40 +847,41 @@ namespace Ship_Game.AI {
             
             if(numCorvettes < desiredCorvettes)
             {
-                if(gunboats)                
-                    pickRoles.Add(ranA ? ShipData.RoleName.gunboat : ShipData.RoleName.corvette,
-                        numCorvettes / (desiredCorvettes));                
-                else
+                //if(gunboats)                
+                //    pickRoles.Add(ranA ? ShipData.RoleName.gunboat : ShipData.RoleName.corvette,
+                //        numCorvettes / (desiredCorvettes));                
+                //else
                     pickRoles.Add(ShipData.RoleName.corvette, numCorvettes / (desiredCorvettes));
             }
             if(numBombers < desiredBombers)
-                pickRoles.Add(ShipData.RoleName.drone, numBombers / desiredBombers);
+                pickRoles.Add(ShipData.RoleName.bomber, numBombers / desiredBombers);
             if(numFrigates < desiredFrigates)
             {
-                if(destroyer)                
-                    pickRoles.Add(ranA ? ShipData.RoleName.frigate 
-                        : ShipData.RoleName.destroyer, numFrigates / (desiredFrigates));                
-                else
+                //if(destroyer)                
+                //    pickRoles.Add(ranA ? ShipData.RoleName.frigate 
+                //        : ShipData.RoleName.destroyer, numFrigates / (desiredFrigates));                
+                //else
                     pickRoles.Add(ShipData.RoleName.frigate, numFrigates / (desiredFrigates));
             }
             if (numCruisers < desiredCruisers)
                 pickRoles.Add(ShipData.RoleName.cruiser, numCruisers / desiredCruisers);
             if (numCapitals < desiredCapitals)
             {
-                if(carriers)
-                {
-                    pickRoles.Add(ranA ? ShipData.RoleName.carrier : ShipData.RoleName.capital,
-                        numCapitals / (desiredCapitals));
-                }
-                else                
+                //if(carriers)
+                //{
+                //    pickRoles.Add(ranA ? ShipData.RoleName.carrier : ShipData.RoleName.capital,
+                //        numCapitals / (desiredCapitals));
+                //}
+                //else                
                     pickRoles.Add(ShipData.RoleName.capital, numCapitals / (desiredCapitals));
                 
             }
             if (numCarriers < desiredCarriers)
-                pickRoles.Add(ShipData.RoleName.prototype, numCarriers / desiredCarriers);
+                pickRoles.Add(ShipData.RoleName.carrier, numCarriers / desiredCarriers);
 
+            // to fix this it is needed to fix roles or at least the way roles are being used here. 
             if (numSupport < desiredSupport)
-                pickRoles.Add(ShipData.RoleName.Support, numSupport / desiredSupport);
+                pickRoles.Add(ShipData.RoleName.support, numSupport / desiredSupport);
 
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
@@ -917,43 +911,44 @@ namespace Ship_Game.AI {
                 var bombcount   = 0;
                 var hangarcount = 0;
 
-                foreach (ShipModule slot in ship.ModuleSlotList)
-                {
-                    if (slot.ModuleType == ShipModuleType.Bomb)
-                    {
-                        bombcount += slot.XSIZE * slot.YSIZE;
-                        if (bombcount > ship.Size * .2)
-                            bombs = true;
-                    }
-                    if (slot.MaximumHangarShipSize > 0)
-                    {
-                        hangarcount += slot.YSIZE * slot.XSIZE;
-                        if (hangarcount > ship.Size * .2)
-                            hangars = true;
-                    }
-                    if (slot.IsTroopBay || slot.TransporterRange > 0)
-                        troops = true;
+                //foreach (ShipModule slot in ship.ModuleSlotList)
+                //{
+                //    if (slot.ModuleType == ShipModuleType.Bomb)
+                //    {
+                //        bombcount += slot.XSIZE * slot.YSIZE;
+                //        if (bombcount > ship.Size * .2)
+                //            bombs = true;
+                //    }
+                //    if (slot.MaximumHangarShipSize > 0)
+                //    {
+                //        hangarcount += slot.YSIZE * slot.XSIZE;
+                //        if (hangarcount > ship.Size * .2)
+                //            hangars = true;
+                //    }
+                //    if (slot.IsTroopBay || slot.TransporterRange > 0)
+                //        troops = true;
 
-                }
+                //}
+                if (role != ship.DesignRole)
+                    continue;
 
-
-                if (role == ShipData.RoleName.drone || role == ShipData.RoleName.troop)
-                {
-                    if (!NonCombatshipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
-                        continue;
-                }
-                else
-                if (!ShipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
-                    continue;
-                if (role == ShipData.RoleName.troop && !troops)
-                    continue;
-                if (role == ShipData.RoleName.drone && !bombs)
-                    continue;
-                if (role == ShipData.RoleName.prototype && !hangars)
-                    continue;
-                if (role != ship.shipData.HullRole && role == ShipData.RoleName.prototype 
-                    && role != ShipData.RoleName.drone && role != ShipData.RoleName.troop)
-                    continue;
+                //if (role == ShipData.RoleName.drone || role == ShipData.RoleName.troop)
+                //{
+                //    if (!NonCombatshipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
+                //        continue;
+                //}
+                //else
+                //if (!ShipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
+                //    continue;
+                //if (role == ShipData.RoleName.troop && !troops)
+                //    continue;
+                //if (role == ShipData.RoleName.drone && !bombs)
+                //    continue;
+                //if (role == ShipData.RoleName.prototype && !hangars)
+                //    continue;
+                //if (role != ship.shipData.HullRole && role == ShipData.RoleName.prototype 
+                //    && role != ShipData.RoleName.drone && role != ShipData.RoleName.troop)
+                //    continue;
                 if (ship.shipData.techsNeeded.Count > maxtech)
                     maxtech = ship.shipData.techsNeeded.Count;
                 potentialShips.Add(ship);

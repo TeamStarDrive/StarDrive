@@ -897,7 +897,7 @@ namespace Ship_Game
             UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, techEntry.AcquiredFrom);
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
-                if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == techEntry.AcquiredFrom)
+               if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == techEntry.AcquiredFrom)
                 {
                    UnlockedHullsDict[unlockedHull.Name] = true;
                 }

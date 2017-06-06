@@ -483,7 +483,8 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            SensorRange += sensorBonus;
+            SensorRange += sensorBonus;            
+            DesignRole = GetDesignRole();
         }
     }
 }
