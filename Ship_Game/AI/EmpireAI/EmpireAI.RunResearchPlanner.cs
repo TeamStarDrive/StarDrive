@@ -620,7 +620,7 @@ namespace Ship_Game.AI {
                             continue;
                         if (!this.ShipIsGoodForGoals(shortTermBest))
                             continue;
-                        if (shortTermBest.shipData.techsNeeded.Intersect(useableTech).Count() == 0)
+                        if (!shortTermBest.shipData.techsNeeded.Intersect(useableTech).Any())
                             continue;
 
                         if (shortTermBest.shipData.techsNeeded.Count == 0)
