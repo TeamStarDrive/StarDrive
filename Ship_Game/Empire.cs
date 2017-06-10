@@ -1642,7 +1642,7 @@ namespace Ship_Game
             foreach (var kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;
-                if (ship.Deleted || !WeCanBuildThis(ship.Name))
+                if (ship.Deleted || !WeCanBuildThis(ship.Name) || ShipsWeCanBuild.Contains(ship.Name))
                     continue;
                 try
                 {
