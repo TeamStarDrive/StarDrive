@@ -51,9 +51,11 @@ namespace Ship_Game
                 
                 empire.UnlockEmpireHull(unlockedHull.Name);
                 hullList.Add(unlockedHull.Name);
+                empire.ShipTechs.Add(UID);
 
-
+                
             }
+            empire.UpdateShipsWeCanBuild(hullList);
             return hullList;
         }
 
@@ -68,7 +70,7 @@ namespace Ship_Game
                     continue;
                 empire.UnlockEmpireShipModule(unlockedMod.ModuleUID);
                 modulesUnlocked.Add(unlockedMod.ModuleUID);
-                
+                empire.ShipTechs.Add(UID);
             }
             return modulesUnlocked;
         }
