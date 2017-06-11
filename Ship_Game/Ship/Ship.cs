@@ -2193,7 +2193,7 @@ namespace Ship_Game.Gameplay
                 Mass = (Size / 2);
             PowerCurrent -= PowerDraw * elapsedTime;
             if (PowerCurrent < PowerStoreMax)
-                PowerCurrent += (PowerFlowMax + (PowerFlowMax * loyalty?.data.PowerFlowMod ?? 0)) * elapsedTime;
+                PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * elapsedTime;
 
             if (PowerCurrent <= 0.0f)
             {
@@ -2557,14 +2557,21 @@ namespace Ship_Game.Gameplay
             while (experience > ReqExp * (1 + Level))
             {
                 experience -= ReqExp * (1 + Level);
-                ++Level;
+                AddToShipLevel(1);
             }
-            if (Level > 255)
-                Level = 255;
+            
             if (!loyalty.TryGetRelations(killed.loyalty, out Relationship rel) || !rel.AtWar)
                 return;
             loyalty.GetRelations(killed.loyalty).ActiveWar.StrengthKilled += killed.BaseStrength;
             killed.loyalty.GetRelations(loyalty).ActiveWar.StrengthLost += killed.BaseStrength;
+        }
+
+        public void AddToShipLevel(int amountToAdd)
+        {
+            Level += amountToAdd;
+            if (Level > 255)
+                Level = 255;
+
         }
 
         private void ExplodeShip(float explodeRadius, bool useWarpExplodeEffect)

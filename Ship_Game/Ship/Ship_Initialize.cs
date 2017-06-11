@@ -463,10 +463,10 @@ namespace Ship_Game.Gameplay
                 WarpThrust += module.WarpThrust;
 
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
-                PowerStoreMax        += module.PowerStoreMax    * (1 + loyalty?.data.FuelCellModifier ?? 0);
+                PowerStoreMax        += module.PowerStoreMax    * (1 + (loyalty?.data.FuelCellModifier ?? 0));
                 PowerCurrent         += module.PowerStoreMax;
-                PowerFlowMax         += module.PowerFlowMax     * (1 + loyalty?.data.PowerFlowMod   ?? 0);
-                shield_max           += module.shield_power_max * (1 + loyalty?.data.ShieldPowerMod ?? 0);
+                PowerFlowMax         += module.PowerFlowMax     * (1 + (loyalty?.data.PowerFlowMod   ?? 0));
+                shield_max           += module.shield_power_max * (1 + (loyalty?.data.ShieldPowerMod ?? 0));
                 if (module.ModuleType == ShipModuleType.Armor)
                     armor_max        += module.HealthMax;
 
