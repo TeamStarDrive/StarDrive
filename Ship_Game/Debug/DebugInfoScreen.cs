@@ -312,8 +312,9 @@ namespace Ship_Game.Debug
                 DrawString("Total Pop: "+ e.GetTotalPop().ToString(Fmt));
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().ToString(Fmt));
                 DrawString("Military Str: "+ e.MilitaryScore);
-                foreach (Goal g in e.GetGSAI().Goals)
+                for (int x = 0; x < e.GetGSAI().Goals.Count; x++)
                 {
+                    Goal g = e.GetGSAI().Goals[x];
                     if (g.GoalName != "MarkForColonization")
                         continue;
 

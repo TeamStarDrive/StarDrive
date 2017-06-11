@@ -437,14 +437,16 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                Empire empireAbsorbedBy = EmpireManager.GetEmpireByName(e.data.AbsorbedBy);
-                foreach (KeyValuePair<string, TechEntry> tech in empireAbsorbedBy.GetTDict())
+
+                Empire servantEmpire = e;
+                Empire masterEmpire = EmpireManager.GetEmpireByName(servantEmpire.data.AbsorbedBy);
+                foreach (KeyValuePair<string, TechEntry> masterEmpireTech in masterEmpire.GetTDict())
                 {
-                    if (!tech.Value.Unlocked)
+                    if (!masterEmpireTech.Value.Unlocked)
                     {
                         continue;
                     }
-                    empireAbsorbedBy.UnlockHullsSave(tech.Key, e.data.Traits.ShipType);
+                    masterEmpire.UnlockHullsSave(masterEmpireTech.Value, servantEmpire.data.Traits.ShipType);
                 }
             }
             foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
