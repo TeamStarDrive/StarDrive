@@ -858,10 +858,10 @@ namespace Ship_Game
         {
             foreach (Ship ship in OwnedShips)
             {
-                if (ship.shipData.Role != ShipData.RoleName.fighter)
+                if (ship.shipData.Role != role)
                     continue;
-                ship.Level += bonus;
-                if (ship.Level > 5) ship.Level = 5;
+                ship.AddToShipLevel(bonus);
+                
             }
         }
 
@@ -1435,12 +1435,20 @@ namespace Ship_Game
             return (GrossTaxes * data.TaxRate + (float)totalTradeIncome - AllTimeMaintTotal) / (float)numberForAverage;
         }
 
-        public void UpdateShipsWeCanBuild()
+        public void UpdateShipsWeCanBuild(Array<string> hulls = null)
         {
             foreach (var kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;
-                if (ship.Deleted || !WeCanBuildThis(ship.Name) || ShipsWeCanBuild.Contains(ship.Name))
+                if (hulls != null)
+                    if (!hulls.Contains(ship.GetShipData().Hull))
+                        continue;
+
+                if (ship.Deleted ||  ShipsWeCanBuild.Contains(ship.Name) || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
+                    continue;
+                if (!EmpireAI.NonCombatshipIsGoodForGoals(ship))
+                    continue;
+                if (!WeCanBuildThis(ship.Name))
                     continue;
                 try
                 {
@@ -1453,13 +1461,7 @@ namespace Ship_Game
                 {
                     ship.Deleted = true;  //This should prevent this Key from being evaluated again
                     continue;   //This keeps the game going without crashing
-                }
-
-                foreach (string shiptech in ship.shipData.techsNeeded)
-                    ShipTechs.Add(shiptech);                        
-
-                if (!EmpireAI.NonCombatshipIsGoodForGoals(ship))
-                    continue;
+                }                               
 
                 int bombcount = 0;
                 int hangarcount = 0;
@@ -1536,21 +1538,30 @@ namespace Ship_Game
                 //#endif
                 return false;
             }
-
-            // check if all modules in the ship are unlocked
-            foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
-            {
-                if (moduleSlotData.InstalledModuleUID.IsEmpty() ||
-                    moduleSlotData.InstalledModuleUID == "Dummy" ||
-                    UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
-                    continue;
-
-                //#if TRACE
-                //    Log.Info("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
-                //            data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-                //#endif
-                return false; // can't build this ship because it contains a locked Module
+            if (shipData.techsNeeded.Count > 0)
+            { foreach (string shipTech in shipData.techsNeeded)
+                {
+                    if (!ShipTechs.Contains(shipTech))
+                        return false;
+                }
+                Log.Info($"building {shipData.Name}" );
             }
+
+            else
+                // check if all modules in the ship are unlocked
+                foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
+                {
+                    if (moduleSlotData.InstalledModuleUID.IsEmpty() ||
+                        moduleSlotData.InstalledModuleUID == "Dummy" ||
+                        UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
+                        continue;
+
+                    //#if TRACE
+                    //    Log.Info("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
+                    //            data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
+                    //#endif
+                    return false; // can't build this ship because it contains a locked Module
+                }
 
             //#if TRACE
             //    Log.Info("{0} : good ship : {1} : {2} : {3}", data.PortraitName, ship, shipData.Hull, shipData.Role);
