@@ -16,11 +16,13 @@ namespace Ship_Game
         public static float ProjectorRadius = 150000f;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
-        private readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        public readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedTroopDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedModulesDict   = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
+        
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship>      Inhibitors     = new Array<Ship>();
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
@@ -115,7 +117,11 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
 
         [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
-       
+        public void TriggerAllShipStatusUpdate()
+        {
+            foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag. 
+                ship.shipStatusChanged = true;
+        }
 
         public string Name => data.Traits.Name;
 
@@ -360,10 +366,13 @@ namespace Ship_Game
 
         public bool IsPointInSensors(Vector2 point)
         {
-            using (BorderNodes.AcquireReadLock())
-                foreach (var node in SensorNodes)
+            using (SensorNodes.AcquireReadLock())
+                for (int x = 0; x < SensorNodes.Count; x++)
+                {
+                    var node = SensorNodes[x];
                     if (node.Position.InRadius(point, node.Radius))
                         return true;
+                }
             return false;
         }
 
@@ -813,266 +822,63 @@ namespace Ship_Game
             return UnlockedTroopDict.ContainsKey(ID) && UnlockedTroopDict[ID];
         }
 
+        public void UnlockEmpireShipModule(string moduleUID)
+        {
+            UnlockedModulesDict[moduleUID] = true;
+            if (!ResourceManager.TryGetModule(moduleUID, out ShipModule checkmod))
+                return;
+            canBuildTroopShips = canBuildTroopShips || checkmod.IsTroopBay;
+            canBuildCarriers = canBuildCarriers || checkmod.MaximumHangarShipSize > 0;
+            canBuildBombers = canBuildBombers || checkmod.ModuleType == ShipModuleType.Bomb;
+        }
+        public void UnlockEmpireHull(string hullName)
+        {
+            UnlockedHullsDict[hullName] = true;
+        }
+        public void UnlockEmpireTroop(string troopName)
+        {
+            UnlockedTroopDict[troopName] = true;
+            UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(troopName));
+        }
+        public void UnlockEmpireBuilding(string buildingName)
+        {
+            UnlockedBuildingsDict[buildingName] = true;            
+        }
+        public void SetEmpireTechDiscovered(string techUID)
+        {
+            if (TechnologyDict[techUID].Tech.RaceRestrictions.Count == 0 && !TechnologyDict[techUID].Tech.Secret)
+                TechnologyDict[techUID].Discovered = true;
+        }
+        public void SetEmpireTechRevealed(string techUID)
+        {
+            TechnologyDict[techUID].Discovered = true;
+        }
+
+        public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
+        {
+            foreach (Ship ship in OwnedShips)
+            {
+                if (ship.shipData.Role != ShipData.RoleName.fighter)
+                    continue;
+                ship.Level += bonus;
+                if (ship.Level > 5) ship.Level = 5;
+            }
+        }
+
         public void UnlockTech(string techID) //@todo rewrite. the empire tech dictionary is made of techentries which have a reference to the technology.
         {
             var techEntry = TechnologyDict[techID];
             if (techEntry.Unlocked)
                 return;
-            //Add to level of tech if more than one level
-            var technology = ResourceManager.TechTree[techID];
-            if (technology.MaxLevel > 1)
-            {
-                techEntry.Level++;
-                if (techEntry.Level == technology.MaxLevel)
-                {
-                    techEntry.Progress = techEntry.TechCost* UniverseScreen.GamePaceStatic;
-                    techEntry.Unlocked = true;
-                }
-                else
-                {
-                    techEntry.Unlocked = false;
-                    techEntry.Progress = 0;
-                }
-            }
-            else
-            {
-                techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
-                techEntry.Unlocked = true;
-            }
-            //Set GSAI to build ship roles
+            techEntry.Unlock(this);            
 
-            //if (techEntry.GetTech().unlockBattleships || techID == "Battleships")
-            //    this.canBuildCapitals = true;
-            //if (techEntry.GetTech().unlockCruisers || techID == "Cruisers")
-            //    this.canBuildCruisers = true;
-            //if (techEntry.GetTech().unlockFrigates || techID == "FrigateConstruction")
-            //    this.canBuildFrigates = true;
-            //if (techEntry.GetTech().unlockCorvettes || techID == "HeavyFighterHull" )
-            //    this.canBuildCorvettes = true;
-            //if (!this.canBuildCorvettes  && techEntry.GetTech().TechnologyType == TechnologyType.ShipHull)
-            //{
-            //    foreach(KeyValuePair<string,bool> hull in this.GetHDict())
-            //    {
-            //        if (techEntry.GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
-            //            continue;
-            //        if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role == ShipData.RoleName.corvette).Count()>0)
-            //        {
-            //            this.canBuildCorvettes = true;
-            //            break;
-            //        }
-            //    }
-            //}
-   
-            //Added by McShooterz: Race Specific buildings
-            foreach (Technology.UnlockedBuilding unlockedBuilding in technology.BuildingsUnlocked)
-            {
-                if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null || unlockedBuilding.Type == TechnologyDict[techID].AcquiredFrom)
-                    this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
-            }
-            if (technology.RootNode == 0)
-            {
-                foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
-                {
-                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
-                    if (TechnologyDict[leadsToTech.UID].Tech.RaceRestrictions.Count == 0 && !TechnologyDict[leadsToTech.UID].Tech.Secret)
-                        TechnologyDict[leadsToTech.UID].Discovered = true;
-                }
-            }
-            //Added by McShooterz: Race Specific modules
-            foreach (Technology.UnlockedMod unlockedMod in technology.ModulesUnlocked)
-            {
-                if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == TechnologyDict[techID].AcquiredFrom)
-                {
-                    UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-                    if (ResourceManager.TryGetModule(unlockedMod.ModuleUID, out ShipModule checkmod))
-                    {
-                        canBuildTroopShips = canBuildTroopShips || checkmod.IsTroopBay;
-                        canBuildCarriers   = canBuildCarriers || checkmod.MaximumHangarShipSize > 0;
-                        canBuildBombers    = canBuildBombers || checkmod.ModuleType == ShipModuleType.Bomb;
-                    }
-                }
-
-            }
-
-            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, techEntry.AcquiredFrom);
-            foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
-            {
-               if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == techEntry.AcquiredFrom)
-                {
-                   UnlockedHullsDict[unlockedHull.Name] = true;
-                }
-
-            }
-            //this.UpdateShipsWeCanBuild();
-
-            // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
-            if (isPlayer)
-            {
-                foreach (Technology.TriggeredEvent triggeredEvent in technology.EventsTriggered)
-                {
-                    string type = triggeredEvent.Type;
-                    if (type != data.Traits.ShipType && type != null && type != techEntry.AcquiredFrom)
-                        continue;
-
-                    if (triggeredEvent.CustomMessage != null)
-                        Universe.NotificationManager.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
-                    else
-                        Universe.NotificationManager.AddNotify(triggeredEvent);
-                }
-            }
-
-
-            // Added by The Doctor - reveal specified 'secret' techs with unlocking of techs, via Technology XML
-            foreach (Technology.RevealedTech revealedTech in technology.TechsRevealed)
-            {
-                if (revealedTech.Type == data.Traits.ShipType || revealedTech.Type == null || revealedTech.Type == techEntry.AcquiredFrom)
-                    TechnologyDict[revealedTech.RevUID].Discovered = true;
-            }
-            foreach (Technology.UnlockedBonus unlockedBonus in technology.BonusUnlocked)
-            {
-                //Added by McShooterz: Race Specific bonus
-                string type = unlockedBonus.Type;
-                if (type != null && type != data.Traits.ShipType && type != techEntry.AcquiredFrom)
-                    continue;
-
-                string str = unlockedBonus.BonusType;
-                if (string.IsNullOrEmpty(str))
-                    str = unlockedBonus.Name;
-                if (unlockedBonus.Tags.Count > 0)
-                {
-                    foreach (string index in unlockedBonus.Tags)
-                    {
-                        var tagmod = data.WeaponTags[index];
-                        switch (unlockedBonus.BonusType)
-                        {
-                            case "Weapon_Speed":             tagmod.Speed             += unlockedBonus.Bonus; continue;
-                            case "Weapon_Damage":            tagmod.Damage            += unlockedBonus.Bonus; continue;
-                            case "Weapon_ExplosionRadius":   tagmod.ExplosionRadius   += unlockedBonus.Bonus; continue;
-                            case "Weapon_TurnSpeed":         tagmod.Turn              += unlockedBonus.Bonus; continue;
-                            case "Weapon_Rate":              tagmod.Rate              += unlockedBonus.Bonus; continue;
-                            case "Weapon_Range":             tagmod.Range             += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldDamage":      tagmod.ShieldDamage      += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmorDamage":       tagmod.ArmorDamage       += unlockedBonus.Bonus; continue;
-                            case "Weapon_HP":                tagmod.HitPoints         += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
-                            default: continue;
-                        }
-                    }
-                }
-
-                switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
-                {
-                    case "Xeno Compilers":
-                    case "Research Bonus": data.Traits.ResearchMod += unlockedBonus.Bonus; break;
-                    case "FTL Spool Bonus":
-                        if      (unlockedBonus.Bonus < 1)  data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
-                        else if (unlockedBonus.Bonus >= 1) data.SpoolTimeModifier = 0f; // insta-warp by modifier
-                        break;
-                    case "Top Guns":
-                    case "Bonus Fighter Levels":
-                        data.BonusFighterLevels += (int)unlockedBonus.Bonus;
-                        foreach (Ship ship in OwnedShips)
-                        {
-                            if (ship.shipData.Role != ShipData.RoleName.fighter)
-                                continue;
-                            ship.Level += (int)unlockedBonus.Bonus;
-                            if (ship.Level > 5) ship.Level = 5;
-                        }
-                        break;
-                    case "Mass Reduction":
-                    case "Percent Mass Adjustment": data.MassModifier       += unlockedBonus.Bonus; break;
-                    case "ArmourMass":              data.ArmourMassModifier += unlockedBonus.Bonus; break;
-                    case "Resistance is Futile":
-                    case "Allow Assimilation":      data.Traits.Assimilators = true; break;
-                    case "Cryogenic Suspension":
-                    case "Passenger Modifier":      data.Traits.PassengerModifier += unlockedBonus.Bonus; break;
-                    case "ECM Bonus":
-                    case "Missile Dodge Change Bonus": data.MissileDodgeChance   += unlockedBonus.Bonus; break;
-                    case "Set FTL Drain Modifier":     data.FTLPowerDrainModifier = unlockedBonus.Bonus; break;
-                    case "Super Soldiers":
-                    case "Troop Strength Modifier Bonus": data.Traits.GroundCombatModifier += unlockedBonus.Bonus; break;
-                    case "Fuel Cell Upgrade":
-                    case "Fuel Cell Bonus":       data.FuelCellModifier  += unlockedBonus.Bonus;  break;
-                    case "Trade Tariff":
-                    case "Bonus Money Per Trade": data.Traits.Mercantile += unlockedBonus.Bonus; break;
-                    case "Missile Armor":
-                    case "Missile HP Bonus":      data.MissileHPModifier += unlockedBonus.Bonus; break;
-                    case "Hull Strengthening":
-                    case "Module HP Bonus":
-                        data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                        RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
-                        break;
-                    case "Reaction Drive Upgrade":
-                    case "STL Speed Bonus":           data.SubLightModifier += unlockedBonus.Bonus; break;
-                    case "Reactive Armor":
-                    case "Armor Explosion Reduction": data.ExplosiveRadiusReduction   += unlockedBonus.Bonus; break;
-                    case "Slipstreams":
-                    case "In Borders FTL Bonus":      data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus; break;
-                    case "StarDrive Enhancement":
-                    case "FTL Speed Bonus":           data.FTLModifier += unlockedBonus.Bonus * data.FTLModifier; break;
-                    case "FTL Efficiency":
-                    case "FTL Efficiency Bonus":      data.FTLPowerDrainModifier -= unlockedBonus.Bonus * data.FTLPowerDrainModifier; break;
-                    case "Spy Offense":
-                    case "Spy Offense Roll Bonus":    data.OffensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Spy Defense":
-                    case "Spy Defense Roll Bonus":    data.DefensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Increased Lifespans":
-                    case "Population Growth Bonus":   data.Traits.ReproductionMod += unlockedBonus.Bonus; break;
-                    case "Set Population Growth Min": data.Traits.PopGrowthMin     = unlockedBonus.Bonus; break;
-                    case "Set Population Growth Max": data.Traits.PopGrowthMax     = unlockedBonus.Bonus; break;
-                    case "Xenolinguistic Nuance":
-                    case "Diplomacy Bonus":           data.Traits.DiplomacyMod    += unlockedBonus.Bonus; break;
-                    case "Ordnance Effectiveness":
-                    case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
-                    case "Tachyons":
-                    case "Sensor Range Bonus":        data.SensorModifier += unlockedBonus.Bonus; break;
-                    case "Privatization": data.Privatization = true; break;
-                    // Doctor: Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
-                    case "Civilian Maintenance": data.CivMaintMod -= unlockedBonus.Bonus; break;
-                    case "Armor Piercing":
-                    case "Armor Phasing": data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
-                    case "Kulrathi Might":
-                        data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                        RecalculateMaxHP = true; //So existing ships will benefit from changes to ModHpModifier -Gretman
-                        break;
-                    case "Subspace Inhibition": data.Inhibitors = true; break;
-                    // Added by McShooterz: New Bonuses
-                    case "Production Bonus":   data.Traits.ProductionMod       += unlockedBonus.Bonus; break;
-                    case "Construction Bonus": data.Traits.ShipCostMod         -= unlockedBonus.Bonus; break;
-                    case "Consumption Bonus":  data.Traits.ConsumptionModifier -= unlockedBonus.Bonus; break;
-                    case "Tax Bonus":          data.Traits.TaxMod              += unlockedBonus.Bonus; break;
-                    case "Repair Bonus":       data.Traits.RepairMod   += unlockedBonus.Bonus; break;
-                    case "Maintenance Bonus":  data.Traits.MaintMod    -= unlockedBonus.Bonus; break;
-                    case "Power Flow Bonus":   data.PowerFlowMod       += unlockedBonus.Bonus; break;
-                    case "Shield Power Bonus": data.ShieldPowerMod     += unlockedBonus.Bonus; break;
-                    case "Ship Experience Bonus": data.ExperienceMod   += unlockedBonus.Bonus; break;
-                }
-            }
-            //update ship stats if a bonus was unlocked
-            if (ResourceManager.TechTree[techID].BonusUnlocked.Count > 0)
-            {
-                foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag. 
-                    ship.shipStatusChanged = true;
-            }
             UpdateShipsWeCanBuild();
             if (!isPlayer)
                 EmpireAI.TriggerRefit();
             data.ResearchQueue.Remove(techID);
         }
 
-        private void UnlockTroops(Array<Technology.UnlockedTroop> unlockedTroops, string shipType, string techType = null)
-        {
-            foreach (Technology.UnlockedTroop unlockedTroop in unlockedTroops)
-            {
-                if (unlockedTroop.Type == null || unlockedTroop.Type == "ALL" || 
-                    unlockedTroop.Type == shipType || (techType != null && unlockedTroop.Type == techType))
-                {
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-                    UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(unlockedTroop.Name));
-                }
-            }
-        }
+
 
         public void UnlockTechFromSave(TechEntry tech)
         {
@@ -1099,7 +905,7 @@ namespace Ship_Game
                 if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == tech.AcquiredFrom)
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
             }
-            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, tech.AcquiredFrom);
+//            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, tech.AcquiredFrom);
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
@@ -1112,7 +918,8 @@ namespace Ship_Game
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
                 }
             }
-            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, tech.AcquiredFrom);
+            tech.UnlockTroops(this);
+            
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
@@ -1130,26 +937,17 @@ namespace Ship_Game
             UnlockTech(techID);
         }
 
-        public void UnlockHullsSave(string techID, string AbsorbedShipType)
+        public void UnlockHullsSave(TechEntry techEntry, string servantEmpireShipType)
         {
-            var tech = ResourceManager.TechTree[techID];
-            UnlockTroops(tech.TroopsUnlocked, AbsorbedShipType);
 
-            foreach (Technology.UnlockedHull unlockedHull in tech.HullsUnlocked)
-            {
-                if (unlockedHull.ShipType == AbsorbedShipType || unlockedHull.ShipType == null)
-                    UnlockedHullsDict[unlockedHull.Name] = true;
-            }
-            foreach (Technology.UnlockedMod unlockedMod in tech.ModulesUnlocked)
-            {
-                if (unlockedMod.Type == AbsorbedShipType || unlockedMod.Type == null)
-                    UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-            }
-            foreach (Technology.UnlockedBuilding unlockedBuilding in tech.BuildingsUnlocked)
-            {
-                if (unlockedBuilding.Type == AbsorbedShipType || unlockedBuilding.Type == null)
-                    UnlockedBuildingsDict[unlockedBuilding.Name] = true;
-            }
+            //var tech = ResourceManager.TechTree[techID];
+
+            techEntry.ConqueredSource.Add(servantEmpireShipType);
+            techEntry.UnlockTroops(this);
+            techEntry.UnLockHulls(this);
+            techEntry.UnlockModules(this);
+            techEntry.UnlockBuildings(this);
+
             UpdateShipsWeCanBuild();
         }
 
