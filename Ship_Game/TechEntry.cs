@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
-using Ship_Game.Gameplay;
+using Ship_Game;
 
 namespace Ship_Game
 {
@@ -49,11 +48,9 @@ namespace Ship_Game
                 if (!CheckSource(unlockedHull.ShipType, empire))
                     continue;
                 
-                empire.UnlockEmpireHull(unlockedHull.Name);
-                hullList.Add(unlockedHull.Name);
-                empire.ShipTechs.Add(UID);
-
-                
+                empire.UnlockEmpireHull(unlockedHull.Name, UID);
+                hullList.Add(unlockedHull.Name);                
+               
             }
             empire.UpdateShipsWeCanBuild(hullList);
             return hullList;
@@ -68,9 +65,8 @@ namespace Ship_Game
             {
                 if (!CheckSource(unlockedMod.Type, empire))
                     continue;
-                empire.UnlockEmpireShipModule(unlockedMod.ModuleUID);
+                empire.UnlockEmpireShipModule(unlockedMod.ModuleUID, UID);
                 modulesUnlocked.Add(unlockedMod.ModuleUID);
-                empire.ShipTechs.Add(UID);
             }
             return modulesUnlocked;
         }
@@ -138,7 +134,7 @@ namespace Ship_Game
                 Progress = Tech.Cost * UniverseScreen.GamePaceStatic;
                 Unlocked = true;
             }
-            RaceRestrionCheck(empire);
+            RaceRestrictonCheck(empire);
             TriggerAnyEvents(empire);
             UnlockModules(empire);
             UnlockTroops(empire);
@@ -148,7 +144,7 @@ namespace Ship_Game
             UnlockBonus(empire);
         }
 
-        public void RaceRestrionCheck(Empire empire)
+        public void RaceRestrictonCheck(Empire empire)
         {
             if (Tech.RootNode != 0) return;
             foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
@@ -184,10 +180,7 @@ namespace Ship_Game
                 string type = unlockedBonus.Type;
                 if (type != null && type != data.Traits.ShipType && type != AcquiredFrom)
                     continue;
-
-                //string str = unlockedBonus.BonusType;
-                //if (string.IsNullOrEmpty(str))
-                //    str = unlockedBonus.Name;
+       
                 if (unlockedBonus.Tags.Count > 0)
                 {
                     foreach (string index in unlockedBonus.Tags)

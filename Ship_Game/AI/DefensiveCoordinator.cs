@@ -64,13 +64,13 @@ namespace Ship_Game.AI
         public void Remove(Ship ship)
         {
             SolarSystem systoDefend = ship.AI.SystemToDefend;
-             if (!DefensiveForcePool.Remove(ship))
+            if (!DefensiveForcePool.Remove(ship))
             {
-                if(ship.Active && systoDefend != null)
-                    Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in DefensePool");
+                if (ship.Active && systoDefend != null)
+                    Debug.DebugInfoScreen.DefenseCoLogsNotInPool();
             }
             else if (ship.Active && systoDefend == null)
-                Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
+                Debug.DebugInfoScreen.DefenseCoLogsSystemNull();                
 
 
             bool found = false;
@@ -79,7 +79,7 @@ namespace Ship_Game.AI
                 if (!sysCom.RemoveShip(ship))
                 {
                     if (ship.Active)
-                        Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Not in SystemCommander");
+                        Debug.DebugInfoScreen.DefenseCoLogsNotInSystem();                        
                 }
                 else found = true;
                 // return; // when sysdefense is safe enable. 
@@ -90,17 +90,11 @@ namespace Ship_Game.AI
                 if (!kv.Value.RemoveShip(ship) ) continue;
                 if (!found)
                     found = true;
-                else Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Ship Was in Multiple SystemCommanders");
+                else Debug.DebugInfoScreen.DefenseCoLogsMultipleSystems();
 
             }
-            if (!found && ship.Active)
-            {
-                Log.Info(color: ConsoleColor.Yellow,
-                    text:
-                    systoDefend == null
-                        ? "SystemCommander: Remove : SystemToDefend Was Null"
-                        : "SystemCommander: Remove : Ship Not Found in Any");
-            }
+            Debug.DebugInfoScreen.DefenseCoLogsNull(found, ship, systoDefend);
+            
             
             
         }
