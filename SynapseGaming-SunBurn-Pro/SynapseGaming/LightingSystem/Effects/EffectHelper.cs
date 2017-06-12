@@ -91,12 +91,12 @@ namespace SynapseGaming.LightingSystem.Effects
       effectParameter_0.SetValue(vector2_1);
     }
 
-    internal static void smethod_8(Texture2D texture2D_0, ref Texture2D texture2D_1, ref EffectParameter effectParameter_0)
+    internal static void SetParam(Texture2D texture, ref Texture2D currentValueInOut, EffectParameter param)
     {
-      if (effectParameter_0 == null || texture2D_0 == texture2D_1)
+      if (param == null || texture == currentValueInOut)
         return;
-      texture2D_1 = texture2D_0;
-      effectParameter_0.SetValue(texture2D_1);
+      currentValueInOut = texture;
+      param.SetValue(currentValueInOut);
     }
 
     internal static void smethod_9(Texture2D texture2D_0, Texture2D texture2D_1, ref Texture2D texture2D_2, ref EffectParameter effectParameter_0)

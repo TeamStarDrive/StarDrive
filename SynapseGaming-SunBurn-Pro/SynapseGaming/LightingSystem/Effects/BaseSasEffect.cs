@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 
@@ -18,7 +18,7 @@ namespace SynapseGaming.LightingSystem.Effects
   /// <summary>
   /// Effect class with full support for, and binding of, FX Standard Annotations and Semantics (SAS).
   /// </summary>
-  public abstract class BaseSasEffect : BaseSasBindEffect, IEditorObject, Interface0, IRenderableEffect, ISkinnedEffect, Interface1
+  public abstract class BaseSasEffect : BaseSasBindEffect, IEditorObject, IProjectFile, IRenderableEffect, ISkinnedEffect, Interface1
   {
       private Matrix[] matrix_6 = new Matrix[1];
     private Matrix[] matrix_7 = new Matrix[1];
@@ -152,7 +152,7 @@ namespace SynapseGaming.LightingSystem.Effects
 
       internal string ProjectFile { get; set; } = "";
 
-      string Interface0.ProjectFile => this.ProjectFile;
+      string IProjectFile.ProjectFile => this.ProjectFile;
 
       internal string EffectFile { get; set; } = "";
 

@@ -104,7 +104,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       get => this.texture2D_0;
         set
       {
-        EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_8);
+        EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_8);
         if (this.effectParameter_7 == null || this.texture2D_0 == null)
           return;
         EffectHelper.smethod_7(new Vector2(this.texture2D_0.Width, this.texture2D_0.Height), ref this.vector2_0, ref this.effectParameter_7);
@@ -117,7 +117,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     public Texture2D SceneLightingSpecularMap
     {
       get => this.texture2D_1;
-        set => EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_9);
+        set => EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_9);
     }
 
     /// <summary>Enables scene fog.</summary>

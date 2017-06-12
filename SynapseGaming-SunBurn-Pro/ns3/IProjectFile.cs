@@ -6,7 +6,7 @@
 
 namespace ns3
 {
-  internal interface Interface0
+  internal interface IProjectFile
   {
     string ProjectFile { get; }
   }

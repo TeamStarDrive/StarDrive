@@ -71,10 +71,10 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
       this.method_6(graphicsdevice);
     }
 
-    internal TerrainEffect(GraphicsDevice graphicsDevice_0, bool bool_3)
-      : base(graphicsDevice_0, "TerrainEffect", bool_3)
+    internal TerrainEffect(GraphicsDevice device, bool bool_3)
+      : base(device, "TerrainEffect", bool_3)
     {
-      this.method_6(graphicsDevice_0);
+      this.method_6(device);
     }
 
     private void method_5()

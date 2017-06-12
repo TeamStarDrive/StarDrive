@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns3;
 using ns5;
-using ns6;
+using EmbeddedResources;
 using ns8;
 using ns9;
 using SynapseGaming.LightingSystem.Core;
@@ -141,11 +141,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         this.class38_0 = new Class38(graphicsDevice);
         this.class37_0 = new Class37(graphicsDevice);
         this.basicEffect_0 = new BasicEffect(graphicsDevice, null);
-        this.texture2D_0 = LightingSystemManager.Instance.method_2("White");
+        this.texture2D_0 = LightingSystemManager.Instance.EmbeddedTexture("White");
         this.deferredObjectEffect_0 = new DeferredObjectEffect(graphicsDevice);
         this.class10_0 = new Class10(graphicsDevice);
         this.occlusionQueryHelper_0 = new OcclusionQueryHelper<ShadowGroup>(graphicsDevice);
-        this.model_0 = LightingSystemManager.Instance.method_1("FullSphere");
+        this.model_0 = LightingSystemManager.Instance.EmbeddedModel("FullSphere");
       }
       this.class65_0.method_0();
       this.class67_0.method_0();
