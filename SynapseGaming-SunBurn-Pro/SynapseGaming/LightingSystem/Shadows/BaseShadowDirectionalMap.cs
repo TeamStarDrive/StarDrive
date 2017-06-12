@@ -8,7 +8,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 

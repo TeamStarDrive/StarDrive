@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class TechniquNames
   {

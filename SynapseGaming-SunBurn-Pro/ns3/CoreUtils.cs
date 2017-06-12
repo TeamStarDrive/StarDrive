@@ -280,33 +280,31 @@ namespace ns3
             return new Rectangle(viewport_0.X + (int) boundingBox.Min.X, viewport_0.Y + (int) boundingBox.Min.Y, (int) boundingBox.Max.X - (int) boundingBox.Min.X, (int) boundingBox.Max.Y - (int) boundingBox.Min.Y);
         }
 
-        public static Texture2D smethod_28(GraphicsDevice graphicsDevice_0, Texture2D texture2D_0)
+        public static Texture2D ConvertToLuminance8(GraphicsDevice device, Texture2D texture)
         {
-            if (texture2D_0 == null || texture2D_0.Format != SurfaceFormat.Color)
-                return texture2D_0;
-            int width = texture2D_0.Width;
-            int height = texture2D_0.Height;
-            byte[] data1 = new byte[width * height * 4];
-            byte[] data2 = new byte[width * height];
-            Texture2D texture2D = new Texture2D(graphicsDevice_0, width, height, texture2D_0.LevelCount, texture2D_0.TextureUsage, SurfaceFormat.Luminance8);
-            for (int level = 0; level < texture2D_0.LevelCount; ++level)
+            if (texture == null || texture.Format != SurfaceFormat.Color)
+                return texture;
+            int width = texture.Width;
+            int height = texture.Height;
+            var rgba = new byte[width * height * 4];
+            var mono = new byte[width * height];
+            var texture2D = new Texture2D(device, width, height, texture.LevelCount, texture.TextureUsage, SurfaceFormat.Luminance8);
+            for (int level = 0; level < texture.LevelCount; ++level)
             {
-                texture2D_0.GetData(level, new Rectangle?(), data1, 0, width * height * 4);
-                int index1 = 0;
-                int num = 0;
-                for (int index2 = 0; index2 < height; ++index2)
+                texture.GetData(level, null, rgba, 0, width * height * 4);
+                int srcIndex = 0;
+                int dstIndex = 0;
+                for (int y = 0; y < height; ++y)
                 {
-                    for (int index3 = 0; index3 < width; ++index3)
+                    for (int x = 0; x < width; ++x)
                     {
-                        data2[num++] = data1[index1];
-                        index1 += 4;
+                        mono[dstIndex++] = rgba[srcIndex];
+                        srcIndex += 4;
                     }
                 }
-                texture2D.SetData(level, new Rectangle?(), data2, 0, width * height, SetDataOptions.None);
-                int val1_1 = width / 2;
-                int val1_2 = height / 2;
-                width = Math.Max(val1_1, 1);
-                height = Math.Max(val1_2, 1);
+                texture2D.SetData(level, null, mono, 0, width * height, SetDataOptions.None);
+                width  = Math.Max(width  / 2, 1);
+                height = Math.Max(height / 2, 1);
             }
             return texture2D;
         }

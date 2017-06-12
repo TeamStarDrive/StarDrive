@@ -67,9 +67,9 @@ namespace SynapseGaming.LightingSystem.Core
         {
             Vector2 vector2_1 = screenposition;
             SpriteBatch spriteBatch_0 = LightingSystemManager.Instance.method_9(device);
-            SpriteFont spriteFont_0 = LightingSystemManager.Instance.method_8();
+            SpriteFont spriteFont_0 = LightingSystemManager.Instance.ConsoleFont();
             spriteBatch_0.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.SaveState);
-            spriteBatch_0.Draw(LightingSystemManager.Instance.method_2("White"), new Rectangle((int)screenposition.X - 10, (int)screenposition.Y - 10, (int)vector2_0.X + 20, (int)vector2_0.Y + 20), color_0);
+            spriteBatch_0.Draw(LightingSystemManager.Instance.EmbeddedTexture("White"), new Rectangle((int)screenposition.X - 10, (int)screenposition.Y - 10, (int)vector2_0.X + 20, (int)vector2_0.Y + 20), color_0);
             class16_0.method_4("FrameRate", gametime, !bool_1);
             vector2_0 = class16_0.method_1(spriteBatch_0, spriteFont_0, ref screenposition, scale, color);
             bool_0 = true;

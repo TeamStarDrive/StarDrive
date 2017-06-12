@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Effects;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class Class43 : Class42
   {
