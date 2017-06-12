@@ -357,13 +357,12 @@ namespace Ship_Game.Gameplay
             if (target is Projectile projectile)
             {
                 if (Owner != null && projectile.Loyalty == Owner.loyalty)
-                {
                     return false;
-                }
+
                 if (projectile.WeaponType == "Missile")
                 {
-                    float ran = UniverseRandom.RandomBetween(0f, 1f);
-                    if (projectile.Loyalty != null && ran >= projectile.Loyalty.data.MissileDodgeChance)
+                    if (projectile.Loyalty != null && 
+                        projectile.Loyalty.data.MissileDodgeChance <= UniverseRandom.RandomBetween(0f, 1f))
                     {
                         projectile.DamageMissile(this, DamageAmount);
                         return true;
@@ -396,80 +395,49 @@ namespace Ship_Game.Gameplay
                     DieNextFrame = true;
                     return true;
                 }
-                if (parent.shipData.Role == ShipData.RoleName.fighter && parent.loyalty.data.Traits.DodgeMod > 0f)
+                if (parent.shipData.Role == ShipData.RoleName.fighter && 
+                    parent.loyalty.data.Traits.DodgeMod > 0f &&
+                    parent.loyalty.data.Traits.DodgeMod > UniverseRandom.RandomBetween(0f, 1f))
                 {
-                    if (UniverseRandom.RandomBetween(0f, 100f) < parent.loyalty.data.Traits.DodgeMod * 100f)
-                    {
-                        Miss = true;
-                        return false;       
-                    }
+                    Miss = true;
+                    return false;       
                 }
 
-                //Non exploding projectiles should go through multiple modules if it has enough damage
+                // Non exploding projectiles should go through multiple modules if it has enough damage
                 if (!Explodes && module.Active)
-                {
-                    //Doc: If module has resistance to Armour Piercing effects, deduct that from the projectile's AP before starting AP and damage checks
-                    if (module.APResist > 0)
-                        ArmorPiercing = ArmorPiercing - module.APResist;
+                    ArmourPiercingTouch(module, parent);
 
-                    if (ArmorPiercing <= 0 || module.ModuleType != ShipModuleType.Armor)
-                        module.Damage(this, DamageAmount, out DamageAmount);
-                    else
-                        ArmorPiercing -= (module.XSIZE + module.YSIZE) / 2;
-
-                    if (DamageAmount > 0f) // damage passes through to next modules
-                    {
-                        Vector2 projectileDir = Velocity.Normalized();
-                        var projectedModules = parent.RayHitTestModules(Center, projectileDir, 100f, Radius);
-
-                        // now pierce through all of the modules while we can still pierce and damage:
-                        if (projectedModules != null)
-                        {
-                            foreach (ShipModule impactModule in projectedModules)
-                            {
-                                if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
-                                {
-                                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
-                                    continue; // SKIP/Phase through this armor module (yikes!)
-                                }
-
-                                impactModule.Damage(this, DamageAmount, out DamageAmount);
-                                if (DamageAmount <= 0f)
-                                    break;
-                            }
-                        }
-                    }
-                }
                 Health = 0f;
             }
             if (WeaponEffectType == "Plasma")
             {
                 var center  = new Vector3(Center.X, Center.Y, -100f);
-                Vector2 forward = Rotation.RadiansToDirection();
-                Vector2 right   = forward.RightVector();
+                Vector3 forward  = Rotation.RadiansToDirection3D();
+                Vector3 right    = forward.RightVector(z:1f);
+                Vector3 backward = -forward;
                 for (int i = 0; i < 20; i++)
                 {
-                    Vector3 random = UniverseRandom.Vector3D(250f) * new Vector3(right.X, right.Y, 1f);
+                    Vector3 random = UniverseRandom.Vector3D(250f) * right;
                     Empire.Universe.flameParticles.AddParticleThreadA(center, random);
 
-                    random = UniverseRandom.Vector3D(150f) + new Vector3(-forward.X, -forward.Y, 0f);
+                    random = UniverseRandom.Vector3D(150f) + backward;
                     Empire.Universe.flameParticles.AddParticleThreadA(center, random);
                 }
             }
             else if (WeaponEffectType == "MuzzleBlast") // currently unused
             {
                 var center  = new Vector3(Center.X, Center.Y, -100f);
-                Vector2 forward = Rotation.RadiansToDirection();
-                Vector2 right   = forward.RightVector();
+                Vector3 forward  = Rotation.RadiansToDirection3D();
+                Vector3 right    = forward.RightVector(z:1f);
+                Vector3 backward = -forward;
                 for (int i = 0; i < 20; i++)
                 {
-                    Vector3 random = UniverseRandom.Vector3D(500f) * new Vector3(right.X, right.Y, 1f);
+                    Vector3 random = UniverseRandom.Vector3D(500f) * right;
                     Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
 
-                    random = new Vector3(-forward.X, -forward.Y, 0f) 
-                        + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
-                                    UniverseRandom.RandomBetween(-500f, 500f), 
-                                    UniverseRandom.RandomBetween(-150f, 150f));
+                    random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
+                                                    UniverseRandom.RandomBetween(-500f, 500f), 
+                                                    UniverseRandom.RandomBetween(-150f, 150f));
                     Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
                 }
             }
@@ -480,6 +448,38 @@ namespace Ship_Game.Gameplay
             }
             DieNextFrame = true;
             return true;
+        }
+
+        private void ArmourPiercingTouch(ShipModule module, Ship parent)
+        {
+            // Doc: If module has resistance to Armour Piercing effects, 
+            // deduct that from the projectile's AP before starting AP and damage checks
+            ArmorPiercing -= module.APResist;
+
+            if (ArmorPiercing <= 0 || module.ModuleType != ShipModuleType.Armor)
+                module.Damage(this, DamageAmount, out DamageAmount);
+
+            if (DamageAmount <= 0f)
+                return;
+
+            Vector2 projectileDir = Velocity.Normalized();
+            var projectedModules = parent.RayHitTestModules(Center, projectileDir, distance:parent.Radius, rayRadius:Radius);
+            if (projectedModules == null)
+                return;
+
+            foreach (ShipModule impactModule in projectedModules)
+            {
+                if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
+                {
+                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                    if (ArmorPiercing >= 0)
+                        continue; // SKIP/Phase through this armor module (yikes!)
+                }
+
+                impactModule.Damage(this, DamageAmount, out DamageAmount);
+                if (DamageAmount <= 0f)
+                    return;
+            }
         }
 
         public override void Update(float elapsedTime)

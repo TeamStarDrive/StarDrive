@@ -218,16 +218,36 @@ namespace Ship_Game
 
         // assuming this is a direction vector, gives the right side perpendicular vector
         // @note This assumes that +Y is DOWNWARDS on the screen
-        public static Vector2 LeftVector(this Vector2 directionVector)
+        public static Vector2 LeftVector(this Vector2 direction)
         {
-            return new Vector2(directionVector.Y, -directionVector.X);
+            return new Vector2(direction.Y, -direction.X);
+        }
+        // Same as Vector2.LeftVector; Z axis is not modified
+        public static Vector3 LeftVector(this Vector3 direction)
+        {
+            return new Vector3(direction.Y, -direction.X, direction.Z);
+        }
+        // Same as Vector3.LeftVector; but Z axis is set manually
+        public static Vector3 LeftVector(this Vector3 direction, float z)
+        {
+            return new Vector3(direction.Y, -direction.X, z);
         }
 
         // assuming this is a direction vector, gives the left side perpendicular vector
         // @note This assumes that +Y is DOWNWARDS on the screen
-        public static Vector2 RightVector(this Vector2 directionVector)
+        public static Vector2 RightVector(this Vector2 direction)
         {
-            return new Vector2(-directionVector.Y, directionVector.X);
+            return new Vector2(-direction.Y, direction.X);
+        }
+        // Same as Vector2.RightVector; Z axis is not modified
+        public static Vector3 RightVector(this Vector3 direction)
+        {
+            return new Vector3(-direction.Y, direction.X, direction.Z);
+        }
+        // Same as Vector3.RightVector; but Z axis is set manually
+        public static Vector3 RightVector(this Vector3 direction, float z)
+        {
+            return new Vector3(-direction.Y, direction.X, z);
         }
 
         // Converts rotation radians into a 2D direction vector
@@ -235,12 +255,23 @@ namespace Ship_Game
         {
             return new Vector2((float)Sin(radians), -(float)Cos(radians));
         }
+        // Converts rotation radians into a 3D direction vector, with Z = 0
+        public static Vector3 RadiansToDirection3D(this float radians)
+        {
+            return new Vector3((float)Sin(radians), -(float)Cos(radians), 0f);
+        }
 
         // Converts an angle value to a 2D direction vector
         public static Vector2 AngleToDirection(this float degrees)
         {
             double rads = degrees * (PI / 180.0);
             return new Vector2((float)Sin(rads), -(float)Cos(rads));
+        }
+        // Converts an angle value to a 3D direction vector, with Z = 0
+        public static Vector3 AngleToDirection3D(this float degrees)
+        {
+            double rads = degrees * (PI / 180.0);
+            return new Vector3((float)Sin(rads), -(float)Cos(rads), 0f);
         }
 
         public static Vector2 FindVectorBehindTarget(this GameplayObject ship, float distance)

@@ -21,26 +21,26 @@ namespace SDNative
         float ShieldPower;
         float Facing;
         strview InstalledModuleUID = Empty;
-        strview HangarshipGuid = Empty;
-        strview State = Empty;
-        strview Restrictions = Empty;
-        strview SlotOptions = Empty;
+        strview HangarshipGuid     = Empty;
+        strview State              = Empty;
+        strview Restrictions       = Empty;
+        strview SlotOptions        = Empty;
     };
 
 
     struct ShipData
     {
-        strview Name = Empty;
-        strview Hull = Empty;
-        strview ShipStyle = Empty;
-        strview EventOnDeath = Empty;
+        strview Name             = Empty;
+        strview Hull             = Empty;
+        strview ShipStyle        = Empty;
+        strview EventOnDeath     = Empty;
         strview SelectionGraphic = Empty;
-        strview IconPath = Empty;
-        strview ModelPath = Empty;
-        strview DefaultAIState = Empty;
-        strview Role         = "fighter";
-        strview CombatState  = "AttackRuns";
-        strview ShipCategory = "Unclassified";
+        strview IconPath         = Empty;
+        strview ModelPath        = Empty;
+        strview DefaultAIState   = Empty;
+        strview Role             = "fighter";
+        strview CombatState      = "AttackRuns";
+        strview ShipCategory     = "Unclassified";
         int      TechScore             = 0;
         float    BaseStrength          = 0.0f;
         float    FixedUpkeep           = 0.0f;
@@ -60,18 +60,19 @@ namespace SDNative
         bool     AllModulesUnlockable  = true;
 
         // these expose raw pointers to C#, to make data conversion possible
-        ThrusterZone* Thrusters = nullptr;
-        int ThrustersLen = 0;
+        ThrusterZone* Thrusters     = nullptr;
+        int ThrustersLen            = 0;
         ModuleSlotData* ModuleSlots = nullptr;
-        int ModuleSlotsLen = 0;
-        strview* Techs = nullptr;
-        int TechsLen = 0;
+        int ModuleSlotsLen          = 0;
+        strview* Techs              = nullptr;
+        int TechsLen                = 0;
 
         strview ErrorMessage = Empty;
 
+        // and this is our actual data storage, hidden from C#
         vector<ThrusterZone>   ThrusterList;
         vector<ModuleSlotData> ModuleSlotList;
-        vector<strview>    TechsNeeded;
+        vector<strview>        TechsNeeded;
         string ErrorStr;
         load_buffer Data;
 
