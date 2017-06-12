@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class Class45 : BaseRenderableEffect
   {
@@ -36,7 +36,7 @@ namespace ns6
     public Texture2D BeamTexture
     {
       get => this.texture2D_0;
-        set => EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_15);
+        set => EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_15);
     }
 
     public Texture2D SceneDepthMap
@@ -44,7 +44,7 @@ namespace ns6
       get => this.texture2D_1;
         set
       {
-        EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_16);
+        EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_16);
         if (this.effectParameter_14 != null && this.texture2D_1 != null)
           EffectHelper.smethod_7(new Vector2(this.texture2D_1.Width, this.texture2D_1.Height), ref this.vector2_0, ref this.effectParameter_14);
         this.SetTechnique();
@@ -61,7 +61,7 @@ namespace ns6
       this.effectParameter_15 = this.Parameters["_BeamTexture"];
       this.effectParameter_16 = this.Parameters["_SceneDepthTexture"];
       this.Color = Vector3.One;
-      this.BeamTexture = LightingSystemManager.Instance.method_2("VolumeLightBeam");
+      this.BeamTexture = LightingSystemManager.Instance.EmbeddedTexture("VolumeLightBeam");
     }
 
     public void method_2(float float_1, float float_2)

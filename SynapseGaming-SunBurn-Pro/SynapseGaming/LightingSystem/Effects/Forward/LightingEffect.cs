@@ -58,10 +58,10 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
       this.method_6(graphicsdevice);
     }
 
-    internal LightingEffect(GraphicsDevice graphicsDevice_0, bool bool_5)
-      : base(graphicsDevice_0, "LightingEffect", bool_5)
+    internal LightingEffect(GraphicsDevice device, bool bool_5)
+      : base(device, "LightingEffect", bool_5)
     {
-      this.method_6(graphicsDevice_0);
+      this.method_6(device);
     }
 
     private void method_5()

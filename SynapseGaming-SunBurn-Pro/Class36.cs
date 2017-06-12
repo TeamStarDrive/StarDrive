@@ -7,7 +7,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 
@@ -195,7 +195,7 @@ internal class Class36 : BaseSkinnedEffect, IAddressableEffect, ITransparentEffe
         {
             if (value == this.texture2D_2)
                 return;
-            EffectHelper.smethod_8(value, ref this.texture2D_2, ref this.effectParameter_30);
+            EffectHelper.SetParam(value, ref this.texture2D_2, this.effectParameter_30);
             this.SetTechnique();
         }
     }

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal interface Interface3
   {

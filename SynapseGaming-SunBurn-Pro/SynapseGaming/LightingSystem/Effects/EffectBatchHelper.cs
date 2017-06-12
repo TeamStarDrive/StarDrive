@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using ns6;
+using EmbeddedResources;
 
 namespace SynapseGaming.LightingSystem.Effects
 {

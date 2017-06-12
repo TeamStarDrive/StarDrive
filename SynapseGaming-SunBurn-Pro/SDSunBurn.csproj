@@ -246,7 +246,7 @@
     <Compile Include="ns3\Class12.cs" />
     <Compile Include="ns3\CoreUtils.cs" />
     <Compile Include="ns3\GraphicsDeviceMonitor.cs" />
-    <Compile Include="ns3\Interface0.cs" />
+    <Compile Include="ns3\IProjectFile.cs" />
     <Compile Include="ns3\Class16.cs" />
     <Compile Include="ns3\Class17.cs" />
     <Compile Include="ns3\Class18.cs" />
@@ -274,7 +274,7 @@
     <Compile Include="ns6\Class43.cs" />
     <Compile Include="ns6\Class44.cs" />
     <Compile Include="ns6\Enum5.cs" />
-    <Compile Include="ns6\Class51.cs" />
+    <Compile Include="ns6\EmbeddedResourceBuilder.cs" />
     <Compile Include="ns6\Class45.cs" />
     <Compile Include="ns5\Class37.cs" />
     <Compile Include="ns5\Class38.cs" />
