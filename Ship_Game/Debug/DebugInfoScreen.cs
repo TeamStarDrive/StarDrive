@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -478,6 +479,45 @@ namespace Ship_Game.Debug
             if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
             else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
             return false;
+        }
+
+        public static void DefenseCoLogsNull(bool found, Ship ship, SolarSystem systoDefend)
+        {
+            if (Mode != DebugModes.DefenseCo)
+                return;
+            if (!found && ship.Active)
+            {
+                Log.Info(color: ConsoleColor.Yellow,
+                    text:
+                    systoDefend == null
+                        ? "SystemCommander: Remove : SystemToDefend Was Null"
+                        : "SystemCommander: Remove : Ship Not Found in Any");
+            }
+        }
+        public static void DefenseCoLogsMultipleSystems()
+        {
+            if (Mode != DebugModes.DefenseCo)
+                return;
+            Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Ship Was in Multiple SystemCommanders");
+        }
+        public static void DefenseCoLogsNotInSystem()
+        {
+            if (Mode != DebugModes.DefenseCo)
+                return;
+            Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Not in SystemCommander");
+        }
+
+        public static void DefenseCoLogsNotInPool()
+        {
+            if (Mode != DebugModes.DefenseCo)
+                return;
+            Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in DefensePool");
+        }
+        public static void DefenseCoLogsSystemNull()
+        {
+            if (Mode != DebugModes.DefenseCo)
+                return;
+            Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
         }
     }
 }

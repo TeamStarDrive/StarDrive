@@ -820,62 +820,28 @@ namespace Ship_Game.AI {
             */
             //Find ship to build
             bool ranA = RandomMath.RandomBetween(0f, 1f) < 0.5f;
-
-            var potentialShips = new Array<Ship>();
+           
             var pickRoles = new Map<ShipData.RoleName, float>();
-            OwnerEmpire.UpdateShipsWeCanBuild();
+           // OwnerEmpire.UpdateShipsWeCanBuild();
 
-            var destroyer = false;
-            var gunboats  = false;
-            var carriers  = false;
-            foreach (var kv in OwnerEmpire.GetHDict())
-            {
-                if (!kv.Value)
-                    continue;
-                ShipData.RoleName role = ResourceManager.HullsDict[kv.Key].Role;
-                if (role == ShipData.RoleName.destroyer)
-                    destroyer = true;
-                if (role == ShipData.RoleName.gunboat)
-                    gunboats = true;
-                if (role == ShipData.RoleName.carrier)
-                    carriers = true;
-            }
             if (numTroops < desiredTroops)
                 pickRoles.Add(ShipData.RoleName.troop, numTroops / desiredTroops);
             if (numFighters < desiredFighters)            
                 pickRoles.Add(ShipData.RoleName.fighter, numFighters / (desiredFighters));
             
-            if(numCorvettes < desiredCorvettes)
-            {
-                //if(gunboats)                
-                //    pickRoles.Add(ranA ? ShipData.RoleName.gunboat : ShipData.RoleName.corvette,
-                //        numCorvettes / (desiredCorvettes));                
-                //else
+            if(numCorvettes < desiredCorvettes)            
                     pickRoles.Add(ShipData.RoleName.corvette, numCorvettes / (desiredCorvettes));
-            }
+            
             if(numBombers < desiredBombers)
                 pickRoles.Add(ShipData.RoleName.bomber, numBombers / desiredBombers);
-            if(numFrigates < desiredFrigates)
-            {
-                //if(destroyer)                
-                //    pickRoles.Add(ranA ? ShipData.RoleName.frigate 
-                //        : ShipData.RoleName.destroyer, numFrigates / (desiredFrigates));                
-                //else
+            if(numFrigates < desiredFrigates)            
                     pickRoles.Add(ShipData.RoleName.frigate, numFrigates / (desiredFrigates));
-            }
+            
             if (numCruisers < desiredCruisers)
                 pickRoles.Add(ShipData.RoleName.cruiser, numCruisers / desiredCruisers);
-            if (numCapitals < desiredCapitals)
-            {
-                //if(carriers)
-                //{
-                //    pickRoles.Add(ranA ? ShipData.RoleName.carrier : ShipData.RoleName.capital,
-                //        numCapitals / (desiredCapitals));
-                //}
-                //else                
+            if (numCapitals < desiredCapitals)                          
                     pickRoles.Add(ShipData.RoleName.capital, numCapitals / (desiredCapitals));
-                
-            }
+                            
             if (numCarriers < desiredCarriers)
                 pickRoles.Add(ShipData.RoleName.carrier, numCarriers / desiredCarriers);
 
@@ -883,9 +849,11 @@ namespace Ship_Game.AI {
             if (numSupport < desiredSupport)
                 pickRoles.Add(ShipData.RoleName.support, numSupport / desiredSupport);
 
+            
+
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
-                string buildThis = PickFromCandidates(kv.Key, capacity, potentialShips);
+                string buildThis = PickFromCandidates(kv.Key);
                 if (!string.IsNullOrEmpty(buildThis))                
                     return buildThis;                
             }
@@ -896,59 +864,20 @@ namespace Ship_Game.AI {
 
         //fbedard: add TroopsShip(troop), Bomber(drone) and Carrier(prototype) roles
         //This is broken
-        public string PickFromCandidates(ShipData.RoleName role, float capacity, Array<Ship> potentialShips)
+        public string PickFromCandidates(ShipData.RoleName role)
         {
+            var potentialShips = new Array<Ship>();
             string name = "";
             Ship ship;
             int maxtech = 0;
-            foreach (var shipsWeCanBuild in OwnerEmpire.ShipsWeCanBuild)
+            foreach (string shipsWeCanBuild in OwnerEmpire.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipsWeCanBuild, out ship))
                     continue;
-                var bombs       = false;
-                var hangars     = false;
-                var troops      = false;
-                var bombcount   = 0;
-                var hangarcount = 0;
 
-                //foreach (ShipModule slot in ship.ModuleSlotList)
-                //{
-                //    if (slot.ModuleType == ShipModuleType.Bomb)
-                //    {
-                //        bombcount += slot.XSIZE * slot.YSIZE;
-                //        if (bombcount > ship.Size * .2)
-                //            bombs = true;
-                //    }
-                //    if (slot.MaximumHangarShipSize > 0)
-                //    {
-                //        hangarcount += slot.YSIZE * slot.XSIZE;
-                //        if (hangarcount > ship.Size * .2)
-                //            hangars = true;
-                //    }
-                //    if (slot.IsTroopBay || slot.TransporterRange > 0)
-                //        troops = true;
-
-                //}
                 if (role != ship.DesignRole)
                     continue;
 
-                //if (role == ShipData.RoleName.drone || role == ShipData.RoleName.troop)
-                //{
-                //    if (!NonCombatshipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
-                //        continue;
-                //}
-                //else
-                //if (!ShipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
-                //    continue;
-                //if (role == ShipData.RoleName.troop && !troops)
-                //    continue;
-                //if (role == ShipData.RoleName.drone && !bombs)
-                //    continue;
-                //if (role == ShipData.RoleName.prototype && !hangars)
-                //    continue;
-                //if (role != ship.shipData.HullRole && role == ShipData.RoleName.prototype 
-                //    && role != ShipData.RoleName.drone && role != ShipData.RoleName.troop)
-                //    continue;
                 if (ship.shipData.techsNeeded.Count > maxtech)
                     maxtech = ship.shipData.techsNeeded.Count;
                 potentialShips.Add(ship);
@@ -976,22 +905,32 @@ namespace Ship_Game.AI {
             return name;
         }
 
-        public bool ShipIsGoodForGoals(Ship ship)
+        public bool ShipIsGoodForGoals(Ship ship, float baseStrengthNeeded = 0)
         {
-            return ship.BaseStrength > 0f && ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip 
-                && ship.BaseCanWarp && ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
-                   || (ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier > ship.PowerFlowMax
-                       && ship.PowerStoreMax / (ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier 
-                       - ship.PowerFlowMax) * ship.velocityMaximum > MinimumWarpRange);
-        }
-        public bool NonCombatshipIsGoodForGoals(Ship ship)
-        {
-            return ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip && ship.BaseCanWarp 
-                && ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
-                   || (ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier > ship.PowerFlowMax
-                       && ship.PowerStoreMax / (ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier 
-                       - ship.PowerFlowMax) * ship.velocityMaximum > MinimumWarpRange);
-        }
 
+            if (!ship.shipData.BaseCanWarp) return false;
+            float powerDraw = ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier;
+
+            bool warpTimeGood = (ship.PowerStoreMax / (powerDraw - ship.PowerFlowMax)
+                                 * ship.velocityMaximum > MinimumWarpRange);
+
+            bool goodPower = ship.shipData.BaseCanWarp && (powerDraw <= ship.PowerFlowMax || warpTimeGood);
+            
+            if (ship.DesignRole >= ShipData.RoleName.fighter && !ship.shipData.CarrierShip && ship.BaseStrength > baseStrengthNeeded)
+                return goodPower;
+            if(ship.DesignRole == ShipData.RoleName.troopShip || ship.DesignRole == ShipData.RoleName.support)
+                return  goodPower;
+            return false;
+
+        }
+        public bool NonCombatshipIsGoodForGoals(Ship ship) => ShipIsGoodForGoals(ship, float.MinValue);
+        
+        public bool ShipGoodToBuild(Ship ship)
+        {
+            if (ship.shipData.HullRole == ShipData.RoleName.station || ship.shipData.HullRole == ShipData.RoleName.platform || ship.shipData.CarrierShip)
+                return true;
+            return ShipIsGoodForGoals(ship, float.MinValue);
+
+        }
     }
 }
