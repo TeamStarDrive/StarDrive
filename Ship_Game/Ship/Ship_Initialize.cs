@@ -483,9 +483,15 @@ namespace Ship_Game.Gameplay
                     Health += module.Health;
                 }
             }
-
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();
+            //these base values are kinda f'd up. BaseCanWarp isnt being set for the shipdata and so gets passed around alot but isnt ever properly set.
+            //also there appear to be two of them and i think that makes no sense.
+            // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while. 
+            shipData.BaseCanWarp = WarpThrust > 0;
+            BaseCanWarp = WarpThrust > 0;
+            BaseStrength = GetStrength();
+            
         }
     }
 }

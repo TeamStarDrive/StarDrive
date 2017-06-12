@@ -526,7 +526,7 @@ namespace Ship_Game.Gameplay
             Vector2 center = Module?.Center ?? Center;
 
             return center.FindProjectedImpactPoint(
-                Owner.Velocity, ProjectileSpeed, target.Center, targetShip.Velocity);
+                (Owner?.Velocity ?? Vector2.Zero), ProjectileSpeed, target.Center, targetShip.Velocity);
         }
 
         private void FireAtAssignedTargetNonVisible(Ship targetShip)

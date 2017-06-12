@@ -115,6 +115,10 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
+        [XmlIgnore][JsonIgnore] public Array<string> BomberTech;
+        [XmlIgnore] [JsonIgnore] public Array<string> TroopShipTech;
+        [XmlIgnore] [JsonIgnore] public Array<string> CarrierTech;
+        [XmlIgnore] [JsonIgnore] public Array<string> SupportShipTech;
 
         [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
         public void TriggerAllShipStatusUpdate()
@@ -131,6 +135,13 @@ namespace Ship_Game
 
         public Empire()
         {
+            if(!isFaction)
+            {
+                BomberTech = new Array<string>();
+                TroopShipTech = new Array<string>();
+                CarrierTech = new Array<string>();
+                SupportShipTech = new Array<string>();
+            }
         }
         public class PatchCacheEntry
         {
@@ -755,51 +766,6 @@ namespace Ship_Game
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
 
-            #if false // purge designs that dont advance the ships
-                Log.Info(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
-                if (!this.isFaction)
-                {
-                    HashSet<string> techs = new HashSet<string>();
-                    HashSet<string> purgelist = new HashSet<string>();
-                    int count = 2; //how many best ships to pick
-                    //pick the best ships and record their techs
-                    foreach (Ship ship in ResourceManager.ShipsDict.Values.OrderByDescending(str => str.BaseStrength))
-                    {
-                        foreach (string techsneeded in ship.shipData.techsNeeded)
-                            techs.Add(techsneeded);
-                        if (count < 0)
-                            break;
-                        count--;
-
-                    }
-                    // use the recorded techs and purge ships that do not have enough of those techs.
-                    foreach (Ship ship in ResourceManager.ShipsDict.Values)
-                    {
-                        if (ship.shipData.techsNeeded.Count == 0 || ship.shipData.BaseStrength == 0
-                            ||
-                            ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.prototype
-                            || ship.shipData.ShipStyle != this.data.Traits.ShipType || ship.shipData.techsNeeded.Count == 0
-                            )
-                            continue;
-                        var difference = ship.shipData.techsNeeded.Except(techs);
-                        if (difference.Count() == 0)
-                            continue;
-                        if (difference.Count() / ship.shipData.techsNeeded.Count < .1)
-                        {
-                            purgelist.Add(ship.shipData.Name);
-                        }
-
-
-                    }
-                    Log.Info(this.data.PortraitName + " - Purging " + purgelist.Count);
-                    foreach (string purge in purgelist)
-                    {
-                        ResourceManager.ShipsDict.Remove(purge);
-                    }
-                }
-                GC.Collect();
-                Log.Info(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
-            #endif
         }
         private bool WeCanUseThisLater(TechEntry tech)
         {
@@ -821,19 +787,45 @@ namespace Ship_Game
         {
             return UnlockedTroopDict.ContainsKey(ID) && UnlockedTroopDict[ID];
         }
-
-        public void UnlockEmpireShipModule(string moduleUID)
+        
+        public void UnlockEmpireShipModule(string moduleUID, string techUID = "")
         {
             UnlockedModulesDict[moduleUID] = true;
-            if (!ResourceManager.TryGetModule(moduleUID, out ShipModule checkmod))
-                return;
-            canBuildTroopShips = canBuildTroopShips || checkmod.IsTroopBay;
-            canBuildCarriers = canBuildCarriers || checkmod.MaximumHangarShipSize > 0;
-            canBuildBombers = canBuildBombers || checkmod.ModuleType == ShipModuleType.Bomb;
+            ShipTechs.Add(techUID);
+            if (!isFaction)
+            {
+
+                switch (ResourceManager.GetModuleTemplate(moduleUID).ModuleType)
+                {
+
+                    case ShipModuleType.Hangar:
+                        TroopShipTech.AddUnique(techUID);
+                        CarrierTech.AddUnique(techUID);
+                        break;
+
+                    case ShipModuleType.Bomb:
+                        BomberTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Special:
+                        SupportShipTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Countermeasure:
+                        SupportShipTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Transporter:
+                        SupportShipTech.AddUnique(techUID);
+                        TroopShipTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Troop:
+                        TroopShipTech.AddUnique(techUID);
+                        break;
+                }
+            }
         }
-        public void UnlockEmpireHull(string hullName)
+        public void UnlockEmpireHull(string hullName, string techUID = "")
         {
             UnlockedHullsDict[hullName] = true;
+            ShipTechs.Add(techUID);
         }
         public void UnlockEmpireTroop(string troopName)
         {
@@ -998,19 +990,6 @@ namespace Ship_Game
                     KnownShips.Add(nearby);
             }
 
-            // this caused an issue with ThreatMatrix Pins
-            //Parallel.For(Universe.MasterShipList.Count, (start, end) =>
-            //{
-            //    var discovered = new Array<Ship>();
-                
-            //    for (int i = start; i < end; ++i)
-            //    {
-            //        Ship nearby = Universe.MasterShipList[i];
-            //        if (nearby.Active && IsShipInsideInfluence(nearby, influenceNodes))
-            //            discovered.Add(nearby);
-            //    }
-            //    lock (KnownShips) KnownShips.AddRange(discovered);
-            //});
         }
 
         private bool IsShipInsideInfluence(Ship nearby, InfluenceNode[] influenceNodes)
@@ -1446,7 +1425,7 @@ namespace Ship_Game
 
                 if (ship.Deleted ||  ShipsWeCanBuild.Contains(ship.Name) || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                     continue;
-                if (!EmpireAI.NonCombatshipIsGoodForGoals(ship))
+                if (!EmpireAI.ShipGoodToBuild(ship))
                     continue;
                 if (!WeCanBuildThis(ship.Name))
                     continue;
@@ -1461,39 +1440,16 @@ namespace Ship_Game
                 {
                     ship.Deleted = true;  //This should prevent this Key from being evaluated again
                     continue;   //This keeps the game going without crashing
-                }                               
-
-                int bombcount = 0;
-                int hangarcount = 0;
-                foreach (ShipModule slot in ship.ModuleSlotList)
-                {
-                    if (slot.ModuleType == ShipModuleType.Bomb)
-                    {
-                        bombcount += slot.XSIZE * slot.YSIZE;
-                        if (bombcount > ship.Size * .2)
-                            canBuildBombers = true;
-                    }
-                    if (slot.MaximumHangarShipSize > 0)
-                    {
-                        hangarcount += slot.YSIZE * slot.XSIZE;
-                        if (hangarcount > ship.Size * .2)
-                            canBuildCarriers = true;
-                    }
-                    if (slot.IsTroopBay || slot.TransporterRange > 0)
-                        canBuildTroopShips = true;
                 }
+                ship.shipData.MarkShipRolesUseable(ship,this);
 
-                var r = ship.shipData.HullRole;
-                canBuildCorvettes = canBuildCorvettes || (r ==  ShipData.RoleName.gunboat || r == ShipData.RoleName.corvette);
-                canBuildFrigates  = canBuildFrigates || (r == ShipData.RoleName.frigate || r == ShipData.RoleName.destroyer);
-                canBuildCruisers  = canBuildCruisers ||  r == ShipData.RoleName.cruiser;
-                canBuildCapitals  = canBuildCapitals || (r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier );
+
             }
             if (Universe == null || !isPlayer)
                 return;
             Universe.aw.SetDropDowns();
         }
-
+        
         public float GetTotalBuildingMaintenance()
         {
             return totalBuildingMaintenance + data.Traits.MaintMod * totalBuildingMaintenance;
@@ -1519,25 +1475,13 @@ namespace Ship_Game
             }
 
             // If the ship role is not defined don't try to use it
-            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
-            {
-                //#if TRACE
-                //    if (shipData.HullRole >= ShipData.RoleName.fighter && shipData.ShipStyle == data.Traits.ShipType)
-                //        Log.Info("{0} : Bad hull  : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5} : {6}",
-                //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable, shipData.techsNeeded.Count);
-                //#endif
+            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)            
                 return false;
-            }
+            
 
-            if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))
-            {
-                //#if TRACE
-                //    if (shipData.ShipStyle == data.Traits.ShipType)
-                //        Log.Info("{0} : Bad  role : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5}",
-                //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-                //#endif
+            if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))            
                 return false;
-            }
+            
             if (shipData.techsNeeded.Count > 0)
             { foreach (string shipTech in shipData.techsNeeded)
                 {
@@ -1555,17 +1499,9 @@ namespace Ship_Game
                         moduleSlotData.InstalledModuleUID == "Dummy" ||
                         UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
                         continue;
-
-                    //#if TRACE
-                    //    Log.Info("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
-                    //            data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-                    //#endif
                     return false; // can't build this ship because it contains a locked Module
                 }
 
-            //#if TRACE
-            //    Log.Info("{0} : good ship : {1} : {2} : {3}", data.PortraitName, ship, shipData.Hull, shipData.Role);
-            //#endif
             return true;
         }
 
