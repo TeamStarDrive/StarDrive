@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq.Expressions;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
 using Microsoft.Xna.Framework;
@@ -20,24 +18,28 @@ namespace Ship_Game
         private List<IDisposable> DisposableAssets;
         public string Name { get; }
 
+        private RawContentLoader RawContent;
+
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
-        private object LoadSync = new object();
+        private readonly object LoadSync = new object();
 
         static GameContentManager()
         {
             FixSunBurnTypeLoader();
         }
 
-        public GameContentManager(IServiceProvider service, string name) : base(service, "Content")
+        public GameContentManager(IServiceProvider services, string name) : base(services, "Content")
         {
             Name = name;
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
             DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
+            RawContent       = new RawContentLoader(this);
         }
 
         public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
         {
-            Parent = parent;
+            Parent     = parent;
+            RawContent = new RawContentLoader(this);
         }
 
         private object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
@@ -73,6 +75,7 @@ namespace Ship_Game
             base.Dispose(disposing);
             LoadedAssets     = null;
             DisposableAssets = null;
+            RawContent       = null;
         }
 
         private static T GetField<T>(object obj, string name)
@@ -173,10 +176,16 @@ namespace Ship_Game
         public override T Load<T>(string assetName)
         {
             if (LoadedAssets == null) throw new ObjectDisposedException(ToString());
-            if (string.IsNullOrEmpty(assetName)) throw new ArgumentNullException(nameof(assetName));
+            if (assetName.IsEmpty())  throw new ArgumentNullException(nameof(assetName));
 
-            string assetNoExt = assetName.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase) 
-                ? assetName.Substring(0, assetName.Length - 4) : assetName;
+            string extension  = "";
+            string assetNoExt = assetName;
+            if (assetName[assetName.Length - 4] == '.')
+            {
+                extension  = assetName.Substring(assetName.Length - 3);
+                assetNoExt = assetName.Substring(0, assetName.Length - 4);
+            }
+
             assetNoExt = assetNoExt.Replace("\\", "/"); // normalize path
 
             if (assetNoExt.StartsWith("./"))
@@ -211,7 +220,9 @@ namespace Ship_Game
                 throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            var asset = ReadAsset<T>(assetNoExt, RecordDisposableObject);
+            T asset = (extension.Length > 0 && !extension.Equals("xnb", StringComparison.OrdinalIgnoreCase))
+                ? RawContent.LoadAsset<T>(assetName, extension) 
+                : ReadAsset<T>(assetNoExt, RecordDisposableObject);
 
             // detect possible memory leaks -- this is very slow, so only enable on demand
             #if false

@@ -83,27 +83,27 @@ namespace SynapseGaming.LightingSystem.Effects
         /// </summary>
         public bool AffectedInCode { get; set; }
 
-        internal string MaterialFile { get; set; } = "";
+        public string MaterialFile { get; set; } = "";
 
         string Interface1.MaterialFile => MaterialFile;
 
         string IProjectFile.ProjectFile => ProjectFile;
 
-        internal string MaterialName { get; set; }
+        public string MaterialName { get; set; }
 
-        internal string ProjectFile { get; set; }
+        public string ProjectFile { get; set; }
 
-        internal string NormalMapFile { get; set; }
+        public string NormalMapFile { get; set; }
 
-        internal string DiffuseMapFile { get; set; }
+        public string DiffuseMapFile { get; set; }
 
-        internal string DiffuseAmbientMapFile { get; set; }
+        public string DiffuseAmbientMapFile { get; set; }
 
-        internal string EmissiveMapFile { get; set; }
+        public string EmissiveMapFile { get; set; }
 
-        internal string SpecularColorMapFile { get; set; }
+        public string SpecularColorMapFile { get; set; }
 
-        internal string ParallaxMapFile { get; set; }
+        public string ParallaxMapFile { get; set; }
 
         /// <summary>
         /// Texture that represents a lighting model falloff-map used to apply lighting to materials.

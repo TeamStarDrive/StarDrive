@@ -11,7 +11,7 @@ using SynapseGaming.LightingSystem.Core;
 
 namespace ns3
 {
-    internal class CoreUtils
+    public class CoreUtils
     {
         private static float[] float_0 = new float[4];
         private static BoundingFrustum boundingFrustum_0 = new BoundingFrustum(Matrix.Identity);
