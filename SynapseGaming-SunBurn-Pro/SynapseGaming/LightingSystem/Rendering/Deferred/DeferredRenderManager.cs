@@ -13,7 +13,7 @@ using ns3;
 using ns5;
 using EmbeddedResources;
 using ns8;
-using ns9;
+using Mesh;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Effects.Deferred;
