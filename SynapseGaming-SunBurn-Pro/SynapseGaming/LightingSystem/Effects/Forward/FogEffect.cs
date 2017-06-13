@@ -7,7 +7,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Effects.Forward
@@ -111,7 +111,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
       {
         if (value == this.texture2D_1)
           return;
-        EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_19);
+        EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_19);
         this.SetTechnique();
       }
     }

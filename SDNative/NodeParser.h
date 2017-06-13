@@ -8,19 +8,19 @@ namespace SDNative
     using namespace rpp;
     using namespace rapidxml;
 
-    struct node_parser
+    struct NodeParser
     {
         xml_node<>* node;
         strview name, value;
         bool parsematch = false;
-        FINLINE node_parser(xml_node<>* parentNode)
+        FINLINE NodeParser(xml_node<>* parentNode)
         {
-            if (parentNode && (node = parentNode->m_first_node)) {
-                name  = { node->m_name,  node->m_name_size };
+            if (parentNode && (node = parentNode->m_first_node) != nullptr) {
+                name  = { node->m_name,  node->m_name_size  };
                 value = { node->m_value, node->m_value_size };
             }
         }
-        FINLINE node_parser(const node_parser& parser) : node_parser(parser.node) { }
+        FINLINE NodeParser(const NodeParser& parser) : NodeParser(parser.node) { }
         FINLINE void next()
         {
             if (parsematch) { // if parse loop got a match, it already called next()
@@ -31,11 +31,11 @@ namespace SDNative
         }
         FINLINE void next_nomatch()
         {
-            while (node && (node = node->m_next_sibling))
+            while (node && (node = node->m_next_sibling) != nullptr)
             {
-                if (node->m_type != rapidxml::node_element)
+                if (node->m_type != node_element)
                     continue; // keep trying until we get an element node
-                name = { node->m_name,  node->m_name_size };
+                name  = { node->m_name,  node->m_name_size  };
                 value = { node->m_value, node->m_value_size };
                 return;
             }
@@ -60,7 +60,7 @@ namespace SDNative
         {
             if (name.len == N - 1 && memcmp(name.str, expectedName, N - 1) == 0)
             {
-                for (node_parser list(node); list.node; list.next()) {
+                for (NodeParser list{node}; list.node; list.next()) {
                     parseSubdefs(list.node);
                 }
                 next_nomatch();
@@ -77,12 +77,13 @@ namespace SDNative
                 parsematch = true;
             }
         }
-        FINLINE void parseValue(bool& out)     { out = value.to_bool();       }
-        FINLINE void parseValue(byte& out)     { out = (byte)value.to_int();  }
-        FINLINE void parseValue(short& out)    { out = (short)value.to_int(); }
-        FINLINE void parseValue(int& out)      { out = value.to_int();        }
-        FINLINE void parseValue(float& out)    { out = value.to_float();      }
-        FINLINE void parseValue(strview& out)  { 
+        FINLINE void parseValue(bool& out)  const { out = value.to_bool();       }
+        FINLINE void parseValue(byte& out)  const { out = (byte)value.to_int();  }
+        FINLINE void parseValue(short& out) const { out = (short)value.to_int(); }
+        FINLINE void parseValue(int& out)   const { out = value.to_int();        }
+        FINLINE void parseValue(float& out) const { out = value.to_float();      }
+        FINLINE void parseValue(strview& out) const
+        { 
             if (value.str && value.len) out = value;
         }
     };

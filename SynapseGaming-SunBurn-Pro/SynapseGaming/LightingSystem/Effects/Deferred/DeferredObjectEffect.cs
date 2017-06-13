@@ -8,7 +8,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 
@@ -94,7 +94,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       get => this.texture2D_3;
         set
       {
-        EffectHelper.smethod_8(value, ref this.texture2D_3, ref this.effectParameter_28);
+        EffectHelper.SetParam(value, ref this.texture2D_3, this.effectParameter_28);
         if (this.effectParameter_24 == null || this.texture2D_3 == null)
           return;
         EffectHelper.smethod_7(new Vector2(this.texture2D_3.Width, this.texture2D_3.Height), ref this.vector2_0, ref this.effectParameter_24);
@@ -107,7 +107,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     public Texture2D SceneLightingSpecularMap
     {
       get => this.texture2D_4;
-        set => EffectHelper.smethod_8(value, ref this.texture2D_4, ref this.effectParameter_29);
+        set => EffectHelper.SetParam(value, ref this.texture2D_4, this.effectParameter_29);
     }
 
     /// <summary>
@@ -161,10 +161,10 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       this.method_5(graphicsdevice);
     }
 
-    internal DeferredObjectEffect(GraphicsDevice graphicsDevice_0, bool bool_6)
-      : base(graphicsDevice_0, "DeferredObjectEffect", bool_6)
+    internal DeferredObjectEffect(GraphicsDevice device, bool bool_6)
+      : base(device, "DeferredObjectEffect", bool_6)
     {
-      this.method_5(graphicsDevice_0);
+      this.method_5(device);
     }
 
     /// <summary>
@@ -310,18 +310,18 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       this._DiffuseColorOriginal = diffusecolor;
       if (diffusemap != null && diffusemap != this._DefaultDiffuseMapTexture)
       {
-        EffectHelper.smethod_8(diffusemap, ref this._DiffuseMapTexture, ref this._DiffuseMapTextureIndirectParam);
+        EffectHelper.SetParam(diffusemap, ref this._DiffuseMapTexture, this._DiffuseMapTextureIndirectParam);
         EffectHelper.smethod_3(Vector4.One, ref this._DiffuseColorCached, ref this._DiffuseColorIndirectParam);
       }
       else
       {
-        EffectHelper.smethod_8(this._DefaultDiffuseMapTexture, ref this._DiffuseMapTexture, ref this._DiffuseMapTextureIndirectParam);
+        EffectHelper.SetParam(this._DefaultDiffuseMapTexture, ref this._DiffuseMapTexture, this._DiffuseMapTextureIndirectParam);
         EffectHelper.smethod_3(diffusecolor, ref this._DiffuseColorCached, ref this._DiffuseColorIndirectParam);
       }
       if (normalmap != null && normalmap != this._DefaultNormalMapTexture)
-        EffectHelper.smethod_8(normalmap, ref this._NormalMapTexture, ref this._NormalMapTextureIndirectParam);
+        EffectHelper.SetParam(normalmap, ref this._NormalMapTexture, this._NormalMapTextureIndirectParam);
       else
-        EffectHelper.smethod_8(this._DefaultNormalMapTexture, ref this._NormalMapTexture, ref this._NormalMapTextureIndirectParam);
+        EffectHelper.SetParam(this._DefaultNormalMapTexture, ref this._NormalMapTexture, this._NormalMapTextureIndirectParam);
     }
   }
 }
