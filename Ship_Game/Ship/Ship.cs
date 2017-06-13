@@ -315,6 +315,7 @@ namespace Ship_Game.Gameplay
                     return 0;
                 int assaultSpots = Hangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
                 assaultSpots += Transporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
+                assaultSpots += shipData.Role == ShipData.RoleName.troop ? 1 : 0;
                 return Math.Min(TroopList.Count, assaultSpots);
             }
         }
