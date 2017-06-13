@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Effects;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class Class42 : Class39
   {
@@ -32,7 +32,7 @@ namespace ns6
     public Texture2D IntensityTexture
     {
       get => this.texture2D_1;
-        set => EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_14);
+        set => EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_14);
     }
 
     public Class42(GraphicsDevice graphicsdevice)

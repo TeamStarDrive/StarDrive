@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using ns11;
-using ns6;
+using EmbeddedResources;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -23,10 +23,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public class LightingSystemManager
     {
-
-        private const int int_0 = 32;
-
-        private static LightingSystemManager lightingSystemManager_0;
+        private static LightingSystemManager instance;
 
         private Texture3D texture3D_0;
 
@@ -38,7 +35,7 @@ namespace SynapseGaming.LightingSystem.Core
 
         private TextureCube textureCube_1;
 
-        private SpriteFont spriteFont_0;
+        private SpriteFont consoleFont;
 
         private SpriteBatch spriteBatch_0;
 
@@ -46,19 +43,17 @@ namespace SynapseGaming.LightingSystem.Core
 
         private GraphicsDeviceSupport graphicsDeviceSupport_0;
 
-        private IServiceProvider iserviceProvider_0;
-
-        private Class15 class15_0;
-
+        private IServiceProvider Service;
+        private ResourceContentManager Content;
 
 
         internal static LightingSystemManager Instance
         {
             get
             {
-                if (lightingSystemManager_0 == null)
+                if (instance == null)
                     throw new ArgumentException("LightingSystemManager unavailable, please create an instance of the manager before using this object.");
-                return lightingSystemManager_0;
+                return instance;
             }
         }
 
@@ -80,16 +75,15 @@ namespace SynapseGaming.LightingSystem.Core
         public static string Version => "0.1.0.0";
 
 
-        private static System.Resources.ResourceManager ResourceManager => Class51.ResourceManager;
+        private static System.Resources.ResourceManager ResourceManager => EmbeddedResourceBuilder.ResourceManager;
 
         /// <summary>Creates a new LightingSystemManager instance.</summary>
         /// <param name="service"></param>
 
         public LightingSystemManager(IServiceProvider service)
         {
-            lightingSystemManager_0 = this;
-            this.iserviceProvider_0 = service;
-            this.class15_0 = new Class15(service);
+            instance = this;
+            Service = service;
         }
 
         /// <summary>Cleans up a deleted LightingSystemManager instance.</summary>
@@ -97,9 +91,9 @@ namespace SynapseGaming.LightingSystem.Core
         ~LightingSystemManager()
         {
             this.Unload();
-            if (lightingSystemManager_0 != this)
+            if (instance != this)
                 return;
-            lightingSystemManager_0 = null;
+            instance = null;
         }
 
         /// <summary>
@@ -111,31 +105,32 @@ namespace SynapseGaming.LightingSystem.Core
             return RenderTargetUsage.PlatformContents;
         }
 
-        internal Effect method_0(string string_0)
+        // Embedded resources are linked from SynapseGaming/LightingSystem/Effects/Resources.resx
+        private ResourceContentManager EmbeddedContent => Content ?? (Content = new ResourceContentManager(Service, ResourceManager));
+
+        internal Effect EmbeddedEffect(string effectName)
         {
-            return this.class15_0.EmbeddedResourceManager.Load<Effect>(string_0);
+            return EmbeddedContent.Load<Effect>(effectName);
         }
 
-        internal Model method_1(string string_0)
+        internal Model EmbeddedModel(string modelName)
         {
-            return this.class15_0.EmbeddedResourceManager.Load<Model>(string_0);
+            return EmbeddedContent.Load<Model>(modelName);
         }
 
-        internal Texture2D method_2(string string_0)
+        internal Texture2D EmbeddedTexture(string textureName)
         {
-            return this.class15_0.EmbeddedResourceManager.Load<Texture2D>(string_0);
+            return EmbeddedContent.Load<Texture2D>(textureName);
         }
 
-        internal Texture2D method_3(GraphicsDevice graphicsDevice_0)
+        internal Texture2D method_3(GraphicsDevice device)
         {
-            if (this.texture2D_1 == null)
+            if (texture2D_1 == null)
             {
-                MemoryStream memoryStream = new MemoryStream(Class51.SplashScreen);
-                this.texture2D_1 = Texture2D.FromFile(graphicsDevice_0, memoryStream);
-                memoryStream.Close();
-                memoryStream.Dispose();
+                using (var memoryStream = new MemoryStream(EmbeddedResourceBuilder.SplashScreen))
+                    texture2D_1 = Texture2D.FromFile(device, memoryStream);
             }
-            return this.texture2D_1;
+            return texture2D_1;
         }
 
         internal Texture3D method_4(GraphicsDevice graphicsDevice_0)
@@ -304,12 +299,12 @@ namespace SynapseGaming.LightingSystem.Core
             return this.texture2D_0;
         }
 
-        internal SpriteFont method_8()
+        internal SpriteFont ConsoleFont()
         {
-            if (this.spriteFont_0 != null)
-                return this.spriteFont_0;
-            this.spriteFont_0 = this.class15_0.EmbeddedResourceManager.Load<SpriteFont>("ConsoleFont");
-            return this.spriteFont_0;
+            if (consoleFont != null)
+                return consoleFont;
+            consoleFont = EmbeddedContent.Load<SpriteFont>("ConsoleFont");
+            return consoleFont;
         }
 
         internal SpriteBatch method_9(GraphicsDevice graphicsDevice_0)
@@ -345,45 +340,17 @@ namespace SynapseGaming.LightingSystem.Core
         /// </summary>
         public void Unload()
         {
-            this.class15_0.method_0();
-            this.spriteFont_0 = null;
-            this.graphicsDeviceSupport_0 = null;
-            Disposable.Free(ref this.spriteBatch_0);
-            Disposable.Free(ref this.texture3D_0);
-            Disposable.Free(ref this.texture2D_0);
-            Disposable.Free(ref this.texture2D_1);
-            Disposable.Free(ref this.textureCube_0);
-            Disposable.Free(ref this.textureCube_1);
-            Disposable.Free(ref this.vertexDeclaration_0);
-        }
-
-        private class Class15
-        {
-            private IServiceProvider iserviceProvider_0;
-            private ResourceContentManager resourceContentManager_0;
-
-            public ResourceContentManager EmbeddedResourceManager
-            {
-                get
-                {
-                    if (this.resourceContentManager_0 == null)
-                        this.resourceContentManager_0 = new ResourceContentManager(this.iserviceProvider_0, ResourceManager);
-                    return this.resourceContentManager_0;
-                }
-            }
-
-            public Class15(IServiceProvider serviceprovider)
-            {
-                this.iserviceProvider_0 = serviceprovider;
-            }
-
-            public void method_0()
-            {
-                if (this.resourceContentManager_0 == null)
-                    return;
-                this.resourceContentManager_0.Dispose();
-                this.resourceContentManager_0 = null;
-            }
+            Content.Dispose();
+            Content = null;
+            consoleFont = null;
+            graphicsDeviceSupport_0 = null;
+            Disposable.Free(ref spriteBatch_0);
+            Disposable.Free(ref texture3D_0);
+            Disposable.Free(ref texture2D_0);
+            Disposable.Free(ref texture2D_1);
+            Disposable.Free(ref textureCube_0);
+            Disposable.Free(ref textureCube_1);
+            Disposable.Free(ref vertexDeclaration_0);
         }
     }
 }

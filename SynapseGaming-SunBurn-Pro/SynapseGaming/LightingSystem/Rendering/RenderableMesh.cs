@@ -214,7 +214,18 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <param name="vertexstride">Size in bytes of the elements in the vertex buffer.</param>
         /// <param name="objectspace">Mesh object-space matrix.</param>
         /// <param name="objectspaceboundingsphere">Object-space bounding area that completely contains the mesh.</param>
-        public void Build(ISceneObject sceneobject, Effect effect, Matrix objectspace, BoundingSphere objectspaceboundingsphere, IndexBuffer indexbuffer, VertexBuffer vertexbuffer, VertexDeclaration vertexdeclaration, int elementstart, PrimitiveType primitivetype, int primitivecount, int vertexbase, int vertexcount, int vertexstreamoffset, int vertexstride)
+        public void Build(ISceneObject sceneobject, Effect effect, Matrix objectspace, 
+            BoundingSphere objectspaceboundingsphere,
+            IndexBuffer indexbuffer, 
+            VertexBuffer vertexbuffer, 
+            VertexDeclaration vertexdeclaration, 
+            int elementstart, 
+            PrimitiveType primitivetype, 
+            int primitivecount, 
+            int vertexbase, 
+            int vertexcount, 
+            int vertexstreamoffset, 
+            int vertexstride)
         {
             sceneObject = sceneobject;
             effect_0 = effect;

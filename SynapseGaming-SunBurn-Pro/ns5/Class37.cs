@@ -5,7 +5,7 @@
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
 using Microsoft.Xna.Framework.Graphics;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Effects;
 
 namespace ns5
@@ -18,7 +18,7 @@ namespace ns5
     public Texture2D SceneDepthMap
     {
       get => this.texture2D_0;
-        set => EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_11);
+        set => EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_11);
     }
 
     public Texture2D SceneNormalSpecularMap

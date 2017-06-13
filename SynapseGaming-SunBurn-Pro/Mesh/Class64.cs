@@ -11,7 +11,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Rendering;
 
-namespace ns9
+namespace Mesh
 {
   internal class Class64
   {

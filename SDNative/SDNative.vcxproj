@@ -102,7 +102,7 @@
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="util\file_io.h" />
     <ClInclude Include="util\strview.h" />
-    <ClInclude Include="node_parser.h" />
+    <ClInclude Include="NodeParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryUtils.cpp" />
