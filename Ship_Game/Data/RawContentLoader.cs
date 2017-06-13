@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
+using SgMotion;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
 
@@ -13,8 +14,8 @@ namespace Ship_Game
     /// </summary>
     public class RawContentLoader
     {
-        private GameContentManager    Content;
-        private GraphicsDeviceManager GraphicsManager;
+        private readonly GameContentManager    Content;
+        private readonly GraphicsDeviceManager GraphicsManager;
 
         public RawContentLoader(GameContentManager content)
         {
@@ -22,29 +23,26 @@ namespace Ship_Game
             GraphicsManager = content.Manager;
         }
 
-        private Texture2D LoadTexture(string textureName)
+        public object LoadAsset(string fileNameWithExt, string ext)
         {
-            if (textureName.IsEmpty())
-                return null;
+            if (ext == "fbx" || ext == "obj")
+            {
+                Log.Info(ConsoleColor.Magenta, "Raw LoadMesh: {0}", fileNameWithExt);
+                return StaticMeshFromFile(fileNameWithExt);
+            }
 
-            int width = 16;
-            int height = 16;
-            int mipLevels = 7;
-            var texture = new Texture2D(GraphicsManager.GraphicsDevice, width, height, mipLevels, 
-                                        TextureUsage.AutoGenerateMipMap|TextureUsage.Linear, SurfaceFormat.Bgr24);
+            Log.Info(ConsoleColor.Magenta, "Raw LoadTexture: {0}", fileNameWithExt);
+            return Texture2D.FromFile(GraphicsManager.GraphicsDevice, fileNameWithExt);
+        }
 
-            byte[] bytes = new byte[width*height];
-            texture.SetData(bytes, 0, bytes.Length, SetDataOptions.None);
-
-            //texture.Save("output.png", ImageFileFormat.Png);
-
+        private SkinnedModel SkinnedMeshFromFile(string modelName)
+        {
             return null;
         }
 
-        public T LoadAsset<T>(string fileNameWithExt, string fileExtension)
+        private ModelMesh StaticMeshFromFile(string modelName)
         {
-            Log.Info(ConsoleColor.Magenta, "RawContent LoadAsset: {0}", fileNameWithExt);
-            return default(T);
+            return null;
         }
 
         public LightingEffect CreateLightingEffect(GraphicsDevice device)
@@ -59,12 +57,12 @@ namespace Ship_Game
             fx.NormalMapFile            = "normal.tga";
             fx.SpecularColorMapFile     = "specular.tga";
             fx.ParallaxMapFile          = "";
-            fx.DiffuseMapTexture        = LoadTexture(fx.DiffuseMapFile);
-            fx.DiffuseAmbientMapTexture = LoadTexture(fx.DiffuseAmbientMapFile);
-            fx.EmissiveMapTexture       = LoadTexture(fx.EmissiveMapFile);
-            fx.NormalMapTexture         = LoadTexture(fx.NormalMapFile);
-            fx.SpecularColorMapTexture  = LoadTexture(fx.SpecularColorMapFile);
-            fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, LoadTexture(fx.ParallaxMapFile));
+            fx.DiffuseMapTexture        = Content.Load<Texture2D>(fx.DiffuseMapFile);
+            fx.DiffuseAmbientMapTexture = Content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
+            fx.EmissiveMapTexture       = Content.Load<Texture2D>(fx.EmissiveMapFile);
+            fx.NormalMapTexture         = Content.Load<Texture2D>(fx.NormalMapFile);
+            fx.SpecularColorMapTexture  = Content.Load<Texture2D>(fx.SpecularColorMapFile);
+            fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, Content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned                  = false;
             fx.DoubleSided              = false;
             float transparency = 1.0f;
