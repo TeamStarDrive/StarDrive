@@ -1113,7 +1113,7 @@ namespace Ship_Game.AI
                 }
 
                 Fleet closestCoreFleet = closestAO.GetCoreFleet();
-                if (closestCoreFleet.FleetTask != null && closestCoreFleet.GetStrength() > MinimumTaskForceStrength)
+                if (closestCoreFleet.FleetTask == null && closestCoreFleet.GetStrength() > MinimumTaskForceStrength)
                 {
                     var clearArea = new MilitaryTask(closestCoreFleet.Owner)
                     {
