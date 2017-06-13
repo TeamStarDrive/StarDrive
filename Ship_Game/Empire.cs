@@ -1488,7 +1488,7 @@ namespace Ship_Game
                     if (!ShipTechs.Contains(shipTech))
                         return false;
                 }
-                Log.Info($"building {shipData.Name}" );
+                Log.Info($"New Ship WeCanBuild {shipData.Name} Hull: {shipData.Hull} DesignRole: {ship1.DesignRole}" );
             }
 
             else
