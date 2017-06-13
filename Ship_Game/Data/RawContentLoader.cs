@@ -27,12 +27,23 @@ namespace Ship_Game
             if (textureName.IsEmpty())
                 return null;
 
+            int width = 16;
+            int height = 16;
+            int mipLevels = 7;
+            var texture = new Texture2D(GraphicsManager.GraphicsDevice, width, height, mipLevels, 
+                                        TextureUsage.AutoGenerateMipMap|TextureUsage.Linear, SurfaceFormat.Bgr24);
+
+            byte[] bytes = new byte[width*height];
+            texture.SetData(bytes, 0, bytes.Length, SetDataOptions.None);
+
+            //texture.Save("output.png", ImageFileFormat.Png);
+
             return null;
         }
 
         public T LoadAsset<T>(string fileNameWithExt, string fileExtension)
         {
-            Log.Info("RawContent LoadAsset: {0}", fileNameWithExt);
+            Log.Info(ConsoleColor.Magenta, "RawContent LoadAsset: {0}", fileNameWithExt);
             return default(T);
         }
 
