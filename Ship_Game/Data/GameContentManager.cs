@@ -182,7 +182,7 @@ namespace Ship_Game
             string assetNoExt = assetName;
             if (assetName[assetName.Length - 4] == '.')
             {
-                extension  = assetName.Substring(assetName.Length - 3);
+                extension  = assetName.Substring(assetName.Length - 3).ToLower();
                 assetNoExt = assetName.Substring(0, assetName.Length - 4);
             }
 
@@ -220,8 +220,8 @@ namespace Ship_Game
                 throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            T asset = (extension.Length > 0 && !extension.Equals("xnb", StringComparison.OrdinalIgnoreCase))
-                ? RawContent.LoadAsset<T>(assetName, extension) 
+            T asset = (extension.Length > 0 && extension != "xnb")
+                ? (T)RawContent.LoadAsset(assetName, extension) 
                 : ReadAsset<T>(assetNoExt, RecordDisposableObject);
 
             // detect possible memory leaks -- this is very slow, so only enable on demand
