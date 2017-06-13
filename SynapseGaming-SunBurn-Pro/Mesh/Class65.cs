@@ -7,7 +7,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 
-namespace ns9
+namespace Mesh
 {
   internal class Class65
   {

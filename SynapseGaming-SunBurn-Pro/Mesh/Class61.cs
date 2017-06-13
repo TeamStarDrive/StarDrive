@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using SynapseGaming.LightingSystem.Rendering;
 
-namespace ns9
+namespace Mesh
 {
   internal class Class61 : IComparer<RenderableMesh>
   {

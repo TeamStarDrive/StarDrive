@@ -6,7 +6,7 @@
 
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ns9
+namespace Mesh
 {
   internal class Class63
   {
