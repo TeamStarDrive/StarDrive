@@ -95,16 +95,19 @@ namespace Ship_Game
         private static Model DefaultModel;
         private static Texture3D DefaultNoise;
         private static Effect DefaultEffect;
+        private static readonly object ThrusterLocker = new object();
 
         private static void InitializeDefaultEffects(GameContentManager content)
         {
-            lock (content)
+            lock (ThrusterLocker)
             {
                 if (DefaultModel != null)
                     return;
                 DefaultModel  = content.Load<Model>("Effects/ThrustCylinderB");
                 DefaultNoise  = content.Load<Texture3D>("Effects/NoiseVolume");
                 DefaultEffect = content.Load<Effect>("Effects/Thrust");
+
+                DefaultModel.Meshes[0].MeshParts[0].Effect = DefaultEffect;
             }
         }
 
@@ -116,8 +119,7 @@ namespace Ship_Game
 
 	    private void LoadAndAssignEffects(Model thrustCylinder, Texture3D noiseTexture, Effect effect)
 	    {
-            this.model = thrustCylinder;
-	        thrustCylinder.Meshes[0].MeshParts[0].Effect = effect;
+            model           = thrustCylinder;
             Noise           = noiseTexture;
             Effect          = effect;
             technique       = effect.Techniques["thrust_technique"];

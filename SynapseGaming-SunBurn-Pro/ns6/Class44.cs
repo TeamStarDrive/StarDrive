@@ -7,7 +7,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Effects;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class Class44 : Class43
   {
@@ -17,7 +17,7 @@ namespace ns6
     public Texture2D BloomTexture
     {
       get => this.texture2D_2;
-        set => EffectHelper.smethod_8(value, ref this.texture2D_2, ref this.effectParameter_17);
+        set => EffectHelper.SetParam(value, ref this.texture2D_2, this.effectParameter_17);
     }
 
     public float BloomAmount

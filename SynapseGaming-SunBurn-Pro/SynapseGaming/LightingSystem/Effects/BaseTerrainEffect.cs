@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using ns4;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 
@@ -18,7 +18,7 @@ namespace SynapseGaming.LightingSystem.Effects
   /// Base class that provides data for rendering SunBurn's terrain.
   /// </summary>
   [Attribute0(true)]
-  public abstract class BaseTerrainEffect : BaseRenderableEffect, IEditorObject, Interface0, Interface1, ITerrainEffect
+  public abstract class BaseTerrainEffect : BaseRenderableEffect, IEditorObject, IProjectFile, Interface1, ITerrainEffect
   {
       private int int_0;
     private int int_1;
@@ -79,7 +79,7 @@ namespace SynapseGaming.LightingSystem.Effects
 
     internal string ProjectFile { get; set; }
 
-    string Interface0.ProjectFile => this.ProjectFile;
+    string IProjectFile.ProjectFile => this.ProjectFile;
 
       internal string DiffuseMapLayer1File { get; set; }
 
@@ -370,10 +370,10 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <param name="graphicsdevice"></param>
     /// <param name="effectname"></param>
     /// <param name="trackeffect"></param>
-    internal BaseTerrainEffect(GraphicsDevice graphicsDevice_0, string string_13, bool bool_3)
-      : base(graphicsDevice_0, string_13)
+    internal BaseTerrainEffect(GraphicsDevice device, string string_13, bool bool_3)
+      : base(device, string_13)
     {
-      this.method_4(graphicsDevice_0, bool_3);
+      this.method_4(device, bool_3);
     }
 
     private bool method_2(Texture2D texture2D_13, Texture2D texture2D_14)
@@ -425,9 +425,9 @@ namespace SynapseGaming.LightingSystem.Effects
       this.effectParameter_28 = this.Parameters["SpecularPower"];
       this.effectParameter_29 = this.Parameters["SpecularAmount"];
       this.effectParameter_30 = this.Parameters["SpecularColor"];
-      this.texture2D_1 = LightingSystemManager.Instance.method_2("White");
-      this.texture2D_0 = LightingSystemManager.Instance.method_2("White");
-      this.texture2D_2 = LightingSystemManager.Instance.method_2("Normal");
+      this.texture2D_1 = LightingSystemManager.Instance.EmbeddedTexture("White");
+      this.texture2D_0 = LightingSystemManager.Instance.EmbeddedTexture("White");
+      this.texture2D_2 = LightingSystemManager.Instance.EmbeddedTexture("Normal");
       this.DiffuseMapLayer1Texture = this.texture2D_1;
       this.DiffuseMapLayer2Texture = this.texture2D_1;
       this.DiffuseMapLayer3Texture = this.texture2D_1;

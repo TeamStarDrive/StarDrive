@@ -6,7 +6,7 @@
 
 using System;
 
-namespace ns9
+namespace Mesh
 {
   [Flags]
   internal enum Enum7

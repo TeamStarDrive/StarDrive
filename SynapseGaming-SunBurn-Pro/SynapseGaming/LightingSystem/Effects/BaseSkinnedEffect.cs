@@ -72,8 +72,8 @@ namespace SynapseGaming.LightingSystem.Effects
       }
     }
 
-    internal BaseSkinnedEffect(GraphicsDevice graphicsDevice_0, string string_0)
-      : base(graphicsDevice_0, string_0)
+    internal BaseSkinnedEffect(GraphicsDevice device, string string_0)
+      : base(device, string_0)
     {
       this.effectParameter_11 = this.Parameters["_SkinBones"];
     }

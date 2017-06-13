@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ns9
+namespace Mesh
 {
-    internal struct Vertex
+    public struct Vertex
     {
         public static readonly VertexElement[] ElementDescr =
         {
@@ -22,7 +22,7 @@ namespace ns9
         public static readonly int SizeInBytes = 44;
     }
 
-    internal class MeshBuffer : IDisposable
+    public class MeshBuffer : IDisposable
     {
         public BoundingBox ObjectBoundingBox { get; private set; }
 
@@ -31,7 +31,7 @@ namespace ns9
         public VertexBuffer VertexBuffer { get; private set; }
         public VertexDeclaration VertexDeclaration { get; private set; }
 
-        public unsafe void method_0(GraphicsDevice device, Vertex[] vertices, ushort[] indices, int faces)
+        public unsafe void Create(GraphicsDevice device, Vertex[] vertices, ushort[] indices, int faces)
         {
             if (VertexBuffer == null)
             {

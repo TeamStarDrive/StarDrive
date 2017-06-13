@@ -51,11 +51,11 @@
     <ClInclude Include="util\strview.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="node_parser.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="util\apex_memmove.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeParser.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
