@@ -47,11 +47,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
+    <IncludePath>$(ProjectDir);$(ProjectDir)fbxsdk;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
+    <IncludePath>$(ProjectDir);$(ProjectDir)fbxsdk;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -94,26 +96,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="mesh\CollectionExt.h" />
+    <ClInclude Include="mesh\Mesh.h" />
     <ClInclude Include="rapidxml\rapidxml.hpp" />
     <ClInclude Include="rapidxml\rapidxml_iterators.hpp" />
     <ClInclude Include="rapidxml\rapidxml_print.hpp" />
     <ClInclude Include="rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="ReCpp\rpp\debugging.h" />
+    <ClInclude Include="ReCpp\rpp\file_io.h" />
+    <ClInclude Include="ReCpp\rpp\strview.h" />
+    <ClInclude Include="ReCpp\rpp\vec.h" />
     <ClInclude Include="ShipDataSerializer.h" />
     <ClInclude Include="util\apex_memmove.h" />
-    <ClInclude Include="util\file_io.h" />
-    <ClInclude Include="util\strview.h" />
     <ClInclude Include="NodeParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryUtils.cpp" />
+    <ClCompile Include="mesh\Mesh.cpp" />
+    <ClCompile Include="mesh\Mesh_Fbx.cpp" />
+    <ClCompile Include="mesh\Mesh_Obj.cpp" />
+    <ClCompile Include="ReCpp\rpp\debugging.cpp" />
+    <ClCompile Include="ReCpp\rpp\file_io.cpp" />
+    <ClCompile Include="ReCpp\rpp\strview.cpp" />
+    <ClCompile Include="ReCpp\rpp\vec.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
-    <ClCompile Include="util\file_io.cpp" />
-    <ClCompile Include="util\strview.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Natvis Include="mesh\mesh.natvis" />
+    <Natvis Include="ReCpp\rpp\strview.natvis" />
+    <Natvis Include="ReCpp\rpp\vec.natvis" />
     <Natvis Include="SDNative.natvis" />
-    <Natvis Include="util\strview.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="fbxsdk\libfbxsdk.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </Library>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
