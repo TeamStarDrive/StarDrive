@@ -1038,7 +1038,7 @@ namespace Ship_Game
                                 if (SelectedShipList[i].GetSO().WorldBoundingSphere.Radius > num6)
                                     num6 = SelectedShipList[i].GetSO().WorldBoundingSphere.Radius;
                             }
-                            Fleet fleet = new Fleet();
+                            var fleet = new ShipGroup();
                             if (SelectedShipList.Count * num6 > num3)
                             {
                                 for (int i = 0; i < SelectedShipList.Count; ++i)
@@ -1141,7 +1141,7 @@ namespace Ship_Game
                             if (SelectedShipList[i].GetSO().WorldBoundingSphere.Radius > num4)
                                 num4 = SelectedShipList[i].GetSO().WorldBoundingSphere.Radius;
                         }
-                        Fleet fleet = new Fleet();
+                        var fleet = new ShipGroup();
                         if (SelectedShipList.Count * num4 > num1)
                         {
                             for (int i = 0; i < SelectedShipList.Count; ++i)
