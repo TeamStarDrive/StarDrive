@@ -105,7 +105,10 @@ namespace Ship_Game.AI {
 
         private void DoAttackRun(float elapsedTime)
         {
-            float distanceToTarget = Owner.Center.Distance(Target.Center);
+            Vector2 targetPoint = Target.Center.FindProjectedImpactPoint(Owner.Velocity,Owner.speed, Target.Center, Target.Velocity);
+            Vector2 ownerCenter = Owner.Center;
+            Vector2 targetCenter = targetPoint;// Target.Center;
+            float distanceToTarget = ownerCenter.Distance(Target.Center);
             float adjustedWeaponRange = Owner.maxWeaponsRange * .35f;
             float spacerdistance = Owner.Radius * 3 + Target.Radius;
             if (spacerdistance > adjustedWeaponRange)
@@ -115,7 +118,7 @@ namespace Ship_Game.AI {
             {
                 RunTimer = 0f;
                 AttackRunStarted = false;
-                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.speed);
+                ThrustTowardsPosition(targetCenter, elapsedTime, Owner.speed);
                 return;
             }
 
@@ -127,16 +130,16 @@ namespace Ship_Game.AI {
                     DoNonFleetArtillery(elapsedTime);
                     return;
                 }
-                AINewDir += Owner.Center.DirectionToTarget(Target.Center + Target.Velocity) * 0.35f;
+                AINewDir += ownerCenter.DirectionToTarget(targetCenter + Target.Velocity) * 0.35f;
                 if (distanceToTarget < (Owner.Radius + Target.Radius) * 3f && !AttackRunStarted)
                 {
                     AttackRunStarted = true;
                     int ran = RandomMath.IntBetween(0, 1);
                     ran = ran == 1 ? 1 : -1;
                     AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
-                    AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f); //@why 1500
+                    AttackVector = ownerCenter.PointFromAngle(AttackRunAngle, 1500f); //@why 1500
                 }
-                AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
+                AttackVector = ownerCenter.PointFromAngle(AttackRunAngle, 1500f);
                 MoveInDirection(AttackVector, elapsedTime);
                 if (RunTimer > 2)
                 {
