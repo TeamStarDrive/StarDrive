@@ -1,7 +1,6 @@
 #pragma once
-#pragma managed(push, off)
 #include "rapidxml/rapidxml.hpp"
-#include "util/strview.h"
+#include <rpp/strview.h>
 
 namespace SDNative
 {
@@ -88,4 +87,3 @@ namespace SDNative
         }
     };
 }
-#pragma managed(pop)
