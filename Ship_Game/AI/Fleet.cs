@@ -31,10 +31,10 @@ namespace Ship_Game.AI
         public Array<Squad> RearFlank   = new Array<Squad>();
         public Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
         
-        private Map<Vector2, Ship[]> EnemyClumpsDict = new Map<Vector2, Ship[]>();
+        private Map<Vector2, Ship[]> EnemyClumpsDict   = new Map<Vector2, Ship[]>();
         private Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
-        private int DefenseTurns = 50;
-        private Vector2 TargetPosition = Vector2.Zero;
+        private int DefenseTurns                       = 50;
+        private Vector2 TargetPosition                 = Vector2.Zero;
         public Tasks.MilitaryTask FleetTask;
         public FleetCombatStatus Fcs;
 
