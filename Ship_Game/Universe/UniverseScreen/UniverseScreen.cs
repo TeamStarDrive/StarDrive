@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
 using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;

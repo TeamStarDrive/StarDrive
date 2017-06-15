@@ -364,7 +364,7 @@ namespace Ship_Game.AI {
 
                 using (TaskList.AcquireReadLock())
                 {
-                    foreach (MilitaryTask task in TaskList)
+                    foreach (Tasks.MilitaryTask task in TaskList)
                     {
                         if (task.GetTargetPlanet() != target)
                         {
@@ -376,7 +376,7 @@ namespace Ship_Game.AI {
                 }
                 if (ok)
                 {
-                    var invadeTask = new MilitaryTask(target, OwnerEmpire);
+                    var invadeTask = new Tasks.MilitaryTask(target, OwnerEmpire);
                     {
                         TaskList.Add(invadeTask);
                     }
@@ -386,7 +386,7 @@ namespace Ship_Game.AI {
             {
                 TaskList.ForEach(task =>
                 {
-                    if (task.type != MilitaryTask.TaskType.AssaultPlanet || task.GetTargetPlanet().Owner == null ||
+                    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet || task.GetTargetPlanet().Owner == null ||
                         task.GetTargetPlanet().Owner != r.Key)
                     {
                         return;
@@ -413,7 +413,7 @@ namespace Ship_Game.AI {
                         break;
                     }
                     planetsWeAreInvading.Add(p);
-                    var invade = new MilitaryTask(p, OwnerEmpire);
+                    var invade = new Tasks.MilitaryTask(p, OwnerEmpire);
                     {
                         TaskList.Add(invade);
                     }
@@ -425,9 +425,9 @@ namespace Ship_Game.AI {
         {
             float warWeight = 1 + OwnerEmpire.getResStrat().ExpansionPriority +
                               OwnerEmpire.getResStrat().MilitaryPriority;
-            foreach (MilitaryTask militaryTask in TaskList)
+            foreach (Tasks.MilitaryTask militaryTask in TaskList)
             {
-                if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
+                if (militaryTask.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                 {
                     warWeight--;
                 }
@@ -467,10 +467,10 @@ namespace Ship_Game.AI {
 
                         using (TaskList.AcquireReadLock())
                         {
-                            foreach (MilitaryTask task in TaskList)
+                            foreach (Tasks.MilitaryTask task in TaskList)
                             {
                                 if (task.GetTargetPlanet() == planet &&
-                                    task.type == MilitaryTask.TaskType.AssaultPlanet)
+                                    task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                                 {
                                     canAddTask = false;
                                     break;
@@ -479,7 +479,7 @@ namespace Ship_Game.AI {
                         }
                         if (canAddTask)
                         {
-                            TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
+                            TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                         }
                     }
                     break;
@@ -515,13 +515,13 @@ namespace Ship_Game.AI {
                             continue;
                         using (TaskList.AcquireReadLock())
                         {
-                            foreach (MilitaryTask militaryTask in TaskList)
+                            foreach (Tasks.MilitaryTask militaryTask in TaskList)
                             {
                                 if (militaryTask.GetTargetPlanet() == planet)
                                 {
-                                    if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
+                                    if (militaryTask.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                                         flag = false;
-                                    if (militaryTask.type == MilitaryTask.TaskType.DefendClaim)
+                                    if (militaryTask.type == Tasks.MilitaryTask.TaskType.DefendClaim)
                                     {
                                         claim = true;
                                         if (militaryTask.Step == 2)
@@ -532,10 +532,10 @@ namespace Ship_Game.AI {
                         }
                         if (flag && claimPressent)
                         {
-                            TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
+                            TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                         }
                         if (claim) continue;
-                        var task = new MilitaryTask()
+                        var task = new Tasks.MilitaryTask()
                         {
                             AO = planet.Center
                         };
@@ -543,7 +543,7 @@ namespace Ship_Game.AI {
                         task.AORadius = 75000f;
                         task.SetTargetPlanet(planet);
                         task.TargetPlanetGuid = planet.guid;
-                        task.type             = MilitaryTask.TaskType.DefendClaim;
+                        task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
                         TaskList.Add(task);
                     }
                     break;
@@ -671,12 +671,12 @@ namespace Ship_Game.AI {
                                     TaskList.ForEach(task =>
                                     {
                                         if (task.GetTargetPlanet() == planet &&
-                                            task.type == MilitaryTask.TaskType.AssaultPlanet)
+                                            task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                                         {
                                             assault = false;
                                         }
                                         if (task.GetTargetPlanet() == planet &&
-                                            task.type == MilitaryTask.TaskType.DefendClaim)
+                                            task.type == Tasks.MilitaryTask.TaskType.DefendClaim)
                                         {
                                             if (task.Step == 2)
                                                 claimPresent = true;
@@ -686,11 +686,11 @@ namespace Ship_Game.AI {
                                 }
                                 if (assault && claimPresent)
                                 {
-                                    TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
+                                    TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                                 }
                                 if (!claim)
                                 {
-                                    var task = new MilitaryTask()
+                                    var task = new Tasks.MilitaryTask()
                                     {
                                         AO = planet.Center
                                     };
@@ -698,7 +698,7 @@ namespace Ship_Game.AI {
                                     task.AORadius = 75000f;
                                     task.SetTargetPlanet(planet);
                                     task.TargetPlanetGuid = planet.guid;
-                                    task.type             = MilitaryTask.TaskType.DefendClaim;
+                                    task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
                                     TaskList.Add(task);
                                 }
                             }
@@ -737,12 +737,12 @@ namespace Ship_Game.AI {
                                         if (!flag && claim)
                                             return;
                                         if (task.GetTargetPlanet() == planet &&
-                                            task.type == MilitaryTask.TaskType.AssaultPlanet)
+                                            task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                                         {
                                             flag = false;
                                         }
                                         if (task.GetTargetPlanet() != planet ||
-                                            task.type != MilitaryTask.TaskType.DefendClaim) return;
+                                            task.type != Tasks.MilitaryTask.TaskType.DefendClaim) return;
                                         if (task.Step == 2)
                                             claimPresent = true;
 
@@ -751,13 +751,13 @@ namespace Ship_Game.AI {
                                 }
                                 if (flag && claimPresent)
                                 {
-                                    TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
+                                    TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                                 }
                                 if (!claim)
                                 {
                                     // @todo This is repeated everywhere. Might cut down a lot of code by creating a function
 
-                                    MilitaryTask task = new MilitaryTask()
+                                    Tasks.MilitaryTask task = new Tasks.MilitaryTask()
                                     {
                                         AO = planet.Center
                                     };
@@ -765,7 +765,7 @@ namespace Ship_Game.AI {
                                     task.AORadius = 75000f;
                                     task.SetTargetPlanet(planet);
                                     task.TargetPlanetGuid = planet.guid;
-                                    task.type             = MilitaryTask.TaskType.DefendClaim;
+                                    task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
                                     task.EnemyStrength    = 0;
                                     {
                                         TaskList.Add(task);

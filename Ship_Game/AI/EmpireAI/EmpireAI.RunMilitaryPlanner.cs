@@ -244,7 +244,7 @@ namespace Ship_Game.AI {
 
                     using (TaskList.AcquireReadLock())
                     {
-                        foreach (MilitaryTask task in TaskList)
+                        foreach (Tasks.MilitaryTask task in TaskList)
                         {
                             foreach (Guid held in task.HeldGoals)
                             {
@@ -281,7 +281,7 @@ namespace Ship_Game.AI {
                             g
                         };
                         var task =
-                            new MilitaryTask(g.GetMarkedPlanet().Center, 125000f, tohold, OwnerEmpire);
+                            new Tasks.MilitaryTask(g.GetMarkedPlanet().Center, 125000f, tohold, OwnerEmpire);
                         {
                             TaskList.Add(task);
                             break;
@@ -302,10 +302,10 @@ namespace Ship_Game.AI {
 
                     using (TaskList.AcquireReadLock())
                     {
-                        foreach (MilitaryTask mt in TaskList)
+                        foreach (Tasks.MilitaryTask mt in TaskList)
                         {
-                            if ((mt.type != MilitaryTask.TaskType.DefendClaim
-                                 && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies)
+                            if ((mt.type != Tasks.MilitaryTask.TaskType.DefendClaim
+                                 && mt.type != Tasks.MilitaryTask.TaskType.ClearAreaOfEnemies)
                                 || g.GetMarkedPlanet() != null
                                 && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid))                            
                                 continue;
@@ -319,7 +319,7 @@ namespace Ship_Game.AI {
                     
                     if (g.GetMarkedPlanet() == null)
                         continue;
-                    var task = new MilitaryTask
+                    var task = new Tasks.MilitaryTask
                     {
                         AO = g.GetMarkedPlanet().Center
                     };
@@ -327,7 +327,7 @@ namespace Ship_Game.AI {
                     task.AORadius = 75000f;
                     task.SetTargetPlanet(g.GetMarkedPlanet());
                     task.TargetPlanetGuid = g.GetMarkedPlanet().guid;
-                    task.type = MilitaryTask.TaskType.DefendClaim;
+                    task.type = Tasks.MilitaryTask.TaskType.DefendClaim;
                     {
                         TaskList.Add(task);
                     }
@@ -340,15 +340,15 @@ namespace Ship_Game.AI {
             //this where the global AI attack stuff happenes.
             using (TaskList.AcquireReadLock())
             {
-                var toughNuts = new Array<MilitaryTask>();
-                var inOurSystems = new Array<MilitaryTask>();
-                var inOurAOs = new Array<MilitaryTask>();
-                var remainder = new Array<MilitaryTask>();
+                var toughNuts = new Array<Tasks.MilitaryTask>();
+                var inOurSystems = new Array<Tasks.MilitaryTask>();
+                var inOurAOs = new Array<Tasks.MilitaryTask>();
+                var remainder = new Array<Tasks.MilitaryTask>();
 
                 foreach (var task in this
                     .TaskList.OrderByDescending(task =>
                     {
-                        if (task.type != MilitaryTask.TaskType.AssaultPlanet)
+                        if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)
                             return 0;
                         float weight = 0;
                         weight += (OwnerEmpire.currentMilitaryStrength - task.MinimumTaskForceStrength) /
@@ -389,7 +389,7 @@ namespace Ship_Game.AI {
                     })
                 )
                 {
-                    if (task.type != MilitaryTask.TaskType.AssaultPlanet)                    
+                    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)                    
                         continue;
                     
                     if (task.IsToughNut)                    
@@ -422,11 +422,11 @@ namespace Ship_Game.AI {
                         inOurSystems.Add(task);
                     
                 }
-                var tnInOurSystems = new Array<MilitaryTask>();
-                var tnInOurAOs     = new Array<MilitaryTask>();
-                var tnRemainder    = new Array<MilitaryTask>();
+                var tnInOurSystems = new Array<Tasks.MilitaryTask>();
+                var tnInOurAOs     = new Array<Tasks.MilitaryTask>();
+                var tnRemainder    = new Array<Tasks.MilitaryTask>();
                 Toughnuts          = toughNuts.Count;
-                foreach (MilitaryTask task in toughNuts)
+                foreach (Tasks.MilitaryTask task in toughNuts)
                 {
                     if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().system))
                     {
@@ -455,7 +455,7 @@ namespace Ship_Game.AI {
                         tnInOurSystems.Add(task);
                     
                 }
-                foreach (MilitaryTask task in tnInOurAOs)
+                foreach (Tasks.MilitaryTask task in tnInOurAOs)
                 {
                     if (task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner == OwnerEmpire ||
                         OwnerEmpire.GetRelations(task.GetTargetPlanet().Owner).ActiveWar == null ||
@@ -464,10 +464,10 @@ namespace Ship_Game.AI {
                     
                     task.Evaluate(OwnerEmpire);
                 }
-                foreach (MilitaryTask task in tnInOurSystems)                
+                foreach (Tasks.MilitaryTask task in tnInOurSystems)                
                     task.Evaluate(OwnerEmpire);
                 
-                foreach (MilitaryTask task in tnRemainder)
+                foreach (Tasks.MilitaryTask task in tnRemainder)
                 {
                     if (task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner == OwnerEmpire ||
                         OwnerEmpire.GetRelations(task.GetTargetPlanet().Owner).ActiveWar == null ||
@@ -476,22 +476,22 @@ namespace Ship_Game.AI {
                     
                     task.Evaluate(OwnerEmpire);
                 }
-                foreach (MilitaryTask task in inOurAOs)                
+                foreach (Tasks.MilitaryTask task in inOurAOs)                
                     task.Evaluate(OwnerEmpire);
                 
-                foreach (MilitaryTask task in inOurSystems)                
+                foreach (Tasks.MilitaryTask task in inOurSystems)                
                     task.Evaluate(OwnerEmpire);
                 
-                foreach (MilitaryTask task in remainder)                
+                foreach (Tasks.MilitaryTask task in remainder)                
                     task.Evaluate(OwnerEmpire);
                 
-                foreach (MilitaryTask task in TaskList)
+                foreach (Tasks.MilitaryTask task in TaskList)
                 {
-                    if (task.type != MilitaryTask.TaskType.AssaultPlanet)                    
+                    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)                    
                         task.Evaluate(OwnerEmpire);
                     
-                    if (task.type != MilitaryTask.TaskType.AssaultPlanet &&
-                        task.type != MilitaryTask.TaskType.GlassPlanet || task.GetTargetPlanet().Owner != null &&
+                    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet &&
+                        task.type != Tasks.MilitaryTask.TaskType.GlassPlanet || task.GetTargetPlanet().Owner != null &&
                         task.GetTargetPlanet().Owner != OwnerEmpire)                    
                         continue;
                     

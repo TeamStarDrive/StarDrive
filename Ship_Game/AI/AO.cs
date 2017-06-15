@@ -265,7 +265,7 @@ namespace Ship_Game.AI
             {
                 if (CoreFleet.FleetTask == null && !CoreWorld.Owner.isPlayer)
                 {
-                    var clearArea = new MilitaryTask(this);
+                    var clearArea = new Tasks.MilitaryTask(this);
                     CoreFleet.FleetTask = clearArea;
                     CoreFleet.TaskStep  = 1;
                     if (CoreFleet.Owner == null)

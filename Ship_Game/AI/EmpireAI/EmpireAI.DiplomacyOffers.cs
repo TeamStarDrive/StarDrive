@@ -44,7 +44,7 @@ namespace Ship_Game.AI {
                 {
                     for (int i = TaskList.Count - 1; i >= 0; i--)
                     {
-                        MilitaryTask task = TaskList[i];
+                        Tasks.MilitaryTask task = TaskList[i];
                         if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null ||
                             task.GetTargetPlanet().Owner != Them)
                         {

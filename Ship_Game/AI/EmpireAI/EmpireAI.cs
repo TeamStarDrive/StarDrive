@@ -26,8 +26,8 @@ namespace Ship_Game.AI
         public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();        
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
-        public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
-        public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();        
+        public BatchRemovalCollection<Tasks.MilitaryTask> TaskList = new BatchRemovalCollection<Tasks.MilitaryTask>();
+        public Array<Tasks.MilitaryTask> TasksToAdd                = new Array<Tasks.MilitaryTask>();        
         public float FreighterUpkeep                         = 0f;
         public float PlatformUpkeep                          = 0f;
         public float StationUpkeep                           = 0f;
