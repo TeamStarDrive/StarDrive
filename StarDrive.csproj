@@ -182,6 +182,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunMilitaryPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunResearchPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
+    <Compile Include="Ship_Game\AI\Fleet.FleetGoal.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.DoAction.cs" />
