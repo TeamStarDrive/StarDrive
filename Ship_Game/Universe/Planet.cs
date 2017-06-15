@@ -6292,7 +6292,18 @@ output = maxp * take10 = 5
 
 
         }
+        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake)
+        {
+            var troops = new Array<Troop>();
+            foreach (Troop troop in TroopsHere)
+            {
+                if (troop.GetOwner() != empire) continue;
 
+                if (maxToTake-- < 0)
+                    troops.Add(troop);
+            }
+            return troops;
+        }
         //Added by McShooterz: heal builds and troops every turn
         public void HealTroops()
         {

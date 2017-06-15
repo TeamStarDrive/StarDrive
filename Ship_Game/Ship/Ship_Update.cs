@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game.Gameplay
