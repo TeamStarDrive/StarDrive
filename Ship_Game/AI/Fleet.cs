@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         private Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
         private int DefenseTurns = 50;
         private Vector2 TargetPosition = Vector2.Zero;
-        public MilitaryTask FleetTask;
+        public Tasks.MilitaryTask FleetTask;
         public FleetCombatStatus Fcs;
 
         
@@ -283,6 +283,7 @@ namespace Ship_Game.AI
         }
 
         private void EvaluateTask(float elapsedTime)
+
         {
             if (Ships.Count == 0)
                 FleetTask.EndTask();
@@ -290,15 +291,15 @@ namespace Ship_Game.AI
                 return;
             switch (FleetTask.type)
             {
-                case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask); break;
-                case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);      break;
-                case MilitaryTask.TaskType.CorsairRaid:                DoCorsairRaid(elapsedTime); break;
-                case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
-                case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask); break;
-                case MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask); break;
-                case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask); break;
-                case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
-                case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);      break;
+                case Tasks.MilitaryTask.TaskType.CorsairRaid:                DoCorsairRaid(elapsedTime); break;
+                case Tasks.MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
             }
             this.Owner.GetGSAI().TaskList.ApplyPendingRemovals();
         }
@@ -328,7 +329,7 @@ namespace Ship_Game.AI
                 this.FleetTask.EndTask();
         }
 
-        private void DoExplorePlanet(MilitaryTask task) //Mer Gretman Left off here
+        private void DoExplorePlanet(Tasks.MilitaryTask task) //Mer Gretman Left off here
         {
             Log.Info("DoExplorePlanet called!  " + this.Owner.PortraitName);
             bool eventBuildingFound = false;
@@ -498,20 +499,20 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoAssaultPlanet(MilitaryTask task)
+        private void DoAssaultPlanet(Tasks.MilitaryTask task)
         {
             if (!Owner.IsEmpireAttackable(task.GetTargetPlanet().Owner))
             {
                 if (task.GetTargetPlanet().Owner == Owner || task.GetTargetPlanet().AnyOfOurTroops(Owner))
                 {
-                    MilitaryTask militaryTask = new MilitaryTask
+                    Tasks.MilitaryTask militaryTask = new Tasks.MilitaryTask
                     {
                         AO = task.GetTargetPlanet().Center,
                         AORadius = 50000f,
                         WhichFleet = task.WhichFleet
                     };
                     militaryTask.SetEmpire(Owner);
-                    militaryTask.type = MilitaryTask.TaskType.DefendPostInvasion;
+                    militaryTask.type = Tasks.MilitaryTask.TaskType.DefendPostInvasion;
                     Owner.GetGSAI().TaskList.QueuePendingRemoval(task);
                     FleetTask = militaryTask;                 
                     Owner.GetGSAI().TaskList.Add(task);
@@ -731,7 +732,7 @@ namespace Ship_Game.AI
 
         }
 
-        private int BombPlanet(float ourGroundStrength, MilitaryTask task , int freeSpacesNeeded =int.MaxValue)
+        private int BombPlanet(float ourGroundStrength, Tasks.MilitaryTask task , int freeSpacesNeeded =int.MaxValue)
         {
 
             bool doBombs = !(ourGroundStrength > 0 && freeSpacesNeeded >= task.GetTargetPlanet().GetGroundLandingSpots());
@@ -751,7 +752,7 @@ namespace Ship_Game.AI
             return bombs;
         }
 
-        private bool IsInvading(float thierGroundStrength, float ourGroundStrength, MilitaryTask task, int LandingspotsNeeded =5)
+        private bool IsInvading(float thierGroundStrength, float ourGroundStrength, Tasks.MilitaryTask task, int LandingspotsNeeded =5)
         {            
             int freeLandingSpots = task.GetTargetPlanet().GetGroundLandingSpots();
             if (freeLandingSpots == 0) return false;
@@ -789,7 +790,7 @@ namespace Ship_Game.AI
 
         private float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner);        
 
-        private void DoPostInvasionDefense(MilitaryTask task)
+        private void DoPostInvasionDefense(Tasks.MilitaryTask task)
         {
             --this.DefenseTurns;
             if (this.DefenseTurns <= 0)
@@ -978,7 +979,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoDefendSystem(MilitaryTask task)
+        private void DoDefendSystem(Tasks.MilitaryTask task)
         {
             switch (this.TaskStep)
             {
@@ -1157,7 +1158,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoClaimDefense(MilitaryTask task)
+        private void DoClaimDefense(Tasks.MilitaryTask task)
         {
             switch (TaskStep)
             {
@@ -1229,7 +1230,7 @@ namespace Ship_Game.AI
                             float num = 0.0f;
                             foreach (Ship ship in this.Ships)
                             {
-                                if (!list4.Contains(ship) && (num == 0.0f || num < (double)toAttack.GetStrength()))
+                                if (!list4.Contains(ship) && (num <1 || num < (double)toAttack.GetStrength()))
                                 {
                                     ship.AI.Intercepting = true;
                                     ship.AI.OrderAttackSpecificTarget(toAttack);
@@ -1298,7 +1299,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoCohesiveClearAreaOfEnemies(MilitaryTask task)
+        private void DoCohesiveClearAreaOfEnemies(Tasks.MilitaryTask task)
         {
             switch (this.TaskStep)
             {
@@ -1459,7 +1460,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoGlassPlanet(MilitaryTask task)
+        private void DoGlassPlanet(Tasks.MilitaryTask task)
         {
             if (task.GetTargetPlanet().Owner == this.Owner || task.GetTargetPlanet().Owner == null)
                 task.EndTask();
@@ -1555,7 +1556,7 @@ namespace Ship_Game.AI
                             num6 += ship.Ordinance;
                             num7 += ship.OrdinanceMax;
                         }
-                        if (num6 != num7)
+                        if ((int)num6 != (int)num7)
                             break;
                         this.TaskStep = 0;
                         break;
@@ -1563,7 +1564,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoClearAreaOfEnemies(MilitaryTask task)
+        private void DoClearAreaOfEnemies(Tasks.MilitaryTask task)
         {
             switch (this.TaskStep)
             {

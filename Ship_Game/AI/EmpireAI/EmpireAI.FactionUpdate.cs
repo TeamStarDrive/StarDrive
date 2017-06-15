@@ -111,7 +111,7 @@ namespace Ship_Game.AI {
                     {
                         this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                         {
-                            if (task.type != MilitaryTask.TaskType.CorsairRaid)
+                            if (task.type != Tasks.MilitaryTask.TaskType.CorsairRaid)
                             {
                                 return;
                             }
@@ -136,10 +136,10 @@ namespace Ship_Game.AI {
                                 from planet in r.Key.GetPlanets()
                                 orderby Vector2.Distance(planet.Center, center)
                                 select planet;
-                            MilitaryTask task = new MilitaryTask(this.OwnerEmpire);
+                            Tasks.MilitaryTask task = new Tasks.MilitaryTask(this.OwnerEmpire);
                             task.SetTargetPlanet(sortedList.First<Planet>());
                             task.TaskTimer = 300f;
-                            task.type = MilitaryTask.TaskType.CorsairRaid;
+                            task.type = Tasks.MilitaryTask.TaskType.CorsairRaid;
                             //  lock (GlobalStats.TaskLocker)
                             {
                                 this.TaskList.Add(task);
@@ -157,7 +157,7 @@ namespace Ship_Game.AI {
             {
                 this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                 {
-                    if (task.type != MilitaryTask.TaskType.Exploration)
+                    if (task.type != Tasks.MilitaryTask.TaskType.Exploration)
                     {
                         task.Evaluate(this.OwnerEmpire);
                     }
