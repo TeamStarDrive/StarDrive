@@ -47,13 +47,15 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
-    <IncludePath>$(ProjectDir);$(ProjectDir)fbxsdk;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)fbxsdk;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
-    <IncludePath>$(ProjectDir);$(ProjectDir)fbxsdk;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)fbxsdk;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -72,7 +74,7 @@
       <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
-      <AdditionalDependencies />
+      <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -91,7 +93,7 @@
       <Optimization>Full</Optimization>
     </ClCompile>
     <Link>
-      <AdditionalDependencies />
+      <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -129,11 +131,11 @@
     <Natvis Include="SDNative.natvis" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="fbxsdk\libfbxsdk.dll">
+    <None Include="fbxsdk\libfbxsdk.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-    </Library>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
