@@ -228,12 +228,12 @@ namespace mesh
             for (const Vector3& v : Normals) f.writef("vn %.4f %.4f %.4f\n", v.x, v.y, v.z);
 
             string buf;
-            for (int group = 0; group < Groups.size(); ++group)
+            for (int group = 0; group < (int)Groups.size(); ++group)
             {
                 const MeshGroup& g = Groups[group];
-                if (!g.Name.empty()) f.writef("g %s\n", g.Name.c_str());
-                if (!g.Mat.empty())  f.writef("usemtl %s\n", g.Mat.Name.c_str());
-                f.writef("s %d\n", group);
+                if (!g.Name.empty()) f.writeln("g", g.Name);
+                if (!g.Mat.empty())  f.writeln("usemtl", g.Mat.Name);
+                f.writeln("s", group);
 
                 for (const Face& face : g.Faces)
                 {
