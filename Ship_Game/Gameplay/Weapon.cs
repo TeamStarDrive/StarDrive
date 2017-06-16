@@ -335,6 +335,8 @@ namespace Ship_Game.Gameplay
 
             Vector2 pos = target != null ? FindProjectedImpactPoint(target) : targetPos;
             Vector2 direction = (pos - Module.Center).Normalized();
+
+            Log.Info($"FireAtTarget {targetPos} / {pos}");
             SpawnSalvo(direction, target);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
@@ -525,8 +527,11 @@ namespace Ship_Game.Gameplay
             GameplayObject targetShip = target is ShipModule sm ? sm.GetParent() : target;
             Vector2 center = Module?.Center ?? Center;
 
-            return center.FindProjectedImpactPoint(
+            Vector2 pip = center.FindProjectedImpactPoint(
                 (Owner?.Velocity ?? Vector2.Zero), ProjectileSpeed, target.Center, targetShip.Velocity);
+
+            Log.Info($"FindPIP center:{center}  pip:{pip}");
+            return pip;
         }
 
         private void FireAtAssignedTargetNonVisible(Ship targetShip)
