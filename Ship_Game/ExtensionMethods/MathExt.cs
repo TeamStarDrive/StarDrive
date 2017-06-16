@@ -305,9 +305,9 @@ namespace Ship_Game
             Vector2 delta = targetPos - weaponPos;
 
             // projectile inherits parent velocity
-            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
+            float sqProjectileSpeed = projectileSpeed*projectileSpeed + ownerVelocity.LengthSquared();
 
-            float a  = targetVelocity.Dot(targetVelocity) - projectileVelocity.LengthSquared();
+            float a  = targetVelocity.Dot(targetVelocity) - sqProjectileSpeed;
             float bm = -2 * delta.Dot(targetVelocity);
             float c  = delta.Dot(delta);
 
