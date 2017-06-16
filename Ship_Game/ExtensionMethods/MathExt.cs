@@ -326,7 +326,7 @@ namespace Ship_Game
 
             // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
             // Take any of the remaining positive values (probably the smaller one).
-            if (timeToImpact1 < 0.0f && timeToImpact2 < 0.0f)
+            if (timeToImpact1 <= 0.0f && timeToImpact2 <= 0.0f)
                 return Vector2.Zero; // no solution, can't go back in time
 
             float predictedTimeToImpact;
