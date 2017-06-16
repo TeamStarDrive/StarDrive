@@ -84,7 +84,6 @@ namespace Ship_Game.Gameplay
                 Loyalty = weapon.Owner.loyalty,
                 Module  = weapon.Module
             };
-            direction = weapon.GetFireConeSpread(direction);
             projectile.Initialize(origin, direction, target, playSound);
             return projectile;
         }
@@ -98,7 +97,6 @@ namespace Ship_Game.Gameplay
                 Loyalty = planet.Owner,
                 ZStart  = -2500f
             };
-            direction = weapon.GetFireConeSpread(direction);
             projectile.Initialize(planet.Center, direction, target, playSound: true);
             return projectile;
         }
