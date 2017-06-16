@@ -293,12 +293,20 @@ namespace Ship_Game.Gameplay
                 && Owner.Ordinance >= OrdinanceRequiredToFire;
         }
 
+        private bool CanContinueSalvo()
+        {
+            return Module.Active
+                && Owner.engineState != Ship.MoveState.Warp
+                && Owner.PowerCurrent >= PowerRequiredToFire
+                && Owner.Ordinance >= OrdinanceRequiredToFire;
+        }
+
         private bool PrepareToFire(bool continueSalvo)
         {
             if (continueSalvo)
             {
                 float timeBetweenShots = SalvoTimer / SalvoCount;
-                if (SalvoFireTimer < timeBetweenShots || !CanFireWeapon())
+                if (SalvoFireTimer < timeBetweenShots || !CanContinueSalvo())
                     return false; // not ready to fire salvo
 
                 SalvoFireTimer -= timeBetweenShots;
@@ -361,7 +369,7 @@ namespace Ship_Game.Gameplay
             Vector2 pip = center.FindProjectedImpactPoint(
                 (Owner?.Velocity ?? Vector2.Zero), ProjectileSpeed, target.Center, targetShip.Velocity);
 
-            Log.Info($"FindPIP center:{center}  pip:{pip}");
+            //Log.Info($"FindPIP center:{center}  pip:{pip}");
             return pip;
         }
 
