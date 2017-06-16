@@ -242,15 +242,36 @@ namespace Ship_Game.Gameplay
             return (direction.ToDegrees() + spread).AngleToDirection();
         }
 
-        private IEnumerable<Vector2> EnumFireArc(Vector2 direction, int projectileCount)
+        private struct FireSource
         {
-            float degreesBetweenShots = FireArc / (float)projectileCount;
-            float angleToTarget = direction.ToDegrees() - FireArc * 0.5f;
-            for (int i = 0; i < projectileCount; ++i)
+            public readonly Vector2 Origin;
+            public readonly Vector2 Direction;
+            public FireSource(Vector2 origin, Vector2 direction)
             {
-                Vector2 dir = angleToTarget.AngleToDirection();
-                angleToTarget += degreesBetweenShots;
-                yield return dir;
+                Origin    = origin;
+                Direction = direction;
+            }
+        }
+
+        private IEnumerable<FireSource> EnumFireSources(Vector2 origin, Vector2 direction)
+        {
+            if (FireArc != 0)
+            {
+                float degreesBetweenShots = FireArc / (float)ProjectileCount;
+                float angleToTarget = direction.ToDegrees() - FireArc * 0.5f;
+                for (int i = 0; i < ProjectileCount; ++i)
+                {
+                    Vector2 dir = angleToTarget.AngleToDirection();
+                    angleToTarget += degreesBetweenShots;
+                    yield return new FireSource(origin, GetFireConeSpread(dir));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < ProjectileCount; ++i)
+                {
+                    yield return new FireSource(origin, GetFireConeSpread(direction));
+                }
             }
         }
 
@@ -266,21 +287,10 @@ namespace Ship_Game.Gameplay
             Vector2 origin = Module.Center;
             bool playSound = true;
 
-            if (FireArc != 0)
+            foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
-                foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
-                {
-                    Projectile.Create(weapon, origin, fireDir, target, playSound);
-                    if (PlaySoundOncePerSalvo) playSound = false;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < ProjectileCount; ++i)
-                {
-                    Projectile.Create(weapon, origin, direction, target, playSound);
-                    if (PlaySoundOncePerSalvo) playSound = false;
-                }
+                Projectile.Create(weapon, fireSource.Origin, fireSource.Direction, target, playSound);
+                if (PlaySoundOncePerSalvo) playSound = false;
             }
         }
 
@@ -510,21 +520,9 @@ namespace Ship_Game.Gameplay
 
             Vector2 impact = FindProjectedImpactPoint(target);
             Vector2 direction = (impact - Center).Normalized();
-            if (FireArc != 0)
-            {
-                foreach (Vector2 fireDir in EnumFireArc(direction, ProjectileCount))
-                    Projectile.Create(this, planet, fireDir, target);
-            }
-            else if (FireCone <= 0)
-            {
-                Vector2 dir = WeaponType != "Missile" ? direction : direction.Normalized();
-                for (int i = 0; i < ProjectileCount; i++)
-                    Projectile.Create(this, planet, dir, target);
-            }
-            else
-            {
-                Projectile.Create(this, planet, direction, target);
-            }
+
+            foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
+                Projectile.Create(this, planet, fireSource.Direction, target);
         }
 
         public void FireAtAssignedTarget()
@@ -552,7 +550,7 @@ namespace Ship_Game.Gameplay
                 || targetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(this, targetShip))
                 return;
 
-            Owner.Ordinance -= OrdinanceRequiredToFire;
+            Owner.Ordinance    -= OrdinanceRequiredToFire;
             Owner.PowerCurrent -= PowerRequiredToFire;
             Owner.PowerCurrent -= BeamPowerCostPerSecond * BeamDuration;
             Owner.InCombatTimer = 15f;
