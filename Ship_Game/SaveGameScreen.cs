@@ -10,22 +10,22 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class SaveGameScreen : GenericLoadSaveScreen, IDisposable
-	{
+    public sealed class SaveGameScreen : GenericLoadSaveScreen, IDisposable
+    {
         private UniverseScreen screen;
 
         public SaveGameScreen(UniverseScreen screen) 
             : base(screen, SLMode.Save, screen.PlayerLoyalty + ", Star Date " + screen.StarDate.ToString(screen.StarDateFmt), "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
-		{
-			this.screen = screen;
+        {
+            this.screen = screen;
             this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Games/");
             //this.selectedFile = new FileData();
         }
 
-		public override void DoSave()
-		{
-			SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);
-			this.ExitScreen();
+        public override void DoSave()
+        {
+            SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);
+            this.ExitScreen();
         }
 
         protected override void DeleteFile(object sender, EventArgs e)
