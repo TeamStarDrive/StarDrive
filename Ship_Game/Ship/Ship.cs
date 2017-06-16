@@ -1802,7 +1802,7 @@ namespace Ship_Game.Gameplay
 
         public void UpdateShipStatus(float elapsedTime)
         {
-            if (velocityMaximum <= 0f && shipData.Role <= ShipData.RoleName.station)
+            if (velocityMaximum <= 0f && shipData.Role <= ShipData.RoleName.station && !Empire.Universe.Paused)
                 Rotation += 0.003f;
 
             MoveModulesTimer -= elapsedTime;

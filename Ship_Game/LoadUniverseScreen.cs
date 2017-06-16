@@ -363,8 +363,12 @@ namespace Ship_Game
                     us.MasterShipList.QueuePendingRemoval(ship);
                     continue;
                 }
-
-                if (ship.loyalty != EmpireManager.Player)
+                foreach(ShipModule slot in ship.ModuleSlotList) //active state is not saved in save data. this causes all modules to be set to active on load
+                {
+                    if (slot.Health <.001)
+                        slot.Active = false;
+                }
+                if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
                 {
                     if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
                 }
@@ -813,8 +817,7 @@ namespace Ship_Game
             else if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.VanityName = shipData.TroopList.Count > 0 ? shipData.TroopList[0].Name : shipData.Name;
             else
-                ship.VanityName = shipData.Name;
-
+                ship.VanityName = shipData.Name;            
             ship.Position = shipData.Position;
             if (shipData.IsPlayerShip)
             {
