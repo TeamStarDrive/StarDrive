@@ -230,7 +230,7 @@ namespace Ship_Game.Gameplay
 
         public void FireDrone(Vector2 direction)
         {
-            if (PrepareToFire(continueSalvo: false))
+            if (PrepareToFire())
                 Projectile.Create(this, Module.Center, direction, null, playSound: true);
         }
 
@@ -294,43 +294,39 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public bool CanFireWeapon()
-        {
-            return CooldownTimer <= 0f // has the weapon cooled down & ready to fire?
-                && Module.Active
-                && Owner.engineState != Ship.MoveState.Warp
-                && Owner.PowerCurrent >= PowerRequiredToFire
-                && Owner.Ordinance >= OrdinanceRequiredToFire;
-        }
 
-        private bool CanContinueSalvo()
+        private bool CanFireWeapon()
         {
             return Module.Active
                 && Owner.engineState != Ship.MoveState.Warp
                 && Owner.PowerCurrent >= PowerRequiredToFire
-                && Owner.Ordinance >= OrdinanceRequiredToFire;
+                && Owner.Ordinance    >= OrdinanceRequiredToFire;
         }
 
-        private bool PrepareToFire(bool continueSalvo)
+        private bool PrepareToFire()
         {
-            if (continueSalvo)
-            {
-                float timeBetweenShots = SalvoTimer / SalvoCount;
-                if (SalvoFireTimer < timeBetweenShots || !CanContinueSalvo())
-                    return false; // not ready to fire salvo
+            if (CooldownTimer > 0f || !CanFireWeapon())
+                return false; 
 
-                SalvoFireTimer -= timeBetweenShots;
-                --SalvosToFire;
-            }
-            else
-            {
-                if (!CanFireWeapon())
-                    return false; 
+            // cooldown should start after all salvos have finished, so
+            // increase the cooldown by SalvoTimer
+            CooldownTimer = fireDelay + SalvoTimer + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
 
-                // cooldown should start after all salvos have finished, so
-                // increase the cooldown by SalvoTimer
-                CooldownTimer = fireDelay + SalvoTimer + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
-            }
+            Owner.InCombatTimer = 15f;
+            Owner.Ordinance    -= OrdinanceRequiredToFire;
+            Owner.PowerCurrent -= PowerRequiredToFire;
+            return true;
+        }
+
+        private bool PrepareToFireSalvo()
+        {
+            float timeBetweenShots = SalvoTimer / SalvoCount;
+            if (SalvoFireTimer < timeBetweenShots || !CanFireWeapon())
+                return false; // not ready to fire salvo
+
+            SalvoFireTimer -= timeBetweenShots;
+            --SalvosToFire;
+
             Owner.InCombatTimer = 15f;
             Owner.Ordinance    -= OrdinanceRequiredToFire;
             Owner.PowerCurrent -= PowerRequiredToFire;
@@ -341,16 +337,14 @@ namespace Ship_Game.Gameplay
         {
             if (SalvoTarget != null && !Owner.CheckRangeToTarget(this, SalvoTarget))
                 return;
-            if (!PrepareToFire(continueSalvo: true))
+            if (!PrepareToFireSalvo())
                 return;
             SpawnSalvo(SalvoDirection, SalvoTarget);
         }
 
-        private void FireAtTarget(Vector2 targetPos, GameplayObject target)
+        private void FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
-            if (target != null && !Owner.CheckIfInsideFireArc(this, target))
-                return;
-            if (!PrepareToFire(continueSalvo: false))
+            if (!CheckFireArc(targetPos, target) ||!PrepareToFire())
                 return;
 
             Vector2 pos = target != null ? FindProjectedImpactPoint(target) : targetPos;
@@ -483,9 +477,16 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        private bool CheckFireArc(Vector2 targetPos, GameplayObject maybeTarget = null)
+        {
+            return maybeTarget != null
+                ? Owner.CheckIfInsideFireArc(this, maybeTarget)
+                : Owner.CheckIfInsideFireArc(this, targetPos);
+        }
+
         private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
-            if (!PrepareToFire(continueSalvo: false) || !Owner.CheckIfInsideFireArc(this, target))
+            if (!CheckFireArc(destination, target) || !PrepareToFire())
                 return;
 
             var beam = new Beam(this, source, destination, target);
@@ -534,7 +535,8 @@ namespace Ship_Game.Gameplay
                 FireAtAssignedTargetNonVisible(targetShip);
                 return;
             }
-            if (!CanFireWeapon())
+
+            if (CooldownTimer > 0f || !CanFireWeapon())
                 return;
 
             if (isBeam) FireBeam(Module.Center, FireTarget.Center, FireTarget);
