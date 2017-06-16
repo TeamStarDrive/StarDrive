@@ -340,7 +340,7 @@ namespace SynapseGaming.LightingSystem.Core
         /// </summary>
         public void Unload()
         {
-            Content.Dispose();
+            Content?.Dispose();
             Content = null;
             consoleFont = null;
             graphicsDeviceSupport_0 = null;
