@@ -2,9 +2,7 @@ using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
-using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
 
