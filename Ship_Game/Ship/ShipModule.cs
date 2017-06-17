@@ -1110,7 +1110,6 @@ namespace Ship_Game.Gameplay
             return CalculateModuleDefense(slotCount) + CalculateModuleOffense();
         }
 
-        // @todo Move this to ShipModule class
         public float CalculateModuleDefense(int slotCount)
         {
             if (slotCount <= 0)
@@ -1123,7 +1122,6 @@ namespace Ship_Game.Gameplay
             return def;
         }
 
-        // @todo Move this to ShipModule class
         public float CalculateModuleOffense()
         {
             float off = 0f;

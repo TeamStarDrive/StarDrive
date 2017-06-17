@@ -1,9 +1,104 @@
 #include "Mesh.h"
 #include <rpp/file_io.h>
 #include <cassert>
+#include <unordered_set>
 
 namespace mesh
 {
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    shared_ptr<Material> DefaultMaterial()
+    {
+        shared_ptr<Material> defaultMat = make_shared<Material>();
+        return defaultMat;
+    }
+
+    static bool SaveMaterials(const Mesh& mesh, const string& filename) noexcept
+    {
+        vector<Material*> written;
+        shared_ptr<Material> defaultMat;
+        auto getDefaultMat = [&] {
+            return defaultMat ? defaultMat : (defaultMat = DefaultMaterial());
+        };
+
+        if (file f = file{ filename, CREATENEW })
+        {
+            auto writeColor = [&](strview id, Color3 color) { f.writeln(id, color.r, color.g, color.b); };
+            auto writeStr   = [&](strview id, strview str)  { if (str) f.writeln(id, str); };
+            auto writeFloat = [&](strview id, float value)  { if (value != 1.0f) f.writeln(id, value); };
+
+            f.writeln("#", filename, "MTL library");
+            for (const MeshGroup& group : mesh.Groups)
+            {
+                Material& mat = *(group.Mat ? group.Mat : getDefaultMat()).get();
+                if (contains(written, &mat))
+                    continue; // skip
+                written.push_back(&mat);
+
+                f.writeln("newmtl", mat.Name);
+                writeColor("Ka", mat.AmbientColor);
+                writeColor("Kd", mat.DiffuseColor);
+                writeColor("Ks", mat.SpecularColor);
+                if (mat.EmissiveColor.notZero())
+                    writeColor("Ke", mat.EmissiveColor);
+
+                writeFloat("Ns", clamp(mat.Specular*1000.0f, 0.0f, 1000.0f)); // Ns is [0, 1000]
+                writeFloat("d", mat.Alpha);
+
+                writeStr("map_Kd",   mat.DiffusePath);
+                writeStr("map_d",    mat.AlphaPath);
+                writeStr("map_Ks",   mat.SpecularPath);
+                writeStr("map_bump", mat.NormalPath);
+                writeStr("map_Ke",   mat.EmissivePath);
+
+                f.writeln("illum 2"); // default smooth shaded rendering
+                f.writeln();
+            }
+            return true;
+        }
+        fprintf(stderr, "Failed to create file '%s'\n", filename.c_str());
+        return false;
+    }
+
+    static vector<shared_ptr<Material>> LoadMaterials(const string& matlibFile)
+    {
+        vector<shared_ptr<Material>> materials;
+
+        if (auto parser = buffer_line_parser::from_file(matlibFile))
+        {
+            Material* mat = nullptr;
+            strview line;
+            while (parser.read_line(line))
+            {
+                strview id = line.next(' ');
+                if (id == "newmtl")
+                {
+                    materials.push_back(make_shared<Material>());
+                    mat = materials.back().get();
+                    mat->Name = (string)line.trim();
+                }
+                else if (mat)
+                {
+                    if      (id == "Ka") mat->AmbientColor  = Color3::parseColor(line);
+                    else if (id == "Kd") mat->DiffuseColor  = Color3::parseColor(line);
+                    else if (id == "Ks") mat->SpecularColor = Color3::parseColor(line);
+                    else if (id == "Ke") mat->EmissiveColor = Color3::parseColor(line);
+                    else if (id == "Ns") mat->Specular = line.to_float() / 1000.0f; // Ns is [0, 1000], normalize to [0, 1]
+                    else if (id == "d")  mat->Alpha    = line.to_float();
+                    else if (id == "Tr") mat->Alpha    = 1.0f - line.to_float();
+                    else if (id == "map_Kd")   mat->DiffusePath  = line.next(' ');
+                    else if (id == "map_d")    mat->AlphaPath    = line.next(' ');
+                    else if (id == "map_Ks")   mat->SpecularPath = line.next(' ');
+                    else if (id == "map_bump") mat->NormalPath   = line.next(' ');
+                    else if (id == "map_Ke")   mat->EmissivePath = line.next(' ');
+                }
+            }
+        }
+        return materials;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     bool Mesh::LoadOBJ(const string& meshPath) noexcept
     {
         Clear();
@@ -41,6 +136,14 @@ namespace mesh
             fprintf(stderr, "Mesh::LoadOBJ() failed: No vertices in %s\n", meshPath.c_str());
             return true;
         }
+
+        vector<shared_ptr<Material>> materials;
+        auto findMat = [&](strview matName) {
+            for (auto& mat : materials)
+                if (matName.equalsi(mat->Name))
+                    return mat;
+            return shared_ptr<Material>{};
+        };
 
         Verts.reserve(numVerts);
         Coords.reserve(numCoords);
@@ -120,12 +223,19 @@ namespace mesh
             else if (c == 'u' && memcmp(line.str, "usemtl", 6) == 0)
             {
                 line.skip(7); // skip "usemtl "
-                group->Name = (string)line.next(' ');
+                strview matName = line.next(' ');
+                group->Mat = findMat(matName);
             }
             else if (c == 'm' && memcmp(line.str, "mtllib", 6) == 0)
             {
                 line.skip(7); // skip "mtllib "
-                //MatLib = line.next(' ');
+                strview matLib = line.next(' ');
+                materials = LoadMaterials(matLib);
+            }
+            else if (c == 'g')
+            {
+                line.skip(2); // skip "g "
+                group->Name = (string)line.next(' ');
             }
             else if (c == 'o')
             {
@@ -148,33 +258,8 @@ namespace mesh
         return true;
     }
 
-    static bool SaveMaterial(const Mesh& mesh, const string& filename) noexcept
-    {
-        vector<string> written;
 
-        if (file f = file{ filename, CREATENEW })
-        {
-            f.writef("# Default .mtl library\n");
-            for (const MeshGroup& group : mesh.Groups)
-            {
-                auto& name = group.Mat.empty() ? "default"s : group.Mat.Name;
-                if (contains(written, name))
-                    continue; // skip
-
-                written.push_back(name);
-                f.writef("newmtl %s\n", name.c_str());
-                f.writef("Ka 1 1 1\n"); // ambient
-                f.writef("Kd 1 1 1\n"); // diffuse
-                f.writef("Ks 0 0 0\n"); // specular
-                f.writef("d 1.0\n");    // transparency
-                f.writef("illum 2\n");  // default smooth shaded rendering
-                f.writef("\n");
-            }
-            return true;
-        }
-        fprintf(stderr, "Failed to create file '%s'\n", filename.c_str());
-        return false;
-    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     static vector<Vector3> FlattenColors(const Mesh& mesh)
     {
@@ -232,7 +317,7 @@ namespace mesh
             {
                 const MeshGroup& g = Groups[group];
                 if (!g.Name.empty()) f.writeln("g", g.Name);
-                if (!g.Mat.empty())  f.writeln("usemtl", g.Mat.Name);
+                if (g.Mat)           f.writeln("usemtl", g.Mat->Name);
                 f.writeln("s", group);
 
                 for (const Face& face : g.Faces)
@@ -259,4 +344,5 @@ namespace mesh
         return false;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 }
