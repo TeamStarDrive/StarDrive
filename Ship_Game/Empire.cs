@@ -1441,9 +1441,7 @@ namespace Ship_Game
                     ship.Deleted = true;  //This should prevent this Key from being evaluated again
                     continue;   //This keeps the game going without crashing
                 }
-                ship.shipData.MarkShipRolesUseable(ship,this);
-
-
+                ship.MarkShipRolesUsableForEmpire(this);
             }
             if (Universe == null || !isPlayer)
                 return;

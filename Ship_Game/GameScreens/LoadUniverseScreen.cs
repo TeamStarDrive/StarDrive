@@ -363,11 +363,6 @@ namespace Ship_Game
                     us.MasterShipList.QueuePendingRemoval(ship);
                     continue;
                 }
-                foreach(ShipModule slot in ship.ModuleSlotList) //active state is not saved in save data. this causes all modules to be set to active on load
-                {
-                    if (slot.Health <.001)
-                        slot.Active = false;
-                }
                 if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
                 {
                     if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
@@ -758,21 +753,7 @@ namespace Ship_Game
                             Ship shipTemplate = ResourceManager.GetShipTemplate(qisave.UID);
                             qi.sData = shipTemplate.GetShipData();
                             qi.DisplayName = qisave.DisplayName;
-                            qi.Cost = 0f;
-                            foreach (ShipModule slot in shipTemplate.ModuleSlotList)
-                            {
-                                if (slot.UID != null)
-                                    qi.Cost += ResourceManager.GetModuleCost(slot.UID) * savedData.GamePacing;
-                            }
-                            QueueItem queueItem = qi;
-                            queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
-
-                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
-                            {
-                                string hull = ResourceManager.GetShipHull(qisave.UID);
-                                if (ResourceManager.HullBonuses.TryGetValue(hull, out HullBonus bonus))
-                                    queueItem.Cost *= 1f - bonus.CostBonus;
-                            }
+                            qi.Cost = shipTemplate.GetCost(p.Owner);
 
                             if (qi.sData.HasFixedCost)
                             {
@@ -841,7 +822,7 @@ namespace Ship_Game
                 ship.IsPlayerDesign = false;
                 ship.FromSave       = true;
             }
-            ship.BaseStrength = ResourceManager.CalculateBaseStrength(ship);
+            ship.BaseStrength = ship.CalculateBaseStrength();
 
             foreach (ModuleSlotData slot in shipData.data.ModuleSlots)
             {

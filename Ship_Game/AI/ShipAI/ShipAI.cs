@@ -80,27 +80,9 @@ namespace Ship_Game.AI
             Owner.loyalty.AddPlanet(ColonizeTarget);
             ColonizeTarget.InitializeSliders(Owner.loyalty);
             ColonizeTarget.ExploredDict[Owner.loyalty] = true;
-            var BuildingsAdded = new Array<string>();
-            foreach (ShipModule slot in Owner.ModuleSlotList)//@TODO create building placement methods in planet.cs that take into account the below logic. 
-            {
-                if (slot == null || slot.ModuleType != ShipModuleType.Colony || slot.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.DeployBuildingOnColonize))
-                    continue;
-                Building building = ResourceManager.CreateBuilding(slot.DeployBuildingOnColonize);
-                var ok = true;
-                if (building.Unique)
-                    foreach (Building b in ColonizeTarget.BuildingList)
-                    {
-                        if (b.Name != building.Name)
-                            continue;
-                        ok = false;
-                        break;
-                    }
-                if (!ok)
-                    continue;
-                BuildingsAdded.Add(slot.DeployBuildingOnColonize);
-                ColonizeTarget.BuildingList.Add(building);
-                ColonizeTarget.AssignBuildingToTileOnColonize(building);
-            }
+
+            Owner.CreateColonizationBuildingFor(ColonizeTarget);
+
             ColonizeTarget.TerraformPoints += Owner.loyalty.data.EmpireFertilityBonus;
             ColonizeTarget.Crippled_Turns = 0;
             StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, UniverseScreen);		
@@ -121,16 +103,11 @@ namespace Ship_Game.AI
                     if (p.Owner.TryGetRelations(Owner.loyalty, out Relationship rel) && !rel.Treaty_OpenBorders)
                         p.Owner.DamageRelationship(Owner.loyalty, "Colonized Owned System", 20f, p);
                 }
-            foreach (ShipModule slot in Owner.ModuleSlotList)
-            {
-                if (slot.ModuleType != ShipModuleType.Colony)
-                    continue;			    
-                ColonizeTarget.FoodHere += slot.numberOfFood;				
-                ColonizeTarget.ProductionHere += slot.numberOfEquipment;				
-                ColonizeTarget.Population += slot.numberOfColonists;
-            }
-            var TroopsRemoved = false;
-            var PlayerTroopsRemoved = false;
+
+            Owner.UnloadColonizationResourcesAt(ColonizeTarget);
+
+            var troopsRemoved = false;
+            var playerTroopsRemoved = false;
 
             var toLaunch = new Array<Troop>();
             foreach (Troop t in TargetPlanet.TroopsHere)
@@ -143,13 +120,13 @@ namespace Ship_Game.AI
             foreach (Troop t in toLaunch)
             {
                 t.Launch();
-                TroopsRemoved = true;
+                troopsRemoved = true;
                 if (t.GetOwner().isPlayer)
-                    PlayerTroopsRemoved = true;
+                    playerTroopsRemoved = true;
             }
             toLaunch.Clear();
-            if (TroopsRemoved)
-                if (PlayerTroopsRemoved)
+            if (troopsRemoved)
+                if (playerTroopsRemoved)
                     UniverseScreen.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
                 else if (ColonizeTarget.Owner.isPlayer)
                     UniverseScreen.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);

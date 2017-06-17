@@ -329,5 +329,27 @@ namespace Ship_Game.Gameplay
                 thruster.Draw(ref view, ref projection);
             }
         }
+
+        public void DrawShieldBubble(UniverseScreen screen)
+        {
+            var uiNode = ResourceManager.Texture("UI/node");
+
+            screen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
+            foreach (ShipModule slot in ModuleSlotList)
+            {
+                if (slot.Active && slot.ModuleType == ShipModuleType.Shield && slot.ShieldPower > 0)
+                {
+                    screen.ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, 
+                        out Vector2 posOnScreen, out float radiusOnScreen);
+
+                    float shieldRate = slot.ShieldPower / (slot.shield_power_max +
+                                                           (loyalty?.data.ShieldPowerMod * slot.shield_power_max ?? 0));
+
+                    screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen,
+                        new Color(0f, 1f, 0f, shieldRate * 0.8f));
+                }
+            }
+            screen.ScreenManager.SpriteBatch.End();
+        }
     }
 }

@@ -414,7 +414,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
             modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
-            float strength = ResourceManager.CalculateModuleOffenseDefense(mod, ParentScreen.ActiveHull.ModuleSlots.Length);
+            float strength = mod.CalculateModuleOffenseDefense(ParentScreen.ActiveHull.ModuleSlots.Length);
             if (strength > 0)
             {
                 ParentScreen.DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
