@@ -2355,13 +2355,11 @@ namespace Ship_Game
         //added by gremlin affectnearbyships
         private void AffectNearbyShips()
         {
-            float RepairPool = developmentLevel * RepairPerTurn * 20;
+            float repairPool = developmentLevel * RepairPerTurn * 20;
             if(HasShipyard)
             {
                 foreach(Ship ship in Shipyards.Values)
-                {                    
-                        RepairPool += ship.RepairRate;                    
-                }
+                    repairPool += ship.RepairRate;                    
             }
             for (int i = 0; i < system.ShipList.Count; i++)
             {
@@ -2392,9 +2390,6 @@ namespace Ship_Game
                             ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
                             ParentSystem.combatTimer = 0;
                         }
-                        
-
-                        
                     }
                 }
                 if (ship != null && ship.loyalty == Owner && HasShipyard && ship.Position.InRadius(Center, 5000f))
@@ -2429,46 +2424,10 @@ namespace Ship_Game
                         //}
                     }
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
-                    if (!ship.InCombat && RepairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent <90))
+                    if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent <90))
                     {
                         //bool repairing = false;
-                        ship.shipStatusChanged = true;
-                        foreach (ShipModule slot in ship.ModuleSlotList) // .Where(slot => slot.ModuleType != ShipModuleType.Dummy && slot.Health != slot.HealthMax))
-                        {
-                            //repairing = true;
-                            if(ship.loyalty.data.Traits.ModHpModifier >0 )
-                            {
-                                float test = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
-                                slot.HealthMax = test + test * ship.loyalty.data.Traits.ModHpModifier; 
-                            }
-                            if (slot.Health < slot.HealthMax)
-                            {
-                                if (slot.HealthMax - slot.Health > RepairPool)
-                                {
-                                    slot.Repair(RepairPool);
-                                    RepairPool = 0;
-                                    break;
-                                }
-                                else
-                                {
-                                    RepairPool -= slot.HealthMax - slot.Health;
-                                    slot.Repair(slot.HealthMax);
-                                }
-                            }
-                        }                        
-                        if (RepairPool > 0)
-                        {
-                            float shieldrepair = .2f * RepairPool;
-                            if (ship.shield_max - ship.shield_power > shieldrepair)
-                                ship.shield_power += shieldrepair;
-                            else
-                            {
-                                shieldrepair = ship.shield_max - ship.shield_power;
-                                ship.shield_power = ship.shield_max;
-                                
-                            }
-                            RepairPool = -shieldrepair;
-                        }
+                        ship.RepairShipModules(ref repairPool);
                     }
                     else if(ship.AI.State == AIState.Resupply)
                     {
@@ -2944,6 +2903,16 @@ namespace Ship_Game
                 if (ConstructionQueue[index].isBuilding && ConstructionQueue[index].Building.Name == UID)
                     return true;
             }
+            return false;
+        }
+
+        public bool BuildingExists(Building exactInstance) => BuildingList.Contains(exactInstance);
+
+        public bool BuildingExists(string buildingName)
+        {
+            for (int i = 0; i < BuildingList.Count; ++i)
+                if (BuildingList[i].Name == buildingName)
+                    return true;
             return false;
         }
 

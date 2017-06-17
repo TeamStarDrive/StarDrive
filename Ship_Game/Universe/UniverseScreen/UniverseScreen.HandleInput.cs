@@ -89,17 +89,12 @@ namespace Ship_Game
                     //        SelectedShip.ShowGridLocalDebugPoint(mouseWorldPos);
                     //#endif
 
-                    if (input.EmpireToggle && input.KillThis)
+                    if (input.KillThis)
                     {
-                        foreach (ShipModule mod in SelectedShip.ModuleSlotList)
-                        {
-                            mod.Health = 1;
-                        } //Added by Gretman so I can hurt ships when the disobey me... I mean for testing... Yea, thats it...
-                        SelectedShip.Health = SelectedShip.ModuleSlotList.Length;
-                    }
-                    else if (input.KillThis)
-                    {
-                        SelectedShip.Die(null, false);
+                        if (input.EmpireToggle)
+                            SelectedShip.TestShipModuleDamage();
+                        else
+                            SelectedShip.Die(null, false);
                     }
                 }
                 else if (SelectedPlanet != null && Debug && (input.KillThis))

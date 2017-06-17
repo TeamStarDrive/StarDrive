@@ -270,15 +270,7 @@ namespace Ship_Game
             // apply drone repair effect
             if (DamageAmount < 0f && Source.Distance(Destination) <= (Range + 10f) && Target is Ship targetShip)
             {
-                foreach (ShipModule module in targetShip.ModuleSlotList)
-                {
-                    module.Health -= DamageAmount;
-
-                    if (module.Health < 0f)
-                        module.Health = 0f;
-                    else if (module.Health >= module.HealthMax)
-                        module.Health = module.HealthMax;
-                }
+                targetShip.RepairShipModulesByDrone(-DamageAmount);
             }
 
             UpdateBeamMesh();

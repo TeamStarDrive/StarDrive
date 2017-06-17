@@ -272,34 +272,5 @@ namespace Ship_Game
             capital,
             prototype
         }
-        public void MarkShipRolesUseable(Ship ship, Empire empire)
-        {
-
-            int bombcount = 0;
-            int hangarcount = 0;
-            foreach (ShipModule slot in ship.ModuleSlotList)
-            {
-                if (slot.ModuleType == ShipModuleType.Bomb)
-                {
-                    bombcount += slot.XSIZE * slot.YSIZE;
-                    if (bombcount > ship.Size * .2)
-                        empire.canBuildBombers = true;
-                }
-                if (slot.MaximumHangarShipSize > 0)
-                {
-                    hangarcount += slot.YSIZE * slot.XSIZE;
-                    if (hangarcount > ship.Size * .2)
-                        empire.canBuildCarriers = true;
-                }
-                if (slot.IsTroopBay || slot.TransporterRange > 0)
-                    empire.canBuildTroopShips = true;
-            }
-
-            RoleName r                    = ship.shipData.HullRole;
-            empire.canBuildCorvettes      = empire.canBuildCorvettes || (r == RoleName.gunboat || r == RoleName.corvette);
-            empire.canBuildFrigates       = empire.canBuildFrigates || (r == RoleName.frigate || r == RoleName.destroyer);
-            empire.canBuildCruisers       = empire.canBuildCruisers || r == RoleName.cruiser;
-            empire.canBuildCapitals       = empire.canBuildCapitals || (r == RoleName.capital || r == RoleName.carrier);
-        }
     }
 }
