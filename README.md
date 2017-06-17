@@ -20,7 +20,7 @@ This is the 15b version of the stardrive.exe decompiled from CIL into a C# proje
 # Goals#
 The current goal of BlackBox Texas is code refactoring and stability improvements.
 
-* 5000k ships in game
+* 5000 ships in game
 * 3x speed at 20 fps minimum when zoomed out on galactic map without force full simulation on. 
 * 1000 planets
 
