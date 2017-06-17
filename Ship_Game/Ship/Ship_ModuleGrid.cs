@@ -5,13 +5,15 @@ namespace Ship_Game.Gameplay
 {
     public sealed partial class Ship
     {
-        public ShipModule[] ModuleSlotList;
+        private ShipModule[] ModuleSlotList;
         private ShipModule[] SparseModuleGrid;   // single dimensional grid, for performance reasons
         private ShipModule[] ExternalModuleGrid; // only contains external modules
         public int NumExternalSlots { get; private set; }
         private int GridWidth;
         private int GridHeight;
         private Vector2 GridOrigin; // local origin, eg -32, -48
+
+        public bool ModuleSlotsDestroyed => ModuleSlotList.Length == 0;
 
         private void CreateModuleGrid()
         {

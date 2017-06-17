@@ -161,29 +161,6 @@ namespace Ship_Game
                 this.SelectedPlanet.Owner != null ? this.SelectedPlanet.Owner.EmpireColor : Color.Gray);
         }
 
-        private void DrawShieldBubble(Ship ship)
-        {
-            var uiNode = ResourceManager.Texture("UI/node");
-
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            foreach (ShipModule slot in ship.ModuleSlotList)
-            {
-                if (slot.Active && slot.ModuleType == ShipModuleType.Shield && slot.ShieldPower > 0)
-                {
-                    ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, out Vector2 posOnScreen,
-                        out float radiusOnScreen);
-
-                    float shieldRate = slot.ShieldPower / (slot.shield_power_max +
-                                                           (ship.loyalty?.data.ShieldPowerMod * slot.shield_power_max ??
-                                                            0));
-
-                    DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen,
-                        new Color(0f, 1f, 0f, shieldRate * 0.8f));
-                }
-            }
-            ScreenManager.SpriteBatch.End();
-        }
-
         private void DrawFogNodes()
         {
             var uiNode = ResourceManager.TextureDict["UI/node"];
@@ -302,7 +279,7 @@ namespace Ship_Game
                 return;
             foreach (ClickableShip clickableShip in ClickableShipsList)
                 if (clickableShip.shipToClick.InFrustum)
-                    DrawShieldBubble(clickableShip.shipToClick);
+                    clickableShip.shipToClick.DrawShieldBubble(this);
         }
 
         private void DrawLights(GameTime gameTime)

@@ -2819,8 +2819,6 @@ namespace Ship_Game.Gameplay
             if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
-        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty}";
-
         private ShipData.RoleName GetDesignRole()
         {
             ShipData.RoleName str = shipData.HullRole;
@@ -2885,6 +2883,164 @@ namespace Ship_Game.Gameplay
 
             return str;
         }
+
+        public void TestShipModuleDamage()
+        {
+            foreach (ShipModule mod in ModuleSlotList)
+            {
+                mod.Health = 1;
+            } //Added by Gretman so I can hurt ships when the disobey me... I mean for testing... Yea, thats it...
+            Health = ModuleSlotList.Length;
+        }
+        
+        public void CreateColonizationBuildingFor(Planet colonizeTarget)
+        {
+            // @TODO create building placement methods in planet.cs that take into account the below logic.
+
+            foreach (ShipModule slot in ModuleSlotList) 
+            {
+                if (slot == null || slot.ModuleType != ShipModuleType.Colony || slot.DeployBuildingOnColonize == null)
+                    continue;
+
+                Building template = ResourceManager.GetBuildingTemplate(slot.DeployBuildingOnColonize);
+                if (template.Unique && colonizeTarget.BuildingExists(slot.DeployBuildingOnColonize))
+                    continue;
+
+                Building building = ResourceManager.CreateBuilding(template);
+                colonizeTarget.BuildingList.Add(building);
+                colonizeTarget.AssignBuildingToTileOnColonize(building);
+                break;
+            }
+        }
+
+        public void UnloadColonizationResourcesAt(Planet colonizeTarget)
+        {
+            foreach (ShipModule slot in ModuleSlotList)
+            {
+                if (slot.ModuleType != ShipModuleType.Colony)
+                    continue;
+                colonizeTarget.FoodHere       += slot.numberOfFood;				
+                colonizeTarget.ProductionHere += slot.numberOfEquipment;				
+                colonizeTarget.Population     += slot.numberOfColonists;
+            }
+        }
+
+        public void MarkShipRolesUsableForEmpire(Empire empire)
+        {
+            int bombcount = 0;
+            int hangarcount = 0;
+            foreach (ShipModule slot in ModuleSlotList)
+            {
+                if (slot.ModuleType == ShipModuleType.Bomb)
+                {
+                    bombcount += slot.Area;
+                    if (bombcount > Size / 5)
+                        empire.canBuildBombers = true;
+                }
+                if (slot.MaximumHangarShipSize > 0)
+                {
+                    hangarcount += slot.Area;
+                    if (hangarcount > Size / 5)
+                        empire.canBuildCarriers = true;
+                }
+                if (slot.IsTroopBay || slot.TransporterRange > 0)
+                    empire.canBuildTroopShips = true;
+            }
+
+            ShipData.RoleName r      = shipData.HullRole;
+            empire.canBuildCorvettes = empire.canBuildCorvettes || r == ShipData.RoleName.gunboat || r == ShipData.RoleName.corvette;
+            empire.canBuildFrigates  = empire.canBuildFrigates  || r == ShipData.RoleName.frigate || r == ShipData.RoleName.destroyer;
+            empire.canBuildCruisers  = empire.canBuildCruisers  || r == ShipData.RoleName.cruiser;
+            empire.canBuildCapitals  = empire.canBuildCapitals  || r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier;
+        }
+
+        // @todo Move this into Ship class and autocalculate during ship instance init
+        public float CalculateBaseStrength()
+        {
+            float offense = 0f;
+            float defense = 0f;
+            bool fighters = false;
+            bool weapons = false;
+
+            foreach (ShipModule slot in ModuleSlotList)
+            {
+                //ShipModule template = GetModuleTemplate(slot.UID);
+                weapons  |= slot.InstalledWeapon != null;
+                fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
+
+                offense += slot.CalculateModuleOffense();
+                defense += slot.CalculateModuleDefense(Size);
+
+                ShipModule template = ResourceManager.GetModuleTemplate(slot.UID);
+                if (template.WarpThrust > 0)
+                    BaseCanWarp = true;
+            }
+
+            if (!fighters && !weapons) offense = 0f;
+            if (defense > offense) defense = offense;
+
+            return BaseStrength = shipData.BaseStrength = offense + defense;
+        }
+
+
+        public void RepairShipModules(ref float repairPool)
+        {
+            shipStatusChanged = true;
+
+            // .Where(slot => slot.ModuleType != ShipModuleType.Dummy && slot.Health != slot.HealthMax))
+            foreach (ShipModule slot in ModuleSlotList) 
+            {
+                //repairing = true;
+                if (loyalty.data.Traits.ModHpModifier > 0)
+                {
+                    float maxHealth = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
+                    slot.HealthMax = maxHealth + maxHealth * loyalty.data.Traits.ModHpModifier; 
+                }
+                if (slot.Health < slot.HealthMax)
+                {
+                    if (slot.HealthMax - slot.Health > repairPool)
+                    {
+                        slot.Repair(repairPool);
+                        repairPool = 0;
+                        break;
+                    }
+                    else
+                    {
+                        repairPool -= slot.HealthMax - slot.Health;
+                        slot.Repair(slot.HealthMax);
+                    }
+                }
+            }
+
+            if (repairPool > 0)
+            {
+                float shieldrepair = 0.2f * repairPool;
+                if (shield_max - shield_power > shieldrepair)
+                    shield_power += shieldrepair;
+                else
+                {
+                    shieldrepair = shield_max - shield_power;
+                    shield_power = shield_max;
+                }
+                repairPool = -shieldrepair;
+            }
+        }
+
+        // @todo Isn't this a bit OP?
+        public void RepairShipModulesByDrone(float repairAmount)
+        {
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                module.Health += repairAmount;
+
+                if (module.Health < 0f)
+                    module.Health = 0f;
+                else if (module.Health >= module.HealthMax)
+                    module.Health = module.HealthMax;
+            }
+        }
+
+        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty}";
     }
 }
 

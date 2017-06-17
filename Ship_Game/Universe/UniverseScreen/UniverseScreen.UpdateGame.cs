@@ -631,7 +631,7 @@ namespace Ship_Game
                     Ship ship = system.ShipList[i];
                     if (ship.System == null)
                         continue;
-                    if (!ship.Active || ship.ModuleSlotList.Length == 0) // added by gremlin ghost ship killer
+                    if (!ship.Active || ship.ModuleSlotsDestroyed) // added by gremlin ghost ship killer
                     {
                         ship.Die(null, true);
                     }
@@ -663,7 +663,7 @@ namespace Ship_Game
                 if (!DeepSpaceShips[i].ShipInitialized)
                     continue;
 
-                if (DeepSpaceShips[i].Active && DeepSpaceShips[i].ModuleSlotList.Length != 0)
+                if (DeepSpaceShips[i].Active && !DeepSpaceShips[i].ModuleSlotsDestroyed)
                 {
                     if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
                     {

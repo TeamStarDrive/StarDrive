@@ -175,8 +175,8 @@ namespace Ship_Game
                     {
                         shipData.TechScore += (int) TechTree[techname].Cost;
                         x++;
-                        if (!(shipData.BaseStrength > 0f))
-                            CalculateBaseStrength(kv.Value);
+                        if (shipData.BaseStrength <= 0f)
+                            kv.Value.CalculateBaseStrength();
                     }
                 else
                 {
@@ -456,9 +456,15 @@ namespace Ship_Game
                 e.UpdateShipsWeCanBuild();
         }
 
+        public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
+
         public static Building CreateBuilding(string whichBuilding)
         {
-            Building template = BuildingsDict[whichBuilding];
+            return CreateBuilding(GetBuildingTemplate(whichBuilding));
+        }
+
+        public static Building CreateBuilding(Building template)
+        {
             Building newB = template.Clone();
             newB.Cost *= UniverseScreen.GamePaceStatic;
 
@@ -1077,127 +1083,10 @@ namespace Ship_Game
 
             foreach (var entry in ShipsDict) // Added by gremlin : Base strength Calculator
             {
-                CalculateBaseStrength(entry.Value);
+                entry.Value.CalculateBaseStrength();
             }
         }
 
-        // @todo Move this into Ship class and autocalculate during ship instance init
-        public static float CalculateBaseStrength(Ship ship)
-        {
-            float offense = 0f;
-            float defense = 0f;
-            bool fighters = false;
-            bool weapons = false;
-
-            foreach (ShipModule slot in ship.ModuleSlotList)
-            {
-                //ShipModule template = GetModuleTemplate(slot.UID);
-                weapons  |= slot.InstalledWeapon != null;
-                fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
-
-                offense += CalculateModuleOffense(slot);
-                defense += CalculateModuleDefense(slot, ship.Size);
-
-                if (ShipModulesDict[slot.UID].WarpThrust > 0)
-                    ship.BaseCanWarp = true;
-            }
-
-            if (!fighters && !weapons) offense = 0f;
-            if (defense > offense) defense = offense;
-
-            return ship.BaseStrength = ship.shipData.BaseStrength = offense + defense;
-        }
-
-        // @todo Move this to ShipModule class
-        public static float CalculateModuleOffenseDefense(ShipModule module, int slotCount)
-        {
-            return CalculateModuleDefense(module, slotCount) + CalculateModuleOffense(module);
-        }
-
-        // @todo Move this to ShipModule class
-        public static float CalculateModuleDefense(ShipModule module, int slotCount)
-        {
-            if (slotCount <= 0)
-                return 0f;
-
-            float def = 0f;
-            def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
-            //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
-            def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
-            return def;
-        }
-
-        // @todo Move this to ShipModule class
-        public static float CalculateModuleOffense(ShipModule module)
-        {
-            float off = 0f;
-            if (module.InstalledWeapon != null)
-            {
-                //weapons = true;
-                Weapon w = module.InstalledWeapon;
-
-                //Doctor: The 25% penalty to explosive weapons was presumably to note that not all the damage is applied to a single module - this isn't really weaker overall, though
-                //and unfairly penalises weapons with explosive damage and makes them appear falsely weaker.
-                off += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
-
-                //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
-                if (w.Tag_Guided)
-                    off *= 1.25f;
-
-                //Doctor: Higher range on a weapon attracts a small bonus to offensive rating. E.g. a range 2000 weapon gets 5% uplift vs a 5000 range weapon 12.5% uplift. 
-                off *= (1 + (w.Range / 40000));
-
-                //Doctor: Here follows multipliers which modify the perceived offensive value of weapons based on any modifiers they may have against armour and shields
-                //Previously if e.g. a rapid-fire cannon only did 20% damage to armour, it could have amuch higher off rating than a railgun that had less technical DPS but did double armour damage.
-                if (w.EffectVsArmor < 1)
-                {
-                    if (w.EffectVsArmor > 0.75f)      off *= 0.9f;
-                    else if (w.EffectVsArmor > 0.5f)  off *= 0.85f;
-                    else if (w.EffectVsArmor > 0.25f) off *= 0.8f;
-                    else                              off *= 0.75f;
-                }
-                if (w.EffectVsArmor > 1)
-                {
-                    if (w.EffectVsArmor > 2.0f)      off *= 1.5f;
-                    else if (w.EffectVsArmor > 1.5f) off *= 1.3f;
-                    else                             off *= 1.1f;
-                }
-                if (w.EffectVSShields < 1)
-                {
-                    if (w.EffectVSShields > 0.75f)      off *= 0.9f;
-                    else if (w.EffectVSShields > 0.5f)  off *= 0.85f;
-                    else if (w.EffectVSShields > 0.25f) off *= 0.8f;
-                    else                                off *= 0.75f;
-                }
-                if (w.EffectVSShields > 1)
-                {
-                    if (w.EffectVSShields > 2f)        off *= 1.5f;
-                    else if (w.EffectVSShields > 1.5f) off *= 1.3f;
-                    else                               off *= 1.1f;
-                }
-
-                //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-                off *= w.OffPowerMod;
-
-                if (off > 0f && (w.TruePD || w.Range < 1000))
-                {
-                    float range = 0f;
-                    if (w.Range < 1000)
-                        range = (1000f - w.Range) * .01f;
-                    off /= (2 + range);
-                }
-                if (w.EMPDamage > 0) off += w.EMPDamage * (1f / w.fireDelay) * .2f;
-            }
-            if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
-            {
-                if (ShipsDict.TryGetValue(module.hangarShipUID, out Ship hangarShip))
-                {
-                    off += (hangarShip.BaseStrength > 0f) ? hangarShip.BaseStrength : CalculateBaseStrength(hangarShip);
-                }
-                else off += 100f;
-            }
-            return off;
-        }
 
         private static void LoadSmallStars()
         {

@@ -47,6 +47,7 @@ namespace Ship_Game.Gameplay
                 ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager);
                 if (fromSave)
                 {
+                    module.Active      = slotData.Health > 0.01f;
                     module.Health      = slotData.Health;
                     module.ShieldPower = slotData.ShieldPower;
                 }

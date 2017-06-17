@@ -872,8 +872,8 @@ namespace Ship_Game
 
                 if (slot.Module != null)
                 {
-                    Off += ResourceManager.CalculateModuleOffense(slot.Module);
-                    Def += ResourceManager.CalculateModuleDefense(slot.Module, (int) Size);
+                    Off += slot.Module.CalculateModuleOffense();
+                    Def += slot.Module.CalculateModuleDefense((int) Size);
                 }
                 if (slot.ModuleUID == null || !ResourceManager.GetModuleTemplate(slot.ModuleUID).IsCommandModule)
                     continue;
