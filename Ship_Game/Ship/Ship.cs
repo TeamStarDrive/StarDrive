@@ -2954,7 +2954,7 @@ namespace Ship_Game.Gameplay
             empire.canBuildCapitals  = empire.canBuildCapitals  || r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier;
         }
 
-        // @todo Move this into Ship class and autocalculate during ship instance init
+        // @todo autocalculate during ship instance init
         public float CalculateBaseStrength()
         {
             float offense = 0f;

@@ -42,6 +42,11 @@ namespace mesh
         return false;
     }
 
+    template<class C, class T> static bool contains(const C& c, const T& item)
+    {
+        return c.find(item) != c.end();
+    }
+
     template<class T> static vector<T>& append(vector<T>& v, const vector<T>& other)
     {
         v.insert(v.end(), other.begin(), other.end());
