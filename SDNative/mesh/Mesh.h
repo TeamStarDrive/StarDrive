@@ -3,6 +3,7 @@
 #define MESH_MESH_H
 #include <rpp/vec.h>
 #include "CollectionExt.h"
+#include <memory>
 
 namespace mesh
 {
@@ -38,13 +39,25 @@ namespace mesh
     {
         string Name; // name of the material instance
 
-        bool empty() const { return Name.empty(); }
+        string DiffusePath;
+        string AlphaPath;
+        string SpecularPath;
+        string NormalPath;
+        string EmissivePath;
+
+        Color3 AmbientColor  = Color3::WHITE;
+        Color3 DiffuseColor  = Color3::WHITE;
+        Color3 SpecularColor = Color3::WHITE;
+        Color3 EmissiveColor = Color3::BLACK;
+
+        float Specular = 1.0f;
+        float Alpha    = 1.0f;
     };
 
     struct MeshGroup
     {
-        string Name;       // name of the suboject
-        Material Mat;
+        string Name; // name of the suboject
+        shared_ptr<Material> Mat;
 
         vector<Face> Faces; // face descriptors
 
