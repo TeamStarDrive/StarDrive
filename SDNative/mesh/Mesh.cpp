@@ -201,7 +201,7 @@ namespace mesh
         Colors[vertexId] = vertexColor;
     }
 
-    void Mesh::AddMeshData(const Mesh & mesh, Vector3 offset) noexcept
+    void Mesh::AddMeshData(const Mesh& mesh, Vector3 offset) noexcept
     {
         int numVertsOld   = (int)Verts.size();
         int numCoordsOld  = (int)Coords.size();
@@ -245,6 +245,116 @@ namespace mesh
                 }
             }
         }
+    }
+
+    void Mesh::FlattenMeshData() noexcept
+    {
+        // Flatten the mesh, so each Face Vertex is unique
+        auto* meshVerts   = Verts.data();
+        auto* meshCoords  = Coords.data();
+        auto* meshNormals = Normals.data();
+        auto* meshColors  = Colors.data();
+        vector<Vector3> verts; verts.reserve(NumFaces * 3u);
+        vector<Vector2> coords;  if (!Coords.empty())   coords.reserve(NumFaces * 3u);
+        vector<Vector3> normals; if (!Normals.empty()) normals.reserve(NumFaces * 3u);
+        vector<Color3>  colors;  if (!Colors.empty())   colors.reserve(NumFaces * 3u);
+
+        int vertexId = 0, coordId = 0, normalId = 0, colorId = 0;
+        for (MeshGroup& g : Groups)
+        {
+            for (Face& f : g.Faces)
+            {
+                for (VertexDescr& vd : f)
+                {
+                    if (vd.v != -1) {
+                        verts.push_back(meshVerts[vd.v]);
+                        vd.v = vertexId++; // set new vertex Id's on the fly
+                    }
+                    if (vd.t != -1) {
+                        coords.push_back(meshCoords[vd.t]);
+                        vd.t = coordId++;
+                    }
+                    if (vd.n != -1) {
+                        normals.push_back(meshNormals[vd.n]);
+                        vd.n = normalId++;
+                    }
+                    if (vd.c != -1) {
+                        colors.push_back(meshColors[vd.c]);
+                        vd.c = colorId++;
+                    }
+                }
+            }
+        }
+        Verts   = move(verts);
+        Coords  = move(coords);
+        Normals = move(normals);
+        Colors  = move(colors);
+        CoordsMapping  = Coords.empty()  ? MapNone : MapPerFaceVertex;
+        NormalsMapping = Normals.empty() ? MapNone : MapPerFaceVertex;
+        ColorMapping   = Colors.empty()  ? MapNone : MapPerFaceVertex;
+    }
+
+    BasicVertexMesh Mesh::GetBasicVertexMesh(int groupId) const noexcept
+    {
+        auto* meshVerts   = Verts.data();
+        auto* meshCoords  = Coords.data();
+        auto* meshNormals = Normals.data();
+
+        const MeshGroup& group = Groups[groupId];
+        BasicVertexMesh mesh;
+        mesh.Name = group.Name;
+        mesh.Mat  = group.Mat;
+        mesh.Vertices.reserve(group.Faces.size() * 3);
+        mesh.Indices.reserve(group.Faces.size() * 3);
+
+        const bool optimizedVertexSharing = !IsFlattened();
+        if (optimizedVertexSharing)
+        {
+            // track which vertices have multiple UV's or Normals
+            // if sharedCoords == 1 and sharedNormals == 1, then this 
+            // vertex can be safely shared
+            struct VertexInfo
+            {
+                int vertexId, coordId, normalId;
+                int sharedCoords  = 1;
+                int sharedNormals = 1;
+            };
+
+            // @todo Maybe use a flatmap here
+            unordered_map<int, VertexInfo> infos; infos.reserve(group.Faces.size() * 3);
+
+            for (const Face& face : group.Faces)
+            {
+                for (const VertexDescr& vd : face)
+                {
+                    if (VertexInfo* info = find(infos, vd.v))
+                    {
+                        
+                    }
+                    else
+                    {
+                        infos[vd.v] = { vd.v, vd.t, vd.n };
+                    }
+                }
+            }
+        }
+        else
+        {
+            int vertexId = 0;
+            for (const Face& face : group.Faces)
+            {
+                for (const VertexDescr& vd : face)
+                {
+                    mesh.Indices.push_back(vertexId++);
+                    BasicVertex& vert = emplace_back(mesh.Vertices);
+
+                    vert.pos  = vd.v != -1 ? meshVerts[vd.v]   : Vector3::ZERO;
+                    vert.uv   = vd.t != -1 ? meshCoords[vd.t]  : Vector2::ZERO;
+                    vert.norm = vd.n != -1 ? meshNormals[vd.n] : Vector3::ZERO;
+                }
+            }
+        }
+        return mesh;
     }
 
     FaceId Mesh::PickFaceId(const Ray& ray) const noexcept
