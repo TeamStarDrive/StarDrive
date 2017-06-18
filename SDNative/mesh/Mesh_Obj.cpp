@@ -103,19 +103,14 @@ namespace mesh
     {
         Clear();
 
-        load_buffer filebuf = file::read_all(meshPath);
-        if (filebuf.len == 0) {
-            fprintf(stderr, "Failed to open file '%s'\n", meshPath.c_str());
+        auto parser = buffer_line_parser::from_file(meshPath);
+        if (!parser) {
+            println(stderr, "Failed to open file", meshPath);
             return false;
         }
 
-        int numVerts = 0;
-        int numCoords = 0;
-        int numNormals = 0;
-        int numFaces = 0;
-
+        int numVerts = 0, numCoords = 0, numNormals = 0, numFaces = 0;
         strview line;
-        line_parser parser = strview(filebuf);
         while (parser.read_line(line))
         {
             char c = line[0];
@@ -149,11 +144,10 @@ namespace mesh
         Coords.reserve(numCoords);
         Normals.reserve(numNormals);
 
-        MeshGroup* group = &emplace_back(Groups);
-        group->Faces.reserve(numFaces);
+        MeshGroup* group = nullptr;
+        auto currentGroup = [&]{ return group ? group : (group = &emplace_back(Groups)); };
 
-        // indices for the arrays
-        parser = strview(filebuf);
+        parser.reset();
         while (parser.read_line(line)) // for each line
         {
             char c = line[0];
@@ -202,7 +196,7 @@ namespace mesh
             else if (c == 'f')
             {
                 // f Vertex1/Texture1/Normal1 Vertex2/Texture2/Normal2 Vertex3/Texture3/Normal3
-                Face& f = emplace_back(group->Faces);
+                Face& f = emplace_back(currentGroup()->Faces);
 
                 // load the face indices
                 line.skip(2); // skip 'f '
@@ -224,7 +218,7 @@ namespace mesh
             {
                 line.skip(7); // skip "usemtl "
                 strview matName = line.next(' ');
-                group->Mat = findMat(matName);
+                currentGroup()->Mat = findMat(matName);
             }
             else if (c == 'm' && memcmp(line.str, "mtllib", 6) == 0)
             {
@@ -235,6 +229,7 @@ namespace mesh
             else if (c == 'g')
             {
                 line.skip(2); // skip "g "
+                group = &emplace_back(Groups);
                 group->Name = (string)line.next(' ');
             }
             else if (c == 'o')
@@ -247,9 +242,10 @@ namespace mesh
         for (auto& g : Groups)
             NumFaces += g.NumFaces();
 
-        if (Colors.size() == Verts.size())
+        if (!Colors.empty() && Colors.size() == Verts.size())
         {
-            // assign per-vertex color ID-s
+            // assign per-vertex color ID-s, this is the only mode supported by OBJ
+            ColorMapping = MapPerVertex;
             for (auto& g : Groups)
                 for (auto& face : g)
                     for (auto& vd : face)
