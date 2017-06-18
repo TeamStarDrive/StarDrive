@@ -23,7 +23,7 @@ namespace mesh
         int Count = 0; // number of vertex descriptors, max 4
         VertexDescr VDS[4];
 
-        VertexDescr& operator[](int index) { return VDS[index]; }
+        VertexDescr&       operator[](int index)       { return VDS[index]; }
         const VertexDescr& operator[](int index) const { return VDS[index]; }
         const VertexDescr* begin() const { return VDS; }
         const VertexDescr* end()   const { return VDS + Count; }
@@ -61,7 +61,7 @@ namespace mesh
 
         vector<Face> Faces; // face descriptors
 
-        int NumFaces() const { return (int)Faces.size(); }
+        int NumFaces()      const { return (int)Faces.size(); }
         const Face* begin() const { return &Faces.front(); }
         const Face* end()   const { return &Faces.back() + 1; }
         Face* begin() { return &Faces.front(); }
@@ -72,8 +72,24 @@ namespace mesh
     {
         int group = -1;
         int face  = -1;
-
         bool good() const { return group != -1 && face != -1; }
+    };
+
+
+    // Common 3D mesh vertex for games, as generic as it can get
+    struct BasicVertex
+    {
+        Vector3 pos;
+        Vector2 uv;
+        Vector3 norm;
+    };
+
+    struct BasicVertexMesh
+    {
+        string               Name;
+        shared_ptr<Material> Mat;
+        vector<BasicVertex>  Vertices;
+        vector<int>          Indices;
     };
 
     //////////////////////////////////////////////////////////////////////
@@ -112,19 +128,18 @@ namespace mesh
         };
 
         // These are intentionally public to allow custom mesh manipulation
-
         string Name;
         vector<Vector3> Verts;
-        vector<Color3>  Colors;
         vector<Vector2> Coords;
         vector<Vector3> Normals;
+        vector<Color3>  Colors;
         vector<MeshGroup> Groups;
         int NumFaces = 0;
 
         // If you edit these, you must also modify the actual mesh data
-        MapMode ColorMapping   = MapNone;
         MapMode CoordsMapping  = MapNone;
         MapMode NormalsMapping = MapNone;
+        MapMode ColorMapping   = MapNone;
 
         // Default empty mesh
         Mesh() noexcept;
@@ -180,6 +195,32 @@ namespace mesh
         // Adds additional meshgroups from another Mesh
         // Optionally appends an extra offset to position vertices
         void AddMeshData(const Mesh& mesh, Vector3 offset = Vector3::ZERO) noexcept;
+
+        // Flattens all mesh data, so MapMode is MapPerFaceVertex
+        // This will make the mesh data compatible with any 3D graphics engine out there
+        // However, mesh data will be thus stored less efficiently (no vertex data sharing)
+        // 
+        // Verts, Coords, Normals and Colors will all be stored in a linear sequence
+        // with equal length, so creating a corresponding vertex/index array is trivial
+        void FlattenMeshData() noexcept;
+
+        bool IsFlattened() const noexcept
+        {
+            return CoordsMapping  == MapPerFaceVertex
+                && NormalsMapping == MapPerFaceVertex
+                && ColorMapping   == MapPerFaceVertex;
+        }
+
+        // Gets a basic mesh representation from a MeshGroup
+        // A BasicVertexMesh can be used safely in most games
+        // because the vertices are safely flattened with optimal vertex sharing
+        // @note If you called FlattenMeshData() before this, then optimal vertex sharing is not possible
+        BasicVertexMesh GetBasicVertexMesh(int groupId = 0) const noexcept;
+
+        shared_ptr<Material> GetMeshGroupMaterial(int groupId = 0) const noexcept
+        {
+            return Groups[groupId].Mat;
+        }
 
         // Pick the closest face that intersects with the ray
         FaceId PickFaceId(const Ray& ray) const noexcept;
