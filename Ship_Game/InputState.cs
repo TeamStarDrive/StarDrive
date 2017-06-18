@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
@@ -14,9 +15,24 @@ namespace Ship_Game
         public int ScrollWheelPrev;
 
         public bool Repeat;
+        //MouseDrag variables
+        public Vector2 StartDrag { get; private set; }
+        public Vector2 StartDragWorld { get; private set; }
+        public Vector2 ProjectedPosition { get; private set; }
+        public bool MouseDragging { get; private set; }
+        public Vector2 EndDrag { get; private set; }
+        public Vector2 EndDragWorld { get; private set; }
+        public Vector2 SelectionPoint { get; private set; }
+        public float SelectionRadiansToTarget { get; private set; }
+        public Vector2 SelectionFacing { get; private set; }
+        
+
+
+        //Mouse Timers
         private float RightMouseDownTime;
         private float LeftMouseDownTime;
 
+        //Mouse Clicks
         public bool RightMouseClick    => MouseButtonClicked(MouseCurr.RightButton, MousePrev.RightButton);
         public bool LeftMouseClick     => MouseButtonClicked(MouseCurr.LeftButton, MousePrev.LeftButton);
         public bool BackMouseClick     => MouseButtonClicked(MouseCurr.XButton1, MousePrev.XButton1);
@@ -26,6 +42,7 @@ namespace Ship_Game
         public bool RightMouseReleased => MouseButtonReleased(MouseCurr.RightButton, MousePrev.RightButton);
         public bool LeftMouseDown      => MouseCurr.LeftButton  == ButtonState.Pressed;
         public bool RightMouseDown     => MouseCurr.RightButton == ButtonState.Pressed;
+        public bool RightMouseHeldUp => MouseCurr.RightButton != ButtonState.Pressed || MousePrev.RightButton != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
         public bool LeftMouseHeld(float seconds = 0.25f)
@@ -50,6 +67,48 @@ namespace Ship_Game
             return current == ButtonState.Released && prev == ButtonState.Pressed;
         }
 
+        public bool RightMouseDrag(Matrix view, Matrix projection, Viewport viewport)
+        {
+
+            if (!RightMouseHeld(.05f))
+            {
+                if (!MouseDragging) return false;
+
+                Vector3 position = viewport.Unproject(
+                    CursorPosition.ToVec3(), projection, view,
+                    Matrix.Identity);
+
+                Vector3 direction = viewport.Unproject(
+                                        CursorPosition.ToVec3(1f),
+                                        projection, view, Matrix.Identity) - position;
+                direction.Normalize();
+                Ray ray = new Ray(position, direction);
+                float unknownRayModifer = -ray.Position.Z / ray.Direction.Z;
+                Vector3 vector3 = new Vector3(ray.Position.X + unknownRayModifer * ray.Direction.X,
+                    ray.Position.Y + unknownRayModifer * ray.Direction.Y, 0.0f);
+                SelectionPoint = vector3.ToVec2();
+                Vector2 target = CursorPosition;
+                SelectionRadiansToTarget = StartDrag.RadiansToTarget(target);
+                SelectionFacing = Vector2.Normalize(target - StartDrag);
+
+                MouseDragging = false;
+                return true;
+
+            }
+            if (MouseDragging)
+            {
+                EndDrag = CursorPosition;
+                EndDragWorld = Empire.Universe.UnprojectToWorldPosition(StartDrag);
+                return true; 
+            }
+            StartDrag = CursorPosition;
+            StartDragWorld = Empire.Universe.UnprojectToWorldPosition(StartDrag);
+            ProjectedPosition = StartDragWorld;
+            MouseDragging = true;
+            return true;
+
+        }
+
         public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown(key);
 
         private bool KeyPressed(Keys key)
@@ -70,6 +129,8 @@ namespace Ship_Game
 
         public bool LeftStickFlickDown => GamepadCurr.ThumbSticks.Left.Y < 0f && GamepadPrev.ThumbSticks.Left.Y >= 0f;
         public bool LeftStickFlickUp   => GamepadCurr.ThumbSticks.Left.Y > 0f && GamepadPrev.ThumbSticks.Left.Y <= 0f;
+
+
 
 
         //Ingame 

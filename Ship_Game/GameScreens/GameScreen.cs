@@ -33,9 +33,10 @@ namespace Ship_Game
         public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
         public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
         public float TransitionPosition   { get; protected set; } = 1f;
-        public Vector2 MousePos =>  new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-
+        public Vector2 MousePos =>  Input.CursorPosition;
+        
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
+       
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -303,6 +304,8 @@ namespace Ship_Game
                 modelMesh.Draw();
             }
         }
+
+        
 
         ~GameScreen() { Dispose(false); }
 
