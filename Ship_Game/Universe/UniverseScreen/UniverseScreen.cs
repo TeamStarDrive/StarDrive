@@ -86,8 +86,8 @@ namespace Ship_Game
         public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
         private Array<FleetButton> FleetButtons = new Array<FleetButton>();
-        private Vector2 startDrag;
-        private Vector2 ProjectedPosition;
+        //private Vector2 startDrag;
+        //private Vector2 ProjectedPosition;
         private float desiredSectorZ = 20000f;
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         private bool drawBloom = true;
@@ -215,8 +215,8 @@ namespace Ship_Game
         //private Array<Fleet.Squad> SelectedFlank;
         private int FBTimer;
         private bool pickedSomethingThisFrame;
-        private Vector2 startDragWorld;
-        private Vector2 endDragWorld;
+        //private Vector2 startDragWorld;
+        //private Vector2 endDragWorld;
         private ShipGroup projectedGroup;
         private bool ProjectingPosition;
         private bool SelectingWithBox;
