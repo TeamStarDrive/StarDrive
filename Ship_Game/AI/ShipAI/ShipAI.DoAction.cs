@@ -123,23 +123,23 @@ namespace Ship_Game.AI {
             }
 
             if (distanceToTarget < adjustedWeaponRange)
-            {
+            {                
                 RunTimer += elapsedTime;
                 if (RunTimer > 7f)
                 {
-                    DoNonFleetArtillery(elapsedTime);
+                    ThrustTowardsPosition(Target.FindVectorBehindTarget(Owner.maxWeaponsRange), elapsedTime, Owner.speed);
+                    //DoNonFleetArtillery(elapsedTime);
                     return;
                 }
-                AINewDir += ownerCenter.DirectionToTarget(interceptPoint + Target.Velocity) * 0.35f;
+                //when close enough veer away
                 if (distanceToTarget < (Owner.Radius + Target.Radius) * 3f && !AttackRunStarted)
                 {
                     AttackRunStarted = true;
                     int ran = RandomMath.IntBetween(0, 1);
                     ran = ran == 1 ? 1 : -1;
-                    AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
-                    AttackVector = ownerCenter.PointFromAngle(AttackRunAngle, 1500f); //@why 1500
+                    AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();                    
                 }
-                AttackVector = ownerCenter.PointFromAngle(AttackRunAngle, 1500f);
+                AttackVector = ownerCenter.PointFromAngle(AttackRunAngle, (Owner.Radius + Target.Radius) * 3f);
                 MoveInDirection(AttackVector, elapsedTime);
                 if (RunTimer > 2)
                 {
