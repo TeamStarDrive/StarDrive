@@ -2,6 +2,7 @@
 #ifndef MESH_COLLECTIONEXT_H
 #define MESH_COLLECTIONEXT_H
 #include <vector>
+#include <unordered_map>
 
 namespace mesh
 {
@@ -70,6 +71,18 @@ namespace mesh
     {
         for (const T& elem : v) if (elem == item) return &elem;
         return nullptr;
+    }
+
+    template<class K, class V> V* find(unordered_map<K,V>& map, const K& key) noexcept
+    {
+        auto it = map.find(key);
+        return it != map.end() ? &it->second : nullptr;
+    }
+
+    template<class K, class V> const V* find(const unordered_map<K,V>& map, const K& key) noexcept
+    {
+        auto it = map.find(key);
+        return it != map.end() ? &it->second : nullptr;
     }
 }
 
