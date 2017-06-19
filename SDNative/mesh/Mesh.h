@@ -60,12 +60,16 @@ namespace mesh
         shared_ptr<Material> Mat;
 
         vector<Face> Faces; // face descriptors
+        int NumFaceVerts = 0;
 
+        bool IsTriangulated() const { return NumFaceVerts == NumFaces() * 3; }
         int NumFaces()      const { return (int)Faces.size(); }
         const Face* begin() const { return &Faces.front(); }
         const Face* end()   const { return &Faces.back() + 1; }
         Face* begin() { return &Faces.front(); }
         Face* end()   { return &Faces.back() + 1; }
+
+        void Triangulate();
     };
 
     struct FaceId
@@ -90,6 +94,8 @@ namespace mesh
         shared_ptr<Material> Mat;
         vector<BasicVertex>  Vertices;
         vector<int>          Indices;
+        int VertexID = 0;
+        bool good() const { return !Vertices.empty(); }
     };
 
     //////////////////////////////////////////////////////////////////////

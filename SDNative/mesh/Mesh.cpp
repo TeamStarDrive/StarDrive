@@ -16,6 +16,13 @@ namespace mesh
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    void MeshGroup::Triangulate()
+    {
+        throw runtime_error("not implemented");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    
     Mesh::Mesh() noexcept
     {
     }
@@ -80,7 +87,7 @@ namespace mesh
         return false;
     }
 
-
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     void Mesh::RecalculateNormals(const bool checkDuplicateVerts) noexcept
     {
@@ -247,6 +254,8 @@ namespace mesh
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     void Mesh::FlattenMeshData() noexcept
     {
         // Flatten the mesh, so each Face Vertex is unique
@@ -294,8 +303,12 @@ namespace mesh
         ColorMapping   = Colors.empty()  ? MapNone : MapPerFaceVertex;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     BasicVertexMesh Mesh::GetBasicVertexMesh(int groupId) const noexcept
     {
+        if (groupId < 0 || groupId >= NumGroups())
+            return {};
         auto* meshVerts   = Verts.data();
         auto* meshCoords  = Coords.data();
         auto* meshNormals = Normals.data();
@@ -307,55 +320,69 @@ namespace mesh
         mesh.Vertices.reserve(group.Faces.size() * 3);
         mesh.Indices.reserve(group.Faces.size() * 3);
 
+        auto addVertex = [&](const VertexDescr& vd)
+        {
+            mesh.Indices.push_back(mesh.VertexID++);
+            mesh.Vertices.emplace_back<BasicVertex>({
+                vd.v != -1 ? meshVerts[vd.v]   : Vector3::ZERO,
+                vd.t != -1 ? meshCoords[vd.t]  : Vector2::ZERO,
+                vd.n != -1 ? meshNormals[vd.n] : Vector3::ZERO
+            });
+        };
+
         const bool optimizedVertexSharing = !IsFlattened();
         if (optimizedVertexSharing)
         {
-            // track which vertices have multiple UV's or Normals
-            // if sharedCoords == 1 and sharedNormals == 1, then this 
-            // vertex can be safely shared
-            struct VertexInfo
+            struct FaceVertexInfo
             {
-                int vertexId, coordId, normalId;
-                int sharedCoords  = 1;
-                int sharedNormals = 1;
+                int index, coordId, normalId;
             };
 
-            // @todo Maybe use a flatmap here
-            unordered_map<int, VertexInfo> infos; infos.reserve(group.Faces.size() * 3);
+            auto canShareVertex = [&](const FaceVertexInfo& in, const VertexDescr& vd)
+            {
+                if (vd.t == in.coordId && vd.n == in.normalId)
+                    return true;
+                if (vd.t != -1 && in.coordId != -1 && meshCoords[vd.t] != meshCoords[in.coordId])
+                    return false;
+                if (vd.n != -1 && in.normalId != -1 && meshNormals[vd.t] != meshNormals[in.normalId])
+                    return false;
+                return true;
+            };
+
+            vector<FaceVertexInfo> flatmap; flatmap.resize(NumVerts());
+            memset(flatmap.data(), -1, sizeof(FaceVertexInfo)*flatmap.size());
 
             for (const Face& face : group.Faces)
             {
                 for (const VertexDescr& vd : face)
                 {
-                    if (VertexInfo* info = find(infos, vd.v))
+                    FaceVertexInfo& info = flatmap[vd.v];
+                    if (info.index == -1)
                     {
-                        
+                        info = { mesh.VertexID, vd.t, vd.n };
+                        addVertex(vd);
                     }
-                    else
+                    else if (canShareVertex(info, vd))
                     {
-                        infos[vd.v] = { vd.v, vd.t, vd.n };
+                        mesh.Indices.push_back(info.index);
+                    }
+                    else // vertex can't be shared, so just write a new copy
+                    {
+                        addVertex(vd);
                     }
                 }
             }
         }
         else
         {
-            int vertexId = 0;
             for (const Face& face : group.Faces)
-            {
                 for (const VertexDescr& vd : face)
-                {
-                    mesh.Indices.push_back(vertexId++);
-                    BasicVertex& vert = emplace_back(mesh.Vertices);
-
-                    vert.pos  = vd.v != -1 ? meshVerts[vd.v]   : Vector3::ZERO;
-                    vert.uv   = vd.t != -1 ? meshCoords[vd.t]  : Vector2::ZERO;
-                    vert.norm = vd.n != -1 ? meshNormals[vd.n] : Vector3::ZERO;
-                }
-            }
+                    addVertex(vd);
         }
         return mesh;
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     FaceId Mesh::PickFaceId(const Ray& ray) const noexcept
     {
