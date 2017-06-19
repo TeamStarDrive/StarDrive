@@ -49,6 +49,9 @@
     <ClCompile Include="ReCpp\rpp\vec.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
+    <ClCompile Include="StaticMeshLoader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -89,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="ReCpp\rpp\vec.h">
       <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMeshLoader.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

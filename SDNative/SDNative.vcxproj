@@ -115,6 +115,7 @@
     <ClInclude Include="ReCpp\rpp\strview.h" />
     <ClInclude Include="ReCpp\rpp\vec.h" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="StaticMeshLoader.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
   </ItemGroup>
@@ -128,6 +129,7 @@
     <ClCompile Include="ReCpp\rpp\strview.cpp" />
     <ClCompile Include="ReCpp\rpp\vec.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
+    <ClCompile Include="StaticMeshLoader.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
   </ItemGroup>
   <ItemGroup>
