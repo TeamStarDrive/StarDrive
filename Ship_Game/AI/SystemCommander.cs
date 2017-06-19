@@ -115,7 +115,7 @@ namespace Ship_Game.AI
         {
             if (ShipsDict == null) return;
             foreach (Ship ship in ShipsDict.Values)
-                ship.AI.SystemToDefend = null;
+                if(ship.Active) ship.AI.SystemToDefend = null;
             ShipsDict.Clear();
             CurrentShipStr = 0;
         }
