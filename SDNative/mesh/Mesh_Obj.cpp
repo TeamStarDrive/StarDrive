@@ -208,6 +208,8 @@ namespace mesh
                     if (strview t = vertdescr.next('/')) vd.t = t.to_int() - 1;
                     if (strview n = vertdescr)           vd.n = n.to_int() - 1;
                 }
+
+                currentGroup()->NumFaceVerts += f.Count;
             }
             //else if (c == 's')
             //{
