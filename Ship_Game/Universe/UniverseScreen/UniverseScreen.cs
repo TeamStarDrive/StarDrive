@@ -1009,6 +1009,12 @@ namespace Ship_Game
             public Goal AssociatedGoal;
         }
 
+        private struct ClickableFleet
+        {
+            public Fleet fleet;
+            public Vector2 ScreenPos;
+            public float ClickRadius;
+        }
         public enum UnivScreenState
         {
             DetailView = 10000,
@@ -1046,12 +1052,6 @@ namespace Ship_Game
             public bool Discovered;
         }
 
-        private struct ClickableFleet
-        {
-            public Fleet fleet;
-            public Vector2 ScreenPos;
-            public float ClickRadius;
-        }
 
         private enum CursorState
         {

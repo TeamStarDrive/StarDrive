@@ -57,10 +57,11 @@ namespace Ship_Game
                 Ships.Add(ship);
             }
         }
+        public int CountShips => Ships.Count;
 
         public void AssignPositions(float facing)
         {
-            this.Facing = facing;
+            Facing = facing;
             foreach (Ship ship in Ships)
             {
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;

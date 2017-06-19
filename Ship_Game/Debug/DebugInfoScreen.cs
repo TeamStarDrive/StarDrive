@@ -21,6 +21,7 @@ namespace Ship_Game.Debug
         AO,
         ThreatMatrix,
         SpatialManager,
+        input,
         Last, // dummy value
     }
 
@@ -149,6 +150,7 @@ namespace Ship_Game.Debug
                 case DebugModes.Trade:        TradeInfo();        break;
                 case DebugModes.Targeting:    Targeting();        break;
                 case DebugModes.SpatialManager: SpatialManagement(); break;
+                case DebugModes.input:          InputDebug(); break;
             }
             ShipInfo();
         }
@@ -463,7 +465,6 @@ namespace Ship_Game.Debug
 
             }
         }
-
         private void SpatialManagement()
         {
             UniverseScreen.SpaceManager.DebugVisualize(Screen);
@@ -471,6 +472,18 @@ namespace Ship_Game.Debug
             //{
             //    system.spatialManager.DebugVisualize(Screen);
             //}
+        }
+        private bool MouseWasHeld = false;
+        private void InputDebug()
+        {
+            DrawString($"RightMouseHeld {Screen.Input.RightMouseHeld()}");
+           
+            //if (!MouseWasHeld) MouseWasHeld = Screen.Input.RightMouseWasHeld;
+            //if (Screen.Input.RightMouseClick)
+            //    MouseWasHeld = false;
+            DrawString($"RightMouseWasHeld {Screen.Input.RightMouseWasHeld}");
+
+            DrawString($"RightMouseTimer {Screen.Input.ReadRightMouseDownTime}");
         }
 
         public bool HandleInput(InputState input)
