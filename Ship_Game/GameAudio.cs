@@ -220,6 +220,8 @@ namespace Ship_Game
         public static void MuteRacialMusic()    => RacialMusic.SetVolume(0f);
         public static void UnmuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
 
+        public static void NegativeClick()    => PlaySfxAsync("UI_Misc20");
+        public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1");
         // this is used for the DiplomacyScreen
         public static void SwitchToRacialMusic()
         {
@@ -329,6 +331,8 @@ namespace Ship_Game
             cue.Play();
             return new AudioHandle(cue, null);
         }
+
+        
 
         private static void DisposeStoppedHandles()
         {

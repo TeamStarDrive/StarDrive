@@ -31,6 +31,13 @@ namespace Ship_Game
         //Mouse Timers
         private float RightMouseDownTime;
         private float LeftMouseDownTime;
+        private bool RightMouseWasHeldInteral = false;
+        private bool LeftMouseWasHeldInteral = false;
+        public bool RightMouseWasHeld => RightMouseWasHeldInteral;
+        public bool LeftMouseWasHeld => LeftMouseWasHeldInteral;
+        public float ReadRightMouseDownTime => RightMouseDownTime;
+        private bool RightHeld= false;
+        private bool LeftHeld = false;
 
         //Mouse Clicks
         public bool RightMouseClick    => MouseButtonClicked(MouseCurr.RightButton, MousePrev.RightButton);
@@ -42,21 +49,21 @@ namespace Ship_Game
         public bool RightMouseReleased => MouseButtonReleased(MouseCurr.RightButton, MousePrev.RightButton);
         public bool LeftMouseDown      => MouseCurr.LeftButton  == ButtonState.Pressed;
         public bool RightMouseDown     => MouseCurr.RightButton == ButtonState.Pressed;
-        public bool RightMouseHeldUp => MouseCurr.RightButton != ButtonState.Pressed || MousePrev.RightButton != ButtonState.Pressed;
+        public bool RightMouseHeldUp => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
         public bool LeftMouseHeld(float seconds = 0.25f)
         {
-            return MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);
+            return LeftHeld = MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);
         }
         public bool RightMouseHeld(float seconds = 0.25f)
         {
-            return MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);
+            return RightHeld = MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);            
         }
 
         private static bool MouseButtonHeld(ButtonState current, ButtonState prev, float seconds, float timer)
         {
-            return current == ButtonState.Pressed && prev == ButtonState.Pressed && timer >= seconds;
+            return current == ButtonState.Pressed && prev == ButtonState.Pressed && timer >= seconds;            
         }
         private static bool MouseButtonClicked(ButtonState current, ButtonState prev)
         {
@@ -160,9 +167,12 @@ namespace Ship_Game
         public bool Fleet7               => KeyPressed(Keys.D7);
         public bool Fleet8               => KeyPressed(Keys.D8);
         public bool Fleet9               => KeyPressed(Keys.D9);
-        public bool AddToFleet           => IsKeyDown(Keys.LeftControl) && !IsKeyDown(Keys.LeftShift);
-        public bool ReplaceFleet         => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
-
+        public bool AddToFleet           => IsCtrlKeyDown && !IsShiftKeyDown;
+        public bool ReplaceFleet         => IsCtrlKeyDown && IsShiftKeyDown;
+        public bool QueueAction          => IsShiftKeyDown;
+        public bool OrderOption          => IsAltKeyDown;
+        
+        //input.KeysCurr.IsKeyDown(Keys.LeftAlt)
         //IngameWiki
         public bool ExitWiki => KeyPressed(Keys.P) && !GlobalStats.TakingInput;
 
@@ -245,22 +255,25 @@ namespace Ship_Game
 
         private void UpdateTimers(float time)
         {
-            TimerUpdate(time, LeftMouseHeld(0), ref LeftMouseDownTime);
-            TimerUpdate(time, RightMouseHeld(0), ref RightMouseDownTime);
+            TimerUpdate(time, LeftMouseHeld(0), ref LeftMouseDownTime, ref LeftMouseWasHeldInteral, ref LeftHeld);
+            TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
 
         }
-        private static void TimerUpdate(float time, bool update, ref float timer)
+        private void TimerUpdate(float time, bool update, ref float timer, ref bool wasHeld, ref bool held)
         {
             if (update)
+            {
                 timer += time;
+            }
             else
+            {
+                wasHeld = held && timer > 0 ;
+                held = false;
                 timer = 0;
+            }
         }
-        public void Update(GameTime gameTime)
+        public  void Update(GameTime gameTime)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            UpdateTimers(elapsedTime);
-
             KeysPrev        = KeysCurr;
             GamepadPrev     = GamepadCurr;
             MousePrev       = MouseCurr;
@@ -268,6 +281,9 @@ namespace Ship_Game
             MouseCurr       = Mouse.GetState();
             CursorPosition  = new Vector2(MouseCurr.X, MouseCurr.Y);
             KeysCurr        = Keyboard.GetState();
+
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            UpdateTimers(elapsedTime);
         }
     }
 }
