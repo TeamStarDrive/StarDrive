@@ -309,6 +309,7 @@ namespace mesh
     {
         if (groupId < 0 || groupId >= NumGroups())
             return {};
+
         auto* meshVerts   = Verts.data();
         auto* meshCoords  = Coords.data();
         auto* meshNormals = Normals.data();
