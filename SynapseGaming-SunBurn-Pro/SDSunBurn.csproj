@@ -287,10 +287,10 @@
     <Compile Include="Mesh\Class62.cs" />
     <Compile Include="Mesh\Class63.cs" />
     <Compile Include="Mesh\Class64.cs" />
-    <Compile Include="Mesh\Class65.cs" />
-    <Compile Include="Mesh\Class67.cs" />
+    <Compile Include="Mesh\ShaderSamplerData.cs" />
+    <Compile Include="Mesh\ShaderMeshData.cs" />
     <Compile Include="Mesh\MeshBuffer.cs" />
-    <Compile Include="Mesh\Class70.cs" />
+    <Compile Include="Mesh\SpriteFactory.cs" />
     <Compile Include="ns10\Class71.cs" />
     <Compile Include="ns10\Class72.cs" />
     <Compile Include="ns11\Disposable.cs" />

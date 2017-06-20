@@ -19,8 +19,8 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public class RenderableMesh
     {
-        internal CullMode cullMode_0 = CullMode.CullCounterClockwiseFace;
-        internal bool bool_0 = true;
+        internal CullMode Culling = CullMode.CullCounterClockwiseFace;
+        internal bool ShadowInFrustum = true;
         internal ISceneObject sceneObject;
         internal Matrix meshToObject;
         internal Matrix matrix_1;
@@ -40,11 +40,11 @@ namespace SynapseGaming.LightingSystem.Rendering
         internal int vertexBase;
         internal int vertexCount;
         internal int elementStart;
-        internal PrimitiveType primitiveType_0;
+        internal PrimitiveType Type;
         internal int int_5;
         internal int int_6;
         internal int int_7;
-        internal TransparencyMode transparencyMode_0;
+        internal TransparencyMode Transparency;
         internal bool bool_1;
         internal bool bool_2;
         internal bool bool_3;
@@ -140,7 +140,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         public int ElementStart => elementStart;
 
         /// <summary>Primitive format the mesh geometry is stored in.</summary>
-        public PrimitiveType PrimitiveType => primitiveType_0;
+        public PrimitiveType PrimitiveType => Type;
 
         /// <summary>Number of primitives in the mesh geometry.</summary>
         public int PrimitiveCount => int_5;
@@ -148,7 +148,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>
         /// Cull mode used to ensure the mesh is rendered correctly.
         /// </summary>
-        public CullMode CullMode => cullMode_0;
+        public CullMode CullMode => Culling;
 
         /// <summary>
         /// Object-space bounding area that completely contains the mesh.
@@ -234,7 +234,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             Bounds = objectspaceboundingsphere;
             indexBuffer = indexbuffer;
             elementStart = elementstart;
-            primitiveType_0 = primitivetype;
+            Type = primitivetype;
             int_5 = primitivecount;
             vertexBase = vertexbase;
             vertexBuffer = vertexbuffer;
@@ -273,8 +273,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public void CalculateMaterialInfo()
         {
-            transparencyMode_0 = (effect_0 as ITransparentEffect)?.TransparencyMode ?? TransparencyMode.None;
-            bool_2 = transparencyMode_0 != TransparencyMode.None;
+            Transparency = (effect_0 as ITransparentEffect)?.TransparencyMode ?? TransparencyMode.None;
+            bool_2 = Transparency != TransparencyMode.None;
             bool_3 = effect_0 is IRenderableEffect && (effect_0 as IRenderableEffect).DoubleSided;
             bool_4 = effect_0 is IShadowGenerateEffect && (effect_0 as IShadowGenerateEffect).SupportsShadowGeneration;
             bool_5 = effect_0 is ITerrainEffect;
@@ -312,7 +312,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             Matrix.Transpose(ref world, out worldTranspose);
             Matrix.Multiply(ref matrix_3, ref matrix_1, out worldToMesh);
             Matrix.Transpose(ref worldToMesh, out matrix_7);
-            cullMode_0 = world.Determinant() >= 0.0 ? CullMode.CullCounterClockwiseFace : CullMode.CullClockwiseFace;
+            Culling = world.Determinant() >= 0.0 ? CullMode.CullCounterClockwiseFace : CullMode.CullClockwiseFace;
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: ns9.Class70
-// Assembly: SynapseGaming-SunBurn-Pro, Version=1.3.2.8, Culture=neutral, PublicKeyToken=c23c60523565dbfd
-// MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
-// Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,7 +6,7 @@ using SynapseGaming.LightingSystem.Core;
 
 namespace Mesh
 {
-    internal class Class70
+    internal class SpriteFactory
     {
         private readonly Vector2[] Coords =
         {
@@ -21,42 +15,48 @@ namespace Mesh
             new Vector2(0.0f, 1f),
             new Vector2(1f, 1f)
         };
-        private readonly Vertex[] Vertices = new Vertex[4096];
+        private readonly SpriteVertex[] Vertices = new SpriteVertex[4096];
         private static readonly ushort[] Indices = new ushort[6144];
+        private static bool Initialized = false;
+
         internal const int int_0 = 1024;
         internal const int int_1 = 4;
         internal const int int_2 = 6;
         private readonly GraphicsDevice Device;
         private int NumFaces;
-        private MeshBuffer Buffer0;
+        private MeshBuffer Buffer;
         private readonly DisposablePool<MeshBuffer> BuffFactory;
 
         public Effect Effect { get; }
         public List<MeshBuffer> Buffers { get; } = new List<MeshBuffer>(32);
 
-        static Class70()
-        {
-            int index = 0;
-            for (int i = 0; i < 1024; ++i)
-            {
-                int num2 = i * 4;
-                Indices[index + 0] = (ushort)(num2 + 0);
-                Indices[index + 1] = (ushort)(num2 + 1);
-                Indices[index + 2] = (ushort)(num2 + 2);
-                Indices[index + 3] = (ushort)(num2 + 2);
-                Indices[index + 4] = (ushort)(num2 + 1);
-                Indices[index + 5] = (ushort)(num2 + 3);
-                index += 6;
-            }
-        }
-
-        public Class70(GraphicsDevice device, DisposablePool<MeshBuffer> bufferfactory, Effect effect)
+        public SpriteFactory(GraphicsDevice device, DisposablePool<MeshBuffer> bufferfactory, Effect effect)
         {
             Device = device;
             BuffFactory = bufferfactory;
             Effect = effect;
-            for (int index = 0; index < Vertices.Length; ++index)
-                Vertices[index].Normal = new Vector3(0.0f, 0.0f, -1f);
+
+            Vector3 normal = new Vector3(0.0f, 0.0f, -1.0f);
+            for (int i = 0; i < Vertices.Length; ++i)
+                Vertices[i].Normal = normal;
+
+            if (!Initialized)
+            {
+                Initialized = true;
+
+                int index = 0;
+                for (int i = 0; i < 1024; ++i)
+                {
+                    int num2 = i * 4;
+                    Indices[index + 0] = (ushort)(num2 + 0);
+                    Indices[index + 1] = (ushort)(num2 + 1);
+                    Indices[index + 2] = (ushort)(num2 + 2);
+                    Indices[index + 3] = (ushort)(num2 + 2);
+                    Indices[index + 4] = (ushort)(num2 + 1);
+                    Indices[index + 5] = (ushort)(num2 + 3);
+                    index += 6;
+                }
+            }
         }
 
         public unsafe void BuildSprite(ref Vector2 size, 
@@ -67,7 +67,7 @@ namespace Mesh
             ref Vector2 uvposition, 
             float z)
         {
-            if (Buffer0 == null || NumFaces >= 1024)
+            if (Buffer == null || NumFaces >= 1024)
             {
                 method_1();
                 method_2();
@@ -87,10 +87,10 @@ namespace Mesh
                 rotSin = 0.0f;
                 rotCos = 1f;
             }
-            fixed (Vertex* pVerts = &Vertices[index1])
+            fixed (SpriteVertex* pVerts = &Vertices[index1])
             fixed (Vector2* pCoords = Coords)
             {
-                Vertex* vertex = pVerts;
+                SpriteVertex* vertex = pVerts;
                 Vector2* coord = pCoords;
                 float centerX = 0.5f - origin.X;
                 float centerY = 0.5f - origin.Y;
@@ -121,15 +121,15 @@ namespace Mesh
 
         public void method_1()
         {
-            if (Buffer0 == null || NumFaces < 1)
+            if (Buffer == null || NumFaces < 1)
                 return;
-            Buffer0.Create(Device, Vertices, Indices, NumFaces);
+            Buffer.Create(Device, Vertices, Indices, NumFaces);
         }
 
         private void method_2()
         {
-            Buffer0 = BuffFactory.New();
-            Buffers.Add(Buffer0);
+            Buffer = BuffFactory.New();
+            Buffers.Add(Buffer);
             NumFaces = 0;
         }
 
@@ -137,7 +137,7 @@ namespace Mesh
         {
             foreach (MeshBuffer class69 in Buffers)
                 BuffFactory.Free(class69);
-            Buffer0 = null;
+            Buffer = null;
             Buffers.Clear();
             NumFaces = 0;
         }
