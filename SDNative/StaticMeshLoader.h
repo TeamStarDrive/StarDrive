@@ -6,16 +6,16 @@ namespace SDNative
     using namespace mesh;
     ////////////////////////////////////////////////////////////////////////////////////
 
-    struct SunburnVertex
+    struct SDVertex
     {
         Vector3 Position;
         Vector3 Normal;
         Vector2 Coords;
-        Vector3 PackedBinormalTangent;
+        Vector3 Tangent;
+        Vector3 Binormal;
     };
 
-    using SunburnIndex = ushort;
-    static_assert(sizeof(SunburnVertex) == 44, "SunburnVertex size mismatch");
+    static_assert(sizeof(SDVertex) == 56, "SDVertex size mismatch. Sunburn requires a specific vertex layout");
 
     struct SDMesh
     {
@@ -26,7 +26,7 @@ namespace SDNative
 
         BasicVertexMesh* GetMesh(int groupId);
         void GetStats(int groupId, int* outVertices, int* outIndices);
-        void GetData(int groupId, SunburnVertex* vertices, SunburnIndex* indices);
+        void GetData(int groupId, SDVertex* vertices, ushort* indices);
     };
 
     extern "C" {
@@ -39,7 +39,7 @@ namespace SDNative
 
         // writes mesh data to vertices[] and indices[]
         __declspec(dllexport) void __stdcall SDMeshGetGroupData(SDMesh* mesh, int groupId,
-                                                                SunburnVertex* vertices, SunburnIndex* indices);
+                                                                SDVertex* vertices, ushort* indices);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
