@@ -208,6 +208,8 @@ namespace mesh
         // 
         // Verts, Coords, Normals and Colors will all be stored in a linear sequence
         // with equal length, so creating a corresponding vertex/index array is trivial
+        //
+        // @note DOES NOT TRIANGULATE THE MESH, call MeshGroup::Triangulate() for that
         void FlattenMeshData() noexcept;
 
         bool IsFlattened() const noexcept
