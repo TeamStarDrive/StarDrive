@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Mesh
 {
-    public struct Vertex
+    public struct SpriteVertex
     {
         public static readonly VertexElement[] ElementDescr =
         {
@@ -31,24 +31,24 @@ namespace Mesh
         public VertexBuffer VertexBuffer { get; private set; }
         public VertexDeclaration VertexDeclaration { get; private set; }
 
-        public unsafe void Create(GraphicsDevice device, Vertex[] vertices, ushort[] indices, int faces)
+        public unsafe void Create(GraphicsDevice device, SpriteVertex[] vertices, ushort[] indices, int faces)
         {
             if (VertexBuffer == null)
             {
-                VertexDeclaration = new VertexDeclaration(device, Vertex.ElementDescr);
-                VertexBuffer      = new VertexBuffer(device, typeof(Vertex), 4096, BufferUsage.None);
+                VertexDeclaration = new VertexDeclaration(device, SpriteVertex.ElementDescr);
+                VertexBuffer      = new VertexBuffer(device, typeof(SpriteVertex), 4096, BufferUsage.None);
                 IndexBuffer       = new IndexBuffer(device, typeof(ushort), 6144, BufferUsage.None);
             }
 
             BoundingBox bbox;
-            fixed (Vertex* pVerts = vertices)
+            fixed (SpriteVertex* pVerts = vertices)
             {
                 int length = vertices.Length;
                 bbox.Min.X = bbox.Max.X = pVerts->Position.X;
                 bbox.Min.Y = bbox.Max.Y = pVerts->Position.Y;
                 bbox.Max.Z = 1f;
                 bbox.Min.Z = 0.0f;
-                Vertex* vert = pVerts + 1;
+                SpriteVertex* vert = pVerts + 1;
                 for (int i = 1; i < length; ++i, ++vert)
                 {
                     if      (vert->Position.X > bbox.Max.X) bbox.Max.X = vert->Position.X;

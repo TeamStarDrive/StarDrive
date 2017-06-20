@@ -82,16 +82,16 @@ namespace Mesh
     public void method_1(List<Class63> list_0, List<RenderableMesh> list_1, bool bool_0, bool bool_1)
     {
       list_0.Clear();
-      for (int index = 0; index < list_1.Count; ++index)
+      for (int i = 0; i < list_1.Count; ++i)
       {
-        RenderableMesh renderableMesh = list_1[index];
+        RenderableMesh renderableMesh = list_1[i];
         if (renderableMesh != null)
           renderableMesh.bool_1 = false;
       }
-      for (int index1 = 0; index1 < list_1.Count; ++index1)
+      for (int i = 0; i < list_1.Count; ++i)
       {
-        RenderableMesh renderableMesh_0_1 = list_1[index1];
-        if (renderableMesh_0_1 != null && !renderableMesh_0_1.bool_1 && (!bool_0 || renderableMesh_0_1.bool_0))
+        RenderableMesh renderableMesh_0_1 = list_1[i];
+        if (renderableMesh_0_1 != null && !renderableMesh_0_1.bool_1 && (!bool_0 || renderableMesh_0_1.ShadowInFrustum))
         {
           Class63 class63 = class21_0.New();
           class63.method_0();
@@ -102,10 +102,10 @@ namespace Mesh
           class63.Objects.method_0(renderableMesh_0_1);
           list_0.Add(class63);
           renderableMesh_0_1.bool_1 = true;
-          for (int index2 = index1 + 1; index2 < list_1.Count; ++index2)
+          for (int j = i + 1; j < list_1.Count; ++j)
           {
-            RenderableMesh renderableMesh_0_2 = list_1[index2];
-            if (renderableMesh_0_2 != null && !renderableMesh_0_2.bool_1 && (!bool_0 || renderableMesh_0_2.bool_0) && (renderableMesh_0_1.int_6 == renderableMesh_0_2.int_6 || !renderableMesh_0_1.bool_2 && !renderableMesh_0_2.bool_2 && (!renderableMesh_0_1.bool_4 && !renderableMesh_0_2.bool_4) && (renderableMesh_0_1.bool_3 == renderableMesh_0_2.bool_3 && !renderableMesh_0_1.bool_5 && !renderableMesh_0_2.bool_5)))
+            RenderableMesh renderableMesh_0_2 = list_1[j];
+            if (renderableMesh_0_2 != null && !renderableMesh_0_2.bool_1 && (!bool_0 || renderableMesh_0_2.ShadowInFrustum) && (renderableMesh_0_1.int_6 == renderableMesh_0_2.int_6 || !renderableMesh_0_1.bool_2 && !renderableMesh_0_2.bool_2 && (!renderableMesh_0_1.bool_4 && !renderableMesh_0_2.bool_4) && (renderableMesh_0_1.bool_3 == renderableMesh_0_2.bool_3 && !renderableMesh_0_1.bool_5 && !renderableMesh_0_2.bool_5)))
             {
               class63.Objects.method_0(renderableMesh_0_2);
               renderableMesh_0_2.bool_1 = true;

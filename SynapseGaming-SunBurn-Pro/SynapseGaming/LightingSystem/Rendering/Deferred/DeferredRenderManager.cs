@@ -36,8 +36,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private List<RenderableMesh> list_4 = new List<RenderableMesh>();
     private List<Class63> list_5 = new List<Class63>();
     private List<Class63> list_6 = new List<Class63>();
-      private Class65 class65_0 = new Class65();
-    private Class67 class67_0 = new Class67();
+      private ShaderSamplerData class65_0 = new ShaderSamplerData();
+    private ShaderMeshData class67_0 = new ShaderMeshData();
     private List<RenderableMesh> list_8 = new List<RenderableMesh>();
     private List<Class63> list_9 = new List<Class63>();
     private Dictionary<ISceneObject, bool> dictionary_0 = new Dictionary<ISceneObject, bool>();
@@ -148,7 +148,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         this.model_0 = LightingSystemManager.Instance.EmbeddedModel("FullSphere");
       }
       this.class65_0.method_0();
-      this.class67_0.method_0();
+      this.class67_0.Clear();
       this.deferredBuffers_0.BeginFrameRendering(scenestate);
       base.BeginFrameRendering(scenestate);
       this.list_3.Clear();
@@ -217,7 +217,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       RenderTarget2D deferredBuffer3 = this.deferredBuffers_0.GetDeferredBuffer(DeferredBufferType.LightingDiffuse);
       RenderTarget2D deferredBuffer4 = this.deferredBuffers_0.GetDeferredBuffer(DeferredBufferType.LightingSpecular);
       this.class65_0.method_0();
-      this.class67_0.method_0();
+      this.class67_0.Clear();
       graphicsDevice.RenderState.AlphaTestEnable = false;
       graphicsDevice.RenderState.AlphaBlendEnable = false;
       graphicsDevice.RenderState.SourceBlend = Blend.One;
@@ -253,7 +253,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           }
           this.occlusionQueryHelper_0.RunOcclusionQuery(this.SceneState, 1.2f);
           this.class65_0.method_0();
-          this.class67_0.method_0();
+          this.class67_0.Clear();
         }
         graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.All;
         graphicsDevice.SetRenderTarget(1, deferredBuffer2);
@@ -377,7 +377,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         }
       }
       this.class65_0.method_0();
-      this.class67_0.method_0();
+      this.class67_0.Clear();
       if (this.DepthFillOptimizationEnabled)
       {
         graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.None;
@@ -638,12 +638,12 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
               bool flag;
               if (this.dictionary_0.TryGetValue(isceneObject0, out flag))
               {
-                renderableMesh.bool_0 = flag;
+                renderableMesh.ShadowInFrustum = flag;
               }
               else
               {
-                renderableMesh.bool_0 = isceneObject0.CastShadows && surface2.Frustum.Contains(isceneObject0.WorldBoundingSphere) != ContainmentType.Disjoint;
-                this.dictionary_0.Add(isceneObject0, renderableMesh.bool_0);
+                renderableMesh.ShadowInFrustum = isceneObject0.CastShadows && surface2.Frustum.Contains(isceneObject0.WorldBoundingSphere) != ContainmentType.Disjoint;
+                this.dictionary_0.Add(isceneObject0, renderableMesh.ShadowInFrustum);
               }
             }
           }
@@ -694,7 +694,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           if (iavatarManager_0 != null)
           {
             iavatarManager_0.RenderToShadowMapSurface(shadowGroup_0, surface2, this.deferredObjectEffect_0);
-            this.class67_0.method_0();
+            this.class67_0.Clear();
             this.class65_0.method_0();
           }
           ishadowMap_0.EndSurfaceRendering();
@@ -749,7 +749,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           bool flag = false;
           foreach (RenderableMesh renderableMesh in list_10)
           {
-            if (renderableMesh.bool_0)
+            if (renderableMesh.ShadowInFrustum)
             {
               flag = true;
               break;
@@ -792,7 +792,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
           effectPass.Begin();
           foreach (RenderableMesh renderableMesh_1 in list_10)
           {
-            if (renderableMesh_1 != null && (!bool_7 || renderableMesh_1.bool_0))
+            if (renderableMesh_1 != null && (!bool_7 || renderableMesh_1.ShadowInFrustum))
             {
               bool flag2 = false;
               if (skinnedEffect != null)
@@ -815,17 +815,17 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
                 effect_0.CommitChanges();
                 ++this.class57_0.lightingSystemStatistic_6.AccumulationValue;
               }
-              if (!flag1 && cullMode != renderableMesh_1.cullMode_0)
+              if (!flag1 && cullMode != renderableMesh_1.Culling)
               {
-                graphicsDevice.RenderState.CullMode = !bool_9 ? renderableMesh_1.cullMode_0 : (renderableMesh_1.cullMode_0 != CullMode.CullClockwiseFace ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
-                cullMode = renderableMesh_1.cullMode_0;
+                graphicsDevice.RenderState.CullMode = !bool_9 ? renderableMesh_1.Culling : (renderableMesh_1.Culling != CullMode.CullClockwiseFace ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
+                cullMode = renderableMesh_1.Culling;
                 ++this.class57_0.lightingSystemStatistic_5.AccumulationValue;
               }
-              this.class67_0.method_1(graphicsDevice, renderableMesh_1);
+              this.class67_0.SetMeshData(graphicsDevice, renderableMesh_1);
               if (renderableMesh_1.indexBuffer == null)
-                graphicsDevice.DrawPrimitives(renderableMesh_1.primitiveType_0, renderableMesh_1.elementStart, renderableMesh_1.int_5);
+                graphicsDevice.DrawPrimitives(renderableMesh_1.Type, renderableMesh_1.elementStart, renderableMesh_1.int_5);
               else
-                graphicsDevice.DrawIndexedPrimitives(renderableMesh_1.primitiveType_0, renderableMesh_1.vertexBase, 0, renderableMesh_1.vertexCount, renderableMesh_1.elementStart, renderableMesh_1.int_5);
+                graphicsDevice.DrawIndexedPrimitives(renderableMesh_1.Type, renderableMesh_1.vertexBase, 0, renderableMesh_1.vertexCount, renderableMesh_1.elementStart, renderableMesh_1.int_5);
               ++this.class57_0.lightingSystemStatistic_2.AccumulationValue;
               this.class57_0.lightingSystemStatistic_0.AccumulationValue += renderableMesh_1.int_5;
             }

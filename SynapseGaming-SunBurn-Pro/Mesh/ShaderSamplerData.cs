@@ -9,7 +9,7 @@ using SynapseGaming.LightingSystem.Core;
 
 namespace Mesh
 {
-  internal class Class65
+  internal class ShaderSamplerData
   {
     protected Class66 Statistics = new Class66();
     private bool bool_0 = true;

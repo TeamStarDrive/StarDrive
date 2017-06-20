@@ -52,7 +52,7 @@ namespace SDNative
         binormal.normalize();
     }
 
-    void SDMesh::GetData(int groupId, SunburnVertex* vertices, SunburnIndex* indices)
+    void SDMesh::GetData(int groupId, SDVertex* vertices, ushort* indices)
     {
         auto* groupMesh = GetMesh(groupId);
         int numVertices = groupMesh->Vertices.size();
@@ -71,31 +71,30 @@ namespace SDNative
         }
 
         for (int i = 0; i < numIndices; ++i)
-            indices[i] = (SunburnIndex)groupIndices[i];
+            indices[i] = (ushort)groupIndices[i];
 
         for (int i = 0; i < numVertices; ++i)
         {
-            SunburnVertex& sbv = vertices[i];
+            SDVertex& sdv = vertices[i];
             BasicVertex& v = groupVertices[i];
-            sbv.Position = v.pos;
-            sbv.Coords   = v.uv;
-            sbv.Normal   = v.norm;
+            sdv.Position = v.pos;
+            sdv.Coords   = v.uv;
+            sdv.Normal   = v.norm;
         }
 
         Vector3 tangent, binormal;
         for (int i = 0; i < numIndices; i += 3)
         {
-            SunburnVertex& v0 = vertices[i];
-            SunburnVertex& v1 = vertices[i+1];
-            SunburnVertex& v2 = vertices[i+2];
+            SDVertex& v0 = vertices[i];
+            SDVertex& v1 = vertices[i+1];
+            SDVertex& v2 = vertices[i+2];
             ComputeTangentBasis(v0.Position, v1.Position, v2.Position, v0.Coords, v1.Coords, v2.Coords, tangent, binormal);
-
-            v0.PackedBinormalTangent.xy = binormal.xy;
-            v0.PackedBinormalTangent.z  = tangent.y;
-            v1.PackedBinormalTangent.xy = binormal.xy;
-            v1.PackedBinormalTangent.z  = tangent.y;
-            v2.PackedBinormalTangent.xy = binormal.xy;
-            v2.PackedBinormalTangent.z  = tangent.y;
+            v0.Tangent  = tangent;
+            v0.Binormal = binormal;
+            v1.Tangent  = tangent;
+            v1.Binormal = binormal;
+            v2.Tangent  = tangent;
+            v2.Binormal = binormal;
         }
     }
 
@@ -122,7 +121,7 @@ namespace SDNative
         mesh->GetStats(groupId, outVertices, outIndices);
     }
 
-    void __stdcall SDMeshGetGroupData(SDMesh* mesh, int groupId, SunburnVertex* vertices, SunburnIndex* indices)
+    void __stdcall SDMeshGetGroupData(SDMesh* mesh, int groupId, SDVertex* vertices, ushort* indices)
     {
         mesh->GetData(groupId, vertices, indices);
     }
