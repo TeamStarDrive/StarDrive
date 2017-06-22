@@ -98,6 +98,20 @@ namespace Ship_Game.AI
             
             
         }
+
+        public void RemoveFleet(ShipGroup shipGroup)
+        {
+            foreach (Ship ship in shipGroup.GetShips)            
+                Remove(ship);            
+        }
+
+        public void RemoveShipList(Array<Ship> ships) 
+        {
+            foreach (Ship ship in ships)
+                Remove(ship);
+        }
+
+
         private void CalculateSystemImportance()
         {
             foreach (Planet p in Empire.Universe.PlanetsDict.Values) //@TODO move this to planet. this is removing troops without any safety

@@ -153,6 +153,7 @@ namespace Ship_Game.AI
 
         }
 
+
         public void AssignShipToForce(Ship toAdd)
         {            
             if (toAdd.fleet != null ||OwnerEmpire.GetShipsFromOffensePools().Contains(toAdd) )            
