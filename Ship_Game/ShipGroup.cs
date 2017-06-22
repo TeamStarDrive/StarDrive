@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 
+
 namespace Ship_Game
 {
     public class ShipGroup : IDisposable
@@ -21,7 +22,7 @@ namespace Ship_Game
         public Vector2 GoalMovePosition;
         [XmlIgnore][JsonIgnore] public Vector2 StoredFleetPosition;
         [XmlIgnore][JsonIgnore] public float StoredFleetDistancetoMove;
-
+        [XmlIgnore][JsonIgnore] public IReadOnlyList<Ship> GetShips => Ships;
         public override string ToString() => $"FleetGroup size={Ships.Count}";
 
         public Stack<Fleet.FleetGoal> GetStack() => GoalStack;
@@ -70,6 +71,52 @@ namespace Ship_Game
             }
         }
 
+        public void AssembleFleet(float facing, Vector2 facingVec, bool forceAssembly = false)
+        {
+            Facing = facing;
+            foreach (Ship ship in Ships)
+            {
+                if (ship.AI.State == AIState.AwaitingOrders || forceAssembly)
+                {
+                    float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                    float distance = ship.RelativeFleetOffset.Length();
+                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                }
+            }
+        }
+        public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 destination, Vector2 origin, float facingRadians, Vector2 fVec,  Empire owner)
+        {                                    
+            float clickDistance = Vector2.Distance(destination, origin);
+            int num4 = 0;
+            int num5 = 0;
+            float maxRadius = 0.0f;
+            for (int i = 0; i < shipList.Count; ++i)                            
+                maxRadius = Math.Max(maxRadius, shipList[i].GetSO().WorldBoundingSphere.Radius);
+            
+            if (shipList.Count * maxRadius > clickDistance)
+            {
+                for (int i = 0; i < shipList.Count; ++i)
+                {
+                    AddShip(shipList[i]);
+                    Ships[i].RelativeFleetOffset =
+                        new Vector2((maxRadius + 200f) * num5, num4 * (maxRadius + 200f));
+                    ++num5;
+                    if (!(Ships[i].RelativeFleetOffset.X + maxRadius > clickDistance)) continue;
+                    num5 = 0;
+                    ++num4;
+                }
+            }
+            else
+            {
+                float num7 = clickDistance / shipList.Count;
+                for (int i = 0; i < shipList.Count; ++i)
+                {
+                    AddShip(shipList[i]);
+                    Ships[i].RelativeFleetOffset = new Vector2(num7 * i, 0.0f);
+                }
+            }
+            ProjectPos(destination, facingRadians - 1.570796f, fVec);
+        }
         public Vector2 FindAveragePosition()
         {
             if (StoredFleetPosition == Vector2.Zero)
@@ -205,23 +252,6 @@ namespace Ship_Game
             this.GoalStack.Push(new Fleet.FleetGoal(this, movePosition, FindAveragePosition().RadiansToTarget(movePosition), fVec, Fleet.FleetGoalType.AttackMoveTo));
         }
 
-
-
-
-        public void AssembleFleet(float facing, Vector2 facingVec, bool forceAssembly = false)
-        {
-            Facing = facing;
-            foreach (Ship ship in Ships)
-            {
-                if (ship.AI.State == AIState.AwaitingOrders || forceAssembly)
-                {
-                    float angle = ship.RelativeFleetOffset.ToRadians() + facing;
-                    float distance = ship.RelativeFleetOffset.Length();
-                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
-                }
-            }
-        }
-
         public float GetStrength()
         {
             float num = 0.0f;
@@ -289,7 +319,7 @@ namespace Ship_Game
             }
             return assembled;
         }
-
+        
         public void Dispose()
         {
             Destroy();
