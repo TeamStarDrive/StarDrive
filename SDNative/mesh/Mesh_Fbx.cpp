@@ -14,7 +14,7 @@ namespace mesh
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     // scoped pointer for safely managing FBX resources
-    template<class T> struct FbxPtr : public unique_ptr<T, void(*)(T*)>
+    template<class T> struct FbxPtr : unique_ptr<T, void(*)(T*)>
     {
         FbxPtr(T* obj) : unique_ptr<T, void(*)(T*)>(obj, [](T* o) { o->Destroy(); }) {}
     };
@@ -104,9 +104,6 @@ namespace mesh
 
         for (int i = 0; i < numVerts; ++i) // indexing: enable AVX optimization
         {
-            //verts[i].x = (float)fbxVerts[i].mData[0]; 
-            //verts[i].y = (float)fbxVerts[i].mData[1];
-            //verts[i].z = (float)fbxVerts[i].mData[2];
             verts[i].x =  (float)fbxVerts[i].mData[0];
             verts[i].z = -(float)fbxVerts[i].mData[1]; // OGL Z is fwd, so ourFwdZ = fbxFwdY
             verts[i].y =  (float)fbxVerts[i].mData[2]; // in OGL/D3D Y axis is up, so ourUpY = fbxUpZ
@@ -152,9 +149,6 @@ namespace mesh
         // copy all normals; at this point it's not important if they are indexed or unindexed
         for (int i = 0; i < numNormals; ++i)
         {
-            //normals[i].x = (float)fbxNormals[i].mData[0];
-            //normals[i].y = (float)fbxNormals[i].mData[1];
-            //normals[i].z = (float)fbxNormals[i].mData[2];
             normals[i].x =  (float)fbxNormals[i].mData[0];
             normals[i].z = -(float)fbxNormals[i].mData[1];
             normals[i].y =  (float)fbxNormals[i].mData[2];
@@ -169,7 +163,6 @@ namespace mesh
             meshGroup.NormalsMapping = MapPerFaceVertex;
 
             // @todo optimize normals by joining duplicate normals
-
             int nextNormalId = 0; // per-face-vertex ID
             for (int faceId = 0; faceId < numFaces; ++faceId)
             {
@@ -420,7 +413,7 @@ namespace mesh
             for (int i = 0; i < numNormals; ++i)
             {
                 elements.Add(FbxVector4{
-                    normals[i].x,
+                     normals[i].x,
                     -normals[i].y,
                     -normals[i].z
                 });
