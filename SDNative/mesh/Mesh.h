@@ -126,6 +126,7 @@ namespace mesh
 
         MeshGroup(int groupId, string name) : GroupId(groupId), Name(name) {}
 
+        bool IsEmpty()   const { return Faces.empty(); }
         int NumFaces()   const { return (int)Faces.size(); }
         int NumVerts()   const { return (int)Verts.size(); }
         int NumCoords()  const { return (int)Coords.size(); }

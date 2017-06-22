@@ -113,7 +113,7 @@ namespace mesh
         Mesh& mesh;
         const string& meshPath;
         buffer_line_parser parser;
-        size_t numVerts = 0, numCoords = 0, numNormals = 0, numFaces = 0;
+        size_t numVerts = 0, numCoords = 0, numNormals = 0, numColors = 0, numFaces = 0;
         vector<shared_ptr<Material>> materials;
         MeshGroup* group = nullptr;
         bool triedDefaultMat = false;
@@ -122,11 +122,6 @@ namespace mesh
         Vector2* coordsData  = nullptr;
         Vector3* normalsData = nullptr;
         Color3*  colorsData  = nullptr;
-        int* vertsLayer   = nullptr;
-        int* coordsLayer  = nullptr;
-        int* normalsLayer = nullptr;
-        int* colorsLayer  = nullptr;
-        int* layersEnd = nullptr;
 
         void* dataBuffer = nullptr;
         size_t bufferSize = 0;
@@ -170,11 +165,7 @@ namespace mesh
             bufferSize = numVerts    * sizeof(Vector3)
                         + numCoords  * sizeof(Vector2)
                         + numNormals * sizeof(Vector3)
-                        + numVerts   * sizeof(Color3)
-                        + numVerts   * sizeof(int) 
-                        + numCoords  * sizeof(int) 
-                        + numNormals * sizeof(int) 
-                        + numVerts   * sizeof(int);
+                        + numVerts   * sizeof(Color3);
             return true;
         }
 
@@ -195,12 +186,6 @@ namespace mesh
             coordsData  = pool.next<Vector2>(numCoords);
             normalsData = pool.next<Vector3>(numNormals);
             colorsData  = pool.next<Color3>(numVerts);
-
-            vertsLayer   = pool.next<int>(numVerts);
-            coordsLayer  = pool.next<int>(numCoords);
-            normalsLayer = pool.next<int>(numNormals);
-            colorsLayer  = pool.next<int>(numVerts);
-            layersEnd    = pool.next<int>(0);
         }
 
         shared_ptr<Material> FindMat(strview matName)
@@ -242,16 +227,16 @@ namespace mesh
                             line >> col.x >> col.y >> col.z;
                             if (col.sqlength() > 0.001f)
                             {
-                                // for OBJ we always use Per-Vertex color mapping
+                                // for OBJ we always use Per-Vertex color mapping...
+                                // there is simply no other standardised way to do it
                                 if (colorId == 0) {
                                     memset(colorsData, 0, numVerts*sizeof(Color3));
+                                    numColors = numVerts;
                                 }
                                 ++colorId;
                                 colorsData[vertexId] = col;
                             }
                         }
-                        // Use this if exporting for Direct3D
-                        //v.z = -v.z; // invert Z to convert to lhs coordinates
                         ++vertexId;
                         continue;
                     }
@@ -296,9 +281,18 @@ namespace mesh
                             // v[3] is parsed below:
                         }
                         VertexDescr& vd = f->VDS[f->Count++];
-                        if (strview v = vertdescr.next('/')) vd.v = v.to_int() - 1;
-                        if (strview t = vertdescr.next('/')) vd.t = t.to_int() - 1;
-                        if (strview n = vertdescr)           vd.n = n.to_int() - 1;
+                        if (strview v = vertdescr.next('/')) {
+                            vd.v = v.to_int() - 1;
+                            if (vd.v < 0) vd.v = numVerts + vd.v; // negative indexing mode (3ds Max exporter)
+                        }
+                        if (strview t = vertdescr.next('/')) {
+                            vd.t = t.to_int() - 1;
+                            if (vd.t < 0) vd.t = numCoords + vd.t;
+                        }
+                        if (strview n = vertdescr) {
+                            vd.n = n.to_int() - 1;
+                            if (vd.n < 0) vd.n = numNormals + vd.n;
+                        }
                         if (!vd0) vd0 = &vd;
                     }
                 }
@@ -316,14 +310,12 @@ namespace mesh
                 else if (c == 'm' && memcmp(line.str, "mtllib", 6) == 0)
                 {
                     line.skip(7); // skip "mtllib "
-                    strview matLib = line.next(' ');
-                    materials = LoadMaterials(matLib);
+                    materials = LoadMaterials(line.next(' '));
                 }
                 else if (c == 'g')
                 {
                     line.skip(2); // skip "g "
-                    strview groupName = (string)line.next(' ');
-                    group = &mesh.FindOrCreateGroup(groupName);
+                    group = &mesh.FindOrCreateGroup(line.next(' '));
                 }
                 else if (c == 'o')
                 {
@@ -333,63 +325,67 @@ namespace mesh
             }
         }
 
+        void RemoveEmptyGroups() const
+        {
+            for (auto it = mesh.Groups.begin(); it != mesh.Groups.end();)
+                if (it->IsEmpty()) it = mesh.Groups.erase(it); else ++it;
+        }
+
         void BuildMeshGroups()
         {
-            size_t layerDataSize = (byte*)layersEnd - (byte*)vertsLayer;
             for (MeshGroup& g : mesh.Groups)
             {
                 mesh.NumFaces += g.NumFaces();
 
-                memset(vertsLayer, -1, layerDataSize);
-                int usedVerts = 0, usedCoords = 0, usedNormals = 0, usedColors = 0;
-
+                int vertsMin   = numVerts,   vertsMax   = 0;
+                int coordsMin  = numCoords,  coordsMax  = 0;
+                int normalsMin = numNormals, normalsMax = 0;
                 for (Face& face : g.Faces)
                 {
-                    for (VertexDescr& vd : face)
+                    for (VertexDescr& vd : face) 
                     {
-                        if (vd.v != -1) {
-                            int& pos = vertsLayer[vd.v];
-                            if (pos == -1) pos = usedVerts++;
-                            vd.v = pos;
-                        }
+                        if (vd.v < vertsMin) vertsMin = vd.v;
+                        if (vd.v > vertsMax) vertsMax = vd.v;
                         if (vd.t != -1) {
-                            int& uvs = coordsLayer[vd.t];
-                            if (uvs == -1) uvs = usedCoords++;
-                            vd.v = uvs;
+                            if (vd.t < coordsMin) coordsMin = vd.t;
+                            if (vd.t > coordsMax) coordsMax = vd.t;
                         }
                         if (vd.n != -1) {
-                            int& normal = normalsLayer[vd.n];
-                            if (normal == -1) normal = usedNormals++;
-                            vd.n = normal;
-                        }
-                        if (vd.c != -1) {
-                            int& color = colorsLayer[vd.c];
-                            if (color == -1) color = usedColors++;
-                            vd.c = color;
+                            if (vd.n < normalsMin) normalsMin = vd.n;
+                            if (vd.n > normalsMax) normalsMax = vd.n;
                         }
                     }
                 }
 
-                auto mapLayerData = [&](auto dstVector, int usedCount, int totalCount, auto* srcData, int* layer)
-                {
-                    if (!usedCount) return;
-                    dstVector.resize(usedCount);
-                    auto* dst = dstVector.data();
-                    for (int i = 0, j = 0; i < totalCount; ++i)
-                    {
-                        int layerIdx = layer[i];
-                        if (layerIdx != -1)
-                            dst[j++] = srcData[layerIdx];
-                    }
+                auto copyElements = [](auto& dst, auto* src, int min, int max) {
+                    if (max >= min) dst.assign(src + min, src + max + 1);
                 };
+                copyElements(g.Verts,   vertsData,   vertsMin,   vertsMax);
+                copyElements(g.Coords,  coordsData,  coordsMin,  coordsMax);
+                copyElements(g.Normals, normalsData, normalsMin, normalsMax);
 
-                mapLayerData(g.Verts,   usedVerts,   numVerts,   vertsData,   vertsLayer);
-                mapLayerData(g.Coords,  usedCoords,  numCoords,  coordsData,  coordsLayer);
-                mapLayerData(g.Normals, usedNormals, numNormals, normalsData, normalsLayer);
-                mapLayerData(g.Colors,  usedColors,  numVerts,   colorsData,  colorsLayer);
+                const bool vertexColors = numColors > 0;
+                if (vertexColors) {
+                    copyElements(g.Colors, colorsData, vertsMin, vertsMax);
+                    g.ColorMapping = MapPerVertex;
+                }
 
-                // assign per-vertex color ID-s, this is the only mode supported by OBJ
-                if (usedColors) g.ColorMapping = MapPerVertex;
+                if (g.Coords.size() == g.Verts.size())
+                    g.CoordsMapping = MapPerVertex;
+
+                if (g.Normals.size() == g.Verts.size())
+                    g.NormalsMapping = MapPerVertex;
+
+                for (Face& face : g.Faces) // now assign new ids
+                {
+                    for (VertexDescr& vd : face) 
+                    {
+                        vd.v -= vertsMin;
+                        if (vd.t != -1) vd.t -= coordsMin;
+                        if (vd.n != -1) vd.n -= normalsMin;
+                        if (vertexColors) vd.c = vd.v;
+                    }
+                }
             }
         }
     };
@@ -421,6 +417,7 @@ namespace mesh
                     : malloc(loader.bufferSize);
         loader.InitPointers(mem);
         loader.ParseMeshData();
+        loader.RemoveEmptyGroups();
         loader.BuildMeshGroups();
 
         return true;
