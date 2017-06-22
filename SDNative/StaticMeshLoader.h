@@ -17,30 +17,48 @@ namespace SDNative
 
     static_assert(sizeof(SDVertex) == 56, "SDVertex size mismatch. Sunburn requires a specific vertex layout");
 
+    struct SDMeshGroup
+    {
+        // publicly visible in C#
+        int GroupId;
+        strview Name;
+        Material* Mat;
+
+        // not mapped to C#
+        Mesh& Owner;
+        MeshGroup& Data;
+        vector<BasicVertex> Vertices;
+        vector<int> Indices;
+
+        explicit SDMeshGroup(Mesh& mesh, int groupId);
+
+        void GetData(SDVertex* vertices, ushort* indices);
+    };
+
     struct SDMesh
     {
-        Mesh mesh;
-        unordered_map<int, BasicVertexMesh> Groups;
+        Mesh Data;
+        vector<unique_ptr<SDMeshGroup>> Groups;
 
         explicit SDMesh(strview path);
 
-        BasicVertexMesh* GetMesh(int groupId);
-        void GetStats(int groupId, int* outVertices, int* outIndices);
-        void GetData(int groupId, SDVertex* vertices, ushort* indices);
+        SDMeshGroup* GetGroup(int groupId);
     };
 
-    extern "C" {
-        __declspec(dllexport) SDMesh* __stdcall SDMeshOpen(const wchar_t* filename);
-        __declspec(dllexport) void __stdcall SDMeshClose(SDMesh* mesh);
+    ////////////////////////////////////////////////////////////////////////////////////
 
-        // get stats for meshgroup, so C# can allocate vertex and index buffers
-        __declspec(dllexport) void __stdcall SDMeshGroupStats(SDMesh* mesh, int groupId, 
-                                                              int* outVertices, int* outIndices);
+    #define DLLAPI(returnType) extern "C" __declspec(dllexport) returnType __stdcall
 
-        // writes mesh data to vertices[] and indices[]
-        __declspec(dllexport) void __stdcall SDMeshGetGroupData(SDMesh* mesh, int groupId,
-                                                                SDVertex* vertices, ushort* indices);
-    }
+    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* filename);
+    DLLAPI(void)    SDMeshClose(SDMesh* mesh);
+    DLLAPI(int)          SDMeshNumGroups(SDMesh* mesh);
+    DLLAPI(SDMeshGroup*) SDMeshGetGroup(SDMesh* mesh, int groupId);
+
+    // get stats for meshgroup, so C# can allocate vertex and index buffers
+    DLLAPI(void) SDMeshGroupStats(SDMeshGroup* group, int* outVertices, int* outIndices);
+
+    // writes mesh data to preallocated vertices[] and indices[]
+    DLLAPI(void) SDMeshGetGroupData(SDMeshGroup* group, SDVertex* vertices, ushort* indices);
 
     ////////////////////////////////////////////////////////////////////////////////////
 }

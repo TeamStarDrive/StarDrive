@@ -54,27 +54,27 @@ namespace mesh
         }
     }
 
-    static FbxGeometryElement::EMappingMode toFbxMapping(Mesh::MapMode mode)
+    static FbxGeometryElement::EMappingMode toFbxMapping(MapMode mode)
     {
         switch (mode)
         {
             default: assert(false && "Unsupported mesh reference mode");
-            case Mesh::MapNone:          return FbxGeometryElement::eNone;
-            case Mesh::MapPerVertex:     return FbxGeometryElement::eByControlPoint;
-            case Mesh::MapPerFaceVertex: return FbxGeometryElement::eByPolygonVertex;
-            case Mesh::MapPerFace:       return FbxGeometryElement::eByPolygon;
+            case MapNone:          return FbxGeometryElement::eNone;
+            case MapPerVertex:     return FbxGeometryElement::eByControlPoint;
+            case MapPerFaceVertex: return FbxGeometryElement::eByPolygonVertex;
+            case MapPerFace:       return FbxGeometryElement::eByPolygon;
         }
     }
 
-    static FbxLayerElement::EReferenceMode toFbxReference(Mesh::MapMode mode)
+    static FbxLayerElement::EReferenceMode toFbxReference(MapMode mode)
     {
         switch (mode)
         {
             default: assert(false && "Unsupported mesh reference mode");
-            case Mesh::MapNone:
-            case Mesh::MapPerVertex:     return FbxLayerElement::eDirect;
-            case Mesh::MapPerFaceVertex: return FbxLayerElement::eIndexToDirect;
-            case Mesh::MapPerFace:       return FbxLayerElement::eIndexToDirect;
+            case MapNone:
+            case MapPerVertex:     return FbxLayerElement::eDirect;
+            case MapPerFaceVertex: return FbxLayerElement::eIndexToDirect;
+            case MapPerFace:       return FbxLayerElement::eIndexToDirect;
         }
     }
 
@@ -95,14 +95,11 @@ namespace mesh
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    static void LoadVertsAndFaces(Mesh& mesh, const FbxMesh* fbxMesh, const char* name)
+    static void LoadVertsAndFaces(MeshGroup& meshGroup, const FbxMesh* fbxMesh)
     {
-        MeshGroup& meshGroup = emplace_back(mesh.Groups);
-        meshGroup.Name = name;
-
         int numVerts = fbxMesh->GetControlPointsCount();
-        mesh.Verts.resize(numVerts);
-        Vector3*    verts    = mesh.Verts.data();
+        meshGroup.Verts.resize(numVerts);
+        Vector3*    verts    = meshGroup.Verts.data();
         FbxVector4* fbxVerts = fbxMesh->GetControlPoints();
 
         for (int i = 0; i < numVerts; ++i) // indexing: enable AVX optimization
@@ -136,7 +133,7 @@ namespace mesh
         }
     }
 
-    static void LoadNormals(Mesh& mesh, FbxMesh* fbxMesh, FbxGeometryElementNormal* elementNormal)
+    static void LoadNormals(MeshGroup& meshGroup, FbxGeometryElementNormal* elementNormal)
     {
         FbxLayerElement::EMappingMode mapMode = elementNormal->GetMappingMode();
         const bool perPointMapping = mapMode == FbxLayerElement::eByControlPoint; // vertex or polygon normals?
@@ -149,8 +146,8 @@ namespace mesh
         //printf("  %5d  %s normals\n", normalsLock.count, toString(mapMode));
 
         const int numNormals = normalsLock.count;
-        mesh.Normals.resize(numNormals);
-        Vector3* normals = mesh.Normals.data();
+        meshGroup.Normals.resize(numNormals);
+        Vector3* normals = meshGroup.Normals.data();
 
         // copy all normals; at this point it's not important if they are indexed or unindexed
         for (int i = 0; i < numNormals; ++i)
@@ -163,14 +160,13 @@ namespace mesh
             normals[i].y =  (float)fbxNormals[i].mData[2];
         }
 
-        MeshGroup& meshGroup = mesh.Groups.back();
         const int numFaces = meshGroup.NumFaces();
         Face* faces = meshGroup.Faces.data();
 
         // each polygon vertex can have multiple normals, but if indices are used, most will be shared normals
         if (mapMode == FbxLayerElement::eByPolygonVertex)
         {
-            mesh.NormalsMapping = Mesh::MapPerFaceVertex;
+            meshGroup.NormalsMapping = MapPerFaceVertex;
 
             // @todo optimize normals by joining duplicate normals
 
@@ -187,7 +183,7 @@ namespace mesh
         }
         else if (mapMode == FbxLayerElement::eByControlPoint) // each mesh vertex has a single normal (best case)
         {
-            mesh.NormalsMapping = Mesh::MapPerVertex;
+            meshGroup.NormalsMapping = MapPerVertex;
 
             for (int faceId = 0; faceId < numFaces; ++faceId)
                 for (VertexDescr& vd : faces[faceId])
@@ -195,7 +191,7 @@ namespace mesh
         }
         else if (mapMode == FbxLayerElement::eByPolygon) // each polygon has a single normal, OK case, but not ideal
         {
-            mesh.NormalsMapping = Mesh::MapPerFace;
+            meshGroup.NormalsMapping = MapPerFace;
 
             // @todo indices[faceId] might be wrong
             for (int faceId = 0; faceId < numFaces; ++faceId)
@@ -204,7 +200,7 @@ namespace mesh
         }
     }
 
-    static void LoadCoords(Mesh& mesh, const FbxMesh* fbxMesh, FbxGeometryElementUV* elementUVs)
+    static void LoadCoords(MeshGroup& meshGroup, FbxGeometryElementUV* elementUVs)
     {
         FbxLayerElement::EMappingMode mapMode = elementUVs->GetMappingMode();
         assert(mapMode == FbxLayerElement::eByPolygonVertex);
@@ -215,8 +211,8 @@ namespace mesh
         const int*        indices = indexLock.data; // if != null, UVs are indexed
 
         const int numCoords = uvsLock.count;
-        mesh.Coords.resize(numCoords);
-        Vector2* coords = mesh.Coords.data();
+        meshGroup.Coords.resize(numCoords);
+        Vector2* coords = meshGroup.Coords.data();
 
         //printf("  %5d  %s coords\n", numCoords, toString(mapMode));
 
@@ -226,7 +222,6 @@ namespace mesh
             coords[i].y = (float)fbxUVs[i].mData[1];
         }
 
-        MeshGroup& meshGroup = mesh.Groups.back();
         const int numFaces = meshGroup.NumFaces();
         Face* faces = meshGroup.Faces.data();
 
@@ -235,7 +230,7 @@ namespace mesh
         // if indices != null, then most of these UV-s coords will be shared
         if (mapMode == FbxLayerElement::eByPolygonVertex)
         {
-            mesh.CoordsMapping = Mesh::MapPerFaceVertex;
+            meshGroup.CoordsMapping = MapPerFaceVertex;
 
             int nextCoordId = 0; // per-face-vertex ID
             for (int faceId = 0; faceId < numFaces; ++faceId)
@@ -250,7 +245,7 @@ namespace mesh
         }
         else if (mapMode == FbxLayerElement::eByControlPoint)
         {
-            mesh.CoordsMapping = Mesh::MapPerVertex;
+            meshGroup.CoordsMapping = MapPerVertex;
 
             for (int faceId = 0; faceId < numFaces; ++faceId)
                 for (VertexDescr& vd : faces[faceId])
@@ -259,7 +254,7 @@ namespace mesh
         else assert(false && "Unsupported UV map mode");
     }
 
-    static void LoadVertexColors(Mesh& mesh, const FbxMesh* fbxMesh, FbxGeometryElementVertexColor* elementColors)
+    static void LoadVertexColors(MeshGroup& meshGroup, FbxGeometryElementVertexColor* elementColors)
     {
         FbxLayerElement::EMappingMode mapMode = elementColors->GetMappingMode();
         const bool perPointMapping = mapMode == FbxLayerElement::eByControlPoint; // vertex or polygon colors?
@@ -270,8 +265,8 @@ namespace mesh
         const int*      indices   = indexLock.data; // if != null, colors are indexed
 
         const int numColors = colorsLock.count;
-        mesh.Colors.resize(numColors);
-        Vector3* colors = mesh.Colors.data();
+        meshGroup.Colors.resize(numColors);
+        Vector3* colors = meshGroup.Colors.data();
 
         //printf("  %5d  %s colors\n", numColors, toString(mapMode));
 
@@ -282,7 +277,6 @@ namespace mesh
             colors[i].z = (float)fbxColors[i].mBlue;
         }
 
-        MeshGroup& meshGroup = mesh.Groups.back();
         const int numFaces = meshGroup.NumFaces();
         Face* faces = meshGroup.Faces.data();
 
@@ -291,7 +285,7 @@ namespace mesh
         // if indices != null, then most of these colors will be shared
         if (mapMode == FbxLayerElement::eByPolygonVertex)
         {
-            mesh.ColorMapping = Mesh::MapPerFaceVertex;
+            meshGroup.ColorMapping = MapPerFaceVertex;
 
             // @todo Optimize, Detect identical colors for non-optimized index colors
 
@@ -308,7 +302,7 @@ namespace mesh
         }
         else if (mapMode == FbxLayerElement::eByControlPoint)
         {
-            mesh.ColorMapping = Mesh::MapPerVertex;
+            meshGroup.ColorMapping = MapPerVertex;
 
             for (int faceId = 0; faceId < numFaces; ++faceId)
                 for (VertexDescr& vd : faces[faceId])
@@ -316,7 +310,7 @@ namespace mesh
         }
         else if (mapMode == FbxLayerElement::eByPolygon)
         {
-            mesh.ColorMapping = Mesh::MapPerFace;
+            meshGroup.ColorMapping = MapPerFace;
 
             // @todo indices[faceId] might be wrong
             for (int faceId = 0; faceId < numFaces; ++faceId)
@@ -368,17 +362,18 @@ namespace mesh
                     //FbxDouble3 rot = child->LclRotation.Get();
                     //printf("  rotation %.1f, %.1f, %.1f\n", rot[0], rot[1], rot[2]);
 
-                    LoadVertsAndFaces(*this, mesh, child->GetName());
-                    if (auto* normals = mesh->GetElementNormal())     LoadNormals(*this, mesh, normals);
-                    if (auto* uvs = mesh->GetElementUV())             LoadCoords(*this, mesh, uvs);
-                    if (auto* colors = mesh->GetElementVertexColor()) LoadVertexColors(*this, mesh, colors);
+                    auto& meshGroup = CreateGroup(child->GetName());
 
-                    MeshGroup& group = Groups.back();
-                    NumFaces += group.NumFaces();
+                    LoadVertsAndFaces(meshGroup, mesh);
+                    if (auto* normals = mesh->GetElementNormal())      LoadNormals(meshGroup, normals);
+                    if (auto* uvs     = mesh->GetElementUV())          LoadCoords(meshGroup, uvs);
+                    if (auto* colors  = mesh->GetElementVertexColor()) LoadVertexColors(meshGroup, colors);
 
-                    printf("  %5d verts  %5d polys", NumVerts(), NumFaces);
-                    if (NumCoords()) printf("  %5d uvs", NumCoords());
-                    if (NumColors()) printf("  %5d colors", NumColors());
+                    NumFaces += meshGroup.NumFaces();
+
+                    printf("  %5d verts  %5d polys", meshGroup.NumVerts(), meshGroup.NumFaces());
+                    if (meshGroup.NumCoords()) printf("  %5d uvs", meshGroup.NumCoords());
+                    if (meshGroup.NumColors()) printf("  %5d colors", meshGroup.NumColors());
                     printf("\n");
                 }
             }
@@ -389,11 +384,137 @@ namespace mesh
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    static void SaveVertices(const MeshGroup& group, FbxMesh* mesh)
+    {
+        int numVerts = group.NumVerts();
+        mesh->InitControlPoints(numVerts);
+        FbxVector4* points = mesh->GetControlPoints();
+        const Vector3* verts = group.Verts.data();
+
+        printf("  %20s:  %5d verts  %5d polys", group.Name.c_str(), numVerts, group.NumFaces());
+
+        for (int i = 0; i < numVerts; ++i) // indexing: enable AVX optimization
+        {
+            points[i].mData[0] = verts[i].x;
+            points[i].mData[1] = -verts[i].y;
+            points[i].mData[2] = -verts[i].z;
+        }
+    }
+
+    static void SaveNormals(const MeshGroup& group, FbxMesh* mesh)
+    {
+        if (const int numNormals = group.NumNormals())
+        {
+            //printf("  %5d  normals\n", numNormals);
+
+            assert((NormalsMapping == MapPerVertex || NormalsMapping == MapPerFaceVertex)
+                && "Only per-vertex or per-face-vertex normals are supported");
+
+            FbxGeometryElementNormal* elementNormal = mesh->CreateElementNormal();
+            elementNormal->SetMappingMode(toFbxMapping(group.NormalsMapping));
+            elementNormal->SetReferenceMode(toFbxReference(group.NormalsMapping));
+
+            auto& elements = elementNormal->GetDirectArray();
+            const Vector3* normals = group.Normals.data();
+
+            for (int i = 0; i < numNormals; ++i)
+            {
+                elements.Add(FbxVector4{
+                    normals[i].x,
+                    -normals[i].y,
+                    -normals[i].z
+                });
+            }
+
+            if (group.NormalsMapping == MapPerFaceVertex)
+            {
+                auto& indices = elementNormal->GetIndexArray();
+                for (const Face& face : group)
+                    for (const VertexDescr& vd : face)
+                        indices.Add(vd.n);
+            }
+        }
+    }
+
+    static void SaveCoords(const MeshGroup& group, FbxMesh* mesh)
+    {
+        if (const int numCoords = group.NumCoords())
+        {
+            printf("  %5d uvs", numCoords);
+
+            assert((CoordsMapping == MapPerVertex || CoordsMapping == MapPerFaceVertex)
+                && "Only per-vertex or per-face-vertex UV coords are supported");
+
+            FbxGeometryElementUV* elementUVs = mesh->CreateElementUV("DiffuseUV");
+            elementUVs->SetMappingMode(toFbxMapping(group.CoordsMapping));
+            elementUVs->SetReferenceMode(toFbxReference(group.CoordsMapping));
+
+            auto& elements = elementUVs->GetDirectArray();
+            const Vector2* uvs = group.Coords.data();
+
+            for (int i = 0; i < numCoords; ++i)
+            {
+                elements.Add(FbxVector2{ uvs[i].x, uvs[i].y });
+            }
+
+            if (group.CoordsMapping == MapPerFaceVertex)
+            {
+                auto& indices = elementUVs->GetIndexArray();
+                for (const Face& face : group)
+                    for (const VertexDescr& vd : face)
+                        indices.Add(vd.t);
+            }
+        }
+    }
+
+    static void SaveColors(const MeshGroup& group, FbxMesh* mesh)
+    {
+        if (const int numColors = group.NumColors())
+        {
+            printf("  %5d colors", numColors);
+
+            assert((ColorMapping == MapPerVertex || ColorMapping == MapPerFaceVertex) 
+                && "Only per-vertex or per-face-vertex colors are supported");
+
+            FbxGeometryElementVertexColor* elementColors = mesh->CreateElementVertexColor();
+            elementColors->SetMappingMode(toFbxMapping(group.ColorMapping));
+            elementColors->SetReferenceMode(toFbxReference(group.ColorMapping));
+
+            auto& elements = elementColors->GetDirectArray();
+            const Vector3* colors = group.Colors.data();
+            for (int i = 0; i < numColors; ++i)
+            {
+                elements.Add(FbxColor{ colors[i].x, colors[i].y, colors[i].z });
+            }
+
+            if (group.ColorMapping == MapPerFaceVertex)
+            {
+                auto& indices = elementColors->GetIndexArray();
+                for (const Face& face : group)
+                    for (const VertexDescr& vd : face)
+                        indices.Add(vd.c);
+            }
+        }
+    }
+
+    static void CreatePolygons(const MeshGroup& group, FbxMesh* mesh)
+    {
+        for (const Face& face : group)
+        {
+            mesh->BeginPolygon(-1, -1, -1, false);
+            for (const VertexDescr& vd : face)
+            {
+                mesh->AddPolygon(vd.v, -1);
+            }
+            mesh->EndPolygon();
+        }
+        mesh->BuildMeshEdgeArray();
+    }
+
     bool Mesh::SaveAsFBX(const string& meshPath) const noexcept
     {
-        const int numVerts = NumVerts();
-        if (!numVerts) {
-            fprintf(stderr, "Warning: no vertices to export to '%s'\n", meshPath.c_str());
+        if (!NumFaces) {
+            fprintf(stderr, "Warning: no faces to export to '%s'\n", meshPath.c_str());
             return false;
         }
         if (!NumGroups()) {
@@ -421,136 +542,22 @@ namespace mesh
 
         if (FbxNode* root = scene->GetRootNode())
         {
-            FbxMesh* mesh = FbxMesh::Create(scene.get(), "");
-            mesh->InitControlPoints(numVerts);
-            FbxVector4* points = mesh->GetControlPoints();
-            const Vector3* verts = Verts.data();
+            printf("SaveFBX  %20s:  %5d verts  %5d polys", Name.c_str(), TotalVerts(), TotalFaces());
 
-            printf("SaveFBX %20s:  %5d verts  %5d polys", Name.c_str(), numVerts, NumFaces);
-
-            for (int i = 0; i < numVerts; ++i) // indexing: enable AVX optimization
-            {
-                //points[i].mData[0] = verts[i].x;
-                //points[i].mData[1] = verts[i].y;
-                //points[i].mData[2] = verts[i].z;
-                points[i].mData[0] = verts[i].x;
-                points[i].mData[1] = -verts[i].y;
-                points[i].mData[2] = -verts[i].z;
-            }
-
-            if (const int numNormals = NumNormals())
-            {
-                //printf("  %5d  normals\n", numNormals);
-
-                assert((NormalsMapping == MapPerVertex || NormalsMapping == MapPerFaceVertex)
-                    && "Only per-vertex or per-face-vertex normals are supported");
-
-                FbxGeometryElementNormal* elementNormal = mesh->CreateElementNormal();
-                elementNormal->SetMappingMode(toFbxMapping(NormalsMapping));
-                elementNormal->SetReferenceMode(toFbxReference(NormalsMapping));
-
-                auto& elements = elementNormal->GetDirectArray();
-                const Vector3* normals = Normals.data();
-
-                for (int i = 0; i < numNormals; ++i)
-                {
-                    elements.Add(FbxVector4{
-                        normals[i].x,
-                        -normals[i].y,
-                        -normals[i].z
-                    });
-                }
-
-                if (NormalsMapping == MapPerFaceVertex)
-                {
-                    auto& indices = elementNormal->GetIndexArray();
-                    for (const MeshGroup& group : Groups)
-                        for (const Face& face : group)
-                            for (const VertexDescr& vd : face)
-                                indices.Add(vd.n);
-                }
-            }
-
-            if (const int numCoords = NumCoords())
-            {
-                printf("  %5d uvs", numCoords);
-
-                assert((CoordsMapping == MapPerVertex || CoordsMapping == MapPerFaceVertex)
-                    && "Only per-vertex or per-face-vertex UV coords are supported");
-
-                FbxGeometryElementUV* elementUVs = mesh->CreateElementUV("DiffuseUV");
-                elementUVs->SetMappingMode(toFbxMapping(CoordsMapping));
-                elementUVs->SetReferenceMode(toFbxReference(CoordsMapping));
-
-                auto& elements = elementUVs->GetDirectArray();
-                const Vector2* uvs = Coords.data();
-
-                for (int i = 0; i < numCoords; ++i)
-                {
-                    elements.Add(FbxVector2{ uvs[i].x, uvs[i].y });
-                }
-
-                if (CoordsMapping == MapPerFaceVertex)
-                {
-                    auto& indices = elementUVs->GetIndexArray();
-                    for (const MeshGroup& group : Groups)
-                        for (const Face& face : group)
-                            for (const VertexDescr& vd : face)
-                                indices.Add(vd.t);
-                }
-            }
-
-            if (const int numColors = NumColors())
-            {
-                printf("  %5d colors", numColors);
-
-                assert((ColorMapping == MapPerVertex || ColorMapping == MapPerFaceVertex) 
-                    && "Only per-vertex or per-face-vertex colors are supported");
-
-                FbxGeometryElementVertexColor* elementColors = mesh->CreateElementVertexColor();
-                elementColors->SetMappingMode(toFbxMapping(ColorMapping));
-                elementColors->SetReferenceMode(toFbxReference(ColorMapping));
-
-                auto& elements = elementColors->GetDirectArray();
-                const Vector3* colors = Colors.data();
-                for (int i = 0; i < numColors; ++i)
-                {
-                    elements.Add(FbxColor{ colors[i].x, colors[i].y, colors[i].z });
-                }
-
-                if (ColorMapping == MapPerFaceVertex)
-                {
-                    auto& indices = elementColors->GetIndexArray();
-                    for (const MeshGroup& group : Groups)
-                        for (const Face& face : group)
-                            for (const VertexDescr& vd : face)
-                                indices.Add(vd.c);
-                }
-            }
-
-            printf("\n");
-
-            int groupId = 0;
             for (const MeshGroup& group : Groups)
             {
-                //printf("  group %d  %5d  faces\n", groupId, group.NumFaces());
+                FbxMesh* mesh = FbxMesh::Create(scene.get(), "");
+                SaveVertices(group, mesh);
+                SaveNormals(group, mesh);
+                SaveCoords(group, mesh);
+                SaveColors(group, mesh);
+                CreatePolygons(group, mesh);
 
-                for (const Face& face : group)
-                {
-                    mesh->BeginPolygon(-1, -1, -1, false);
-                    for (const VertexDescr& vd : face)
-                    {
-                        mesh->AddPolygon(vd.v, -1);
-                    }
-                    mesh->EndPolygon();
-                }
-                ++groupId;
+                FbxNode* node = FbxNode::Create(scene.get(), group.Name.c_str());
+                node->SetNodeAttribute(mesh);
+                root->AddChild(node);
             }
-            mesh->BuildMeshEdgeArray();
-
-            FbxNode* node = FbxNode::Create(scene.get(), Groups.front().Name.c_str());
-            node->SetNodeAttribute(mesh);
-            root->AddChild(node);
+            printf("\n");
         }
 
         if (!exporter->Export(scene.get())) {
