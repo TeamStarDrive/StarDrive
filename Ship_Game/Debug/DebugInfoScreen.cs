@@ -484,6 +484,8 @@ namespace Ship_Game.Debug
             DrawString($"RightMouseWasHeld {Screen.Input.RightMouseWasHeld}");
 
             DrawString($"RightMouseTimer {Screen.Input.ReadRightMouseDownTime}");
+            DrawString($"RightMouseHoldStartLocalation {Screen.Input.StartRighthold}");
+            
         }
 
         public bool HandleInput(InputState input)

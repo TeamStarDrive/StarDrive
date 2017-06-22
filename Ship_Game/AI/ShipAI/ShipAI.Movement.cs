@@ -605,7 +605,7 @@ namespace Ship_Game.AI {
             //if (Distance < 100f && Distance < 25f)
             if (Distance < 200f) //fbedard
             {
-                OrderQueue.RemoveFirst();
+                //OrderQueue.RemoveFirst();
                 lock (WayPointLocker)
                 {
                     ActiveWayPoints.Clear();

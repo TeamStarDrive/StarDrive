@@ -16,16 +16,11 @@ namespace Ship_Game
 
         public bool Repeat;
         //MouseDrag variables
-        public Vector2 StartDrag { get; private set; }
-        public Vector2 StartDragWorld { get; private set; }
-        public Vector2 ProjectedPosition { get; private set; }
-        public bool MouseDragging { get; private set; }
-        public Vector2 EndDrag { get; private set; }
-        public Vector2 EndDragWorld { get; private set; }
-        public Vector2 SelectionPoint { get; private set; }
-        public float SelectionRadiansToTarget { get; private set; }
-        public Vector2 SelectionFacing { get; private set; }
-        
+        public Vector2 StartRighthold { get; private set; }
+        public Vector2 EndRightHold { get; private set; }
+        public Vector2 StartLeftHold { get; private set; }
+        public Vector2 EndLeftHold { get; private set; }
+       
 
 
         //Mouse Timers
@@ -54,11 +49,15 @@ namespace Ship_Game
 
         public bool LeftMouseHeld(float seconds = 0.25f)
         {
-            return LeftHeld = MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);
+            LeftHeld = MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);
+            StartLeftHold = LeftHeld ? CursorPosition : StartLeftHold;
+            return LeftHeld;
         }
         public bool RightMouseHeld(float seconds = 0.25f)
         {
-            return RightHeld = MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);            
+            RightHeld = MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);
+            StartRighthold = RightHeld ? CursorPosition : StartRighthold;
+            return RightHeld;
         }
 
         private static bool MouseButtonHeld(ButtonState current, ButtonState prev, float seconds, float timer)
@@ -73,49 +72,7 @@ namespace Ship_Game
         {
             return current == ButtonState.Released && prev == ButtonState.Pressed;
         }
-
-        public bool RightMouseDrag(Matrix view, Matrix projection, Viewport viewport)
-        {
-
-            if (!RightMouseHeld(.05f))
-            {
-                if (!MouseDragging) return false;
-
-                Vector3 position = viewport.Unproject(
-                    CursorPosition.ToVec3(), projection, view,
-                    Matrix.Identity);
-
-                Vector3 direction = viewport.Unproject(
-                                        CursorPosition.ToVec3(1f),
-                                        projection, view, Matrix.Identity) - position;
-                direction.Normalize();
-                Ray ray = new Ray(position, direction);
-                float unknownRayModifer = -ray.Position.Z / ray.Direction.Z;
-                Vector3 vector3 = new Vector3(ray.Position.X + unknownRayModifer * ray.Direction.X,
-                    ray.Position.Y + unknownRayModifer * ray.Direction.Y, 0.0f);
-                SelectionPoint = vector3.ToVec2();
-                Vector2 target = CursorPosition;
-                SelectionRadiansToTarget = StartDrag.RadiansToTarget(target);
-                SelectionFacing = Vector2.Normalize(target - StartDrag);
-
-                MouseDragging = false;
-                return true;
-
-            }
-            if (MouseDragging)
-            {
-                EndDrag = CursorPosition;
-                EndDragWorld = Empire.Universe.UnprojectToWorldPosition(StartDrag);
-                return true; 
-            }
-            StartDrag = CursorPosition;
-            StartDragWorld = Empire.Universe.UnprojectToWorldPosition(StartDrag);
-            ProjectedPosition = StartDragWorld;
-            MouseDragging = true;
-            return true;
-
-        }
-
+        
         public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown(key);
 
         private bool KeyPressed(Keys key)
@@ -255,8 +212,11 @@ namespace Ship_Game
 
         private void UpdateTimers(float time)
         {
+            Vector2 endHoldPoint =  Vector2.Zero;
             TimerUpdate(time, LeftMouseHeld(0), ref LeftMouseDownTime, ref LeftMouseWasHeldInteral, ref LeftHeld);
+            EndLeftHold = endHoldPoint;
             TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
+            EndRightHold = endHoldPoint;
 
         }
         private void TimerUpdate(float time, bool update, ref float timer, ref bool wasHeld, ref bool held)
@@ -267,10 +227,20 @@ namespace Ship_Game
             }
             else
             {
-                wasHeld = held && timer > 0 ;
+                wasHeld = held && timer > 0;
                 held = false;
                 timer = 0;
             }
+        }
+        private Vector2 UpdateHoldStartPosistion(bool held, bool wasHeld, Vector2 holdPosistion)
+        {
+            if (!held && !wasHeld) return Vector2.Zero;
+            return held && holdPosistion == Vector2.Zero ? CursorPosition : holdPosistion;            
+        }
+        private Vector2 UpdateHoldEndPosistion(bool held, bool wasHeld, Vector2 holdPosistion)
+        {
+            if (!held && !wasHeld) return Vector2.Zero;
+            return CursorPosition;
         }
         public  void Update(GameTime gameTime)
         {
@@ -284,6 +254,13 @@ namespace Ship_Game
 
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             UpdateTimers(elapsedTime);
+
+            StartRighthold = UpdateHoldStartPosistion(RightHeld, RightMouseWasHeld, StartRighthold);
+            EndRightHold   = UpdateHoldEndPosistion(RightHeld, RightMouseWasHeld, StartRighthold);
+            StartLeftHold  = UpdateHoldStartPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold);
+            EndLeftHold    = UpdateHoldEndPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold);
+
+
         }
     }
 }
