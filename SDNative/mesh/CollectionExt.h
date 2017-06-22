@@ -16,6 +16,12 @@ namespace mesh
         return v.back();
     }
 
+    template<class T, class... Args> static T& emplace_back(vector<T>& v, Args&&... args)
+    {
+        v.emplace_back(forward<Args>(args)...);
+        return v.back();
+    }
+
     template<class T> static T pop_back(vector<T>& v)
     {
         T item = move(v.back());
@@ -84,6 +90,19 @@ namespace mesh
         auto it = map.find(key);
         return it != map.end() ? &it->second : nullptr;
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////
+
+
+    template<class T, class Int> Int sum_all(const vector<T>& v, Int (T::*selector)() const)
+    {
+        Int sum = 0;
+        for (auto& item : v)
+            sum += (item.*selector)();
+        return sum;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
 }
 
 #endif // MESH_COLLECTIONEXT_H

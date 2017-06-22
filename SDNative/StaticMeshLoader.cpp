@@ -4,29 +4,18 @@ namespace SDNative
 {
     ////////////////////////////////////////////////////////////////////////////////////
 
-    SDMesh::SDMesh(strview path): mesh(path)
+    SDMeshGroup::SDMeshGroup(Mesh& mesh, int groupId)
+        : GroupId(groupId), Owner{ mesh }, Data{mesh[groupId]}
     {
+        Name = Data.Name;
+        Mat  = Data.Mat.get();
+        Data.CreateGameVertexData(Vertices, Indices);
     }
 
-    BasicVertexMesh* SDMesh::GetMesh(int groupId)
-    {
-        if (auto* groupMesh = find(Groups, groupId))
-            return groupMesh;
-
-        Groups.insert_or_assign(groupId, mesh.GetBasicVertexMesh(groupId));
-        return find(Groups, groupId);
-    }
-
-    void SDMesh::GetStats(int groupId, int* outVertices, int* outIndices)
-    {
-        auto* groupMesh = GetMesh(groupId);
-        *outVertices = groupMesh->Vertices.size();
-        *outIndices  = groupMesh->Indices.size();
-    }
-
-    static void ComputeTangentBasis(const Vector3& p0, const Vector3& p1, const Vector3& p2, 
-                                    const Vector2& uv0, const Vector2& uv1, const Vector2& uv2,
-                                    Vector3& tangent, Vector3& binormal)
+    static void ComputeTangentBasis(
+        const Vector3& p0, const Vector3& p1, const Vector3& p2, 
+        const Vector2& uv0, const Vector2& uv1, const Vector2& uv2,
+        Vector3& tangent, Vector3& binormal)
     {
         // using Eric Lengyel's approach with a few modifications
         // from Mathematics for 3D Game Programmming and Computer Graphics
@@ -39,35 +28,27 @@ namespace SDNative
 
         Vector3 P = p1 - p0;
         Vector3 Q = p2 - p0;
-        tangent.x = (t2*P.x - t1*Q.x);
-        tangent.y = (t2*P.y - t1*Q.y);
-        tangent.z = (t2*P.z - t1*Q.z);
-        tangent = tangent*tmp;
+        tangent  = (t2*P - t1*Q) * tmp;
+        binormal = (s1*Q - s2*P) * tmp;
         tangent.normalize();
-
-        binormal.x = (s1*Q.x - s2*P.x);
-        binormal.y = (s1*Q.y - s2*P.y);
-        binormal.z = (s1*Q.z - s2*P.z);
-        binormal = binormal*tmp;
         binormal.normalize();
     }
 
-    void SDMesh::GetData(int groupId, SDVertex* vertices, ushort* indices)
+    void SDMeshGroup::GetData(SDVertex* vertices, ushort* indices)
     {
-        auto* groupMesh = GetMesh(groupId);
-        int numVertices = groupMesh->Vertices.size();
-        int numIndices = groupMesh->Indices.size();
-        auto* groupVertices = groupMesh->Vertices.data();
-        auto* groupIndices = groupMesh->Indices.data();
+        int numVertices = Vertices.size();
+        int numIndices  = Indices.size();
+        auto* groupVertices = Vertices.data();
+        auto* groupIndices  = Indices.data();
 
         if (numVertices == 0 || numIndices == 0) {
-            fprintf(stderr, "WARNING: No mesh data for group %d\n", groupId);
+            fprintf(stderr, "WARNING: No mesh data for group %d\n", GroupId);
             return;
         }
 
-        bool isTriangulated = mesh.Groups[groupId].IsTriangulated();
+        bool isTriangulated = Owner.Groups[GroupId].IsTriangulated();
         if (!isTriangulated) {
-            fprintf(stderr, "WARNING: MeshGroup %d is not triangulated!!!\n", groupId);
+            fprintf(stderr, "WARNING: MeshGroup %d is not triangulated!!!\n", GroupId);
         }
 
         for (int i = 0; i < numIndices; ++i)
@@ -100,30 +81,60 @@ namespace SDNative
 
     ////////////////////////////////////////////////////////////////////////////////////
 
-    extern "C" SDMesh* __stdcall SDMeshOpen(const wchar_t* filename)
+    SDMesh::SDMesh(strview path) : Data{ path }
+    {
+        Groups.resize(Data.NumGroups());
+    }
+
+    SDMeshGroup* SDMesh::GetGroup(int groupId)
+    {
+        if (!Data.IsValidGroup(groupId))
+            return nullptr;
+
+        if (auto* groupMesh = Groups[groupId].get())
+            return groupMesh;
+
+        Groups[groupId] = make_unique<SDMeshGroup>(Data, groupId);
+        return Groups[groupId].get();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* filename)
     {
         string path = { filename, filename + wcslen(filename) };
-        auto sdm = new SDMesh(path);
-        if (!sdm->mesh) {
+        auto sdm = new SDMesh{ path };
+        if (!sdm->Data) {
             SDMeshClose(sdm);
             return nullptr;
         }
         return sdm;
     }
 
-    extern "C" void __stdcall SDMeshClose(SDMesh* mesh)
+    DLLAPI(void) SDMeshClose(SDMesh* mesh)
     {
         delete mesh;
     }
 
-    void __stdcall SDMeshGroupStats(SDMesh* mesh, int groupId, int* outVertices, int* outIndices)
+    DLLAPI(int) SDMeshNumGroups(SDMesh* mesh)
     {
-        mesh->GetStats(groupId, outVertices, outIndices);
+        return mesh ? mesh->Data.NumGroups() : 0;
     }
 
-    void __stdcall SDMeshGetGroupData(SDMesh* mesh, int groupId, SDVertex* vertices, ushort* indices)
+    DLLAPI(SDMeshGroup*) SDMeshGetGroup(SDMesh* mesh, int groupId)
     {
-        mesh->GetData(groupId, vertices, indices);
+        return mesh ? mesh->GetGroup(groupId) : nullptr;
+    }
+
+    DLLAPI(void) SDMeshGroupStats(SDMeshGroup* group, int* outVertices, int* outIndices)
+    {
+        *outVertices = group ? group->Vertices.size() : 0;
+        *outIndices  = group ? group->Indices.size()  : 0;
+    }
+
+    DLLAPI(void) SDMeshGetGroupData(SDMeshGroup* group, SDVertex* vertices, ushort* indices)
+    {
+        if (group) group->GetData(vertices, indices);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
