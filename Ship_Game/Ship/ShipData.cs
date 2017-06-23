@@ -67,17 +67,7 @@ namespace Ship_Game
         {
             public readonly float X, Y, Scale;
         }
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private unsafe struct CStrView
-        {
-            private readonly sbyte* Str;
-            private readonly int Len;
-            public string AsString   => Len != 0 ? new string(Str, 0, Len) : string.Empty;
-            public string AsInterned => Len != 0 ? string.Intern(new string(Str, 0, Len)) : string.Empty;
-            public string AsInternedOrNull => Len != 0 ? string.Intern(new string(Str, 0, Len)) : null;
-            public bool Empty => Len == 0;
-            public override string ToString() { return AsString; }
-        }
+
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private struct CModuleSlot
         {
@@ -170,14 +160,14 @@ namespace Ship_Game
                     hullUnlockable = s->HullUnlockable != 0,
                     unLockable     = s->UnLockable != 0,
                     TechScore      = s->TechScore,
-                    IsOrbitalDefense = s->IsOrbitalDefense != 0,
-                    SelectionGraphic = s->SelectionGraphic.AsInterned,
-                    allModulesUnlocakable = s->AllModulesUnlockable != 0,
+                    IsOrbitalDefense          = s->IsOrbitalDefense != 0,
+                    SelectionGraphic          = s->SelectionGraphic.AsInterned,
+                    allModulesUnlocakable     = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
-                Enum.TryParse(s->Role.AsString, out ship.Role);
-                Enum.TryParse(s->CombatState.AsString, out ship.CombatState);
-                Enum.TryParse(s->ShipCategory.AsString, out ship.ShipCategory);
+                Enum.TryParse(s->Role.AsString,          out ship.Role);
+                Enum.TryParse(s->CombatState.AsString,    out ship.CombatState);
+                Enum.TryParse(s->ShipCategory.AsString,   out ship.ShipCategory);
                 Enum.TryParse(s->DefaultAIState.AsString, out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion

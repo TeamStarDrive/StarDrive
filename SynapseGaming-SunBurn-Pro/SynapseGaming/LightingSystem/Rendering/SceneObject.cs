@@ -84,7 +84,6 @@ namespace SynapseGaming.LightingSystem.Rendering
             {
                 if (ObjVisibility == value)
                     return;
-
                 ObjVisibility = value;                
                 CastShadows = (ObjVisibility & ObjectVisibility.CastShadows) != ObjectVisibility.None;
                 Visible = (ObjVisibility & ObjectVisibility.Rendered) != ObjectVisibility.None;
@@ -117,8 +116,7 @@ namespace SynapseGaming.LightingSystem.Rendering
 
         /// <summary>Creates a new SceneObject from mesh data.</summary>
         /// <param name="meshdata"></param>
-        public SceneObject(MeshData meshdata)
-          : this(meshdata, "")
+        public SceneObject(MeshData meshdata) : this(meshdata, "")
         {
         }
 

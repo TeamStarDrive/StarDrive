@@ -224,7 +224,7 @@ namespace Ship_Game
                 ? (T)RawContent.LoadAsset(assetName, extension) 
                 : ReadAsset<T>(assetNoExt, RecordDisposableObject);
 
-            // detect possible memory leaks -- this is very slow, so only enable on demand
+            // detect possible resource leaks -- this is very slow, so only enable on demand
             #if false
                 string[] keys;
                 lock (LoadSync) keys = LoadedAssets.Keys.ToArray();

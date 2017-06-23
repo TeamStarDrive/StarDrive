@@ -669,7 +669,7 @@ namespace Ship_Game
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
                 string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = new SceneObject(ResourceManager.GetModel(modelPath).Meshes[0]) { ObjectType = ObjectType.Dynamic };
+                ShipObj = ResourceManager.GetSceneMesh(modelPath);
             }
             else
             {
@@ -679,21 +679,21 @@ namespace Ship_Game
                         //|| s.Role == ShipData.RoleName.capital
                         //&& s.ShipStyle != "Remnant"
                         && s.ShipStyle != "Ralyeh").ToArray(); // Ralyeh ships look disgusting in the menu
-                var hull = hulls[RandomMath.InRange(hulls.Length)];
+                ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
 
-                if (hull.Animated) // Support animated meshes if we use them at all
+                if (false)
                 {
-                    SkinnedModel model = ResourceManager.GetSkinnedModel(hull.ModelPath);
-                    ShipObj = new SceneObject(model.Model)
-                    {
-                        ObjectType = ObjectType.Dynamic
-                    };
-                    ShipAnim = new AnimationController(model.SkeletonBones);
-                    ShipAnim.StartClip(model.AnimationClips["Take 001"]);
+                    ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/Soyo/Soyo.obj");
                 }
                 else
                 {
-                    ShipObj = new SceneObject(ResourceManager.GetModel(hull.ModelPath).Meshes[0]) { ObjectType = ObjectType.Dynamic };
+                    ShipObj = ResourceManager.GetSceneMesh(hull.ModelPath, hull.Animated);
+                    if (hull.Animated) // Support animated meshes if we use them at all
+                    {
+                        SkinnedModel model = ResourceManager.GetSkinnedModel(hull.ModelPath);
+                        ShipAnim = new AnimationController(model.SkeletonBones);
+                        ShipAnim.StartClip(model.AnimationClips["Take 001"]);
+                    }
                 }
             }
 

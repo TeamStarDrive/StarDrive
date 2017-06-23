@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Media;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -49,8 +50,6 @@ namespace Ship_Game
         public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
         public static Array<EmpireData> Empires                   = new Array<EmpireData>();
         public static XmlSerializer HeaderSerializer              = new XmlSerializer(typeof(HeaderData));
-        public static Map<string, Model> ModelDict                = new Map<string, Model>();
-        public static Map<string, SkinnedModel> SkinnedModels     = new Map<string, SkinnedModel>();
         public static Map<string, ShipData> HullsDict             = new Map<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 
         public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
@@ -498,17 +497,52 @@ namespace Ship_Game
             return null;
         }
 
-        public static Model GetModel(string modelName, bool throwOnFailure = false)
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+        
+
+        private static readonly Map<string, Model>        Models        = new Map<string, Model>();
+        private static readonly Map<string, StaticMesh>   Meshes        = new Map<string, StaticMesh>();
+        private static readonly Map<string, SkinnedModel> SkinnedModels = new Map<string, SkinnedModel>();
+
+        private static SceneObject SceneObjectFromStaticMesh(string modelName, bool animated)
         {
-            Model item;
-
-            // try to get cached value
-            lock (ModelDict) if (ModelDict.TryGetValue(modelName, out item)) return item;
-
-            try
+            if (!Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
             {
-                //ContentManager.EnableLoadInfoLog = true;
+                staticMesh = ContentManager.Load<StaticMesh>(modelName);
+                Meshes[modelName] = staticMesh;    
+            }
 
+            if (staticMesh == null)
+                return null;
+
+            var so = new SceneObject
+            {
+                Name = staticMesh.Name,
+                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
+            };
+
+            foreach (MeshData mesh in staticMesh.Meshes)
+            {
+                so.Add(new RenderableMesh(so, 
+                    mesh.Effect, 
+                    mesh.MeshToObject, 
+                    mesh.ObjectSpaceBoundingSphere, 
+                    mesh.IndexBuffer,
+                    mesh.VertexBuffer, 
+                    mesh.VertexDeclaration, 0, 
+                    PrimitiveType.TriangleList, 
+                    mesh.PrimitiveCount, 
+                    0, mesh.VertexCount, 
+                    0, mesh.VertexStride));
+            }
+            return so;
+        }
+
+        private static SceneObject SceneObjectFromModel(string modelName)
+        {
+            if (!Models.TryGetValue(modelName, out Model model))
+            {
                 // special backwards compatibility with mods...
                 // basically, all old mods put their models into "Mod Models/" folder because
                 // the old model loading system didn't handle Unified resource paths...
@@ -516,25 +550,57 @@ namespace Ship_Game
                 {
                     string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
                     if (File.Exists(modModelPath))
-                        item = ContentManager.Load<Model>(modModelPath);
+                        model = ContentManager.Load<Model>(modModelPath);
                 }
-                if (item == null)
-                    item = ContentManager.Load<Model>(modelName);
-            }
-            catch (ContentLoadException)
-            {
-                if (throwOnFailure) throw;
-            }
-            finally
-            {
-                ContentManager.EnableLoadInfoLog = false;
+                if (model == null)
+                    model = ContentManager.Load<Model>(modelName);
+                if (model != null)
+                    Models[modelName] = model;
             }
 
-            // stick it into Model cache, even if null (prevents further loading)
-            lock (ModelDict) ModelDict.Add(modelName, item);
-            return item;
+            if (model == null)
+                return null;
+            return new SceneObject(model)
+            {
+                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
+            };
         }
 
+        private static SceneObject SceneObjectFromSkinnedModel(string modelName)
+        {
+            if (!SkinnedModels.TryGetValue(modelName, out SkinnedModel skinned))
+            {
+                skinned = ContentManager.Load<SkinnedModel>(modelName);
+                SkinnedModels[modelName] = skinned;
+            }
+
+            if (skinned == null)
+                return null;
+
+            return new SceneObject(skinned.Model)
+            {
+                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
+            };
+        }
+
+        public static SceneObject GetSceneMesh(string modelName, bool animated = false)
+        {
+            if (RawContentLoader.IsSupportedMesh(modelName))
+                return SceneObjectFromStaticMesh(modelName, animated);
+
+            return !animated ? SceneObjectFromModel(modelName) : SceneObjectFromSkinnedModel(modelName);
+        }
+
+        
+        public static SkinnedModel GetSkinnedModel(string path)
+        {
+            if (SkinnedModels.TryGetValue(path, out SkinnedModel model))
+                return model;
+            return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
+        }
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////
 
 
         // Gets a loaded texture using the given abstract texture path
@@ -645,14 +711,6 @@ namespace Ship_Game
 
         public static Array<SolarSystemData> LoadRandomSolarSystems()
             => LoadEntitiesModOrVanilla<SolarSystemData>("SolarSystems/Random", "LoadSolarSystems");
-
-        public static SkinnedModel GetSkinnedModel(string path)
-        {
-            if (SkinnedModels.TryGetValue(path, out SkinnedModel model))
-                return model;
-            // allow this to throw an exception on load error
-            return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
-        }
 
         // Refactored by RedFox, gets a new weapon instance based on weapon UID
         public static Weapon CreateWeapon(string uid)

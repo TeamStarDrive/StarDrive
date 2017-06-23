@@ -236,24 +236,14 @@ namespace Ship_Game.Gameplay
 
         public void CreateSceneObject()
         {
-            Model model;
+            ShipSO = ResourceManager.GetSceneMesh(shipData.ModelPath, shipData.Animated);
+
             if (shipData.Animated)
             {
                 SkinnedModel skinned = ResourceManager.GetSkinnedModel(shipData.ModelPath);
                 ShipMeshAnim = new AnimationController(skinned.SkeletonBones);
                 ShipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
-                model = skinned.Model;
             }
-            else
-            {
-                model = ResourceManager.GetModel(shipData.ModelPath);
-            }
-
-            ShipSO = new SceneObject(model.Meshes[0])
-            {
-                ObjectType = ObjectType.Dynamic,
-                Visibility = ObjectVisibility.Rendered
-            };
 
             Radius = ShipSO.WorldBoundingSphere.Radius;
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);

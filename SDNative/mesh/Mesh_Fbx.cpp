@@ -314,7 +314,7 @@ namespace mesh
 
     bool Mesh::IsFBXSupported() noexcept { return true; }
 
-    bool Mesh::LoadFBX(const string& meshPath) noexcept
+    bool Mesh::LoadFBX(strview meshPath) noexcept
     {
         Clear();
         InitFbxManager();
@@ -322,14 +322,14 @@ namespace mesh
         //int format = SdkManager->GetIOPluginRegistry()->FindReaderIDByExtension("fbx");
         int format = -1;
 
-        if (!importer->Initialize(meshPath.c_str(), format, SdkManager->GetIOSettings())) {
-            fprintf(stderr, "Failed to open file '%s': %s\n", meshPath.c_str(), importer->GetStatus().GetErrorString());
+        if (!importer->Initialize(meshPath.to_cstr(), format, SdkManager->GetIOSettings())) {
+            fprintf(stderr, "Failed to open file '%s': %s\n", meshPath.to_cstr(), importer->GetStatus().GetErrorString());
             return false;
         }
 
         FbxPtr<FbxScene> scene = FbxScene::Create(SdkManager, "scene");
         if (!importer->Import(scene.get())) {
-            fprintf(stderr, "Failed to load FBX '%s': %s\n", meshPath.c_str(), importer->GetStatus().GetErrorString());
+            fprintf(stderr, "Failed to load FBX '%s': %s\n", meshPath.to_cstr(), importer->GetStatus().GetErrorString());
             return false;
         }
         importer.reset();
@@ -400,7 +400,7 @@ namespace mesh
         {
             //printf("  %5d  normals\n", numNormals);
 
-            assert((NormalsMapping == MapPerVertex || NormalsMapping == MapPerFaceVertex)
+            assert((group.NormalsMapping == MapPerVertex || group.NormalsMapping == MapPerFaceVertex)
                 && "Only per-vertex or per-face-vertex normals are supported");
 
             FbxGeometryElementNormal* elementNormal = mesh->CreateElementNormal();
@@ -435,7 +435,7 @@ namespace mesh
         {
             printf("  %5d uvs", numCoords);
 
-            assert((CoordsMapping == MapPerVertex || CoordsMapping == MapPerFaceVertex)
+            assert((group.CoordsMapping == MapPerVertex || group.CoordsMapping == MapPerFaceVertex)
                 && "Only per-vertex or per-face-vertex UV coords are supported");
 
             FbxGeometryElementUV* elementUVs = mesh->CreateElementUV("DiffuseUV");
@@ -466,7 +466,7 @@ namespace mesh
         {
             printf("  %5d colors", numColors);
 
-            assert((ColorMapping == MapPerVertex || ColorMapping == MapPerFaceVertex) 
+            assert((group.ColorMapping == MapPerVertex || group.ColorMapping == MapPerFaceVertex) 
                 && "Only per-vertex or per-face-vertex colors are supported");
 
             FbxGeometryElementVertexColor* elementColors = mesh->CreateElementVertexColor();
@@ -504,14 +504,14 @@ namespace mesh
         mesh->BuildMeshEdgeArray();
     }
 
-    bool Mesh::SaveAsFBX(const string& meshPath) const noexcept
+    bool Mesh::SaveAsFBX(strview meshPath) const noexcept
     {
         if (!NumFaces) {
-            fprintf(stderr, "Warning: no faces to export to '%s'\n", meshPath.c_str());
+            fprintf(stderr, "Warning: no faces to export to '%s'\n", meshPath.to_cstr());
             return false;
         }
         if (!NumGroups()) {
-            fprintf(stderr, "Warning: no mesh groups to export to '%s'\n", meshPath.c_str());
+            fprintf(stderr, "Warning: no mesh groups to export to '%s'\n", meshPath.to_cstr());
             return false;
         }
 
@@ -520,8 +520,8 @@ namespace mesh
         //int format = SdkManager->GetIOPluginRegistry()->FindWriterIDByDescription("FBX 6.0 binary (*.fbx)");
         int format = -1;
 
-        if (!exporter->Initialize(meshPath.c_str(), format, SdkManager->GetIOSettings())) {
-            fprintf(stderr, "Failed to open file '%s' for writing: %s\n", meshPath.c_str(), exporter->GetStatus().GetErrorString());
+        if (!exporter->Initialize(meshPath.to_cstr(), format, SdkManager->GetIOSettings())) {
+            fprintf(stderr, "Failed to open file '%s' for writing: %s\n", meshPath.to_cstr(), exporter->GetStatus().GetErrorString());
             return false;
         }
         if (!exporter->SetFileExportVersion(FBX_2014_00_COMPATIBLE, FbxSceneRenamer::eNone)) {
@@ -554,7 +554,7 @@ namespace mesh
         }
 
         if (!exporter->Export(scene.get())) {
-            fprintf(stderr, "Failed to export FBX '%s': %s\n", meshPath.c_str(), exporter->GetStatus().GetErrorString());
+            fprintf(stderr, "Failed to export FBX '%s': %s\n", meshPath.to_cstr(), exporter->GetStatus().GetErrorString());
             return false;
         }
         return true;
