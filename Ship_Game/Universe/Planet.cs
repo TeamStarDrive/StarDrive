@@ -1148,8 +1148,7 @@ namespace Ship_Game
             UpdateDescription();
 
             Empire.Universe.RemoveObject(SO);
-            SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + planetType).Meshes[0]);
-            SO.ObjectType = ObjectType.Dynamic;
+            SO = ResourceManager.GetSceneMesh("Model/SpaceObjects/planet_" + planetType);
             SO.World = Matrix.Identity * Matrix.CreateScale(3f) 
                 * Matrix.CreateScale(scale) 
                 * Matrix.CreateTranslation(new Vector3(Center, 2500f));
@@ -5722,8 +5721,8 @@ output = maxp * take10 = 5
         {
             Shield = ShieldManager.AddPlanetaryShield(Center);
             UpdateDescription();
-            SO = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + planetType).Meshes[0]);
-            SO.ObjectType = ObjectType.Dynamic;
+
+            SO = ResourceManager.GetSceneMesh("Model/SpaceObjects/planet_" + planetType);
             SO.World = Matrix.CreateScale(3f * scale) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
             RingWorld = Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f)
                         * Matrix.CreateTranslation(new Vector3(Center, 2500f));

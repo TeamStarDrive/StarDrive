@@ -131,14 +131,7 @@ namespace Ship_Game {
             if (shipSO != null)
                 RemoveObject(shipSO);
 
-            Model model = ActiveHull.Animated
-                        ? ResourceManager.GetSkinnedModel(ActiveHull.ModelPath).Model
-                        : TransientContent.Load<Model>(ActiveHull.ModelPath);
-
-            shipSO = new SceneObject(model)
-            {
-                ObjectType = ObjectType.Dynamic, World = WorldMatrix
-            };
+            shipSO = ResourceManager.GetSceneMesh(ActiveHull.ModelPath, ActiveHull.Animated);
 
             AddObject(shipSO);
             SetupSlots();

@@ -114,7 +114,7 @@ namespace mesh
 
     void MeshGroup::SetVertexColor(int vertexId, const Color3& vertexColor) noexcept
     {
-        Assert(vertexId < Verts.size(), "Invalid vertexId %d >= numVerts(%ld)", vertexId, Verts.size());
+        Assert(vertexId < NumVerts(), "Invalid vertexId %d >= numVerts(%ld)", vertexId, NumVerts());
 
         if (Colors.empty()) {
             Colors.resize(Verts.size());
@@ -279,7 +279,7 @@ namespace mesh
     {
     }
 
-    Mesh::Mesh(const string& meshPath) noexcept
+    Mesh::Mesh(strview meshPath) noexcept
     {
         Load(meshPath);
     }
@@ -363,23 +363,23 @@ namespace mesh
         return obj;
     }
 
-    bool Mesh::Load(const string& meshPath) noexcept
+    bool Mesh::Load(strview meshPath) noexcept
     {
         strview ext = file_ext(meshPath);
         if (ext.equalsi("fbx"_sv)) return LoadFBX(meshPath);
         if (ext.equalsi("obj"_sv)) return LoadOBJ(meshPath);
 
-        LogError("Error: unrecognized mesh format for file '%s'", meshPath.c_str());
+        LogError("Error: unrecognized mesh format for file '%s'", meshPath.to_cstr());
         return false;
     }
 
-    bool Mesh::SaveAs(const string& meshPath) const noexcept
+    bool Mesh::SaveAs(strview meshPath) const noexcept
     {
         strview ext = file_ext(meshPath);
         if (ext.equalsi("fbx"_sv)) return SaveAsFBX(meshPath);
         if (ext.equalsi("obj"_sv)) return SaveAsOBJ(meshPath);
 
-        LogError("Error: unrecognized mesh format for file '%s'", meshPath.c_str());
+        LogError("Error: unrecognized mesh format for file '%s'", meshPath.to_cstr());
         return false;
     }
 

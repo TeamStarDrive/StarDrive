@@ -41,6 +41,7 @@ namespace mesh
     struct Material
     {
         string Name; // name of the material instance
+        string MaterialFile; // eg 'default.mtl'
 
         string DiffusePath;
         string AlphaPath;
@@ -198,7 +199,7 @@ namespace mesh
         Mesh() noexcept;
         
         // Automatically constructs a new mesh, check good() or cast to bool to check if successful
-        explicit Mesh(const string& meshPath) noexcept;
+        explicit Mesh(strview meshPath) noexcept;
 
         ~Mesh() noexcept;
 
@@ -250,16 +251,16 @@ namespace mesh
         Mesh Clone(const bool cloneMaterials = false) const noexcept;
 
 
-        bool Load(const string& meshPath) noexcept;
-        bool SaveAs(const string& meshPath) const noexcept;
+        bool Load(strview meshPath) noexcept;
+        bool SaveAs(strview meshPath) const noexcept;
 
         // Is FBX supported on this platform?
         static bool IsFBXSupported() noexcept;
-        bool LoadFBX(const string& meshPath) noexcept;
-        bool LoadOBJ(const string& meshPath) noexcept;
+        bool LoadFBX(strview meshPath) noexcept;
+        bool LoadOBJ(strview meshPath) noexcept;
 
-        bool SaveAsFBX(const string& meshPath) const noexcept;
-        bool SaveAsOBJ(const string& meshPath) const noexcept;
+        bool SaveAsFBX(strview meshPath) const noexcept;
+        bool SaveAsOBJ(strview meshPath) const noexcept;
 
         // Recalculates all normals by find shared and non-shared vertices on the same pos
         // Currently does not respect smoothing groups

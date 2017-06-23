@@ -787,7 +787,6 @@ namespace Ship_Game
                 spaceJunk.DestroySceneObject();
             JunkList.Clear();
 
-            ResourceManager.ModelDict.Clear();            
             SelectedShip   = null;
             SelectedFleet  = null;
             SelectedPlanet = null;
