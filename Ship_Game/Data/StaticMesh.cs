@@ -11,5 +11,6 @@ namespace Ship_Game
     {
         public string Name { get; set; }
         public Array<MeshData> Meshes { get; set; } = new Array<MeshData>();
+        public int Count => Meshes.Count;
     }
 }
