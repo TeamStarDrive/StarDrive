@@ -305,8 +305,7 @@ namespace Ship_Game
             {
                 planet.system = wipSystem;
                 planet.Center += wipSystem.Position;
-                planet.InitializeUpdate();
-                AddObject(planet.SO);
+                planet.InitializePlanetMesh(this);
                 foreach (Empire key in Data.EmpireList)
                     planet.ExploredDict.Add(key, false);
             }

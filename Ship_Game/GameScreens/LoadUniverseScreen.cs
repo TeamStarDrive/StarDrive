@@ -914,8 +914,7 @@ namespace Ship_Game
             foreach (Planet p in system.PlanetList)
             {
                 p.system = system;
-                p.InitializeUpdate();
-                AddObject(p.SO);
+                p.InitializePlanetMesh(this);
             }
             foreach (Asteroid roid in system.AsteroidsList)  AddObject(roid.So);
             foreach (Moon moon in system.MoonList)           AddObject(moon.So);

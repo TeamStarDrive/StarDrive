@@ -505,25 +505,36 @@ namespace Ship_Game
         private static readonly Map<string, StaticMesh>   Meshes        = new Map<string, StaticMesh>();
         private static readonly Map<string, SkinnedModel> SkinnedModels = new Map<string, SkinnedModel>();
 
-        private static SceneObject SceneObjectFromStaticMesh(string modelName, bool animated)
+        private static int SubmeshCount(int maxSubmeshes, int meshSubmeshCount)
+        {
+            return maxSubmeshes == 0 ? meshSubmeshCount : Math.Min(maxSubmeshes, meshSubmeshCount);
+        }
+
+        private static SceneObject DynamicObject(string modelName)
+        {
+            return new SceneObject(modelName)
+            {
+                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
+            };
+
+        }
+
+        private static SceneObject SceneObjectFromStaticMesh(string modelName, int maxSubmeshes = 0)
         {
             if (!Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
             {
                 staticMesh = ContentManager.Load<StaticMesh>(modelName);
                 Meshes[modelName] = staticMesh;    
             }
-
             if (staticMesh == null)
                 return null;
 
-            var so = new SceneObject
-            {
-                Name = staticMesh.Name,
-                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
-            };
+            SceneObject so = DynamicObject(modelName);
+            int count = SubmeshCount(maxSubmeshes, staticMesh.Count);
 
-            foreach (MeshData mesh in staticMesh.Meshes)
+            for (int i = 0; i < count; ++i)
             {
+                MeshData mesh = staticMesh.Meshes[i];
                 so.Add(new RenderableMesh(so, 
                     mesh.Effect, 
                     mesh.MeshToObject, 
@@ -539,7 +550,7 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromModel(string modelName)
+        private static SceneObject SceneObjectFromModel(string modelName, int maxSubmeshes = 0)
         {
             if (!Models.TryGetValue(modelName, out Model model))
             {
@@ -549,21 +560,20 @@ namespace Ship_Game
                 if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
                 {
                     string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
-                    if (File.Exists(modModelPath))
-                        model = ContentManager.Load<Model>(modModelPath);
+                    if (File.Exists(modModelPath)) model = ContentManager.Load<Model>(modModelPath);
                 }
-                if (model == null)
-                    model = ContentManager.Load<Model>(modelName);
-                if (model != null)
-                    Models[modelName] = model;
+                if (model == null) model = ContentManager.Load<Model>(modelName);
+                Models[modelName] = model;
             }
-
             if (model == null)
                 return null;
-            return new SceneObject(model)
-            {
-                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
-            };
+
+            SceneObject so = DynamicObject(modelName);
+            int count = SubmeshCount(maxSubmeshes, model.Meshes.Count);
+
+            for (int i = 0; i < count; ++i)
+                so.Add(model.Meshes[i]);
+            return so;
         }
 
         private static SceneObject SceneObjectFromSkinnedModel(string modelName)
@@ -573,11 +583,10 @@ namespace Ship_Game
                 skinned = ContentManager.Load<SkinnedModel>(modelName);
                 SkinnedModels[modelName] = skinned;
             }
-
             if (skinned == null)
                 return null;
 
-            return new SceneObject(skinned.Model)
+            return new SceneObject(skinned.Model, modelName)
             {
                 ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
             };
@@ -586,9 +595,16 @@ namespace Ship_Game
         public static SceneObject GetSceneMesh(string modelName, bool animated = false)
         {
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(modelName, animated);
+                return SceneObjectFromStaticMesh(modelName);
 
-            return !animated ? SceneObjectFromModel(modelName) : SceneObjectFromSkinnedModel(modelName);
+            return animated ? SceneObjectFromSkinnedModel(modelName) : SceneObjectFromModel(modelName);
+        }
+
+        public static SceneObject GetPlanetarySceneMesh(string modelName)
+        {
+            if (RawContentLoader.IsSupportedMesh(modelName))
+                return SceneObjectFromStaticMesh(modelName, 1);
+            return SceneObjectFromModel(modelName, 1);
         }
 
         
