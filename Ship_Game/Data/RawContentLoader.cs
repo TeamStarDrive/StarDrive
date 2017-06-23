@@ -172,8 +172,14 @@ namespace Ship_Game
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, Content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned         = false;
             fx.DoubleSided     = false;
+
+            Texture2D alphaMap = g->Mat.AlphaPath.NotEmpty
+                ? Content.Load<Texture2D>(g->Mat.AlphaPath.AsString)
+                : fx.DiffuseMapTexture;
+
             float transparency = 1.0f - g->Mat.Alpha;
-            fx.SetTransparencyModeAndMap(TransparencyMode.None, transparency, fx.DiffuseMapTexture);
+            fx.SetTransparencyModeAndMap(TransparencyMode.None, transparency, alphaMap);
+
             fx.SpecularPower                 = 14.0f * g->Mat.Specular;
             fx.SpecularAmount                = 6.0f;
             fx.FresnelReflectBias            = 0.0f;

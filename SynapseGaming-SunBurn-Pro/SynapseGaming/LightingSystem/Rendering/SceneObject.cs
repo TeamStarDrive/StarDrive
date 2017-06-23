@@ -19,7 +19,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
         private ObjectVisibility ObjVisibility = ObjectVisibility.RenderedAndCastShadows;
         private readonly List<RenderableMesh> Meshes = new List<RenderableMesh>(16);
-        private Matrix WorldMatrix;
+        private Matrix WorldMatrix = Matrix.Identity;
 
         /// <summary>World space transform of the object.</summary>
         public Matrix World
@@ -114,6 +114,11 @@ namespace SynapseGaming.LightingSystem.Rendering
             SetName("");
         }
 
+        public SceneObject(string name)
+        {
+            SetName(name);
+        }
+
         /// <summary>Creates a new SceneObject from mesh data.</summary>
         /// <param name="meshdata"></param>
         public SceneObject(MeshData meshdata) : this(meshdata, "")
@@ -123,9 +128,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>Creates a new SceneObject from mesh data.</summary>
         /// <param name="meshdata"></param>
         /// <param name="name">Custom name for the object.</param>
-        public SceneObject(MeshData meshdata, string name)
+        public SceneObject(MeshData meshdata, string name) : this(name)
         {
-            SetName(name);
             InfiniteBounds = meshdata.InfiniteBounds;
             Add(new RenderableMesh(this, meshdata.Effect, meshdata.MeshToObject, meshdata.ObjectSpaceBoundingSphere, meshdata.IndexBuffer, meshdata.VertexBuffer, meshdata.VertexDeclaration, 0, PrimitiveType.TriangleList, meshdata.PrimitiveCount, 0, meshdata.VertexCount, 0, meshdata.VertexStride));
         }
@@ -217,9 +221,21 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// buffer to start reading data.</param>
         /// <param name="vertexstride">Size in bytes of the elements in the vertex buffer.</param>
         /// <param name="objectspace">Mesh object-space matrix.</param>
-        public SceneObject(string name, Effect effect, BoundingSphere objectspaceboundingsphere, Matrix objectspace, IndexBuffer indexbuffer, VertexBuffer vertexbuffer, VertexDeclaration vertexdeclaration, int indexstart, PrimitiveType primitivetype, int primitivecount, int vertexbase, int vertexcount, int vertexstreamoffset, int vertexstride)
+        public SceneObject(string name, 
+            Effect effect, 
+            BoundingSphere objectspaceboundingsphere, 
+            Matrix objectspace, 
+            IndexBuffer indexbuffer, 
+            VertexBuffer vertexbuffer, 
+            VertexDeclaration vertexdeclaration, 
+            int indexstart, 
+            PrimitiveType primitivetype, 
+            int primitivecount, 
+            int vertexbase, 
+            int vertexcount, 
+            int vertexstreamoffset, 
+            int vertexstride) : this(name)
         {
-            SetName(name);
             Add(new RenderableMesh(this, effect, objectspace, objectspaceboundingsphere, indexbuffer, vertexbuffer, vertexdeclaration, indexstart, primitivetype, primitivecount, vertexbase, vertexcount, vertexstreamoffset, vertexstride));
         }
 
@@ -228,8 +244,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// from all ModelMeshes within the provided Model.
         /// </summary>
         /// <param name="model"></param>
-        public SceneObject(Model model)
-          : this(model, model.Root.Name)
+        public SceneObject(Model model) : this(model, model.Root.Name)
         {
         }
 
@@ -238,8 +253,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// from the provided ModelMesh.
         /// </summary>
         /// <param name="mesh"></param>
-        public SceneObject(ModelMesh mesh)
-          : this(mesh, mesh.ParentBone.Name)
+        public SceneObject(ModelMesh mesh) : this(mesh, mesh.ParentBone.Name)
         {
         }
 
@@ -249,11 +263,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         /// <param name="model"></param>
         /// <param name="name">Custom name for the object.</param>
-        public SceneObject(Model model, string name)
+        public SceneObject(Model model, string name) : this(name)
         {
-            SetName(name);
-            for (int index = 0; index < model.Meshes.Count; ++index)
-                Add(model.Meshes[index], null);
+            for (int i = 0; i < model.Meshes.Count; ++i)
+                Add(model.Meshes[i]);
         }
 
         /// <summary>
@@ -262,10 +275,9 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         /// <param name="mesh"></param>
         /// <param name="name">Custom name for the object.</param>
-        public SceneObject(ModelMesh mesh, string name)
+        public SceneObject(ModelMesh mesh, string name) : this(name)
         {
-            SetName(name);
-            Add(mesh, null);
+            Add(mesh);
         }
 
         /// <summary>
@@ -275,9 +287,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <param name="model"></param>
         /// <param name="overrideeffect">User defined effect used to render the object.</param>
         /// <param name="name">Custom name for the object.</param>
-        public SceneObject(Model model, Effect overrideeffect, string name)
+        public SceneObject(Model model, Effect overrideeffect, string name) : this(name)
         {
-            SetName(name);
             for (int i = 0; i < model.Meshes.Count; ++i)
                 Add(model.Meshes[i], overrideeffect);
         }
@@ -289,9 +300,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <param name="mesh"></param>
         /// <param name="overrideeffect">User defined effect used to render the object.</param>
         /// <param name="name">Custom name for the object.</param>
-        public SceneObject(ModelMesh mesh, Effect overrideeffect, string name)
+        public SceneObject(ModelMesh mesh, Effect overrideeffect, string name) : this(name)
         {
-            SetName(name);
             Add(mesh, overrideeffect);
         }
 
@@ -299,8 +309,6 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             RenderableMeshes = new RenderableMeshCollection(Meshes);
             Name = string.IsNullOrEmpty(name) ? string.Empty : name;
-            World = Matrix.Identity;
-            Visibility = ObjectVisibility.RenderedAndCastShadows;
         }
 
         /// <summary>
@@ -371,7 +379,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             }
         }
 
-        private void Add(ModelMesh mesh, Effect effect)
+        public void Add(ModelMesh mesh, Effect effect = null)
         {
             Matrix completeTransform = Matrix.Identity;
             for (ModelBone bone = mesh.ParentBone; bone != null; bone = bone.Parent)

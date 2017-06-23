@@ -658,7 +658,7 @@ namespace Ship_Game
                         OrbitalRadius      = ringRadius,
                         planetTilt         = RandomMath.RandomBetween(45f, 135f)
                     };
-                    newOrbital.InitializeUpdate();
+                    newOrbital.InitializePlanetMesh(null);
                     if (!ringData.HomePlanet || owner == null)
                     {
                         if (ringData.UniqueHabitat)

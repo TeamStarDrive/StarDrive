@@ -1146,16 +1146,7 @@ namespace Ship_Game
                 }
             }
             UpdateDescription();
-
-            Empire.Universe.RemoveObject(SO);
-            SO = ResourceManager.GetSceneMesh("Model/SpaceObjects/planet_" + planetType);
-            SO.World = Matrix.Identity * Matrix.CreateScale(3f) 
-                * Matrix.CreateScale(scale) 
-                * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-            RingWorld = Matrix.Identity 
-                * Matrix.CreateRotationX(ringTilt.ToRadians()) 
-                * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-            Empire.Universe.AddObject(SO);
+            CreatePlanetSceneObject(Empire.Universe);
         }
 
         public void LoadAttributes()
@@ -5717,15 +5708,28 @@ output = maxp * take10 = 5
             return 0.0f;
         }
 
-        public void InitializeUpdate()
+        private void CreatePlanetSceneObject(GameScreen screen)
+        {
+            if (SO != null)
+                screen?.RemoveObject(SO);
+
+            SO = ResourceManager.GetPlanetarySceneMesh("Model/SpaceObjects/planet_" + planetType);
+            SO.World = Matrix.CreateScale(scale * 3)
+                     * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+
+            RingWorld = Matrix.CreateRotationX(ringTilt.ToRadians())
+                      * Matrix.CreateScale(5f)
+                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+
+            screen?.AddObject(SO);
+        }
+
+        public void InitializePlanetMesh(GameScreen screen)
         {
             Shield = ShieldManager.AddPlanetaryShield(Center);
             UpdateDescription();
+            CreatePlanetSceneObject(screen);
 
-            SO = ResourceManager.GetSceneMesh("Model/SpaceObjects/planet_" + planetType);
-            SO.World = Matrix.CreateScale(3f * scale) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-            RingWorld = Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f)
-                        * Matrix.CreateTranslation(new Vector3(Center, 2500f));
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(scale)) / 1.5)));
         }
 
@@ -5737,7 +5741,7 @@ output = maxp * take10 = 5
                 ResourcesDict.Add(goodId, Amount);
         }
 
-        private  void UpdatePosition(float elapsedTime)
+        private void UpdatePosition(float elapsedTime)
         {
             Zrotate += ZrotateAmount * elapsedTime;
             if (!Empire.Universe.Paused)
