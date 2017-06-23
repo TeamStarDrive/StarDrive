@@ -67,12 +67,13 @@ namespace mesh
         return false;
     }
 
-    static vector<shared_ptr<Material>> LoadMaterials(const string& matlibFile)
+    static vector<shared_ptr<Material>> LoadMaterials(strview matlibFile)
     {
         vector<shared_ptr<Material>> materials;
 
         if (auto parser = buffer_line_parser::from_file(matlibFile))
         {
+            string matlibFolder = folder_path(matlibFile);
             Material* mat = nullptr;
             strview line;
             while (parser.read_line(line))
@@ -82,7 +83,8 @@ namespace mesh
                 {
                     materials.push_back(make_shared<Material>());
                     mat = materials.back().get();
-                    mat->Name = (string)line.trim();
+                    mat->Name         = line.trim();
+                    mat->MaterialFile = matlibFile;
                 }
                 else if (mat)
                 {
@@ -93,11 +95,11 @@ namespace mesh
                     else if (id == "Ns") mat->Specular = line.to_float() / 1000.0f; // Ns is [0, 1000], normalize to [0, 1]
                     else if (id == "d")  mat->Alpha    = line.to_float();
                     else if (id == "Tr") mat->Alpha    = 1.0f - line.to_float();
-                    else if (id == "map_Kd")   mat->DiffusePath  = line.next(' ');
-                    else if (id == "map_d")    mat->AlphaPath    = line.next(' ');
-                    else if (id == "map_Ks")   mat->SpecularPath = line.next(' ');
-                    else if (id == "map_bump") mat->NormalPath   = line.next(' ');
-                    else if (id == "map_Ke")   mat->EmissivePath = line.next(' ');
+                    else if (id == "map_Kd")   mat->DiffusePath  = matlibFolder + line.next(' ');
+                    else if (id == "map_d")    mat->AlphaPath    = matlibFolder + line.next(' ');
+                    else if (id == "map_Ks")   mat->SpecularPath = matlibFolder + line.next(' ');
+                    else if (id == "map_bump") mat->NormalPath   = matlibFolder + line.next(' ');
+                    else if (id == "map_Ke")   mat->EmissivePath = matlibFolder + line.next(' ');
                 }
             }
         }
@@ -111,7 +113,7 @@ namespace mesh
     struct ObjLoader
     {
         Mesh& mesh;
-        const string& meshPath;
+        strview meshPath;
         buffer_line_parser parser;
         size_t numVerts = 0, numCoords = 0, numNormals = 0, numColors = 0, numFaces = 0;
         vector<shared_ptr<Material>> materials;
@@ -126,8 +128,8 @@ namespace mesh
         void* dataBuffer = nullptr;
         size_t bufferSize = 0;
 
-        explicit ObjLoader(Mesh& mesh, const string& meshPath)
-            : mesh{ mesh }, meshPath { meshPath }, parser{ buffer_line_parser::from_file(meshPath) }
+        explicit ObjLoader(Mesh& mesh, strview meshPath)
+            : mesh{ mesh }, meshPath{ meshPath }, parser{ buffer_line_parser::from_file(meshPath) }
         {
         }
 
@@ -192,7 +194,8 @@ namespace mesh
         {
             if (materials.empty() && !triedDefaultMat) {
                 triedDefaultMat = true;
-                materials = LoadMaterials(file_replace_ext(meshPath, "obj"));
+                string defaultMat = file_replace_ext(meshPath, "mtl");
+                materials = LoadMaterials(defaultMat);
             }
             for (auto& mat : materials)
                 if (matName.equalsi(mat->Name))
@@ -310,7 +313,9 @@ namespace mesh
                 else if (c == 'm' && memcmp(line.str, "mtllib", 6) == 0)
                 {
                     line.skip(7); // skip "mtllib "
-                    materials = LoadMaterials(line.next(' '));
+                    strview matlib = line.next(' ');
+                    string matlibPath = path_combine(folder_path(meshPath), matlib);
+                    materials = LoadMaterials(matlibPath);
                 }
                 else if (c == 'g')
                 {
@@ -390,19 +395,19 @@ namespace mesh
         }
     };
 
-    bool Mesh::LoadOBJ(const string& meshPath) noexcept
+    bool Mesh::LoadOBJ(strview meshPath) noexcept
     {
         Clear();
 
         ObjLoader loader { *this, meshPath };
 
         if (!loader.parser) {
-            println(stderr, "Failed to open file", meshPath);
+            println(stderr, "Failed to open file:", meshPath);
             return false;
         }
 
         if (!loader.ProbeStats()) {
-            fprintf(stderr, "Mesh::LoadOBJ() failed: No vertices in %s\n", meshPath.c_str());
+            println(stderr, "Mesh::LoadOBJ() failed! No vertices in:", meshPath);
             return false;
         }
 
@@ -441,7 +446,7 @@ namespace mesh
         return colors;
     }
 
-    bool Mesh::SaveAsOBJ(const string& meshPath) const noexcept
+    bool Mesh::SaveAsOBJ(strview meshPath) const noexcept
     {
         if (file f = file{ meshPath, CREATENEW })
         {
@@ -471,9 +476,9 @@ namespace mesh
                 else // non-standard extension for OBJ vertex colors
                 {
                     // @todo Just leave a warning and export incorrect vertex colors?
-                    assert((ColorMapping == MapPerVertex || ColorMapping == MapPerFaceVertex) 
+                    assert((g.ColorMapping == MapPerVertex || g.ColorMapping == MapPerFaceVertex) 
                         && "OBJ export only supports per-vertex and per-face-vertex color mapping!");
-                    assert(NumColors() >= NumVerts());
+                    assert(g.NumColors() >= g.NumVerts());
 
                     auto& colors = g.ColorMapping == MapPerFaceVertex ? FlattenColors(g) : g.Colors;
                     auto* colorsData = colors.data();
@@ -511,7 +516,7 @@ namespace mesh
             }
             return true;
         }
-        fprintf(stderr, "Failed to create file '%s'\n", meshPath.c_str());
+        println(stderr, "Failed to create file: ", meshPath);
         return false;
     }
 

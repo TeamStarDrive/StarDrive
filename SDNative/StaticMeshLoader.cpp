@@ -5,11 +5,10 @@ namespace SDNative
     ////////////////////////////////////////////////////////////////////////////////////
 
     SDMeshGroup::SDMeshGroup(Mesh& mesh, int groupId)
-        : GroupId(groupId), Owner{ mesh }, Data{mesh[groupId]}
+        : GroupId(groupId), Mat{mesh[groupId].Mat}, Owner{ mesh }, Data{mesh[groupId]}
     {
         Name = Data.Name;
-        Mat  = Data.Mat.get();
-        Data.CreateGameVertexData(Vertices, Indices);
+        InitVerts();
     }
 
     static void ComputeTangentBasis(
@@ -34,12 +33,17 @@ namespace SDNative
         binormal.normalize();
     }
 
-    void SDMeshGroup::GetData(SDVertex* vertices, ushort* indices)
+    void SDMeshGroup::InitVerts()
     {
-        int numVertices = Vertices.size();
-        int numIndices  = Indices.size();
-        auto* groupVertices = Vertices.data();
-        auto* groupIndices  = Indices.data();
+        vector<int> indices;
+        vector<BasicVertex> vertices;
+        Data.CreateGameVertexData(vertices, indices);
+        NumVertices         = (int)vertices.size();
+        NumIndices          = (int)indices.size();
+        int numVertices     = NumVertices;
+        int numIndices      = NumIndices;
+        auto* groupVertices = vertices.data();
+        auto* groupIndices  = indices.data();
 
         if (numVertices == 0 || numIndices == 0) {
             fprintf(stderr, "WARNING: No mesh data for group %d\n", GroupId);
@@ -51,12 +55,17 @@ namespace SDNative
             fprintf(stderr, "WARNING: MeshGroup %d is not triangulated!!!\n", GroupId);
         }
 
+        IndexData.resize(NumIndices);
+        VertexData.resize(NumVertices);
+        auto* outIndices  = Indices  = IndexData.data();
+        auto* outVertices = Vertices = VertexData.data();
+
         for (int i = 0; i < numIndices; ++i)
-            indices[i] = (ushort)groupIndices[i];
+            outIndices[i] = (ushort)groupIndices[i];
 
         for (int i = 0; i < numVertices; ++i)
         {
-            SDVertex& sdv = vertices[i];
+            SDVertex& sdv  = outVertices[i];
             BasicVertex& v = groupVertices[i];
             sdv.Position = v.pos;
             sdv.Coords   = v.uv;
@@ -66,9 +75,9 @@ namespace SDNative
         Vector3 tangent, binormal;
         for (int i = 0; i < numIndices; i += 3)
         {
-            SDVertex& v0 = vertices[i];
-            SDVertex& v1 = vertices[i+1];
-            SDVertex& v2 = vertices[i+2];
+            SDVertex& v0 = outVertices[i];
+            SDVertex& v1 = outVertices[i+1];
+            SDVertex& v2 = outVertices[i+2];
             ComputeTangentBasis(v0.Position, v1.Position, v2.Position, v0.Coords, v1.Coords, v2.Coords, tangent, binormal);
             v0.Tangent  = tangent;
             v0.Binormal = binormal;
@@ -84,6 +93,9 @@ namespace SDNative
     SDMesh::SDMesh(strview path) : Data{ path }
     {
         Groups.resize(Data.NumGroups());
+        Name = Data.Name;
+        NumGroups = Data.NumGroups();
+        NumFaces = Data.NumFaces;
     }
 
     SDMeshGroup* SDMesh::GetGroup(int groupId)
@@ -116,25 +128,9 @@ namespace SDNative
         delete mesh;
     }
 
-    DLLAPI(int) SDMeshNumGroups(SDMesh* mesh)
-    {
-        return mesh ? mesh->Data.NumGroups() : 0;
-    }
-
     DLLAPI(SDMeshGroup*) SDMeshGetGroup(SDMesh* mesh, int groupId)
     {
         return mesh ? mesh->GetGroup(groupId) : nullptr;
-    }
-
-    DLLAPI(void) SDMeshGroupStats(SDMeshGroup* group, int* outVertices, int* outIndices)
-    {
-        *outVertices = group ? group->Vertices.size() : 0;
-        *outIndices  = group ? group->Indices.size()  : 0;
-    }
-
-    DLLAPI(void) SDMeshGetGroupData(SDMeshGroup* group, SDVertex* vertices, ushort* indices)
-    {
-        if (group) group->GetData(vertices, indices);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
