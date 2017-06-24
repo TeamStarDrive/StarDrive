@@ -228,6 +228,9 @@ namespace Ship_Game.AI {
             //}
         }
 
+        public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing,
+            bool clearOrders) => OrderMoveDirectlyTowardsPosition(position, desiredFacing, Vector2.Zero, clearOrders);
+
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec,
             bool ClearOrders)
         {
@@ -255,7 +258,7 @@ namespace Ship_Game.AI {
             {
                 ActiveWayPoints.Enqueue(position);
             }
-            FinalFacingVector = fVec;
+            //FinalFacingVector = fVec;
             DesiredFacing = desiredFacing;
             lock (WayPointLocker)
             {
@@ -406,6 +409,9 @@ namespace Ship_Game.AI {
             AddShipGoal(Plan.RotateToDesiredFacing, MovePosition, desiredFacing);
         }
 
+        public void OrderMoveTowardsPosition(Vector2 position, float desiredFacing, bool clearOrders, Planet targetPlanet)
+            => OrderMoveTowardsPosition(position, desiredFacing, Vector2.Zero, clearOrders, targetPlanet);
+
         public void OrderMoveTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool clearOrders,
             Planet targetPlanet)
         {
@@ -430,8 +436,7 @@ namespace Ship_Game.AI {
             MovePosition = position;
 
             PlotCourseToNew(position, ActiveWayPoints.Count > 0 ? ActiveWayPoints.Last() : Owner.Center);
-
-            FinalFacingVector = fVec;
+            
             DesiredFacing = desiredFacing;
 
             Vector2[] waypoints;

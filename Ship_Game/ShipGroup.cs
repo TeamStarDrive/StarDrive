@@ -84,12 +84,13 @@ namespace Ship_Game
                 }
             }
         }
-        public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 destination, Vector2 origin, float facingRadians, Vector2 fVec,  Empire owner)
+        public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner,  float facingRadians, Vector2 fVec,  Empire owner)
         {                                    
-            float clickDistance = Vector2.Distance(destination, origin);
-            int num4 = 0;
-            int num5 = 0;
+            float clickDistance = Vector2.Distance(fleetLeftCorner, fleetRightCorner);
+            int row = 0;
+            int column = 0;
             float maxRadius = 0.0f;
+            Facing = facingRadians - 1.570796f;
             for (int i = 0; i < shipList.Count; ++i)                            
                 maxRadius = Math.Max(maxRadius, shipList[i].GetSO().WorldBoundingSphere.Radius);
             
@@ -99,11 +100,11 @@ namespace Ship_Game
                 {
                     AddShip(shipList[i]);
                     Ships[i].RelativeFleetOffset =
-                        new Vector2((maxRadius + 200f) * num5, num4 * (maxRadius + 200f));
-                    ++num5;
+                        new Vector2((maxRadius + 200f) * column, row * (maxRadius + 200f));
+                    ++column;
                     if (!(Ships[i].RelativeFleetOffset.X + maxRadius > clickDistance)) continue;
-                    num5 = 0;
-                    ++num4;
+                    column = 0;
+                    ++row;
                 }
             }
             else
@@ -115,7 +116,7 @@ namespace Ship_Game
                     Ships[i].RelativeFleetOffset = new Vector2(num7 * i, 0.0f);
                 }
             }
-            ProjectPos(destination, facingRadians - 1.570796f, fVec);
+            ProjectPos(fleetLeftCorner, facingRadians - 1.570796f, fVec);
         }
         public Vector2 FindAveragePosition()
         {
