@@ -40,9 +40,9 @@ namespace Ship_Game
             GoalMovePosition = new Vector2();
         }
 
-        public void ProjectPos(Vector2 projectedPosition, float facing, Vector2 fVec)
+        public void ProjectPos(Vector2 projectedPosition, float facing)
         {
-            this.ProjectedFacing = facing;
+            ProjectedFacing = facing;
             foreach (Ship ship in Ships)
             {
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
@@ -90,7 +90,6 @@ namespace Ship_Game
             int row = 0;
             int column = 0;
             float maxRadius = 0.0f;
-            Facing = facingRadians - 1.570796f;
             for (int i = 0; i < shipList.Count; ++i)                            
                 maxRadius = Math.Max(maxRadius, shipList[i].GetSO().WorldBoundingSphere.Radius);
             
@@ -116,7 +115,7 @@ namespace Ship_Game
                     Ships[i].RelativeFleetOffset = new Vector2(num7 * i, 0.0f);
                 }
             }
-            ProjectPos(fleetLeftCorner, facingRadians - 1.570796f, fVec);
+            ProjectPos(fleetLeftCorner, facingRadians - 1.570796f);
         }
         public Vector2 FindAveragePosition()
         {
