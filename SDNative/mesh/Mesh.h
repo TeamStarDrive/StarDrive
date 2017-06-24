@@ -139,8 +139,12 @@ namespace mesh
         Face* begin() { return &Faces.front(); }
         Face* end()   { return &Faces.back() + 1; }
 
-        bool IsTriangulated() const { return NumVerts() == NumFaces() * 3; }
+        // will scan all Face declarations to ensure all faces are triangular, not quads or polys
+        bool CheckIsTriangulated() const;
         void Triangulate();
+
+        // will flip the face winding from CW to CCW or from CCW to CW
+        void InvertFaceWindingOrder();
 
         bool IsFlattened() const noexcept
         {

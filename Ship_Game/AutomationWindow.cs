@@ -89,68 +89,68 @@ namespace Ship_Game
         public bool HandleInput(InputState input)
         {
             return false;
-            var empire = EmpireManager.Player;
-            if (!ColonyShipDropDown.Open && !ScoutDropDown.Open && !ConstructorDropDown.Open)
-            {
-                AutoFreighterDropDown.HandleInput(input);
-            }
-            try
-            {
-                empire.data.CurrentAutoFreighter = AutoFreighterDropDown.Options[AutoFreighterDropDown.ActiveIndex].Name;
-            }
-            catch
-            {
-                AutoFreighterDropDown.ActiveIndex = 0;
-            }
+            //var empire = EmpireManager.Player;
+            //if (!ColonyShipDropDown.Open && !ScoutDropDown.Open && !ConstructorDropDown.Open)
+            //{
+            //    AutoFreighterDropDown.HandleInput(input);
+            //}
+            //try
+            //{
+            //    empire.data.CurrentAutoFreighter = AutoFreighterDropDown.Options[AutoFreighterDropDown.ActiveIndex].Name;
+            //}
+            //catch
+            //{
+            //    AutoFreighterDropDown.ActiveIndex = 0;
+            //}
 
 
-            if (!AutoFreighterDropDown.Open && !ScoutDropDown.Open && !ConstructorDropDown.Open)
-            {
-                ColonyShipDropDown.HandleInput(input);
-            }
-            try
-            {
-                empire.data.CurrentAutoColony = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
-            }
-            catch
-            {
-                ColonyShipDropDown.ActiveIndex = 0;
-            }
+            //if (!AutoFreighterDropDown.Open && !ScoutDropDown.Open && !ConstructorDropDown.Open)
+            //{
+            //    ColonyShipDropDown.HandleInput(input);
+            //}
+            //try
+            //{
+            //    empire.data.CurrentAutoColony = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
+            //}
+            //catch
+            //{
+            //    ColonyShipDropDown.ActiveIndex = 0;
+            //}
 
 
-            if (!ColonyShipDropDown.Open && !AutoFreighterDropDown.Open && !ConstructorDropDown.Open)
-            {
-                ScoutDropDown.HandleInput(input);
-            }
-            try
-            {
-                empire.data.CurrentAutoScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
-            }
-            catch
-            {
-                ScoutDropDown.ActiveIndex = 0;
-            }
+            //if (!ColonyShipDropDown.Open && !AutoFreighterDropDown.Open && !ConstructorDropDown.Open)
+            //{
+            //    ScoutDropDown.HandleInput(input);
+            //}
+            //try
+            //{
+            //    empire.data.CurrentAutoScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
+            //}
+            //catch
+            //{
+            //    ScoutDropDown.ActiveIndex = 0;
+            //}
 
-            if (!ColonyShipDropDown.Open && !AutoFreighterDropDown.Open && !ScoutDropDown.Open)
-            {
-                ConstructorDropDown.HandleInput(input);
-            }
-            try
-            {
-                empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
-            }
-            catch
-            {
-                ConstructorDropDown.ActiveIndex = 0;
-            }
+            //if (!ColonyShipDropDown.Open && !AutoFreighterDropDown.Open && !ScoutDropDown.Open)
+            //{
+            //    ConstructorDropDown.HandleInput(input);
+            //}
+            //try
+            //{
+            //    empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
+            //}
+            //catch
+            //{
+            //    ConstructorDropDown.ActiveIndex = 0;
+            //}
 
-            if (Checkboxes.Any(checkbox => checkbox.HandleInput(input)))
-                return true;
+            //if (Checkboxes.Any(checkbox => checkbox.HandleInput(input)))
+            //    return true;
 
-            if (!ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || !input.RightMouseClick)
-                return false;
-            isOpen = false;
-            return true;
+            //if (!ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || !input.RightMouseClick)
+            //    return false;
+            //isOpen = false;
+            //return true;
         }
 
         public void SetDropDowns()

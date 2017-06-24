@@ -96,16 +96,16 @@ namespace Mesh
           Class63 class63 = class21_0.New();
           class63.method_0();
           class63.Effect = renderableMesh_0_1.effect_0;
-          class63.Transparent = renderableMesh_0_1.bool_2;
-          class63.DoubleSided = renderableMesh_0_1.bool_3;
-          class63.CustomShadowGeneration = renderableMesh_0_1.bool_4;
+          class63.Transparent = renderableMesh_0_1.HasTransparency;
+          class63.DoubleSided = renderableMesh_0_1.IsDoubleSided;
+          class63.CustomShadowGeneration = renderableMesh_0_1.SupportsShadows;
           class63.Objects.method_0(renderableMesh_0_1);
           list_0.Add(class63);
           renderableMesh_0_1.bool_1 = true;
           for (int j = i + 1; j < list_1.Count; ++j)
           {
             RenderableMesh renderableMesh_0_2 = list_1[j];
-            if (renderableMesh_0_2 != null && !renderableMesh_0_2.bool_1 && (!bool_0 || renderableMesh_0_2.ShadowInFrustum) && (renderableMesh_0_1.int_6 == renderableMesh_0_2.int_6 || !renderableMesh_0_1.bool_2 && !renderableMesh_0_2.bool_2 && (!renderableMesh_0_1.bool_4 && !renderableMesh_0_2.bool_4) && (renderableMesh_0_1.bool_3 == renderableMesh_0_2.bool_3 && !renderableMesh_0_1.bool_5 && !renderableMesh_0_2.bool_5)))
+            if (renderableMesh_0_2 != null && !renderableMesh_0_2.bool_1 && (!bool_0 || renderableMesh_0_2.ShadowInFrustum) && (renderableMesh_0_1.int_6 == renderableMesh_0_2.int_6 || !renderableMesh_0_1.HasTransparency && !renderableMesh_0_2.HasTransparency && (!renderableMesh_0_1.SupportsShadows && !renderableMesh_0_2.SupportsShadows) && (renderableMesh_0_1.IsDoubleSided == renderableMesh_0_2.IsDoubleSided && !renderableMesh_0_1.IsTerrain && !renderableMesh_0_2.IsTerrain)))
             {
               class63.Objects.method_0(renderableMesh_0_2);
               renderableMesh_0_2.bool_1 = true;

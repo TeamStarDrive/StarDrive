@@ -167,7 +167,8 @@ namespace Ship_Game
 
         private void RecordDisposableObject(IDisposable disposable)
         {
-            DisposableAssets.Add(disposable);
+            lock (LoadSync)
+                DisposableAssets.Add(disposable);
         }
 
         // Load the asset with the given name or path

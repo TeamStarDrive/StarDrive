@@ -19,19 +19,18 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public class RenderableMesh
     {
-        internal CullMode Culling = CullMode.CullCounterClockwiseFace;
         internal bool ShadowInFrustum = true;
         internal ISceneObject sceneObject;
         internal Matrix meshToObject;
-        internal Matrix matrix_1;
+        internal Matrix meshToObjectInverse;
         internal BoundingSphere Bounds;
-        internal Matrix matrix_2;
-        internal Matrix matrix_3;
+        internal Matrix worldMatrix;
+        internal Matrix worldToObjectMatrix;
         internal Effect effect_0;
         internal Matrix world;
         internal Matrix worldTranspose;
         internal Matrix worldToMesh;
-        internal Matrix matrix_7;
+        internal Matrix worldToMeshTranspose;
         internal IndexBuffer indexBuffer;
         internal VertexBuffer vertexBuffer;
         internal VertexDeclaration vertexDeclaration;
@@ -46,10 +45,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         internal int int_7;
         internal TransparencyMode Transparency;
         internal bool bool_1;
-        internal bool bool_2;
-        internal bool bool_3;
-        internal bool bool_4;
-        internal bool bool_5;
+        internal bool HasTransparency;
+        internal bool IsDoubleSided;
+        internal bool SupportsShadows;
+        internal bool IsTerrain;
 
         /// <summary>Parent scene object this mesh is contained in.</summary>
         public ISceneObject SceneObject => sceneObject;
@@ -89,7 +88,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// (from world-space to mesh-space, ie: includes the mesh's
         /// object-space transform).
         /// </summary>
-        public Matrix WorldToMeshTranspose => matrix_7;
+        public Matrix WorldToMeshTranspose => worldToMeshTranspose;
 
         /// <summary>Object space transform of the mesh.</summary>
         public Matrix MeshToObject
@@ -98,8 +97,8 @@ namespace SynapseGaming.LightingSystem.Rendering
             set
             {
                 meshToObject = value;
-                Matrix.Invert(ref meshToObject, out matrix_1);
-                method_0();
+                Matrix.Invert(ref meshToObject, out meshToObjectInverse);
+                DetectCullMode();
             }
         }
 
@@ -148,7 +147,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>
         /// Cull mode used to ensure the mesh is rendered correctly.
         /// </summary>
-        public CullMode CullMode => Culling;
+        public CullMode CullMode { get; set; } = CullMode.CullCounterClockwiseFace;
 
         /// <summary>
         /// Object-space bounding area that completely contains the mesh.
@@ -230,7 +229,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             sceneObject = sceneobject;
             effect_0 = effect;
             meshToObject = objectspace;
-            Matrix.Invert(ref meshToObject, out matrix_1);
+            Matrix.Invert(ref meshToObject, out meshToObjectInverse);
             Bounds = objectspaceboundingsphere;
             indexBuffer = indexbuffer;
             elementStart = elementstart;
@@ -273,11 +272,11 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public void CalculateMaterialInfo()
         {
-            Transparency = (effect_0 as ITransparentEffect)?.TransparencyMode ?? TransparencyMode.None;
-            bool_2 = Transparency != TransparencyMode.None;
-            bool_3 = effect_0 is IRenderableEffect && (effect_0 as IRenderableEffect).DoubleSided;
-            bool_4 = effect_0 is IShadowGenerateEffect && (effect_0 as IShadowGenerateEffect).SupportsShadowGeneration;
-            bool_5 = effect_0 is ITerrainEffect;
+            Transparency    = (effect_0 as ITransparentEffect)?.TransparencyMode ?? TransparencyMode.None;
+            HasTransparency = Transparency != TransparencyMode.None;
+            IsDoubleSided   = effect_0 is IRenderableEffect && (effect_0 as IRenderableEffect).DoubleSided;
+            SupportsShadows = effect_0 is IShadowGenerateEffect && (effect_0 as IShadowGenerateEffect).SupportsShadowGeneration;
+            IsTerrain       = effect_0 is ITerrainEffect;
         }
 
         /// <summary>
@@ -301,18 +300,18 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <param name="worldtoobject">Inverse world space transform of the object.</param>
         public void SetWorldAndWorldToObject(Matrix world, Matrix worldtoobject)
         {
-            matrix_2 = world;
-            matrix_3 = worldtoobject;
-            method_0();
+            worldMatrix = world;
+            worldToObjectMatrix = worldtoobject;
+            DetectCullMode();
         }
 
-        private void method_0()
+        private void DetectCullMode()
         {
-            Matrix.Multiply(ref meshToObject, ref matrix_2, out world);
+            Matrix.Multiply(ref meshToObject, ref worldMatrix, out world);
             Matrix.Transpose(ref world, out worldTranspose);
-            Matrix.Multiply(ref matrix_3, ref matrix_1, out worldToMesh);
-            Matrix.Transpose(ref worldToMesh, out matrix_7);
-            Culling = world.Determinant() >= 0.0 ? CullMode.CullCounterClockwiseFace : CullMode.CullClockwiseFace;
+            Matrix.Multiply(ref worldToObjectMatrix, ref meshToObjectInverse, out worldToMesh);
+            Matrix.Transpose(ref worldToMesh, out worldToMeshTranspose);
+            CullMode = world.Determinant() >= 0.0 ? CullMode.CullCounterClockwiseFace : CullMode.CullClockwiseFace;
         }
     }
 }

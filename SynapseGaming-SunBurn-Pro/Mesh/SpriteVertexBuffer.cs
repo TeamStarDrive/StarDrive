@@ -22,7 +22,7 @@ namespace Mesh
         public static readonly int SizeInBytes = 44;
     }
 
-    public class MeshBuffer : IDisposable
+    public class SpriteVertexBuffer : IDisposable
     {
         public BoundingBox ObjectBoundingBox { get; private set; }
 

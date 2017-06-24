@@ -777,7 +777,6 @@ namespace Ship_Game
         private void HandleRightMouseNew()
         {
             if (Input.RightMouseHeldUp) return;
-            Viewport viewport;
             if (Input.RightMouseClick)
             {
                 SelectedSomethingTimer = 3f;

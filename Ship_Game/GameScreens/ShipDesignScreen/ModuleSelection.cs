@@ -17,7 +17,7 @@ namespace Ship_Game
         private Submenu ChooseFighterSub;
         private ScrollList ChooseFighterSL;
         public Rectangle Choosefighterrect;
-        public void ResetLists() => WeaponSl.Reset = true;
+        public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
         public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(parentScreen.ScreenManager, window, true)
         {
             ParentScreen = parentScreen;
@@ -54,15 +54,16 @@ namespace Ship_Game
             ChooseFighterSub.AddTab("Choose Fighter");
             ChooseFighterSL = new ScrollList(ChooseFighterSub, 40);
         }
-        public bool HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             if (WeaponSl.HandleInput(input))
                 return true;
 
             ChooseFighterSL.HandleInput(input);
             ActiveModSubMenu.HandleInputNoReset();
-            if (!base.HandleInput(input)) return false;
-            WeaponSl.Reset = true;
+            if (!base.HandleInput(input))
+                return false;
+            WeaponSl.ResetOnNextDraw = true;
             WeaponSl.indexAtTop = 0;
             return false;
             //base.HandleInput(ParentScreen);

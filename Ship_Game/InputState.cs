@@ -21,7 +21,7 @@ namespace Ship_Game
         public Vector2 StartLeftHold { get; private set; }
         public Vector2 EndLeftHold { get; private set; }
        
-
+        public bool WasAnyKeyPressed => KeysCurr.GetPressedKeys().Length > 0;
 
         //Mouse Timers
         private float RightMouseDownTime;
@@ -242,7 +242,7 @@ namespace Ship_Game
             if (!held && !wasHeld) return Vector2.Zero;
             return CursorPosition;
         }
-        public  void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             KeysPrev        = KeysCurr;
             GamepadPrev     = GamepadCurr;
@@ -259,8 +259,6 @@ namespace Ship_Game
             EndRightHold   = UpdateHoldEndPosistion(RightHeld, RightMouseWasHeld, StartRighthold);
             StartLeftHold  = UpdateHoldStartPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold);
             EndLeftHold    = UpdateHoldEndPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold);
-
-
         }
     }
 }
