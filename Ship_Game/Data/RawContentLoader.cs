@@ -32,8 +32,10 @@ namespace Ship_Game
             if (extension.Empty())
                 return false;
             if (extension[0] == '.')
-                return extension == ".fbx" || extension == ".obj";
-            return extension == "fbx" || extension == "obj";
+                return extension.Equals(".fbx", StringComparison.OrdinalIgnoreCase)
+                    || extension.Equals(".obj", StringComparison.OrdinalIgnoreCase);
+            return extension.Equals("fbx", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals("obj", StringComparison.OrdinalIgnoreCase);
         }
 
         public static bool IsSupportedMesh(string modelNameWithExtension)
