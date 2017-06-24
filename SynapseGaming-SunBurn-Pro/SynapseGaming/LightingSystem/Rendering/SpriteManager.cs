@@ -17,7 +17,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     public class SpriteManager : IManagerService
     {
         private readonly TrackingPool<RenderableMesh> MeshPool = new TrackingPool<RenderableMesh>();
-        private DisposablePool<MeshBuffer> DisposablePool0 = new DisposablePool<MeshBuffer>();
+        private DisposablePool<SpriteVertexBuffer> DisposablePool0 = new DisposablePool<SpriteVertexBuffer>();
         private IGraphicsDeviceService igraphicsDeviceService_0;
         private static readonly Type ThisType = typeof(SpriteManager);
 

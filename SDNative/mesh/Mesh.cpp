@@ -16,9 +16,33 @@ namespace mesh
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    bool MeshGroup::CheckIsTriangulated() const
+    {
+        for (const Face& face : Faces)
+            if (face.Count != 3)
+                return false;
+        return true;
+    }
+
     void MeshGroup::Triangulate()
     {
         throw runtime_error("not implemented");
+    }
+
+    void MeshGroup::InvertFaceWindingOrder()
+    {
+        for (Face& face : Faces)
+        {
+            if (face.Count == 3)
+            {
+                swap(face.VDS[0], face.VDS[2]);
+            }
+            else if (face.Count == 4)
+            {
+                swap(face.VDS[0], face.VDS[3]);
+                swap(face.VDS[1], face.VDS[2]);
+            }
+        }
     }
 
     void MeshGroup::UpdateNormal(const VertexDescr& vd0, 

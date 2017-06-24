@@ -16,18 +16,24 @@ namespace Ship_Game
     /// </summary>
     public class RawContentLoader
     {
-        private readonly GameContentManager    Content;
-        private readonly GraphicsDeviceManager GraphicsManager;
+        private readonly GameContentManager Content;
+
+        // This must be lazy init, because content manager is instantianted before
+        // graphics device is initialized
+        public GraphicsDevice Device => Content.Manager.GraphicsDevice;
 
         public RawContentLoader(GameContentManager content)
         {
-            Content         = content;
-            GraphicsManager = content.Manager;
+            Content = content;
         }
 
         public static bool IsSupportedMeshExtension(string extension)
         {
-            return extension.NotEmpty() && (extension == "fbx" || extension == "obj");
+            if (extension.Empty())
+                return false;
+            if (extension[0] == '.')
+                return extension == ".fbx" || extension == ".obj";
+            return extension == "fbx" || extension == "obj";
         }
 
         public static bool IsSupportedMesh(string modelNameWithExtension)
@@ -43,11 +49,11 @@ namespace Ship_Game
                 return StaticMeshFromFile(fileNameWithExt);
             }
             Log.Info(ConsoleColor.Magenta, "Raw LoadTexture: {0}", fileNameWithExt);
-            return Texture2D.FromFile(GraphicsManager.GraphicsDevice, fileNameWithExt);
+            return Texture2D.FromFile(Device, fileNameWithExt);
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private unsafe struct SDMesh
+        private struct SDMesh
         {
             public readonly CStrView Name;
             public readonly int NumGroups;
@@ -55,7 +61,7 @@ namespace Ship_Game
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private unsafe struct SDMaterial
+        private struct SDMaterial
         {
             public readonly CStrView Name; // name of the material instance
             public readonly CStrView MaterialFile;
@@ -73,19 +79,7 @@ namespace Ship_Game
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private unsafe struct SDMeshGroup
-        {
-            public readonly int GroupId;
-            public readonly CStrView Name;
-            public readonly SDMaterial Mat;
-            public readonly int NumVertices;
-            public readonly int NumIndices;
-            public readonly SDVertex* Vertices;
-            public readonly ushort*   Indices;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private unsafe struct SDVertex
+        private struct SDVertex
         {
             public Vector3 Position;
             public Vector3 Normal;
@@ -94,9 +88,106 @@ namespace Ship_Game
             public Vector3 Binormal;
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        private unsafe struct SDMeshGroup
+        {
+            public readonly int GroupId;
+            public readonly CStrView Name;
+            public readonly SDMaterial Mat;
+            public readonly int NumTriangles;
+            public readonly int NumVertices;
+            public readonly int NumIndices;
+            public readonly SDVertex* Vertices;
+            public readonly ushort*   Indices;
+            public readonly BoundingSphere Bounds;
+
+            public IndexBuffer CopyIndices(GraphicsDevice device)
+            {
+                ushort* src = Indices;
+                var dst = new ushort[NumIndices];
+                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
+
+                var buf = new IndexBuffer(device, sizeof(ushort)*NumIndices, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
+                buf.SetData(dst);
+                return buf;
+            }
+
+            public VertexBuffer CopyVertices(GraphicsDevice device)
+            {
+                SDVertex* src = Vertices;
+                var dst = new SDVertex[NumVertices];
+                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
+
+                var buf = new VertexBuffer(device, sizeof(SDVertex)*NumVertices, BufferUsage.WriteOnly);
+                buf.SetData(dst);
+                return buf;
+            }
+
+            public LightingEffect CreateMaterialEffect(GraphicsDevice device, GameContentManager content)
+            {
+                var fx = new LightingEffect(device);
+                fx.MaterialName             = Mat.Name.AsString;
+                fx.MaterialFile             = Mat.MaterialFile.AsString;
+                fx.ProjectFile              = "Ship_Game/Data/RawContentLoader.cs";
+                fx.DiffuseMapFile           = Mat.DiffusePath.AsString;
+                fx.EmissiveMapFile          = Mat.EmissivePath.AsString;
+                fx.NormalMapFile            = Mat.NormalPath.AsString;
+                fx.SpecularColorMapFile     = Mat.SpecularPath.AsString;
+                fx.DiffuseAmbientMapFile    = "";
+                fx.ParallaxMapFile          = "";
+                if (fx.DiffuseMapFile.NotEmpty())        fx.DiffuseMapTexture        = content.Load<Texture2D>(fx.DiffuseMapFile);
+                if (fx.EmissiveMapFile.NotEmpty())       fx.EmissiveMapTexture       = content.Load<Texture2D>(fx.EmissiveMapFile);
+                if (fx.NormalMapFile.NotEmpty())         fx.NormalMapTexture         = content.Load<Texture2D>(fx.NormalMapFile);
+                if (fx.SpecularColorMapFile.NotEmpty())  fx.SpecularColorMapTexture  = content.Load<Texture2D>(fx.SpecularColorMapFile);
+                //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
+                //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
+                fx.Skinned         = false;
+                fx.DoubleSided     = false;
+
+                Texture2D alphaMap = Mat.AlphaPath.NotEmpty
+                    ? content.Load<Texture2D>(Mat.AlphaPath.AsString)
+                    : fx.DiffuseMapTexture;
+
+                float transparency = 1.0f - Mat.Alpha;
+                fx.SetTransparencyModeAndMap(TransparencyMode.None, transparency, alphaMap);
+
+                fx.SpecularPower                 = 14.0f * Mat.Specular;
+                fx.SpecularAmount                = 6.0f;
+                fx.FresnelReflectBias            = 0.0f;
+                fx.FresnelReflectOffset          = 0.0f;
+                fx.FresnelMicrofacetDistribution = 0.0f;
+                fx.ParallaxScale                 = 0.0f;
+                fx.ParallaxOffset                = 0.0f;
+                fx.DiffuseColor  = Mat.DiffuseColor;
+                fx.EmissiveColor = Mat.EmissiveColor;
+                fx.AddressModeU  = TextureAddressMode.Wrap;
+                fx.AddressModeV  = TextureAddressMode.Wrap;
+                fx.AddressModeW  = TextureAddressMode.Wrap;
+                return fx;
+            }
+
+        }
+
         [DllImport("SDNative.dll")] private static extern unsafe SDMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string filename);
         [DllImport("SDNative.dll")] private static extern unsafe void SDMeshClose(SDMesh* mesh);
         [DllImport("SDNative.dll")] private static extern unsafe SDMeshGroup* SDMeshGetGroup(SDMesh* mesh, int groupId);
+
+        private static VertexDeclaration Layout;
+        private static VertexDeclaration VertexLayout(GraphicsDevice device)
+        {
+            if (Layout == null)
+            {
+                Layout = new VertexDeclaration(device, new[]
+                {
+                    new VertexElement(0, 0,  VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0),
+                    new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0),
+                    new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0),
+                    new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0),
+                    new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0),
+                });
+            }
+            return Layout;
+        }
 
         private static string GetContentPath(string modelName)
         {
@@ -112,6 +203,7 @@ namespace Ship_Game
             }
             return "Content/" + modelName;
         }
+
         private unsafe StaticMesh StaticMeshFromFile(string modelName)
         {
             string meshPath = GetContentPath(modelName);
@@ -122,6 +214,7 @@ namespace Ship_Game
 
             Log.Info(ConsoleColor.Green, $"SDStaticMesh {sdmesh->Name} | faces:{sdmesh->NumFaces} | groups:{sdmesh->NumGroups}");
 
+            GraphicsDevice device = Device;
             var staticMesh = new StaticMesh { Name = sdmesh->Name.AsString };
 
             for (int i = 0; i < sdmesh->NumGroups; ++i)
@@ -132,11 +225,18 @@ namespace Ship_Game
 
                 Log.Info(ConsoleColor.Green, $"  group {g->GroupId}: {g->Name}  verts:{g->NumVertices}  ids:{g->NumIndices}");
 
-                var meshData = new MeshData();
-
-                meshData.Name   = g->Name.AsString;
-                meshData.Effect = CreateLightingEffect(g);
-
+                var meshData = new MeshData
+                {
+                    Name                      = g->Name.AsString,
+                    Effect                    = g->CreateMaterialEffect(device, Content),
+                    ObjectSpaceBoundingSphere = g->Bounds,
+                    IndexBuffer               = g->CopyIndices(device),
+                    VertexBuffer              = g->CopyVertices(device),
+                    VertexDeclaration         = VertexLayout(device),
+                    PrimitiveCount            = g->NumTriangles,
+                    VertexCount               = g->NumVertices,
+                    VertexStride              = sizeof(SDVertex)
+                };
                 staticMesh.Meshes.Add(meshData);
             }
 
@@ -150,49 +250,5 @@ namespace Ship_Game
             return null;
         }
 
-
-        private unsafe LightingEffect CreateLightingEffect(SDMeshGroup* g)
-        {
-            GraphicsDevice device = GraphicsManager.GraphicsDevice;
-            var fx = new LightingEffect(device);
-            fx.MaterialName             = g->Mat.Name.AsString;
-            fx.MaterialFile             = g->Mat.MaterialFile.AsString;
-            fx.ProjectFile              = "Ship_Game/Data/RawContentLoader.cs";
-            fx.DiffuseMapFile           = g->Mat.DiffusePath.AsString;
-            fx.EmissiveMapFile          = g->Mat.EmissivePath.AsString;
-            fx.NormalMapFile            = g->Mat.NormalPath.AsString;
-            fx.SpecularColorMapFile     = g->Mat.SpecularPath.AsString;
-            fx.DiffuseAmbientMapFile    = "";
-            fx.ParallaxMapFile          = "";
-            if (fx.DiffuseMapFile.NotEmpty())        fx.DiffuseMapTexture        = Content.Load<Texture2D>(fx.DiffuseMapFile);
-            if (fx.EmissiveMapFile.NotEmpty())       fx.EmissiveMapTexture       = Content.Load<Texture2D>(fx.EmissiveMapFile);
-            if (fx.NormalMapFile.NotEmpty())         fx.NormalMapTexture         = Content.Load<Texture2D>(fx.NormalMapFile);
-            if (fx.SpecularColorMapFile.NotEmpty())  fx.SpecularColorMapTexture  = Content.Load<Texture2D>(fx.SpecularColorMapFile);
-            //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = Content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
-            //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, Content.Load<Texture2D>(fx.ParallaxMapFile));
-            fx.Skinned         = false;
-            fx.DoubleSided     = false;
-
-            Texture2D alphaMap = g->Mat.AlphaPath.NotEmpty
-                ? Content.Load<Texture2D>(g->Mat.AlphaPath.AsString)
-                : fx.DiffuseMapTexture;
-
-            float transparency = 1.0f - g->Mat.Alpha;
-            fx.SetTransparencyModeAndMap(TransparencyMode.None, transparency, alphaMap);
-
-            fx.SpecularPower                 = 14.0f * g->Mat.Specular;
-            fx.SpecularAmount                = 6.0f;
-            fx.FresnelReflectBias            = 0.0f;
-            fx.FresnelReflectOffset          = 0.0f;
-            fx.FresnelMicrofacetDistribution = 0.0f;
-            fx.ParallaxScale                 = 0.0f;
-            fx.ParallaxOffset                = 0.0f;
-            fx.DiffuseColor  = g->Mat.DiffuseColor;
-            fx.EmissiveColor = g->Mat.EmissiveColor;
-            fx.AddressModeU  = TextureAddressMode.Wrap;
-            fx.AddressModeV  = TextureAddressMode.Wrap;
-            fx.AddressModeW  = TextureAddressMode.Wrap;
-            return fx;
-        }
     }
 }

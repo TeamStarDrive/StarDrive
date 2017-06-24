@@ -12,7 +12,7 @@ namespace SDNative
     }
 
     static void ComputeTangentBasis(
-        const Vector3& p0, const Vector3& p1, const Vector3& p2, 
+        const Vector3& p0,  const Vector3& p1,  const Vector3& p2, 
         const Vector2& uv0, const Vector2& uv1, const Vector2& uv2,
         Vector3& tangent, Vector3& binormal)
     {
@@ -37,11 +37,12 @@ namespace SDNative
     {
         vector<int> indices;
         vector<BasicVertex> vertices;
+
+        Data.InvertFaceWindingOrder();
         Data.CreateGameVertexData(vertices, indices);
-        NumVertices         = (int)vertices.size();
-        NumIndices          = (int)indices.size();
-        int numVertices     = NumVertices;
-        int numIndices      = NumIndices;
+        NumTriangles    = Data.NumFaces();
+        int numVertices = NumVertices = (int)vertices.size();
+        int numIndices  = NumIndices  = (int)indices.size();
         auto* groupVertices = vertices.data();
         auto* groupIndices  = indices.data();
 
@@ -50,7 +51,7 @@ namespace SDNative
             return;
         }
 
-        bool isTriangulated = Owner.Groups[GroupId].IsTriangulated();
+        bool isTriangulated = Owner.Groups[GroupId].CheckIsTriangulated();
         if (!isTriangulated) {
             fprintf(stderr, "WARNING: MeshGroup %d is not triangulated!!!\n", GroupId);
         }
@@ -63,21 +64,23 @@ namespace SDNative
         for (int i = 0; i < numIndices; ++i)
             outIndices[i] = (ushort)groupIndices[i];
 
+        Bounds = BoundingSphere::create(groupVertices, numVertices);
+
         for (int i = 0; i < numVertices; ++i)
         {
             SDVertex& sdv  = outVertices[i];
             BasicVertex& v = groupVertices[i];
             sdv.Position = v.pos;
-            sdv.Coords   = v.uv;
+            sdv.Coords   = { v.uv.x, 1.0f - v.uv.y };
             sdv.Normal   = v.norm;
         }
 
         Vector3 tangent, binormal;
         for (int i = 0; i < numIndices; i += 3)
         {
-            SDVertex& v0 = outVertices[i];
-            SDVertex& v1 = outVertices[i+1];
-            SDVertex& v2 = outVertices[i+2];
+            SDVertex& v0 = outVertices[outIndices[i]];
+            SDVertex& v1 = outVertices[outIndices[i+1]];
+            SDVertex& v2 = outVertices[outIndices[i+2]];
             ComputeTangentBasis(v0.Position, v1.Position, v2.Position, v0.Coords, v1.Coords, v2.Coords, tangent, binormal);
             v0.Tangent  = tangent;
             v0.Binormal = binormal;

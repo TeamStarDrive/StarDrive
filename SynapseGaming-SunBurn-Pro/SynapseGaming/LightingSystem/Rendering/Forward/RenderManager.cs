@@ -635,7 +635,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                             }
                             if (renderableFX != null)
                             {
-                                renderableFX.SetWorldAndWorldToObject(ref mesh.world, ref mesh.worldTranspose, ref mesh.worldToMesh, ref mesh.matrix_7);
+                                renderableFX.SetWorldAndWorldToObject(ref mesh.world, ref mesh.worldTranspose, ref mesh.worldToMesh, ref mesh.worldToMeshTranspose);
                                 flag4 = true;
                             }
                             if (baseFX != null)
@@ -649,10 +649,10 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                             effect.CommitChanges();
                             ++class57_0.lightingSystemStatistic_6.AccumulationValue;
                         }
-                        if (!doubleSided && cullMode != mesh.Culling)
+                        if (!doubleSided && cullMode != mesh.CullMode)
                         {
-                            device.RenderState.CullMode = !cullCCW ? mesh.Culling : (mesh.Culling != CullMode.CullClockwiseFace ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
-                            cullMode = mesh.Culling;
+                            device.RenderState.CullMode = !cullCCW ? mesh.CullMode : (mesh.CullMode != CullMode.CullClockwiseFace ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
+                            cullMode = mesh.CullMode;
                             ++class57_0.lightingSystemStatistic_5.AccumulationValue;
                         }
                         ShaderMesh.SetMeshData(device, mesh);

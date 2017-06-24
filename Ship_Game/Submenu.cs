@@ -367,7 +367,7 @@ namespace Ship_Game
                 }
             }
         }
-        public bool HandleInput(InputState input)
+        public virtual bool HandleInput(InputState input)
         {
             Vector2 mousePos = input.CursorPosition;
             for (int i = 0; i < Tabs.Count; i++)

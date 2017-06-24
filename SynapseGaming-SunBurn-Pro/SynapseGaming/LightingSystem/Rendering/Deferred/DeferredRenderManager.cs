@@ -802,7 +802,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
               }
               if (renderableEffect1 != null)
               {
-                renderableEffect1.SetWorldAndWorldToObject(ref renderableMesh_1.world, ref renderableMesh_1.worldTranspose, ref renderableMesh_1.worldToMesh, ref renderableMesh_1.matrix_7);
+                renderableEffect1.SetWorldAndWorldToObject(ref renderableMesh_1.world, ref renderableMesh_1.worldTranspose, ref renderableMesh_1.worldToMesh, ref renderableMesh_1.worldToMeshTranspose);
                 flag2 = true;
               }
               if (renderableEffect2 != null)
@@ -815,10 +815,10 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
                 effect_0.CommitChanges();
                 ++this.class57_0.lightingSystemStatistic_6.AccumulationValue;
               }
-              if (!flag1 && cullMode != renderableMesh_1.Culling)
+              if (!flag1 && cullMode != renderableMesh_1.CullMode)
               {
-                graphicsDevice.RenderState.CullMode = !bool_9 ? renderableMesh_1.Culling : (renderableMesh_1.Culling != CullMode.CullClockwiseFace ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
-                cullMode = renderableMesh_1.Culling;
+                graphicsDevice.RenderState.CullMode = !bool_9 ? renderableMesh_1.CullMode : (renderableMesh_1.CullMode != CullMode.CullClockwiseFace ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
+                cullMode = renderableMesh_1.CullMode;
                 ++this.class57_0.lightingSystemStatistic_5.AccumulationValue;
               }
               this.class67_0.SetMeshData(graphicsDevice, renderableMesh_1);

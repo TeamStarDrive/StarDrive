@@ -75,7 +75,7 @@ namespace Ship_Game
             this.ApplyCol = ac;
         }
 
-        public ScrollList(Submenu p, int eHeight, bool RealRect)
+        public ScrollList(Submenu p, int eHeight, bool realRect)
         {
             this.entryHeight = eHeight;
             this.Parent = p;
@@ -86,7 +86,7 @@ namespace Ship_Game
             this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, 0);
         }
 
-        public ScrollList(Submenu p, int eHeight, bool RealRect, bool cc, bool uc, bool dc, bool ac) : this(p, eHeight, RealRect)
+        public ScrollList(Submenu p, int eHeight, bool realRect, bool cc, bool uc, bool dc, bool ac) : this(p, eHeight, realRect)
         {
             this.CancelCol = cc;
             this.UpCol = uc;

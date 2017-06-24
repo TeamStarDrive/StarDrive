@@ -24,13 +24,13 @@ namespace Mesh
         internal const int int_2 = 6;
         private readonly GraphicsDevice Device;
         private int NumFaces;
-        private MeshBuffer Buffer;
-        private readonly DisposablePool<MeshBuffer> BuffFactory;
+        private SpriteVertexBuffer Buffer;
+        private readonly DisposablePool<SpriteVertexBuffer> BuffFactory;
 
         public Effect Effect { get; }
-        public List<MeshBuffer> Buffers { get; } = new List<MeshBuffer>(32);
+        public List<SpriteVertexBuffer> Buffers { get; } = new List<SpriteVertexBuffer>(32);
 
-        public SpriteFactory(GraphicsDevice device, DisposablePool<MeshBuffer> bufferfactory, Effect effect)
+        public SpriteFactory(GraphicsDevice device, DisposablePool<SpriteVertexBuffer> bufferfactory, Effect effect)
         {
             Device = device;
             BuffFactory = bufferfactory;
@@ -135,7 +135,7 @@ namespace Mesh
 
         public void method_3()
         {
-            foreach (MeshBuffer class69 in Buffers)
+            foreach (SpriteVertexBuffer class69 in Buffers)
                 BuffFactory.Free(class69);
             Buffer = null;
             Buffers.Clear();

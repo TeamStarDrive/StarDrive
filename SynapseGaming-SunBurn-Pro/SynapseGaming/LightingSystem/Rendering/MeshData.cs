@@ -21,7 +21,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         public string Name { get; set; }
 
         /// <summary>Object space transform of the mesh.</summary>
-        public Matrix MeshToObject { get; set; }
+        public Matrix MeshToObject { get; set; } = Matrix.Identity;
 
         /// <summary>
         /// Indicates the object bounding area spans the entire world and

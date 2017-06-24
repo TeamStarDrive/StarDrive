@@ -269,14 +269,20 @@ namespace mesh
                     // load the face indices
                     line.skip(2); // skip 'f '
 
-                    VertexDescr* vd0 = nullptr;
                     while (strview vertdescr = line.next(' '))
                     {
                         // when encountering quads or large polygons, we need to triangulate the mesh
                         // by tracking the first vertex descr and forming a fan; this requires convex polys
                         if (f->Count == 3)
                         {
+                            // @note According to OBJ spec, face vertices are in CCW order:
+                            // 0--3
+                            // |\ |
+                            // | \|
+                            // 1--2
+
                             // v[0], v[2], v[3]
+                            VertexDescr* vd0 = &f->VDS[0];
                             VertexDescr* vd2 = &f->VDS[2];
                             f = &emplace_back(faces);
                             f->VDS[f->Count++] = *vd0;
@@ -296,7 +302,6 @@ namespace mesh
                             vd.n = n.to_int() - 1;
                             if (vd.n < 0) vd.n = numNormals + vd.n;
                         }
-                        if (!vd0) vd0 = &vd;
                     }
                 }
                 //else if (c == 's')
