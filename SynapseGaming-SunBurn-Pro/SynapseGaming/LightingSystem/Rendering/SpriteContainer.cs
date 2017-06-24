@@ -28,10 +28,10 @@ namespace SynapseGaming.LightingSystem.Rendering
     private bool bool_3;
     private GraphicsDevice graphicsDevice_0;
     private TrackingPool<RenderableMesh> class21_0;
-    private DisposablePool<MeshBuffer> class22_0;
+    private DisposablePool<SpriteVertexBuffer> class22_0;
     private SpriteFactory class70_0;
 
-    internal SpriteContainer(GraphicsDevice graphicsDevice_1, TrackingPool<RenderableMesh> class21_1, DisposablePool<MeshBuffer> class22_1)
+    internal SpriteContainer(GraphicsDevice graphicsDevice_1, TrackingPool<RenderableMesh> class21_1, DisposablePool<SpriteVertexBuffer> class22_1)
     {
       this.graphicsDevice_0 = graphicsDevice_1;
       this.class21_0 = class21_1;
@@ -283,7 +283,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         SpriteFactory class70 = keyValuePair.Value;
         Effect effect = class70.Effect;
         class70.method_1();
-        foreach (MeshBuffer buffer in class70.Buffers)
+        foreach (SpriteVertexBuffer buffer in class70.Buffers)
         {
           RenderableMesh mesh = this.class21_0.New();
           mesh.Build(this, effect, Matrix.Identity, BoundingSphere.CreateFromBoundingBox(buffer.ObjectBoundingBox), buffer.IndexBuffer, buffer.VertexBuffer, buffer.VertexDeclaration, 0, PrimitiveType.TriangleList, buffer.VertexCount / 4 * 2, 0, buffer.VertexCount, 0, SpriteVertex.SizeInBytes);

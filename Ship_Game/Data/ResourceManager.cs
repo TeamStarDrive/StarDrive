@@ -9,6 +9,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -535,17 +536,20 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 MeshData mesh = staticMesh.Meshes[i];
-                so.Add(new RenderableMesh(so, 
-                    mesh.Effect, 
-                    mesh.MeshToObject, 
-                    mesh.ObjectSpaceBoundingSphere, 
+
+                var renderable = new RenderableMesh(
+                    so,
+                    mesh.Effect,
+                    mesh.MeshToObject,
+                    mesh.ObjectSpaceBoundingSphere,
                     mesh.IndexBuffer,
-                    mesh.VertexBuffer, 
-                    mesh.VertexDeclaration, 0, 
-                    PrimitiveType.TriangleList, 
-                    mesh.PrimitiveCount, 
-                    0, mesh.VertexCount, 
-                    0, mesh.VertexStride));
+                    mesh.VertexBuffer,
+                    mesh.VertexDeclaration, 0,
+                    PrimitiveType.TriangleList,
+                    mesh.PrimitiveCount,
+                    0, mesh.VertexCount,
+                    0, mesh.VertexStride);
+                so.Add(renderable);
             }
             return so;
         }

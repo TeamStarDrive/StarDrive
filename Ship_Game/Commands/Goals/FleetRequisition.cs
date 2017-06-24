@@ -11,14 +11,14 @@ namespace Ship_Game.Commands
         public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai)
         {
             return;
-            FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
-            beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
-            GoalName = "FleetRequisition";
-            Step = 1;
-            beingBuilt.fleet = ai.Owner.fleet;
-            beingBuilt.RelativeFleetOffset = node.FleetOffset;
-            SetFleet(ai.Owner.fleet);
-            SetPlanetWhereBuilding(ai.OrbitTarget);            
+            //FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
+            //beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
+            //GoalName = "FleetRequisition";
+            //Step = 1;
+            //beingBuilt.fleet = ai.Owner.fleet;
+            //beingBuilt.RelativeFleetOffset = node.FleetOffset;
+            //SetFleet(ai.Owner.fleet);
+            //SetPlanetWhereBuilding(ai.OrbitTarget);            
         }
 
         public override void Evaluate()

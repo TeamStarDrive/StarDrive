@@ -1103,7 +1103,7 @@ namespace Ship_Game {
 
         public void ResetLists()
         {
-            WeaponSL.Reset = true;
+            WeaponSL.ResetOnNextDraw = true;
             WeaponSL.indexAtTop = 0;
         }
 

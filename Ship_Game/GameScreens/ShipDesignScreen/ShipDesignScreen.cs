@@ -43,15 +43,14 @@ namespace Ship_Game
         //private Menu1 activeModWindow;
         //private Submenu ActiveModSubMenu;
         //private WeaponScrollList WeaponSl;
-        private Submenu ChooseFighterSub;
         private ScrollList ChooseFighterSL;
+        private Rectangle Choosefighterrect;
         private bool LowRes;
         private float LowestX;
         private float HighestX;
         private GenericButton ArcsButton;
         private CloseButton Close;
         private float OriginalZ;
-        private Rectangle Choosefighterrect;
         private Rectangle SearchBar;
         private Rectangle BottomSep;
         private ScrollList HullSL;
@@ -65,13 +64,6 @@ namespace Ship_Game
         private SkinnableButton pwr;
         private SkinnableButton def;
         private SkinnableButton spc;
-        private Rectangle ModuleSelectionArea = new Rectangle();
-        private readonly Array<ModuleCatButton> ModuleCatButtons = new Array<ModuleCatButton>();
-        private readonly Array<ModuleButton> ModuleButtons = new Array<ModuleButton>();
-        private Rectangle UpArrow;
-        private Rectangle DownArrow;
-        private MouseState MouseStateCurrent;
-        private MouseState MouseStatePrevious;
         public ShipModule HighlightedModule;
         private Vector2 CameraVelocity = Vector2.Zero;
         private Vector2 StartDragPos = new Vector2();
@@ -87,7 +79,6 @@ namespace Ship_Game
         private Selector selector;
         public bool ToggleOverlay = true;
         private Vector2 starfieldPos = Vector2.Zero;
-        private int ScrollPosition;
         private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
         private Vector2 ClassifCursor;
@@ -913,23 +904,6 @@ namespace Ship_Game
             Left,
             Right,
             Rear
-        }
-
-        private enum Colors     //Unused
-        {
-            Black,
-            Red,
-            Blue,
-            Orange,
-            Yellow,
-            Green
-        }
-
-        private struct ModuleCatButton
-        {
-            public Rectangle mRect;
-
-            public string Category;
         }
 
         private enum SlotModOperation

@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using NAudio.Wave;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Linq;
@@ -26,6 +25,7 @@ namespace Ship_Game
         private Vector3 MoonRotation = new Vector3(264f, 198, 15f);
         private const float MoonScale = 0.7f;
         private SceneObject ShipObj;
+
         private Vector3 ShipPosition;
         private Vector3 ShipRotation = new Vector3(-116f, -188f, -19f);
         private float ShipScale = MoonScale * 1.75f;
@@ -45,6 +45,8 @@ namespace Ship_Game
         private bool Flip;
         private bool StayOn;
         private int FlareFrames;
+
+        private bool DebugMeshInspect = false;
 
         private readonly Texture2D TexComet = ResourceManager.TextureDict["GameScreens/comet"];
 
@@ -401,28 +403,29 @@ namespace Ship_Game
         {
             // Use these controls to reorient the ship and planet in the menu. The new rotation
             // is logged into debug console and can be set as default values later
-        #if false
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.W)) ShipRotation.X += 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.S)) ShipRotation.X -= 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.A)) ShipRotation.Y += 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.D)) ShipRotation.Y -= 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.Q)) ShipRotation.Z += 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.E)) ShipRotation.Z -= 0.5f;
+            if (DebugMeshInspect)
+            {
+                if (input.IsKeyDown(Keys.W)) ShipRotation.X += 0.5f;
+                if (input.IsKeyDown(Keys.S)) ShipRotation.X -= 0.5f;
+                if (input.IsKeyDown(Keys.A)) ShipRotation.Y += 0.5f;
+                if (input.IsKeyDown(Keys.D)) ShipRotation.Y -= 0.5f;
+                if (input.IsKeyDown(Keys.Q)) ShipRotation.Z += 0.5f;
+                if (input.IsKeyDown(Keys.E)) ShipRotation.Z -= 0.5f;
 
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.I)) MoonRotation.X += 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.K)) MoonRotation.X -= 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.J)) MoonRotation.Y += 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.L)) MoonRotation.Y -= 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.U)) MoonRotation.Z += 0.5f;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.O)) MoonRotation.Z -= 0.5f;
+                if (input.IsKeyDown(Keys.I)) MoonRotation.X += 0.5f;
+                if (input.IsKeyDown(Keys.K)) MoonRotation.X -= 0.5f;
+                if (input.IsKeyDown(Keys.J)) MoonRotation.Y += 0.5f;
+                if (input.IsKeyDown(Keys.L)) MoonRotation.Y -= 0.5f;
+                if (input.IsKeyDown(Keys.U)) MoonRotation.Z += 0.5f;
+                if (input.IsKeyDown(Keys.O)) MoonRotation.Z -= 0.5f;
 
-            // if new keypress, spawn random ship
-            if (input.LastKeyboardState.IsKeyUp(Keys.Space) && input.CurrentKeyboardState.IsKeyDown(Keys.Space))
-                InitRandomShip();
+                // if new keypress, spawn random ship
+                if (input.WasKeyPressed(Keys.Space))
+                    InitRandomShip();
 
-            if (input.CurrentKeyboardState.GetPressedKeys().Length > 0)
-                Log.Info("rot {0}   {1}", ShipRotation, MoonRotation);
-        #endif
+                if (input.WasAnyKeyPressed)
+                    Log.Info("rot {0}   {1}", ShipRotation, MoonRotation);
+            }
 
             if (input.InGameSelect)
             {
@@ -504,7 +507,7 @@ namespace Ship_Game
             }
             if (okcomet && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
             {
-                Comet c = new Comet
+                var c = new Comet
                 {
                     Position = new Vector2(RandomMath.RandomBetween(-100f,
                                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100), 0f)
@@ -539,7 +542,7 @@ namespace Ship_Game
                         ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
             StarFieldRect = new Rectangle(0, 0, (int)size.X, (int)size.Y);
 
-            Vector2 pos = new Vector2(size.X - 200, size.Y / 2 - 100);
+            var pos = new Vector2(size.X - 200, size.Y / 2 - 100);
             Buttons.Clear();
             Button(ref pos, "New Campaign", localization: 1);
             //Button(ref pos, "", "Battle Mode");
@@ -673,20 +676,21 @@ namespace Ship_Game
             }
             else
             {
-                var hulls = ResourceManager.HullsDict.Values.Where(s
-                        => s.Role == ShipData.RoleName.frigate
-                        //|| s.Role == ShipData.RoleName.cruiser
-                        //|| s.Role == ShipData.RoleName.capital
-                        //&& s.ShipStyle != "Remnant"
-                        && s.ShipStyle != "Ralyeh").ToArray(); // Ralyeh ships look disgusting in the menu
-                ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
 
-                if (false)
+                if (DebugMeshInspect)
                 {
                     ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/Soyo/Soyo.obj");
                 }
                 else
                 {
+                    ShipData[] hulls = ResourceManager.HullsDict.Values.Where(s
+                        => s.Role == ShipData.RoleName.frigate
+                           //|| s.Role == ShipData.RoleName.cruiser
+                           //|| s.Role == ShipData.RoleName.capital
+                           //&& s.ShipStyle != "Remnant"
+                           && s.ShipStyle != "Ralyeh").ToArray(); // Ralyeh ships look disgusting in the menu
+                    ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
+
                     ShipObj = ResourceManager.GetSceneMesh(hull.ModelPath, hull.Animated);
                     if (hull.Animated) // Support animated meshes if we use them at all
                     {
@@ -719,9 +723,17 @@ namespace Ship_Game
             MoonRotation.Y += deltaTime * 1.2f;
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
 
-            // slow moves the ship across the screen
-            ShipRotation.Y += deltaTime * 0.06f;
-            ShipPosition   += deltaTime * -ShipRotation.DegreesToUp() * 1.5f; // move forward 1.5 units/s
+            if (!DebugMeshInspect)
+            {
+                // slow moves the ship across the screen
+                ShipRotation.Y += deltaTime * 0.06f;
+                ShipPosition   += deltaTime * -ShipRotation.DegreesToUp() * 1.5f; // move forward 1.5 units/s
+            }
+            else
+            {
+                ShipPosition = new Vector3(0f, 0f, 0f);
+                ShipScale    = 512f;
+            }
 
             // shipObj can be modified while mod is loading
             if (ShipObj != null)

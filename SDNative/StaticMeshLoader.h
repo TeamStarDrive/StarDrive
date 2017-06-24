@@ -56,13 +56,15 @@ namespace SDNative
     struct SDMeshGroup
     {
         // publicly visible in C#
-        int GroupId = -1;
+        int     GroupId    = -1;
         strview Name;
         SDMaterial Mat;
-        int NumVertices = 0;
-        int NumIndices  = 0;
+        int NumTriangles   = 0;
+        int NumVertices    = 0;
+        int NumIndices     = 0;
         SDVertex* Vertices = nullptr;
         ushort*   Indices  = nullptr;
+        BoundingSphere Bounds;
 
         // not mapped to C#
         Mesh& Owner;

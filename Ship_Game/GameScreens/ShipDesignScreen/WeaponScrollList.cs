@@ -13,7 +13,7 @@ namespace Ship_Game
         private readonly ShipDesignScreen Screen;
         private Selector SelectionBox;
         private readonly InputState Input;
-        public bool Reset = true;
+        public bool ResetOnNextDraw = true;
         public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
         {
             Screen = shipDesignScreen;
@@ -70,7 +70,7 @@ namespace Ship_Game
 
         private void DrawTab1()
         {
-            if (Reset)
+            if (ResetOnNextDraw)
             {
                 Entries.Clear();
                 var weaponCategories = new HashSet<string>();
@@ -177,7 +177,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                Reset = false;
+                ResetOnNextDraw = false;
             }
             DrawList();
         }
@@ -192,7 +192,7 @@ namespace Ship_Game
             }
             if (Screen.ModSel.Tabs[2].Selected)
             {
-                if (Reset)
+                if (ResetOnNextDraw)
                 {
                     Entries.Clear();
                     Array<string> ModuleCategories = new Array<string>();
@@ -265,13 +265,13 @@ namespace Ship_Game
                             tmp = null;
                         }
                     }
-                    Reset = false;
+                    ResetOnNextDraw = false;
                 }
                 DrawList();
             }
             if (Screen.ModSel.Tabs[1].Selected)
             {
-                if (Reset)
+                if (ResetOnNextDraw)
                 {
                     Entries.Clear();
                     Array<string> ModuleCategories = new Array<string>();
@@ -321,13 +321,13 @@ namespace Ship_Game
                             tmp = null;
                         }
                     }
-                    Reset = false;
+                    ResetOnNextDraw = false;
                 }
                 DrawList();
             }
             if (Screen.ModSel.Tabs[3].Selected)
             {
-                if (Reset)
+                if (ResetOnNextDraw)
                 {
                     Entries.Clear();
                     Array<string> ModuleCategories = new Array<string>();
@@ -384,7 +384,7 @@ namespace Ship_Game
                             tmp = null;
                         }
                     }
-                    Reset = false;
+                    ResetOnNextDraw = false;
                 }
                 DrawList();
             }
