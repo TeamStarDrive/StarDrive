@@ -794,6 +794,7 @@ namespace Ship_Game
             {
                 float facingToTargetR = 0;
                 Vector2 unitVectorToTarget = new Vector2();
+                //this is stupid as the values come back as the mouse location...
                 Vector2 targetVector = UnprojectMouseWithFacing(ref facingToTargetR, ref unitVectorToTarget);
 
                 if (!Input.RightMouseWasHeld)
@@ -852,7 +853,7 @@ namespace Ship_Game
 
                             if (projectedGroup != null && projectedGroup.GetShips.SequenceEqual(SelectedShipList))
                             {
-                                projectedGroup.ProjectPos(endDragWorld, facingToTargetR - 1.570796f);                                
+                                projectedGroup.ProjectPos(endDragWorld, projectedGroup.FindAveragePosition().RadiansToTarget(endDragWorld));                                
                                 MoveShipGroupToLocation(projectedGroup, SelectedShipList);
                                 ProjectingPosition = false;
                                 return;
@@ -908,7 +909,7 @@ namespace Ship_Game
                             return;                            
                     }
 
-                    GameAudio.PlaySfxAsync("echo_affirm1");
+                    GameAudio.AffirmativeClick();
                     endDragWorld = UnprojectToWorldPosition(Input.CursorPosition);
                     Vector2 fVec = new Vector2(-unitVectorToTarget.Y, unitVectorToTarget.X);
 
@@ -916,7 +917,6 @@ namespace Ship_Game
                     fleet.AssembleAdhocGroup(SelectedShipList, endDragWorld, ProjectedPosition, facingToTargetR, fVec, player);
                         
                     fleet.ProjectPos(ProjectedPosition, facingToTargetR - 1.570796f);
-                    //MoveFleetToLocation(shipClicked, planetClicked, targetVector, targetVector, fleet);
                     foreach (Ship ship1 in fleet.Ships)
                     {
                         foreach (Ship ship2 in SelectedShipList)
@@ -949,7 +949,7 @@ namespace Ship_Game
                         if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                             previousSelection = SelectedShip;
                         SelectedShip = null;
-                        GameAudio.PlaySfxAsync("UI_Misc20");
+                        GameAudio.NegativeClick();
                     }
                     else
                     {
@@ -986,8 +986,6 @@ namespace Ship_Game
             if (this.SelectedShip != null && this.SelectedShip.Mothership == null &&
                 !this.SelectedShip.isConstructor) //fbedard: prevent hangar ship and constructor
             {
-                //if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R))  //fbedard: what is that !!!!
-                //    this.SelectedShip.FightersOut = !this.SelectedShip.FightersOut;
                 if (input.KeysCurr.IsKeyDown(Keys.Q) && !input.KeysPrev.IsKeyDown(Keys.Q))
                 {
                     if (!this.pieMenu.Visible)
