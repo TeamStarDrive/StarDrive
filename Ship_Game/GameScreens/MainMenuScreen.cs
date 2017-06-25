@@ -5,9 +5,11 @@ using NAudio.Wave;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
+using System.IO;
 using System.Linq;
 using SgMotion;
 using SgMotion.Controllers;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -48,12 +50,136 @@ namespace Ship_Game
 
         private bool DebugMeshInspect = false;
 
-        private readonly Texture2D TexComet = ResourceManager.TextureDict["GameScreens/comet"];
+        private readonly Texture2D TexComet  = ResourceManager.Texture("GameScreens/comet2");
+        private readonly Texture2D MoonFlare = ResourceManager.Texture("MainMenu/moon_flare");
+        private readonly Texture2D AlienText1     = ResourceManager.Texture("MainMenu/moon_1");
+        private readonly Texture2D AlienText2     = ResourceManager.Texture("MainMenu/moon_2");
+        private readonly Texture2D AlienText3     = ResourceManager.Texture("MainMenu/moon_3");
+        private Vector2 MoonFlarePos = Vector2.Zero;
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
             TransitionOnTime  = TimeSpan.FromSeconds(1);
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
+        }
+
+        private struct FadeInOutAnim
+        {
+            private readonly Texture2D Moon;
+            private readonly Rectangle Rect;
+            private readonly int FadeIn;
+            private readonly int Stay;
+            private readonly int FadeOut;
+            private readonly int End;
+
+            public FadeInOutAnim(Texture2D moon, Rectangle rect, int fadeIn, int stay, int fadeOut, int end)
+            {
+                Moon       = moon;
+                Rect       = rect;
+                FadeIn     = fadeIn;
+                Stay  = stay;
+                FadeOut    = fadeOut;
+                End = end;
+            }
+            public bool InKeyRange(int animationFrame)
+            {
+                return FadeOut <= animationFrame && animationFrame <= End;
+            }
+            private static float LerpAlpha(int value, int start, int end)
+            {
+                return (value - start) * (255f / (end - start));
+            }
+            public void Draw(SpriteBatch batch, int frame)
+            {
+                float alpha = 220f;
+
+                if (FadeIn <= frame && frame <= Stay)
+                {
+                    alpha = LerpAlpha(frame, FadeIn, Stay);
+                }
+                else if (FadeOut <= frame && frame <= End)
+                {
+                    alpha = 255f - LerpAlpha(frame, FadeOut, End);
+                }
+                batch.Draw(Moon, Rect, new Color(Color.White, (byte)alpha));
+            }
+        }
+
+        private FadeInOutAnim[] AlienTextAnim = null;
+
+        private void DrawAlienTextOverlays()
+        {
+            if (AlienTextAnim == null)
+            {
+                var rect1 = new Rectangle((int)MoonFlarePos.X - 220, (int)MoonFlarePos.Y - 130, 201, 78);
+                var rect2 = new Rectangle((int)MoonFlarePos.X - 250, (int)MoonFlarePos.Y + 60, 254, 82);
+                var rect3 = new Rectangle((int)MoonFlarePos.X + 60,  (int)MoonFlarePos.Y + 80, 156, 93);
+
+                AlienTextAnim = new[]  // fadein...stay...fadeout...end
+                {
+                    new FadeInOutAnim(AlienText1, rect1, fadeIn:41,  stay:52,  fadeOut:66,  end:95),
+                    new FadeInOutAnim(AlienText2, rect2, fadeIn:161, stay:172, fadeOut:188, end:215),
+                    new FadeInOutAnim(AlienText3, rect3, fadeIn:232, stay:242, fadeOut:258, end:286),
+                };
+            }
+
+            ScreenManager.SpriteBatch.Begin();
+            foreach (FadeInOutAnim anim in AlienTextAnim)
+            {
+                if (!anim.InKeyRange(AnimationFrame))
+                    continue;
+                anim.Draw(ScreenManager.SpriteBatch, AnimationFrame);
+                break;
+            }
+            ScreenManager.SpriteBatch.End();
+        }
+
+        private void DrawMoonFlare()
+        {
+            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+            ScreenManager.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
+            ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
+            ScreenManager.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
+            ScreenManager.SpriteBatch.Draw(MoonFlare, MoonFlarePos, null, Color.White, 0f, new Vector2(184f), 0.95f, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.End();
+        }
+
+        private void DrawComets(float elapsedTime)
+        {
+            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
+            foreach (Comet c in CometList)
+            {
+                float alpha = 255f;
+                if (c.Position.Y > 100f)
+                {
+                    alpha = 25500f / c.Position.Y;
+                    if (alpha > 255f)
+                        alpha = 255f;
+                }
+                var color = new Color(255,255,255,(byte)alpha);
+                ScreenManager.SpriteBatch.Draw(TexComet, c.Position, null, color, c.Rotation, TexComet.Center(), 0.45f, SpriteEffects.None, 1f);
+                c.Position += c.Velocity * 2400f * elapsedTime;
+                if (c.Position.Y > 1050f)
+                    CometList.QueuePendingRemoval(c);
+            }
+            CometList.ApplyPendingRemovals();
+            ScreenManager.SpriteBatch.End();
+        }
+
+        private void DrawButtonsTransition()
+        {
+            for (int k = Buttons.Count - 1; k >= 0; --k)
+            {
+                float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * k / (float)Buttons.Count) / 0.5f, 0f, 1f);
+
+                Rectangle r = Buttons[k].Rect;
+                r.X += (int)(transitionOffset * 512f);
+
+                if (ScreenState == ScreenState.TransitionOn && transitionOffset.AlmostEqual(0f))
+                    GameAudio.PlaySfxAsync("blip_click"); // buttons arrived!
+
+                Buttons[k].Draw(ScreenManager.SpriteBatch, r);
+            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -63,7 +189,7 @@ namespace Ship_Game
             mainMenuScreen.Rotate = mainMenuScreen.Rotate + elapsedTime / 350f;
             if (RandomMath.RandomBetween(0f, 100f) > 99.75)
             {
-                Comet c = new Comet()
+                var c = new Comet
                 {
                     Position = new Vector2(RandomMath.RandomBetween(-100f, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100), 0f),
                     Velocity = new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f)
@@ -72,7 +198,6 @@ namespace Ship_Game
                 c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
                 this.CometList.Add(c);
             }
-            Vector2 cometOrigin = new Vector2(TexComet.Width, TexComet.Height) / 2f;
             if (SplashScreen.DisplayComplete)
             {
                 ScreenManager.HideSplashScreen();
@@ -80,167 +205,26 @@ namespace Ship_Game
                 DrawNew(gameTime);
                 ScreenManager.RenderSceneObjects();
 
-                ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-                ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.InverseDestinationColor;
-                ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-                ScreenManager.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
-                Viewport viewport = Viewport;
-                Vector3 mp = viewport.Project(this.MoonObj.WorldBoundingSphere.Center, this.Projection, this.View, Matrix.Identity);
-                var moonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
-                var origin = new Vector2(184f, 184f);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_flare"], moonFlarePos, null, Color.White, 0f, origin, 0.95f, SpriteEffects.None, 1f);
-                ScreenManager.SpriteBatch.End();
+                Vector3 mp = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity);
+                MoonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
+
+                DrawMoonFlare();
+                DrawAlienTextOverlays();
+                DrawComets(elapsedTime);
+
+
                 ScreenManager.SpriteBatch.Begin();
-                if (AnimationFrame >= 41 && AnimationFrame < 52)
-                {
-                    float alphaStep = 255f / 12;
-                    float alpha = (AnimationFrame - 41) * alphaStep;
-                    if (alpha > 220f)
-                    {
-                        alpha = 220f;
-                    }
-                    Rectangle moon1 = new Rectangle((int)moonFlarePos.X - 220, (int)moonFlarePos.Y - 130, 201, 78);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                if (this.AnimationFrame >= 52 && this.AnimationFrame <= 67)
-                {
-                    float Alpha = 220f;
-                    Rectangle moon1 = new Rectangle((int)moonFlarePos.X - 220, (int)moonFlarePos.Y - 130, 201, 78);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
-                }
-                if (this.AnimationFrame > 67 && this.AnimationFrame <= 95)
-                {
-                    float alphaStep = (255f / 28);
-                    float alpha = 255f - (AnimationFrame - 67) * alphaStep;
-                    if (alpha < 0f)
-                    {
-                        alpha = 0f;
-                    }
-                    if (alpha > 220f)
-                    {
-                        alpha = 220f;
-                    }
-                    var moon1 = new Rectangle((int)moonFlarePos.X - 220, (int)moonFlarePos.Y - 130, 201, 78);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                if (AnimationFrame >= 161 && AnimationFrame < 172)
-                {
-                    float alphaStep = (255f / 12);
-                    float alpha = (AnimationFrame - 161) * alphaStep;
-                    if (alpha > 220f)
-                    {
-                        alpha = 220f;
-                    }
-                    var moon1 = new Rectangle((int)moonFlarePos.X - 250, (int)moonFlarePos.Y + 60, 254, 82);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                if (AnimationFrame >= 172 && AnimationFrame <= 187)
-                {
-                    const float alpha = 220f;
-                    var moon1 = new Rectangle((int)moonFlarePos.X - 250, (int)moonFlarePos.Y + 60, 254, 82);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                if (this.AnimationFrame > 187 && this.AnimationFrame <= 215)
-                {
-                    float alphaStep = (255f / 28);
-                    float alpha = 255f - (AnimationFrame - 187) * alphaStep;
-                    if (alpha < 0f)
-                    {
-                        alpha = 0f;
-                    }
-                    if (alpha > 220f)
-                    {
-                        alpha = 220f;
-                    }
-                    Rectangle moon1 = new Rectangle((int)moonFlarePos.X - 250, (int)moonFlarePos.Y + 60, 254, 82);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                if (this.AnimationFrame >= 232 && this.AnimationFrame < 243)
-                {
-                    float alphaStep = (255f / 12);
-                    float alpha = (AnimationFrame - 232) * alphaStep;
-                    if (alpha > 220f)
-                    {
-                        alpha = 220f;
-                    }
-                    var moon1 = new Rectangle((int)moonFlarePos.X + 60, (int)moonFlarePos.Y + 80, 156, 93);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                if (this.AnimationFrame >= 243 && this.AnimationFrame <= 258)
-                {
-                    const float alpha = 220f;
-                    var moon1 = new Rectangle((int)moonFlarePos.X + 60, (int)moonFlarePos.Y + 80, 156, 93);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                if (this.AnimationFrame > 258 && this.AnimationFrame <= 286)
-                {
-                    float alphaStep = (255f / 28);
-                    float alpha = 255f - (AnimationFrame - 258) * alphaStep;
-                    if (alpha < 0f)
-                    {
-                        alpha = 0f;
-                    }
-                    if (alpha > 220f)
-                    {
-                        alpha = 220f;
-                    }
-                    var moon1 = new Rectangle((int)moonFlarePos.X + 60, (int)moonFlarePos.Y + 80, 156, 93);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)alpha));
-                }
-                ScreenManager.SpriteBatch.End();
-                ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-                foreach (Comet c in this.CometList)
-                {
-                    float alpha = 255f;
-                    if (c.Position.Y > 100f)
-                    {
-                        alpha = 25500f / c.Position.Y;
-                        if (alpha > 255f)
-                        {
-                            alpha = 255f;
-                        }
-                    }
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["GameScreens/comet2"], c.Position, null, new Color(255, 255, 255, (byte)alpha), c.Rotation, cometOrigin, 0.45f, SpriteEffects.None, 1f);
-                    c.Position += c.Velocity * 2400f * elapsedTime;
-                    if (c.Position.Y <= 1050f)
-                    {
-                        continue;
-                    }
-                    this.CometList.QueuePendingRemoval(c);
-                }
-                this.CometList.ApplyPendingRemovals();
-                ScreenManager.SpriteBatch.End();
-                ScreenManager.SpriteBatch.Begin();
-                int numEntries = 5;
-                int k = 5;
-                foreach (UIButton b in this.Buttons)
-                {
-                    Rectangle r = b.Rect;
-                    float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * k / numEntries) / 0.5f, 0f, 1f);
-                    k--;
-                    if (ScreenState != ScreenState.TransitionOn)
-                    {
-                        r.X = r.X + (int)transitionOffset * 512;
-                    }
-                    else
-                    {
-                        r.X = r.X + (int)(transitionOffset * 512f);
-                        if (transitionOffset.AlmostEqual(0f))
-                        {
-                            GameAudio.PlaySfxAsync("blip_click");
-                        }
-                    }
-                    b.Draw(ScreenManager.SpriteBatch, r);
-                }
+
+                DrawButtonsTransition();
 
                 GlobalStats.ActiveMod?.DrawMainMenuOverlay(ScreenManager, Portrait);
 
                 ScreenManager.SpriteBatch.Draw(LogoAnimation[0], LogoRect, Color.White);
                 if (LogoAnimation.Count > 1)
-                {
                     LogoAnimation.RemoveAt(0);
-                }
+
                 ScreenManager.SpriteBatch.End();
+
                 ScreenManager.EndFrameRendering();
             }
         }
