@@ -26,7 +26,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         internal BoundingSphere Bounds;
         internal Matrix worldMatrix;
         internal Matrix worldToObjectMatrix;
-        internal Effect effect_0;
+        internal Effect effect;
         internal Matrix world;
         internal Matrix worldTranspose;
         internal Matrix worldToMesh;
@@ -56,10 +56,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>Effect applied to the mesh during rendering.</summary>
         public Effect Effect
         {
-            get => effect_0;
+            get => effect;
             set
             {
-                effect_0 = value;
+                effect = value;
                 RemapEffect();
                 CalculateMaterialInfo();
             }
@@ -227,7 +227,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             int vertexstride)
         {
             sceneObject = sceneobject;
-            effect_0 = effect;
+            this.effect = effect;
             meshToObject = objectspace;
             Matrix.Invert(ref meshToObject, out meshToObjectInverse);
             Bounds = objectspaceboundingsphere;
@@ -241,9 +241,9 @@ namespace SynapseGaming.LightingSystem.Rendering
             vertexDeclaration = vertexdeclaration;
             vertexStreamOffset = vertexstreamoffset;
             stride = vertexstride;
-            if (!(effect_0 is IRenderableEffect) && !(effect_0 is BasicEffect))
+            if (!(this.effect is IRenderableEffect) && !(this.effect is BasicEffect))
                 throw new ArgumentException("Only effects derived from IRenderableEffect and BasicEffect are supported by built-in renderers.");
-            if (effect_0 is ISkinnedEffect && (effect_0 as ISkinnedEffect).Skinned)
+            if (this.effect is ISkinnedEffect && (this.effect as ISkinnedEffect).Skinned)
             {
                 VertexElement[] vertexElements = vertexDeclaration.GetVertexElements();
                 bool flag1 = false;
@@ -258,10 +258,10 @@ namespace SynapseGaming.LightingSystem.Rendering
                 if (!flag1 || !flag2)
                     throw new ArgumentException("Effects that implement skinning require object vertex buffers to supply both blending weight and indices in the vertex stream.");
             }
-            if (effect_0 == null)
+            if (this.effect == null)
                 return;
             int_7 = indexBuffer == null ? CoreUtils.smethod_17(vertexBuffer.GetHashCode(), vertexStreamOffset, stride) : CoreUtils.smethod_18(indexBuffer.GetHashCode(), vertexBuffer.GetHashCode(), vertexStreamOffset, stride);
-            int_6 = effect_0.GetHashCode();
+            int_6 = this.effect.GetHashCode();
             SetWorldAndWorldToObject(Matrix.Identity, Matrix.Identity);
             CalculateMaterialInfo();
         }
@@ -272,11 +272,11 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public void CalculateMaterialInfo()
         {
-            Transparency    = (effect_0 as ITransparentEffect)?.TransparencyMode ?? TransparencyMode.None;
+            Transparency    = (effect as ITransparentEffect)?.TransparencyMode ?? TransparencyMode.None;
             HasTransparency = Transparency != TransparencyMode.None;
-            IsDoubleSided   = effect_0 is IRenderableEffect && (effect_0 as IRenderableEffect).DoubleSided;
-            SupportsShadows = effect_0 is IShadowGenerateEffect && (effect_0 as IShadowGenerateEffect).SupportsShadowGeneration;
-            IsTerrain       = effect_0 is ITerrainEffect;
+            IsDoubleSided   = effect is IRenderableEffect && (effect as IRenderableEffect).DoubleSided;
+            SupportsShadows = effect is IShadowGenerateEffect && (effect as IShadowGenerateEffect).SupportsShadowGeneration;
+            IsTerrain       = effect is ITerrainEffect;
         }
 
         /// <summary>
@@ -311,6 +311,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             Matrix.Transpose(ref world, out worldTranspose);
             Matrix.Multiply(ref worldToObjectMatrix, ref meshToObjectInverse, out worldToMesh);
             Matrix.Transpose(ref worldToMesh, out worldToMeshTranspose);
+
             CullMode = world.Determinant() >= 0.0 ? CullMode.CullCounterClockwiseFace : CullMode.CullClockwiseFace;
         }
     }

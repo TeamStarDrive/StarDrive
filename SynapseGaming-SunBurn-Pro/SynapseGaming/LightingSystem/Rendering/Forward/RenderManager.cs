@@ -26,7 +26,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         private static Class64 class64_0 = new Class64();
         private int int_4 = 1;
         private List<ISceneObject> list_2 = new List<ISceneObject>();
-        private List<RenderableMesh> list_3 = new List<RenderableMesh>();
+        private List<RenderableMesh> renderableMeshes = new List<RenderableMesh>();
         private List<Class63> list_4 = new List<Class63>();
         private List<Class63> list_5 = new List<Class63>();
         private List<Class63> list_6 = new List<Class63>();
@@ -91,13 +91,13 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             if (fogEffect_0 == null)
                 fogEffect_0 = new FogEffect(graphicsDevice);
             list_2.Clear();
-            list_3.Clear();
+            renderableMeshes.Clear();
             IObjectManager manager1 = (IObjectManager)ServiceProvider.GetManager(SceneInterface.ObjectManagerType, false);
             if (manager1 != null)
                 manager1.Find(list_2, SceneState.ViewFrustum, ObjectFilter.DynamicAndStatic);
-            for (int index1 = 0; index1 < list_2.Count; ++index1)
+            for (int i = 0; i < list_2.Count; ++i)
             {
-                ISceneObject sceneObject = list_2[index1];
+                ISceneObject sceneObject = list_2[i];
                 if (sceneObject != null && sceneObject.Visible)
                 {
                     float num1 = Vector3.DistanceSquared(viewToWorld.Translation, sceneObject.WorldBoundingSphere.Center);
@@ -105,34 +105,33 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                     if (num1 <= num2 * (double)num2)
                     {
                         ++class57_0.lightingSystemStatistic_1.AccumulationValue;
-                        for (int index2 = 0; index2 < sceneObject.RenderableMeshes.Count; ++index2)
+                        for (int j = 0; j < sceneObject.RenderableMeshes.Count; ++j)
                         {
-                            RenderableMesh renderableMesh = sceneObject.RenderableMeshes[index2];
-                            if (renderableMesh.effect_0 != null)
+                            RenderableMesh renderableMesh = sceneObject.RenderableMeshes[j];
+                            if (renderableMesh.effect != null)
                             {
-                                if (renderableMesh.effect_0 is BaseSasBindEffect)
-                                    (renderableMesh.effect_0 as BaseSasBindEffect).GameTime = scenestate.GameTime;
+                                if (renderableMesh.effect is BaseSasBindEffect sasBind)
+                                    sasBind.GameTime = scenestate.GameTime;
                                 if (MaxLoadedMipLevelEnabled)
                                 {
-                                    if (renderableMesh.effect_0 is BasicEffect)
-                                        SetTextureLOD((renderableMesh.effect_0 as BasicEffect).Texture);
-                                    else if (renderableMesh.effect_0 is ITextureAccessEffect)
+                                    if (renderableMesh.effect is BasicEffect basicEffect)
+                                        SetTextureLOD(basicEffect.Texture);
+                                    else if (renderableMesh.effect is ITextureAccessEffect textureEffect)
                                     {
-                                        ITextureAccessEffect effect0 = renderableMesh.effect_0 as ITextureAccessEffect;
-                                        for (int index3 = 0; index3 < effect0.TextureCount; ++index3)
-                                            SetTextureLOD(effect0.GetTexture(index3));
+                                        for (int k = 0; k < textureEffect.TextureCount; ++k)
+                                            SetTextureLOD(textureEffect.GetTexture(k));
                                     }
                                 }
-                                list_3.Add(renderableMesh);
+                                renderableMeshes.Add(renderableMesh);
                             }
                         }
                     }
                 }
             }
-            list_3.Sort(class61_0);
-            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_4, list_3, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
-            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_5, list_3, Enum7.flag_0);
-            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_6, list_3, Enum7.flag_0 | Enum7.flag_1);
+            renderableMeshes.Sort(class61_0);
+            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_4, renderableMeshes, Enum7.flag_0 | Enum7.flag_1 | Enum7.flag_2 | Enum7.flag_3);
+            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_5, renderableMeshes, Enum7.flag_0);
+            class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_6, renderableMeshes, Enum7.flag_0 | Enum7.flag_1);
             FrameShadowRenderTargetGroups.Clear();
             IShadowMapManager manager2 = (IShadowMapManager)ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
             if (manager2 == null)
@@ -291,7 +290,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             foreach (ShadowRenderTargetGroup shadowRenderTargetGroup_1 in FrameShadowRenderTargetGroups)
             {
                 foreach (ShadowGroup shadowGroup in shadowRenderTargetGroup_1.ShadowGroups)
-                    method_0(shadowRenderTargetGroup_1, shadowGroup);
+                    RenderShadows(shadowRenderTargetGroup_1, shadowGroup);
             }
             if (SceneState.Environment.FogEnabled)
             {
@@ -303,7 +302,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                 fogEffect_0.StartDistance = SceneState.Environment.FogStartDistance;
                 fogEffect_0.EndDistance = SceneState.Environment.FogEndDistance;
                 fogEffect_0.Color = SceneState.Environment.FogColor;
-                class64_0.method_1(list_12, list_3, false, bool_4);
+                class64_0.method_1(list_12, renderableMeshes, false, bool_4);
                 foreach (Class63 class63 in list_12)
                 {
                     EffectHelper.SyncObjectAndShadowEffects(class63.Effect, fogEffect_0);
@@ -348,13 +347,13 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             base.Unload();
         }
 
-        private void method_0(ShadowRenderTargetGroup shadowRenderTargetGroup_1, ShadowGroup shadowGroup_0)
+        private void RenderShadows(ShadowRenderTargetGroup targetGroup, ShadowGroup shadowGroup)
         {
-            if (shadowGroup_0.Lights.Count < 1 || list_3.Count < 1)
+            if (shadowGroup.Lights.Count < 1 || renderableMeshes.Count < 1)
                 return;
             ++class57_0.lightingSystemStatistic_9.AccumulationValue;
-            class57_0.lightingSystemStatistic_7.AccumulationValue += shadowGroup_0.Lights.Count;
-            bool flag1 = shadowGroup_0.ShadowSource is IPointSource;
+            class57_0.lightingSystemStatistic_7.AccumulationValue += shadowGroup.Lights.Count;
+            bool flag1 = shadowGroup.ShadowSource is IPointSource;
             GraphicsDevice graphicsDevice = GraphicsDeviceManager.GraphicsDevice;
             List<Class63> list_14 = flag1 ? list_5 : list_6;
             foreach (Class63 class63 in list_14)
@@ -362,7 +361,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                 class63.HasRenderableObjects = false;
                 foreach (RenderableMesh renderableMesh in class63.Objects.All)
                 {
-                    if (flag1 && (renderableMesh == null || shadowGroup_0.BoundingBox.Contains(renderableMesh.sceneObject.WorldBoundingSphere) == ContainmentType.Disjoint))
+                    if (flag1 && (renderableMesh == null || shadowGroup.BoundingBox.Contains(renderableMesh.sceneObject.WorldBoundingSphere) == ContainmentType.Disjoint))
                     {
                         renderableMesh.ShadowInFrustum = false;
                     }
@@ -377,18 +376,18 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             bool flag3 = false;
             if (flag1)
             {
-                Rectangle rectangle = CoreUtils.smethod_27(shadowGroup_0.BoundingBox, graphicsDevice.Viewport, SceneState.ViewProjection, SceneState.ViewToWorld);
+                Rectangle rectangle = CoreUtils.smethod_27(shadowGroup.BoundingBox, graphicsDevice.Viewport, SceneState.ViewProjection, SceneState.ViewToWorld);
                 if (rectangle.Width <= 0.0 || rectangle.Height <= 0.0)
                     return;
                 graphicsDevice.RenderState.ScissorTestEnable = true;
                 graphicsDevice.ScissorRectangle = rectangle;
                 flag2 = true;
             }
-            if (ShadowDetail != DetailPreference.Off && shadowGroup_0.Shadow is IShadowMap && (shadowGroup_0.Shadow as IShadowMap).ShadowEffect is IRenderableEffect)
+            if (ShadowDetail != DetailPreference.Off && shadowGroup.Shadow is IShadowMap && (shadowGroup.Shadow as IShadowMap).ShadowEffect is IRenderableEffect)
             {
-                IShadowMap shadow = shadowGroup_0.Shadow as IShadowMap;
+                IShadowMap shadow = shadowGroup.Shadow as IShadowMap;
                 list_11.Clear();
-                class64_0.method_1(list_11, list_3, true, bool_4);
+                class64_0.method_1(list_11, renderableMeshes, true, bool_4);
                 graphicsDevice.RenderState.AlphaBlendEnable = false;
                 graphicsDevice.RenderState.SourceBlend = Blend.One;
                 graphicsDevice.RenderState.DestinationBlend = Blend.Zero;
@@ -398,7 +397,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                     if (class63_0.HasRenderableObjects)
                     {
                         EffectHelper.SyncObjectAndShadowEffects(class63_0.Effect, shadow.ShadowEffect);
-                        method_1(shadowRenderTargetGroup_1, shadowGroup_0, class63_0);
+                        method_1(targetGroup, shadowGroup, class63_0);
                     }
                 }
                 graphicsDevice.RenderState.AlphaBlendEnable = true;
@@ -414,7 +413,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                 graphicsDevice.RenderState.DestinationBlend = Blend.One;
             }
             bool flag4;
-            if ((flag4 = shadowGroup_0.Lights.Count == 1) && MultiPassEdgeCleanupEnabled && bool_3)
+            if ((flag4 = shadowGroup.Lights.Count == 1) && MultiPassEdgeCleanupEnabled && bool_3)
             {
                 graphicsDevice.RenderState.StencilEnable = true;
                 graphicsDevice.RenderState.StencilFunction = CompareFunction.NotEqual;
@@ -429,7 +428,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                 if (int_4 > 250)
                     int_4 = 1;
             }
-            method_2(list_14, shadowGroup_0.Lights, true, TransparencyMode.const_2);
+            method_2(list_14, shadowGroup.Lights, true, TransparencyMode.const_2);
             if (flag4 && MultiPassEdgeCleanupEnabled && bool_3)
                 graphicsDevice.RenderState.StencilEnable = false;
             if (flag2)
@@ -651,7 +650,9 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                         }
                         if (!doubleSided && cullMode != mesh.CullMode)
                         {
-                            device.RenderState.CullMode = !cullCCW ? mesh.CullMode : (mesh.CullMode != CullMode.CullClockwiseFace ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
+                            device.RenderState.CullMode = !cullCCW 
+                                ? mesh.CullMode : (mesh.CullMode != CullMode.CullClockwiseFace 
+                                ? CullMode.CullClockwiseFace : CullMode.CullCounterClockwiseFace);
                             cullMode = mesh.CullMode;
                             ++class57_0.lightingSystemStatistic_5.AccumulationValue;
                         }

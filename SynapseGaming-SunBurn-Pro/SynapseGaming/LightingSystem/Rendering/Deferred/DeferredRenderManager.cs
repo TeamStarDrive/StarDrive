@@ -169,17 +169,17 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
             for (int index2 = 0; index2 < sceneObject.RenderableMeshes.Count; ++index2)
             {
               RenderableMesh renderableMesh = sceneObject.RenderableMeshes[index2];
-              if (renderableMesh.effect_0 != null)
+              if (renderableMesh.effect != null)
               {
-                if (renderableMesh.effect_0 is BaseSasBindEffect)
-                  (renderableMesh.effect_0 as BaseSasBindEffect).GameTime = scenestate.GameTime;
+                if (renderableMesh.effect is BaseSasBindEffect)
+                  (renderableMesh.effect as BaseSasBindEffect).GameTime = scenestate.GameTime;
                 if (this.MaxLoadedMipLevelEnabled)
                 {
-                  if (renderableMesh.effect_0 is BasicEffect)
-                    this.SetTextureLOD((renderableMesh.effect_0 as BasicEffect).Texture);
-                  else if (renderableMesh.effect_0 is ITextureAccessEffect)
+                  if (renderableMesh.effect is BasicEffect)
+                    this.SetTextureLOD((renderableMesh.effect as BasicEffect).Texture);
+                  else if (renderableMesh.effect is ITextureAccessEffect)
                   {
-                    ITextureAccessEffect effect0 = renderableMesh.effect_0 as ITextureAccessEffect;
+                    ITextureAccessEffect effect0 = renderableMesh.effect as ITextureAccessEffect;
                     for (int index3 = 0; index3 < effect0.TextureCount; ++index3)
                       this.SetTextureLOD(effect0.GetTexture(index3));
                   }

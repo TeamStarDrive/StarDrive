@@ -15,7 +15,7 @@ namespace SynapseGaming.LightingSystem.Core
     {
         private static ISceneEnvironment isceneEnvironment_1 = new SceneEnvironment();
         private static ISceneEnvironment isceneEnvironment_2 = new SceneEnvironment();
-        private Matrix matrix_4 = Matrix.Identity;
+        private Matrix ViewProjectionMat = Matrix.Identity;
 
         /// <summary>The scene's current view matrix.</summary>
         public Matrix View { get; private set; } = Matrix.Identity;
@@ -30,7 +30,7 @@ namespace SynapseGaming.LightingSystem.Core
         public Matrix ProjectionToView { get; private set; } = Matrix.Identity;
 
         /// <summary>The scene's combined view and projection matrix.</summary>
-        public Matrix ViewProjection => this.matrix_4;
+        public Matrix ViewProjection => this.ViewProjectionMat;
 
         /// <summary>
         /// The scene's combined inverse view and inverse projection matrix.
@@ -102,11 +102,11 @@ namespace SynapseGaming.LightingSystem.Core
             this.ViewToWorld = Matrix.Invert(view);
             this.Projection = projection;
             this.ProjectionToView = Matrix.Invert(projection);
-            this.matrix_4 = view * projection;
-            this.ProjectionToWorld = Matrix.Invert(this.matrix_4);
+            this.ViewProjectionMat = view * projection;
+            this.ProjectionToWorld = Matrix.Invert(this.ViewProjectionMat);
             this.GameTime = gametime;
             this.RenderingToScreen = renderingtoscreen;
-            this.InvertedWindings = this.matrix_4.Determinant() >= 0.0;
+            this.InvertedWindings = this.ViewProjectionMat.Determinant() >= 0.0;
             this.OrthographicProjection = false;
             this.Environment = environment == null ? isceneEnvironment_1 : environment;
             this.ViewFrustum.Matrix = view * projection;

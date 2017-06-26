@@ -31,7 +31,7 @@ namespace Mesh
         RenderableMesh renderableMesh_0_1 = list_1[index1];
         if (renderableMesh_0_1 != null && !renderableMesh_0_1.bool_1)
         {
-          Effect effect0 = renderableMesh_0_1.effect_0;
+          Effect effect0 = renderableMesh_0_1.effect;
           if (effect0 is ILightingEffect)
           {
             if ((enum7_0 & Enum7.flag_0) == 0)
@@ -95,7 +95,7 @@ namespace Mesh
         {
           Class63 class63 = class21_0.New();
           class63.method_0();
-          class63.Effect = renderableMesh_0_1.effect_0;
+          class63.Effect = renderableMesh_0_1.effect;
           class63.Transparent = renderableMesh_0_1.HasTransparency;
           class63.DoubleSided = renderableMesh_0_1.IsDoubleSided;
           class63.CustomShadowGeneration = renderableMesh_0_1.SupportsShadows;
