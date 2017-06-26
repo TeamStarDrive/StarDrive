@@ -222,6 +222,11 @@ namespace Ship_Game
 
         public static void NegativeClick()    => PlaySfxAsync("UI_Misc20");
         public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1");
+        public static void SystemClick()      => PlaySfxAsync("mouse_over4");
+        public static void ShipClicked()      => PlaySfxAsync("techy_affirm1");
+        public static void FleetClicked()     => PlaySfxAsync("techy_affirm1");
+        public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
+        public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
         // this is used for the DiplomacyScreen
         public static void SwitchToRacialMusic()
         {

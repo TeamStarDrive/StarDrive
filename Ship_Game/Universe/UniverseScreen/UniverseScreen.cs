@@ -997,6 +997,13 @@ namespace Ship_Game
             public Vector2 ScreenPos;
             public float Radius;
             public SolarSystem systemToClick;
+            public bool Touched(Vector2 touchPoint)
+            {
+                if (!(Vector2.Distance(touchPoint, ScreenPos) <= Radius)) return false;
+
+                GameAudio.SystemClick();
+                return true;
+            }
         }
 
         public class ClickableItemUnderConstruction
