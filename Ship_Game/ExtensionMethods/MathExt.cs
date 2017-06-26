@@ -18,6 +18,21 @@ namespace Ship_Game
         {
             return Max(min, Min(value, max));
         }
+        public static Vector2 Clamped(this Vector2 v, float minXy, float maxXy)
+        {
+            return new Vector2(Max(minXy, Min(v.X, maxXy)), 
+                               Max(minXy, Min(v.Y, maxXy)));
+        }
+        public static Vector2 Clamped(this Vector2 v, float minX, float minY, float maxX, float maxY)
+        {
+            return new Vector2(Max(minX, Min(v.X, maxX)), 
+                               Max(minY, Min(v.Y, maxY)));
+        }
+        public static Vector2 Clamped(this Vector2 v, Vector2 min, Vector2 max)
+        {
+            return new Vector2(Max(min.X, Min(v.X, max.X)),
+                               Max(min.Y, Min(v.Y, max.Y)));
+        }
 
         // Basic Linear Interpolation
         public static float LerpTo(this float minValue, float maxValue, float amount)

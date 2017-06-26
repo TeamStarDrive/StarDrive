@@ -329,7 +329,7 @@ namespace Ship_Game {
             {
                 float num1 = input.CursorPosition.X - StartDragPos.X;
                 float num2 = input.CursorPosition.Y - StartDragPos.Y;
-                Camera._pos += new Vector2(-num1, -num2);
+                Camera.Pos += new Vector2(-num1, -num2);
                 StartDragPos = input.CursorPosition;
                 cameraPosition.X += -num1;
                 cameraPosition.Y += -num2;
@@ -818,8 +818,8 @@ namespace Ship_Game {
             offset.X                     = viewport1.Width / 2 - 256;
             Viewport viewport2           = Viewport;
             offset.Y                     = viewport2.Height / 2 - 256;
-            Camera                       = new Camera2d();
-            Camera2d vector2             = Camera;
+            Camera                       = new Camera2D();
+            Camera2D vector2             = Camera;
             Viewport viewport3           = Viewport;
             float single                 = viewport3.Width / 2f;
             Viewport viewport4           = Viewport;

@@ -19,7 +19,7 @@ namespace Ship_Game
             ScreenManager.RenderSceneObjects();
 
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-                SaveStateMode.None, Camera.get_transformation(ScreenManager.GraphicsDevice));
+                SaveStateMode.None, Camera.Transform);
             if (ToggleOverlay)
             {
                 foreach (SlotStruct slot in this.Slots)
