@@ -317,7 +317,7 @@ namespace Ship_Game
 			spriteBatch.DrawRectangleGlow(this.UnlocksRect);
 		}
 
-		public bool HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager, Camera2d camera)
+		public bool HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager, Camera2D camera)
 		{
 			Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)this.BaseRect.X, (float)this.BaseRect.Y));
 			Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, this.BaseRect.Width, this.BaseRect.Height);

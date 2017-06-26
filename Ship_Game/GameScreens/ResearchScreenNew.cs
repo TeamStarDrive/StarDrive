@@ -9,7 +9,7 @@ namespace Ship_Game
 {
 	public sealed class ResearchScreenNew : GameScreen
 	{
-		public Camera2d camera;
+		public Camera2D camera = new Camera2D();
 
         private Map<string, Node> TechTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
@@ -71,13 +71,12 @@ namespace Ship_Game
 
 		private Submenu UnlocksSubMenu;
 
-		public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUI) : base(parent)
+		public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
 		{
-			this.empireUI = empireUI;
+			this.empireUI = empireUi;
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-			this.camera = new Camera2d();
 		}
 
         protected override void Dispose(bool disposing)
@@ -94,7 +93,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
             this.MainMenu.Draw();
             this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, this.camera.get_transformation(this.ScreenManager.GraphicsDevice));
+            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
             foreach (KeyValuePair<string, Node> keyValuePair in this.TechTree)
             {
                 if (keyValuePair.Value is RootNode && (keyValuePair.Value as RootNode).nodeState == NodeState.Press)
@@ -278,14 +277,14 @@ namespace Ship_Game
 			{
 				float xDiff = input.CursorPosition.X - this.StartDragPos.X;
 				float yDiff = input.CursorPosition.Y - this.StartDragPos.Y;
-				Camera2d vector2 = this.camera;
-				vector2._pos = vector2._pos + new Vector2(-xDiff, -yDiff);
+			    camera.Pos = camera.Pos + new Vector2(-xDiff, -yDiff);
 				this.StartDragPos = input.CursorPosition;
 			}
-			this.cameraVelocity.X = MathHelper.Clamp(cameraVelocity.X, -10f, 10f);
-			this.cameraVelocity.Y = MathHelper.Clamp(cameraVelocity.Y, -10f, 10f);
-			this.camera._pos.X = MathHelper.Clamp(camera._pos.X, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), 3200f);
-			this.camera._pos.Y = MathHelper.Clamp(camera._pos.Y, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), 3200f);
+
+            cameraVelocity = cameraVelocity.Clamped(-10f, 10f);
+            camera.Pos = camera.Pos.Clamped(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2f,
+                                            ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2f, 3200f, 3200f);
+
 			if (input.KeysCurr.IsKeyDown(Keys.RightControl) && input.KeysCurr.IsKeyDown(Keys.F1) && input.KeysPrev.IsKeyUp(Keys.F1))
 			{
                
@@ -414,12 +413,8 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.camera = new Camera2d();
-			Camera2d vector2 = this.camera;
-			Viewport viewport = base.Viewport;
-			float width = (float)viewport.Width / 2f;
-			Viewport viewport1 = base.Viewport;
-			vector2.Pos = new Vector2(width, (float)viewport1.Height / 2f);
+			camera = new Camera2D();
+		    camera.Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f);
 			Rectangle main = new Rectangle(0, 0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
 			this.MainMenu = new Menu2(base.ScreenManager, main);
 			this.MainMenuOffset = new Vector2((float)(main.X + 20), (float)(main.Y + 30));

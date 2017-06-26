@@ -24,7 +24,7 @@ namespace Ship_Game
 
 		private Matrix projection;
 
-		public Camera2d camera;
+		public Camera2D camera;
 
 		public ShipData ActiveHull;
 
