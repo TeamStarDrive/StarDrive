@@ -7,7 +7,7 @@ namespace Ship_Game
 	public sealed class Background
 	{
 		private Rectangle BkgRect = new Rectangle(0, 0, 15000, 15000);
-		private readonly Camera2d Camera = new Camera2d();
+		private readonly Camera2D Camera = new Camera2D();
 		private readonly Array<Nebula> Nebulas = new Array<Nebula>();
 	    private const int ItAmount = 512;
 	    private Vector2 LastCamPos;
@@ -77,7 +77,7 @@ namespace Ship_Game
 			screenMgr.SpriteBatch.End();
 			var bgRect = new Rectangle((int)(Camera.Pos.X - Empire.Universe.Viewport.Width / 2f - Camera.Pos.X / 30f - 200f), 
                                        (int)(Camera.Pos.Y - (screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight / 2f) - Camera.Pos.Y / 30f) - 200, 2048, 2048);
-			screenMgr.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.get_transformation(screenMgr.GraphicsDevice));
+			screenMgr.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
 			screenMgr.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
 			screenMgr.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
 			screenMgr.SpriteBatch.End();
@@ -121,7 +121,7 @@ namespace Ship_Game
 	                       2f - Camera.Pos.Y / 30f) - 200, 2048, 2048);
 	        }
 	        universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-	            SaveStateMode.None, Camera.get_transformation(universe.ScreenManager.GraphicsDevice));
+	            SaveStateMode.None, Camera.Transform);
 	        universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], BkgRect, new Color(255, 255, 255, 60));
 	        universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], BkgRect, new Color(255, 255, 255, 60));
 	        if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
@@ -155,7 +155,7 @@ namespace Ship_Game
 			universe.ScreenManager.SpriteBatch.End();
 			var bgRect = new Rectangle((int)((universe.Viewport.Width / -2f) - 200f), 
                 (int)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / -2f) - 200, 2048, 2048);
-			universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.get_transformation(universe.ScreenManager.GraphicsDevice));
+			universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
 			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
 			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
 			universe.ScreenManager.SpriteBatch.End();

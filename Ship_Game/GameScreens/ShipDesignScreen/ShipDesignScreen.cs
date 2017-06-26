@@ -21,7 +21,7 @@ namespace Ship_Game
         private readonly Matrix WorldMatrix = Matrix.Identity;
         private Matrix View;
         private Matrix Projection;
-        public Camera2d Camera;
+        public Camera2D Camera;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         public bool Debug;
         public ShipData ActiveHull;
