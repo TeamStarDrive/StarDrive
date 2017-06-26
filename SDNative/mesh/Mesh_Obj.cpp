@@ -7,7 +7,7 @@ namespace mesh
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    static bool SaveMaterials(const Mesh& mesh, const string& filename) noexcept
+    static bool SaveMaterials(const Mesh& mesh, strview materialSavePath, strview fileName) noexcept
     {
         if (mesh.Groups.empty())
             return false;
@@ -28,13 +28,13 @@ namespace mesh
             return defaultMat;
         };
 
-        if (file f = file{ filename, CREATENEW })
+        if (file f = file{ materialSavePath, CREATENEW })
         {
             auto writeColor = [&](strview id, Color3 color) { f.writeln(id, color.r, color.g, color.b); };
             auto writeStr   = [&](strview id, strview str)  { if (str) f.writeln(id, str); };
             auto writeFloat = [&](strview id, float value)  { if (value != 1.0f) f.writeln(id, value); };
 
-            f.writeln("#", filename, "MTL library");
+            f.writeln("#", fileName, "MTL library");
             for (const MeshGroup& group : mesh.Groups)
             {
                 Material& mat = *(group.Mat ? group.Mat : getDefaultMat()).get();
@@ -59,11 +59,10 @@ namespace mesh
                 writeStr("map_Ke",   mat.EmissivePath);
 
                 f.writeln("illum 2"); // default smooth shaded rendering
-                f.writeln();
             }
             return true;
         }
-        fprintf(stderr, "Failed to create file '%s'\n", filename.c_str());
+        println(stderr, "Failed to create file: ", materialSavePath);
         return false;
     }
 
@@ -282,25 +281,27 @@ namespace mesh
                             // 1--2
 
                             // v[0], v[2], v[3]
-                            VertexDescr* vd0 = &f->VDS[0];
-                            VertexDescr* vd2 = &f->VDS[2];
+                            VertexDescr vd0 = f->VDS[0]; // by value, because emplace_back may realloc
+                            VertexDescr vd2 = f->VDS[2];
                             f = &emplace_back(faces);
-                            f->VDS[f->Count++] = *vd0;
-                            f->VDS[f->Count++] = *vd2;
+                            f->VDS[f->Count++] = vd0;
+                            f->VDS[f->Count++] = vd2;
                             // v[3] is parsed below:
                         }
                         VertexDescr& vd = f->VDS[f->Count++];
                         if (strview v = vertdescr.next('/')) {
                             vd.v = v.to_int() - 1;
-                            if (vd.v < 0) vd.v = numVerts + vd.v; // negative indexing mode (3ds Max exporter)
+                            // negative indices, relative to the current maximum vertex position
+                            // (-1 references the last vertex defined)
+                            if (vd.v < 0) vd.v = vertexId + vd.v + 1; 
                         }
                         if (strview t = vertdescr.next('/')) {
                             vd.t = t.to_int() - 1;
-                            if (vd.t < 0) vd.t = numCoords + vd.t;
+                            if (vd.t < 0) vd.t = coordId + vd.t + 1;
                         }
                         if (strview n = vertdescr) {
                             vd.n = n.to_int() - 1;
-                            if (vd.n < 0) vd.n = numNormals + vd.n;
+                            if (vd.n < 0) vd.n = normalId + vd.n + 1;
                         }
                     }
                 }
@@ -341,62 +342,76 @@ namespace mesh
                 if (it->IsEmpty()) it = mesh.Groups.erase(it); else ++it;
         }
 
+        void BuildGroup(MeshGroup& g)
+        {
+            int vertsMin   = numVerts,   vertsMax   = 0;
+            int coordsMin  = numCoords,  coordsMax  = 0;
+            int normalsMin = numNormals, normalsMax = 0;
+            for (Face& face : g.Faces)
+            {
+                for (VertexDescr& vd : face) 
+                {
+                    if (vd.v < vertsMin) vertsMin = vd.v;
+                    if (vd.v > vertsMax) vertsMax = vd.v;
+                    if (vd.t != -1) {
+                        if (vd.t < coordsMin) coordsMin = vd.t;
+                        if (vd.t > coordsMax) coordsMax = vd.t;
+                    }
+                    if (vd.n != -1) {
+                        if (vd.n < normalsMin) normalsMin = vd.n;
+                        if (vd.n > normalsMax) normalsMax = vd.n;
+                    }
+                }
+            }
+
+            auto copyElements = [](auto& dst, auto* src, int min, int max) {
+                if (max >= min) dst.assign(src + min, src + max + 1);
+            };
+            copyElements(g.Verts,   vertsData,   vertsMin,   vertsMax);
+            copyElements(g.Coords,  coordsData,  coordsMin,  coordsMax);
+            copyElements(g.Normals, normalsData, normalsMin, normalsMax);
+
+            const bool vertexColors = numColors > 0;
+            if (vertexColors) {
+                copyElements(g.Colors, colorsData, vertsMin, vertsMax);
+                g.ColorMapping = MapPerVertex;
+            }
+
+            if (g.Coords.size() == g.Verts.size())
+                g.CoordsMapping = MapPerVertex;
+
+            if (g.Normals.size() == g.Verts.size())
+                g.NormalsMapping = MapPerVertex;
+
+            for (Face& face : g.Faces) // now assign new ids
+            {
+                for (VertexDescr& vd : face) 
+                {
+                    vd.v -= vertsMin;
+                    if (vd.t != -1) vd.t -= coordsMin;
+                    if (vd.n != -1) vd.n -= normalsMin;
+                    if (vertexColors) vd.c = vd.v;
+                }
+            }
+
+            // assign default name
+            if (g.Name.empty() && g.Mat)
+                g.Name = g.Mat->Name;
+        }
+
         void BuildMeshGroups()
         {
             for (MeshGroup& g : mesh.Groups)
             {
                 mesh.NumFaces += g.NumFaces();
+                BuildGroup(g);
 
-                int vertsMin   = numVerts,   vertsMax   = 0;
-                int coordsMin  = numCoords,  coordsMax  = 0;
-                int normalsMin = numNormals, normalsMax = 0;
-                for (Face& face : g.Faces)
-                {
-                    for (VertexDescr& vd : face) 
-                    {
-                        if (vd.v < vertsMin) vertsMin = vd.v;
-                        if (vd.v > vertsMax) vertsMax = vd.v;
-                        if (vd.t != -1) {
-                            if (vd.t < coordsMin) coordsMin = vd.t;
-                            if (vd.t > coordsMax) coordsMax = vd.t;
-                        }
-                        if (vd.n != -1) {
-                            if (vd.n < normalsMin) normalsMin = vd.n;
-                            if (vd.n > normalsMax) normalsMax = vd.n;
-                        }
-                    }
-                }
-
-                auto copyElements = [](auto& dst, auto* src, int min, int max) {
-                    if (max >= min) dst.assign(src + min, src + max + 1);
-                };
-                copyElements(g.Verts,   vertsData,   vertsMin,   vertsMax);
-                copyElements(g.Coords,  coordsData,  coordsMin,  coordsMax);
-                copyElements(g.Normals, normalsData, normalsMin, normalsMax);
-
-                const bool vertexColors = numColors > 0;
-                if (vertexColors) {
-                    copyElements(g.Colors, colorsData, vertsMin, vertsMax);
-                    g.ColorMapping = MapPerVertex;
-                }
-
-                if (g.Coords.size() == g.Verts.size())
-                    g.CoordsMapping = MapPerVertex;
-
-                if (g.Normals.size() == g.Verts.size())
-                    g.NormalsMapping = MapPerVertex;
-
-                for (Face& face : g.Faces) // now assign new ids
-                {
-                    for (VertexDescr& vd : face) 
-                    {
-                        vd.v -= vertsMin;
-                        if (vd.t != -1) vd.t -= coordsMin;
-                        if (vd.n != -1) vd.n -= normalsMin;
-                        if (vertexColors) vd.c = vd.v;
-                    }
-                }
+                // OBJ default face winding is CCW
+                g.Winding = FaceWindCounterClockWise;
             }
+
+            if (mesh.Groups.size() >= 1 && mesh.Groups.front().Name.empty())
+                mesh.Groups.front().Name = "default";
         }
     };
 
@@ -458,8 +473,9 @@ namespace mesh
             // straight to file, #dontcare about perf atm
 
             string matlib = file_replace_ext(meshPath, "mtl");
-            if (SaveMaterials(*this, file_replace_ext(meshPath, "mtl")))
-                f.writeln("mtllib", matlib);
+            strview matlibFile = file_nameext(matlib);
+            if (SaveMaterials(*this, matlib, matlibFile))
+                f.writeln("mtllib", matlibFile);
 
             if (!Name.empty())
                 f.writeln("o", Name);
@@ -468,9 +484,6 @@ namespace mesh
             for (int group = 0; group < (int)Groups.size(); ++group)
             {
                 const MeshGroup& g = Groups[group];
-                if (!g.Name.empty()) f.writeln("g", g.Name);
-                if (g.Mat)           f.writeln("usemtl", g.Mat->Name);
-                f.writeln("s", group);
 
                 auto* vertsData = g.Verts.data();
                 if (g.Colors.empty())
@@ -501,6 +514,9 @@ namespace mesh
                 for (const Vector2& v : g.Coords)  f.writef("vt %.4f %.4f\n", v.x, v.y);
                 for (const Vector3& v : g.Normals) f.writef("vn %.4f %.4f %.4f\n", v.x, v.y, v.z);
 
+                if (!g.Name.empty()) f.writeln("g", g.Name);
+                if (g.Mat)           f.writeln("usemtl", g.Mat->Name);
+                f.writeln("s", group);
                 for (const Face& face : g.Faces)
                 {
                     buf.clear();
@@ -514,10 +530,6 @@ namespace mesh
                     buf += '\n';
                     f.write(buf);
                 }
-            }
-            for (const MeshGroup& g : Groups)
-            {
-
             }
             return true;
         }

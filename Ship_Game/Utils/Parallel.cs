@@ -139,7 +139,7 @@ namespace Ship_Game
         }
 
         private static int PhysicalCoreCount;
-        private static int NumPhysicalCores
+        public static int NumPhysicalCores
         {
             get
             {
@@ -179,6 +179,7 @@ namespace Ship_Game
         /// <param name="rangeStart">Start of the range (inclusive)</param>
         /// <param name="rangeEnd">End of the range (exclusive)</param>
         /// <param name="body">delegate void RangeAction(int start, int end)</param>
+        /// <param name="parallelism">Number of threads to spawn. By default number of physical cores is used.</param>
         /// <example>
         /// Parallel.For(0, arr.Length, (start, end) =>
         /// {
@@ -188,13 +189,13 @@ namespace Ship_Game
         ///     }
         /// });
         /// </example>
-        public static void For(int rangeStart, int rangeEnd, RangeAction body)
+        public static void For(int rangeStart, int rangeEnd, RangeAction body, int parallelism = 0)
         {
             if (rangeStart >= rangeEnd)
                 return; // no work done on empty ranges
 
             int range = rangeEnd - rangeStart;
-            int cores = Math.Min(range, NumPhysicalCores);
+            int cores = Math.Min(range, Math.Max(NumPhysicalCores, parallelism));
             int len = range / cores;
 
             // this can happen if the target CPU only has 1 core, or if the list has 1 item
@@ -238,7 +239,10 @@ namespace Ship_Game
                 throw ex;
         }
 
-        public static void For(int rangeLength, RangeAction body) => For(0, rangeLength, body);
+        public static void For(int rangeLength, RangeAction body, int parallelism = 0)
+        {
+            For(0, rangeLength, body, parallelism);
+        }
 
         public static ParallelTask Run(Action action)
         {

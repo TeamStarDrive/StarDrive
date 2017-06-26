@@ -5,11 +5,9 @@ using NAudio.Wave;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.IO;
 using System.Linq;
 using SgMotion;
 using SgMotion.Controllers;
-using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -63,49 +61,7 @@ namespace Ship_Game
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
         }
 
-        private struct FadeInOutAnim
-        {
-            private readonly Texture2D Moon;
-            private readonly Rectangle Rect;
-            private readonly int FadeIn;
-            private readonly int Stay;
-            private readonly int FadeOut;
-            private readonly int End;
-
-            public FadeInOutAnim(Texture2D moon, Rectangle rect, int fadeIn, int stay, int fadeOut, int end)
-            {
-                Moon       = moon;
-                Rect       = rect;
-                FadeIn     = fadeIn;
-                Stay  = stay;
-                FadeOut    = fadeOut;
-                End = end;
-            }
-            public bool InKeyRange(int animationFrame)
-            {
-                return FadeOut <= animationFrame && animationFrame <= End;
-            }
-            private static float LerpAlpha(int value, int start, int end)
-            {
-                return (value - start) * (255f / (end - start));
-            }
-            public void Draw(SpriteBatch batch, int frame)
-            {
-                float alpha = 220f;
-
-                if (FadeIn <= frame && frame <= Stay)
-                {
-                    alpha = LerpAlpha(frame, FadeIn, Stay);
-                }
-                else if (FadeOut <= frame && frame <= End)
-                {
-                    alpha = 255f - LerpAlpha(frame, FadeOut, End);
-                }
-                batch.Draw(Moon, Rect, new Color(Color.White, (byte)alpha));
-            }
-        }
-
-        private FadeInOutAnim[] AlienTextAnim = null;
+        private FadeInOutAnim[] AlienTextAnim;
 
         private void DrawAlienTextOverlays()
         {
@@ -348,13 +304,16 @@ namespace Ship_Game
                 AnimationFrame = 0;
             }
             ScreenManager.SpriteBatch.End();
-            ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.InverseDestinationColor;
+
+
+            ScreenManager.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            ScreenManager.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
+            ScreenManager.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
+
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-            ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.InverseDestinationColor;
+            ScreenManager.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            ScreenManager.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
+            ScreenManager.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
             if (FlareFrames >= 0 && FlareFrames <= 31)
             {
                 float alphaStep = 35f / 32f;
@@ -389,19 +348,22 @@ namespace Ship_Game
             // is logged into debug console and can be set as default values later
             if (DebugMeshInspect)
             {
-                if (input.IsKeyDown(Keys.W)) ShipRotation.X += 0.5f;
-                if (input.IsKeyDown(Keys.S)) ShipRotation.X -= 0.5f;
-                if (input.IsKeyDown(Keys.A)) ShipRotation.Y += 0.5f;
-                if (input.IsKeyDown(Keys.D)) ShipRotation.Y -= 0.5f;
-                if (input.IsKeyDown(Keys.Q)) ShipRotation.Z += 0.5f;
-                if (input.IsKeyDown(Keys.E)) ShipRotation.Z -= 0.5f;
+                if (input.IsKeyDown(Keys.W)) ShipRotation.X += 1.0f;
+                if (input.IsKeyDown(Keys.S)) ShipRotation.X -= 1.0f;
+                if (input.IsKeyDown(Keys.A)) ShipRotation.Y += 1.0f;
+                if (input.IsKeyDown(Keys.D)) ShipRotation.Y -= 1.0f;
+                if (input.IsKeyDown(Keys.Q)) ShipRotation.Z += 1.0f;
+                if (input.IsKeyDown(Keys.E)) ShipRotation.Z -= 1.0f;
 
-                if (input.IsKeyDown(Keys.I)) MoonRotation.X += 0.5f;
-                if (input.IsKeyDown(Keys.K)) MoonRotation.X -= 0.5f;
-                if (input.IsKeyDown(Keys.J)) MoonRotation.Y += 0.5f;
-                if (input.IsKeyDown(Keys.L)) MoonRotation.Y -= 0.5f;
-                if (input.IsKeyDown(Keys.U)) MoonRotation.Z += 0.5f;
-                if (input.IsKeyDown(Keys.O)) MoonRotation.Z -= 0.5f;
+                if (input.IsKeyDown(Keys.I)) MoonRotation.X += 1.0f;
+                if (input.IsKeyDown(Keys.K)) MoonRotation.X -= 1.0f;
+                if (input.IsKeyDown(Keys.J)) MoonRotation.Y += 1.0f;
+                if (input.IsKeyDown(Keys.L)) MoonRotation.Y -= 1.0f;
+                if (input.IsKeyDown(Keys.U)) MoonRotation.Z += 1.0f;
+                if (input.IsKeyDown(Keys.O)) MoonRotation.Z -= 1.0f;
+
+                if (input.ScrollIn)  ShipScale += 0.1f;
+                if (input.ScrollOut) ShipScale -= 0.1f;
 
                 // if new keypress, spawn random ship
                 if (input.WasKeyPressed(Keys.Space))
@@ -658,41 +620,41 @@ namespace Ship_Game
                 string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
                 ShipObj = ResourceManager.GetSceneMesh(modelPath);
             }
+            else if (DebugMeshInspect)
+            {
+                ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/Soyo/Soyo.obj");
+                //ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
+            }
             else
             {
+                ShipData[] hulls = ResourceManager.HullsDict.Values.Where(s
+                    => s.Role == ShipData.RoleName.frigate
+                        //|| s.Role == ShipData.RoleName.cruiser
+                        //|| s.Role == ShipData.RoleName.capital
+                        //&& s.ShipStyle != "Remnant"
+                        && s.ShipStyle != "Ralyeh").ToArray(); // Ralyeh ships look disgusting in the menu
+                ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
 
-                if (DebugMeshInspect)
+                ShipObj = ResourceManager.GetSceneMesh(hull.ModelPath, hull.Animated);
+                if (hull.Animated) // Support animated meshes if we use them at all
                 {
-                    ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/Soyo/Soyo.obj");
-                }
-                else
-                {
-                    ShipData[] hulls = ResourceManager.HullsDict.Values.Where(s
-                        => s.Role == ShipData.RoleName.frigate
-                           //|| s.Role == ShipData.RoleName.cruiser
-                           //|| s.Role == ShipData.RoleName.capital
-                           //&& s.ShipStyle != "Remnant"
-                           && s.ShipStyle != "Ralyeh").ToArray(); // Ralyeh ships look disgusting in the menu
-                    ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
-
-                    ShipObj = ResourceManager.GetSceneMesh(hull.ModelPath, hull.Animated);
-                    if (hull.Animated) // Support animated meshes if we use them at all
-                    {
-                        SkinnedModel model = ResourceManager.GetSkinnedModel(hull.ModelPath);
-                        ShipAnim = new AnimationController(model.SkeletonBones);
-                        ShipAnim.StartClip(model.AnimationClips["Take 001"]);
-                    }
+                    SkinnedModel model = ResourceManager.GetSkinnedModel(hull.ModelPath);
+                    ShipAnim = new AnimationController(model.SkeletonBones);
+                    ShipAnim.StartClip(model.AnimationClips["Take 001"]);
                 }
             }
 
             // we want mainmenu ships to have a certain acceptable size:
-            ShipScale = 266f / ShipObj.ObjectBoundingSphere.Radius;
+            if (!DebugMeshInspect)
+                ShipScale = 266f / ShipObj.ObjectBoundingSphere.Radius;
+            else
+                ShipScale = 1024f / ShipObj.ObjectBoundingSphere.Radius;
 
             //var bb = ShipObj.GetMeshBoundingBox();
             //float length = bb.Max.Z - bb.Min.Z;
             //float width  = bb.Max.X - bb.Min.X;
             //float height = bb.Max.Y - bb.Min.Y;
-            //Log.Info("ship length {0} width {1} height {2}", length, width, height);
+            Log.Info("ship width: {0}  scale: {1}", ShipObj.ObjectBoundingSphere.Radius*2, ShipScale);
 
             ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
             AddObject(ShipObj);
@@ -716,7 +678,6 @@ namespace Ship_Game
             else
             {
                 ShipPosition = new Vector3(0f, 0f, 0f);
-                ShipScale    = 512f;
             }
 
             // shipObj can be modified while mod is loading

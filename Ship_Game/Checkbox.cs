@@ -54,7 +54,7 @@ namespace Ship_Game
 
         public void Draw(ScreenManager screenManager)
 		{
-			if (CheckRect.HitTest(Mouse.GetState().Pos()) && !TipText.Empty())
+			if (CheckRect.HitTest(Mouse.GetState().Pos()) && !TipText.IsEmpty())
 			{
 				ToolTip.CreateTooltip(TipText, screenManager);
 			}

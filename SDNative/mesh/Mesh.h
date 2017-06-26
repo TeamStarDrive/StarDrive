@@ -33,6 +33,7 @@ namespace mesh
         VertexDescr* end()   { return VDS + Count; }
         VertexDescr& emplace_elem() { return VDS[Count++]; }
         void resize(int size) { Count = size; }
+        void add(int vertexId, int textureId, int normalId) { VDS[Count++] = { vertexId, textureId, normalId }; }
 
         bool ContainsVertexId(int vertexId) const;
     };
@@ -106,6 +107,12 @@ namespace mesh
         Vector3 norm;
     };
 
+    enum FaceWindOrder
+    {
+        FaceWindClockWise,
+        FaceWindCounterClockWise,
+    };
+
 
     struct MeshGroup
     {
@@ -125,6 +132,8 @@ namespace mesh
         MapMode NormalsMapping = MapNone;
         MapMode ColorMapping   = MapNone;
 
+        FaceWindOrder Winding = FaceWindClockWise;
+
         MeshGroup(int groupId, string name) : GroupId(groupId), Name(name) {}
 
         bool IsEmpty()   const { return Faces.empty(); }
@@ -138,6 +147,9 @@ namespace mesh
         const Face* end()   const { return &Faces.back() + 1; }
         Face* begin() { return &Faces.front(); }
         Face* end()   { return &Faces.back() + 1; }
+
+        // creates and assigns a new material to this mesh group
+        Material& CreateMaterial(string name);
 
         // will scan all Face declarations to ensure all faces are triangular, not quads or polys
         bool CheckIsTriangulated() const;
@@ -157,6 +169,15 @@ namespace mesh
                           const VertexDescr& vd1,
                           const VertexDescr& vd2,
                           const bool checkDuplicateVerts = false) noexcept;
+
+        // Recalculates all normals by find shared and non-shared vertices on the same pos
+        // Currently does not respect smoothing groups
+        // @param checkDuplicateVerts Will perform an O(n^2) search for duplicate vertices to
+        //                            correctly calculate normals for mesh surfaces with unwelded verts
+        void RecalculateNormals(const bool checkDuplicateVerts = false) noexcept;
+
+        // normal = -normal;
+        void InvertNormals() noexcept;
 
         void SetVertexColor(int vertexId, const Color3& vertexColor) noexcept;
 
@@ -272,7 +293,8 @@ namespace mesh
         //                            correctly calculate normals for mesh surfaces with unwelded verts
         void RecalculateNormals(const bool checkDuplicateVerts = false) noexcept;
 
-
+        // normal = -normal;
+        void InvertNormals() noexcept;
 
         BoundingBox CalculateBBox() const noexcept;
         //BoundingBox CalculateBBox(const vector<IdVector3>& deltas) const noexcept { return BoundingBox::create(Verts, deltas); }

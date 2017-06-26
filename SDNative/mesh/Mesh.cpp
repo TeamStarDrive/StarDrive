@@ -16,6 +16,13 @@ namespace mesh
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    Material& MeshGroup::CreateMaterial(string name)
+    {
+        Mat = make_shared<Material>();
+        Mat->Name = move(name);
+        return *Mat;
+    }
+
     bool MeshGroup::CheckIsTriangulated() const
     {
         for (const Face& face : Faces)
@@ -35,14 +42,18 @@ namespace mesh
         {
             if (face.Count == 3)
             {
-                swap(face.VDS[0], face.VDS[2]);
+                // 0 1 2 --> 0 2 1
+                swap(face.VDS[1], face.VDS[2]);
             }
             else if (face.Count == 4)
             {
-                swap(face.VDS[0], face.VDS[3]);
-                swap(face.VDS[1], face.VDS[2]);
+                // 0 1 2 3 --> 0 3 2 1
+                swap(face.VDS[1], face.VDS[3]);
             }
         }
+
+        // flip the winding tag
+        Winding = (Winding == FaceWindClockWise) ? FaceWindCounterClockWise : FaceWindClockWise;
     }
 
     void MeshGroup::UpdateNormal(const VertexDescr& vd0, 
@@ -88,6 +99,65 @@ namespace mesh
             }
         }
 
+    }
+
+    void MeshGroup::RecalculateNormals(const bool checkDuplicateVerts) noexcept
+    {
+        for (Vector3& normal : Normals)
+            normal = Vector3::ZERO;
+
+        FaceWindOrder winding = Winding;
+
+        // normals are calculated for each face:
+        for (const Face& face : Faces)
+        {
+            int numVerts = face.Count;
+            if (numVerts == 3)
+            {
+                if (winding == FaceWindCounterClockWise)
+                {
+                    UpdateNormal(face[0], face[1], face[2], checkDuplicateVerts);
+                }
+                else
+                {
+                    UpdateNormal(face[2], face[1], face[0], checkDuplicateVerts);
+                }
+            }
+            else if (numVerts == 4)
+            {
+                // @todo According to OBJ spec, face vertices are in CCW order:
+                // 0--3       3--2
+                // | /|  or   |\ |
+                // |/ |       | \|
+                // 1--2       0--1
+                // This will affect the result of normal calculation, so it should
+                // be reviewed depending on the final target application which may
+                // expect normals in the opposite order
+                if (winding == FaceWindCounterClockWise)
+                {
+                    UpdateNormal(face[0], face[1], face[3], checkDuplicateVerts);
+                    UpdateNormal(face[1], face[2], face[3], checkDuplicateVerts);
+                }
+                else
+                {
+                    UpdateNormal(face[3], face[1], face[0], checkDuplicateVerts);
+                    UpdateNormal(face[3], face[2], face[1], checkDuplicateVerts);
+                }
+            }
+            else
+            {
+                LogError("Unsupported number of verts per face: %d", numVerts);
+            }
+        }
+
+        for (Vector3& normal : Normals)
+            normal.normalize();
+    }
+
+    void MeshGroup::InvertNormals() noexcept
+    {
+        for (Vector3& normal : Normals)
+            normal = -normal;
     }
 
 
@@ -411,43 +481,14 @@ namespace mesh
 
     void Mesh::RecalculateNormals(const bool checkDuplicateVerts) noexcept
     {
-        for (auto& group : Groups)
-            for (Vector3& normal : group.Normals)
-                normal = Vector3::ZERO;
-
         for (MeshGroup& group : Groups)
-        {
-            // normals are calculated for each face:
-            for (const Face& face : group.Faces)
-            {
-                int numVerts = face.Count;
-                if (numVerts == 3)
-                {
-                    group.UpdateNormal(face[0], face[1], face[2], checkDuplicateVerts);
-                }
-                else if (numVerts == 4)
-                {
-                    // @todo According to OBJ spec, face vertices are in CCW order:
-                    // 0--3       3--2
-                    // | /|  or   |\ |
-                    // |/ |       | \|
-                    // 1--2       0--1
-                    // This will affect the result of normal calculation, so it should
-                    // be reviewed depending on the final target application which may
-                    // expect normals in the opposite order
-                    group.UpdateNormal(face[0], face[1], face[3], checkDuplicateVerts);
-                    group.UpdateNormal(face[1], face[2], face[3], checkDuplicateVerts);
-                }
-                else
-                {
-                    LogError("Unsupported number of verts per face: %d", numVerts);
-                }
-            }
-        }
+            group.RecalculateNormals(checkDuplicateVerts);
+    }
 
+    void Mesh::InvertNormals() noexcept
+    {
         for (MeshGroup& group : Groups)
-            for (Vector3& normal : group.Normals)
-                normal.normalize();
+            group.InvertNormals();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

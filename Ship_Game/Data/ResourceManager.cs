@@ -575,6 +575,8 @@ namespace Ship_Game
             SceneObject so = DynamicObject(modelName);
             int count = SubmeshCount(maxSubmeshes, model.Meshes.Count);
 
+            so.Visibility = SynapseGaming.LightingSystem.Core.ObjectVisibility.RenderedAndCastShadows;
+
             for (int i = 0; i < count; ++i)
                 so.Add(model.Meshes[i]);
             return so;
@@ -619,6 +621,48 @@ namespace Ship_Game
             return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
         }
 
+
+        public static void ExportAllXnbMeshes()
+        {
+            FileInfo[] files = GatherFilesUnified("Model", "xnb");
+
+            void ExportXnbMesh(int start, int end)
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    try
+                    {
+                        FileInfo file = files[i];
+                        string name = file.Name;
+                        if (name.EndsWith("_d.xnb") || name.EndsWith("_g.xnb") ||
+                            name.EndsWith("_n.xnb") || name.EndsWith("_s.xnb") ||
+                            name.EndsWith("_d_0.xnb") || name.EndsWith("_g_0.xnb") ||
+                            name.EndsWith("_n_0.xnb") || name.EndsWith("_s_0.xnb"))
+                        {
+                            continue;
+                        }
+
+                        string relativePath = file.RelPath().Replace("Content\\", "");
+                        var model = ContentManager.Load<Model>(relativePath);
+
+                        string nameNoExt = Path.GetFileNameWithoutExtension(name);
+                        string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "obj");
+
+                        if (!File.Exists(savePath))
+                        {
+                            Log.Warning("ExportMesh: {0}", savePath);
+                            RawContentLoader.SaveModel(model, nameNoExt, savePath);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // just ignore resources that are not static models
+                    }
+                }
+            }
+            Parallel.For(files.Length, ExportXnbMesh, Parallel.NumPhysicalCores * 2);
+            //ExportXnbMesh(0, files.Length);
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
