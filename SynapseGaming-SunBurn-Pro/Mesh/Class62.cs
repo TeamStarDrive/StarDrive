@@ -23,7 +23,7 @@ namespace Mesh
       if (renderableMesh_0 == null)
         return;
       this.All.Add(renderableMesh_0);
-      if (renderableMesh_0.effect_0 is ISkinnedEffect && (renderableMesh_0.effect_0 as ISkinnedEffect).Skinned)
+      if (renderableMesh_0.effect is ISkinnedEffect && (renderableMesh_0.effect as ISkinnedEffect).Skinned)
         this.Skinned.Add(renderableMesh_0);
       else
         this.NonSkinned.Add(renderableMesh_0);

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -108,13 +109,16 @@ namespace Ship_Game
 
             Log.Info("Loaded 'Root' Assets {0:0.0}MB", Game1.GameContent.GetLoadedAssetMegabytes());
 
+            // If you want to export XNB assets:
+		    // ResourceManager.ExportAllXnbMeshes();
+
             base.LoadContent();
             Ready = true;
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			if (!IsActive)
+			if (!IsActive || Debugger.IsAttached)
 			{
 				if (LoadingPlayer.State == MediaState.Playing) LoadingPlayer.Pause();
 				if (SplashPlayer.State == MediaState.Playing)  SplashPlayer.Pause();
