@@ -329,13 +329,13 @@ namespace Ship_Game
             }
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             this.Input = input;
 
             if (input.PauseGame && !GlobalStats.TakingInput) Paused = !Paused;
             if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet))
-                return; //if planet screen is still exiting prevent further input
+                return true; //if planet screen is still exiting prevent further input
 
             for (int index = SelectedShipList.Count - 1; index >= 0; --index)
             {
@@ -343,11 +343,13 @@ namespace Ship_Game
                 if (!ship.Active)
                     SelectedShipList.RemoveSwapLast(ship);
             }
-            //CG: previous target code. 
-            if (previousSelection != null && input.PreviousTarget) PreviousTargetSelection(input);
+            // CG: previous target code. 
+            if (previousSelection != null && input.PreviousTarget)
+                PreviousTargetSelection(input);
 
-            //fbedard: Set camera chase on ship
-            if (input.ChaseCam) ChaseCame();
+            // fbedard: Set camera chase on ship
+            if (input.ChaseCam)
+                ChaseCame();
 
             ShowTacticalCloseup = input.TacticalIcons;
 
@@ -373,7 +375,7 @@ namespace Ship_Game
             GameSpeedDecrease(input.SpeedDown);
 
 
-            //fbedard: Click button to Cycle through ships in Combat
+            // fbedard: Click button to Cycle through ships in Combat
             if (!ShipsInCombat.Rect.HitTest(input.CursorPosition))
             {
                 ShipsInCombat.State = UIButton.PressState.Default;
@@ -381,7 +383,7 @@ namespace Ship_Game
             else CycleShipsInCombat(input);
 
 
-            //fbedard: Click button to Cycle through Planets in Combat
+            // fbedard: Click button to Cycle through Planets in Combat
             if (!PlanetsInCombat.Rect.HitTest(input.CursorPosition))
             {
                 PlanetsInCombat.State = UIButton.PressState.Default;
@@ -394,7 +396,7 @@ namespace Ship_Game
                 {
                     SkipRightOnce = true;
                     NeedARelease = true;
-                    return;
+                    return true;
                 }
             }
             else
@@ -431,7 +433,6 @@ namespace Ship_Game
 
             if (DefiningAO)
             {
-
                 if (NeedARelease)
                 {
                     if (input.LeftMouseDown)
@@ -440,7 +441,7 @@ namespace Ship_Game
                 else
                 {
                     DefineAO(input);
-                    return;
+                    return true;
                 }
             }
             pickedSomethingThisFrame = false;
@@ -467,7 +468,7 @@ namespace Ship_Game
                 ? UniverseScreen.CursorState.Move
                 : UniverseScreen.CursorState.Normal;
             if (SelectedShip == null && SelectedShipList.Count <= 0)
-                return;
+                return false;
             for (int i = 0; i < ClickableShipsList.Count; i++)
             {
                 UniverseScreen.ClickableShip clickableShip = ClickableShipsList[i];
@@ -475,7 +476,7 @@ namespace Ship_Game
                     cState = UniverseScreen.CursorState.Follow;
             }
             if (cState == UniverseScreen.CursorState.Follow)
-                return;
+                return false;
             lock (GlobalStats.ClickableSystemsLock)
             {
                 for (int i = 0; i < ClickPlanetList.Count; i++)
@@ -486,6 +487,7 @@ namespace Ship_Game
                         cState = UniverseScreen.CursorState.Orbit;
                 }
             }
+            return base.HandleInput(input);
         }
 
         private int InputFleetSelection(InputState input)

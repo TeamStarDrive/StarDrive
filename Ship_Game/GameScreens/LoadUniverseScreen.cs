@@ -380,12 +380,13 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             if (ready && input.InGameSelect)
             {
                 Go();
             }
+            return false;
         }
 
         public override void LoadContent()
