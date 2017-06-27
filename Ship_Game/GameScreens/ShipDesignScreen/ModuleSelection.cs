@@ -106,7 +106,6 @@ namespace Ship_Game
         }
         private void DrawActiveModuleData()
         {
-            float powerDraw;
             //ActiveModSubMenu.Draw();
             Rectangle r = ActiveModSubMenu.Menu;
             r.Y = r.Y + 25;
@@ -134,8 +133,8 @@ namespace Ship_Game
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
 
             //Added by McShooterz: Changed how modules names are displayed for allowing longer names
-            Vector2 modTitlePos = new Vector2((float)(ActiveModSubMenu.Menu.X + 10),
-                (float)(ActiveModSubMenu.Menu.Y + 35));
+            var modTitlePos = new Vector2(ActiveModSubMenu.Menu.X + 10, ActiveModSubMenu.Menu.Y + 35);
+
             if (Fonts.Arial20Bold.MeasureString(Localizer.Token(moduleTemplate.NameIndex)).X + 16 <
                 ActiveModSubMenu.Menu.Width)
             {
@@ -419,1233 +418,666 @@ namespace Ship_Game
             if (strength > 0)
             {
                 ParentScreen.DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                WriteLine(ref modTitlePos);
             }
             if (!mod.isWeapon || mod.InstalledWeapon == null)
             {
-                if (mod.Cost != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(128),
-                        (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.Mass != 0)
-                {
-                    float MassMod = (float)EmpireManager.Player.data.MassModifier;
-                    float ArmourMassMod = (float)EmpireManager.Player.data.ArmourMassModifier;
-
-                    if (mod.ModuleType == ShipModuleType.Armor)
-                    {
-                        ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(123), (ArmourMassMod * mod.Mass) * MassMod, 79);
-                    }
-                    else
-                    {
-                        ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(123), MassMod * mod.Mass, 79);
-                    }
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.HealthMax != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(124),
-                        (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.Player.data.Traits.ModHpModifier,
-                        80);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.ModuleType != ShipModuleType.PowerPlant)
-                {
-                    powerDraw = -(float)mod.PowerDraw;
-                }
-                else
-                {
-                    powerDraw = (mod.PowerDraw > 0f
-                        ? (float)(-mod.PowerDraw)
-                        : mod.PowerFlowMax + mod.PowerFlowMax * EmpireManager.Player.data.PowerFlowMod);
-                }
-                if (powerDraw != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.MechanicalBoardingDefense != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2231), (float)mod.MechanicalBoardingDefense, 143);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.BonusRepairRate != 0f)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"),
-                        (float)(
-                            (mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.Player.data.Traits.RepairMod) *
-                            (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
-                             ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
-                                ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].RepairBonus
-                                : 1)), 97);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                //Shift to next Column
-                float MaxDepth = modTitlePos.Y;
-                modTitlePos.X = modTitlePos.X + 152f;
-                modTitlePos.Y = starty;
-                if (mod.thrust != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(131), (float)mod.thrust, 91);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.WarpThrust != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2064), (float)mod.WarpThrust, 92);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TurnThrust != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2260), (float)mod.TurnThrust, 148);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_power_max != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(132),
-                        mod.shield_power_max *
-                        (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
-                         ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
-                            ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].ShieldBonus
-                            : 1f) + EmpireManager.Player.data.ShieldPowerMod * mod.shield_power_max, 93);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_radius != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(133), (float)mod.shield_radius, 94);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_recharge_rate != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(134), (float)mod.shield_recharge_rate, 95);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-
-                // Doc: new shield resistances, UI info.
-
-                if (mod.shield_kinetic_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6162), (float)mod.shield_kinetic_resist, 209
-                        , Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_energy_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6163), (float)mod.shield_energy_resist, 210,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_explosive_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6164), (float)mod.shield_explosive_resist, 211,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_missile_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6165), (float)mod.shield_missile_resist, 212,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_flak_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6166), (float)mod.shield_flak_resist, 213,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_hybrid_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6167), (float)mod.shield_hybrid_resist, 214,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_railgun_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6168), (float)mod.shield_railgun_resist, 215,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_subspace_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6169), (float)mod.shield_subspace_resist, 216,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_warp_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6170), (float)mod.shield_warp_resist, 217,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_beam_resist != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6171), (float)mod.shield_beam_resist, 218,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.shield_threshold != 0)
-                {
-                    ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222,
-                        Color.LightSkyBlue, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-
-
-                if (mod.SensorRange != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.SensorBonus != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6121), (float)mod.SensorBonus, 167);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.HealPerTurn != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TransporterRange != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.TransporterRange, 168);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TransporterPower != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6123), (float)mod.TransporterPower, 169);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TransporterTimerConstant != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6122), (float)mod.TransporterTimerConstant, 170);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TransporterOrdnance != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6124), (float)mod.TransporterOrdnance, 171);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TransporterTroopAssault != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6135), (float)mod.TransporterTroopAssault, 187);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TransporterTroopLanding != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6128), (float)mod.TransporterTroopLanding, 172);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.OrdinanceCapacity != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2129), (float)mod.OrdinanceCapacity, 124);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.Cargo_Capacity != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(119), (float)mod.Cargo_Capacity, 109);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.OrdnanceAddedPerSecond != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6120), (float)mod.OrdnanceAddedPerSecond, 162);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InhibitionRadius != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2233), (float)mod.InhibitionRadius, 144);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TroopCapacity != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(336), (float)mod.TroopCapacity, 173);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.PowerStoreMax != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2235),
-                        (float)(mod.PowerStoreMax + mod.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier),
-                        145);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
-                if (mod.PowerDrawAtWarp != 0f)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), 178);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM && mod.ECM != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM, 154, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.ModuleType == ShipModuleType.Hangar && mod.hangarTimerConstant != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(136), (float)mod.hangarTimerConstant, 98);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.explodes)
-                {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Explodes", modTitlePos,
-                        Color.OrangeRed);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.KineticResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6142), (float)mod.KineticResist, 189,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.EnergyResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6143), (float)mod.EnergyResist, 190,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.GuidedResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6144), (float)mod.GuidedResist, 191,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.MissileResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6145), (float)mod.MissileResist, 192,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.HybridResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6146), (float)mod.HybridResist, 193,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.BeamResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6147), (float)mod.BeamResist, 194, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.ExplosiveResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6148), (float)mod.ExplosiveResist, 195,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InterceptResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6149), (float)mod.InterceptResist, 196,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.RailgunResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6150), (float)mod.RailgunResist, 197,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.SpaceBombResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6151), (float)mod.SpaceBombResist, 198,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.BombResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6152), (float)mod.BombResist, 199, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.BioWeaponResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6153), (float)mod.BioWeaponResist, 200,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.DroneResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6154), (float)mod.DroneResist, 201,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.WarpResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6155), (float)mod.WarpResist, 202, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TorpedoResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6156), (float)mod.TorpedoResist, 203,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.CannonResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6157), (float)mod.CannonResist, 204,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.SubspaceResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6158), (float)mod.SubspaceResist, 205,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.PDResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6159), (float)mod.PDResist, 206, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.FlakResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.APResist != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208, isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.DamageThreshold != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6175), (float)mod.DamageThreshold, 221);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.EMP_Protection != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.FixedTracking > 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6187), (float)mod.FixedTracking, 231);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.TargetTracking > 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, "+" + Localizer.Token(6186), (float)mod.TargetTracking, 226);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-
-
-                if (mod.PermittedHangarRoles.Length > 0)
-                {
-                    modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + (float)Fonts.Arial12Bold.LineSpacing;
-                    Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                        string.Concat(Localizer.Token(137), " : ", mod.hangarShipUID), shipSelectionPos, Color.Orange);
-                    r = ChooseFighterSub.Menu;
-                    r.Y = r.Y + 25;
-                    r.Height = r.Height - 25;
-                    sel = new Selector(ScreenManager, r, new Color(0, 0, 0, 210));
-                    sel.Draw();
-                    ParentScreen.UpdateHangarOptions(mod);
-                    ChooseFighterSub.Draw();
-                    ChooseFighterSL.Draw(ScreenManager.SpriteBatch);
-                    Vector2 bCursor = new Vector2((float)(ChooseFighterSub.Menu.X + 15),
-                        (float)(ChooseFighterSub.Menu.Y + 25));
-                    for (int i = ChooseFighterSL.indexAtTop;
-                        i < ChooseFighterSL.Entries.Count && i < ChooseFighterSL.indexAtTop +
-                        ChooseFighterSL.entriesToDisplay;
-                        i++)
-                    {
-                        ScrollList.Entry e = ChooseFighterSL.Entries[i];
-                        bCursor.Y = (float)e.clickRect.Y;
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict[
-                                ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath],
-                            new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            (!string.IsNullOrEmpty((e.item as Ship).VanityName)
-                                ? (e.item as Ship).VanityName
-                                : (e.item as Ship).Name), tCursor, Color.White);
-                        tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    //if (ParentScreen.selector != null)
-                    //{
-                    //    ParentScreen.selector.Draw();
-                    //    return;
-                    //}
-                }
-                return;
+                DrawModuleStats(mod, modTitlePos, starty);
             }
             else
             {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic,
-                    84);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(123),
-                    (float)EmpireManager.Player.data.MassModifier * mod.Mass, 79);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(124),
-                    (float)mod.HealthMax + EmpireManager.Player.data.Traits.ModHpModifier * mod.HealthMax, 80);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(125),
-                    (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(126),
-                    (float)ModifiedWeaponStat(mod.InstalledWeapon, "range"), 82);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                if (!mod.InstalledWeapon.explodes || mod.InstalledWeapon.OrdinanceRequiredToFire <= 0f)
-                {
-                    if (mod.InstalledWeapon.isRepairBeam)
-                    {
-                        ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(135),
-                            (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * -90f *
-                            mod.InstalledWeapon.BeamDuration * GetHullDamageBonus(), 166);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        ParentScreen.DrawStat(ref modTitlePos, "Duration", (float)mod.InstalledWeapon.BeamDuration, 188);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    else if (mod.InstalledWeapon.isBeam)
-                    {
-                        ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(127),
-                            (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 90f *
-                            mod.InstalledWeapon.BeamDuration * GetHullDamageBonus(), 83);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        ParentScreen.DrawStat(ref modTitlePos, "Duration", (float)mod.InstalledWeapon.BeamDuration, 188);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    else
-                    {
-                        ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(127),
-                            (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus(), 83);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                }
-                else
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(127),
-                        (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() +
-                        EmpireManager.Player.data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount, 83);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                modTitlePos.X = modTitlePos.X + 152f;
-                modTitlePos.Y = starty;
-                if (!mod.InstalledWeapon.isBeam && !mod.InstalledWeapon.isRepairBeam)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(129),
-                        (float)ModifiedWeaponStat(mod.InstalledWeapon, "speed"), 85);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.DamageAmount > 0f)
-                {
-                    if (mod.InstalledWeapon.isBeam)
-                    {
-                        float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() *
-                                    90f * mod.InstalledWeapon.BeamDuration /
-                                    (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus());
-                        ParentScreen.DrawStat(ref modTitlePos, "DPS", dps, 86);
-                        modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    else if (mod.InstalledWeapon.explodes && mod.InstalledWeapon.OrdinanceRequiredToFire > 0f)
-                    {
-                        if (mod.InstalledWeapon.SalvoCount <= 1)
-                        {
-                            float dps =
-                                1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) *
-                                ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() +
-                                 EmpireManager.Player.data.OrdnanceEffectivenessBonus *
-                                 mod.InstalledWeapon.DamageAmount);
-                            dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-                            ParentScreen.DrawStat(ref modTitlePos, "DPS", dps, 86);
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                        else
-                        {
-                            float dps = (float)mod.InstalledWeapon.SalvoCount /
-                                        (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") *
-                                         GetHullFireRateBonus()) *
-                                        ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") *
-                                         GetHullDamageBonus() +
-                                         EmpireManager.Player.data.OrdnanceEffectivenessBonus *
-                                         mod.InstalledWeapon.DamageAmount);
-                            dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-                            ParentScreen.DrawStat(ref modTitlePos, "DPS", dps, 86);
-                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                            ParentScreen.DrawStat(ref modTitlePos, "Salvo", (float)mod.InstalledWeapon.SalvoCount, 182);
-                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                    }
-                    else if (mod.InstalledWeapon.SalvoCount <= 1)
-                    {
-                        float dps =
-                            1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) *
-                            ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() +
-                             (float)mod.InstalledWeapon.DamageAmount *
-                             EmpireManager.Player.data.Traits.EnergyDamageMod);
-                        dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-                        ParentScreen.DrawStat(ref modTitlePos, "DPS", dps, 86);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    else
-                    {
-                        float dps = (float)mod.InstalledWeapon.SalvoCount /
-                                    (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) *
-                                    ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() +
-                                     (float)mod.InstalledWeapon.DamageAmount *
-                                     EmpireManager.Player.data.Traits.EnergyDamageMod);
-                        dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-                        ParentScreen.DrawStat(ref modTitlePos, "DPS", dps, 86);
-                        modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        ParentScreen.DrawStat(ref modTitlePos, "Salvo", (float)mod.InstalledWeapon.SalvoCount, 182);
-                        modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                }
-                if (mod.InstalledWeapon.BeamPowerCostPerSecond > 0f)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, "Pwr/s", (float)mod.InstalledWeapon.BeamPowerCostPerSecond, 87);
-                    modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                ParentScreen.DrawStat(ref modTitlePos, "Delay", mod.InstalledWeapon.fireDelay, 183);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                if (mod.InstalledWeapon.EMPDamage > 0f)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, "EMP",
-                        1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) *
-                        (float)mod.InstalledWeapon.EMPDamage, 110);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.SiphonDamage > 0f)
-                {
-                    float damage;
-                    if (mod.InstalledWeapon.isBeam)
-                        damage = mod.InstalledWeapon.SiphonDamage * 90f * mod.InstalledWeapon.BeamDuration;
-                    else
-                        damage = mod.InstalledWeapon.SiphonDamage;
-                    ParentScreen.DrawStat(ref modTitlePos, "Siphon", damage, 184);
-                    modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.MassDamage > 0f)
-                {
-                    float damage;
-                    if (mod.InstalledWeapon.isBeam)
-                        damage = mod.InstalledWeapon.MassDamage * 90f * mod.InstalledWeapon.BeamDuration;
-                    else
-                        damage = mod.InstalledWeapon.MassDamage;
-                    ParentScreen.DrawStat(ref modTitlePos, "Tractor", damage, 185);
-                    modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.PowerDamage > 0f)
-                {
-                    float damage;
-                    if (mod.InstalledWeapon.isBeam)
-                        damage = mod.InstalledWeapon.PowerDamage * 90f * mod.InstalledWeapon.BeamDuration;
-                    else
-                        damage = mod.InstalledWeapon.PowerDamage;
-                    ParentScreen.DrawStat(ref modTitlePos, "Pwr Dmg", damage, 186);
-                    modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(130), (float)mod.FieldOfFire, 88);
-                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                if (mod.InstalledWeapon.OrdinanceRequiredToFire > 0f)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, "Ord / Shot", (float)mod.InstalledWeapon.OrdinanceRequiredToFire,
-                        89);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.PowerRequiredToFire > 0f)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, "Pwr / Shot", (float)mod.InstalledWeapon.PowerRequiredToFire, 90);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveModInfo != null &&
-                    GlobalStats.ActiveModInfo.enableECM)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6005), (float)mod.InstalledWeapon.ECMResist, 155,
-                        isPercent: true);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.EffectVsArmor != 1f)
-                {
-                    if (mod.InstalledWeapon.EffectVsArmor <= 1f)
-                    {
-                        float effectVsArmor = ModifiedWeaponStat(mod.InstalledWeapon, "armor") * 100f;
-                        DrawVSResistBad(ref modTitlePos, "VS Armor",
-                            string.Concat(effectVsArmor.ToString("#"), "%"), 147);
-                    }
-                    else
-                    {
-                        float single = ModifiedWeaponStat(mod.InstalledWeapon, "armor") * 100f;
-                        DrawVSResist(ref modTitlePos, "VS Armor", string.Concat(single.ToString("#"), "%"), 147);
-                    }
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.EffectVSShields != 1f)
-                {
-                    if (mod.InstalledWeapon.EffectVSShields <= 1f)
-                    {
-                        float effectVSShields = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-                        DrawVSResistBad(ref modTitlePos, "VS Shield",
-                            string.Concat(effectVSShields.ToString("#"), "%"), 147);
-                    }
-                    else
-                    {
-                        float effectVSShields1 = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-                        DrawVSResist(ref modTitlePos, "VS Shield",
-                            string.Concat(effectVSShields1.ToString("#"), "%"), 147);
-                    }
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.InstalledWeapon.ShieldPenChance > 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, "Shield Pen", mod.InstalledWeapon.ShieldPenChance, 181);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-                if (mod.OrdinanceCapacity != 0)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2129), (float)mod.OrdinanceCapacity, 124);
-                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                }
-
-
-                if (mod.InstalledWeapon.TruePD)
-                {
-                    string fireRest = "Cannot Target Ships";
-                    modTitlePos.Y = modTitlePos.Y + 2 * ((float)Fonts.Arial12Bold.LineSpacing);
-                    modTitlePos.X = modTitlePos.X - 152f;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos,
-                        Color.LightCoral);
-                    return;
-                }
-                if (!mod.InstalledWeapon.TruePD && mod.InstalledWeapon.Excludes_Fighters ||
-                    mod.InstalledWeapon.Excludes_Corvettes || mod.InstalledWeapon.Excludes_Capitals ||
-                    mod.InstalledWeapon.Excludes_Stations)
-                {
-                    string fireRest = "Cannot Target:";
-                    modTitlePos.Y = modTitlePos.Y + 2 * ((float)Fonts.Arial12Bold.LineSpacing);
-                    modTitlePos.X = modTitlePos.X - 152f;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos,
-                        Color.LightCoral);
-                    modTitlePos.X = modTitlePos.X + 120f;
-
-                    if (mod.InstalledWeapon.Excludes_Fighters)
-                    {
-                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones)
-                        {
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Drones", modTitlePos,
-                                Color.LightCoral);
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Fighters", modTitlePos,
-                            Color.LightCoral);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    if (mod.InstalledWeapon.Excludes_Corvettes)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Corvettes", modTitlePos,
-                            Color.LightCoral);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    if (mod.InstalledWeapon.Excludes_Capitals)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Capitals", modTitlePos,
-                            Color.LightCoral);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-                    if (mod.InstalledWeapon.Excludes_Stations)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Stations", modTitlePos,
-                            Color.LightCoral);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    }
-
-                    return;
-                }
-                else
-                    return;
+                DrawWeaponStats(modTitlePos, mod, mod.InstalledWeapon, starty);
             }
         }
-        //Added by McShooterz: modifies weapon stats to reflect weapon tag bonuses
-        private float ModifiedWeaponStat(Weapon weapon, string stat)
-        {
-            float value = 0;
 
+        private void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
+        {
+            if (mod.Cost != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(128),
+                    (float) mod.Cost * UniverseScreen.GamePaceStatic, 84);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.Mass != 0)
+            {
+                float MassMod = (float) EmpireManager.Player.data.MassModifier;
+                float ArmourMassMod = (float) EmpireManager.Player.data.ArmourMassModifier;
+
+                if (mod.ModuleType == ShipModuleType.Armor)
+                {
+                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(123), (ArmourMassMod * mod.Mass) * MassMod, 79);
+                }
+                else
+                {
+                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(123), MassMod * mod.Mass, 79);
+                }
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.HealthMax != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(124),
+                    (float) mod.HealthMax + mod.HealthMax * (float) EmpireManager.Player.data.Traits.ModHpModifier,
+                    80);
+                WriteLine(ref modTitlePos);
+            }
+            float powerDraw;
+            if (mod.ModuleType != ShipModuleType.PowerPlant)
+            {
+                powerDraw = -(float) mod.PowerDraw;
+            }
+            else
+            {
+                powerDraw = (mod.PowerDraw > 0f
+                    ? (float) (-mod.PowerDraw)
+                    : mod.PowerFlowMax + mod.PowerFlowMax * EmpireManager.Player.data.PowerFlowMod);
+            }
+            if (powerDraw != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.MechanicalBoardingDefense != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2231), (float) mod.MechanicalBoardingDefense, 143);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.BonusRepairRate != 0f)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"),
+                    (float) (
+                        (mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.Player.data.Traits.RepairMod) *
+                        (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
+                         ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
+                            ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].RepairBonus
+                            : 1)), 97);
+                WriteLine(ref modTitlePos);
+            }
+            //Shift to next Column
+            float MaxDepth = modTitlePos.Y;
+            modTitlePos.X = modTitlePos.X + 152f;
+            modTitlePos.Y = starty;
+            if (mod.thrust != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(131), (float) mod.thrust, 91);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.WarpThrust != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2064), (float) mod.WarpThrust, 92);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TurnThrust != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2260), (float) mod.TurnThrust, 148);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_power_max != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(132),
+                    mod.shield_power_max *
+                    (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
+                     ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
+                        ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].ShieldBonus
+                        : 1f) + EmpireManager.Player.data.ShieldPowerMod * mod.shield_power_max, 93);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_radius != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(133), (float) mod.shield_radius, 94);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_recharge_rate != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(134), (float) mod.shield_recharge_rate, 95);
+                WriteLine(ref modTitlePos);
+            }
+
+            // Doc: new shield resistances, UI info.
+
+            if (mod.shield_kinetic_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6162), (float) mod.shield_kinetic_resist, 209
+                    , Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_energy_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6163), (float) mod.shield_energy_resist, 210,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_explosive_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6164), (float) mod.shield_explosive_resist, 211,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_missile_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6165), (float) mod.shield_missile_resist, 212,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_flak_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6166), (float) mod.shield_flak_resist, 213,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_hybrid_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6167), (float) mod.shield_hybrid_resist, 214,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_railgun_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6168), (float) mod.shield_railgun_resist, 215,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_subspace_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6169), (float) mod.shield_subspace_resist, 216,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_warp_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6170), (float) mod.shield_warp_resist, 217,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_beam_resist != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6171), (float) mod.shield_beam_resist, 218,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.shield_threshold != 0)
+            {
+                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6176), (float) mod.shield_threshold, 222,
+                    Color.LightSkyBlue, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+
+
+            if (mod.SensorRange != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(126), (float) mod.SensorRange, 96);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.SensorBonus != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6121), (float) mod.SensorBonus, 167);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.HealPerTurn != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TransporterRange != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(126), (float) mod.TransporterRange, 168);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TransporterPower != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6123), (float) mod.TransporterPower, 169);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TransporterTimerConstant != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6122), (float) mod.TransporterTimerConstant, 170);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TransporterOrdnance != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6124), (float) mod.TransporterOrdnance, 171);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TransporterTroopAssault != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6135), (float) mod.TransporterTroopAssault, 187);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TransporterTroopLanding != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6128), (float) mod.TransporterTroopLanding, 172);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.OrdinanceCapacity != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2129), (float) mod.OrdinanceCapacity, 124);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.Cargo_Capacity != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(119), (float) mod.Cargo_Capacity, 109);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.OrdnanceAddedPerSecond != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6120), (float) mod.OrdnanceAddedPerSecond, 162);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.InhibitionRadius != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2233), (float) mod.InhibitionRadius, 144);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TroopCapacity != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(336), (float) mod.TroopCapacity, 173);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.PowerStoreMax != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2235),
+                    (float) (mod.PowerStoreMax + mod.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier),
+                    145);
+                WriteLine(ref modTitlePos);
+            }
+            //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+            if (mod.PowerDrawAtWarp != 0f)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6011), (float) (-mod.PowerDrawAtWarp), 178);
+                WriteLine(ref modTitlePos);
+            }
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM && mod.ECM != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6004), (float) mod.ECM, 154, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.ModuleType == ShipModuleType.Hangar && mod.hangarTimerConstant != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(136), (float) mod.hangarTimerConstant, 98);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.explodes)
+            {
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Explodes", modTitlePos,
+                    Color.OrangeRed);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.KineticResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6142), (float) mod.KineticResist, 189,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.EnergyResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6143), (float) mod.EnergyResist, 190,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.GuidedResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6144), (float) mod.GuidedResist, 191,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.MissileResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6145), (float) mod.MissileResist, 192,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.HybridResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6146), (float) mod.HybridResist, 193,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.BeamResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6147), (float) mod.BeamResist, 194, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.ExplosiveResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6148), (float) mod.ExplosiveResist, 195,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.InterceptResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6149), (float) mod.InterceptResist, 196,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.RailgunResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6150), (float) mod.RailgunResist, 197,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.SpaceBombResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6151), (float) mod.SpaceBombResist, 198,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.BombResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6152), (float) mod.BombResist, 199, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.BioWeaponResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6153), (float) mod.BioWeaponResist, 200,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.DroneResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6154), (float) mod.DroneResist, 201,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.WarpResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6155), (float) mod.WarpResist, 202, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TorpedoResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6156), (float) mod.TorpedoResist, 203,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.CannonResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6157), (float) mod.CannonResist, 204,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.SubspaceResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6158), (float) mod.SubspaceResist, 205,
+                    isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.PDResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6159), (float) mod.PDResist, 206, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.FlakResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6160), (float) mod.FlakResist, 207, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.APResist != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6161), (float) mod.APResist, 208, isPercent: true);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.DamageThreshold != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6175), (float) mod.DamageThreshold, 221);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.EMP_Protection != 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6174), (float) mod.EMP_Protection, 219);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.FixedTracking > 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6187), (float) mod.FixedTracking, 231);
+                WriteLine(ref modTitlePos);
+            }
+            if (mod.TargetTracking > 0)
+            {
+                ParentScreen.DrawStat(ref modTitlePos, "+" + Localizer.Token(6186), (float) mod.TargetTracking, 226);
+                WriteLine(ref modTitlePos);
+            }
+
+
+            if (mod.PermittedHangarRoles.Length > 0)
+            {
+                modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + (float) Fonts.Arial12Bold.LineSpacing;
+                Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
+                    string.Concat(Localizer.Token(137), " : ", mod.hangarShipUID), shipSelectionPos, Color.Orange);
+                Rectangle r = ChooseFighterSub.Menu;
+                r.Y = r.Y + 25;
+                r.Height = r.Height - 25;
+                var sel = new Selector(ScreenManager, r, new Color(0, 0, 0, 210));
+                sel.Draw();
+                ParentScreen.UpdateHangarOptions(mod);
+                ChooseFighterSub.Draw();
+                ChooseFighterSL.Draw(ScreenManager.SpriteBatch);
+                Vector2 bCursor = new Vector2((float) (ChooseFighterSub.Menu.X + 15),
+                    (float) (ChooseFighterSub.Menu.Y + 25));
+                for (int i = ChooseFighterSL.indexAtTop;
+                    i < ChooseFighterSL.Entries.Count && i < ChooseFighterSL.indexAtTop +
+                    ChooseFighterSL.entriesToDisplay;
+                    i++)
+                {
+                    ScrollList.Entry e = ChooseFighterSL.Entries[i];
+                    bCursor.Y = (float) e.clickRect.Y;
+                    ScreenManager.SpriteBatch.Draw(
+                        ResourceManager.TextureDict[
+                            ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath],
+                        new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
+                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
+                        (!string.IsNullOrEmpty((e.item as Ship).VanityName)
+                            ? (e.item as Ship).VanityName
+                            : (e.item as Ship).Name), tCursor, Color.White);
+                    tCursor.Y = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
+                }
+            }
+        }
+
+        private void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
+        {
+            float range = ModifiedWeaponStat(w, WeaponStat.Range);
+            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
+            float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
+
+            bool repair = w.isRepairBeam;
+            bool isBeam      = repair || w.isBeam;
+            bool isBallistic = w.explodes && w.OrdinanceRequiredToFire > 0f;
+            float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -90f : +90f) : 0f;
+
+            float rawDamage       = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
+            float beamDamage      = rawDamage * beamMultiplier;
+            float ballisticDamage = rawDamage + rawDamage * EmpireManager.Player.data.OrdnanceEffectivenessBonus;
+            float energyDamage    = rawDamage + rawDamage * EmpireManager.Player.data.Traits.EnergyDamageMod;
+
+            float cost      = m.Cost * UniverseScreen.GamePaceStatic;
+            float mass      = m.Mass * EmpireManager.Player.data.MassModifier;
+            float maxHealth = m.HealthMax + EmpireManager.Player.data.Traits.ModHpModifier * m.HealthMax;
+            float power     = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
+
+            DrawStatLine(ref cursor, Localizer.Token(128), cost, 84);
+            DrawStatLine(ref cursor, Localizer.Token(123), mass, 79);
+            DrawStatLine(ref cursor, Localizer.Token(124), maxHealth, 80);
+            DrawStatLine(ref cursor, Localizer.Token(125), power, 81);
+            DrawStatLine(ref cursor, Localizer.Token(126), range, 82);
+
+
+            if (isBeam)
+            {
+                DrawStatLine(ref cursor, Localizer.Token(repair ? 135 : 127), beamDamage, repair ? 166 : 83);
+                DrawStatLine(ref cursor, "Duration", w.BeamDuration, 188);
+            }
+            else
+                DrawStatLine(ref cursor, Localizer.Token(127), isBallistic ? ballisticDamage : energyDamage, 83);
+
+            cursor.X += 152f;
+            cursor.Y = startY;
+
+            if (!isBeam) DrawStatLine(ref cursor, Localizer.Token(129), speed, 85);
+
+            if (rawDamage > 0f)
+            {
+                int salvos = w.SalvoCount > 0 ? w.SalvoCount : 1;
+                float dps = isBeam 
+                    ? (beamDamage / delay)
+                    : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
+
+                DrawStatLine(ref cursor, "DPS", dps, 86);
+                if (salvos > 1) DrawStatLine(ref cursor, "Salvo", salvos, 182);
+            }
+
+            if (w.BeamPowerCostPerSecond > 0f)
+                DrawStatLine(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
+            DrawStatLine(ref cursor, "Delay", delay, 183);
+
+            if (w.EMPDamage > 0f)
+                DrawStatLine(ref cursor, "EMP", (1f / delay) * w.EMPDamage, 110);
+
+            if (w.SiphonDamage > 0f)
+            {
+                float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
+                DrawStatLine(ref cursor, "Siphon", siphon, 184);
+            }
+            if (w.MassDamage > 0f)
+            {
+                float tractor = w.MassDamage + w.MassDamage * beamMultiplier;
+                DrawStatLine(ref cursor, "Tractor", tractor, 185);
+            }
+            if (w.PowerDamage > 0f)
+            {
+                float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
+                DrawStatLine(ref cursor, "Pwr Dmg", powerDamage, 186);
+            }
+
+            DrawStatLine(ref cursor, Localizer.Token(130), m.FieldOfFire, 88);
+
+            if (w.OrdinanceRequiredToFire > 0f)
+                DrawStatLine(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, 89);
+            if (w.PowerRequiredToFire > 0f) DrawStatLine(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, 90);
+
+            if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
+                DrawStatPercentLine(ref cursor, Localizer.Token(6005), w.ECMResist, 155);
+
+            if (w.EffectVsArmor != 1f)   DrawResistancePercent(ref cursor, w, "VS Armor", WeaponStat.Armor);
+            if (w.EffectVSShields != 1f) DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
+            if (w.ShieldPenChance > 0)   DrawStatLine(ref cursor, "Shield Pen", w.ShieldPenChance, 181);
+            if (m.OrdinanceCapacity != 0)   DrawStatLine(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
+
+            if (w.TruePD)
+            {
+                WriteLine(ref cursor, 2);
+                cursor.X -= 152f;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target Ships", cursor, Color.LightCoral);
+            }
+            else 
+            if (w.Excludes_Fighters || w.Excludes_Corvettes ||
+                w.Excludes_Capitals || w.Excludes_Stations)
+            {
+                WriteLine(ref cursor, 2);
+                cursor.X -= 152f;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target:", cursor, Color.LightCoral);
+                cursor.X += 120f;
+
+                if (w.Excludes_Fighters)
+                {
+                    if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useDrones)
+                        WriteLine(ref cursor, "Drones");
+                    WriteLine(ref cursor, "Fighters");
+                }
+                if (w.Excludes_Corvettes) WriteLine(ref cursor, "Corvettes");
+                if (w.Excludes_Capitals) WriteLine(ref cursor, "Capitals");
+                if (w.Excludes_Stations) WriteLine(ref cursor, "Stations");
+            }
+        }
+
+        private void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, int tooltipId)
+        {
+            ParentScreen.DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
+            WriteLine(ref cursor);
+        }
+        private void DrawStatLine(ref Vector2 cursor, string text, float stat, int tooltipId)
+        {
+            ParentScreen.DrawStat(ref cursor, text, stat, tooltipId);
+            WriteLine(ref cursor);
+        }
+        private void WriteLine(ref Vector2 cursor, string text)
+        {
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
+            WriteLine(ref cursor);
+        }
+        private static void WriteLine(ref Vector2 cursor, int lines = 1)
+        {
+            cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
+        }
+
+        private enum WeaponStat
+        {
+            Damage, Range, Speed, FireDelay, Armor, Shield,
+        }
+
+        private static float GetStatForWeapon(WeaponStat stat, Weapon weapon)
+        {
             switch (stat)
             {
-                case "damage":
-                    value = weapon.DamageAmount;
-                    break;
-                case "range":
-                    value = weapon.Range;
-                    break;
-                case "speed":
-                    value = weapon.ProjectileSpeed;
-                    break;
-                case "firedelay":
-                    value = weapon.fireDelay;
-                    break;
-                case "armor":
-                    value = weapon.EffectVsArmor;
-                    break;
-                case "shield":
-                    value = weapon.EffectVSShields;
-                    break;
+                case WeaponStat.Damage:    return weapon.DamageAmount;
+                case WeaponStat.Range:     return weapon.Range;
+                case WeaponStat.Speed:     return weapon.ProjectileSpeed;
+                case WeaponStat.FireDelay: return weapon.fireDelay;
+                case WeaponStat.Armor:     return weapon.EffectVsArmor;
+                case WeaponStat.Shield:    return weapon.EffectVSShields;
+                default: return 0f;
             }
+        }
 
-            if (weapon.Tag_Missile)
+        private static float GetStatBonusForWeaponTag(WeaponStat stat, string tagType)
+        {
+            WeaponTagModifier tagModifier = EmpireManager.Player.data.WeaponTags[tagType];
+            switch (stat)
             {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Missile"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Missile"].ShieldDamage;
-                        break;
-                }
+                case WeaponStat.Damage:    return tagModifier.Damage;
+                case WeaponStat.Range:     return tagModifier.Range;
+                case WeaponStat.Speed:     return tagModifier.Speed;
+                case WeaponStat.FireDelay: return tagModifier.Rate;
+                case WeaponStat.Armor:     return tagModifier.ArmorDamage;
+                case WeaponStat.Shield:    return tagModifier.ShieldDamage;
+                default: return 0f;
             }
-            if (weapon.Tag_Energy)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Energy"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Energy"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Torpedo)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Torpedo"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Torpedo"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Kinetic)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Kinetic"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Kinetic"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Hybrid)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Hybrid"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Hybrid"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Railgun)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Railgun"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Railgun"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Explosive)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Explosive"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Explosive"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Guided)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Guided"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Guided"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Intercept)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Intercept"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Intercept"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_PD)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["PD"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["PD"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_SpaceBomb)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Spacebomb"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Spacebomb"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_BioWeapon)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["BioWeapon"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["BioWeapon"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Drone)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Drone"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Drone"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Subspace)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Subspace"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Subspace"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Warp)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Warp"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Warp"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Cannon)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Cannon"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Cannon"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Beam)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Beam"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Beam"].ShieldDamage;
-                        break;
-                }
-            }
-            if (weapon.Tag_Bomb)
-            {
-                switch (stat)
-                {
-                    case "damage":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].Damage;
-                        break;
-                    case "range":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].Range;
-                        break;
-                    case "speed":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].Speed;
-                        break;
-                    case "firedelay":
-                        value -= value * EmpireManager.Player.data.WeaponTags["Bomb"].Rate;
-                        break;
-                    case "armor":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].ArmorDamage;
-                        break;
-                    case "shield":
-                        value += value * EmpireManager.Player.data.WeaponTags["Bomb"].ShieldDamage;
-                        break;
-                }
-            }
+        }
+
+        private static float ModifiedWeaponStat(Weapon weapon, WeaponStat stat)
+        {
+            float value = GetStatForWeapon(stat, weapon);
+            string[] activeTags = weapon.GetActiveTagIds();
+            foreach (string tag in activeTags)
+                value += value * GetStatBonusForWeaponTag(stat, tag);
             return value;
         }
-        private float GetHullDamageBonus()
+
+        private void DrawResistancePercent(ref Vector2 cursor, Weapon weapon, string description, WeaponStat stat)
         {
-            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
-                return 1f;
-            HullBonus bonus;
-            if (ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out bonus))
-            {
-                return 1f + bonus.DamageBonus;
-            }
-            return 1f;
-        }
-        private void DrawVSResist(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
-        {
-            ParentScreen.DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen, 105);
+            float effect = ModifiedWeaponStat(weapon, stat) * 100f;
+            DrawVSResist(ref cursor, description, $"{effect}%", 147);
+            cursor.Y += Fonts.Arial12Bold.LineSpacing;
         }
 
-        private void DrawVSResistBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawVSResist(ref Vector2 cursor, string words, string stat, int tooltipId)
         {
-            ParentScreen.DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen, 105);
+            ParentScreen.DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen, 105);
         }
+
+        private float GetHullDamageBonus()
+        {
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
+                ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
+                return 1f + bonus.DamageBonus;
+            return 1f;
+        }
+
         private float GetHullFireRateBonus()
         {
-            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
-                return 1f;
-            HullBonus bonus;
-            if (ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out bonus))
-            {
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
+                ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f - bonus.FireRateBonus;
-            }
             return 1f;
         }
 

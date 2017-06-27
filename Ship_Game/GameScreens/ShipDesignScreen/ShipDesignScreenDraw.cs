@@ -193,16 +193,14 @@ namespace Ship_Game
 
                     }
 
-                    if (slot.Module.InstalledWeapon.Tag_Cannon && !slot.Module.InstalledWeapon.Tag_Energy)                    
-                        DrawArc(new Color(255, 255, 0, 255));                    
-                    else if (slot.Module.InstalledWeapon.Tag_Railgun || slot.Module.InstalledWeapon.Tag_Subspace)                    
-                        DrawArc(new Color(255, 0, 255, 255));                    
-                    else if (slot.Module.InstalledWeapon.Tag_Cannon)                    
-                        DrawArc(new Color(0, 255, 0, 255));                    
-                    else if (!slot.Module.InstalledWeapon.isBeam)                                         
-                        DrawArc(new Color(255, 0, 0, 255));                    
-                    else                    
-                        DrawArc(new Color(0, 0, 255, 255));                
+                    Weapon w = slot.Module.InstalledWeapon;
+                    if (w == null)
+                        continue;
+                    if      (w.Tag_Cannon && !w.Tag_Energy)   DrawArc(new Color(255, 255, 0, 255));                    
+                    else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(new Color(255, 0, 255, 255));                    
+                    else if (w.Tag_Cannon)                    DrawArc(new Color(0, 255, 0, 255));                    
+                    else if (!w.isBeam)                       DrawArc(new Color(255, 0, 0, 255));                    
+                    else                                      DrawArc(new Color(0, 0, 255, 255));                
                 }
 
                 foreach (SlotStruct ss in this.Slots)
