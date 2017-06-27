@@ -8,7 +8,8 @@ using Ship_Game.AI;
 
 namespace Ship_Game.Gameplay
 {
-    public enum WeaponTag
+    [Flags]
+    public enum WeaponTag : int
     {
         Kinetic   = (1 << 0),
         Energy    = (1 << 1),
@@ -35,11 +36,17 @@ namespace Ship_Game.Gameplay
 
     public sealed class Weapon : IDisposable
     {
-        private int TagBits;
+        private WeaponTag TagBits;
         public bool this[WeaponTag tag]
         {
-            get => (TagBits & (int)tag) != 0;
-            set => TagBits = value ? TagBits|(int)tag : TagBits & ~(int)tag;
+            get => (TagBits & tag) != 0;
+            set => TagBits = value ? TagBits|tag : TagBits & ~tag;
+        }
+        private static readonly char[] TagBitsSeparator = {',', ' '};
+        public string[] GetActiveTagIds()
+        {
+            string[] ids = TagBits.ToString().Split(TagBitsSeparator, StringSplitOptions.RemoveEmptyEntries);
+            return ids;
         }
         public bool Tag_Kinetic   { get => this[WeaponTag.Kinetic];   set => this[WeaponTag.Kinetic]   = value; }
         public bool Tag_Energy    { get => this[WeaponTag.Energy];    set => this[WeaponTag.Energy]    = value; }
