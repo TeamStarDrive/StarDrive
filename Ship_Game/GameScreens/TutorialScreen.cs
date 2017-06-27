@@ -40,16 +40,17 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
-				return;
+				return true;
 			}
 			if (input.Escaped)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			if (input.Right || input.InGameSelect)
 			{
@@ -69,6 +70,7 @@ namespace Ship_Game
 					this.Index = this.TexDict.Count - 1;
 				}
 			}
+            return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

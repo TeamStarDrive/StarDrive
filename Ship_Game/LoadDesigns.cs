@@ -176,13 +176,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
-
-
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.currentMouse = input.MouseCurr;
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -190,6 +184,7 @@ namespace Ship_Game
 			if (input.Escaped || input.RightMouseClick)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			foreach (UIButton b in this.Buttons)
 			{
@@ -298,7 +293,7 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Localizer.Token(2225), base.ScreenManager);
 			}
 			this.previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

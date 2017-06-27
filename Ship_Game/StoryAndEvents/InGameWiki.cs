@@ -131,18 +131,19 @@ namespace Ship_Game
         }
 
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
-            if (input.RightMouseClick)            
+            if (input.RightMouseClick || input.Escaped)
+            {
                 ExitScreen();
-            
-            if (input.Escaped)            
-                ExitScreen();
+                return true;
+            }
             
             if (input.ExitWiki)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 ExitScreen();
+                return true;
             }
             HelpCategories.HandleInput(input);
             HelpEntries.HandleInput(input);
@@ -226,7 +227,7 @@ namespace Ship_Game
                     }
                 }
             }
-            base.HandleInput(input);
+            return base.HandleInput(input);
         }
 
         public override void LoadContent()

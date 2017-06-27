@@ -67,21 +67,24 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 		    if (IsExiting || !IsActive)
-                return;
+                return false;
 		    if (this.PlayedOnce && SplashPlayer.State != MediaState.Playing)
 		    {
 		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
 		        AddedScreen = true;
 		        ExitScreen();
+                return true;
 		    }
 		    if (input.InGameSelect)
 		    {
 		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
 		        ExitScreen();
+                return true;
 		    }
+            return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

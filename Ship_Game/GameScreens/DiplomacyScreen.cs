@@ -1053,7 +1053,7 @@ namespace Ship_Game
 			return resp;
 		}
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             if (new Rectangle(this.TrustRect.X - (int)Fonts.Pirulen16.MeasureString("Trust").X, this.TrustRect.Y, (int)Fonts.Pirulen16.MeasureString("Trust").X + this.TrustRect.Width, 14).HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(47, this.ScreenManager);
@@ -1064,11 +1064,12 @@ namespace Ship_Game
             if (this.Exit.HandleInput(input) && this.dState != DiplomacyScreen.DialogState.TheirOffer)
             {
                 this.ExitScreen();
-                return;
+                return true;
             }
-            if (this.dState == DiplomacyScreen.DialogState.End)
-                return;
-            if (this.dState != DiplomacyScreen.DialogState.TheirOffer)
+            if (this.dState == DialogState.End)
+                return false;
+
+            if (this.dState != DialogState.TheirOffer)
             {
                 if (!playerEmpire.GetRelations(them).Treaty_Peace)
                 {
@@ -1382,8 +1383,11 @@ namespace Ship_Game
                 }
             }
             if (input.Escaped)
+            {
                 this.ExitScreen();
-            base.HandleInput(input);
+                return true;
+            }
+            return base.HandleInput(input);
         }
 
 		public override void LoadContent()

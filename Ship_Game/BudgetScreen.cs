@@ -206,19 +206,19 @@ namespace Ship_Game
         //    }
         //}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			currentMouse = input.MouseCurr;
             if (input.KeysCurr.IsKeyDown(Keys.T) && !input.KeysPrev.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 ExitScreen();
-                return;
+                return true;
             }
 			if (close.HandleInput(input))
 			{
 				ExitScreen();
-				return;
+				return true;
 			}
             TreasuryGoal.HandleInput(input);
 
@@ -230,6 +230,7 @@ namespace Ship_Game
 			if (input.Escaped)
 			{
 				ExitScreen();
+			    return true;
 			}
 			if (TaxSlider.rect.HitTest(input.CursorPosition))
 			{
@@ -242,9 +243,10 @@ namespace Ship_Game
 			if (input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed)
 			{
 				ExitScreen();
+                return true;
 			}
 			previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

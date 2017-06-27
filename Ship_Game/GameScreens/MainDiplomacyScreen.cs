@@ -969,18 +969,18 @@ namespace Ship_Game
 
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
             if (input.KeysCurr.IsKeyDown(Keys.I) && !input.KeysPrev.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
-                return;
+                return true;
             }
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
-				return;
+				return true;
 			}
 			//this.showExecuteButton = false;
 			if (this.SelectedEmpire != EmpireManager.Player && !this.SelectedEmpire.data.Defeated && this.Contact.HandleInput(input))
@@ -1067,8 +1067,9 @@ namespace Ship_Game
 			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
+                return true;
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

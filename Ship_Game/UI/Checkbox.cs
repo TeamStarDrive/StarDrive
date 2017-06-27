@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     using BoolExpression = Expression<Func<bool>>;
 
-	public sealed class Checkbox
+	public sealed class Checkbox : IInputHandler, IDrawable
 	{
 		private readonly SpriteFont Font;
         private readonly string Text;
@@ -73,6 +73,7 @@ namespace Ship_Game
                 input.MousePrev.LeftButton == ButtonState.Released)
 			{
 				Binding.Value = !Binding.Value;
+                return true;
 			}
 			return false;
 		}
