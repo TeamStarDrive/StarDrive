@@ -406,18 +406,18 @@ namespace Ship_Game
 			return null;
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
-				return;
+				return true;
 			}
             if (input.KeysCurr.IsKeyDown(Keys.E) && !input.KeysPrev.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
-                return;
+                return true;
             }
 			this.AgentComponent.HandleInput(input);
 			//this.showExecuteButton = false;
@@ -464,8 +464,9 @@ namespace Ship_Game
 			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
+                return true;
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

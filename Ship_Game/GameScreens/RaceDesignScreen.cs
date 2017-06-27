@@ -1289,7 +1289,7 @@ namespace Ship_Game
         }
 
         
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             this.currentMouse = Mouse.GetState();
             Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -1724,7 +1724,9 @@ namespace Ship_Game
             if (input.Escaped)
             {
                 this.ExitScreen();
+                return true;
             }
+            return base.HandleInput(input);
         }
 
 
