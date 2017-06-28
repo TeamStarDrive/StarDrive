@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -12,9 +9,11 @@ namespace Ship_Game
         bool HandleInput(InputState input);
     }
 
-    public interface IDrawable
+    public interface IElement : IInputHandler
     {
-        void Draw(ScreenManager screenManager);
-    }
+        Rectangle Rect { get; }
 
+        void Layout(Vector2 pos);
+        void Draw(SpriteBatch spriteBatch);
+    }
 }

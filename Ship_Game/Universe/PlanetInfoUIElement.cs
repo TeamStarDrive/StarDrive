@@ -91,7 +91,7 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = sm;
 			this.ElementRect = r;
-			this.sel = new Selector(this.ScreenManager, r, Color.Black);
+			this.sel = new Selector(r, Color.Black);
 			this.Housing = r;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -154,7 +154,7 @@ namespace Ship_Game
 				if (!this.p.ExploredDict[EmpireManager.Player])
 				{
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(Localizer.Token(1429), this.p.GetTypeTranslation()), NamePos, this.tColor);
-					Vector2 TextCursor2 = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
+					Vector2 TextCursor2 = new Vector2((float)(this.sel.Rect.X + this.sel.Rect.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
 					float population = this.p.Population / 1000f;
                     //renamed textcursor,popstring
 					string popString2 = population.ToString(this.fmt);
@@ -180,7 +180,7 @@ namespace Ship_Game
 					return;
 				}
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.p.Name, NamePos, this.tColor);
-				Vector2 TextCursor = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
+				Vector2 TextCursor = new Vector2((float)(this.sel.Rect.X + this.sel.Rect.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
                 float single = this.p.Population / 1000f;
 				string popString = single.ToString(this.fmt);
 				float maxPopulation1 = this.p.MaxPopulation / 1000f + this.p.MaxPopBonus / 1000f;
@@ -295,7 +295,7 @@ namespace Ship_Game
 			SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
 			KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[this.p.Owner.data.Traits.FlagIndex];
 			spriteBatch.Draw(item.Value, this.flagRect, this.p.Owner.EmpireColor);
-			Vector2 TextCursor3 = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
+			Vector2 TextCursor3 = new Vector2((float)(this.sel.Rect.X + this.sel.Rect.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
 			float population1 = this.p.Population / 1000f;
 			string popString3 = population1.ToString(this.fmt);
 			float single1 = this.p.MaxPopulation / 1000f + this.p.MaxPopBonus / 1000f;
@@ -496,7 +496,7 @@ namespace Ship_Game
 			}
 			if (this.ShieldRect.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(Localizer.Token(2240), this.ScreenManager);
+				ToolTip.CreateTooltip(Localizer.Token(2240));
 			}
 			foreach (PlanetInfoUIElement.TippedItem ti in this.ToolTipItems)
 			{
@@ -504,7 +504,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
+				ToolTip.CreateTooltip(ti.TIP_ID);
 			}
 			if (this.Mark.HitTest(input.CursorPosition) && input.InGameSelect)
 			{
@@ -577,16 +577,16 @@ namespace Ship_Game
 			{
 				if (this.p.Owner == null || this.p.Owner != EmpireManager.Player)
 				{
-					ToolTip.CreateTooltip(61, this.ScreenManager);
+					ToolTip.CreateTooltip(61);
 				}
 				else
 				{
-					ToolTip.CreateTooltip(76, this.ScreenManager);
+					ToolTip.CreateTooltip(76);
 				}
 			}
 			if (this.Invade.Hover)
 			{
-				ToolTip.CreateTooltip(62, this.ScreenManager);
+				ToolTip.CreateTooltip(62);
 			}
 			if (this.p.habitable)
 			{

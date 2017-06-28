@@ -50,7 +50,7 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = sm;
 			this.ElementRect = r;
-			this.sel = new Selector(this.ScreenManager, r, Color.Black);
+			this.sel = new Selector(r, Color.Black);
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			this.SliderRect = new Rectangle(r.X + r.Width - 100, r.Y + r.Height - 40, 500, 40);
@@ -90,12 +90,12 @@ namespace Ship_Game
 		public override void Draw(GameTime gameTime)
 		{
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-			this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Menu, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Rect, Color.Black);
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 vector2 = new Vector2(x, (float)state.Y);
-			Header slant = new Header(new Rectangle(this.sel.Menu.X, this.sel.Menu.Y, this.sel.Menu.Width, 41), "Orbital Assets");
-			Body body = new Body(new Rectangle(slant.leftRect.X, this.sel.Menu.Y + 44, this.sel.Menu.Width, this.sel.Menu.Height - 44));
+			Header slant = new Header(new Rectangle(this.sel.Rect.X, this.sel.Rect.Y, this.sel.Rect.Width, 41), "Orbital Assets");
+			Body body = new Body(new Rectangle(slant.leftRect.X, this.sel.Rect.Y + 44, this.sel.Rect.Width, this.sel.Rect.Height - 44));
 			slant.Draw(this.ScreenManager);
 			body.Draw(this.ScreenManager);
 			this.BombardButton.DrawBlue(this.ScreenManager);
@@ -137,7 +137,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
+				ToolTip.CreateTooltip(ti.TIP_ID);
 			}
 			return false;
 		}

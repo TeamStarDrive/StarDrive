@@ -166,7 +166,7 @@ namespace Ship_Game
 		{
 			if (this.zIn.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(57, screen.ScreenManager, "Page Up");
+				ToolTip.CreateTooltip(57, "Page Up");
 			}
 			if (this.zIn.HandleInput(input))
 			{
@@ -180,7 +180,7 @@ namespace Ship_Game
 			}
 			if (this.zOut.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(58, screen.ScreenManager, "Page Down");
+				ToolTip.CreateTooltip(58, "Page Down");
 			}
 			if (this.zOut.HandleInput(input))
 			{
@@ -194,7 +194,7 @@ namespace Ship_Game
 			}
 			if (this.DSB.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(54, screen.ScreenManager, "B");
+				ToolTip.CreateTooltip(54, "B");
 			}
 			if (this.DSB.HandleInput(input))
 			{
@@ -212,7 +212,7 @@ namespace Ship_Game
 			}
 			if (this.pList.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(56, screen.ScreenManager);
+				ToolTip.CreateTooltip(56);
 			}
 			if (this.pList.HandleInput(input))
 			{
@@ -222,7 +222,7 @@ namespace Ship_Game
 			}
 			if (this.sList.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(223, screen.ScreenManager, "F1");
+				ToolTip.CreateTooltip(223, "F1");
 			}
 			if (this.sList.HandleInput(input))
 			{                
@@ -239,7 +239,7 @@ namespace Ship_Game
 			}
 			if (this.Fleets.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(224, screen.ScreenManager, "F2");
+				ToolTip.CreateTooltip(224, "F2");
 			}
 			if (this.Fleets.HandleInput(input))
 			{
@@ -257,7 +257,7 @@ namespace Ship_Game
 			}
 			if (this.Auto.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(59, screen.ScreenManager, "H");
+				ToolTip.CreateTooltip(59, "H");
 			}
 			if (!this.Auto.HandleInput(input))
 			{

@@ -78,7 +78,7 @@ namespace Ship_Game
 			SpriteBatch.DrawString(arial12Bold, num.ToString(), textPos, new Color(255, 239, 208));
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 		}
 
@@ -118,7 +118,7 @@ namespace Ship_Game
 			SpriteBatch.DrawString(arial12Bold, string.Concat(num.ToString(), "%"), textPos, new Color(255, 239, 208));
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 		}
 

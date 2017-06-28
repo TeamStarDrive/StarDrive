@@ -449,7 +449,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("blip_click");
 					}
 				}
-				Selector sel = new Selector(base.ScreenManager, r, Color.TransparentBlack);
+				Selector sel = new Selector(r, Color.TransparentBlack);
 				if (rect.Key != this.FleetToEdit)
 				{
 					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, Color.Black);
@@ -458,7 +458,7 @@ namespace Ship_Game
 				{
 					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, new Color(0, 0, 255, 80));
 				}
-				sel.Draw();
+				sel.Draw(ScreenManager.SpriteBatch);
 				Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
 				if (f.DataNodes.Count > 0)
 				{
@@ -663,7 +663,7 @@ namespace Ship_Game
 			}
 			this.DrawSelectedData(gameTime);
 			this.close.Draw(base.ScreenManager);
-			ToolTip.Draw(base.ScreenManager);
+			ToolTip.Draw(ScreenManager.SpriteBatch);
 			base.ScreenManager.SpriteBatch.End();
 
             ScreenManager.EndFrameRendering();
@@ -722,8 +722,8 @@ namespace Ship_Game
 		{
 			if (this.SelectedNodeList.Count == 1)
 			{
-				this.stuffSelector = new Selector(base.ScreenManager, this.SelectedStuffRect, new Color(0, 0, 0, 180));
-				this.stuffSelector.Draw();
+				this.stuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
+				this.stuffSelector.Draw(ScreenManager.SpriteBatch);
 				Vector2 Cursor = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
 				if (this.SelectedNodeList[0].Ship== null)
 				{
@@ -739,8 +739,8 @@ namespace Ship_Game
 				{
 					button.Draw(base.ScreenManager);
 				}
-				this.operationsSelector = new Selector(base.ScreenManager, this.OperationsRect, new Color(0, 0, 0, 180));
-				this.operationsSelector.Draw();
+				this.operationsSelector = new Selector(this.OperationsRect, new Color(0, 0, 0, 180));
+				this.operationsSelector.Draw(ScreenManager.SpriteBatch);
 				Cursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Target Selection", Cursor, new Color(255, 239, 208));
 				this.Slider_Armor.Draw(base.ScreenManager);
@@ -749,8 +749,8 @@ namespace Ship_Game
 				this.Slider_DPS.Draw(base.ScreenManager);
 				this.Slider_Shield.Draw(base.ScreenManager);
 				this.Slider_Vulture.Draw(base.ScreenManager);
-				this.priorityselector = new Selector(base.ScreenManager, this.PrioritiesRect, new Color(0, 0, 0, 180));
-				this.priorityselector.Draw();
+				this.priorityselector = new Selector( this.PrioritiesRect, new Color(0, 0, 0, 180));
+				this.priorityselector.Draw(ScreenManager.SpriteBatch);
 				Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Priorities", Cursor, new Color(255, 239, 208));
 				this.OperationalRadius.DrawDecimal(base.ScreenManager);
@@ -759,8 +759,8 @@ namespace Ship_Game
 			}
 			if (this.SelectedNodeList.Count > 1)
 			{
-				this.stuffSelector = new Selector(base.ScreenManager, this.SelectedStuffRect, new Color(0, 0, 0, 180));
-				this.stuffSelector.Draw();
+				this.stuffSelector = new Selector( this.SelectedStuffRect, new Color(0, 0, 0, 180));
+				this.stuffSelector.Draw(ScreenManager.SpriteBatch);
 				Vector2 Cursor = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
 				if (this.SelectedNodeList[0].Ship== null)
 				{
@@ -782,8 +782,8 @@ namespace Ship_Game
 				{
 					button.Draw(base.ScreenManager);
 				}
-				this.operationsSelector = new Selector(base.ScreenManager, this.OperationsRect, new Color(0, 0, 0, 180));
-				this.operationsSelector.Draw();
+				this.operationsSelector = new Selector(this.OperationsRect, new Color(0, 0, 0, 180));
+				this.operationsSelector.Draw(ScreenManager.SpriteBatch);
 				Cursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Group Target Selection", Cursor, new Color(255, 239, 208));
 				this.Slider_Armor.Draw(base.ScreenManager);
@@ -792,8 +792,8 @@ namespace Ship_Game
 				this.Slider_DPS.Draw(base.ScreenManager);
 				this.Slider_Shield.Draw(base.ScreenManager);
 				this.Slider_Vulture.Draw(base.ScreenManager);
-				this.priorityselector = new Selector(base.ScreenManager, this.PrioritiesRect, new Color(0, 0, 0, 180));
-				this.priorityselector.Draw();
+				this.priorityselector = new Selector(this.PrioritiesRect, new Color(0, 0, 0, 180));
+				this.priorityselector.Draw(ScreenManager.SpriteBatch);
 				Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Group Priorities", Cursor, new Color(255, 239, 208));
 				this.OperationalRadius.DrawDecimal(base.ScreenManager);
@@ -808,8 +808,8 @@ namespace Ship_Game
 				{
 					r.Y = r.Y + (int)(transitionOffset * 256f);
 				}
-				this.stuffSelector = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 180));
-				this.stuffSelector.Draw();
+				this.stuffSelector = new Selector(r, new Color(0, 0, 0, 180));
+				this.stuffSelector.Draw(ScreenManager.SpriteBatch);
 				Vector2 Cursor = new Vector2((float)(r.X + 20), (float)(r.Y + 10));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", Cursor, new Color(255, 239, 208));
 				Cursor.Y = Cursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
@@ -818,8 +818,8 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt, Cursor, new Color(255, 239, 208));
 				return;
 			}
-			this.stuffSelector = new Selector(base.ScreenManager, this.SelectedStuffRect, new Color(0, 0, 0, 180));
-			this.stuffSelector.Draw();
+			this.stuffSelector = new Selector(this.SelectedStuffRect, new Color(0, 0, 0, 180));
+			this.stuffSelector.Draw(ScreenManager.SpriteBatch);
 			Fleet f = EmpireManager.Player.GetFleetsDict()[this.FleetToEdit];
 			Vector2 Cursor1 = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
 			this.FleetNameEntry.Text = f.Name;
@@ -833,8 +833,8 @@ namespace Ship_Game
 			this.RequisitionForces.Draw(base.ScreenManager);
 			this.SaveDesign.Draw(base.ScreenManager);
 			this.LoadDesign.Draw(base.ScreenManager);
-			this.priorityselector = new Selector(base.ScreenManager, this.PrioritiesRect, new Color(0, 0, 0, 180));
-			this.priorityselector.Draw();
+			this.priorityselector = new Selector(this.PrioritiesRect, new Color(0, 0, 0, 180));
+			this.priorityselector.Draw(ScreenManager.SpriteBatch);
 			Cursor1 = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", Cursor1, new Color(255, 239, 208));
 			Cursor1.Y = Cursor1.Y + (float)(Fonts.Pirulen12.LineSpacing + 2);

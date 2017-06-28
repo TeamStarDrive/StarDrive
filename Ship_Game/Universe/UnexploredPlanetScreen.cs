@@ -97,7 +97,7 @@ namespace Ship_Game
 				Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
 				if (hoverRect.HitTest(MousePos))
 				{
-					ToolTip.CreateTooltip(75, this.ScreenManager);
+					ToolTip.CreateTooltip(75);
 				}
 				PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
@@ -106,7 +106,7 @@ namespace Ship_Game
 				hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
 				if (hoverRect.HitTest(MousePos))
 				{
-					ToolTip.CreateTooltip(20, this.ScreenManager);
+					ToolTip.CreateTooltip(20);
 				}
 				PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
@@ -115,7 +115,7 @@ namespace Ship_Game
 				hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
 				if (hoverRect.HitTest(MousePos))
 				{
-					ToolTip.CreateTooltip(21, this.ScreenManager);
+					ToolTip.CreateTooltip(21);
 				}
 			}
 			PNameCursor.Y = (float)(this.PlanetIcon.Y + this.PlanetIcon.Height + 20);

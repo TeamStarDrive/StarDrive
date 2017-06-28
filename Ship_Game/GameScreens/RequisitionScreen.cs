@@ -101,8 +101,8 @@ namespace Ship_Game
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
 			Color c = new Color(255, 239, 208);
-			Selector fleetstats = new Selector(base.ScreenManager, this.FleetStatsRect, new Color(0, 0, 0, 180));
-			fleetstats.Draw();
+			Selector fleetstats = new Selector(this.FleetStatsRect, new Color(0, 0, 0, 180));
+			fleetstats.Draw(ScreenManager.SpriteBatch);
 			this.Cursor = new Vector2((float)(this.FleetStatsRect.X + 25), (float)(this.FleetStatsRect.Y + 25));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", this.Cursor, c);
 			this.Cursor.Y = this.Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);

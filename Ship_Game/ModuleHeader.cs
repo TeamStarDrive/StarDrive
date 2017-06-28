@@ -33,24 +33,28 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, Vector2 Position)
 		{
+            var spriteBatch = ScreenManager.SpriteBatch;
+
 			this.r = new Rectangle((int)Position.X, (int)Position.Y, (int)this.Width, 30);
-			(new Selector(ScreenManager, this.r, (this.Hover ? new Color(95, 82, 47) : new Color(32, 30, 18)))).Draw();
+			(new Selector(this.r, (this.Hover ? new Color(95, 82, 47) : new Color(32, 30, 18)))).Draw(spriteBatch);
 			Vector2 textPos = new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
-			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, textPos, Color.White);
+		    spriteBatch.DrawString(Fonts.Pirulen12, this.Text, textPos, Color.White);
 			this.ClickRect = new Rectangle(this.r.X + this.r.Width - 15, this.r.Y + 10, 10, 10);
 			textPos = new Vector2((float)this.ClickRect.X - Fonts.Arial20Bold.MeasureString((this.Open ? "-" : "+")).X / 2f, (float)(this.ClickRect.Y + 6 - Fonts.Arial20Bold.LineSpacing / 2));
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (this.Open ? "-" : "+"), textPos, Color.White);
+		    spriteBatch.DrawString(Fonts.Arial20Bold, (this.Open ? "-" : "+"), textPos, Color.White);
 		}
 
 		public void DrawWidth(Ship_Game.ScreenManager ScreenManager, Vector2 Position, int width)
 		{
+		    var spriteBatch = ScreenManager.SpriteBatch;
+
 			this.r = new Rectangle((int)Position.X, (int)Position.Y, width, 30);
-			(new Selector(ScreenManager, this.r, (this.Hover ? new Color(95, 82, 47) : new Color(32, 30, 18)))).Draw();
+			(new Selector(this.r, (this.Hover ? new Color(95, 82, 47) : new Color(32, 30, 18)))).Draw(spriteBatch);
 			Vector2 textPos = new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
-			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, textPos, Color.White);
+		    spriteBatch.DrawString(Fonts.Pirulen12, this.Text, textPos, Color.White);
 			this.ClickRect = new Rectangle(this.r.X + this.r.Width - 15, this.r.Y + 10, 10, 10);
 			textPos = new Vector2((float)this.ClickRect.X - Fonts.Arial20Bold.MeasureString((this.Open ? "-" : "+")).X / 2f, (float)(this.ClickRect.Y + 6 - Fonts.Arial20Bold.LineSpacing / 2));
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (this.Open ? "-" : "+"), textPos, Color.White);
+		    spriteBatch.DrawString(Fonts.Arial20Bold, (this.Open ? "-" : "+"), textPos, Color.White);
 		}
 
 		public bool HandleInput(InputState input, ScrollList.Entry e)

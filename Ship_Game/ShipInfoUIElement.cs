@@ -71,7 +71,7 @@ namespace Ship_Game
             this.ScreenManager = sm;
             this.ElementRect = r;
             this.FlagRect = new Rectangle(r.X + 150, r.Y + 50, 40, 40);
-            this.sel = new Selector(this.ScreenManager, r, Color.Black);
+            this.sel = new Selector(r, Color.Black);
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
             this.SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
@@ -239,7 +239,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
             string text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
-            Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
+            Vector2 ShipStatus = new Vector2((float)(this.sel.Rect.X + this.sel.Rect.Width - 170), this.Housing.Y + 68);
             text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
             HelperFunctions.ClampVectorToInt(ref ShipStatus);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
@@ -291,7 +291,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
             if (star.HitTest(MousePos))
             {
-                ToolTip.CreateTooltip(161, this.ScreenManager);
+                ToolTip.CreateTooltip(161);
             }
             //Added by McShooterz: kills display
             star = new Rectangle(star.X, star.Y + 19, 22, 22);
@@ -310,7 +310,7 @@ namespace Ship_Game
                 numStatus++;
                 if (PackRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(Localizer.Token(2245), this.ScreenManager);
+                    ToolTip.CreateTooltip(Localizer.Token(2245));
                 }
             }
 
@@ -328,7 +328,7 @@ namespace Ship_Game
                     if (goodRect.HitTest(MousePos))
                     {
                         Good good = ResourceManager.GoodsDict[cargo.CargoId];
-                        ToolTip.CreateTooltip($"{good.Name}\n\n{good.Description}", ScreenManager);
+                        ToolTip.CreateTooltip($"{good.Name}\n\n{good.Description}");
                     }
                     numStatus++;
                 }
@@ -343,7 +343,7 @@ namespace Ship_Game
                     if (FoodRect.HitTest(MousePos))
                     {
                         string EState = this.ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), $"{1f - ship.FTLModifier:P0}", "\n\nEngine State: ", EState), ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), $"{1f - ship.FTLModifier:P0}", "\n\nEngine State: ", EState));
                     }
                     numStatus++;
                 //}
@@ -358,7 +358,7 @@ namespace Ship_Game
                     if (rect.HitTest(MousePos))
                     {
 
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), $"{ship.FTLModifier - 1f:P0}", "\n\nEngine State: FTL"), ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), $"{ship.FTLModifier - 1f:P0}", "\n\nEngine State: FTL"));
                     }
                     numStatus++;
                 //}
@@ -385,7 +385,7 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_gravwell"], FoodRect, Color.White);
                     if (FoodRect.HitTest(MousePos))
                     {
-                        ToolTip.CreateTooltip(Localizer.Token(2287), this.ScreenManager);
+                        ToolTip.CreateTooltip(Localizer.Token(2287));
                     }
                     numStatus++;
                 }
@@ -396,7 +396,7 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
                     if (FoodRect.HitTest(MousePos))
                     {
-                        ToolTip.CreateTooltip(117, this.ScreenManager);
+                        ToolTip.CreateTooltip(117);
                     }
                     numStatus++;
                 }
@@ -406,7 +406,7 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_flux"], FoodRect, Color.White);
                     if (FoodRect.HitTest(MousePos))
                     {
-                        ToolTip.CreateTooltip(Localizer.Token(2285), this.ScreenManager);
+                        ToolTip.CreateTooltip(Localizer.Token(2285));
                     }
                     numStatus++;
                 }
@@ -417,7 +417,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_disabled"], FoodRect, Color.White);
                 if (FoodRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(116, this.ScreenManager);
+                    ToolTip.CreateTooltip(116);
                 }
                 numStatus++;
             }
@@ -455,7 +455,7 @@ namespace Ship_Game
                 else
                     GlobalStats.TakingInput = false;
                 if (this.gridbutton.r.HitTest(input.CursorPosition))
-                    ToolTip.CreateTooltip(Localizer.Token(2204), this.ScreenManager);
+                    ToolTip.CreateTooltip(Localizer.Token(2204));
                 if (this.gridbutton.HandleInput(input))
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -488,7 +488,7 @@ namespace Ship_Game
                             {
                                 toggleButton.Hover = true;
                                 if (toggleButton.HasToolTip)
-                                    ToolTip.CreateTooltip(toggleButton.WhichToolTip, this.ScreenManager);
+                                    ToolTip.CreateTooltip(toggleButton.WhichToolTip);
                                 if (input.InGameSelect)
                                 {
                                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -566,7 +566,7 @@ namespace Ship_Game
                     foreach (ShipInfoUIElement.TippedItem tippedItem in this.ToolTipItems)
                     {
                         if (tippedItem.r.HitTest(input.CursorPosition))
-                            ToolTip.CreateTooltip(tippedItem.TIP_ID, this.ScreenManager);
+                            ToolTip.CreateTooltip(tippedItem.TIP_ID);
                     }
                     if (this.ElementRect.HitTest(input.CursorPosition))
                         return true;
