@@ -227,6 +227,12 @@ namespace Ship_Game
         public static void FleetClicked()     => PlaySfxAsync("techy_affirm1");
         public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
         public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
+
+
+        //subbasewoosh
+        public static void OpenSolarSystemPopUp() => PlaySfxAsync("sub_bass_whoosh");
+
+
         // this is used for the DiplomacyScreen
         public static void SwitchToRacialMusic()
         {
