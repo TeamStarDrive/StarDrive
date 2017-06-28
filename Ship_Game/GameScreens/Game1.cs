@@ -66,7 +66,7 @@ namespace Ship_Game
                 Graphics.IsFullScreen = true;
             }
             Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-            Graphics.PreferMultiSampling = true;
+            Graphics.PreferMultiSampling = false; //true
             Graphics.SynchronizeWithVerticalRetrace = true;
             Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
 
@@ -139,11 +139,11 @@ namespace Ship_Game
                                                    false, MultiSampleType.TwoSamples, out int quality))
             {
                 p.MultiSampleQuality = (quality == 1 ? 0 : 1);
-                p.MultiSampleType    = MultiSampleType.FourSamples;
+                p.MultiSampleType    = MultiSampleType.None; //FourSamples
             }
             else
             {
-                p.MultiSampleType    = MultiSampleType.None;
+                p.MultiSampleType    = MultiSampleType.None; //EightSamples
                 p.MultiSampleQuality = 0;
             }
 
@@ -151,7 +151,7 @@ namespace Ship_Game
             {
                 // even if a greater quality is returned, we only want quality 0
                 p.MultiSampleQuality = 0;
-                p.MultiSampleType = MultiSampleType.EightSamples;
+                p.MultiSampleType = MultiSampleType.None; //EightSamples
                     
             }
 
