@@ -301,7 +301,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-            private bool CanFireWeapon()
+        private bool CanFireWeapon()
         {
             return Module.Active
                 && Owner.engineState != Ship.MoveState.Warp
