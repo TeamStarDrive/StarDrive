@@ -523,19 +523,7 @@ namespace Ship_Game
 			}
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			Vector2 MousePos = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
 			this.ColoniesList.HandleInput(input);
@@ -738,11 +726,15 @@ namespace Ship_Game
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
+                return true;
             }                
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
 			{
 				this.ExitScreen();
+                return true;
 			}
+
+            return base.HandleInput(input);
 		}
 
 		public void ResetListSorted(IOrderedEnumerable<Planet> SortedList)

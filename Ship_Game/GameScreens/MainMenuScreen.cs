@@ -342,7 +342,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             // Use these controls to reorient the ship and planet in the menu. The new rotation
             // is logged into debug console and can be set as default values later
@@ -463,7 +463,7 @@ namespace Ship_Game
                 CometList.Add(c);
             }
             PreviousMouse = input.MousePrev;
-            base.HandleInput(input);
+            return base.HandleInput(input);
         }
 
 

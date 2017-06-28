@@ -69,7 +69,7 @@ namespace Ship_Game
 		    base.ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.selector = null;
 			this.currentMouse = input.MouseCurr;
@@ -137,11 +137,11 @@ namespace Ship_Game
 						//this.EnterNameArea.Text = Path.GetFileNameWithoutExtension(this.activeFile.Name);
 						screen.LoadModel(modelData.model, modelData.FileInfo.NameNoExt());
 					}
-					else return;
+					else return true; // scrollList entry clicked
 				}
 			}
 			this.previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
