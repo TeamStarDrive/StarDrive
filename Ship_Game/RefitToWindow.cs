@@ -119,12 +119,13 @@ namespace Ship_Game
 
 	
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.ShipSL.HandleInput(input);
 			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			this.selector = null;
 			for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
@@ -150,6 +151,7 @@ namespace Ship_Game
 						this.shiptorefit.AI.OrderRefitTo(this.RefitTo);
 						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
+                        return true;
 					}
 				}
 				if (this.RefitAll.Rect.HitTest(input.CursorPosition))
@@ -167,9 +169,11 @@ namespace Ship_Game
 						}
 						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
+                        return true;
 					}
 				}
 			}
+            return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

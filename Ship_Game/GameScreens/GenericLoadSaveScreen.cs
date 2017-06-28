@@ -189,7 +189,7 @@ namespace Ship_Game
         }
 
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             this.currentMouse = input.MouseCurr;
             Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -225,6 +225,7 @@ namespace Ship_Game
             if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
             {
                 this.ExitScreen();
+                return true;
             }
             foreach (UIButton b in this.Buttons)
             {
@@ -283,7 +284,7 @@ namespace Ship_Game
                 }
             }
             this.previousMouse = input.MousePrev;
-            base.HandleInput(input);
+            return base.HandleInput(input);
         }
 
         protected virtual void SetSavesSL()        // To be overridden in subclasses

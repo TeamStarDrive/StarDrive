@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Ship_Game
 {
     // Refactored by RedFox
-    public sealed class UIButton
+    public sealed class UIButton : IInputHandler
     {
         public enum PressState
         {
@@ -22,6 +22,11 @@ namespace Ship_Game
         public readonly Color PressColor   = new Color(255, 240, 189);
         public int ToolTip;
         public bool Active = true;
+
+        public string ClickSfx = "echo_affirm";
+
+        public delegate void ClickHandler(UIButton button);
+        public event ClickHandler OnClick;
 
         private Texture2D ButtonTexture()
         {
@@ -75,6 +80,36 @@ namespace Ship_Game
             if (!Active) return;
             spriteBatch.Draw(ButtonTexture(), Rect, Color.White);
             DrawButtonText(spriteBatch, Rect, enabled:true, bold:false);
+        }
+
+        public bool HandleInput(InputState input)
+        {
+            if (!Rect.HitTest(input.MouseScreenPos))
+            {
+                State = PressState.Default;
+                return false;
+            }
+
+            if (State != PressState.Hover && State != PressState.Pressed)
+                GameAudio.PlaySfxAsync("mouse_over4");
+
+            if (State == PressState.Pressed && input.LeftMouseReleased)
+            {
+                State = PressState.Hover;
+                OnClick?.Invoke(this);
+                if (ClickSfx.NotEmpty())
+                    GameAudio.PlaySfxAsync(ClickSfx);
+                return true;
+            }
+
+            if (input.LeftMouseHeldDown)
+            {
+                State = PressState.Pressed;
+                return true;
+            }
+
+            State = PressState.Hover;
+            return false;
         }
     }
 }
