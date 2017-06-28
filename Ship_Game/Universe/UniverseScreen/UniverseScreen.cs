@@ -90,7 +90,7 @@ namespace Ship_Game
         //private Vector2 ProjectedPosition;
         private float desiredSectorZ = 20000f;
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
-        private bool drawBloom = true;
+        private bool drawBloom = false; //true
         private Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug;
