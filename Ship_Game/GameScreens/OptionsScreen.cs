@@ -81,8 +81,8 @@ namespace Ship_Game
 		private void AcceptChanges(object sender, EventArgs e)
 		{
             GlobalStats.SaveSettings();
-			EffectsVolumeSlider.SetAmount(GlobalStats.EffectsVolume);
-			MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
+			EffectsVolumeSlider.Amount = GlobalStats.EffectsVolume;
+			MusicVolumeSlider.Amount   = GlobalStats.MusicVolume;
         }
 
 		private void ApplySettings()
@@ -110,22 +110,14 @@ namespace Ship_Game
 				MainOptionsRect = new Rectangle(R.X + 20, R.Y + 175, 300, 375);
 				SecondaryOptionsRect = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width + 20, MainOptionsRect.Y, 210, 305);
 
-
-
-				Rectangle ftlRect = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 65, 270, 50);
+				var ftlRect = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 65, 270, 50);
 				MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
-				MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
-				MusicVolumeSlider.amount = GlobalStats.MusicVolume;
+				MusicVolumeSlider.Amount = GlobalStats.MusicVolume;
 				ftlRect = new Rectangle(MainOptionsRect.X + 9, (int)ftlRect.Y + 50, 270, 50);
 				EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
-				EffectsVolumeSlider.SetAmount(GlobalStats.EffectsVolume);
-				EffectsVolumeSlider.amount = GlobalStats.EffectsVolume;
-                //ftlRect = new Rectangle(MainOptionsRect.X + 20, (int)FullScreen.NamePosition.Y + 200, 270, 50);
-                //IconSize = new FloatSlider(ftlRect, "Icon Sizes",0,20,GlobalStats.IconSize);
-                //IconSize.SetAmount(GlobalStats.IconSize);
-                //IconSize.amount = GlobalStats.IconSize;
+				EffectsVolumeSlider.Amount = GlobalStats.EffectsVolume;
                 
-                Vector2 cursor = new Vector2((float)(SecondaryOptionsRect.X + 10), (float)(SecondaryOptionsRect.Y + 10));
+                var cursor = new Vector2(SecondaryOptionsRect.X + 10, SecondaryOptionsRect.Y + 10);
 				ResolutionOptions.Clear();
 				//ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
                 ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y - 2, 105, 18));
@@ -240,12 +232,10 @@ namespace Ship_Game
 			};
 			Rectangle ftlRect = new Rectangle(MainOptionsRect.X + 20, (int)FullScreen.NamePosition.Y + 40, 270, 50);
 			MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
-			MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
-			MusicVolumeSlider.amount = GlobalStats.MusicVolume;
+			MusicVolumeSlider.Amount = GlobalStats.MusicVolume;
             ftlRect = new Rectangle(MainOptionsRect.X + 20, (int)ftlRect.Y + 50, 270, 50);
 			EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
-			EffectsVolumeSlider.SetAmount(GlobalStats.EffectsVolume);
-			EffectsVolumeSlider.amount = GlobalStats.EffectsVolume;
+			EffectsVolumeSlider.Amount = GlobalStats.EffectsVolume;
 			Vector2 cursor = new Vector2((SecondaryOptionsRect.X + 10), (SecondaryOptionsRect.Y + 10));
 			ResolutionOptions.Clear();
 			ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
@@ -347,10 +337,11 @@ namespace Ship_Game
 		}
 
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			currentMouse = input.MouseCurr;
-			Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
+			var mousePos = new Vector2(currentMouse.X, currentMouse.Y);
+
 			GamespeedCap.HandleInput(input);
 			ForceFullSim.HandleInput(input);
             pauseOnNotification.HandleInput(input);
@@ -371,8 +362,8 @@ namespace Ship_Game
 				MusicVolumeSlider.HandleInput(input);
 			    EffectsVolumeSlider.HandleInput(input);
 
-                GlobalStats.MusicVolume   = MusicVolumeSlider.amount;
-			    GlobalStats.EffectsVolume = EffectsVolumeSlider.amount;
+                GlobalStats.MusicVolume   = MusicVolumeSlider.Amount;
+			    GlobalStats.EffectsVolume = EffectsVolumeSlider.Amount;
 			    GameAudio.ConfigureAudioSettings();
 			}
 			if (!ResolutionDropDown.Open)
@@ -401,6 +392,7 @@ namespace Ship_Game
 			if (input.Escaped || input.RightMouseClick)
 			{
 				ExitScreen();
+                return true;
 			}
 		    for (int i = 0; i < Buttons.Count; i++)
 		    {
@@ -424,25 +416,31 @@ namespace Ship_Game
 		    }
 		    ResolutionDropDown.HandleInput(input);
 			previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
-        private static Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, int title, int tooltip)
+        private Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, int title, int tooltip)
         {
             return Layout(ref pos, new Checkbox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
         }
-        private static Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, string tooltip)
+        private Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, string tooltip)
         {
             return Layout(ref pos, new Checkbox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
         }
-        private static Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
+        private Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
         {
             return Layout(ref pos, new Checkbox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
         }
-        private static Checkbox Layout(ref Vector2 pos, Checkbox cb)
+        private Checkbox Layout(ref Vector2 pos, Checkbox cb)
         {
             pos.Y += 30f;
+            InputHandlers.Add(cb);
             return cb;
+        }
+
+        private FloatSlider AddFloatSlider(ref Vector2 pos)
+        {
+            return null;
         }
 
         public override void LoadContent()
@@ -454,13 +452,14 @@ namespace Ship_Game
             Resolution.Name = Localizer.Token(9) + ":";
             Resolution.NamePosition = new Vector2(MainOptionsRect.X + 20, MainOptionsRect.Y);
 
-            Vector2 pos = new Vector2(MainOptionsRect.X + MainOptionsRect.Width + 5, Resolution.NamePosition.Y);
+            var pos = new Vector2(MainOptionsRect.X + MainOptionsRect.Width + 5, Resolution.NamePosition.Y);
 
             GamespeedCap        = BindCheckbox(ref pos, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
             ForceFullSim        = BindCheckbox(ref pos, () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
             pauseOnNotification = BindCheckbox(ref pos, () => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
             KeyboardArc         = BindCheckbox(ref pos, () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
             LockZoom            = BindCheckbox(ref pos, () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
+
             // @todo Add localization?... Or does anyone really care about non-english versions to be honest...?
             AutoErrorReport     = BindCheckbox(ref pos, () => GlobalStats.AutoErrorReport, 
                 "Automatic Error Report", "Enable or disable");
@@ -484,12 +483,10 @@ namespace Ship_Game
 
             Rectangle r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 65, 270, 50);
             MusicVolumeSlider = new FloatSlider(r, "Music Volume");
-            MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
-            MusicVolumeSlider.amount = GlobalStats.MusicVolume;
+            MusicVolumeSlider.Amount = GlobalStats.MusicVolume;
             r = new Rectangle(MainOptionsRect.X + 9, (int)r.Y + 50, 270, 50);
             EffectsVolumeSlider = new FloatSlider(r, "Effects Volume");
-            EffectsVolumeSlider.SetAmount(GlobalStats.EffectsVolume);
-            EffectsVolumeSlider.amount = GlobalStats.EffectsVolume;
+            EffectsVolumeSlider.Amount = GlobalStats.EffectsVolume;
 
             r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 185, 225, 50);
             IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
@@ -590,12 +587,10 @@ namespace Ship_Game
 			};
 			Rectangle ftlRect = new Rectangle(MainOptionsRect.X + 20, (int)FullScreen.NamePosition.Y + 40, 270, 50);
 			MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
-			MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
-			MusicVolumeSlider.amount = GlobalStats.MusicVolume;
+			MusicVolumeSlider.Amount = GlobalStats.MusicVolume;
             ftlRect = new Rectangle(MainOptionsRect.X + 20, (int)ftlRect.Y + 50, 270, 50);
 			EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
-			EffectsVolumeSlider.SetAmount(GlobalStats.EffectsVolume);
-			EffectsVolumeSlider.amount = GlobalStats.EffectsVolume;
+			EffectsVolumeSlider.Amount = GlobalStats.EffectsVolume;
 			Vector2 Cursor = new Vector2((float)(SecondaryOptionsRect.X + 10), (float)(SecondaryOptionsRect.Y + 10));
 			ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
 			foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)

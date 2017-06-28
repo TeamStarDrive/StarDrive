@@ -263,7 +263,7 @@ namespace Ship_Game
 				viewport = base.Viewport;
 				Vector3 screenSpacePosition = viewport.Project(new Vector3(this.SelectedNodeList[0].FleetOffset.X, this.SelectedNodeList[0].FleetOffset.Y, 0f), this.projection, this.view, Matrix.Identity);
 				Vector2 screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
-				Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * this.OperationalRadius.amount);
+				Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * this.OperationalRadius.Amount);
 				viewport = base.Viewport;
 				Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
 				Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -896,18 +896,18 @@ namespace Ship_Game
 			}
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
-				return;
+				return true;
 			}
             if (input.KeysCurr.IsKeyDown(Keys.J) && !input.KeysPrev.IsKeyDown(Keys.J) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
-                return;
+                return true;
             }
 			this.current = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
@@ -923,7 +923,7 @@ namespace Ship_Game
 					if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 					{
 						this.FleetNameEntry.HandlingInput = true;
-						return;
+						return true;
 					}
 				}
 			}
@@ -996,7 +996,7 @@ namespace Ship_Game
 				this.sub_ships.HandleInput(this);
 				if (this.ShipSL.HandleInput(input))
 				{
-					return;
+					return true;
 				}
 			}
 			if (this.SelectedNodeList.Count == 1)
@@ -1011,13 +1011,14 @@ namespace Ship_Game
 				if (this.OperationsRect.HitTest(MousePos))
 				{
 					this.dragTimer = 0f;
-					return;
+					return true;
 				}
 				if (this.PrioritiesRect.HitTest(MousePos))
 				{
-					this.dragTimer = 0f;
-					this.SelectedNodeList[0].OrdersRadius = this.OperationalRadius.HandleInput(input);
-					return;
+					dragTimer = 0f;
+				    OperationalRadius.HandleInput(input);
+                    SelectedNodeList[0].OrdersRadius = OperationalRadius.Amount;
+					return true;
 				}
 				if (this.SelectedStuffRect.HitTest(MousePos))
 				{
@@ -1089,8 +1090,8 @@ namespace Ship_Game
 							break;
 						}
 					}
-					return;
 				}
+			    return false;
 			}
 			else if (this.SelectedNodeList.Count > 1)
 			{
@@ -1113,13 +1114,14 @@ namespace Ship_Game
 				if (this.OperationsRect.HitTest(MousePos))
 				{
 					this.dragTimer = 0f;
-					return;
+					return true;
 				}
 				if (this.PrioritiesRect.HitTest(MousePos))
 				{
-					this.dragTimer = 0f;
-					this.SelectedNodeList[0].OrdersRadius = this.OperationalRadius.HandleInput(input);
-					return;
+					dragTimer = 0f;
+				    OperationalRadius.HandleInput(input);
+				    SelectedNodeList[0].OrdersRadius = OperationalRadius.Amount;
+					return true;
 				}
 				if (this.SelectedStuffRect.HitTest(MousePos))
 				{
@@ -1193,8 +1195,8 @@ namespace Ship_Game
 							}
 						}
 					}
-					return;
 				}
+			    return false;
 			}
 			else if (this.FleetToEdit != -1 && this.SelectedNodeList.Count == 0 && this.SelectedStuffRect.HitTest(MousePos))
 			{
@@ -1399,8 +1401,10 @@ namespace Ship_Game
 			{
 				FleetDesignScreen.Open = false;
 				this.ExitScreen();
+                return true;
 			}
 			this.previous = this.current;
+            return false;
 		}
 
         private void HandleSelectionBox(InputState input)
@@ -1521,7 +1525,7 @@ namespace Ship_Game
 					this.Slider_DPS.SetAmount(node.nodeToClick.DPSWeight);
 					this.Slider_Shield.SetAmount(node.nodeToClick.AttackShieldedWeight);
 					this.Slider_Vulture.SetAmount(node.nodeToClick.VultureWeight);
-					this.OperationalRadius.SetAmount(node.nodeToClick.OrdersRadius);
+					this.OperationalRadius.Amount = node.nodeToClick.OrdersRadius;
 					this.Slider_Size.SetAmount(node.nodeToClick.SizeWeight);
 					break;
 				}
@@ -1549,7 +1553,7 @@ namespace Ship_Game
 					this.Slider_DPS.SetAmount(this.SelectedSquad.MasterDataNode.DPSWeight);
 					this.Slider_Shield.SetAmount(this.SelectedSquad.MasterDataNode.AttackShieldedWeight);
 					this.Slider_Vulture.SetAmount(this.SelectedSquad.MasterDataNode.VultureWeight);
-					this.OperationalRadius.SetAmount(this.SelectedSquad.MasterDataNode.OrdersRadius);
+					this.OperationalRadius.Amount = SelectedSquad.MasterDataNode.OrdersRadius;
 					this.Slider_Size.SetAmount(this.SelectedSquad.MasterDataNode.SizeWeight);
 					break;
 				}
@@ -1847,7 +1851,7 @@ namespace Ship_Game
 			this.PrioritiesRect = new Rectangle(this.SelectedStuffRect.X - this.OperationsRect.Width - 2, this.OperationsRect.Y, this.OperationsRect.Width, this.OperationsRect.Height);
 			Rectangle oprect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
 			this.OperationalRadius = new FloatSlider(oprect, "Operational Radius");
-			this.OperationalRadius.SetAmount(0.2f);
+			this.OperationalRadius.Amount = 0.2f;
 			this.OperationalRadius.Tip_ID = 13;
 			Rectangle sizerect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
 			this.Slider_Size = new SizeSlider(sizerect, "Target UniverseRadius Preference");

@@ -9,16 +9,13 @@ using SynapseGaming.LightingSystem.Rendering;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public abstract class GameScreen : IDisposable
+    public abstract class GameScreen : IDisposable, IInputHandler
     {
         public InputState Input;
         public bool IsLoaded;
         public bool AlwaysUpdate;
         private bool OtherScreenHasFocus;
-        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
-        protected Texture2D BtnDefault;
-        protected Texture2D BtnHovered;
-        protected Texture2D BtnPressed;
+
 
         public bool IsActive => !OtherScreenHasFocus
                                 && ScreenState == ScreenState.TransitionOn 
@@ -36,7 +33,12 @@ namespace Ship_Game
         public Vector2 MousePos =>  Input.CursorPosition;
         
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
-       
+        
+        protected readonly Array<IInputHandler> InputHandlers = new Array<IInputHandler>();
+        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
+        protected Texture2D BtnDefault;
+        protected Texture2D BtnHovered;
+        protected Texture2D BtnPressed;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -52,8 +54,6 @@ namespace Ship_Game
         }
 
         public void UpdateViewport() => Viewport = Game1.Instance.Viewport;
-
-        
 
         public void AddObject(ISceneObject so)    => ScreenManager.AddObject(so);
         public void RemoveObject(ISceneObject so) => ScreenManager.RemoveObject(so);
@@ -80,9 +80,14 @@ namespace Ship_Game
             ScreenManager.RemoveScreen(this);
         }
 
-        public virtual void HandleInput(InputState input)
+        public virtual bool HandleInput(InputState input)
         {
+            foreach (IInputHandler handler in InputHandlers)
+                if (handler.HandleInput(input))
+                    return true;
+            return false;
         }
+
 
         public virtual void LoadContent()
         {
@@ -131,6 +136,8 @@ namespace Ship_Game
             return false;
         }
 
+
+
         // Shared utility functions:
         protected UIButton Button(ref Vector2 pos, string launches, int localization)
         {
@@ -149,6 +156,7 @@ namespace Ship_Game
             };
             Layout(ref pos, button);
             Buttons.Add(button);
+            InputHandlers.Add(button);
             return button;
         }
 
@@ -157,6 +165,9 @@ namespace Ship_Game
             button.Rect = new Rectangle((int)pos.X, (int)pos.Y, BtnDefault.Width, BtnDefault.Height);
             pos.Y += BtnDefault.Height + 15;
         }
+
+
+
 
 
         // just draws a line, no fancy reprojections
@@ -273,6 +284,9 @@ namespace Ship_Game
             if (GlobalStats.IsGermanFrenchOrPolish) amount += 20f;
             return amount;
         }
+
+
+
         public void MakeMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted,int localID, string okText, string cancelledText)
         {
             var messageBox = new MessageBoxScreen(screen, localID, okText, cancelledText);
@@ -284,6 +298,8 @@ namespace Ship_Game
         {
             MakeMessageBox(screen, cancelled, accepted, 2137, "Save", "Exit");
         }
+
+
         public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool LightingEnabled = false)
         {
             foreach (ModelMesh modelMesh in model.Meshes)
@@ -304,8 +320,6 @@ namespace Ship_Game
                 modelMesh.Draw();
             }
         }
-
-        
 
         ~GameScreen() { Dispose(false); }
 

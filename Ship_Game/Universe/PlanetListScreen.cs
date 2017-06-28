@@ -242,7 +242,7 @@ namespace Ship_Game
         }
 
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             //this.LastSorted = empUI.empire.data.PLSort;
             if (this.PlanetSL.Entries.Count == 0)
@@ -517,15 +517,16 @@ namespace Ship_Game
             if (input.KeysCurr.IsKeyDown(Keys.L) && !input.KeysPrev.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ExitScreen();
-                return;
+                ExitScreen();
+                return true;
             }
             if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input) )
             {
-                //this.empUI.empire.data.PLSort = this.LastSorted;
-                this.ExitScreen();
+                ExitScreen();
+                return true;
             }
-            //if(this.LastSorted !=null && this.empUI.empire.data.PLSort != this.LastSorted)            
+            
+            return base.HandleInput(input);
         }
 
         public void ResetList()
