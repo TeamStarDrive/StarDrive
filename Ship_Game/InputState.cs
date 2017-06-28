@@ -49,7 +49,7 @@ namespace Ship_Game
         public bool RightMouseReleased => MouseButtonReleased(MouseCurr.RightButton, MousePrev.RightButton);
         public bool LeftMouseDown      => MouseCurr.LeftButton  == ButtonState.Pressed;
         public bool RightMouseDown     => MouseCurr.RightButton == ButtonState.Pressed;
-        public bool RightMouseHeldUp => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed;
+        public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
         public bool LeftMouseHeld(float seconds = 0.25f)
@@ -224,7 +224,7 @@ namespace Ship_Game
             TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
             EndRightHold       = endHoldPoint;
             RightDblClickTimer =  RightDblClickTimer <= 0 && RightMouseClick ? DoubleClickTime : RightDblClickTimer - time;
-            LeftDblClickTimer  = LeftDblClickTimer <=0 && RightMouseClick ? DoubleClickTime : LeftDblClickTimer - time;
+            LeftDblClickTimer  = LeftDblClickTimer <=0 && LeftMouseClick ? DoubleClickTime : LeftDblClickTimer - time;
 
         }
         private void TimerUpdate(float time, bool update, ref float timer, ref bool wasHeld, ref bool held)
