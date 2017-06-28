@@ -139,11 +139,11 @@ namespace Ship_Game
                                                    false, MultiSampleType.TwoSamples, out int quality))
             {
                 p.MultiSampleQuality = (quality == 1 ? 0 : 1);
-                p.MultiSampleType    = MultiSampleType.None; //FourSamples
+                p.MultiSampleType    = (MultiSampleType)GlobalStats.AntiAlias; //MultiSampleType.FourSamples
             }
             else
             {
-                p.MultiSampleType    = MultiSampleType.None; //EightSamples
+                p.MultiSampleType    = MultiSampleType.None;
                 p.MultiSampleQuality = 0;
             }
 
