@@ -301,8 +301,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-
-        private bool CanFireWeapon()
+            private bool CanFireWeapon()
         {
             return Module.Active
                 && Owner.engineState != Ship.MoveState.Warp
@@ -346,18 +345,17 @@ namespace Ship_Game.Gameplay
                 return;
             if (!PrepareToFireSalvo())
                 return;
-            //check for new direction - if target is gone, keep firing as before
-            float newSalvoDirection = SalvoDirection;
+            //check for new direction
+            //if target is gone, keep firing as before
             if (SalvoTarget != null)
             {
                 Vector2 targetPos = FindProjectedImpactPoint(SalvoTarget);
                 //if target is out of fire arc, keep firing as before
-                newSalvoDirection = CheckFireArc(targetPos, SalvoTarget)
-                ? (targetPos - Module.Center).ToRadians() - Owner.Rotation
-                : SalvoDirection;
+                if (CheckFireArc(targetPos, SalvoTarget))
+                    SalvoDirection = (targetPos - Module.Center).ToRadians() - Owner.Rotation;
             }
             
-            SpawnSalvo((newSalvoDirection+Owner.Rotation).RadiansToDirection(), SalvoTarget);
+            SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget);
         }
 
         private void FireAtTarget(Vector2 targetPos, GameplayObject target = null)
@@ -366,14 +364,14 @@ namespace Ship_Game.Gameplay
                 return;
 
             Vector2 pos = target != null ? FindProjectedImpactPoint(target) : targetPos;
-            float direction = (pos - Module.Center).Normalized().ToRadians()-Owner.Rotation;
+            float direction = (pos - Module.Center).Normalized().ToRadians();
 
-            SpawnSalvo((direction + Owner.Rotation).RadiansToDirection(), target);
+            SpawnSalvo(direction.RadiansToDirection(), target);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
             {
                 SalvosToFire   = SalvoCount - 1;
-                SalvoDirection = direction;
+                SalvoDirection = direction - Owner.Rotation; //keep direction relative to source
                 SalvoFireTimer = 0f;
                 SalvoTarget    = target;
             }
