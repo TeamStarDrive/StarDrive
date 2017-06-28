@@ -24,8 +24,8 @@ namespace Ship_Game
         private Submenu pFacilities;
         private Submenu build;
         private Submenu queue;
-        private Checkbox GovSliders;
-        private Checkbox GovBuildings;
+        private UICheckBox GovSliders;
+        private UICheckBox GovBuildings;
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
         private EmpireUIOverlay eui;
@@ -143,8 +143,8 @@ namespace Ship_Game
             Rectangle theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + theMenu6.Height + 40, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
             this.pStorage = new Submenu(screenMgr, theMenu7);
             this.pStorage.AddTab(Localizer.Token(328));
-            Empire.Universe.ShipsInCombat.Active = false;
-            Empire.Universe.PlanetsInCombat.Active = false;
+            Empire.Universe.ShipsInCombat.Visible = false;
+            Empire.Universe.PlanetsInCombat.Visible = false;
 
             if (GlobalStats.HardcoreRuleset)
             {
@@ -243,9 +243,9 @@ namespace Ship_Game
                 this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
                 this.GovernorDropdown.AddOption(Localizer.Token(5087), 6);
                 this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(p);
-                if ((Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].value != this.p.colonyType)
+                if ((Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != this.p.colonyType)
                 {
-                    this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].value;
+                    this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
                     if (this.p.colonyType == Planet.ColonyType.Colony)
                     {
                         this.p.GovernorOn = false;
@@ -263,10 +263,10 @@ namespace Ship_Game
                 }
 
                 // @todo add localization
-                GovBuildings = new Checkbox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing * 2 + 15, 
+                GovBuildings = new UICheckBox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing * 2 + 15, 
                                             () => p.GovBuildings, Fonts.Arial12Bold, "Governor manages buildings", 0);
 
-                GovSliders = new Checkbox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing + 10,
+                GovSliders = new UICheckBox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing + 10,
                                           () => p.GovSliders, Fonts.Arial12Bold, "Governor manages labor sliders", 0);
             }
             else
@@ -928,12 +928,12 @@ namespace Ship_Game
                         if (entry.apply.HitTest(pos) && Empire.Universe.IsActive)
                         {
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"], entry.apply, Color.White);
-                            ToolTip.CreateTooltip(50, this.ScreenManager);
+                            ToolTip.CreateTooltip(50);
                         }
                         if (entry.cancel.HitTest(pos) && Empire.Universe.IsActive)
                         {
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], entry.cancel, Color.White);
-                            ToolTip.CreateTooltip(53, this.ScreenManager);
+                            ToolTip.CreateTooltip(53);
                         }
                     }
                     else
@@ -954,7 +954,7 @@ namespace Ship_Game
             this.QSL.Draw(this.ScreenManager.SpriteBatch);
             this.buildSL.Draw(this.ScreenManager.SpriteBatch);
             if (this.selector != null)
-                this.selector.Draw();
+                this.selector.Draw(ScreenManager.SpriteBatch);
             string format = "0.#";
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)((double)this.SliderFood.amount * (double)this.SliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)((double)this.SliderFood.amount * (double)this.SliderFood.sRect.Width), 6)), this.p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
             this.ScreenManager.SpriteBatch.DrawRectangle(this.SliderFood.sRect, this.SliderFood.Color);
@@ -963,9 +963,9 @@ namespace Ship_Game
             if (rectangle1.HitTest(pos) && Empire.Universe.IsActive)
             {
                 if (this.p.Owner.data.Traits.Cybernetic == 0)
-                    ToolTip.CreateTooltip(70, this.ScreenManager);
+                    ToolTip.CreateTooltip(70);
                 else
-                    ToolTip.CreateTooltip(77, this.ScreenManager);
+                    ToolTip.CreateTooltip(77);
             }
             if (this.SliderFood.cState == "normal")
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderFood.cursor, this.p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
@@ -994,7 +994,7 @@ namespace Ship_Game
             Rectangle rectangle2 = new Rectangle(this.SliderProd.sRect.X - 40, this.SliderProd.sRect.Y + this.SliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], rectangle2, Color.White);
             if (rectangle2.HitTest(pos) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(71, this.ScreenManager);
+                ToolTip.CreateTooltip(71);
             if (this.SliderProd.cState == "normal")
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderProd.cursor, Color.White);
             else
@@ -1043,7 +1043,7 @@ namespace Ship_Game
             Rectangle rectangle3 = new Rectangle(this.SliderRes.sRect.X - 40, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_science"].Height / 2, ResourceManager.TextureDict["NewUI/icon_science"].Width, ResourceManager.TextureDict["NewUI/icon_science"].Height);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rectangle3, Color.White);
             if (rectangle3.HitTest(pos) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(72, this.ScreenManager);
+                ToolTip.CreateTooltip(72);
             if (this.SliderRes.cState == "normal")
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderRes.cursor, Color.White);
             else
@@ -1118,14 +1118,14 @@ namespace Ship_Game
             spriteBatch1.DrawString(arial12Bold, text4, position4, color);
             Rectangle rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385) + ":").X, Fonts.Arial12Bold.LineSpacing);
             if (rect.HitTest(pos) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(75, this.ScreenManager);
+                ToolTip.CreateTooltip(75);
             vector2_2.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.Fertility.ToString(format), position3, new Color(byte.MaxValue, (byte)239, (byte)208));
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386) + ":").X, Fonts.Arial12Bold.LineSpacing);
             if (rect.HitTest(pos) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(20, this.ScreenManager);
+                ToolTip.CreateTooltip(20);
             vector2_2.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(387) + ":", vector2_2, Color.Orange);
@@ -1177,7 +1177,7 @@ namespace Ship_Game
 
 
             if (rect.HitTest(pos) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(21, this.ScreenManager);
+                ToolTip.CreateTooltip(21);
             if (ResourceManager.TextureDict.ContainsKey("Portraits/" + this.p.Owner.data.PortraitName))
             {
                 Rectangle rectangle4 = new Rectangle(this.pDescription.Menu.X + 10, this.pDescription.Menu.Y + 30, 124, 148);
@@ -1218,7 +1218,7 @@ namespace Ship_Game
                         break;
                 }
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Governor", position5, Color.White);
-                position5.Y = (float)(this.GovernorDropdown.r.Y + 25);
+                position5.Y = (float)(this.GovernorDropdown.Rect.Y + 25);
                 string text5 = "";
                 switch (this.p.colonyType)
                 {
@@ -1245,8 +1245,8 @@ namespace Ship_Game
                         break;
                 }
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
-                this.GovernorDropdown.r.X = (int)vector2_3.X;
-                this.GovernorDropdown.r.Y = (int)vector2_3.Y + Fonts.Arial12Bold.LineSpacing + 5;
+                this.GovernorDropdown.Rect.X = (int)vector2_3.X;
+                this.GovernorDropdown.Rect.Y = (int)vector2_3.Y + Fonts.Arial12Bold.LineSpacing + 5;
                 this.GovernorDropdown.Reset();
                 this.GovernorDropdown.Draw(this.ScreenManager.SpriteBatch);
             }
@@ -1301,10 +1301,10 @@ namespace Ship_Game
             this.close.Draw(this.ScreenManager);
 
             if (this.foodStorageIcon.HitTest(pos) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(73, this.ScreenManager);
+                ToolTip.CreateTooltip(73);
             if (!this.profStorageIcon.HitTest(pos) || !Empire.Universe.IsActive)
                 return;
-            ToolTip.CreateTooltip(74, this.ScreenManager);
+            ToolTip.CreateTooltip(74);
         }
 
         private void DrawCommoditiesArea(Vector2 bCursor)
@@ -1990,11 +1990,11 @@ namespace Ship_Game
             this.pFacilities.HandleInputNoReset();
             if (this.RightColony.r.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(Localizer.Token(2279), this.ScreenManager);
+                ToolTip.CreateTooltip(Localizer.Token(2279));
             }
             if (this.LeftColony.r.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(Localizer.Token(2280), this.ScreenManager);
+                ToolTip.CreateTooltip(Localizer.Token(2280));
             }
             if ((input.Right || this.RightColony.HandleInput(input)) && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
@@ -2014,8 +2014,8 @@ namespace Ship_Game
                 }
                 if (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
-                    Empire.Universe.ShipsInCombat.Active = true;
-                    Empire.Universe.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Visible = true;
+                    Empire.Universe.PlanetsInCombat.Visible = true;
                 }
                 return;
             }
@@ -2030,8 +2030,8 @@ namespace Ship_Game
                 }
                 if (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
-                    Empire.Universe.ShipsInCombat.Active = true;
-                    Empire.Universe.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Visible = true;
+                    Empire.Universe.PlanetsInCombat.Visible = true;
                 }
                 return;
             }
@@ -2047,8 +2047,8 @@ namespace Ship_Game
                 this.HandleDetailInfo(input);
                 if (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
-                    Empire.Universe.ShipsInCombat.Active = true;
-                    Empire.Universe.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Visible = true;
+                    Empire.Universe.PlanetsInCombat.Visible = true;
                 }
                 return;
             }
@@ -2179,9 +2179,9 @@ namespace Ship_Game
                 this.PlanetName.HandleTextInput(ref this.PlanetName.Text, input);
             }
             this.GovernorDropdown.HandleInput(input);
-            if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.p.colonyType)
+            if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.p.colonyType)
             {
-                this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value;
+                this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
                 if (this.p.colonyType != Planet.ColonyType.Colony)
                 {
                     this.p.FoodLocked = true;
@@ -2202,7 +2202,7 @@ namespace Ship_Game
             {
                 if (this.playerDesignsToggle.r.HitTest(input.CursorPosition))
                 {
-                    ToolTip.CreateTooltip(Localizer.Token(2225), this.ScreenManager);
+                    ToolTip.CreateTooltip(Localizer.Token(2225));
                 }
                 if (this.playerDesignsToggle.HandleInput(input))
                 {
@@ -2253,7 +2253,7 @@ namespace Ship_Game
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
-                    ToolTip.CreateTooltip(69, this.ScreenManager);
+                    ToolTip.CreateTooltip(69);
                 }
                 if (!this.ProdLock.LockRect.HitTest(MousePos))
                 {
@@ -2281,7 +2281,7 @@ namespace Ship_Game
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
-                    ToolTip.CreateTooltip(69, this.ScreenManager);
+                    ToolTip.CreateTooltip(69);
                 }
                 if (!this.ResLock.LockRect.HitTest(MousePos))
                 {
@@ -2309,7 +2309,7 @@ namespace Ship_Game
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
-                    ToolTip.CreateTooltip(69, this.ScreenManager);
+                    ToolTip.CreateTooltip(69);
                 }
             }
             this.selector = null;
@@ -2416,7 +2416,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        this.selector = new Selector(this.ScreenManager, e.clickRect);
+                        this.selector = new Selector(e.clickRect);
                         if (e.clickRectHover == 0)
                         {
                             GameAudio.PlaySfxAsync("sd_ui_mouseover");
@@ -2425,7 +2425,7 @@ namespace Ship_Game
                     }
                     if (e.up.HitTest(MousePos))
                     {
-                        ToolTip.CreateTooltip(63, Empire.Universe.ScreenManager);
+                        ToolTip.CreateTooltip(63);
                         if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i > 0)
@@ -2447,7 +2447,7 @@ namespace Ship_Game
                     }
                     if (e.down.HitTest(MousePos))
                     {
-                        ToolTip.CreateTooltip(64, Empire.Universe.ScreenManager);
+                        ToolTip.CreateTooltip(64);
                         if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i + 1 < this.QSL.Copied.Count)
@@ -2614,7 +2614,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    this.selector = new Selector(this.ScreenManager, e.clickRect);
+                    this.selector = new Selector(e.clickRect);
                     if (e.clickRectHover == 0)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_mouseover");
@@ -2673,7 +2673,7 @@ namespace Ship_Game
                 else
                 {
                     e.PlusHover = 1;
-                    ToolTip.CreateTooltip(51, this.ScreenManager);
+                    ToolTip.CreateTooltip(51);
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
                         QueueItem qi = new QueueItem();
@@ -2709,7 +2709,7 @@ namespace Ship_Game
                 else
                 {
                     e.EditHover = 1;
-                    ToolTip.CreateTooltip(52, this.ScreenManager);
+                    ToolTip.CreateTooltip(52);
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
                         ShipDesignScreen sdScreen = new ShipDesignScreen(Empire.Universe, this.eui);
@@ -2733,8 +2733,8 @@ namespace Ship_Game
                 if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
                 if (!rmouse && (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
                 {
-                    Empire.Universe.ShipsInCombat.Active = true;
-                    Empire.Universe.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Visible = true;
+                    Empire.Universe.PlanetsInCombat.Visible = true;
                 }
                 this.previousMouse = this.currentMouse;
                 }

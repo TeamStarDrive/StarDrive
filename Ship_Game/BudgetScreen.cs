@@ -185,7 +185,7 @@ namespace Ship_Game
 				b.Draw(base.ScreenManager.SpriteBatch);
 			}
 			this.close.Draw(base.ScreenManager);
-			ToolTip.Draw(base.ScreenManager);
+			ToolTip.Draw(ScreenManager.SpriteBatch);
 			base.ScreenManager.SpriteBatch.End();
 		}
 
@@ -234,11 +234,11 @@ namespace Ship_Game
 			}
 			if (TaxSlider.rect.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(66, base.ScreenManager);
+				ToolTip.CreateTooltip(66);
 			}
             if (TreasuryGoal.rect.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(66, base.ScreenManager);
+                ToolTip.CreateTooltip(66);
             }
 			if (input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed)
 			{

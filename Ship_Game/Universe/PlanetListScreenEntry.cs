@@ -134,7 +134,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/EnemyHere"], flashRect, flashColor);
                 if (flashRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(123, ScreenManager);
+                    ToolTip.CreateTooltip(123);
                 }
             }
             Rectangle planetIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 5, this.PlanetNameRect.Height - 10, this.PlanetNameRect.Height - 10);
@@ -153,7 +153,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], statusRect, Color.White);
                 if (statusRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(119, ScreenManager);
+                    ToolTip.CreateTooltip(119);
                 }
                 //i++;
             }
@@ -173,7 +173,7 @@ namespace Ship_Game
                     {
                         break;
                     }
-                    ToolTip.CreateTooltip(120, ScreenManager);
+                    ToolTip.CreateTooltip(120);
                     break;
                 }
             }
@@ -193,7 +193,7 @@ namespace Ship_Game
                     continue;
                     //break; 
                 }
-                ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex), ScreenManager);
+                ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
                 continue;
                 //break;
 
@@ -215,7 +215,7 @@ namespace Ship_Game
                     continue;
                     //break;
                 }
-                ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex), ScreenManager);
+                ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
                 //break;
             }
             int troops = 0;
@@ -240,7 +240,7 @@ namespace Ship_Game
                 //i++;
                 if (statusRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(Localizer.Token(336) + ": " + troops.ToString(), ScreenManager);
+                    ToolTip.CreateTooltip(Localizer.Token(336) + ": " + troops.ToString());
                 }
 
             }

@@ -155,7 +155,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
             
             if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(tooltipID, ScreenManager);                
+                ToolTip.CreateTooltip(tooltipID);                
         }
 
         public void DrawTextureWithToolTip(Texture2D texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
@@ -164,7 +164,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
 
             if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(text, ScreenManager);
+                ToolTip.CreateTooltip(text);
         }
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {

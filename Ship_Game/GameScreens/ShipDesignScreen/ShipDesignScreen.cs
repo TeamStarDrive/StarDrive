@@ -86,7 +86,7 @@ namespace Ship_Game
         private string LastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
         private Vector2 LastDesignActionPos = Vector2.Zero;
         private Vector2 CoBoxCursor;
-        private Checkbox CarrierOnlyBox;
+        private UICheckBox CarrierOnlyBox;
         private bool Fml = false;
         private bool Fmlevenmore = false;
         public bool CarrierOnly;

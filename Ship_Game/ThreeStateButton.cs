@@ -61,7 +61,7 @@ namespace Ship_Game
 		{
 			if (this.rect.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(string.Concat(ResourceManager.GoodsDict[this.Good].Name, " storage. \n\n Click to change Import/Export settings"), screenManager);
+				ToolTip.CreateTooltip($"{ResourceManager.GoodsDict[this.Good].Name} storage. \n\n Click to change Import/Export settings");
 				if (input.InGameSelect)
 				{
 					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");

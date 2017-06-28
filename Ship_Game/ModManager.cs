@@ -62,7 +62,7 @@ namespace Ship_Game
 			{
 				b.Draw(ScreenManager.SpriteBatch);
 			}
-		    selector?.Draw();
+		    selector?.Draw(ScreenManager.SpriteBatch);
 		    ScreenManager.SpriteBatch.End();
 		}
 
@@ -162,7 +162,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
-					selector = new Selector(ScreenManager, e.clickRect);
+					selector = new Selector(e.clickRect);
 					if (!input.InGameSelect)
 						continue;
 

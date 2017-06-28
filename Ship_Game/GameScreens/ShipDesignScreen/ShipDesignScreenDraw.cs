@@ -287,7 +287,7 @@ namespace Ship_Game
                 }
             }
             this.DrawUI(gameTime);
-            selector?.Draw();
+            selector?.Draw(ScreenManager.SpriteBatch);
             ArcsButton.DrawWithShadowCaps(ScreenManager);
             if (Debug)
             {
@@ -318,8 +318,8 @@ namespace Ship_Game
             Rectangle r = this.HullSelectionSub.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(ScreenManager, r, new Color(0, 0, 0, 210));
-            sel.Draw();
+            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            sel.Draw(ScreenManager.SpriteBatch);
             this.HullSL.Draw(ScreenManager.SpriteBatch);
             float x = (float) Mouse.GetState().X;
             MouseState state = Mouse.GetState();
@@ -370,8 +370,8 @@ namespace Ship_Game
             Rectangle r = this.ModSel.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(ScreenManager, r, new Color(0, 0, 0, 210));
-            sel.Draw();
+            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            sel.Draw(ScreenManager.SpriteBatch);
             this.ModSel.Draw(ScreenManager.SpriteBatch);
             //this.WeaponSl.Draw(ScreenManager.SpriteBatch);
         }
@@ -999,12 +999,12 @@ namespace Ship_Game
             {
                 if (e.Name == LoadCategory.ToString() && this.Fmlevenmore)
                 {
-                    this.CategoryList.ActiveIndex = e.@value - 1;
+                    this.CategoryList.ActiveIndex = e.IntValue - 1;
                     this.Fmlevenmore = false;
                 }
             }
             this.CategoryList.Draw(ScreenManager.SpriteBatch);
-            this.CarrierOnlyBox.Draw(ScreenManager);
+            this.CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
             string classifTitle = "Behaviour Presets";
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, ClassifCursor, Color.Orange);
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
@@ -1071,7 +1071,7 @@ namespace Ship_Game
             }
             if (IsActive)
             {
-                ToolTip.Draw(ScreenManager);
+                ToolTip.Draw(ScreenManager.SpriteBatch);
             }
         }
     }
