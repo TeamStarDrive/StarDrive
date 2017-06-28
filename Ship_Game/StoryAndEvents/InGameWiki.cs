@@ -236,7 +236,7 @@ namespace Ship_Game
             TitleText += $" {GlobalStats.ExtendedVersion}";
             if (GlobalStats.HasMod)
             {
-                MiddleText =$"Mod Loaded: {GlobalStats.ModName} Ver: {GlobalStats.ActiveModInfo.Version}";
+                MiddleText = $"Mod Loaded: {GlobalStats.ModName} Ver: {GlobalStats.ActiveModInfo.Version}";
             }
             var presentation = ScreenManager.GraphicsDevice.PresentationParameters;
             

@@ -21,6 +21,10 @@ namespace Ship_Game
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Instance.Content;
 
+        public int RenderWidth { get; private set; }
+        public int RenderHeight { get; private set; }
+        public Vector2 RenderArea => new Vector2(RenderWidth, RenderHeight);
+
         public Game1()
         {
             // need to set base Content, to ensure proper content disposal
@@ -93,7 +97,11 @@ namespace Ship_Game
         public void ApplySettings()
         {
             Graphics.ApplyChanges();
-            Viewport = GraphicsDevice.Viewport;
+
+            PresentationParameters p = GraphicsDevice.PresentationParameters;
+            RenderWidth  = p.BackBufferWidth;
+            RenderHeight = p.BackBufferHeight;
+            Viewport     = GraphicsDevice.Viewport;
             ScreenManager?.UpdateViewports();
         }
 

@@ -207,7 +207,7 @@ namespace Ship_Game
             this.MainMenu.DrawHollow();
             this.close.Draw(this.ScreenManager);
             this.qcomponent.Draw();
-            ToolTip.Draw(this.ScreenManager);
+            ToolTip.Draw(ScreenManager.SpriteBatch);
             this.ScreenManager.SpriteBatch.End();
         }
 

@@ -1681,7 +1681,7 @@ namespace Ship_Game
         private void CycleShipsInCombat(InputState input)
         {
             ShipsInCombat.State = UIButton.PressState.Hover;
-            ToolTip.CreateTooltip("Cycle through ships not in fleet that are in combat", ScreenManager);
+            ToolTip.CreateTooltip("Cycle through ships not in fleet that are in combat");
             if (input.InGameSelect)
             {
                 if (player.empireShipCombat > 0)
@@ -1720,7 +1720,7 @@ namespace Ship_Game
         private void CyclePlanetsInCombat(InputState input)
         {
             PlanetsInCombat.State = UIButton.PressState.Hover;
-            ToolTip.CreateTooltip("Cycle through planets that are in combat", ScreenManager);
+            ToolTip.CreateTooltip("Cycle through planets that are in combat");
             if (input.InGameSelect)
             {
                 if (player.empirePlanetCombat > 0)

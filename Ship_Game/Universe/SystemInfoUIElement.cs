@@ -56,7 +56,7 @@ namespace Ship_Game
             this.screen = screen;
             this.ScreenManager = sm;
             this.ElementRect = r;
-            this.sel = new Selector(this.ScreenManager, r, Color.Black);
+            this.sel = new Selector(r, Color.Black);
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
             this.SliderRect = new Rectangle(r.X + r.Width - 100, r.Y + r.Height - 40, 500, 40);
@@ -204,7 +204,7 @@ namespace Ship_Game
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_anomaly_small"], flashRect, flashColor);
                             if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
-                                ToolTip.CreateTooltip(121, this.ScreenManager);
+                                ToolTip.CreateTooltip(121);
                             }
                             sideSpacing += flashRect.Width;
                         }
@@ -220,7 +220,7 @@ namespace Ship_Game
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/marketIcon"], flashRect, flashColor);
                             if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
-                                ToolTip.CreateTooltip(121, this.ScreenManager);
+                                ToolTip.CreateTooltip(121);
                             }
                             sideSpacing += flashRect.Width;
                         }
@@ -236,7 +236,7 @@ namespace Ship_Game
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], flashRect, flashColor);
                             if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
-                                ToolTip.CreateTooltip(121, this.ScreenManager);
+                                ToolTip.CreateTooltip(121);
                             }
                             sideSpacing += flashRect.Width;
                         }
@@ -324,7 +324,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            ToolTip.CreateTooltip(26, this.ScreenManager);
+                            ToolTip.CreateTooltip(26);
                         }
                     }
                 }
