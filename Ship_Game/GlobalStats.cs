@@ -120,7 +120,7 @@ namespace Ship_Game
         public static bool IsFirstRun; // first time the game is run? we'll use some optimized defaults
         public static bool ForceFullSim   = true;
         public static int AntiAlias       = 2;
-        public static bool RenderBloom = true;
+        public static bool RenderBloom    = true;
         //public static bool AntiAlias8XOverride;
         public static float MusicVolume   = 0.7f;
         public static float EffectsVolume = 1f;

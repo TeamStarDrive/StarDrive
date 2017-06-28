@@ -364,14 +364,14 @@ namespace Ship_Game.Gameplay
                 return;
 
             Vector2 pos = target != null ? FindProjectedImpactPoint(target) : targetPos;
-            float direction = (pos - Module.Center).Normalized().ToRadians();
+            Vector2 direction = (pos - Module.Center).Normalized();
 
-            SpawnSalvo(direction.RadiansToDirection(), target);
+            SpawnSalvo(direction, target);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
             {
                 SalvosToFire   = SalvoCount - 1;
-                SalvoDirection = direction - Owner.Rotation; //keep direction relative to source
+                SalvoDirection = direction.ToRadians() - Owner.Rotation; //keep direction relative to source
                 SalvoFireTimer = 0f;
                 SalvoTarget    = target;
             }
