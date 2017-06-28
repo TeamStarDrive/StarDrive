@@ -120,6 +120,7 @@ namespace Ship_Game
         public static bool IsFirstRun; // first time the game is run? we'll use some optimized defaults
         public static bool ForceFullSim   = true;
         public static int AntiAlias       = 2;
+        public static bool RenderBloom = true;
         //public static bool AntiAlias8XOverride;
         public static float MusicVolume   = 0.7f;
         public static float EffectsVolume = 1f;
@@ -164,6 +165,7 @@ namespace Ship_Game
             GetSetting("ForceFullSim",           ref ForceFullSim);
             GetSetting("WindowMode",             ref WindowMode);
             GetSetting("AntiAliasSamples",       ref AntiAlias);
+            GetSetting("PostProcessBloom",       ref RenderBloom);
             //GetSetting("8XAntiAliasing",         ref AntiAlias8XOverride);
             GetSetting("AutoErrorReport",        ref AutoErrorReport);
             GetSetting("ActiveMod",              ref ModName);
@@ -253,6 +255,7 @@ namespace Ship_Game
             WriteSetting(config, "ForceFullSim",   ForceFullSim);
             WriteSetting(config, "WindowMode",     WindowMode);
             WriteSetting(config, "AntiAliasSamples", AntiAlias);
+            WriteSetting(config, "PostProcessBloom", RenderBloom);
             //WriteSetting(config, "8XAntiAliasing", AntiAlias8XOverride);
             WriteSetting(config, "AutoErrorReport", AutoErrorReport);
             WriteSetting(config, "ActiveMod",       ModName);
