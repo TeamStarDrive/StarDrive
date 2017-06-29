@@ -120,11 +120,12 @@ namespace Ship_Game
 			this.Shipyard.Draw(base.ScreenManager, r);
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (input.Escaped)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			foreach (UIButton b in this.Buttons)
 			{
@@ -139,14 +140,9 @@ namespace Ship_Game
 					{
 						b.State = UIButton.PressState.Pressed;
 					}
-					if (this.mouseStateCurrent.LeftButton != ButtonState.Released || this.mouseStatePrevious.LeftButton != ButtonState.Pressed)
-					{
-						continue;
-					}
-					string text = b.Text;
 				}
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

@@ -317,7 +317,7 @@ namespace Ship_Game
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
-                                        ToolTip.CreateTooltip(138, this.ScreenManager);
+                                        ToolTip.CreateTooltip(138);
                                     ++num3;
                                 }
                                 TimeSpan totalGameTime;
@@ -335,7 +335,7 @@ namespace Ship_Game
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
-                                        ToolTip.CreateTooltip(122, this.ScreenManager);
+                                        ToolTip.CreateTooltip(122);
                                     ++num3;
                                 }
                                 if ((double) solarSystem.DangerTimer > 0.0)
@@ -352,7 +352,7 @@ namespace Ship_Game
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
-                                        ToolTip.CreateTooltip(123, this.ScreenManager);
+                                        ToolTip.CreateTooltip(123);
                                 }
                             }
                             else
@@ -417,7 +417,7 @@ namespace Ship_Game
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
-                                        ToolTip.CreateTooltip(138, this.ScreenManager);
+                                        ToolTip.CreateTooltip(138);
                                     ++num3;
                                 }
                                 TimeSpan totalGameTime;
@@ -435,7 +435,7 @@ namespace Ship_Game
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
-                                        ToolTip.CreateTooltip(122, this.ScreenManager);
+                                        ToolTip.CreateTooltip(122);
                                     ++num3;
                                 }
                                 if ((double) solarSystem.DangerTimer > 0.0)
@@ -452,7 +452,7 @@ namespace Ship_Game
                                     this.ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
-                                        ToolTip.CreateTooltip(123, this.ScreenManager);
+                                        ToolTip.CreateTooltip(123);
                                 }
                             }
                         }

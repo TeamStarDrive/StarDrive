@@ -341,11 +341,11 @@ namespace Ship_Game
             return Restrictions.I;
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             if (!base.IsActive)
             {
-                return;
+                return false;
             }
             if (this.LoadModelButton.HandleInput(input))
             {
@@ -392,7 +392,7 @@ namespace Ship_Game
                     button.Hover = true;
                     if (button.HasToolTip)
                     {
-                        ToolTip.CreateTooltip(button.WhichToolTip, base.ScreenManager);
+                        ToolTip.CreateTooltip(button.WhichToolTip);
                     }
                     if (input.InGameSelect)
                     {
@@ -419,13 +419,11 @@ namespace Ship_Game
             }
             if (input.ScrollIn)
             {
-                ShipToolScreen shipToolScreen = this;
-                shipToolScreen.tscale = shipToolScreen.tscale + 1f;
+                tscale = tscale + 1f;
             }
             if (input.ScrollOut)
             {
-                ShipToolScreen shipToolScreen1 = this;
-                shipToolScreen1.tscale = shipToolScreen1.tscale - 1f;
+                tscale = tscale - 1f;
             }
             if (input.Right)
             {
@@ -446,11 +444,14 @@ namespace Ship_Game
             if (input.YButtonDown || input.Right)
             {
                 this.NextDesignState();
+                return true;
             }
             if (input.BButtonDown)
             {
                 this.ExitScreen();
+                return true;
             }
+            return false;
         }
 
         public void HandleInput()

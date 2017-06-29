@@ -44,9 +44,9 @@ namespace Ship_Game
 
         private CloseButton close;
 
-        private Checkbox cb_hideOwned;
+        private UICheckBox cb_hideOwned;
 
-        private Checkbox cb_hideUninhabitable;
+        private UICheckBox cb_hideUninhabitable;
 
 
         private bool HideOwned;
@@ -112,11 +112,11 @@ namespace Ship_Game
                 }
             }
 
-            cb_hideOwned = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
+            cb_hideOwned = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
                 x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
 
-            cb_hideUninhabitable = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
+            cb_hideUninhabitable = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
                 () => HideUninhab, 
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0);
 
@@ -234,15 +234,15 @@ namespace Ship_Game
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
                 base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
             }
-            this.cb_hideUninhabitable.Draw(base.ScreenManager);
-            this.cb_hideOwned.Draw(base.ScreenManager);
+            this.cb_hideUninhabitable.Draw(ScreenManager.SpriteBatch);
+            this.cb_hideOwned.Draw(ScreenManager.SpriteBatch);
             this.close.Draw(base.ScreenManager);
-            ToolTip.Draw(base.ScreenManager);
+            ToolTip.Draw(ScreenManager.SpriteBatch);
             base.ScreenManager.SpriteBatch.End();
         }
 
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             //this.LastSorted = empUI.empire.data.PLSort;
             if (this.PlanetSL.Entries.Count == 0)
@@ -517,15 +517,16 @@ namespace Ship_Game
             if (input.KeysCurr.IsKeyDown(Keys.L) && !input.KeysPrev.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ExitScreen();
-                return;
+                ExitScreen();
+                return true;
             }
             if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input) )
             {
-                //this.empUI.empire.data.PLSort = this.LastSorted;
-                this.ExitScreen();
+                ExitScreen();
+                return true;
             }
-            //if(this.LastSorted !=null && this.empUI.empire.data.PLSort != this.LastSorted)            
+            
+            return base.HandleInput(input);
         }
 
         public void ResetList()

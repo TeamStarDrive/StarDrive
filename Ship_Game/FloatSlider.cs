@@ -6,21 +6,34 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class FloatSlider
+	public sealed class FloatSlider : IInputHandler
 	{
 		public Rectangle rect;
 		private Rectangle ContainerRect;
 		public bool Hover;
 		public string Text = "";
-		public float amount = 0.5f;
-		public Rectangle cursor;
+		public Rectangle Cursor;
 		public int Tip_ID;
 		private bool dragging;
         private float bottom;
         private float top ;
-        public float amountRange;
+        public float AmountRange;
 
-        private static readonly Color TextColor = new Color(255, 239, 208);
+        private float Value = 0.5f;
+	    public float Amount
+	    {
+	        get => Value;
+	        set
+	        {
+	            Value  = value.Clamp(bottom, top);
+	            Cursor = new Rectangle(rect.X + (int)(rect.Width * Value), 
+	                rect.Y + rect.Height / 2 - SliderKnob.Height / 2,
+	                SliderKnob.Width, SliderKnob.Height);
+	        }
+	    }
+
+
+	    private static readonly Color TextColor = new Color(255, 239, 208);
         private static readonly Color HoverColor = new Color(164, 154, 133);
         private static readonly Color NormalColor = new Color(72, 61, 38);
 
@@ -47,7 +60,7 @@ namespace Ship_Game
 			Text   = text;
             bottom = 0;
             top    = 10000f;
-            cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
+            Cursor = new Rectangle(rect.X + (int)(rect.Width * Amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
         }
         public FloatSlider(Rectangle r, int text) : this(r, Localizer.Token(text))
         {
@@ -59,17 +72,17 @@ namespace Ship_Game
             Text        = text;
             bottom      = bottomRange;
             top         = topRange;
-            amountRange = defaultValue;
-            if (amountRange > 0 && top > 0)
+            AmountRange = defaultValue;
+            if (AmountRange > 0 && top > 0)
             {
-                if (amountRange < bottom)
-                    amountRange = bottom;
-                if (amountRange > top + bottom)
-                    amountRange = top + bottom;
-                amount = (amountRange - bottom) / top;
+                if (AmountRange < bottom)
+                    AmountRange = bottom;
+                if (AmountRange > top + bottom)
+                    AmountRange = top + bottom;
+                Amount = (AmountRange - bottom) / top;
             }
-            else amount = 0;
-            cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
+            else Amount = 0;
+            Cursor = new Rectangle(rect.X + (int)(rect.Width * Amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
         }
 
         public bool HitTest(Vector2 pos) => ContainerRect.HitTest(pos);
@@ -79,7 +92,7 @@ namespace Ship_Game
             SpriteBatch sb = screenManager.SpriteBatch;
             sb.DrawString(Fonts.Arial12Bold, Text, new Vector2(ContainerRect.X + 10, ContainerRect.Y), TextColor);
 
-            var gradient = new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6);
+            var gradient = new Rectangle(rect.X, rect.Y, (int)(Amount * rect.Width), 6);
             sb.Draw(SliderGradient, gradient, gradient, Color.White);
             sb.DrawRectangle(rect, Hover ? HoverColor : NormalColor);
 
@@ -89,7 +102,7 @@ namespace Ship_Game
                 sb.Draw(Hover ? SliderMinuteHover : SliderMinute, tickCursor, Color.White);
             }
 
-            Rectangle drawRect = cursor;
+            Rectangle drawRect = Cursor;
             drawRect.X = drawRect.X - drawRect.Width / 2;
             sb.Draw(Hover ? SliderKnobHover : SliderKnob, drawRect, Color.White);
 
@@ -98,56 +111,45 @@ namespace Ship_Game
 
             if (Hover && Tip_ID != 0)
             {
-                ToolTip.CreateTooltip(Localizer.Token(Tip_ID), screenManager);
+                ToolTip.CreateTooltip(Localizer.Token(Tip_ID));
             }
         }
 
 	    public void DrawPercent(ScreenManager screenManager)
 		{
-            int num = (int)(amount * 100f);
+            int num = (int)(Amount * 100f);
             Draw(screenManager, num.ToString("00") + "%");
 		}
 
 		public void DrawDecimal(ScreenManager screenManager)
 		{
-            int num = (int)(amount * top + bottom);
+            int num = (int)(Amount * top + bottom);
             Draw(screenManager, num.ToString());
 		}
 
-		public float HandleInput(InputState input)
+		public bool HandleInput(InputState input)
 		{
             Hover = rect.HitTest(input.CursorPosition);
 
-			Rectangle clickCursor = cursor;
-			clickCursor.X -= cursor.Width / 2;
-			if (clickCursor.HitTest(input.CursorPosition) && 
-                input.MouseCurr.LeftButton == ButtonState.Pressed && 
-                input.MousePrev.LeftButton    == ButtonState.Pressed)
-			{
+			Rectangle clickCursor = Cursor;
+			clickCursor.X -= Cursor.Width / 2;
+
+			if (clickCursor.HitTest(input.CursorPosition) && input.LeftMouseHeldDown)
 				dragging = true;
-			}
+
 			if (dragging)
 			{
-				cursor.X = (int)input.CursorPosition.X;
-				if (cursor.X > rect.X + rect.Width) cursor.X = rect.X + rect.Width;
-				else if (cursor.X < rect.X)         cursor.X = rect.X;
+				Cursor.X = (int)input.CursorPosition.X;
+				if (Cursor.X > rect.X + rect.Width) Cursor.X = rect.X + rect.Width;
+				else if (Cursor.X < rect.X)         Cursor.X = rect.X;
 
-				if (input.MouseCurr.LeftButton == ButtonState.Released)
+				if (input.LeftMouseReleased)
 					dragging = false;
-				amount = 1f - (rect.X + rect.Width - cursor.X) / (float)rect.Width;
+				Amount = 1f - (rect.X + rect.Width - Cursor.X) / (float)rect.Width;
 			}
-            amountRange = bottom + amount * top;
-			return amount;
+            AmountRange = bottom + Amount * top;
+            return dragging;
 		}
-
-		public void SetAmount(float amt)
-		{
-            amount = amt;
-            cursor = new Rectangle(rect.X + (int)(rect.Width * amt), 
-                                   rect.Y + rect.Height / 2 - SliderKnob.Height / 2,
-                                   SliderKnob.Width, SliderKnob.Height);
-		}
-
 
 	}
 }

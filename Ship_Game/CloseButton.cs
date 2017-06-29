@@ -35,7 +35,7 @@ namespace Ship_Game
 			else
 			{
 				this.Hover = true;
-				ToolTip.CreateTooltip("Exit Screen", Game1.Instance.ScreenManager);
+				ToolTip.CreateTooltip("Exit Screen");
 				if (input.InGameSelect)
 				{
 					return true;

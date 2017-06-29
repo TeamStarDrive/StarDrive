@@ -132,7 +132,7 @@ namespace Ship_Game
 						if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 						{
 							base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
-							ToolTip.CreateTooltip(78, base.ScreenManager);
+							ToolTip.CreateTooltip(78);
 						}
 					}
 					else if (!(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
@@ -158,31 +158,25 @@ namespace Ship_Game
 						if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 						{
 							base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
-							ToolTip.CreateTooltip(78, base.ScreenManager);
+							ToolTip.CreateTooltip(78);
 						}
 					}
 				}
 			}
 			if (this.selector != null)
 			{
-				this.selector.Draw();
+				this.selector.Draw(ScreenManager.SpriteBatch);
 			}
 			foreach (UIButton b in this.Buttons)
 			{
 				b.Draw(base.ScreenManager.SpriteBatch);
 			}
 			this.playerDesignsToggle.Draw(base.ScreenManager);
-			ToolTip.Draw(base.ScreenManager);
+			ToolTip.Draw(ScreenManager.SpriteBatch);
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
-
-
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.currentMouse = input.MouseCurr;
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -190,6 +184,7 @@ namespace Ship_Game
 			if (input.Escaped || input.RightMouseClick)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			foreach (UIButton b in this.Buttons)
 			{
@@ -239,7 +234,7 @@ namespace Ship_Game
 							messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteDataAccepted);
 							base.ScreenManager.AddScreen(messageBox);
 						}
-						this.selector = new Selector(base.ScreenManager, e.clickRect);
+						this.selector = new Selector(e.clickRect);
 						if (e.clickRectHover == 0)
 						{
 							GameAudio.PlaySfxAsync("sd_ui_mouseover");
@@ -266,7 +261,7 @@ namespace Ship_Game
 						messageBox.Accepted += DeleteAccepted;
 						base.ScreenManager.AddScreen(messageBox);
 					}
-					this.selector = new Selector(base.ScreenManager, e.clickRect);
+					this.selector = new Selector(e.clickRect);
 					if (e.clickRectHover == 0)
 					{
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");
@@ -295,10 +290,10 @@ namespace Ship_Game
 			}
 			if (this.playerDesignsToggle.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(Localizer.Token(2225), base.ScreenManager);
+				ToolTip.CreateTooltip(Localizer.Token(2225));
 			}
 			this.previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

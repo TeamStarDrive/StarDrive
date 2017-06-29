@@ -101,7 +101,7 @@ namespace Ship_Game
 
 
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (input.InGameSelect && !ShowingReplay)
 			{
@@ -130,7 +130,7 @@ namespace Ship_Game
 			{
                 ExitScreen();
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

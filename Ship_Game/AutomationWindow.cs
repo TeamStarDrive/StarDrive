@@ -16,21 +16,21 @@ namespace Ship_Game
         private Submenu ConstructionSubMenu;
         private UniverseScreen Universe;
         private Rectangle win;
-        private Array<Checkbox> Checkboxes = new Array<Checkbox>();
-        private DropOptions AutoFreighterDropDown;
-        private DropOptions ColonyShipDropDown;
-        private DropOptions ScoutDropDown;
-        private DropOptions ConstructorDropDown;
+        private Array<UICheckBox> Checkboxes = new Array<UICheckBox>();
+        private DropOptions<int> AutoFreighterDropDown;
+        private DropOptions<int> ColonyShipDropDown;
+        private DropOptions<int> ScoutDropDown;
+        private DropOptions<int> ConstructorDropDown;
         private Vector2 ConstructorTitle;
         private string ConstructorString;
 
         private void Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
         {
-            Checkboxes.Add(new Checkbox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
+            Checkboxes.Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
         }
         private void Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
         {
-            Checkboxes.Add(new Checkbox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
+            Checkboxes.Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
         }
 
         public AutomationWindow(ScreenManager screenManager, UniverseScreen universe)
@@ -42,18 +42,18 @@ namespace Ship_Game
             ConstructionSubMenu = new Submenu(screenManager, win, true);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
-            ScoutDropDown      = new DropOptions(new Rectangle(win.X + 12, win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
-            ColonyShipDropDown = new DropOptions(new Rectangle(win.X + 12, win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            ScoutDropDown      = new DropOptions<int>(new Rectangle(win.X + 12, win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            ColonyShipDropDown = new DropOptions<int>(new Rectangle(win.X + 12, win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
             Checkbox(win.X, win.Y + 25,  () => EmpireManager.Player.AutoExplore,    title:305, tooltip:2226);
             Checkbox(win.X, win.Y + 65,  () => EmpireManager.Player.AutoColonize,   title:306, tooltip:2227);
             Checkbox(win.X, win.Y + 105, () => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
 
-            AutoFreighterDropDown = new DropOptions(new Rectangle(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            AutoFreighterDropDown = new DropOptions<int>(new Rectangle(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
             ConstructorTitle = new Vector2(win.X + 29, win.Y + 155);
             ConstructorString = Localizer.Token(6181);
-            ConstructorDropDown = new DropOptions(new Rectangle(this.win.X + 12, this.win.Y + 155 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            ConstructorDropDown = new DropOptions<int>(new Rectangle(this.win.X + 12, this.win.Y + 155 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
             Checkbox(win.X, win.Y + 210, () => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
 
@@ -71,12 +71,12 @@ namespace Ship_Game
             Rectangle r = ConstructionSubMenu.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(ScreenManager, r, new Color(0, 0, 0, 210));
-            sel.Draw();
+            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            sel.Draw(ScreenManager.SpriteBatch);
             ConstructionSubMenu.Draw();
-            foreach (Checkbox cb in Checkboxes)
+            foreach (UICheckBox cb in Checkboxes)
             {
-                cb.Draw(ScreenManager);
+                cb.Draw(ScreenManager.SpriteBatch);
             }
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ConstructorString, ConstructorTitle, Color.White);
             ConstructorDropDown.Draw(ScreenManager.SpriteBatch);
@@ -157,7 +157,8 @@ namespace Ship_Game
         {
             ResetDropDowns();
             var playerData = Universe.player.data;
-            string current = !string.IsNullOrEmpty(playerData.CurrentAutoFreighter) ? playerData.CurrentAutoFreighter : playerData.DefaultSmallTransport;
+            string currentFreighter = playerData.CurrentAutoFreighter.NotEmpty()
+                                    ? playerData.CurrentAutoFreighter : playerData.DefaultSmallTransport;
 
             var empire = EmpireManager.Player;
             foreach (string ship in empire.ShipsWeCanBuild)
@@ -168,43 +169,39 @@ namespace Ship_Game
                     continue;
                 AutoFreighterDropDown.AddOption(automation.Name, 0);
             }
-            foreach (Entry e in AutoFreighterDropDown.Options)
-            {
-                if (e.Name != current)
-                    continue;
-                AutoFreighterDropDown.ActiveIndex = AutoFreighterDropDown.Options.IndexOf(e);
-                empire.data.CurrentAutoFreighter  = AutoFreighterDropDown.Options[AutoFreighterDropDown.ActiveIndex].Name;
-            }
 
-            string currentColony = !string.IsNullOrEmpty(playerData.CurrentAutoColony) ? playerData.CurrentAutoColony : playerData.DefaultColonyShip;
+            if (AutoFreighterDropDown.SetActiveEntry(currentFreighter))
+                empire.data.CurrentAutoFreighter = currentFreighter;
+
+            string currentColony = playerData.CurrentAutoColony.NotEmpty()
+                                 ? playerData.CurrentAutoColony : playerData.DefaultColonyShip;
             
             foreach (string ship in empire.ShipsWeCanBuild)
             {
-                if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship automation) || !automation.isColonyShip || automation.Thrust <= 0f)
+                if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship automation) ||
+                    !automation.isColonyShip || automation.Thrust <= 0f)
                     continue;
                 ColonyShipDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
             }
-            if (string.IsNullOrEmpty(empire.data.CurrentAutoColony) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoColony))
+
+            empire.data.CurrentAutoColony = ColonyShipDropDown.ActiveName;
+            if (empire.data.CurrentAutoColony.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoColony))
             {
-                empire.data.CurrentAutoColony = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
+                empire.data.CurrentAutoColony = ColonyShipDropDown.ActiveName;
             }
             else
             {
-                foreach (Entry e in ColonyShipDropDown.Options)
-                {
-                    if (e.Name != currentColony)
-                        continue;
-                    ColonyShipDropDown.ActiveIndex = ColonyShipDropDown.Options.IndexOf(e);
-                    empire.data.CurrentAutoColony  = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
-                }
+                if (ColonyShipDropDown.SetActiveEntry(currentColony))
+                    empire.data.CurrentAutoColony = currentColony;
             }
 
 
-            string constructor;
-            if (!string.IsNullOrEmpty(playerData.CurrentConstructor))
-                constructor = playerData.CurrentConstructor;
+            string currentConstructor;
+            if (playerData.CurrentConstructor.NotEmpty())
+                currentConstructor = playerData.CurrentConstructor;
             else
-                constructor = string.IsNullOrEmpty(playerData.DefaultConstructor) ? playerData.DefaultSmallTransport : playerData.DefaultConstructor;
+                currentConstructor = playerData.DefaultConstructor.IsEmpty()
+                                   ? playerData.DefaultSmallTransport : playerData.DefaultConstructor;
 
             foreach (string shipName in empire.ShipsWeCanBuild)
             {
@@ -223,31 +220,20 @@ namespace Ship_Game
                     ConstructorDropDown.AddOption(ship.Name, 0);
                 }
             }
-            if (string.IsNullOrEmpty(empire.data.CurrentConstructor) 
-                || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
+            if (empire.data.CurrentConstructor.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
             {
-                // @todo This is just a temporary measure. It does not fix the problem with ActiveIndex being invalid at times
-                if (ConstructorDropDown.ActiveIndex < ConstructorDropDown.Options.Count)
-                    empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
-                else
-                    Log.Warning("ConstructorDropDown.ActiveIndex was invalid, check AutomationWindow.cs");
+                empire.data.CurrentConstructor = ConstructorDropDown.ActiveName;
             }
             else
             {
-                foreach (Entry e in ConstructorDropDown.Options)
-                {
-                    if (e.Name != constructor)
-                        continue;
-                    ConstructorDropDown.ActiveIndex = ConstructorDropDown.Options.IndexOf(e);
-                    empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
-                }
+                if (ConstructorDropDown.SetActiveEntry(currentConstructor))
+                    empire.data.CurrentConstructor = currentConstructor;
             }
 
 
-
-            string currentScout = !string.IsNullOrEmpty(playerData.CurrentAutoScout) ? playerData.CurrentAutoScout : playerData.StartingScout;
-            if (ScoutDropDown.Options.Count > 0)
-                currentScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
+            string currentScout = playerData.CurrentAutoScout.NotEmpty() ? playerData.CurrentAutoScout : playerData.StartingScout;
+            if (ScoutDropDown.NotEmpty)
+                currentScout = ScoutDropDown.ActiveName;
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.reconDropDown)
             {
@@ -272,28 +258,24 @@ namespace Ship_Game
                 }
             }
 
-            if (string.IsNullOrEmpty(empire.data.CurrentAutoScout) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoScout))
+            if (empire.data.CurrentAutoScout.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoScout))
             {
-                if (ScoutDropDown.Options.Count > 0)
-                    empire.data.CurrentAutoScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
+                if (ScoutDropDown.NotEmpty)
+                    empire.data.CurrentAutoScout = ScoutDropDown.ActiveName;
             }
             else
             {
-                foreach (Entry e in ScoutDropDown.Options)
-                {
-                    if (e.Name != currentScout)
-                        continue;
-                    ScoutDropDown.ActiveIndex = ScoutDropDown.Options.IndexOf(e);
-                }
+                if (ScoutDropDown.SetActiveEntry(currentScout))
+                    empire.data.CurrentAutoScout = currentScout;
             }
         }
 
         private void ResetDropDowns()
         {
-            AutoFreighterDropDown.Options.Clear();
-            ColonyShipDropDown.Options.Clear();
-            ScoutDropDown.Options.Clear();
-            ConstructorDropDown.Options.Clear();
+            AutoFreighterDropDown.Clear();
+            ColonyShipDropDown.Clear();
+            ScoutDropDown.Clear();
+            ConstructorDropDown.Clear();
         }
     }
 }

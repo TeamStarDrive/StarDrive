@@ -148,7 +148,7 @@ namespace Ship_Game
                     if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                     {
                         base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
-                        ToolTip.CreateTooltip("Delete File", base.ScreenManager);
+                        ToolTip.CreateTooltip("Delete File");
                     }
                 }
             }
@@ -160,10 +160,10 @@ namespace Ship_Game
             }
             if (this.selector != null)
             {
-                this.selector.Draw();
+                this.selector.Draw(ScreenManager.SpriteBatch);
             }
             this.close.Draw(base.ScreenManager);
-            ToolTip.Draw(base.ScreenManager);
+            ToolTip.Draw(ScreenManager.SpriteBatch);
             base.ScreenManager.SpriteBatch.End();
         }
 
@@ -189,7 +189,7 @@ namespace Ship_Game
         }
 
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             this.currentMouse = input.MouseCurr;
             Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -209,7 +209,7 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
                     e.clickRectHover = 1;
-                    this.selector = new Selector(base.ScreenManager, e.clickRect);
+                    this.selector = new Selector(e.clickRect);
                     if (e.cancel.HitTest(MousePos) && input.InGameSelect)        // handle file delete
                     {
                         this.fileToDel = (e.item as FileData).FileLink;
@@ -225,6 +225,7 @@ namespace Ship_Game
             if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
             {
                 this.ExitScreen();
+                return true;
             }
             foreach (UIButton b in this.Buttons)
             {
@@ -283,7 +284,7 @@ namespace Ship_Game
                 }
             }
             this.previousMouse = input.MousePrev;
-            base.HandleInput(input);
+            return base.HandleInput(input);
         }
 
         protected virtual void SetSavesSL()        // To be overridden in subclasses

@@ -45,7 +45,7 @@ namespace Ship_Game
 			}
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, this.TextPos, Color.White);
 		}
@@ -67,7 +67,7 @@ namespace Ship_Game
 			}
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, this.TextPos, Color.White);
 		}

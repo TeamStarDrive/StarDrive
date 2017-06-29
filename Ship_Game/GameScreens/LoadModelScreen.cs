@@ -65,11 +65,11 @@ namespace Ship_Game
 			{
 				b.Draw(base.ScreenManager.SpriteBatch);
 			}
-		    selector?.Draw();
+		    selector?.Draw(ScreenManager.SpriteBatch);
 		    base.ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.selector = null;
 			this.currentMouse = input.MouseCurr;
@@ -123,7 +123,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 
 					e.clickRectHover = 1;
-					selector = new Selector(ScreenManager, e.clickRect);
+					selector = new Selector(e.clickRect);
 					if (!input.InGameSelect)
 						continue;
 					if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))
@@ -137,11 +137,11 @@ namespace Ship_Game
 						//this.EnterNameArea.Text = Path.GetFileNameWithoutExtension(this.activeFile.Name);
 						screen.LoadModel(modelData.model, modelData.FileInfo.NameNoExt());
 					}
-					else return;
+					else return true; // scrollList entry clicked
 				}
 			}
 			this.previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
