@@ -101,11 +101,11 @@ namespace Ship_Game
 		{
 			this.GraphicsDevice.ResolveBackBuffer(this.resolveTarget);
 			this.bloomExtractEffect.Parameters["BloomThreshold"].SetValue(this.Settings.BloomThreshold);
-			this.DrawFullscreenQuad(this.resolveTarget, this.renderTarget1, this.bloomExtractEffect, BloomComponent.IntermediateBuffer.PreBloom);
+			this.DrawFullscreenQuad(this.resolveTarget, this.renderTarget1, this.bloomExtractEffect, IntermediateBuffer.PreBloom);
 			this.SetBlurEffectParameters(1f / (float)this.renderTarget1.Width, 0f);
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), this.renderTarget2, this.gaussianBlurEffect, BloomComponent.IntermediateBuffer.BlurredHorizontally);
+			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), this.renderTarget2, this.gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
 			this.SetBlurEffectParameters(0f, 1f / (float)this.renderTarget1.Height);
-			this.DrawFullscreenQuad(this.renderTarget2.GetTexture(), this.renderTarget1, this.gaussianBlurEffect, BloomComponent.IntermediateBuffer.BlurredBothWays);
+			this.DrawFullscreenQuad(this.renderTarget2.GetTexture(), this.renderTarget1, this.gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
 			this.GraphicsDevice.SetRenderTarget(0, null);
 			EffectParameterCollection parameters = this.bloomCombineEffect.Parameters;
 			parameters["BloomIntensity"].SetValue(this.Settings.BloomIntensity);
@@ -113,8 +113,8 @@ namespace Ship_Game
 			parameters["BloomSaturation"].SetValue(this.Settings.BloomSaturation);
 			parameters["BaseSaturation"].SetValue(this.Settings.BaseSaturation);
 			this.GraphicsDevice.Textures[1] = this.resolveTarget;
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), viewport.Width, viewport.Height, this.bloomCombineEffect, BloomComponent.IntermediateBuffer.FinalResult);
+			Viewport viewport = Game1.Instance.Viewport;
+			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), viewport.Width, viewport.Height, this.bloomCombineEffect, IntermediateBuffer.FinalResult);
 		}
 
 		private void DrawFullscreenQuad(Texture2D texture, RenderTarget2D renderTarget, Effect effect, BloomComponent.IntermediateBuffer currentBuffer)
@@ -129,14 +129,14 @@ namespace Ship_Game
 
 		private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect, BloomComponent.IntermediateBuffer currentBuffer)
 		{
-			Ship.universeScreen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
 			if (this.ShowBuffer >= currentBuffer)
 			{
 				effect.Begin();
 				effect.CurrentTechnique.Passes[0].Begin();
 			}
-			Ship.universeScreen.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
-			Ship.universeScreen.ScreenManager.SpriteBatch.End();
+			Empire.Universe.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
+			Empire.Universe.ScreenManager.SpriteBatch.End();
 			if (this.ShowBuffer >= currentBuffer)
 			{
 				effect.CurrentTechnique.Passes[0].End();

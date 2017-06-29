@@ -27,7 +27,7 @@ namespace Ship_Game
 			if (LoadingIsSlow)
 			{
 				SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-				Viewport viewport       = ScreenManager.GraphicsDevice.Viewport;
+				Viewport viewport       = Viewport;
 				Vector2 viewportSize    = new Vector2(viewport.Width, viewport.Height);
 				Vector2 textSize        = Fonts.Arial12Bold.MeasureString("Loading...");
 				Vector2 textPosition    = (viewportSize - textSize) / 2f;

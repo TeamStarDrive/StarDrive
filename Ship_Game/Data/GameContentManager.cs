@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
@@ -15,22 +14,32 @@ namespace Ship_Game
         // If non-null, a parent resource manager is checked first for existing resources
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
-        private Dictionary<string, object> LoadedAssets;
+        private Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
         private List<IDisposable> DisposableAssets;
         public string Name { get; }
 
-        public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
+        private RawContentLoader RawContent;
 
-        public GameContentManager(IServiceProvider service, string name) : base(service, "Content")
+        public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
+        private readonly object LoadSync = new object();
+
+        static GameContentManager()
+        {
+            FixSunBurnTypeLoader();
+        }
+
+        public GameContentManager(IServiceProvider services, string name) : base(services, "Content")
         {
             Name = name;
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
             DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
+            RawContent       = new RawContentLoader(this);
         }
 
         public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
         {
-            Parent = parent;
+            Parent     = parent;
+            RawContent = new RawContentLoader(this);
         }
 
         private object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
@@ -66,6 +75,7 @@ namespace Ship_Game
             base.Dispose(disposing);
             LoadedAssets     = null;
             DisposableAssets = null;
+            RawContent       = null;
         }
 
         private static T GetField<T>(object obj, string name)
@@ -157,7 +167,8 @@ namespace Ship_Game
 
         private void RecordDisposableObject(IDisposable disposable)
         {
-            DisposableAssets.Add(disposable);
+            lock (LoadSync)
+                DisposableAssets.Add(disposable);
         }
 
         // Load the asset with the given name or path
@@ -166,10 +177,16 @@ namespace Ship_Game
         public override T Load<T>(string assetName)
         {
             if (LoadedAssets == null) throw new ObjectDisposedException(ToString());
-            if (string.IsNullOrEmpty(assetName)) throw new ArgumentNullException(nameof(assetName));
+            if (assetName.IsEmpty())  throw new ArgumentNullException(nameof(assetName));
 
-            string assetNoExt = assetName.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase) 
-                ? assetName.Substring(0, assetName.Length - 4) : assetName;
+            string extension  = "";
+            string assetNoExt = assetName;
+            if (assetName[assetName.Length - 4] == '.')
+            {
+                extension  = assetName.Substring(assetName.Length - 3).ToLower();
+                assetNoExt = assetName.Substring(0, assetName.Length - 4);
+            }
+
             assetNoExt = assetNoExt.Replace("\\", "/"); // normalize path
 
             if (assetNoExt.StartsWith("./"))
@@ -184,7 +201,7 @@ namespace Ship_Game
             //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
             //    assetNoExt = assetNoExt.Substring("Content/".Length);
 
-        #if DEBUG
+        #if true // #if DEBUG
             // if we forbid relative paths, we can streamline our resource manager and eliminate almost all duplicate loading
             if (assetNoExt.Contains("..") || assetNoExt.Contains("./"))
                 throw new ArgumentException($"Asset name cannot contain relative paths: '{assetNoExt}'");
@@ -204,8 +221,24 @@ namespace Ship_Game
                 throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            var asset = ReadAsset<T>(assetNoExt, RecordDisposableObject);
-            LoadedAssets.Add(assetNoExt, asset);
+            T asset = (extension.Length > 0 && extension != "xnb")
+                ? (T)RawContent.LoadAsset(assetName, extension) 
+                : ReadAsset<T>(assetNoExt, RecordDisposableObject);
+
+            // detect possible resource leaks -- this is very slow, so only enable on demand
+            #if false
+                string[] keys;
+                lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
+                foreach (string key in keys)
+                {
+                    if (key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) || 
+                        assetNoExt.EndsWith(key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
+                    }
+                }
+            #endif
+            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);
             return asset;
         }
 
@@ -214,7 +247,7 @@ namespace Ship_Game
             try
             {
                 // trying to do a direct Mod asset load, this may be different from currently active mod
-                if (assetName.StartsWith("Mods/")) 
+                if (assetName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase)) 
                 {
                     var info = new FileInfo(assetName + ".xnb");
                     if (info.Exists) return info.OpenRead();
@@ -232,6 +265,65 @@ namespace Ship_Game
                     throw new ContentLoadException($"Asset '{assetName}' was not found", ex);
                 if (ex is ArgumentException || ex is NotSupportedException || ex is IOException || ex is UnauthorizedAccessException)
                     throw new ContentLoadException($"Asset '{assetName}' could not be opened", ex);
+                throw;
+            }
+        }
+
+        private static void FixSunBurnTypeLoader()
+        {
+            Type readerMgrType  = typeof(ContentTypeReaderManager);
+            Type contentMgrType = typeof(GameContentManager);
+
+            FieldInfo readerType = readerMgrType.GetField("readerTypeToReader", BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo nameTo     = readerMgrType.GetField("nameToReader", BindingFlags.NonPublic | BindingFlags.Static);
+            ReaderTypeToReader = readerType?.GetValue(null) as Dictionary<Type, ContentTypeReader>;
+            NameToReader       = nameTo?.GetValue(null) as Dictionary<string, ContentTypeReader>;
+
+            MethodInfo oldMethod = readerMgrType.GetMethod("InstantiateTypeReader", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo newMethod = contentMgrType.GetMethod("InstantiateTypeReader", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodUtil.ReplaceMethod(newMethod, oldMethod);
+
+            XnaAssembly = readerMgrType.Assembly;
+            SunburnAssemblyName = typeof(SynapseGaming.LightingSystem.Core.SceneInterface).Assembly.FullName;
+        }
+
+        private static Dictionary<Type, ContentTypeReader> ReaderTypeToReader;
+        private static Dictionary<string, ContentTypeReader> NameToReader;
+        private static Assembly XnaAssembly;
+        private static string SunburnAssemblyName;
+
+        private static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
+        {
+            try
+            {
+                Type type;
+                if (readerTypeName.StartsWith("SynapseGaming."))
+                {
+                    string typeName = readerTypeName.Substring(0, readerTypeName.IndexOf(','));
+                    string reroutedFullName = typeName + ", " + SunburnAssemblyName;
+                    type = Type.GetType(reroutedFullName);
+                }
+                else
+                {
+                    type = XnaAssembly.GetType(readerTypeName) ?? Type.GetType(readerTypeName);
+                }
+
+                if (type == null)
+                {
+                    throw new ContentLoadException($"{contentReader.AssetName} load failed: TypeReader not found for {readerTypeName}");
+                }
+                if (ReaderTypeToReader.TryGetValue(type, out reader))
+                {
+                    NameToReader.Add(readerTypeName, reader);
+                    return false;
+                }
+                reader = (ContentTypeReader)Activator.CreateInstance(type);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (ex is ArgumentException || ex is TargetInvocationException || (ex is TypeLoadException || ex is NotSupportedException) || (ex is MemberAccessException || ex is InvalidCastException))
+                    throw new ContentLoadException($"{contentReader.AssetName} load failed: TypeReader {readerTypeName} is invalid", ex);
                 throw;
             }
         }

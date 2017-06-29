@@ -11,10 +11,11 @@ namespace Ship_Game
         private AutoResetEvent EvtNewTask = new AutoResetEvent(false);
         private AutoResetEvent EvtEndTask = new AutoResetEvent(false);
         private Thread Thread;
-        private RangeAction Task;
+        private Action SimpleTask;
+        private RangeAction RangeTask;
         private int LoopStart;
         private int LoopEnd;
-        public bool Running => Task != null;
+        public bool Running => RangeTask != null || SimpleTask != null;
         private Exception Error;
         private volatile bool Killed;
 
@@ -24,18 +25,27 @@ namespace Ship_Game
         }
         public void Start(int start, int end, RangeAction taskBody)
         {
-            if (Task != null)
+            if (Running)
                 throw new InvalidOperationException("ParallelTask is still running");
-            Task      = taskBody;
+            RangeTask = taskBody;
             LoopStart = start;
             LoopEnd   = end;
             EvtNewTask.Set();
             if (!Thread.IsAlive)
                 Thread.Start();
         }
+        public void Start(Action taskBody)
+        {
+            if (Running)
+                throw new InvalidOperationException("ParallelTask is still running");
+            SimpleTask = taskBody;
+            EvtNewTask.Set();
+            if (!Thread.IsAlive)
+                Thread.Start();
+        }
         public Exception Wait()
         {
-            while (Task != null)
+            while (Running)
             {
                 EvtEndTask.WaitOne();
             }
@@ -50,18 +60,22 @@ namespace Ship_Game
             while (!Killed)
             {
                 EvtNewTask.WaitOne();
-                if (Task == null)
+                if (!Running)
                     continue;
                 try
                 {
                     Error = null;
-                    Task(LoopStart, LoopEnd);
+                    if (RangeTask != null)
+                        RangeTask(LoopStart, LoopEnd);
+                    else
+                        SimpleTask?.Invoke();
                 }
                 catch (Exception ex)
                 {
                     Error = ex;
                 }
-                Task = null;
+                RangeTask  = null;
+                SimpleTask = null;
                 if (Killed)
                     break;
                 EvtEndTask.Set();
@@ -77,7 +91,8 @@ namespace Ship_Game
             if (EvtNewTask == null)
                 return;
             Killed = true;
-            Task   = null;
+            RangeTask  = null;
+            SimpleTask = null;
             EvtNewTask.Set();
             Thread.Join(100);
 
@@ -93,17 +108,19 @@ namespace Ship_Game
 
     public static class Parallel
     {
-        static Parallel()
-        {
-            AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
-        }
-
         public static void ClearPool()
         {
             lock (Pool) Pool.ClearAndDispose();
         }
 
         private static readonly Array<ParallelTask> Pool = new Array<ParallelTask>();
+        private static readonly bool Initialized = InitThreadPool();
+
+        private static bool InitThreadPool()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
+            return true;
+        }
 
         /// <summary>TRUE if another Parallel.For loop is already running </summary>
         public static bool Running { get; private set; }
@@ -121,6 +138,32 @@ namespace Ship_Game
             return newTask;
         }
 
+        private static int PhysicalCoreCount;
+        public static int NumPhysicalCores
+        {
+            get
+            {
+                if (PhysicalCoreCount == 0)
+                {
+                    var results = new System.Management.ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get();
+                    if (results.Count > 0)
+                    {
+                        foreach (var item in results)
+                        {
+                            PhysicalCoreCount = (int)(uint)item["NumberOfCores"];
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Query failed, so assume HT or SMT is enabled
+                        PhysicalCoreCount = Environment.ProcessorCount / 2;
+                    }
+                }
+                return PhysicalCoreCount;
+            }
+        }
+
         /// <summary>
         /// Several times faster than System.Threading.Tasks.Parallel.For,
         /// will utilize all cores of the CPU at default affinity.
@@ -136,13 +179,23 @@ namespace Ship_Game
         /// <param name="rangeStart">Start of the range (inclusive)</param>
         /// <param name="rangeEnd">End of the range (exclusive)</param>
         /// <param name="body">delegate void RangeAction(int start, int end)</param>
-        public static void For(int rangeStart, int rangeEnd, RangeAction body)
+        /// <param name="parallelism">Number of threads to spawn. By default number of physical cores is used.</param>
+        /// <example>
+        /// Parallel.For(0, arr.Length, (start, end) =>
+        /// {
+        ///     for (int i = start; i < end; i++)
+        ///     {
+        ///         var elem = arr[i];
+        ///     }
+        /// });
+        /// </example>
+        public static void For(int rangeStart, int rangeEnd, RangeAction body, int parallelism = 0)
         {
             if (rangeStart >= rangeEnd)
                 return; // no work done on empty ranges
 
             int range = rangeEnd - rangeStart;
-            int cores = Math.Min(range, Environment.ProcessorCount);
+            int cores = Math.Min(range, Math.Max(NumPhysicalCores, parallelism));
             int len = range / cores;
 
             // this can happen if the target CPU only has 1 core, or if the list has 1 item
@@ -155,6 +208,9 @@ namespace Ship_Game
             var tasks = new ParallelTask[cores];
             lock (Pool)
             {
+                // Rationale: if you nest parallel for loops, you will spawn a huge number of threads
+                // and thus killing off any performance gains. For example on a 6-core cpu it would spawn
+                // 6*6 = 36 threads !!. Adjust your algorithms to prevent parellel loop nesting.
                 if (Running)
                     throw new ThreadStateException("Another Parallel.For loop is already running. Nested Parallel.For loops are forbidden");
                 Running = true;
@@ -183,9 +239,17 @@ namespace Ship_Game
                 throw ex;
         }
 
-        public static void For(int rangeLength, RangeAction body)
+        public static void For(int rangeLength, RangeAction body, int parallelism = 0)
         {
-            For(0, rangeLength, body);
+            For(0, rangeLength, body, parallelism);
+        }
+
+        public static ParallelTask Run(Action action)
+        {
+            int poolIndex = 0;
+            ParallelTask task = NextTask(ref poolIndex);
+            task.Start(action);
+            return task;
         }
     }
 }

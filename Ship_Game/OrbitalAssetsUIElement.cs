@@ -90,7 +90,7 @@ namespace Ship_Game
 		public override void Draw(GameTime gameTime)
 		{
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.sel.Menu, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Menu, Color.Black);
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 vector2 = new Vector2(x, (float)state.Y);
@@ -108,32 +108,32 @@ namespace Ship_Game
 			{
 				if (!this.BombardButton.Toggled)
 				{
-					foreach (Ship ship in this.p.system.ShipList)
+					foreach (Ship ship in p.system.ShipList)
 					{
-						if (ship.loyalty != EmpireManager.Player || ship.GetAI().State != AIState.Bombard)
+						if (ship.loyalty != EmpireManager.Player || ship.AI.State != AIState.Bombard)
 						{
 							continue;
 						}
-						ship.GetAI().OrderQueue.Clear();
-						ship.GetAI().State = AIState.AwaitingOrders;
+						ship.AI.OrderQueue.Clear();
+						ship.AI.State = AIState.AwaitingOrders;
 					}
 				}
 				else
 				{
-					foreach (Ship ship in this.p.system.ShipList)
+					foreach (Ship ship in p.system.ShipList)
 					{
-						if (ship.loyalty != EmpireManager.Player || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, this.p.Position) >= 15000f)
+						if (ship.loyalty != EmpireManager.Player || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, this.p.Center) >= 15000f)
 						{
 							continue;
 						}
-						ship.GetAI().OrderBombardPlanet(this.p);
+						ship.AI.OrderBombardPlanet(p);
 					}
 				}
 			}
 			this.LandTroops.HandleInput(input);
 			foreach (OrbitalAssetsUIElement.TippedItem ti in this.ToolTipItems)
 			{
-				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
+				if (!ti.r.HitTest(input.CursorPosition))
 				{
 					continue;
 				}

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -20,6 +19,11 @@ namespace Ship_Game
         private static readonly RavenClient Raven = new RavenClient("https://3e16bcf9f97d4af3b3fb4f8d4ba1830b:1f0e6d3598e14584877e0c0e87554966@sentry.io/123180");
         private static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
 
+        // prevent flooding Raven with 2000 error messages if we fall into an exception loop
+        // instead, we count identical exceptions and resend them only over a certain threshold 
+        private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
+        private const int ErrorThreshold = 100;
+
         static Log()
         {
             string init = "\r\n\r\n";
@@ -28,7 +32,7 @@ namespace Ship_Game
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
             LogFile.Write(init);
-            Raven.Release     = GlobalStats.ExtendedVersion;
+            Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)
             {
                 Raven.Environment = "Staging";
@@ -100,6 +104,29 @@ namespace Ship_Game
             Console.WriteLine(text);
         }
 
+        private static ulong Fnv64(string text)
+        {
+            ulong hash = 0xcbf29ce484222325UL;
+            for (int i = 0; i < text.Length; ++i)
+            {
+                hash ^= text[i];
+                hash *= 0x100000001b3UL;
+            }
+            return hash;
+        }
+
+        private static bool ShouldIgnoreErrorText(string error)
+        {
+            ulong hash = Fnv64(error);
+            if (ReportedErrors.TryGetValue(hash, out int count)) // already seen this error?
+            {
+                ReportedErrors[hash] = ++count;
+                return (count % ErrorThreshold) != 0; // only log error when we reach threshold
+            }
+            ReportedErrors[hash] = 1;
+            return false; // log error
+        }
+
         // write an error to logfile, sentry.io and debug console
         // plus trigger a Debugger.Break
         public static void Error(string format, params object[] args)
@@ -108,6 +135,9 @@ namespace Ship_Game
         }
         public static void Error(string error)
         {
+            if (!HasDebugger && ShouldIgnoreErrorText(error))
+                return;
+
             string text = "!! Error: " + error;
             LogFile.WriteLine(text);
 
@@ -131,7 +161,11 @@ namespace Ship_Game
         public static void Error(Exception ex, string error = null)
         {
             string text = CurryExceptionMessage(ex, error);
-            LogFile.WriteLine(text);
+            if (!HasDebugger && ShouldIgnoreErrorText(text))
+                return;
+
+            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace);
+            LogFile.WriteLine(withStack);
             
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
@@ -139,11 +173,15 @@ namespace Ship_Game
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine(text);
+            Console.WriteLine(withStack);
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
 
+        [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)
+        {
+            if (trueCondition != true) Error(message);
+        }
 
         private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
         {
@@ -166,7 +204,7 @@ namespace Ship_Game
             IDictionary evt = ex.Data;
             if (evt.Count == 0)
             {
-                evt["Version"] = GlobalStats.ExtendedVersion;
+                evt["Version"] = GlobalStats.Version;
                 if (GlobalStats.HasMod)
                 {
                     evt["Mod"]        = GlobalStats.ActiveMod.ModName;
@@ -181,7 +219,6 @@ namespace Ship_Game
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["XnaMemory"] = Game1.Instance != null ? (Game1.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
-                evt["Commit"]    = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/" + GlobalStats.Commit;
             }
             var sb = new StringBuilder("!! Exception: ");
             sb.Append(ex.Message);
@@ -195,12 +232,14 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        public static string CleanStackTrace(Exception ex)
+        public static string CleanStackTrace(string stackTrace)
         {
             var sb = new StringBuilder("StackTrace:\r\n");
-            string[] lines = ex.StackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string line in lines)
+            string[] lines = stackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string errorLine in lines)
             {
+                string line = errorLine.Replace("Microsoft.Xna.Framework", "XNA");
+
                 if (line.Contains(" in "))
                 {
                     string[] parts = line.Split(new[] { " in " }, StringSplitOptions.RemoveEmptyEntries);
@@ -210,7 +249,6 @@ namespace Ship_Game
 
                     sb.Append(method).Append(" in ").Append(file).AppendLine();
                 }
-                else if (line.Contains("Microsoft.Xna.Framework")) sb.AppendLine(line.Replace("Microsoft.Xna.Framework", "XNA"));
                 else if (line.Contains("System.Windows.Forms"))    continue; // ignore winforms
                 else sb.AppendLine(line);
             }

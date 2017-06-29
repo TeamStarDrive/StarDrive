@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.Gameplay;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
@@ -11,16 +8,17 @@ namespace Ship_Game.Commands
 {
     class FleetRequisition : Goal
     {
-        public FleetRequisition(ArtificialIntelligence.ShipGoal goal, ArtificialIntelligence ai)
+        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai)
         {
-            FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
-            beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
-            GoalName = "FleetRequisition";
-            Step = 1;
-            beingBuilt.fleet = ai.Owner.fleet;
-            beingBuilt.RelativeFleetOffset = node.FleetOffset;
-            SetFleet(ai.Owner.fleet);
-            SetPlanetWhereBuilding(ai.OrbitTarget);            
+            return;
+            //FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
+            //beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
+            //GoalName = "FleetRequisition";
+            //Step = 1;
+            //beingBuilt.fleet = ai.Owner.fleet;
+            //beingBuilt.RelativeFleetOffset = node.FleetOffset;
+            //SetFleet(ai.Owner.fleet);
+            //SetPlanetWhereBuilding(ai.OrbitTarget);            
         }
 
         public override void Evaluate()
@@ -133,7 +131,7 @@ namespace Ship_Game.Commands
 
                             ship.fleet = fleet;
                             ship.RelativeFleetOffset = current.FleetOffset;
-                            ship.GetAI().OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.facing, new Vector2(0.0f, -1f), true, fleet.speed, fleet);
+                            ship.AI.OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.Facing, new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
                         }
                         break;
                     }

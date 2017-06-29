@@ -84,7 +84,7 @@ namespace Ship_Game
                             destinationRectangle.Y = entry.clickRect.Y + entry.clickRect.Height / 2 - destinationRectangle.Height / 2;
                         }
                     }
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockItem.module.UID].IconTexturePath], destinationRectangle, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(unlockItem.module.UID).IconTexturePath], destinationRectangle, Color.White);
                     Localizer.Token((int)unlockItem.module.NameIndex);
                     string text = HelperFunctions.ParseText(Fonts.Arial12, unlockItem.Description, (float)(entry.clickRect.Width - 100));
                     float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(text).Y;
@@ -149,15 +149,10 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.End();
         }
 
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
-
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.UnlockSL.HandleInput(input);
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
@@ -171,12 +166,13 @@ namespace Ship_Game
 			{
                 if (EmpireManager.Player.data.Traits.ShipType == UnlockedMod.Type || UnlockedMod.Type == null || UnlockedMod.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
+                    ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(UnlockedMod.ModuleUID);
                     UnlockItem unlock = new UnlockItem()
                     {
                         Type = UnlockType.SHIPMODULE,
-                        module = ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID],
-                        Description = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].DescriptionIndex),
-                        privateName = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].NameIndex)
+                        module = moduleTemplate,
+                        Description = Localizer.Token(moduleTemplate.DescriptionIndex),
+                        privateName = Localizer.Token(moduleTemplate.NameIndex)
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
@@ -188,7 +184,7 @@ namespace Ship_Game
                     UnlockItem unlock = new UnlockItem()
                     {
                         Type = UnlockType.TROOP,
-                        troop = ResourceManager.TroopsDict[troop.Name]
+                        troop = ResourceManager.GetTroopTemplate(troop.Name)
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
@@ -204,7 +200,6 @@ namespace Ship_Game
                         privateName = hull.Name,
                         HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
                     };
-                    int size = ResourceManager.HullsDict[hull.Name].ModuleSlotList.Count;
                     unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.Player));
                     this.UnlockSL.AddItem(unlock);
                 }

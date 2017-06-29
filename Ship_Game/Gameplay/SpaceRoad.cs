@@ -48,7 +48,7 @@ namespace Ship_Game.Gameplay
                 using (empire.BorderNodes.AcquireReadLock())
                 foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
                 {
-                    extrad = !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
+                    extrad = !(bordernode.SourceObject is Ship) ? Empire.ProjectorRadius : 0;
                   
                     if (Vector2.Distance(node.Position, bordernode.Position) + extrad >= bordernode.Radius)
                         continue;

@@ -35,6 +35,7 @@ namespace Ship_Game
 		{
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
+
 			int WindowWidth = 320;
 			this.win = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth, 260, WindowWidth, 225);
 			Rectangle rectangle = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth + 20, 225, WindowWidth - 40, 455);
@@ -233,7 +234,7 @@ namespace Ship_Game
 			{
 				float scale = (float)((float)this.itemToBuild.Size) / (float)ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width;
 				Vector2 IconOrigin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2));
-				scale = scale * 4000f / this.screen.camHeight;
+				scale = scale * 4000f / this.screen.CamHeight;
 				if (scale > 1f)
 				{
 					scale = 1f;
@@ -242,10 +243,8 @@ namespace Ship_Game
 				{
 					scale = 0.15f;
 				}
-				Viewport viewport = this.ScreenManager.GraphicsDevice.Viewport;
-				Vector3 nearPoint = viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
-				Viewport viewport1 = this.ScreenManager.GraphicsDevice.Viewport;
-				Vector3 farPoint = viewport1.Unproject(new Vector3(MousePos.X, MousePos.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
+				Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
+				Vector3 farPoint = screen.Viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
 				Vector3 direction = farPoint - nearPoint;
 				direction.Normalize();
 				Ray pickRay = new Ray(nearPoint, direction);
@@ -258,13 +257,13 @@ namespace Ship_Game
 				{
 					foreach (UniverseScreen.ClickablePlanets p in this.screen.ClickPlanetList)
 					{
-						if (Vector2.Distance(p.planetToClick.Position, pp) > (2500f * p.planetToClick.scale))
+						if (Vector2.Distance(p.planetToClick.Center, pp) > (2500f * p.planetToClick.scale))
 						{
 							continue;
 						}
-						this.TetherOffset = pp - p.planetToClick.Position;
+						this.TetherOffset = pp - p.planetToClick.Center;
 						this.TargetPlanet = p.planetToClick.guid;
-						Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, p.ScreenPos, MousePos, new Color(255, 165, 0, 150), 3f);
+						this.ScreenManager.SpriteBatch.DrawLine(p.ScreenPos, MousePos, new Color(255, 165, 0, 150), 3f);
 						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(MousePos.X, MousePos.Y + 34f), Color.White);
 					}
 				}
@@ -281,7 +280,7 @@ namespace Ship_Game
 			for (int i = 0; i < this.SL.Entries.Count; i++)
 			{
 				ScrollList.Entry e = this.SL.Entries[i];
-				if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+				if (!e.clickRect.HitTest(MousePos))
 				{
 					e.clickRectHover = 0;
 				}
@@ -290,33 +289,31 @@ namespace Ship_Game
 					this.selector = new Selector(this.ScreenManager, e.clickRect);
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
-					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+					if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 					{
 						this.itemToBuild = e.item as Ship;
 						return true;
 					}
 				}
 			}
-			if (this.itemToBuild == null || HelperFunctions.CheckIntersection(this.win, MousePos) || input.CurrentMouseState.LeftButton != ButtonState.Pressed || input.LastMouseState.LeftButton != ButtonState.Released)
+			if (this.itemToBuild == null || this.win.HitTest(MousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
 			{
-				if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+				if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
 				{
 					this.itemToBuild = null;
 				}
-				if (!HelperFunctions.CheckIntersection(this.ConstructionSubMenu.Menu, input.CursorPosition) || !input.RightMouseClick)
+				if (!this.ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || !input.RightMouseClick)
 				{
 					return false;
 				}
 				this.screen.showingDSBW = false;
 				return true;
 			}
-			Viewport viewport = this.ScreenManager.GraphicsDevice.Viewport;
-			Vector3 nearPoint = viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
-			Viewport viewport1 = this.ScreenManager.GraphicsDevice.Viewport;
-			Vector3 farPoint = viewport1.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
+			Vector3 nearPoint = screen.Viewport.Unproject(new Vector3((float)input.MouseCurr.X, (float)input.MouseCurr.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
+			Vector3 farPoint = screen.Viewport.Unproject(new Vector3((float)input.MouseCurr.X, (float)input.MouseCurr.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
 			Vector3 direction = farPoint - nearPoint;
 			direction.Normalize();
 			Ray pickRay = new Ray(nearPoint, direction);
@@ -329,12 +326,12 @@ namespace Ship_Game
 				buildstuff.TetherTarget = this.TargetPlanet;
 			}
 			EmpireManager.Player.GetGSAI().Goals.Add(buildstuff);
-			AudioManager.PlayCue("echo_affirm");
+			GameAudio.PlaySfxAsync("echo_affirm");
 			lock (GlobalStats.ClickableItemLocker)
 			{
 				this.screen.UpdateClickableItems();
 			}
-			if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && (!input.CurrentKeyboardState.IsKeyDown(Keys.RightShift)))
+			if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && (!input.KeysCurr.IsKeyDown(Keys.RightShift)))
 			{
 				this.itemToBuild = null;
 			}

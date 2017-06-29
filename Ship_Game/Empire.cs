@@ -1,19 +1,13 @@
-// Type: Ship_Game.Empire
-// Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
-// MVID: C34284EE-F947-460F-BF1D-3C6685B19387
-// Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Ship_Game.AI;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -21,11 +15,14 @@ namespace Ship_Game
     {
         public static float ProjectorRadius = 150000f;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
-        private readonly ConcurrentDictionary<int, Fleet> FleetsDict    = new ConcurrentDictionary<int, Fleet>();
-        private readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
+        public readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedTroopDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedModulesDict   = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+
+        private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
+        
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship>      Inhibitors     = new Array<Ship>();
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
@@ -48,7 +45,7 @@ namespace Ship_Game
         public string ResearchTopic = "";
         //private Array<War> Wars = new Array<War>();          //Not referenced in code, removing to save memory
         private Fleet DefensiveFleet = new Fleet();
-        private BatchRemovalCollection<Ship> ForcePool = new BatchRemovalCollection<Ship>();
+        private Array<Ship> ForcePool = new Array<Ship>();
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
@@ -58,7 +55,7 @@ namespace Ship_Game
         public Color EmpireColor;
         public static UniverseScreen Universe;
         //public Vector4 VColor;          //Not referenced in code, removing to save memory
-        private GSAI GSAI;
+        private EmpireAI EmpireAI;
         //private MilitaryResearchStrategy militaryResearchStrategy;
         private EconomicResearchStrategy economicResearchStrategy;
         private float UpdateTimer;
@@ -108,24 +105,43 @@ namespace Ship_Game
 
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
-        float leftoverResearch;
+        private float leftoverResearch;
         public float exportPTrack;
         public float exportFTrack;
         public float averagePLanetStorage;
-        [XmlIgnore]
-        public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
-        //public Map<Array<Vector2>, int> pathcache = new Map<Array<Vector2>, int>();
-        [XmlIgnore]
-        public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
-        [XmlIgnore]
-        public int pathcacheMiss = 0;
-        [XmlIgnore]
-        public byte[,] grid;
-        [XmlIgnore]
-        public int granularity = 0;
+        [XmlIgnore][JsonIgnore] public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
+        [XmlIgnore][JsonIgnore] public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
+        [XmlIgnore][JsonIgnore] public int pathcacheMiss = 0;
+        [XmlIgnore][JsonIgnore] public byte[,] grid;
+        [XmlIgnore][JsonIgnore] public int granularity = 0;
+        [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
+        [XmlIgnore][JsonIgnore] public Array<string> BomberTech;
+        [XmlIgnore] [JsonIgnore] public Array<string> TroopShipTech;
+        [XmlIgnore] [JsonIgnore] public Array<string> CarrierTech;
+        [XmlIgnore] [JsonIgnore] public Array<string> SupportShipTech;
+
+        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
+        public void TriggerAllShipStatusUpdate()
+        {
+            foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag. 
+                ship.shipStatusChanged = true;
+        }
+
+        public string Name => data.Traits.Name;
+
+        // Empire unique ID. If this is 0, then this empire is invalid!
+        // Set in EmpireManager.cs
+        public int Id;
 
         public Empire()
         {
+            if(!isFaction)
+            {
+                BomberTech = new Array<string>();
+                TroopShipTech = new Array<string>();
+                CarrierTech = new Array<string>();
+                SupportShipTech = new Array<string>();
+            }
         }
         public class PatchCacheEntry
         {
@@ -133,18 +149,65 @@ namespace Ship_Game
             public int CacheHits;
             public PatchCacheEntry(Array<Vector2> path) { Path = path; }
         }
-        public ConcurrentDictionary<int, Fleet> GetFleetsDict()
-        {
-            return FleetsDict;
-        }
+
+        public Map<int, Fleet> GetFleetsDict() => FleetsDict;
+
         public Fleet FirstFleet
         {
             get { return FleetsDict[1]; }
             set
             {
-                foreach (Ship s in FleetsDict[1].Ships) s.fleet = null;
+                for (int index = 0; index < FleetsDict[1].Ships.Count; index++)
+                {
+                    Ship s = FleetsDict[1].Ships[index];
+                    s?.fleet?.RemoveShip(s);
+                }
                 FleetsDict[1] = value;
             }
+        }
+
+        public void SetRallyPoints()
+        {
+            Array<Planet> rallyPlanets = new Array<Planet>();
+            var goodSystems = new HashSet<SolarSystem>();
+            foreach (SolarSystem systemCheck in OwnedSolarSystems)
+            {
+                if (systemCheck.combatTimer > 10) continue;
+                bool systemHasUnfriendlies = false;
+                foreach (Empire empire in systemCheck.OwnerList)
+                {
+                    if (!IsEmpireAttackable(empire)) continue;
+                    systemHasUnfriendlies = true;
+                    break;
+                }
+                if (systemHasUnfriendlies) continue;                     
+
+                foreach (Planet planet in systemCheck.PlanetList)
+                {
+                    if (planet.Owner != this || !planet.HasShipyard) continue;
+                    rallyPlanets.Add(planet);
+                }
+
+            }
+            if (rallyPlanets.Count > 0)
+            {
+                RallyPoints = rallyPlanets.ToArray();
+                return;
+            }
+
+            foreach (Planet planet in OwnedPlanets)
+            {
+                if (planet.HasShipyard)
+                    rallyPlanets.Add(planet);
+            }
+
+            if (rallyPlanets.Count > 0)
+            {
+                RallyPoints = rallyPlanets.ToArray();
+                return;
+            }
+            rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.GrossProductionPerTurn));
+            RallyPoints = rallyPlanets.ToArray();
         }
 
         public int GetUnusedKeyForFleet()
@@ -170,7 +233,7 @@ namespace Ship_Game
             OwnedSolarSystems.Clear();
             OwnedShips.Clear();
             Relationships.Clear();
-            GSAI = null;
+            EmpireAI = null;
             HostilesPresent.Clear();
             ForcePool.Clear();
             KnownShips.Clear();
@@ -178,12 +241,13 @@ namespace Ship_Game
             BorderNodes.Clear();
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
-            foreach (var kv in FleetsDict) kv.Value.Ships.Clear();
+            foreach (var kv in FleetsDict) kv.Value.Dispose();
             FleetsDict.Clear();
             UnlockedBuildingsDict.Clear();
             UnlockedHullsDict.Clear();
             UnlockedModulesDict.Clear();
             UnlockedTroopDict.Clear();
+            UnlockedTroops.Clear();
             Inhibitors.Clear();
             OwnedProjectors.Clear();
             ShipsToAdd.Clear();
@@ -225,11 +289,11 @@ namespace Ship_Game
             }
             foreach (Ship ship in OwnedShips)
             {
-                ship.GetAI().OrderQueue.Clear();
-                ship.GetAI().State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
+                ship.AI.State = AIState.AwaitingOrders;
             }
-            GSAI.Goals.Clear();
-            GSAI.TaskList.Clear();
+            EmpireAI.Goals.Clear();
+            EmpireAI.TaskList.Clear();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             Empire rebels = CreatingNewGameScreen.CreateRebelsFromEmpireData(data, this);
             rebels.data.Traits.Name     = data.Traits.Singular + " Remnant";
@@ -291,11 +355,11 @@ namespace Ship_Game
             }
             foreach (Ship ship in OwnedShips)
             {
-                ship.GetAI().OrderQueue.Clear();
-                ship.GetAI().State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
+                ship.AI.State = AIState.AwaitingOrders;
             }
-            GSAI.Goals.Clear();
-            GSAI.TaskList.Clear();
+            EmpireAI.Goals.Clear();
+            EmpireAI.TaskList.Clear();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             OwnedShips.Clear();
             data.AgentList.Clear();
@@ -313,10 +377,13 @@ namespace Ship_Game
 
         public bool IsPointInSensors(Vector2 point)
         {
-            using (BorderNodes.AcquireReadLock())
-                foreach (var node in SensorNodes)
+            using (SensorNodes.AcquireReadLock())
+                for (int x = 0; x < SensorNodes.Count; x++)
+                {
+                    var node = SensorNodes[x];
                     if (node.Position.InRadius(point, node.Radius))
                         return true;
+                }
             return false;
         }
 
@@ -335,14 +402,21 @@ namespace Ship_Game
             return UnlockedTroopDict;
         }
 
+        public IReadOnlyList<Troop> GetUnlockedTroops() => UnlockedTroops;
+
         public Map<string, bool> GetBDict()
         {
             return UnlockedBuildingsDict;
         }
 
-        public Map<string, bool> GetMDict()
+        public bool IsModuleUnlocked(string moduleUID)
         {
-            return UnlockedModulesDict;
+            return UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
+        }
+
+        public void UnlockModuleForEmpire(string moduleUID)
+        {
+            UnlockedModulesDict[moduleUID] = true;
         }
 
         public Map<string, TechEntry> GetTDict()
@@ -415,7 +489,17 @@ namespace Ship_Game
         {
             return OwnedShips;
         }
-
+        public Array<Ship> GetShipsFromOffensePools(bool onlyAO = false)
+        {
+            Array<Ship> ships = new Array<Ship>();
+            foreach (AO ao in GetGSAI().AreasOfOperations)
+            {
+                ships.AddRange(ao.GetOffensiveForcePool());
+            }
+            if(!onlyAO)
+                ships.AddRange(ForcePool);
+            return ships;
+        }
         public BatchRemovalCollection<Ship> GetProjectors()
         {
             return OwnedProjectors;
@@ -436,12 +520,12 @@ namespace Ship_Game
 
         public void Initialize()
         {
-            GSAI = new GSAI(this);
-            for (int key = 1; key < 100; ++key)
+            EmpireAI = new EmpireAI(this);
+            for (int key = 1; key < 10; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};
                 fleet.SetNameByFleetIndex(key);
-                FleetsDict.TryAdd(key, fleet);
+                FleetsDict.Add(key, fleet);
             }
 
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
@@ -516,10 +600,11 @@ namespace Ship_Game
                 TechnologyDict.Add(keyValuePair.Key, techEntry);
             }
 
-            foreach (var kv in ResourceManager.HullsDict)       UnlockedHullsDict[kv.Value.Hull]  = false;
-            foreach (var kv in ResourceManager.TroopsDict)      UnlockedTroopDict[kv.Key]         = false;
-            foreach (var kv in ResourceManager.BuildingsDict)   UnlockedBuildingsDict[kv.Key]     = false;
-            foreach (var kv in ResourceManager.ShipModulesDict) UnlockedModulesDict[kv.Key]       = false;
+            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
+            UnlockedTroops.Clear();
 
             //unlock from empire data file
             foreach (string building in data.unlockBuilding)
@@ -627,21 +712,22 @@ namespace Ship_Game
 
         public void InitializeFromSave()
         {
-            GSAI = new GSAI(this);
+            EmpireAI = new EmpireAI(this);
             for (int key = 1; key < 100; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};
                 fleet.SetNameByFleetIndex(key);
-                FleetsDict.TryAdd(key, fleet);
+                FleetsDict.Add(key, fleet);
             }
 
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var kv in ResourceManager.HullsDict)       UnlockedHullsDict[kv.Value.Hull]  = false;
-            foreach (var kv in ResourceManager.TroopsDict)      UnlockedTroopDict[kv.Key]         = false;
-            foreach (var kv in ResourceManager.BuildingsDict)   UnlockedBuildingsDict[kv.Key]     = false;
-            foreach (var kv in ResourceManager.ShipModulesDict) UnlockedModulesDict[kv.Key]       = false;
+            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
+            UnlockedTroops.Clear();
 
             // unlock from empire data file
             // Added by gremlin Figure out techs with modules that we have ships for.
@@ -680,51 +766,6 @@ namespace Ship_Game
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
 
-            #if false // purge designs that dont advance the ships
-                Log.Info(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
-                if (!this.isFaction)
-                {
-                    HashSet<string> techs = new HashSet<string>();
-                    HashSet<string> purgelist = new HashSet<string>();
-                    int count = 2; //how many best ships to pick
-                    //pick the best ships and record their techs
-                    foreach (Ship ship in ResourceManager.ShipsDict.Values.OrderByDescending(str => str.BaseStrength))
-                    {
-                        foreach (string techsneeded in ship.shipData.techsNeeded)
-                            techs.Add(techsneeded);
-                        if (count < 0)
-                            break;
-                        count--;
-
-                    }
-                    // use the recorded techs and purge ships that do not have enough of those techs.
-                    foreach (Ship ship in ResourceManager.ShipsDict.Values)
-                    {
-                        if (ship.shipData.techsNeeded.Count == 0 || ship.shipData.BaseStrength == 0
-                            ||
-                            ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.prototype
-                            || ship.shipData.ShipStyle != this.data.Traits.ShipType || ship.shipData.techsNeeded.Count == 0
-                            )
-                            continue;
-                        var difference = ship.shipData.techsNeeded.Except(techs);
-                        if (difference.Count() == 0)
-                            continue;
-                        if (difference.Count() / ship.shipData.techsNeeded.Count < .1)
-                        {
-                            purgelist.Add(ship.shipData.Name);
-                        }
-
-
-                    }
-                    Log.Info(this.data.PortraitName + " - Purging " + purgelist.Count);
-                    foreach (string purge in purgelist)
-                    {
-                        ResourceManager.ShipsDict.Remove(purge);
-                    }
-                }
-                GC.Collect();
-                Log.Info(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
-            #endif
         }
         private bool WeCanUseThisLater(TechEntry tech)
         {
@@ -739,12 +780,81 @@ namespace Ship_Game
         
         public EconomicResearchStrategy getResStrat()
         {
-            return this.economicResearchStrategy;
+            return economicResearchStrategy;
         }
 
         public bool WeCanBuildTroop(string ID)
         {
-            return this.UnlockedTroopDict.ContainsKey(ID) && this.UnlockedTroopDict[ID];
+            return UnlockedTroopDict.ContainsKey(ID) && UnlockedTroopDict[ID];
+        }
+        
+        public void UnlockEmpireShipModule(string moduleUID, string techUID = "")
+        {
+            UnlockedModulesDict[moduleUID] = true;
+            ShipTechs.Add(techUID);
+            if (!isFaction)
+            {
+
+                switch (ResourceManager.GetModuleTemplate(moduleUID).ModuleType)
+                {
+
+                    case ShipModuleType.Hangar:
+                        TroopShipTech.AddUnique(techUID);
+                        CarrierTech.AddUnique(techUID);
+                        break;
+
+                    case ShipModuleType.Bomb:
+                        BomberTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Special:
+                        SupportShipTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Countermeasure:
+                        SupportShipTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Transporter:
+                        SupportShipTech.AddUnique(techUID);
+                        TroopShipTech.AddUnique(techUID);
+                        break;
+                    case ShipModuleType.Troop:
+                        TroopShipTech.AddUnique(techUID);
+                        break;
+                }
+            }
+        }
+        public void UnlockEmpireHull(string hullName, string techUID = "")
+        {
+            UnlockedHullsDict[hullName] = true;
+            ShipTechs.Add(techUID);
+        }
+        public void UnlockEmpireTroop(string troopName)
+        {
+            UnlockedTroopDict[troopName] = true;
+            UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(troopName));
+        }
+        public void UnlockEmpireBuilding(string buildingName)
+        {
+            UnlockedBuildingsDict[buildingName] = true;            
+        }
+        public void SetEmpireTechDiscovered(string techUID)
+        {
+            if (TechnologyDict[techUID].Tech.RaceRestrictions.Count == 0 && !TechnologyDict[techUID].Tech.Secret)
+                TechnologyDict[techUID].Discovered = true;
+        }
+        public void SetEmpireTechRevealed(string techUID)
+        {
+            TechnologyDict[techUID].Discovered = true;
+        }
+
+        public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
+        {
+            foreach (Ship ship in OwnedShips)
+            {
+                if (ship.shipData.Role != role)
+                    continue;
+                ship.AddToShipLevel(bonus);
+                
+            }
         }
 
         public void UnlockTech(string techID) //@todo rewrite. the empire tech dictionary is made of techentries which have a reference to the technology.
@@ -752,251 +862,15 @@ namespace Ship_Game
             var techEntry = TechnologyDict[techID];
             if (techEntry.Unlocked)
                 return;
-            //Add to level of tech if more than one level
-            var technology = ResourceManager.TechTree[techID];
-            if (technology.MaxLevel > 1)
-            {
-                techEntry.Level++;
-                if (techEntry.Level == technology.MaxLevel)
-                {
-                    techEntry.Progress = techEntry.TechCost* UniverseScreen.GamePaceStatic;
-                    techEntry.Unlocked = true;
-                }
-                else
-                {
-                    techEntry.Unlocked = false;
-                    techEntry.Progress = 0;
-                }
-            }
-            else
-            {
-                techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
-                techEntry.Unlocked = true;
-            }
-            //Set GSAI to build ship roles
+            techEntry.Unlock(this);            
 
-            //if (techEntry.GetTech().unlockBattleships || techID == "Battleships")
-            //    this.canBuildCapitals = true;
-            //if (techEntry.GetTech().unlockCruisers || techID == "Cruisers")
-            //    this.canBuildCruisers = true;
-            //if (techEntry.GetTech().unlockFrigates || techID == "FrigateConstruction")
-            //    this.canBuildFrigates = true;
-            //if (techEntry.GetTech().unlockCorvettes || techID == "HeavyFighterHull" )
-            //    this.canBuildCorvettes = true;
-            //if (!this.canBuildCorvettes  && techEntry.GetTech().TechnologyType == TechnologyType.ShipHull)
-            //{
-            //    foreach(KeyValuePair<string,bool> hull in this.GetHDict())
-            //    {
-            //        if (techEntry.GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
-            //            continue;
-            //        if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role == ShipData.RoleName.corvette).Count()>0)
-            //        {
-            //            this.canBuildCorvettes = true;
-            //            break;
-            //        }
-            //    }
-            //}
-   
-            //Added by McShooterz: Race Specific buildings
-            foreach (Technology.UnlockedBuilding unlockedBuilding in technology.BuildingsUnlocked)
-            {
-                if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null || unlockedBuilding.Type == TechnologyDict[techID].AcquiredFrom)
-                    this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
-            }
-            if (technology.RootNode == 0)
-            {
-                foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
-                {
-                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
-                    if (TechnologyDict[leadsToTech.UID].Tech.RaceRestrictions.Count == 0 && !TechnologyDict[leadsToTech.UID].Tech.Secret)
-                        TechnologyDict[leadsToTech.UID].Discovered = true;
-                }
-            }
-            //Added by McShooterz: Race Specific modules
-            foreach (Technology.UnlockedMod unlockedMod in technology.ModulesUnlocked)
-            {
-                if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == TechnologyDict[techID].AcquiredFrom)
-                {
-                    UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-                    if (ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID, out ShipModule checkmod))
-                    {
-                        canBuildTroopShips = canBuildTroopShips || checkmod.IsTroopBay;
-                        canBuildCarriers   = canBuildCarriers || checkmod.MaximumHangarShipSize > 0;
-                        canBuildBombers    = canBuildBombers || checkmod.ModuleType == ShipModuleType.Bomb;
-                    }
-                }
-
-            }
-            foreach (Technology.UnlockedTroop unlockedTroop in technology.TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == techEntry.AcquiredFrom)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
-            foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
-            {
-                if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == techEntry.AcquiredFrom)
-                {
-                   UnlockedHullsDict[unlockedHull.Name] = true;
-                }
-
-            }
-            //this.UpdateShipsWeCanBuild();
-
-            // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
-            if (isPlayer)
-            {
-                foreach (Technology.TriggeredEvent triggeredEvent in technology.EventsTriggered)
-                {
-                    string type = triggeredEvent.Type;
-                    if (type != data.Traits.ShipType && type != null && type != techEntry.AcquiredFrom)
-                        continue;
-
-                    if (triggeredEvent.CustomMessage != null)
-                        Universe.NotificationManager.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
-                    else
-                        Universe.NotificationManager.AddNotify(triggeredEvent);
-                }
-            }
-
-
-            // Added by The Doctor - reveal specified 'secret' techs with unlocking of techs, via Technology XML
-            foreach (Technology.RevealedTech revealedTech in technology.TechsRevealed)
-            {
-                if (revealedTech.Type == data.Traits.ShipType || revealedTech.Type == null || revealedTech.Type == techEntry.AcquiredFrom)
-                    TechnologyDict[revealedTech.RevUID].Discovered = true;
-            }
-            foreach (Technology.UnlockedBonus unlockedBonus in technology.BonusUnlocked)
-            {
-                //Added by McShooterz: Race Specific bonus
-                string type = unlockedBonus.Type;
-                if (type != null && type != data.Traits.ShipType && type != techEntry.AcquiredFrom)
-                    continue;
-
-                string str = unlockedBonus.BonusType;
-                if (string.IsNullOrEmpty(str))
-                    str = unlockedBonus.Name;
-                if (unlockedBonus.Tags.Count > 0)
-                {
-                    foreach (string index in unlockedBonus.Tags)
-                    {
-                        var tagmod = data.WeaponTags[index];
-                        switch (unlockedBonus.BonusType)
-                        {
-                            case "Weapon_Speed":             tagmod.Speed             += unlockedBonus.Bonus; continue;
-                            case "Weapon_Damage":            tagmod.Damage            += unlockedBonus.Bonus; continue;
-                            case "Weapon_ExplosionRadius":   tagmod.ExplosionRadius   += unlockedBonus.Bonus; continue;
-                            case "Weapon_TurnSpeed":         tagmod.Turn              += unlockedBonus.Bonus; continue;
-                            case "Weapon_Rate":              tagmod.Rate              += unlockedBonus.Bonus; continue;
-                            case "Weapon_Range":             tagmod.Range             += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldDamage":      tagmod.ShieldDamage      += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmorDamage":       tagmod.ArmorDamage       += unlockedBonus.Bonus; continue;
-                            case "Weapon_HP":                tagmod.HitPoints         += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
-                            default: continue;
-                        }
-                    }
-                }
-
-                switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
-                {
-                    case "Xeno Compilers":
-                    case "Research Bonus": data.Traits.ResearchMod += unlockedBonus.Bonus; break;
-                    case "FTL Spool Bonus":
-                        if      (unlockedBonus.Bonus < 1)  data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
-                        else if (unlockedBonus.Bonus >= 1) data.SpoolTimeModifier = 0f; // insta-warp by modifier
-                        break;
-                    case "Top Guns":
-                    case "Bonus Fighter Levels":
-                        data.BonusFighterLevels += (int)unlockedBonus.Bonus;
-                        foreach (Ship ship in OwnedShips)
-                        {
-                            if (ship.shipData.Role != ShipData.RoleName.fighter)
-                                continue;
-                            ship.Level += (int)unlockedBonus.Bonus;
-                            if (ship.Level > 5) ship.Level = 5;
-                        }
-                        break;
-                    case "Mass Reduction":
-                    case "Percent Mass Adjustment": data.MassModifier       += unlockedBonus.Bonus; break;
-                    case "ArmourMass":              data.ArmourMassModifier += unlockedBonus.Bonus; break;
-                    case "Resistance is Futile":
-                    case "Allow Assimilation":      data.Traits.Assimilators = true; break;
-                    case "Cryogenic Suspension":
-                    case "Passenger Modifier":      data.Traits.PassengerModifier += (int)unlockedBonus.Bonus; break;
-                    case "ECM Bonus":
-                    case "Missile Dodge Change Bonus": data.MissileDodgeChance   += unlockedBonus.Bonus; break;
-                    case "Set FTL Drain Modifier":     data.FTLPowerDrainModifier = unlockedBonus.Bonus; break;
-                    case "Super Soldiers":
-                    case "Troop Strength Modifier Bonus": data.Traits.GroundCombatModifier += unlockedBonus.Bonus; break;
-                    case "Fuel Cell Upgrade":
-                    case "Fuel Cell Bonus":       data.FuelCellModifier  += unlockedBonus.Bonus;  break;
-                    case "Trade Tariff":
-                    case "Bonus Money Per Trade": data.Traits.Mercantile += unlockedBonus.Bonus; break;
-                    case "Missile Armor":
-                    case "Missile HP Bonus":      data.MissileHPModifier += unlockedBonus.Bonus; break;
-                    case "Hull Strengthening":
-                    case "Module HP Bonus":
-                        data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                        RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
-                        break;
-                    case "Reaction Drive Upgrade":
-                    case "STL Speed Bonus":           data.SubLightModifier += unlockedBonus.Bonus; break;
-                    case "Reactive Armor":
-                    case "Armor Explosion Reduction": data.ExplosiveRadiusReduction   += unlockedBonus.Bonus; break;
-                    case "Slipstreams":
-                    case "In Borders FTL Bonus":      data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus; break;
-                    case "StarDrive Enhancement":
-                    case "FTL Speed Bonus":           data.FTLModifier += unlockedBonus.Bonus * data.FTLModifier; break;
-                    case "FTL Efficiency":
-                    case "FTL Efficiency Bonus":      data.FTLPowerDrainModifier -= unlockedBonus.Bonus * data.FTLPowerDrainModifier; break;
-                    case "Spy Offense":
-                    case "Spy Offense Roll Bonus":    data.OffensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Spy Defense":
-                    case "Spy Defense Roll Bonus":    data.DefensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Increased Lifespans":
-                    case "Population Growth Bonus":   data.Traits.ReproductionMod += unlockedBonus.Bonus; break;
-                    case "Set Population Growth Min": data.Traits.PopGrowthMin     = unlockedBonus.Bonus; break;
-                    case "Set Population Growth Max": data.Traits.PopGrowthMax     = unlockedBonus.Bonus; break;
-                    case "Xenolinguistic Nuance":
-                    case "Diplomacy Bonus":           data.Traits.DiplomacyMod    += unlockedBonus.Bonus; break;
-                    case "Ordnance Effectiveness":
-                    case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
-                    case "Tachyons":
-                    case "Sensor Range Bonus":        data.SensorModifier += unlockedBonus.Bonus; break;
-                    case "Privatization": data.Privatization = true; break;
-                    // Doctor: Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
-                    case "Civilian Maintenance": data.CivMaintMod -= unlockedBonus.Bonus; break;
-                    case "Armor Piercing":
-                    case "Armor Phasing": data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
-                    case "Kulrathi Might":
-                        data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                        RecalculateMaxHP = true; //So existing ships will benefit from changes to ModHpModifier -Gretman
-                        break;
-                    case "Subspace Inhibition": data.Inhibitors = true; break;
-                    // Added by McShooterz: New Bonuses
-                    case "Production Bonus":   data.Traits.ProductionMod       += unlockedBonus.Bonus; break;
-                    case "Construction Bonus": data.Traits.ShipCostMod         -= unlockedBonus.Bonus; break;
-                    case "Consumption Bonus":  data.Traits.ConsumptionModifier -= unlockedBonus.Bonus; break;
-                    case "Tax Bonus":          data.Traits.TaxMod              += unlockedBonus.Bonus; break;
-                    case "Repair Bonus":       data.Traits.RepairMod   += unlockedBonus.Bonus; break;
-                    case "Maintenance Bonus":  data.Traits.MaintMod    -= unlockedBonus.Bonus; break;
-                    case "Power Flow Bonus":   data.PowerFlowMod       += unlockedBonus.Bonus; break;
-                    case "Shield Power Bonus": data.ShieldPowerMod     += unlockedBonus.Bonus; break;
-                    case "Ship Experience Bonus": data.ExperienceMod   += unlockedBonus.Bonus; break;
-                }
-            }
-            //update ship stats if a bonus was unlocked
-            if (ResourceManager.TechTree[techID].BonusUnlocked.Count > 0)
-            {
-                foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag. 
-                    ship.shipStatusChanged = true;
-            }
             UpdateShipsWeCanBuild();
             if (!isPlayer)
-                GSAI.TriggerRefit();
+                EmpireAI.TriggerRefit();
             data.ResearchQueue.Remove(techID);
         }
+
+
 
         public void UnlockTechFromSave(TechEntry tech)
         {
@@ -1023,11 +897,7 @@ namespace Ship_Game
                 if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == tech.AcquiredFrom)
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
             }
-            foreach (Technology.UnlockedTroop unlockedTroop in technology.TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == tech.AcquiredFrom)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
+//            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, tech.AcquiredFrom);
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
@@ -1040,11 +910,8 @@ namespace Ship_Game
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
                 }
             }
-            foreach (Technology.UnlockedTroop unlockedTroop in technology.TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == tech.AcquiredFrom)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
+            tech.UnlockTroops(this);
+            
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
@@ -1062,28 +929,17 @@ namespace Ship_Game
             UnlockTech(techID);
         }
 
-        public void UnlockHullsSave(string techID, string AbsorbedShipType)
+        public void UnlockHullsSave(TechEntry techEntry, string servantEmpireShipType)
         {
-            foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == AbsorbedShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
-            foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
-            {
-                if (unlockedHull.ShipType == AbsorbedShipType || unlockedHull.ShipType == null)
-                    UnlockedHullsDict[unlockedHull.Name] = true;
-            }
-            foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
-            {
-                if (unlockedMod.Type == AbsorbedShipType || unlockedMod.Type == null)
-                    UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-            }
-            foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
-            {
-                if (unlockedBuilding.Type == AbsorbedShipType || unlockedBuilding.Type == null)
-                    UnlockedBuildingsDict[unlockedBuilding.Name] = true;
-            }
+
+            //var tech = ResourceManager.TechTree[techID];
+
+            techEntry.ConqueredSource.Add(servantEmpireShipType);
+            techEntry.UnlockTroops(this);
+            techEntry.UnLockHulls(this);
+            techEntry.UnlockModules(this);
+            techEntry.UnlockBuildings(this);
+
             UpdateShipsWeCanBuild();
         }
 
@@ -1104,139 +960,115 @@ namespace Ship_Game
 
         public Array<Ship> FindShipsInOurBorders()
         {
-            return GSAI.ThreatMatrix.FindShipsInOurBorders();
+            return EmpireAI.ThreatMatrix.FindShipsInOurBorders();
         }
 
         public void UpdateKnownShips()
         {
-           // this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
+            KnownShips.Clear();
             if (data.Defeated)
                 return;
 
-            if (isPlayer && Universe.Debug)
+            if (isPlayer && Universe.Debug) // if Debug overlay is enabled, make all ships visible
             {
                 using (Universe.MasterShipList.AcquireReadLock())
-                    foreach (Ship nearby in Universe.MasterShipList)
-                    {
-                        nearby.inSensorRange = true;
-                        KnownShips.Add(nearby);
-                        GSAI.ThreatMatrix.UpdatePin(nearby);
-                    }
+                foreach (Ship nearby in Universe.MasterShipList)
+                {
+                    nearby.inSensorRange = true;
+                    KnownShips.Add(nearby);
+                    EmpireAI.ThreatMatrix.UpdatePin(nearby);
+                }
                 return;
             }
-            //added by gremlin ships in border search
-            //for (int i = 0; i < Empire.Universe.MasterShipList.Count; i++)            
-            //var source = Universe.MasterShipList.ToArray();
-            //var rangePartitioner = Partitioner.Create(0, source.Length);
-            ConcurrentBag<Ship> shipbag = new ConcurrentBag<Ship>();
-            var influenceNodes = SensorNodes.AtomicCopy();
 
-            //System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range) =>
+            InfluenceNode[] influenceNodes = SensorNodes.ToArray();
+
+            for (int i = 0; i < Universe.MasterShipList.Count; ++i)
             {
-                var toadd = new Array<Ship>();
-                for (int i = 0; i < Universe.MasterShipList.Count; i++)
+                Ship nearby = Universe.MasterShipList[i];
+                if (nearby.Active && IsShipInsideInfluence(nearby, influenceNodes))
+                    KnownShips.Add(nearby);
+            }
+
+        }
+
+        private bool IsShipInsideInfluence(Ship nearby, InfluenceNode[] influenceNodes)
+        {
+            nearby.BorderCheck.Remove(this);
+
+            if (nearby.loyalty != this) // update from another empire
+            {
+                bool insensors = false;
+                bool border = false;
+
+                foreach (InfluenceNode node in influenceNodes)
                 {
-                    toadd.Clear();
-                    Ship nearby = Universe.MasterShipList[i];
-                    if (nearby == null || !nearby.Active)
+                    if (nearby.Center.OutsideRadius(node.Position, node.Radius))
                         continue;
-                    nearby.getBorderCheck.Remove(this);                        
-                    if (nearby.loyalty != this)
-                    {                            
-                        bool insensors = false;
-                        bool border = false;
 
-                        foreach (InfluenceNode node in influenceNodes)
-                        {
-                            if (node.Position.SqDist(nearby.Center) >= node.Radius*node.Radius)
-                            {
-                                continue;
-                            }
-                            if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
-                            {
-                                GlobalStats.UiLocker.EnterWriteLock();
-                                DoFirstContact(nearby.loyalty);
-                                GlobalStats.UiLocker.ExitWriteLock();
-                            }
-                            insensors = true;
-                            Ship shipKey = node.KeyedObject as Ship;
-                            if (shipKey != null && (shipKey.inborders || shipKey.Name == "Subspace Projector") ||
-                                node.KeyedObject is SolarSystem || node.KeyedObject is Planet)
-                            {
-                                border = true;
-                                nearby.getBorderCheck.Add(this);
-                            }
-                            if (!isPlayer)
-                            {
-                                break;
-                            }
-                            nearby.inSensorRange = true;
-                            if (nearby.System== null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
-                            {
-                                break;
-                            }
-
-                            nearby.System.DangerTimer = 120f;
-                            break;
-                        }
-
-                        GSAI.ThreatMatrix.UpdatePin(nearby, border, insensors);
-
-                        if (insensors) toadd.Add(nearby);
-                        foreach (Ship ship in toadd) shipbag.Add(ship);
-                        toadd.Clear();
-                    }
-                    else
+                    if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
                     {
-                        GSAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
-                        shipbag.Add(nearby);
-                        if (isPlayer)
-                        {
-                            nearby.inSensorRange = true;
-                        }
-                        nearby.inborders = false;
+                        GlobalStats.UiLocker.EnterWriteLock();
+                        DoFirstContact(nearby.loyalty);
+                        GlobalStats.UiLocker.ExitWriteLock();
+                    }
+                    insensors = true;
+                    if (node.SourceObject is Ship shipKey && (shipKey.inborders || shipKey.Name == "Subspace Projector") ||
+                        node.SourceObject is SolarSystem || node.SourceObject is Planet)
+                    {
+                        border = true;
+                        nearby.BorderCheck.Add(this);
+                    }
+                    if (!isPlayer)
+                        break;
 
-                        using (BorderNodes.AcquireReadLock())
-                        foreach (InfluenceNode node in BorderNodes)
+                    nearby.inSensorRange = true;
+                    if (nearby.System == null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
+                        break;
+
+                    nearby.System.DangerTimer = 120f;
+                    break;
+                }
+
+                EmpireAI.ThreatMatrix.UpdatePin(nearby, border, insensors);
+                return insensors;
+            }
+
+            // update our own empire ships
+            EmpireAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
+            if (isPlayer)
+            {
+                nearby.inSensorRange = true;
+            }
+            nearby.inborders = false;
+
+            using (BorderNodes.AcquireReadLock())
+            foreach (InfluenceNode node in BorderNodes)
+            {
+                if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
+                nearby.inborders = true;
+                nearby.BorderCheck.Add(this);
+                break;
+            }
+
+            if (!nearby.inborders)
+            {
+                foreach (var relationship in Relationships)
+                {
+                    if (!relationship.Value.Treaty_Alliance) //Relationship.Key == this ||
+                        continue;
+
+                    using (relationship.Key.BorderNodes.AcquireReadLock())
+                        foreach (InfluenceNode node in relationship.Key.BorderNodes)
                         {
-                            if (node.Position.SqDist(nearby.Center) > node.Radius * node.Radius)
-                                continue;
+                            if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
                             nearby.inborders = true;
-                            nearby.getBorderCheck.Add(this);
+                            nearby.BorderCheck.Add(this);
                             break;
                         }
-
-                        if (!nearby.inborders)
-                        {
-                            foreach (var relationship in Relationships)
-                            {
-                                if (!relationship.Value.Treaty_Alliance) //Relationship.Key == this ||
-                                {
-                                    continue;
-                                }
-                                using (relationship.Key.BorderNodes.AcquireReadLock())
-                                foreach (InfluenceNode node in relationship.Key.BorderNodes)
-                                {
-                                    if (node.Position.SqDist(nearby.Center) > node.Radius*node.Radius)
-                                        continue;
-                                    nearby.inborders = true;
-                                    nearby.getBorderCheck.Add(this);
-                                    break;
-                                }
-                            }
-                        }
-                    }
                 }
-            }//);
-
-            foreach (Ship ship in shipbag)
-                KnownShips.Add(ship);
-            Task task4 = new Task(() =>
-            {
-                GSAI.ThreatMatrix.ScrubMatrix();
-            });
-            task4.Start();
-            
+            }
+            return true; // always add, because this ship is from our own empire
         }
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
@@ -1305,12 +1137,7 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            //foreach (Ship s in this.ShipsToAdd)
-            //{
-            //    this.AddShip(s);
-            //    if (!this.isPlayer)
-            //        this.ForcePoolAdd(s);
-            //}
+
 #if PLAYERONLY
             if(!this.isPlayer && !this.isFaction)
             foreach (Ship ship in this.GetShips())
@@ -1319,22 +1146,7 @@ namespace Ship_Game
                 return;
 
 #endif
-            //this.ShipsToAdd.Clear();
-            //{
-            //    Empire empire = this;
-            //    empire.updateContactsTimer = empire.updateContactsTimer -  0.01666667f;//elapsedTime;
-            //    if (this.updateContactsTimer <= 0f && !this.data.Defeated)
-            //    {
-            //        this.ResetBorders();
-            //        lock (GlobalStats.KnownShipsLock)
-            //        {
-            //            this.KnownShips.Clear();
-            //        }
-            //        //this.UnownedShipsInOurBorders.Clear();
-            //        this.UpdateKnownShips();
-            //        this.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
-            //    }
-            //}
+
             
             this.UpdateTimer -= elapsedTime;
             if (this.UpdateTimer <= 0f)
@@ -1369,7 +1181,7 @@ namespace Ship_Game
                                 int empireIndex = EmpireManager.Empires.IndexOf(planet.Owner);
                                 StatTracker.SnapshotsDict[starDate][empireIndex].EmpireNodes.Add(new NRO
                                 {
-                                    Node = planet.Position,
+                                    Node = planet.Center,
                                     Radius = 300000f,
                                     StarDateMade = Universe.StarDate
                                 });
@@ -1379,22 +1191,31 @@ namespace Ship_Game
                     if (!this.InitialziedHostilesDict)
                     {
                         this.InitialziedHostilesDict = true;
-                        foreach (SolarSystem key in UniverseScreen.SolarSystemList)
+                        foreach (SolarSystem system in UniverseScreen.SolarSystemList)
                         {
                             bool flag = false;
-                            foreach (Ship ship in (Array<Ship>)key.ShipList)
+                            foreach (Ship ship in system.ShipList)
                             {
                                 if (ship.loyalty != this && (ship.loyalty.isFaction || this.Relationships[ship.loyalty].AtWar))
                                     flag = true;
                             }
-                            this.HostilesPresent.Add(key, flag);
+                            this.HostilesPresent.Add(system, flag);
                         }
                     }
                     else
                         this.AssessHostilePresence();
                 }
                 //added by gremlin. empire ship reserve.
-
+                int numWars = 0;
+                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in AllRelations)
+                {
+                    if (!Relationship.Value.AtWar || Relationship.Key.isFaction)
+                    {
+                        continue;
+                    }
+                    numWars++;
+                }
+                float defStr = EmpireAI.DefensiveCoordinator.GetForcePoolStrength();
                 this.EmpireShipCountReserve = 0;
 
                 if (!this.isPlayer)
@@ -1452,16 +1273,18 @@ namespace Ship_Game
                 this.DoMoney();
                 this.TakeTurn();
             }
-            this.UpdateFleets(elapsedTime);
-            this.OwnedShips.ApplyPendingRemovals();
-            this.OwnedProjectors.ApplyPendingRemovals();  //fbedard
+            SetRallyPoints();
+            UpdateFleets(elapsedTime);
+            OwnedShips.ApplyPendingRemovals();
+            OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
+        
 
         public void UpdateFleets(float elapsedTime)
         {
             updateContactsTimer -= elapsedTime;
-            FleetUpdateTimer -= elapsedTime;
-            foreach (KeyValuePair<int, Fleet> kv in FleetsDict)
+            FleetUpdateTimer -= elapsedTime;            
+            foreach (var kv in FleetsDict)
             {
                 kv.Value.Update(elapsedTime);
                 if (FleetUpdateTimer <= 0f)
@@ -1471,7 +1294,6 @@ namespace Ship_Game
             }
             if (FleetUpdateTimer < 0.0)
                 FleetUpdateTimer = 5f;
-            OwnedShips.ApplyPendingRemovals();
         }
 
         public float GetPlanetIncomes()
@@ -1592,12 +1414,20 @@ namespace Ship_Game
             return (GrossTaxes * data.TaxRate + (float)totalTradeIncome - AllTimeMaintTotal) / (float)numberForAverage;
         }
 
-        public void UpdateShipsWeCanBuild()
+        public void UpdateShipsWeCanBuild(Array<string> hulls = null)
         {
             foreach (var kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;
-                if (ship.Deleted || !WeCanBuildThis(ship.Name))
+                if (hulls != null)
+                    if (!hulls.Contains(ship.GetShipData().Hull))
+                        continue;
+
+                if (ship.Deleted ||  ShipsWeCanBuild.Contains(ship.Name) || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
+                    continue;
+                if (!EmpireAI.ShipGoodToBuild(ship))
+                    continue;
+                if (!WeCanBuildThis(ship.Name))
                     continue;
                 try
                 {
@@ -1611,44 +1441,13 @@ namespace Ship_Game
                     ship.Deleted = true;  //This should prevent this Key from being evaluated again
                     continue;   //This keeps the game going without crashing
                 }
-
-                foreach (string shiptech in ship.shipData.techsNeeded)
-                    ShipTechs.Add(shiptech);                        
-
-                if (!GSAI.NonCombatshipIsGoodForGoals(ship))
-                    continue;
-
-                int bombcount = 0;
-                int hangarcount = 0;
-                foreach (ModuleSlot slot in ship.ModuleSlotList)
-                {
-                    if (slot.module.ModuleType == ShipModuleType.Bomb)
-                    {
-                        bombcount += slot.module.XSIZE * slot.module.YSIZE;
-                        if (bombcount > ship.Size * .2)
-                            canBuildBombers = true;
-                    }
-                    if (slot.module.MaximumHangarShipSize > 0)
-                    {
-                        hangarcount += slot.module.YSIZE * slot.module.XSIZE;
-                        if (hangarcount > ship.Size * .2)
-                            canBuildCarriers = true;
-                    }
-                    if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
-                        canBuildTroopShips = true;
-                }
-
-                var r = ship.shipData.HullRole;
-                canBuildCorvettes = canBuildCorvettes || (r ==  ShipData.RoleName.gunboat || r == ShipData.RoleName.corvette);
-                canBuildFrigates  = canBuildFrigates || (r == ShipData.RoleName.frigate || r == ShipData.RoleName.destroyer);
-                canBuildCruisers  = canBuildCruisers ||  r == ShipData.RoleName.cruiser;
-                canBuildCapitals  = canBuildCapitals || (r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier );
+                ship.MarkShipRolesUsableForEmpire(this);
             }
             if (Universe == null || !isPlayer)
                 return;
             Universe.aw.SetDropDowns();
         }
-
+        
         public float GetTotalBuildingMaintenance()
         {
             return totalBuildingMaintenance + data.Traits.MaintMod * totalBuildingMaintenance;
@@ -1674,44 +1473,33 @@ namespace Ship_Game
             }
 
             // If the ship role is not defined don't try to use it
-            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
-            {
-                //#if TRACE
-                //    if (shipData.HullRole >= ShipData.RoleName.fighter && shipData.ShipStyle == data.Traits.ShipType)
-                //        Log.Info("{0} : Bad hull  : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5} : {6}",
-                //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable, shipData.techsNeeded.Count);
-                //#endif
+            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)            
                 return false;
-            }
+            
 
-            if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))
-            {
-                //#if TRACE
-                //    if (shipData.ShipStyle == data.Traits.ShipType)
-                //        Log.Info("{0} : Bad  role : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5}",
-                //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-                //#endif
+            if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))            
                 return false;
+            
+            if (shipData.techsNeeded.Count > 0)
+            { foreach (string shipTech in shipData.techsNeeded)
+                {
+                    if (!ShipTechs.Contains(shipTech))
+                        return false;
+                }
+                Log.Info($"New Ship WeCanBuild {shipData.Name} Hull: {shipData.Hull} DesignRole: {ship1.DesignRole}" );
             }
 
-            // check if all modules in the ship are unlocked
-            foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
-            {
-                if (string.IsNullOrEmpty(moduleSlotData.InstalledModuleUID) ||
-                    moduleSlotData.InstalledModuleUID == "Dummy" ||
-                    UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
-                    continue;
+            else
+                // check if all modules in the ship are unlocked
+                foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
+                {
+                    if (moduleSlotData.InstalledModuleUID.IsEmpty() ||
+                        moduleSlotData.InstalledModuleUID == "Dummy" ||
+                        UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
+                        continue;
+                    return false; // can't build this ship because it contains a locked Module
+                }
 
-                //#if TRACE
-                //    Log.Info("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
-                //            data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-                //#endif
-                return false; // can't build this ship because it contains a locked Module
-            }
-
-            //#if TRACE
-            //    Log.Info("{0} : good ship : {1} : {2} : {3}", data.PortraitName, ship, shipData.Hull, shipData.Role);
-            //#endif
             return true;
         }
 
@@ -1721,9 +1509,9 @@ namespace Ship_Game
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
                 {
-                    foreach (ModuleSlotData module in ship.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData moduleSlotData in ship.shipData.ModuleSlots)
                     {
-                        if (entry.ModuleUID == module.InstalledModuleUID)
+                        if (entry.ModuleUID == moduleSlotData.InstalledModuleUID)
                             return true;
                     }
                 }
@@ -1736,39 +1524,27 @@ namespace Ship_Game
 
         public bool WeCanUseThisNow(Technology tech)
         {
-            bool flag = false;
-            HashSet<string> unlocklist = new HashSet<string>();
+            var unlocklist = new HashSet<string>();
             foreach(Technology.UnlockedMod unlocked in tech.ModulesUnlocked)
             {
                 unlocklist.Add(unlocked.ModuleUID);
             }
             
-            //Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
-            ShipData shipData;
-            foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict )
+            foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
             {
-
-                shipData = ship.Value.shipData;
-                if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
+                ShipData shipData = ship.Value.shipData;
+                if (shipData.ShipStyle == null || shipData.ShipStyle == data.Traits.ShipType)
                 {
-                    if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
+                    if (shipData == null || (!UnlockedHullsDict.ContainsKey(shipData.Hull) || !UnlockedHullsDict[shipData.Hull]))
                         continue;
-                    foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData moduleSlotData in ship.Value.shipData.ModuleSlots)
                     {
-                        //if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
-                        if(unlocklist.Contains(module.InstalledModuleUID))
-                        {
-                            flag = true;
-                            break;
-                            //status.Stop();
-                            //continue;
-                        }
+                        if (unlocklist.Contains(moduleSlotData.InstalledModuleUID))
+                            return true;
                     }
-                    //if (status.IsStopped)
-                    //    return;
                 }
-            }//);
-            return flag;
+            }
+            return false;
         }
        
         public float GetTotalPop()
@@ -1948,15 +1724,15 @@ namespace Ship_Game
                 {
                     InfluenceNode influenceNode1 = SensorNodes.RecycleObject() ?? new InfluenceNode();
 
-                    influenceNode1.KeyedObject = (object)planet;
-                    influenceNode1.Position = planet.Position;
+                    influenceNode1.SourceObject = (object)planet;
+                    influenceNode1.Position = planet.Center;
                     influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
                                                 // influenceNode1.Radius = this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
 
                     SensorNodes.Add(influenceNode1);
 
                     InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                    influenceNode2.Position = planet.Position;
+                    influenceNode2.Position = planet.Center;
                     influenceNode2.Radius = isFaction 
                                             ? 1f : this == Universe.PlayerEmpire ? 300000f * empire.data.SensorModifier 
                                             : 600000f * empire.data.SensorModifier;
@@ -1978,7 +1754,7 @@ namespace Ship_Game
                     influenceNode.Position = ship.Center;
                     influenceNode.Radius = ship.SensorRange;
                     SensorNodes.Add(influenceNode);
-                    influenceNode.KeyedObject = (object)ship;
+                    influenceNode.SourceObject = ship;
                 }
 
                 foreach (Ship ship in empire.GetProjectors())
@@ -1989,7 +1765,7 @@ namespace Ship_Game
                     influenceNode.Position = ship.Center;
                     influenceNode.Radius = ProjectorRadius;  //projectors currently use their projection radius as sensors
                     SensorNodes.Add(influenceNode);
-                    influenceNode.KeyedObject = (object)ship;
+                    influenceNode.SourceObject = ship;
                 }
             }
             foreach (Planet planet in GetPlanets())
@@ -1999,16 +1775,16 @@ namespace Ship_Game
                 //this.BorderNodes.pendingRemovals.TryPop(out influenceNode1);
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
-                    influenceNode1.KeyedObject = planet;
-                    influenceNode1.Position = planet.Position;
+                    influenceNode1.SourceObject = planet;
+                    influenceNode1.Position = planet.Center;
                 }
                 else
                 {
-                    influenceNode1.KeyedObject = planet.system;
+                    influenceNode1.SourceObject = planet.system;
                     influenceNode1.Position = planet.system.Position;
                 }
                 influenceNode1.Radius = 1f;
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
                     foreach (Building t in planet.BuildingList)
                     {
@@ -2024,14 +1800,14 @@ namespace Ship_Game
                 BorderNodes.Add(influenceNode1);
                 InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
 
-                influenceNode2.KeyedObject = (object)planet;
-                influenceNode2.Position = planet.Position;
+                influenceNode2.SourceObject = planet;
+                influenceNode2.Position = planet.Center;
                 influenceNode2.Radius = 1f; //this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
                 SensorNodes.Add(influenceNode2);
-                InfluenceNode influenceNode3 = this.SensorNodes.RecycleObject() ?? new Empire.InfluenceNode();
-                influenceNode3.KeyedObject = (object)planet;
-                influenceNode3.Position = planet.Position;
-                influenceNode3.Radius = this.isFaction ? 1f : 1f * this.data.SensorModifier;
+                InfluenceNode influenceNode3 = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                influenceNode3.SourceObject = planet;
+                influenceNode3.Position = planet.Center;
+                influenceNode3.Radius = isFaction ? 1f : data.SensorModifier;
                 foreach (Building t in planet.BuildingList)
                 {
                     if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
@@ -2042,7 +1818,7 @@ namespace Ship_Game
             foreach (Mole mole in data.MoleList)   // Moles are spies who have successfuly been planted during 'Infiltrate' type missions, I believe - Doctor
                 SensorNodes.Add(new InfluenceNode()
                 {
-                    Position = Universe.PlanetsDict[mole.PlanetGuid].Position,
+                    Position = Universe.PlanetsDict[mole.PlanetGuid].Center,
                     Radius = 100000f * this.data.SensorModifier
                 });
             this.Inhibitors.Clear();
@@ -2053,7 +1829,7 @@ namespace Ship_Game
                 InfluenceNode influenceNode = this.SensorNodes.RecycleObject() ?? new InfluenceNode();
                 influenceNode.Position = ship.Center;
                 influenceNode.Radius = ship.SensorRange;
-                influenceNode.KeyedObject = ship;
+                influenceNode.SourceObject = ship;
                 this.SensorNodes.Add(influenceNode);
             }
 
@@ -2067,11 +1843,11 @@ namespace Ship_Game
                     
                     influenceNodeS.Position = ship.Center;
                     influenceNodeS.Radius = ProjectorRadius;  //projectors used as sensors again
-                    influenceNodeS.KeyedObject = (object)ship;
+                    influenceNodeS.SourceObject = (object)ship;
 
                     influenceNodeB.Position = ship.Center;
                     influenceNodeB.Radius = ProjectorRadius;  //projectors used as sensors again
-                    influenceNodeB.KeyedObject = (object)ship;
+                    influenceNodeB.SourceObject = (object)ship;
                     
                     SensorNodes.Add(influenceNodeS);
                     BorderNodes.Add(influenceNodeB);
@@ -2083,7 +1859,7 @@ namespace Ship_Game
             {
                 foreach (InfluenceNode item6 in BorderNodes)
                 {
-                    if (item6.KeyedObject == item5.KeyedObject && (double)item6.Radius < (double)item5.Radius)
+                    if (item6.SourceObject == item5.SourceObject && (double)item6.Radius < (double)item5.Radius)
                         BorderNodes.QueuePendingRemoval(item6);
                 }
             }
@@ -2094,14 +1870,14 @@ namespace Ship_Game
         private void TakeTurn()
         {
             //Added by McShooterz: Home World Elimination game mode
-            if (!isFaction && !data.Defeated 
-                && (OwnedPlanets.Count == 0 || GlobalStats.EliminationMode 
+            if (!isFaction && !data.Defeated
+                && (OwnedPlanets.Count == 0 || GlobalStats.EliminationMode
                 && Capital != null && Capital.Owner != this))
             {
                 SetAsDefeated();
                 if (Universe.PlayerEmpire == this)
                 {
-                    foreach(Ship ship in Universe.MasterShipList)
+                    foreach (Ship ship in Universe.MasterShipList)
                     {
                         ship.Die(null, true);
                     }
@@ -2139,7 +1915,7 @@ namespace Ship_Game
             this.data.AgentList.ApplyPendingRemovals();
             if (this.Money < 0.0 && !this.isFaction)
             {
-                this.data.TurnsBelowZero += (short)(1+-1*(this.Money) /500);
+                this.data.TurnsBelowZero += (short)(1 + -1 * (this.Money) / 500);
             }
             else
             {
@@ -2204,9 +1980,9 @@ namespace Ship_Game
                                     {
                                         Empire strongest = list3.OrderByDescending(emp => biggest.GetRelations(emp).GetStrength()).First();
                                         if (!biggest.GetRelations(strongest).AtWar)
-                                            Ship.universeScreen.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
+                                            Empire.Universe.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
                                         else
-                                            Ship.universeScreen.NotificationManager.AddSurrendered(biggest, strongest);
+                                            Empire.Universe.NotificationManager.AddSurrendered(biggest, strongest);
                                         biggest.AbsorbEmpire(strongest);
                                     }
                                 }
@@ -2256,31 +2032,31 @@ namespace Ship_Game
                     StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
             }
-            if (this.data.TurnsBelowZero > 0  && (this.Money < 0.0 && !Universe.Debug))// && this.isPlayer)) // && this == Empire.Universe.PlayerEmpire)
+            if (this.data.TurnsBelowZero > 0 && (this.Money < 0.0 && !Universe.Debug))// && this.isPlayer)) // && this == Empire.Universe.PlayerEmpire)
             {
                 if (this.data.TurnsBelowZero >= 25)
                 {
                     Empire rebelsFromEmpireData = EmpireManager.GetEmpireByName(this.data.RebelName);
-                    Log.Info("Rebellion for: "+ data.Traits.Name);
-                    if(rebelsFromEmpireData == null)
-                    foreach (Empire rebel in EmpireManager.Empires)
-                    {
-                        if (rebel.data.PortraitName == this.data.RebelName)
+                    Log.Info("Rebellion for: " + data.Traits.Name);
+                    if (rebelsFromEmpireData == null)
+                        foreach (Empire rebel in EmpireManager.Empires)
                         {
-                            Log.Info("Found Existing Rebel: "+ rebel.data.PortraitName);
-                            rebelsFromEmpireData = rebel;
-                            break;
+                            if (rebel.data.PortraitName == this.data.RebelName)
+                            {
+                                Log.Info("Found Existing Rebel: " + rebel.data.PortraitName);
+                                rebelsFromEmpireData = rebel;
+                                break;
+                            }
                         }
-                    }
                     if (rebelsFromEmpireData == null)
                     {
                         rebelsFromEmpireData = CreatingNewGameScreen.CreateRebelsFromEmpireData(this.data, this);
                         if (rebelsFromEmpireData != null)
                         {
-                            rebelsFromEmpireData.data.IsRebelFaction  = true;
-                            rebelsFromEmpireData.data.Traits.Name     = data.RebelName;
+                            rebelsFromEmpireData.data.IsRebelFaction = true;
+                            rebelsFromEmpireData.data.Traits.Name = data.RebelName;
                             rebelsFromEmpireData.data.Traits.Singular = data.RebelSing;
-                            rebelsFromEmpireData.data.Traits.Plural   = data.RebelPlur;
+                            rebelsFromEmpireData.data.Traits.Plural = data.RebelPlur;
                             rebelsFromEmpireData.isFaction = true;
                             foreach (Empire key in EmpireManager.Empires)
                             {
@@ -2302,18 +2078,18 @@ namespace Ship_Game
                     if (rebelsFromEmpireData != null)
                     {
                         Vector2 weightedCenter = GetWeightedCenter();
-                        if (OwnedPlanets.FindMax(out Planet planet, p => weightedCenter.SqDist(p.Position)))
+                        if (OwnedPlanets.FindMax(out Planet planet, p => weightedCenter.SqDist(p.Center)))
                         {
                             if (isPlayer)
                                 Universe.NotificationManager.AddRebellionNotification(planet, rebelsFromEmpireData); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable
                             for (int index = 0; index < planet.Population / 1000; ++index)
                             {
-                                foreach (var keyValuePair in ResourceManager.TroopsDict)
+                                foreach (string troopType in ResourceManager.TroopTypes)
                                 {
-                                    if (!WeCanBuildTroop(keyValuePair.Key))
+                                    if (!WeCanBuildTroop(troopType))
                                         continue;
 
-                                    Troop troop = ResourceManager.CreateTroop(keyValuePair.Value, rebelsFromEmpireData);
+                                    Troop troop = ResourceManager.CreateTroop(troopType, rebelsFromEmpireData);
                                     troop.Name = Localizer.Token(rebelsFromEmpireData.data.TroopNameIndex);
                                     troop.Description = Localizer.Token(rebelsFromEmpireData.data.TroopDescriptionIndex);
                                     planet.AssignTroopToTile(troop); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
@@ -2325,13 +2101,13 @@ namespace Ship_Game
                         {
                             Ship pirate = null;
                             using (GetShips().AcquireReadLock())
-                            foreach (Ship pirateChoice in GetShips())
-                            {
-                                if (pirateChoice == null || !pirateChoice.Active)
-                                    continue;
-                                pirate = pirateChoice;
-                                break;
-                            }
+                                foreach (Ship pirateChoice in GetShips())
+                                {
+                                    if (pirateChoice == null || !pirateChoice.Active)
+                                        continue;
+                                    pirate = pirateChoice;
+                                    break;
+                                }
                             if (pirate != null)
                             {
                                 pirate.loyalty = rebelsFromEmpireData;
@@ -2344,131 +2120,113 @@ namespace Ship_Game
                     else Log.Info("Rebellion Failure: {0}", this.data.RebelName);
                     data.TurnsBelowZero = 0;
                 }
-               
+
             }
             this.CalculateScore();
-            //Process technology research
-            //Parallel.Invoke(
-            //    ()=>
-                {
-                    if (!string.IsNullOrEmpty(this.ResearchTopic))
-                    {
-                        this.Research = 0;
-                        foreach (Planet planet in this.OwnedPlanets)
-                            this.Research += planet.NetResearchPerTurn;
-                        float research = this.Research + this.leftoverResearch;
-                        TechEntry tech;
-                        if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
-                        {
-                            float cyberneticMultiplier = 1.0f;
-                            if (this.data.Traits.Cybernetic > 0)
-                            {
-                                foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
-                                {
-                                    Building building = ResourceManager.CreateBuilding(buildingName.Name);
-                                    if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
-                                    {
-                                        cyberneticMultiplier = .5f;
-                                        break;
-                                    }
 
-                                }
-                            }
-                            if ((tech.Tech.Cost*cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
+            if (!string.IsNullOrEmpty(this.ResearchTopic))
+            {
+                this.Research = 0;
+                foreach (Planet planet in this.OwnedPlanets)
+                    this.Research += planet.NetResearchPerTurn;
+                float research = this.Research + this.leftoverResearch;
+                TechEntry tech;
+                if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
+                {
+                    float cyberneticMultiplier = 1.0f;
+                    if (this.data.Traits.Cybernetic > 0)
+                    {
+                        foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
+                        {
+                            Building building = ResourceManager.CreateBuilding(buildingName.Name);
+                            if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
                             {
-                                tech.Progress += research;
-                                this.leftoverResearch = 0f;
-                                research = 0;
+                                cyberneticMultiplier = .5f;
+                                break;
                             }
-                            else
-                            {
-    
-                                
-                                research -= (tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
-                                tech.Progress = tech.Tech.Cost * UniverseScreen.GamePaceStatic;
-                                this.UnlockTech(this.ResearchTopic);
-                                if (this.isPlayer)
-                                    Universe.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
-                                this.data.ResearchQueue.Remove(this.ResearchTopic);
-                                if (this.data.ResearchQueue.Count > 0)
-                                {
-                                    this.ResearchTopic = this.data.ResearchQueue[0];
-                                    this.data.ResearchQueue.RemoveAt(0);
-                                }
-                                else
-                                    this.ResearchTopic = "";
-                            }
+
                         }
-                        this.leftoverResearch = research;
                     }
-                    else if (this.data.ResearchQueue.Count > 0)
-                        this.ResearchTopic = this.data.ResearchQueue[0];
-                    
-                }//,
-
-            //    ()=>
-                {
-
-                    if (this == Universe.PlayerEmpire)
+                    if ((tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
                     {
-                        foreach (var kv in Relationships)
-                            kv.Value.UpdatePlayerRelations(this, kv.Key);
-                    }
-                    else if (!isFaction)
-                        UpdateRelationships();
-
-                    if (this.isFaction)
-                        this.GSAI.FactionUpdate();
-                    else if (!this.data.Defeated)
-                        this.GSAI.Update();
-                    if ((double)this.Money > (double)this.data.CounterIntelligenceBudget)
-                    {
-                        this.Money -= this.data.CounterIntelligenceBudget;
-                        foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
-                        {
-                            var relationWithUs = keyValuePair.Key.GetRelations(this);
-                            relationWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
-                            if (relationWithUs.IntelligencePenetration < 0.0f)
-                            relationWithUs.IntelligencePenetration = 0.0f;
-                        }
-                    } 
-                }//);
-                //()=>
-                {
-                    if (this.isFaction || this.MinorRace)
-                        return;
-                    if (!this.isPlayer)
-                    {
-                        //Parallel.Invoke(
-                        //  ()  =>
-                        {
-                        this.AssessFreighterNeeds();
-                        }//,
-                        //()=>
-                        {
-                        this.AssignExplorationTasks();
-                        }
-                        //);
+                        tech.Progress += research;
+                        this.leftoverResearch = 0f;
+                        research = 0;
                     }
                     else
                     {
-                        if (this.AutoFreighters)
-                            this.AssessFreighterNeeds();
-                        if (this.AutoExplore)
-                            this.AssignExplorationTasks();
-                    }  
+
+
+                        research -= (tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
+                        tech.Progress = tech.Tech.Cost * UniverseScreen.GamePaceStatic;
+                        this.UnlockTech(this.ResearchTopic);
+                        if (this.isPlayer)
+                            Universe.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
+                        this.data.ResearchQueue.Remove(this.ResearchTopic);
+                        if (this.data.ResearchQueue.Count > 0)
+                        {
+                            this.ResearchTopic = this.data.ResearchQueue[0];
+                            this.data.ResearchQueue.RemoveAt(0);
+                        }
+                        else
+                            this.ResearchTopic = "";
+                    }
                 }
-            
-             return;
+                this.leftoverResearch = research;
+            }
+            else if (this.data.ResearchQueue.Count > 0)
+                this.ResearchTopic = this.data.ResearchQueue[0];
+
+
+
+            UpdateRelationships();
+
+            if (this.isFaction)
+                this.EmpireAI.FactionUpdate();
+            else if (!this.data.Defeated)
+                this.EmpireAI.Update();
+            if (Money > data.CounterIntelligenceBudget)
+            {
+                this.Money -= this.data.CounterIntelligenceBudget;
+                foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+                {
+                    var relationWithUs = keyValuePair.Key.GetRelations(this);
+                    relationWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
+                    if (relationWithUs.IntelligencePenetration < 0.0f)
+                        relationWithUs.IntelligencePenetration = 0.0f;
+                }
+            }
+
+            if (this.isFaction || this.MinorRace)
+                return;
+            if (!this.isPlayer)
+            {
+                this.AssessFreighterNeeds();
+                this.AssignExplorationTasks();
+            }
+            else
+            {
+                if (this.AutoFreighters)
+                    this.AssessFreighterNeeds();
+                if (this.AutoExplore)
+                    this.AssignExplorationTasks();
+            }
+
+
+            return;
         }
 
         private void UpdateRelationships()
         {
-            foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
-            {
-                if (keyValuePair.Value.Known)
-                    keyValuePair.Value.UpdateRelationship(this, keyValuePair.Key);
-            }
+            if (isFaction) return;
+            int atwar = 0;
+            foreach (var kv in Relationships)
+                if (kv.Value.Known || isPlayer)
+                {
+                    kv.Value.UpdateRelationship(this, kv.Key);
+                    if (kv.Value.AtWar && !kv.Key.isFaction) atwar++;
+                }
+            AtWarCount = atwar;
         }
 
         private void CalculateScore()
@@ -2502,7 +2260,7 @@ namespace Ship_Game
             }
             this.data.MilitaryScoreTotal += this.currentMilitaryStrength;
             this.TotalScore = (int)((double)this.MilitaryScore / 100.0 + (double)this.IndustrialScore + (double)this.TechScore + (double)this.ExpansionScore);
-            this.MilitaryScore = this.data.MilitaryScoreTotal / (float)this.data.ScoreAverage;
+            MilitaryScore = data.ScoreAverage == 0 ? 0f : data.MilitaryScoreTotal / data.ScoreAverage;
             ++this.data.ScoreAverage;
             if (this.data.ScoreAverage >= 120)  //fbedard: reset every 60 turns
             {
@@ -2539,34 +2297,37 @@ namespace Ship_Game
             {
                 this.OwnedShips.Add(ship);
                 ship.loyalty = this;
-                ship.fleet = null;
-                ship.GetAI().State = AIState.AwaitingOrders;
-                ship.GetAI().OrderQueue.Clear();
+                ship.fleet?.RemoveShip(ship);
+                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
             }
             foreach (Ship ship in target.GetProjectors())
             {
                 this.OwnedProjectors.Add(ship);
                 ship.loyalty = this;
-                ship.fleet = null;
-                ship.GetAI().State = AIState.AwaitingOrders;
-                ship.GetAI().OrderQueue.Clear();
+                ship.fleet?.RemoveShip(ship);
+                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
             foreach (KeyValuePair<string, TechEntry> keyValuePair in target.GetTDict())
             {
-                if (keyValuePair.Value.Unlocked && !this.TechnologyDict[keyValuePair.Key].Unlocked)
-                    this.UnlockTech(keyValuePair.Key);
+                if (keyValuePair.Value.Unlocked && !TechnologyDict[keyValuePair.Key].Unlocked)
+                    UnlockTech(keyValuePair.Key);
             }
-            foreach (KeyValuePair<string, bool> keyValuePair in target.GetHDict())
+            foreach (KeyValuePair<string, bool> kv in target.GetHDict())
             {
-                if (keyValuePair.Value)
-                    this.UnlockedHullsDict[keyValuePair.Key] = true;
+                if (kv.Value)
+                    UnlockedHullsDict[kv.Key] = true;
             }
-            foreach (KeyValuePair<string, bool> keyValuePair in target.GetTrDict())
+            foreach (KeyValuePair<string, bool> kv in target.GetTrDict())
             {
-                if (keyValuePair.Value)
-                    this.UnlockedTroopDict[keyValuePair.Key] = true;
+                if (kv.Value)
+                {
+                    UnlockedTroopDict[kv.Key] = true;
+                    UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(kv.Key));
+                }
             }
             foreach (Artifact artifact in target.data.OwnedArtifacts)
             {
@@ -2587,19 +2348,19 @@ namespace Ship_Game
                 this.data.difficulty = Difficulty.Brutal;
                 //lock (GlobalStats.TaskLocker)
                 {
-                    this.GSAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (Array<MilitaryTask>)this.GSAI.TaskList)
+                    this.EmpireAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (Array<MilitaryTask>)this.GSAI.TaskList)
                         { item_7.EndTask(); }, false, false, false);
-                    this.GSAI.TaskList.ApplyPendingRemovals();
+                    this.EmpireAI.TaskList.ApplyPendingRemovals();
                 }
-                this.GSAI.DefensiveCoordinator.DefensiveForcePool.Clear();
-                this.GSAI.DefensiveCoordinator.DefenseDict.Clear();
+                this.EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
+                this.EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
                 this.ForcePool.Clear();
                 //foreach (Ship s in (Array<Ship>)this.OwnedShips) //.OrderByDescending(experience=> experience.experience).ThenBy(strength=> strength.BaseStrength))
                 foreach (Ship s in this.OwnedShips)
                 {
                     //added by gremlin Do not include 0 strength ships in defensive force pool
-                    s.GetAI().OrderQueue.Clear();
-                    s.GetAI().State = AIState.AwaitingOrders;
+                    s.AI.OrderQueue.Clear();
+                    s.AI.State = AIState.AwaitingOrders;
                     ForcePoolAdd(s);
                 }
                 if (this.data.Traits.Cybernetic != 0)
@@ -2634,17 +2395,17 @@ namespace Ship_Game
 
         public void ForcePoolAdd(Ship s)
         {
-            if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian || s.fleet != null )
+            if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian )
                 return;
-            this.GSAI.AssignShipToForce(s);
+            this.EmpireAI.AssignShipToForce(s);
         }
 
         public void ForcePoolRemove(Ship s)
         {
-            this.ForcePool.Remove(s);
+            this.ForcePool.RemoveSwapLast(s);
         }
 
-        public BatchRemovalCollection<Ship> GetForcePool()
+        public Array<Ship> GetForcePool()
         {
             return this.ForcePool;
         }
@@ -2715,19 +2476,19 @@ namespace Ship_Game
                     continue;
                 //fbedard: civilian can be freighter too!
                 //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor
-                    || ship.GetAI().State == AIState.Refit || ship.GetAI().State == AIState.Scrap
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpaceMax == 0 || ship.AI == null || ship.isConstructor
+                    || ship.AI.State == AIState.Refit || ship.AI.State == AIState.Scrap
                     )
                 {
-                    if (ship.GetAI().State == AIState.PassengerTransport || ship.GetAI().State == AIState.SystemTrader)
-                        ship.GetAI().State = AIState.AwaitingOrders;
+                    if (ship.AI.State == AIState.PassengerTransport || ship.AI.State == AIState.SystemTrader)
+                        ship.AI.State = AIState.AwaitingOrders;
                     continue;
                 }
                 this.freighterBudget += ship.GetMaintCost();
-                if (ship.GetAI().State != AIState.AwaitingOrders && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader)
+                if (ship.AI.State != AIState.AwaitingOrders && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader)
                     continue;
                     
-                if ((ship.GetAI().start == null || ship.GetAI().end == null) ||  ship.GetAI().OrderQueue.IsEmpty) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
+                if ((ship.AI.start == null || ship.AI.end == null) ||  ship.AI.OrderQueue.IsEmpty) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
                 {
                     // if ()  //fbedard: dont scrap loaded ship
                     if (ship.TradeTimer != 0 && ship.TradeTimer < 1)
@@ -2737,11 +2498,11 @@ namespace Ship_Game
 
 
                 }
-                else if (ship.GetAI().State == AIState.PassengerTransport)
+                else if (ship.AI.State == AIState.PassengerTransport)
                 {
                     passengerShips++;
                 }
-                else if (ship.GetAI().State == AIState.SystemTrader)
+                else if (ship.AI.State == AIState.SystemTrader)
                     tradeShips++;
                 else
                 {
@@ -2761,9 +2522,9 @@ namespace Ship_Game
             while (unusedFreighters.Count - skipped > minFreightCount)
             {
                 Ship ship = unusedFreighters[0 + skipped];                
-                if ( ship.TradeTimer < 1 && ship.CargoSpace_Used ==0)
+                if ( ship.TradeTimer < 1 && ship.CargoSpaceUsed ==0)
                 {
-                    ship.GetAI().OrderScrapShip();
+                    ship.AI.OrderScrapShip();
                     unusedFreighters.Remove(ship);
                 }
                 else skipped++;
@@ -2781,21 +2542,21 @@ namespace Ship_Game
                 //assignedShips.Add(ship);
                 unusedFreighters.Remove(ship);
                 freighters--;
-                if (ship.GetAI().State != AIState.Flee)
+                if (ship.AI.State != AIState.Flee)
                 {
                     switch (type)
                     {
                         case 1:
                             {
-                                ship.GetAI().State = AIState.SystemTrader;
-                                ship.GetAI().OrderTrade(0.1f);
+                                ship.AI.State = AIState.SystemTrader;
+                                ship.AI.OrderTrade(0.1f);
                                 type++;
                                 break;
                             }
                         case 2:
                             {
-                                ship.GetAI().State = AIState.PassengerTransport;
-                                ship.GetAI().OrderTransportPassengers(0.1f);
+                                ship.AI.State = AIState.PassengerTransport;
+                                ship.AI.OrderTransportPassengers(0.1f);
                                 type++;
                                 break;
                             }
@@ -2805,7 +2566,7 @@ namespace Ship_Game
                     }
                     if (type > 2)
                         type = 1;
-                    if (ship.GetAI().start == null && ship.GetAI().end == null)
+                    if (ship.AI.start == null && ship.AI.end == null)
                         assignedShips.Add(ship);
 
 
@@ -2817,7 +2578,7 @@ namespace Ship_Game
             unusedFreighters.AddRange(assignedShips);
             freighters = 0;// unusedFreighters.Count;
             int goalLimt = 1  + this.getResStrat().IndustryPriority;
-            foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
+            foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
                 {
@@ -2835,7 +2596,7 @@ namespace Ship_Game
             if (moneyForFreighters > 0 && freighters < minFreightCount && goalLimt >0)
             {
                 freighters++;
-                this.GSAI.Goals.Add(new Goal(this)
+                this.EmpireAI.Goals.Add(new Goal(this)
                 {
                     GoalName = "IncreaseFreighters",
                     type = GoalType.BuildShips
@@ -2857,16 +2618,16 @@ namespace Ship_Game
 
         public void ReportGoalComplete(Goal g)
         {
-            for (int index = 0; index < this.GSAI.Goals.Count; ++index)
+            for (int index = 0; index < this.EmpireAI.Goals.Count; ++index)
             {
-                if (this.GSAI.Goals[index] == g)
-                    this.GSAI.Goals.QueuePendingRemoval(this.GSAI.Goals[index]);
+                if (this.EmpireAI.Goals[index] == g)
+                    this.EmpireAI.Goals.QueuePendingRemoval(this.EmpireAI.Goals[index]);
             }
         }
 
-        public GSAI GetGSAI()
+        public EmpireAI GetGSAI()
         {
-            return this.GSAI;
+            return this.EmpireAI;
         }
 
         public Vector2 GetWeightedCenter()
@@ -2879,7 +2640,7 @@ namespace Ship_Game
                 for (int index = 0; (double)index < (double)planet.Population / 1000.0; ++index)
                 {
                     ++num;
-                    vector2 += planet.Position;
+                    vector2 += planet.Center;
                 }
             }
             if (num == 0)
@@ -2902,11 +2663,11 @@ namespace Ship_Game
             int num = 0;
             if (flag1)
             {
-                foreach (Ship ship in (Array<Ship>)this.OwnedShips)
+                foreach (Ship ship in this.OwnedShips)
                 {
                     if (num < 2)
                     {
-                        if (ship.shipData.Role == ShipData.RoleName.scout && !ship.isPlayerShip())
+                        if (ship.shipData.Role == ShipData.RoleName.scout && !ship.PlayerShip)
                         {
                             ship.DoExplore();
                             ++num;
@@ -2918,7 +2679,7 @@ namespace Ship_Game
                 if (num == 0)
                 {
                     bool flag2 = true;
-                    foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
+                    foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
                     {
                         if (goal.type == GoalType.BuildScout)
                         {
@@ -2932,15 +2693,15 @@ namespace Ship_Game
                     goal1.type = GoalType.BuildScout;
                     goal1.empire = this;
                     goal1.GoalName = "Build Scout";
-                    this.GSAI.Goals.Add(goal1);
-                    this.GSAI.Goals.Add(goal1);
+                    this.EmpireAI.Goals.Add(goal1);
+                    this.EmpireAI.Goals.Add(goal1);
                 }
                 else
                 {
                     if (num >= 2 || this.data.DiplomaticPersonality == null)
                         return;
                     bool flag2 = true;
-                    foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
+                    foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
                     {
                         if (goal.type == GoalType.BuildScout)
                         {
@@ -2949,7 +2710,7 @@ namespace Ship_Game
                         }
                     }
                     if (flag2)
-                        this.GSAI.Goals.Add(new Goal()
+                        this.EmpireAI.Goals.Add(new Goal()
                         {
                             type = GoalType.BuildScout,
                             empire = this,
@@ -2957,7 +2718,7 @@ namespace Ship_Game
                         });
                     if (!(this.data.DiplomaticPersonality.Name == "Expansionist") || !flag2)
                         return;
-                    this.GSAI.Goals.Add(new Goal()
+                    this.EmpireAI.Goals.Add(new Goal()
                     {
                         type = GoalType.BuildScout,
                         empire = this,
@@ -2969,8 +2730,8 @@ namespace Ship_Game
             {
                 foreach (Ship ship in (Array<Ship>)this.OwnedShips)
                 {
-                    if (ship.GetAI().State == AIState.Explore)
-                        ship.GetAI().OrderRebaseToNearest();
+                    if (ship.AI.State == AIState.Explore)
+                        ship.AI.OrderRebaseToNearest();
                 }
             }
         }
@@ -3026,8 +2787,8 @@ namespace Ship_Game
         }
 
         public void RemoveArtifact(Artifact art)
-		{
-			this.data.OwnedArtifacts.Remove(art);
+        {
+            this.data.OwnedArtifacts.Remove(art);
             if (art.DiplomacyMod > 0f)
             {
                 this.data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
@@ -3089,26 +2850,44 @@ namespace Ship_Game
             {
                 OwnedShips.Remove(ship);
             }
-            ship.fleet = null;
+            ship.fleet?.RemoveShip(ship);
             GetGSAI().DefensiveCoordinator.Remove(ship);
             
-            ship.GetAI().OrderQueue.Clear();
+            ship.AI.OrderQueue.Clear();
            
-            ship.GetAI().State = AIState.AwaitingOrders;
-            ship.RemoveFromAllFleets();
+            ship.AI.State = AIState.AwaitingOrders;
+            ship.ClearFleet();
+        }
+        public bool IsEmpireAttackable(Empire empire, GameplayObject target = null)
+        {
+            if (empire == this) return false;
+            if (empire == null) return true;            
+            if (!TryGetRelations(empire, out Relationship rel) || rel == null || !rel.Known) return true;            
+            if (rel.AtWar) return true;
+            if (rel.Treaty_NAPact) return false;
+            if (isFaction || empire.isFaction ) return true;
+            if (target == null) return true;
+            if (target is Ship ship)
+            {                
+                if (!rel.Treaty_OpenBorders && !rel.Treaty_Trade
+                &&  EmpireAI.ThreatMatrix.ShipInOurBorders(ship)) return true;
+
+                if (ship.isColonyShip && ship.System != null && rel.WarnedSystemsList.Contains(ship.System.guid)) return true;
+            }
+            return false;
         }
 
         public class InfluenceNode
         {
             public Vector2 Position;
-            public object KeyedObject;
+            public object SourceObject; // SolarSystem, Planet OR Ship
             public bool DrewThisTurn;
             public float Radius;
 
             public void Wipe()
             {
                 Position     = Vector2.Zero;
-                KeyedObject  = null;
+                SourceObject = null;
                 DrewThisTurn = false;
                 Radius       = 0;
             }
@@ -3124,13 +2903,13 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            ForcePool?.Dispose(ref ForcePool);
+            ForcePool = null;
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
             OwnedShips?.Dispose(ref OwnedShips);
             DefensiveFleet?.Dispose(ref DefensiveFleet);
-            GSAI?.Dispose(ref GSAI);
+            EmpireAI?.Dispose(ref EmpireAI);
             data.AgentList = new BatchRemovalCollection<Agent>();
             data.MoleList = new BatchRemovalCollection<Mole>();
             LockPatchCache?.Dispose(ref LockPatchCache);
@@ -3138,5 +2917,7 @@ namespace Ship_Game
             OwnedProjectors?.Dispose(ref OwnedProjectors);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
         }
+
+        public override string ToString() => $"Id={Id} Name={Name} Player={isPlayer} Faction={isFaction} Minor={MinorRace}";
     }
 }

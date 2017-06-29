@@ -65,7 +65,7 @@ namespace Ship_Game
         
 		private void DeleteAccepted(object sender, EventArgs e)
 		{
-			AudioManager.PlayCue("echo_affirm");
+			GameAudio.PlaySfxAsync("echo_affirm");
 			ResourceManager.ShipsDict[this.ShipToDelete].Deleted = true;
 			this.Buttons.Clear();
 			this.ShipsToLoad.Clear();
@@ -76,7 +76,7 @@ namespace Ship_Game
 
 		private void DeleteDataAccepted(object sender, EventArgs e)
 		{
-			AudioManager.PlayCue("echo_affirm");
+			GameAudio.PlaySfxAsync("echo_affirm");
 			this.Buttons.Clear();
 			this.ShipsToLoad.Clear();
 			this.ShipDesigns.Reset();
@@ -126,16 +126,16 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as Ship).shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
-					if (e.clickRectHover == 1 && !(e.item as Ship).reserved && !(e.item as Ship).FromSave)
+					if (e.clickRectHover == 1 && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
-						if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+						if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 						{
 							base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
 							ToolTip.CreateTooltip(78, base.ScreenManager);
 						}
 					}
-					else if (!(e.item as Ship).reserved && !(e.item as Ship).FromSave)
+					else if (!(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
 					}
@@ -155,7 +155,7 @@ namespace Ship_Game
 					else
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
-						if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+						if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 						{
 							base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
 							ToolTip.CreateTooltip(78, base.ScreenManager);
@@ -176,24 +176,19 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		public override void ExitScreen()
+		public override bool HandleInput(InputState input)
 		{
-			base.ExitScreen();
-		}
-
-
-		public override void HandleInput(InputState input)
-		{
-			this.currentMouse = input.CurrentMouseState;
+			this.currentMouse = input.MouseCurr;
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			this.ShipDesigns.HandleInput(input);
 			if (input.Escaped || input.RightMouseClick)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!b.Rect.HitTest(MousePos))
 				{
 					b.State = UIButton.PressState.Default;
 				}
@@ -226,13 +221,13 @@ namespace Ship_Game
 				}
 				else if (e.item is ShipData)
 				{
-					if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+					if (!e.clickRect.HitTest(MousePos))
 					{
 						e.clickRectHover = 0;
 					}
 					else
 					{
-						if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)
+						if (e.cancel.HitTest(MousePos) && input.InGameSelect)
 						{
 							this.ShipToDelete = (e.item as ShipData).Name;
 							MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
@@ -242,24 +237,24 @@ namespace Ship_Game
 						this.selector = new Selector(base.ScreenManager, e.clickRect);
 						if (e.clickRectHover == 0)
 						{
-							AudioManager.PlayCue("sd_ui_mouseover");
+							GameAudio.PlaySfxAsync("sd_ui_mouseover");
 						}
 						e.clickRectHover = 1;
-						if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+						if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 						{
 							this.EnterNameArea.Text = (e.item as ShipData).Name;
 							this.selectedWIP = e.item as ShipData;
-							AudioManager.PlayCue("sd_ui_accept_alt3");
+							GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						}
 					}
 				}
-				else if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+				else if (!e.clickRect.HitTest(MousePos))
 				{
 					e.clickRectHover = 0;
 				}
 				else
 				{
-					if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && !(e.item as Ship).reserved && !(e.item as Ship).FromSave && input.InGameSelect)
+					if (e.cancel.HitTest(MousePos) && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave && input.InGameSelect)
 					{
 						this.ShipToDelete = (e.item as Ship).Name;
 						MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
@@ -269,19 +264,19 @@ namespace Ship_Game
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
-					if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+					if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 					{
 						this.EnterNameArea.Text = (e.item as Ship).Name;
-						AudioManager.PlayCue("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
 			}
 			if (this.playerDesignsToggle.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				this.ShowAllDesigns = !this.ShowAllDesigns;
 				if (this.ShowAllDesigns)
 				{
@@ -293,12 +288,12 @@ namespace Ship_Game
 				}
 				this.ResetSL();
 			}
-			if (HelperFunctions.CheckIntersection(this.playerDesignsToggle.r, input.CursorPosition))
+			if (this.playerDesignsToggle.r.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(Localizer.Token(2225), base.ScreenManager);
 			}
-			this.previousMouse = input.LastMouseState;
-			base.HandleInput(input);
+			this.previousMouse = input.MousePrev;
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
@@ -359,7 +354,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						if (Ship.Value.reserved || Ship.Value.FromSave)
+						if (Ship.Value.IsReadonlyDesign || Ship.Value.FromSave)
 						{
 							e.AddItem(Ship.Value);
 						}
@@ -470,7 +465,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						if (Ship.Value.reserved || Ship.Value.FromSave)
+						if (Ship.Value.IsReadonlyDesign || Ship.Value.FromSave)
 						{
 							e.AddItem(Ship.Value);
 						}

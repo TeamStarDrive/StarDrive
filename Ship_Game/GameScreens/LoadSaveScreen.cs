@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -10,17 +11,17 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadSaveScreen : GenericLoadSaveScreen
-	{
+    public sealed class LoadSaveScreen : GenericLoadSaveScreen
+    {
         private UniverseScreen screen;
-		private MainMenuScreen mmscreen;
+        private MainMenuScreen mmscreen;
 
         public LoadSaveScreen(UniverseScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
-		{
-			this.screen = screen;
+        {
+            this.screen = screen;
             Path = Dir.ApplicationData +  "/StarDrive/Saved Games/";
         }
-		public LoadSaveScreen(MainMenuScreen mmscreen) : base(mmscreen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
+        public LoadSaveScreen(MainMenuScreen mmscreen) : base(mmscreen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
         {
             this.mmscreen = mmscreen;
             Path = Dir.ApplicationData + "/StarDrive/Saved Games/";
@@ -48,7 +49,7 @@ namespace Ship_Game
             }
             else
             {
-                AudioManager.PlayCue("UI_Misc20");
+                GameAudio.PlaySfxAsync("UI_Misc20");
             }
             ExitScreen();
         }
@@ -61,36 +62,31 @@ namespace Ship_Game
                 try
                 {
                     HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveHeaderFile);
+                    if (data.SaveGameVersion != SavedGame.SaveGameVersion)
+                        continue;
+                    if (string.IsNullOrEmpty(data.SaveName))
+                        continue;
 
-                    bool newFormat = false;
-                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.OldZipExt);
-                    if (!data.FI.Exists)
-                    {
-                        data.FI = new FileInfo(Path + data.SaveName + SavedGame.NewZipExt);
-                        newFormat = true;
-                    }
+                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.NewZipExt);
+
                     if (!data.FI.Exists)
                     {
                         Log.Info("Savegame missing payload: {0}", data.FI.FullName);
                         continue;
                     }
 
-                    if (string.IsNullOrEmpty(data.SaveName))
-                        continue;
-
                     if (GlobalStats.ActiveMod != null)
                     {
                         // check mod and check version of save file since format changed
-                        if (data.Version  > 0 && data.ModPath != GlobalStats.ActiveMod.ModName || 
-                            data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModName)   
+                        if (data.Version > 0 && data.ModPath != GlobalStats.ActiveMod.ModName ||
+                            data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModName)
                             continue;
                     }
-                    else if (data.Version  > 0 && !string.IsNullOrEmpty(data.ModPath) || 
+                    else if (data.Version > 0 && !string.IsNullOrEmpty(data.ModPath) ||
                              data.Version == 0 && !string.IsNullOrEmpty(data.ModName))
                         continue; // skip non-mod savegames
 
-                    string info = data.PlayerName + " StarDate " + data.StarDate;
-                    if (newFormat) info += " (sav)";
+                    string info = data.PlayerName + " StarDate " + data.StarDate + " (sav)"; ;
 
                     string extraInfo = data.RealDate;
                     saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));

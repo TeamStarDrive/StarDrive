@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -81,7 +80,7 @@ namespace Ship_Game
 			parameters["BloomSaturation"].SetValue(this.Settings.BloomSaturation);
 			parameters["BaseSaturation"].SetValue(this.Settings.BaseSaturation);
 			device.Textures[1] = source;
-			Viewport viewport = device.Viewport;
+			Viewport viewport = Game1.Instance.Viewport;
 			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), viewport.Width, viewport.Height, this.bloomCombineEffect);
 			return source;
 		}

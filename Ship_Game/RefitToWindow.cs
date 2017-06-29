@@ -119,40 +119,42 @@ namespace Ship_Game
 
 	
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.ShipSL.HandleInput(input);
-			if (input.Escaped || input.CurrentMouseState.RightButton == ButtonState.Pressed)
+			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			this.selector = null;
 			for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
 			{
 				ScrollList.Entry e = this.ShipSL.Copied[i];
-				if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+				if (e.clickRect.HitTest(input.CursorPosition))
 				{
 					this.selector = new Selector(base.ScreenManager, e.clickRect);
 					if (input.InGameSelect)
 					{
-						AudioManager.PlayCue("sd_ui_accept_alt3");
+						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						this.RefitTo = e.item as string;
 					}
 				}
 			}
 			if (this.RefitTo != null)
 			{
-				if (HelperFunctions.CheckIntersection(this.RefitOne.Rect, input.CursorPosition))
+				if (this.RefitOne.Rect.HitTest(input.CursorPosition))
 				{
 					ToolTip.CreateTooltip(Localizer.Token(2267), base.ScreenManager);
 					if (input.InGameSelect)
 					{
-						this.shiptorefit.GetAI().OrderRefitTo(this.RefitTo);
-						AudioManager.PlayCue("echo_affirm");
+						this.shiptorefit.AI.OrderRefitTo(this.RefitTo);
+						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
+                        return true;
 					}
 				}
-				if (HelperFunctions.CheckIntersection(this.RefitAll.Rect, input.CursorPosition))
+				if (this.RefitAll.Rect.HitTest(input.CursorPosition))
 				{
 					ToolTip.CreateTooltip(Localizer.Token(2268), base.ScreenManager);
 					if (input.InGameSelect)
@@ -163,13 +165,15 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							ship.GetAI().OrderRefitTo(this.RefitTo);
+							ship.AI.OrderRefitTo(this.RefitTo);
 						}
-						AudioManager.PlayCue("echo_affirm");
+						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
+                        return true;
 					}
 				}
 			}
+            return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

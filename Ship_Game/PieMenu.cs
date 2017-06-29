@@ -184,49 +184,49 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input, Vector2 selectionVector)
 		{
-			if (!this.visible)
+			if (!visible)
 			{
 				return false;
 			}
-			this.ComputeSelected(selectionVector);
+			ComputeSelected(selectionVector);
 			if (input.InGameSelect)
 			{
-				if (this.selectionIndex >= 0)
+				if (selectionIndex >= 0)
 				{
-					if (!this.rootNode.Children[this.selectionIndex].IsLeaf)
+					if (!rootNode.Children[selectionIndex].IsLeaf)
 					{
-						this.ChangeTo(this.rootNode.Children[this.selectionIndex]);
-						AudioManager.GetCue("sub_bass_whoosh").Play();
+						ChangeTo(rootNode.Children[selectionIndex]);
+						GameAudio.PlaySfxAsync("sub_bass_whoosh");
 					}
 					else
 					{
-						this.rootNode.Children[this.selectionIndex].Select();
-						this.ChangeTo(null);
-						AudioManager.GetCue("sub_bass_whoosh").Play();
-					}
+						rootNode.Children[selectionIndex].Select();
+						ChangeTo(null);
+					    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                    }
 				}
 				else if (this.selectionIndex != -2)
 				{
-					this.ChangeTo(this.rootNode.parent);
-					AudioManager.GetCue("sub_bass_whoosh").Play();
-				}
+					ChangeTo(rootNode.parent);
+				    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                }
 				else
 				{
-					this.ChangeTo(null);
-					AudioManager.GetCue("sub_bass_whoosh").Play();
-				}
+					ChangeTo(null);
+				    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                }
 			}
 			if (input.MenuCancel)
 			{
-				this.ChangeTo(null);
-				AudioManager.GetCue("sub_bass_whoosh").Play();
-			}
+				ChangeTo(null);
+			    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+            }
 			return true;
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			return this.HandleInput(input, input.CurrentGamePadState.ThumbSticks.Left);
+			return this.HandleInput(input, input.GamepadCurr.ThumbSticks.Left);
 		}
 
 		private void NewMenu(object sender)

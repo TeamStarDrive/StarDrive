@@ -3,62 +3,62 @@ using Newtonsoft.Json;
 
 namespace Ship_Game
 {
-	public sealed class RacialTrait
-	{
-		[Serialize(0)] public string Name;
-		[Serialize(1)] public int TraitName;
-		[Serialize(2)] public string VideoPath = "";
-		[Serialize(3)] public string ShipType = "Pollops";
-		[Serialize(4)] public string Singular;
-		[Serialize(5)] public string Plural;
-		[Serialize(6)] public bool Pack;
-		[Serialize(7)] public float SpyMultiplier;
-		[Serialize(8)] public string Adj1;
-		[Serialize(9)] public string Adj2;
-		[Serialize(10)] public string HomeSystemName;
-		[Serialize(11)] public string HomeworldName;
-		[Serialize(12)] public int FlagIndex;
-		[Serialize(13)] public float R;
-		[Serialize(14)] public float G;
-		[Serialize(15)] public float B;
-		[Serialize(16)] public int Excludes;
-		[Serialize(17)] public int Description;
-		[Serialize(18)] public string Category;
-		[Serialize(19)] public int Cost;
-		[Serialize(20)] public float ConsumptionModifier;
-		[Serialize(21)] public float ReproductionMod;
-		[Serialize(22)] public float PopGrowthMax;
-		[Serialize(23)] public float PopGrowthMin;
-		[Serialize(24)] public float DiplomacyMod;
-		[Serialize(25)] public float GenericMaxPopMod;
-		[Serialize(26)] public int Blind;
-		[Serialize(27)] public int BonusExplored;
-		[Serialize(28)] public int Militaristic;
-		[Serialize(29)] public float HomeworldSizeMod;
-		[Serialize(30)] public int Prewarp;
-		[Serialize(31)] public int Prototype;
-		[Serialize(32)] public float Spiritual;
-		[Serialize(33)] public float HomeworldFertMod;
-		[Serialize(34)] public float HomeworldRichMod;
-		[Serialize(35)] public float DodgeMod;
-		[Serialize(36)] public float EnergyDamageMod;
-		[Serialize(37)] public float ResearchMod;
-		[Serialize(38)] public float Mercantile;
-		[Serialize(39)] public int Miners;
-		[Serialize(40)] public float ProductionMod;
-		[Serialize(41)] public float MaintMod;
-		[Serialize(42)] public float InBordersSpeedBonus = 0.5f;
-		[Serialize(43)] public float TaxMod;
-		[Serialize(44)] public float ShipCostMod;
-		[Serialize(45)] public float ModHpModifier;
-		[Serialize(46)] public int SmallSize;
-		[Serialize(47)] public int HugeSize;
-		[Serialize(48)] public int PassengerModifier = 1;
-		[Serialize(49)] public int PassengerBonus;
-		[Serialize(50)] public bool Assimilators;
-		[Serialize(51)] public float GroundCombatModifier;
-		[Serialize(52)] public float RepairMod;
-		[Serialize(53)] public int Cybernetic;
+    public sealed class RacialTrait
+    {
+        [Serialize(0)] public string Name;
+        [Serialize(1)] public int TraitName;
+        [Serialize(2)] public string VideoPath = "";
+        [Serialize(3)] public string ShipType = "Pollops";
+        [Serialize(4)] public string Singular;
+        [Serialize(5)] public string Plural;
+        [Serialize(6)] public bool Pack;
+        [Serialize(7)] public float SpyMultiplier;
+        [Serialize(8)] public string Adj1;
+        [Serialize(9)] public string Adj2;
+        [Serialize(10)] public string HomeSystemName;
+        [Serialize(11)] public string HomeworldName;
+        [Serialize(12)] public int FlagIndex;
+        [Serialize(13)] public float R;
+        [Serialize(14)] public float G;
+        [Serialize(15)] public float B;
+        [Serialize(16)] public int Excludes;
+        [Serialize(17)] public int Description;
+        [Serialize(18)] public string Category;
+        [Serialize(19)] public int Cost;
+        [Serialize(20)] public float ConsumptionModifier;
+        [Serialize(21)] public float ReproductionMod;
+        [Serialize(22)] public float PopGrowthMax;
+        [Serialize(23)] public float PopGrowthMin;
+        [Serialize(24)] public float DiplomacyMod;
+        [Serialize(25)] public float GenericMaxPopMod;
+        [Serialize(26)] public int Blind;
+        [Serialize(27)] public int BonusExplored;
+        [Serialize(28)] public int Militaristic;
+        [Serialize(29)] public float HomeworldSizeMod;
+        [Serialize(30)] public int Prewarp;
+        [Serialize(31)] public int Prototype;
+        [Serialize(32)] public float Spiritual;
+        [Serialize(33)] public float HomeworldFertMod;
+        [Serialize(34)] public float HomeworldRichMod;
+        [Serialize(35)] public float DodgeMod;
+        [Serialize(36)] public float EnergyDamageMod;
+        [Serialize(37)] public float ResearchMod;
+        [Serialize(38)] public float Mercantile;
+        [Serialize(39)] public int Miners;
+        [Serialize(40)] public float ProductionMod;
+        [Serialize(41)] public float MaintMod;
+        [Serialize(42)] public float InBordersSpeedBonus = 0.5f;
+        [Serialize(43)] public float TaxMod;
+        [Serialize(44)] public float ShipCostMod;
+        [Serialize(45)] public float ModHpModifier;
+        [Serialize(46)] public int SmallSize;
+        [Serialize(47)] public int HugeSize;
+        [Serialize(48)] public float PassengerModifier = 1f;
+        [Serialize(49)] public float PassengerBonus;
+        [Serialize(50)] public bool Assimilators;
+        [Serialize(51)] public float GroundCombatModifier;
+        [Serialize(52)] public float RepairMod;
+        [Serialize(53)] public int Cybernetic;
 
         //Trait Booleans
         [Serialize(54)] public bool PhysicalTraitAlluring;
@@ -104,9 +104,9 @@ namespace Ship_Game
         [Serialize(91)] public int Aquatic;
         [Serialize(92)] public int Burrowers;
 
-		public RacialTrait()
-		{
-		}
+        public RacialTrait()
+        {
+        }
 
         public RacialTrait GetClone()
         {
@@ -229,5 +229,5 @@ namespace Ship_Game
                 Prototype = 1;
             }
         }
-	}
+    }
 }
