@@ -33,14 +33,19 @@ namespace Ship_Game
         
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
         
-        protected readonly Array<IElement> Elements = new Array<IElement>();
-        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
+        protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
+        protected readonly Array<UIButton>    Buttons  = new Array<UIButton>();
         protected Texture2D BtnDefault;
         protected Texture2D BtnHovered;
         protected Texture2D BtnPressed;
 
         // automatic layout spacing between elements
         protected int LayoutMargin = 15;
+
+
+        public int ScreenWidth  => Game1.Instance.RenderWidth;
+        public int ScreenHeight => Game1.Instance.RenderHeight;
+        public GameTime GameTime => Game1.Instance.GameTime;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -69,7 +74,7 @@ namespace Ship_Game
             ScreenManager.AssignLightRig(lightRig);
         }
 
-        public abstract void Draw(GameTime gameTime);
+        public abstract void Draw(SpriteBatch spriteBatch);
 
         public virtual void ExitScreen()
         {
@@ -84,7 +89,7 @@ namespace Ship_Game
 
         public virtual bool HandleInput(InputState input)
         {
-            foreach (IElement element in Elements)
+            foreach (UIElementV2 element in Elements)
                 if (element.HandleInput(input))
                     return true;
             return false;
@@ -142,34 +147,66 @@ namespace Ship_Game
         // Shared utility functions:
         protected UIButton Button(ref Vector2 pos, string launches, int localization)
             => Button(ref pos, launches, Localizer.Token(localization));
-
         protected UIButton Button(ref Vector2 pos, string launches, string text)
+            => Add(ref pos, new UIButton(0f, 0f, launches, text));
+
+
+        protected UIButton Button(float x, float y, string launches, int localization)
+            => Button(x, y, launches, Localizer.Token(localization));
+        protected UIButton Button(float x, float y, string launches, string text)
+            => Add(new UIButton(x, y, launches, text));
+
+        protected UIButton Button(ButtonStyle style, float x, float y, string launches, int localization)
+            => Button(style, x, y, launches, Localizer.Token(localization));
+        protected UIButton Button(ButtonStyle style, float x, float y, string launches, string text)
+            => Add(new UIButton(style, x, y, launches, text));
+
+
+
+        protected UIButton ButtonSmall(float x, float y, string launches, int localization)
+            => ButtonSmall(x, y, launches, Localizer.Token(localization));
+        protected UIButton ButtonSmall(float x, float y, string launches, string text)
+            => Add(new UIButton(ButtonStyle.Small, x, y, launches, text));
+
+        protected UIButton ButtonLow(float x, float y, string launches, int localization)
+            => ButtonLow(x, y, launches, Localizer.Token(localization));
+        protected UIButton ButtonLow(float x, float y, string launches, string text)
+            => Add(new UIButton(ButtonStyle.Low80, x, y, launches, text));
+
+        protected UIButton ButtonMedium(float x, float y, string launches, int localization)
+            => ButtonMedium(x, y, launches, Localizer.Token(localization));
+        protected UIButton ButtonMedium(float x, float y, string launches, string text)
+            => Add(new UIButton(ButtonStyle.Medium, x, y, launches, text));
+
+        protected UIButton ButtonMediumMenu(float x, float y, string launches, int localization)
+            => ButtonMediumMenu(x, y, launches, Localizer.Token(localization));
+        protected UIButton ButtonMediumMenu(float x, float y, string launches, string text)
+            => Add(new UIButton(ButtonStyle.MediumMenu, x, y, launches, text));
+
+        protected UIButton ButtonDip(float x, float y, string launches, int localization)
+            => ButtonDip(x, y, launches, Localizer.Token(localization));
+        protected UIButton ButtonDip(float x, float y, string launches, string text)
+            => Add(new UIButton(ButtonStyle.BigDip, x, y, launches, text));
+
+        protected T Add<T>(T element) where T : UIElementV2
         {
-            return Add(ref pos, new UIButton
-            {
-                NormalTexture  = BtnDefault,
-                HoverTexture   = BtnHovered,
-                PressedTexture = BtnPressed,
-                Launches       = launches,
-                Text           = text
-            });
+            Elements.Add(element);
+            var button = element as UIButton;
+            if (button != null) Buttons.Add(button);
+            return element;
         }
 
-        protected T Layout<T>(ref Vector2 pos, T element) where T : IElement
+        protected T Layout<T>(ref Vector2 pos, T element) where T : UIElementV2
         {
-            element.Layout(pos);
+            element.Pos = pos;
             pos.Y += element.Rect.Height + LayoutMargin;
             return element;
         }
 
-        protected T Add<T>(ref Vector2 pos, T element) where T : IElement
+        protected T Add<T>(ref Vector2 pos, T element) where T : UIElementV2
         {
             Layout(ref pos, element);
-            Elements.Add(element);
-
-            var button = element as UIButton;
-            if (button != null) Buttons.Add(button);
-            return element;
+            return Add(element);
         }
 
         protected UICheckBox Checkbox(ref Vector2 pos, Expression<Func<bool>> binding, int title, int tooltip)
@@ -251,17 +288,13 @@ namespace Ship_Game
         public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
-            {
                 ToolTip.CreateTooltip(toolTipId);                
-            }
         }
 
         public void CheckToolTip(string text, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
-            {
                 ToolTip.CreateTooltip(text);
-            }
         }
         public void CheckToolTip(string text, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
         {
@@ -339,15 +372,15 @@ namespace Ship_Game
             }
         }
 
-        ~GameScreen() { Dispose(false); }
+        ~GameScreen() { Destroy(); }
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Destroy()
         {
             TransientContent?.Dispose(ref TransientContent);
         }

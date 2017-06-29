@@ -20,12 +20,12 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (SplashScreen.DisplayComplete)
 			{
 			    ScreenManager.HideSplashScreen();
-                ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
+                ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
                 ScreenManager.RenderSceneObjects();
                 ScreenManager.EndFrameRendering();
 			}

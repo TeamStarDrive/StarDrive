@@ -58,7 +58,7 @@ namespace Ship_Game
             this.ScreenManager = Empire.Universe.ScreenManager;
             this.SubRect = new Rectangle(this.ComponentRect.X, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
             this.OpsSubRect = new Rectangle(Escreen.OperationsRect.X + 20, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
-            Submenu sub = new Submenu(this.ScreenManager, this.ComponentRect);
+            Submenu sub = new Submenu(this.ComponentRect);
             this.AgentSL = new ScrollList(sub, 40);
             foreach (Agent agent in EmpireManager.Player.data.AgentList)
             {
@@ -66,7 +66,7 @@ namespace Ship_Game
             }
             Rectangle c = this.ComponentRect;
             c.X = this.OpsSubRect.X;
-            Submenu opssub = new Submenu(this.ScreenManager, c);
+            Submenu opssub = new Submenu(c);
             this.OpsSL = new ScrollList(opssub, 30);
             this.Training = new MissionEntry(AgentMission.Training, this);
             this.Infiltrate = new MissionEntry(AgentMission.Infiltrate, this);

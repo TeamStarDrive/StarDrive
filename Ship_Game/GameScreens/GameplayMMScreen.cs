@@ -44,12 +44,13 @@ namespace Ship_Game
             base.ExitScreen();
 	    }
 
-	    public override void Draw(GameTime gameTime)
+	    public override void Draw(SpriteBatch spriteBatch)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
 			if (SavedGame.IsSaving)
 			{
+			    GameTime gameTime = Game1.Instance.GameTime;
 				TimeSpan totalGameTime = gameTime.TotalGameTime;
 				float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
 				f = Math.Abs(f) * 255f;
@@ -157,7 +158,7 @@ namespace Ship_Game
 
             var para = ScreenManager.GraphicsDevice.PresentationParameters;
             var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);
-			window = new Menu2(ScreenManager, new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
+			window = new Menu2(new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
 
             Vector2 pos = new Vector2(size.X - 84, size.Y - 100);
             Save       = Button(ref pos, "Save",              localization: 300);
@@ -172,7 +173,7 @@ namespace Ship_Game
 		{
             var para = ScreenManager.GraphicsDevice.PresentationParameters;
             var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);
-            window = new Menu2(ScreenManager, new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
+            window = new Menu2(new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
 
             Vector2 pos = new Vector2(size.X - 84, size.Y - 100);
             Layout(ref pos, Save);

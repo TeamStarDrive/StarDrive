@@ -32,7 +32,7 @@ namespace Ship_Game
         {
         }
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (!IsActive)
 				return;
@@ -151,11 +151,11 @@ namespace Ship_Game
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             LoadingPlayer?.Dispose(ref LoadingPlayer);
             SplashPlayer?.Dispose(ref SplashPlayer);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 	}
 }

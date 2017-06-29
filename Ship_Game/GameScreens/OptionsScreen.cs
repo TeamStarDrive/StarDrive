@@ -163,11 +163,7 @@ namespace Ship_Game
 
 				    ResolutionDropDown.SetActiveEntry(resolut.Name);
 				}
-				cursor = new Vector2(SecondaryOptionsRect.X, (SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 60));
-				Apply.Rect = new Rectangle((int)cursor.X, (int)cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-				Apply.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
-				Apply.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
-				Apply.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+			    Apply.SetPos(SecondaryOptionsRect.X, SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 60);
 				Apply.Text = Localizer.Token(13);
 				if (StartingMode != GlobalStats.WindowMode || OriginalWidth != NewWidth || OriginalHeight != NewHeight)
 				{
@@ -276,22 +272,18 @@ namespace Ship_Game
 
 			    ResolutionDropDown.SetActiveEntry(resolut.Name);
 			}
-			cursor = new Vector2((float)SecondaryOptionsRect.X, (float)(SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 15));
-			Apply.Rect = new Rectangle((int)cursor.X, (int)cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-			Apply.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
-			Apply.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
-			Apply.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+
+            Apply.SetPos(SecondaryOptionsRect.X, SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 15);
 			Apply.Text = Localizer.Token(13);
 		}
 
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
             if (fade) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 
-			DrawBase(gameTime);
+			DrawBase(GameTime);
 
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 		    spriteBatch.Begin();
 
             var uiColor = new Color(255, 239, 208);

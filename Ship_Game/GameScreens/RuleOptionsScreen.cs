@@ -32,7 +32,7 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 			ScreenManager.SpriteBatch.Begin();
@@ -157,7 +157,7 @@ namespace Ship_Game
             MinimumWarpRange = new FloatSlider(minimumWarpRange, "Minimum Warp Range", 0, 1200000f, GlobalStats.MinimumWarpRange);
             IncreaseMaintenance = new FloatSlider(maintenanceRect, "Increase Maintenance", 1, 10f, GlobalStats.ShipMaintenanceMulti);
 
-			MainMenu = new Menu2(ScreenManager, leftRect);
+			MainMenu = new Menu2(leftRect);
 		}
 	}
 }

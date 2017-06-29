@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class Selector : IElement
+	public sealed class Selector : UIElementV2
 	{
 		private Rectangle TR; // top-right corner
 		private Rectangle BL;
@@ -18,9 +18,6 @@ namespace Ship_Game
 	    private Rectangle VR;
 
 		private readonly Color Fill;
-
-	    public Rectangle Rect {get; private set;}
-
 
 		public Selector(Rectangle theMenu)
 		{
@@ -87,7 +84,7 @@ namespace Ship_Game
 	        throw new NotImplementedException();
 	    }
 
-	    public void Draw(SpriteBatch spriteBatch)
+	    public override void Draw(SpriteBatch spriteBatch)
 		{
             int x = Rect.X,     y = Rect.Y;
             int w = Rect.Width, h = Rect.Height;
@@ -121,7 +118,7 @@ namespace Ship_Game
 		    spriteBatch.Draw(Tex.CornerBL, BL, Color.White);
 		}
 
-	    public bool HandleInput(InputState input)
+	    public override bool HandleInput(InputState input)
 	    {
 	        return false;
 	    }

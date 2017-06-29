@@ -26,6 +26,8 @@ namespace Ship_Game
         public int RenderHeight { get; private set; }
         public Vector2 RenderArea => new Vector2(RenderWidth, RenderHeight);
 
+        public GameTime GameTime;
+
         public Game1()
         {
             // need to set base Content, to ensure proper content disposal
@@ -119,6 +121,7 @@ namespace Ship_Game
             if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
                 return;
 
+            GameTime = gameTime;
             GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
             ScreenManager.Draw(gameTime);
             base.Draw(gameTime);

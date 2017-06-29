@@ -221,11 +221,12 @@ namespace Ship_Game
         {
             try
             {
+                SpriteBatch spriteBatch = SpriteBatch;
                 for (int i = 0; i < Screens.Count; ++i)
                 {
                     GameScreen screen = Screens[i];
                     if (screen.ScreenState != ScreenState.Hidden)
-                        screen.Draw(gameTime);
+                        screen.Draw(spriteBatch);
                 }
             }
             catch(Exception e)
