@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -15,7 +15,6 @@ namespace Ship_Game
         public bool IsLoaded;
         public bool AlwaysUpdate;
         private bool OtherScreenHasFocus;
-
 
         public bool IsActive => !OtherScreenHasFocus
                                 && ScreenState == ScreenState.TransitionOn 
@@ -34,11 +33,14 @@ namespace Ship_Game
         
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
         
-        protected readonly Array<IInputHandler> InputHandlers = new Array<IInputHandler>();
+        protected readonly Array<IElement> Elements = new Array<IElement>();
         protected readonly Array<UIButton> Buttons = new Array<UIButton>();
         protected Texture2D BtnDefault;
         protected Texture2D BtnHovered;
         protected Texture2D BtnPressed;
+
+        // automatic layout spacing between elements
+        protected int LayoutMargin = 15;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -82,8 +84,8 @@ namespace Ship_Game
 
         public virtual bool HandleInput(InputState input)
         {
-            foreach (IInputHandler handler in InputHandlers)
-                if (handler.HandleInput(input))
+            foreach (IElement element in Elements)
+                if (element.HandleInput(input))
                     return true;
             return false;
         }
@@ -137,37 +139,53 @@ namespace Ship_Game
         }
 
 
-
         // Shared utility functions:
         protected UIButton Button(ref Vector2 pos, string launches, int localization)
-        {
-            return Button(ref pos, launches, Localizer.Token(localization));
-        }
+            => Button(ref pos, launches, Localizer.Token(localization));
 
         protected UIButton Button(ref Vector2 pos, string launches, string text)
         {
-            var button = new UIButton
+            return Add(ref pos, new UIButton
             {
                 NormalTexture  = BtnDefault,
                 HoverTexture   = BtnHovered,
                 PressedTexture = BtnPressed,
                 Launches       = launches,
                 Text           = text
-            };
-            Layout(ref pos, button);
-            Buttons.Add(button);
-            InputHandlers.Add(button);
-            return button;
+            });
         }
 
-        protected void Layout(ref Vector2 pos, UIButton button)
+        protected T Layout<T>(ref Vector2 pos, T element) where T : IElement
         {
-            button.Rect = new Rectangle((int)pos.X, (int)pos.Y, BtnDefault.Width, BtnDefault.Height);
-            pos.Y += BtnDefault.Height + 15;
+            element.Layout(pos);
+            pos.Y += element.Rect.Height + LayoutMargin;
+            return element;
         }
 
+        protected T Add<T>(ref Vector2 pos, T element) where T : IElement
+        {
+            Layout(ref pos, element);
+            Elements.Add(element);
+
+            var button = element as UIButton;
+            if (button != null) Buttons.Add(button);
+            return element;
+        }
+
+        protected UICheckBox Checkbox(ref Vector2 pos, Expression<Func<bool>> binding, int title, int tooltip)
+            => Add(ref pos, new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
+
+        protected UICheckBox Checkbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, string tooltip)
+            => Add(ref pos, new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
+
+        protected UICheckBox Checkbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
+            => Add(ref pos, new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
 
 
+        protected FloatSlider AddFloatSlider(ref Vector2 pos)
+        {
+            return null;
+        }
 
 
         // just draws a line, no fancy reprojections
@@ -234,7 +252,7 @@ namespace Ship_Game
         {
             if (rectangle.HitTest(mousePos))
             {
-                ToolTip.CreateTooltip(toolTipId, ScreenManager);                
+                ToolTip.CreateTooltip(toolTipId);                
             }
         }
 
@@ -242,7 +260,7 @@ namespace Ship_Game
         {
             if (rectangle.HitTest(mousePos))
             {
-                ToolTip.CreateTooltip(text, ScreenManager);
+                ToolTip.CreateTooltip(text);
             }
         }
         public void CheckToolTip(string text, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)

@@ -361,17 +361,18 @@ namespace Ship_Game
 					string tip = string.Concat(gridItem.item.privateName, "\n\n", gridItem.item.Description);
 					if (gridItem.item.HullUnlocked == null)
 					{
-						ToolTip.CreateTooltip(tip, ScreenManager);
+						ToolTip.CreateTooltip(tip);
 					}
 					else
 					{
-                        ToolTip.CreateTooltip(string.Concat(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Name, " (", Localizer.GetRole(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Role, EmpireManager.Player), ")"), ScreenManager);
+                        var unlocked = ResourceManager.HullsDict[gridItem.item.HullUnlocked];
+                        ToolTip.CreateTooltip($"{unlocked.Name} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
 					}
 				}
 			}
 			else
 			{
-				ToolTip.CreateTooltip(string.Concat("Right Click to Expand \n\n", Localizer.Token(ResourceManager.TechTree[this.tech.UID].DescriptionIndex)), ScreenManager);
+				ToolTip.CreateTooltip($"Right Click to Expand \n\n{Localizer.Token(ResourceManager.TechTree[tech.UID].DescriptionIndex)}");
 			}
 			return false;
 		}

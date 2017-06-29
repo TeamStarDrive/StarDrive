@@ -11,7 +11,7 @@ namespace Ship_Game
 	public sealed class RuleOptionsScreen : GameScreen
 	{
 		public bool isOpen;
-		private Array<Checkbox> Checkboxes = new Array<Checkbox>();
+		private Array<UICheckBox> Checkboxes = new Array<UICheckBox>();
 		private Menu2 MainMenu;
 		private bool LowRes;
 		private FloatSlider FTLPenaltySlider;
@@ -54,8 +54,8 @@ namespace Ship_Game
             StartingPlanetRichness.DrawDecimal(ScreenManager);
             TurnTimer             .DrawDecimal(ScreenManager);
 			close.Draw(ScreenManager);
-			foreach (var cb in Checkboxes) cb.Draw(ScreenManager);
-			ToolTip.Draw(ScreenManager);
+			foreach (var cb in Checkboxes) cb.Draw(ScreenManager.SpriteBatch);
+			ToolTip.Draw(ScreenManager.SpriteBatch);
 			ScreenManager.SpriteBatch.End();
 		}
 
@@ -72,14 +72,14 @@ namespace Ship_Game
                 return true;
 
             var pos = input.CursorPosition;
-			if (FTLPenaltySlider.HitTest(pos))      ToolTip.CreateTooltip(Localizer.Token(2286), ScreenManager);
-            if (EnemyFTLPenaltySlider.HitTest(pos)) ToolTip.CreateTooltip(Localizer.Token(7041), ScreenManager);
-            if (GravityWellSize.HitTest(pos))       ToolTip.CreateTooltip(Localizer.Token(6003), ScreenManager);
-            if (extraPlanets.HitTest(pos))          ToolTip.CreateTooltip("Add up to 6 random planets to each system", ScreenManager);
-            if (MinimumWarpRange.HitTest(pos))      ToolTip.CreateTooltip("Minumum warp range a ship must have before it needs to recharge for the AI to build it", ScreenManager);
-            if (IncreaseMaintenance.HitTest(pos))   ToolTip.CreateTooltip("Multiply Global Maintenance Cost By  SSP's Are Not Affected", ScreenManager);
-            if (StartingPlanetRichness.HitTest(pos))ToolTip.CreateTooltip("Add to all Starting Empire Planets this Value", ScreenManager);
-            if (TurnTimer.HitTest(pos))             ToolTip.CreateTooltip("Time in seconds for turns", ScreenManager);
+			if (FTLPenaltySlider.HitTest(pos))      ToolTip.CreateTooltip(Localizer.Token(2286));
+            if (EnemyFTLPenaltySlider.HitTest(pos)) ToolTip.CreateTooltip(Localizer.Token(7041));
+            if (GravityWellSize.HitTest(pos))       ToolTip.CreateTooltip(Localizer.Token(6003));
+            if (extraPlanets.HitTest(pos))          ToolTip.CreateTooltip("Add up to 6 random planets to each system");
+            if (MinimumWarpRange.HitTest(pos))      ToolTip.CreateTooltip("Minumum warp range a ship must have before it needs to recharge for the AI to build it");
+            if (IncreaseMaintenance.HitTest(pos))   ToolTip.CreateTooltip("Multiply Global Maintenance Cost By  SSP's Are Not Affected");
+            if (StartingPlanetRichness.HitTest(pos))ToolTip.CreateTooltip("Add to all Starting Empire Planets this Value");
+            if (TurnTimer.HitTest(pos))             ToolTip.CreateTooltip("Time in seconds for turns");
 
             foreach (var cb in Checkboxes)
                 cb.HandleInput(input);
@@ -94,19 +94,19 @@ namespace Ship_Game
 
             GlobalStats.FTLInSystemModifier      = FTLPenaltySlider.Amount;
             GlobalStats.EnemyFTLInSystemModifier = EnemyFTLPenaltySlider.Amount;
-            GlobalStats.GravityWellRange         = GravityWellSize.amountRange; //amount replaced with amountRange
-            GlobalStats.ExtraPlanets             = (int)extraPlanets.amountRange;
-            GlobalStats.MinimumWarpRange         = MinimumWarpRange.amountRange;
-            GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.amountRange;
-            GlobalStats.StartingPlanetRichness   = StartingPlanetRichness.amountRange;
-            GlobalStats.TurnTimer                = (byte)TurnTimer.amountRange;
+            GlobalStats.GravityWellRange         = GravityWellSize.AmountRange; //amount replaced with amountRange
+            GlobalStats.ExtraPlanets             = (int)extraPlanets.AmountRange;
+            GlobalStats.MinimumWarpRange         = MinimumWarpRange.AmountRange;
+            GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.AmountRange;
+            GlobalStats.StartingPlanetRichness   = StartingPlanetRichness.AmountRange;
+            GlobalStats.TurnTimer                = (byte)TurnTimer.AmountRange;
 
             return false;
 		}
 
         private void Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
         {
-            Checkboxes.Add(new Checkbox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
+            Checkboxes.Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
         }
 
 		public override void LoadContent()

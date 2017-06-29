@@ -99,7 +99,7 @@ namespace Ship_Game
 			else
 			{
 				this.bAutomation.Hover = true;
-				ToolTip.CreateTooltip(59, MinimapButtons.screen.ScreenManager);
+				ToolTip.CreateTooltip(59);
 			}
 			if (this.bAutomation.HandleInput(input))
 			{

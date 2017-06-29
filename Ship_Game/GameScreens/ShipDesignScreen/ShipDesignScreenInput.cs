@@ -232,9 +232,9 @@ namespace Ship_Game {
                 }
                 else if (e.clickRect.HitTest(mousePos))
                 {
-                    selector = new Selector(ScreenManager, e.clickRect);
+                    selector = new Selector(e.clickRect);
                     e.clickRectHover = 1;
-                    selector = new Selector(ScreenManager, e.clickRect);
+                    selector = new Selector(e.clickRect);
                     if (!input.InGameSelect) continue;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     if (!ShipSaved && !CheckDesign())
@@ -266,9 +266,9 @@ namespace Ship_Game {
                         ScrollList.Entry entry = ChooseFighterSL.Copied[index];
                         if (entry.clickRect.HitTest(mousePos))
                         {
-                            selector = new Selector(ScreenManager, entry.clickRect);
+                            selector = new Selector(entry.clickRect);
                             entry.clickRectHover = 1;
-                            selector = new Selector(ScreenManager, entry.clickRect);
+                            selector = new Selector(entry.clickRect);
                             if (!input.InGameSelect) continue;
 
                             ActiveModule.hangarShipUID = (entry.item as Ship).Name;
@@ -290,9 +290,9 @@ namespace Ship_Game {
                 {
                     ScrollList.Entry entry = ChooseFighterSL.Copied[index];
                     if (!entry.clickRect.HitTest(mousePos)) continue;
-                    selector = new Selector(ScreenManager, entry.clickRect);
+                    selector = new Selector(entry.clickRect);
                     entry.clickRectHover = 1;
-                    selector = new Selector(ScreenManager, entry.clickRect);
+                    selector = new Selector(entry.clickRect);
                     if (!input.InGameSelect) continue;
                     HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
                     HangarShipUIDLast = (entry.item as Ship).Name;
@@ -310,7 +310,7 @@ namespace Ship_Game {
                 return true;
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(134, ScreenManager);
+                ToolTip.CreateTooltip(134);
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
@@ -627,7 +627,7 @@ namespace Ship_Game {
                 if (toggleButton.r.HitTest(input.CursorPosition))
                 {
                     if (toggleButton.HasToolTip)
-                        ToolTip.CreateTooltip(toggleButton.WhichToolTip, ScreenManager);
+                        ToolTip.CreateTooltip(toggleButton.WhichToolTip);
                     if (input.InGameSelect)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -1059,7 +1059,7 @@ namespace Ship_Game {
 
             CarrierOnly    = ActiveHull.CarrierShip;
             CoBoxCursor    = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
-            CarrierOnlyBox = new Checkbox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
+            CarrierOnlyBox = new UICheckBox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
                 "Carrier Only", 0);
 
             ShipStats = new Menu1(ScreenManager, shipStatsPanel);

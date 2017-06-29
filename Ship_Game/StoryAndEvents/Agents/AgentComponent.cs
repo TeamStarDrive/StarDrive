@@ -43,9 +43,9 @@ namespace Ship_Game
 		private Selector selector;
         private int spyLimitCount;
         private bool AutoTrain;
-        private Checkbox CBAutoRepeat;
+        private UICheckBox CBAutoRepeat;
         private bool SpyMute;
-        private Checkbox cbSpyMute;
+        private UICheckBox cbSpyMute;
         private int empirePlanetSpys;
 
 
@@ -146,7 +146,7 @@ namespace Ship_Game
 			}
 			if (this.selector != null)
 			{
-				this.selector.Draw();
+				this.selector.Draw(ScreenManager.SpriteBatch);
 			}
 			if (this.SelectedAgent != null)
 			{
@@ -180,14 +180,14 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost.ToString(), costPos, Color.White);
 
             // @todo Why are we creating new checkboxes every frame??
-            CBAutoRepeat = new Checkbox(OpsSubRect.X - 10, moneyRect.Y - 30, () => AutoTrain, Fonts.Arial12, "Repeat Missions", 0);
-            cbSpyMute    = new Checkbox(OpsSubRect.X - 10, moneyRect.Y - 15, () => SpyMute,   Fonts.Arial12, "Mute Spies", 0);
+            CBAutoRepeat = new UICheckBox(OpsSubRect.X - 10, moneyRect.Y - 30, () => AutoTrain, Fonts.Arial12, "Repeat Missions", 0);
+            cbSpyMute    = new UICheckBox(OpsSubRect.X - 10, moneyRect.Y - 15, () => SpyMute,   Fonts.Arial12, "Mute Spies", 0);
 
             EmpireManager.Player.data.SpyMute = SpyMute;
             EmpireManager.Player.data.SpyMissionRepeat = AutoTrain;
 
-            CBAutoRepeat.Draw(ScreenManager);
-            cbSpyMute.Draw(ScreenManager);
+            CBAutoRepeat.Draw(ScreenManager.SpriteBatch);
+            cbSpyMute.Draw(ScreenManager.SpriteBatch);
 
             Rectangle spyLimit = new Rectangle((int)moneyRect.X + 65, (int)moneyRect.Y, 21, 20);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
@@ -249,7 +249,7 @@ namespace Ship_Game
                     Log.Error(ex, "AgentComponent Draw crashed at index {0} out of {1}", i, AgentSL.Entries.Count);
                 }
             }
-            selector?.Draw();
+            selector?.Draw(ScreenManager.SpriteBatch);
 
             if (SelectedAgent != null)
             {
@@ -305,7 +305,7 @@ namespace Ship_Game
 			}
 			if (this.RecruitButton.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(Localizer.Token(2180), this.ScreenManager);
+				ToolTip.CreateTooltip(Localizer.Token(2180));
 			}
 			if (this.RecruitButton.HandleInput(input))
 			{
@@ -335,7 +335,7 @@ namespace Ship_Game
 					ScrollList.Entry e = this.AgentSL.Entries[i];
 					if (e.clickRect.HitTest(input.CursorPosition))
 					{
-						this.selector = new Selector(this.ScreenManager, e.clickRect);
+						this.selector = new Selector(e.clickRect);
 						if (input.InGameSelect)
 						{
 							this.SelectedAgent = e.item as Agent;
@@ -363,11 +363,11 @@ namespace Ship_Game
 						{
 							if (!(e.item as MissionEntry).DoMission.Rect.HitTest(input.CursorPosition))
 							{
-								ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex), this.ScreenManager);
+								ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex));
 							}
 							else
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2198), Empire.Universe.ScreenManager);
+								ToolTip.CreateTooltip(Localizer.Token(2198));
 							}
 						}
 					}
@@ -388,7 +388,7 @@ namespace Ship_Game
             }
             if (this.RecruitButton.r.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(Localizer.Token(2180), this.ScreenManager);
+                ToolTip.CreateTooltip(Localizer.Token(2180));
             }
             if (this.RecruitButton.HandleInput(input))
             {
@@ -422,7 +422,7 @@ namespace Ship_Game
                     ScrollList.Entry e = this.AgentSL.Entries[i];
                     if (e.clickRect.HitTest(input.CursorPosition))
                     {
-                        this.selector = new Selector(this.ScreenManager, e.clickRect);
+                        this.selector = new Selector(e.clickRect);
                         if (input.InGameSelect)
                         {
                             this.SelectedAgent = e.item as Agent;
@@ -450,11 +450,11 @@ namespace Ship_Game
                         {
                             if (!(e.item as MissionEntry).DoMission.Rect.HitTest(input.CursorPosition))
                             {
-                                ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex), this.ScreenManager);
+                                ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex));
                             }
                             else
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2198), Empire.Universe.ScreenManager);
+                                ToolTip.CreateTooltip(Localizer.Token(2198));
                             }
                         }
                     }
