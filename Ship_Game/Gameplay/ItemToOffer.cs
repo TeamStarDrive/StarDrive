@@ -68,23 +68,23 @@ namespace Ship_Game.Gameplay
 				{
 					if (str == "NAPact")
 					{
-						ToolTip.CreateTooltip(129, Empire.Universe.ScreenManager);
+						ToolTip.CreateTooltip(129);
 					}
 					else if (str == "OpenBorders")
 					{
-						ToolTip.CreateTooltip(130, Empire.Universe.ScreenManager);
+						ToolTip.CreateTooltip(130);
 					}
 					else if (str == "Peace Treaty")
 					{
-						ToolTip.CreateTooltip(131, Empire.Universe.ScreenManager);
+						ToolTip.CreateTooltip(131);
 					}
 					else if (str == "TradeTreaty")
 					{
-						ToolTip.CreateTooltip(132, Empire.Universe.ScreenManager);
+						ToolTip.CreateTooltip(132);
 					}
 					else if (str == "OfferAlliance")
 					{
-						ToolTip.CreateTooltip(133, Empire.Universe.ScreenManager);
+						ToolTip.CreateTooltip(133);
 					}
 				}
 				if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)

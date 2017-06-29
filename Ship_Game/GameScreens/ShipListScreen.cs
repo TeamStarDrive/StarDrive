@@ -46,7 +46,7 @@ namespace Ship_Game
 
 		private Rectangle eRect;
 
-		private Checkbox cb_hide_proj;
+		private UICheckBox cb_hide_proj;
 
 		public bool HidePlatforms;
 
@@ -119,10 +119,10 @@ namespace Ship_Game
                 this.SelectedShip = null;
 			}
 
-			cb_hide_proj = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 10, TitleBar.Menu.Y + 15,
+			cb_hide_proj = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 10, TitleBar.Menu.Y + 15,
                 () => HidePlatforms, x => {
                     HidePlatforms = x;
-                    ResetList(ShowRoles.Options[ShowRoles.ActiveIndex].@value);
+                    ResetList(ShowRoles.Options[ShowRoles.ActiveIndex].IntValue);
                 }, Fonts.Arial12Bold, title: 191, tooltip:0);
 
 			this.ShowRoles = new DropOptions(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
@@ -152,7 +152,7 @@ namespace Ship_Game
             this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
             //this.Maint.rect = this.MaintRect;
             this.ShowRoles.ActiveIndex = indexLast;  //fbedard: remember last filter
-            this.ResetList(this.ShowRoles.Options[indexLast].@value);
+            this.ResetList(this.ShowRoles.Options[indexLast].IntValue);
 		}
 
         protected override void Dispose(bool disposing)
@@ -170,7 +170,7 @@ namespace Ship_Game
 			this.EMenu.Draw();
 			Color TextColor = new Color(118, 102, 67, 50);
 			this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
-			this.cb_hide_proj.Draw(base.ScreenManager);
+			this.cb_hide_proj.Draw(ScreenManager.SpriteBatch);
 			if (this.ShipSL.Copied.Count > 0)
 			{
 				ShipListScreenEntry e1 = this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry;
@@ -286,26 +286,26 @@ namespace Ship_Game
 			this.close.Draw(base.ScreenManager);
 			if (base.IsActive)
 			{
-				ToolTip.Draw(base.ScreenManager);
+				ToolTip.Draw(ScreenManager.SpriteBatch);
 			}
 			base.ScreenManager.SpriteBatch.End();
 		}
 
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (!base.IsActive)
 			{
-				return;
+				return false;
 			}
 			this.ShipSL.HandleInput(input);
 			this.cb_hide_proj.HandleInput(input);
 			this.ShowRoles.HandleInput(input);
 			if (this.ShowRoles.ActiveIndex != indexLast)
 			{
-				this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
+				this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].IntValue);
                 indexLast = this.ShowRoles.ActiveIndex;
-				return;
+				return true;
 			}
 			//this.indexLast = this.ShowRoles.ActiveIndex;
 			for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
@@ -377,7 +377,7 @@ namespace Ship_Game
 				}
 			}
             else if(this.SB_FTL.Hover)
-                ToolTip.CreateTooltip("Faster Than Light Speed of Ship", base.ScreenManager);
+                ToolTip.CreateTooltip("Faster Than Light Speed of Ship");
 			if (this.SB_STL.HandleInput(input))//MathExt.HitTest(this.STL, input.CursorPosition))
 			{
 				
@@ -405,7 +405,7 @@ namespace Ship_Game
 				}
 			}
             else if (this.SB_STL.Hover)
-                ToolTip.CreateTooltip("Sublight Speed of Ship", base.ScreenManager);
+                ToolTip.CreateTooltip("Sublight Speed of Ship");
 			if (this.Maint.HandleInput(input))//  MathExt.HitTest(this.MaintRect, input.CursorPosition))
 			{
 				
@@ -436,7 +436,7 @@ namespace Ship_Game
                 }
 			}
             else if (this.Maint.Hover)
-                ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
+                ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable");
 			if (SB_Troop.HandleInput(input)  )//)MathExt.HitTest(this.TroopRect, input.CursorPosition))
 			{
 				
@@ -464,7 +464,7 @@ namespace Ship_Game
 				}
 			}
             else if(this.SB_Troop.Hover)
-                ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable", base.ScreenManager);
+                ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable");
 			if (this.SB_STR.HandleInput(input))//MathExt.HitTest(this.STRIconRect, input.CursorPosition))
 			{
 				
@@ -492,7 +492,7 @@ namespace Ship_Game
 				}
 			}
             else if(this.SB_STR.Hover)
-                ToolTip.CreateTooltip("Indicates Ship Strength; sortable", base.ScreenManager);
+                ToolTip.CreateTooltip("Indicates Ship Strength; sortable");
 			if (this.SortName.HandleInput(input))
 			{
 				GameAudio.PlaySfxAsync("blip_click");
@@ -580,6 +580,7 @@ namespace Ship_Game
 				}
 				this.ResetPos();
 			}
+
             if (input.KeysCurr.IsKeyDown(Keys.K) && !input.KeysPrev.IsKeyDown(Keys.K) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
@@ -610,7 +611,7 @@ namespace Ship_Game
                     else if (Empire.Universe.SelectedShipList.Count > 1)
                         Empire.Universe.shipListInfoUI.SetShipList(Empire.Universe.SelectedShipList, false);
                 }
-                return;
+                return base.HandleInput(input);
             }
 
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
@@ -621,11 +622,11 @@ namespace Ship_Game
                 Empire.Universe.SkipRightOnce = true;
                 if (this.SelectedShip !=null)
                 {                   
-                    Empire.Universe.SelectedFleet = (Fleet)null;
-                    Empire.Universe.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
-                    Empire.Universe.SelectedSystem = (SolarSystem)null;
-                    Empire.Universe.SelectedPlanet = (Planet)null;
-                    Empire.Universe.returnToShip = false;
+                    Empire.Universe.SelectedFleet  = null;
+                    Empire.Universe.SelectedItem   = null;
+                    Empire.Universe.SelectedSystem = null;
+                    Empire.Universe.SelectedPlanet = null;
+                    Empire.Universe.returnToShip   = false;
                     foreach (ScrollList.Entry sel in this.ShipSL.Entries)
                         if ((sel.item as ShipListScreenEntry).Selected)
                             Empire.Universe.SelectedShipList.AddUnique((sel.item as ShipListScreenEntry).ship);
@@ -641,7 +642,9 @@ namespace Ship_Game
                     else if (Empire.Universe.SelectedShipList.Count > 1)
                         Empire.Universe.shipListInfoUI.SetShipList((Array<Ship>)Empire.Universe.SelectedShipList, false);
                 }
+                return true;
 			}
+		    return base.HandleInput(input);
 		}
 
 		public void ResetList()

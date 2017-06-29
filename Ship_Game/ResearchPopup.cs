@@ -149,15 +149,10 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.End();
         }
 
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
-
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.UnlockSL.HandleInput(input);
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

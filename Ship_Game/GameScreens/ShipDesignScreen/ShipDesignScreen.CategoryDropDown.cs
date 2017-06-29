@@ -14,44 +14,18 @@ namespace Ship_Game
             }
             public override void HandleInput (InputState input)
             {
-                if (r.HitTest(input.CursorPosition)) //fbedard: add tooltip for CategoryList
+                if (Rect.HitTest(input.CursorPosition)) //fbedard: add tooltip for CategoryList
                 {
-                    switch (Options[ActiveIndex].value)
+                    switch (Options[ActiveIndex].IntValue)
                     {
-                        case 1:
-                            {
-                                ToolTip.CreateTooltip("Repair when damaged at 75%", ScreenManager);
-                                break;
-                            }
-                        case 2:
-                            {
-                                ToolTip.CreateTooltip(
-                                    "Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 15%",
-                                    ScreenManager);
-                                break;
-                            }
-                        case 3:
-                            {
-                                ToolTip.CreateTooltip("Repair when damaged at 35%", ScreenManager);
-                                break;
-                            }
+                        case 1: ToolTip.CreateTooltip("Repair when damaged at 75%"); break;
+                        case 2: ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 15%"); break;
+                        case 3: ToolTip.CreateTooltip("Repair when damaged at 35%"); break;
                         case 4:
                         case 5:
-                        case 6:
-                            {
-                                ToolTip.CreateTooltip("Repair when damaged at 55%", ScreenManager);
-                                break;
-                            }
-                        case 7:
-                            {
-                                ToolTip.CreateTooltip("Never Repair!", ScreenManager);
-                                break;
-                            }
-                        default:
-                            {
-                                ToolTip.CreateTooltip("Repair when damaged at 75%", ScreenManager);
-                                break;
-                            }
+                        case 6: ToolTip.CreateTooltip("Repair when damaged at 55%"); break;
+                        case 7: ToolTip.CreateTooltip("Never Repair!"); break;
+                        default: ToolTip.CreateTooltip("Repair when damaged at 75%"); break;
                     }
                 }
                 base.HandleInput(input);

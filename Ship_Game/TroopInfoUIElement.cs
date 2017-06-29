@@ -31,7 +31,7 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = sm;
 			this.ElementRect = r;
-			this.sel = new Selector(this.ScreenManager, r, Color.Black);
+			this.sel = new Selector(r, Color.Black);
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			this.SliderRect = new Rectangle(r.X + r.Width - 100, r.Y + r.Height - 40, 500, 40);
@@ -80,12 +80,12 @@ namespace Ship_Game
 				return;
 			}
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-			this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Menu, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Rect, Color.Black);
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
-			Header slant = new Header(new Rectangle(this.sel.Menu.X, this.sel.Menu.Y, this.sel.Menu.Width, 41), (this.pgs.TroopsHere.Count > 0 ? this.pgs.TroopsHere[0].Name : Localizer.Token(this.pgs.building.NameTranslationIndex)));
-			Body body = new Body(new Rectangle(slant.leftRect.X, this.sel.Menu.Y + 44, this.sel.Menu.Width, this.sel.Menu.Height - 44));
+			Header slant = new Header(new Rectangle(this.sel.Rect.X, this.sel.Rect.Y, this.sel.Rect.Width, 41), (this.pgs.TroopsHere.Count > 0 ? this.pgs.TroopsHere[0].Name : Localizer.Token(this.pgs.building.NameTranslationIndex)));
+			Body body = new Body(new Rectangle(slant.leftRect.X, this.sel.Rect.Y + 44, this.sel.Rect.Width, this.sel.Rect.Height - 44));
 			slant.Draw(this.ScreenManager);
 			body.Draw(this.ScreenManager);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
@@ -149,7 +149,7 @@ namespace Ship_Game
 						Rectangle star = new Rectangle(this.LeftRect.X + this.LeftRect.Width - 20 - 12 * i, this.LeftRect.Y + 12, 12, 11);
 						if (star.HitTest(MousePos))
 						{
-							ToolTip.CreateTooltip(127, this.ScreenManager);
+							ToolTip.CreateTooltip(127);
 						}
 						this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
 					}
@@ -182,11 +182,11 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
+				ToolTip.CreateTooltip(ti.TIP_ID);
 			}
 			if (this.LaunchTroop != null && this.LaunchTroop.r.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(67, this.ScreenManager);
+				ToolTip.CreateTooltip(67);
 				if (this.LaunchTroop.HandleInput(input))
 				{
 					if ((this.screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)

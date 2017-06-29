@@ -77,8 +77,8 @@ namespace Ship_Game
 			Rectangle r = this.ConstructionSubMenu.Menu;
 			r.Y = r.Y + 25;
 			r.Height = r.Height - 25;
-			Selector sel = new Selector(this.ScreenManager, r, new Color(0, 0, 0, 210));
-			sel.Draw();
+			Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+			sel.Draw(ScreenManager.SpriteBatch);
 			this.ConstructionSubMenu.Draw();
 			this.SL.Draw(this.ScreenManager.SpriteBatch);
 			Vector2 bCursor = new Vector2((float)(this.ConstructionSubMenu.Menu.X + 20), (float)(this.ConstructionSubMenu.Menu.Y + 45));
@@ -228,7 +228,7 @@ namespace Ship_Game
 			}
 			if (this.selector != null)
 			{
-				this.selector.Draw();
+				this.selector.Draw(ScreenManager.SpriteBatch);
 			}
 			if (this.itemToBuild != null)
 			{
@@ -286,7 +286,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					this.selector = new Selector(this.ScreenManager, e.clickRect);
+					this.selector = new Selector(e.clickRect);
 					if (e.clickRectHover == 0)
 					{
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");

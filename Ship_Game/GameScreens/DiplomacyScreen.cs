@@ -515,7 +515,7 @@ namespace Ship_Game
 			{
 				case DiplomacyScreen.DialogState.Them:
 				{
-					Selector selector = new Selector(base.ScreenManager, this.DialogRect, new Color(0, 0, 0, 220));
+					Selector selector = new Selector(this.DialogRect, new Color(0, 0, 0, 220));
 					text = this.parseText(this.TheirText, (float)(this.DialogRect.Width - 25), Fonts.Consolas18);
 					Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Consolas18.MeasureString(text).X / 2f, this.TextCursor.Y);
 					HelperFunctions.ClampVectorToInt(ref Position);
@@ -559,13 +559,13 @@ namespace Ship_Game
 					pos.X = pos.X - 8f;
 					pos.Y = pos.Y + (float)(Fonts.Pirulen16.LineSpacing + 15);
 					pos.X = pos.X - 8f;
-					ToolTip.Draw(base.ScreenManager);
+					ToolTip.Draw(ScreenManager.SpriteBatch);
 					base.ScreenManager.SpriteBatch.End();
 					return;
 				}
 				case DiplomacyScreen.DialogState.Discuss:
 				{
-					Selector selector1 = new Selector(base.ScreenManager, this.DialogRect, new Color(0, 0, 0, 220));
+					Selector selector1 = new Selector(this.DialogRect, new Color(0, 0, 0, 220));
 					this.StatementsSL.Draw(base.ScreenManager.SpriteBatch);
 					drawCurs = this.TextCursor;
 					int i = this.StatementsSL.indexAtTop;
@@ -636,7 +636,7 @@ namespace Ship_Game
 				}
 				case DiplomacyScreen.DialogState.End:
 				{
-					Selector selector2 = new Selector(base.ScreenManager, this.DialogRect, new Color(0, 0, 0, 220));
+					Selector selector2 = new Selector(this.DialogRect, new Color(0, 0, 0, 220));
 					text = this.parseText(this.TheirText, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
 					Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Consolas18.MeasureString(text).X / 2f, this.TextCursor.Y);
 					HelperFunctions.ClampVectorToInt(ref Position);
@@ -1053,22 +1053,23 @@ namespace Ship_Game
 			return resp;
 		}
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             if (new Rectangle(this.TrustRect.X - (int)Fonts.Pirulen16.MeasureString("Trust").X, this.TrustRect.Y, (int)Fonts.Pirulen16.MeasureString("Trust").X + this.TrustRect.Width, 14).HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(47, this.ScreenManager);
+                ToolTip.CreateTooltip(47);
             if (new Rectangle(this.AngerRect.X - (int)Fonts.Pirulen16.MeasureString("Anger").X, this.AngerRect.Y, (int)Fonts.Pirulen16.MeasureString("Anger").X + this.AngerRect.Width, 14).HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(48, this.ScreenManager);
+                ToolTip.CreateTooltip(48);
             if (new Rectangle(this.FearRect.X - (int)Fonts.Pirulen16.MeasureString("Fear").X, this.FearRect.Y, (int)Fonts.Pirulen16.MeasureString("Fear").X + this.FearRect.Width, 14).HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(49, this.ScreenManager);
+                ToolTip.CreateTooltip(49);
             if (this.Exit.HandleInput(input) && this.dState != DiplomacyScreen.DialogState.TheirOffer)
             {
                 this.ExitScreen();
-                return;
+                return true;
             }
-            if (this.dState == DiplomacyScreen.DialogState.End)
-                return;
-            if (this.dState != DiplomacyScreen.DialogState.TheirOffer)
+            if (this.dState == DialogState.End)
+                return false;
+
+            if (this.dState != DialogState.TheirOffer)
             {
                 if (!playerEmpire.GetRelations(them).Treaty_Peace)
                 {
@@ -1092,7 +1093,7 @@ namespace Ship_Game
                     }
                 }
                 else if (this.DeclareWar != null && this.DeclareWar.R.HitTest(input.CursorPosition))
-                    ToolTip.CreateTooltip(128, this.ScreenManager);
+                    ToolTip.CreateTooltip(128);
                 if (this.Discuss != null && this.Discuss.HandleInput(input))
                 {
                     this.StatementsSL.Entries.Clear();
@@ -1382,8 +1383,11 @@ namespace Ship_Game
                 }
             }
             if (input.Escaped)
+            {
                 this.ExitScreen();
-            base.HandleInput(input);
+                return true;
+            }
+            return base.HandleInput(input);
         }
 
 		public override void LoadContent()

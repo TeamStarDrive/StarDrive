@@ -8,28 +8,16 @@ namespace Ship_Game
 {
     public sealed class MessageBoxScreen : GameScreen
     {
-        private const string usageText = "A button = Okay";
-
+        private const string UsageText = "A button = Okay";
         private readonly bool PauseMenu;
-
         private string Message;
 
-        private SpriteFont smallFont;
-
-        public UIButton OK;
-
+        public UIButton Ok;
         public UIButton Cancel;
 
         private float Timer;
-
         private readonly bool Timed;
-
         private readonly string Original = "";
-
-        private MouseState CurrentMouse;
-
-        private MouseState PreviousMouse;
-
         private string Toappend;
 
         public MessageBoxScreen(GameScreen parent, string message) : base(parent)
@@ -39,20 +27,22 @@ namespace Ship_Game
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            this.OK = new UIButton()
+
+            Texture2D texture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
+            this.Ok = new UIButton()
             {
-                Rect = new Rectangle(0, 0, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
+                Rect = new Rectangle(0, 0, texture.Width, texture.Height),
+                NormalTexture = texture,
                 HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
                 PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
                 Text = Localizer.Token(15),
                 Launches = "OK"
             };
-            this.Buttons.Add(this.OK);
+            this.Buttons.Add(this.Ok);
             this.Cancel = new UIButton()
             {
-                Rect = new Rectangle(0, 0, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
+                Rect = new Rectangle(0, 0, texture.Width, texture.Height),
+                NormalTexture = texture,
                 HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
                 PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
                 Text = Localizer.Token(16),
@@ -60,10 +50,12 @@ namespace Ship_Game
             };
             this.Buttons.Add(this.Cancel);
         }
-        public MessageBoxScreen(GameScreen parent, int localID, string oktext, string canceltext)
-            : this(parent, Localizer.Token(localID), oktext, canceltext) { }
-        
 
+        public MessageBoxScreen(GameScreen parent, int localID, string oktext, string canceltext)
+            : this(parent, Localizer.Token(localID), oktext, canceltext)
+        {
+        }
+        
         public MessageBoxScreen(GameScreen parent, string message, string oktext, string canceltext) : base(parent)
         {
             this.Message = message;
@@ -71,20 +63,22 @@ namespace Ship_Game
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            this.OK = new UIButton()
+
+            Texture2D normal = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
+            this.Ok = new UIButton()
             {
-                Rect = new Rectangle(0, 0, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
+                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
+                NormalTexture = normal,
                 HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
                 PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
                 Text = oktext,
                 Launches = "OK"
             };
-            this.Buttons.Add(this.OK);
+            this.Buttons.Add(this.Ok);
             this.Cancel = new UIButton()
             {
-                Rect = new Rectangle(0, 0, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
+                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
+                NormalTexture = normal,
                 HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
                 PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
                 Text = canceltext,
@@ -102,20 +96,22 @@ namespace Ship_Game
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            this.OK = new UIButton()
+
+            Texture2D normal = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
+            this.Ok = new UIButton()
             {
-                Rect = new Rectangle(0, 0, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
+                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
+                NormalTexture = normal,
                 HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
                 PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
                 Text = Localizer.Token(15),
                 Launches = "OK"
             };
-            this.Buttons.Add(this.OK);
+            this.Buttons.Add(this.Ok);
             this.Cancel = new UIButton()
             {
-                Rect = new Rectangle(0, 0, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
+                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
+                NormalTexture = normal,
                 HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
                 PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
                 Text = Localizer.Token(16),
@@ -134,16 +130,16 @@ namespace Ship_Game
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             if (!this.Timed)
             {
-                Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
+                Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135,
+                    base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
                 Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Message).X / 2f, (float)(r.Y + 10));
                 base.ScreenManager.SpriteBatch.Begin();
                 base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
                 base.ScreenManager.SpriteBatch.DrawRectangle(r, Color.Orange);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
-                this.OK.Rect.X = r.X + r.Width / 2 + 5;
-                this.OK.Rect.Y = r.Y + r.Height - 28;
-                this.Cancel.Rect.X = r.X + r.Width / 2 - 73;
-                this.Cancel.Rect.Y = r.Y + r.Height - 28;
+
+                Ok.Layout(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
+                Cancel.Layout(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
                 foreach (UIButton b in this.Buttons)
                 {
                     b.Draw(base.ScreenManager.SpriteBatch);
@@ -159,10 +155,9 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.FillRectangle(r2, Color.Black);
             base.ScreenManager.SpriteBatch.DrawRectangle(r2, Color.Orange);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
-            this.OK.Rect.X = r2.X + r2.Width / 2 + 5;
-            this.OK.Rect.Y = r2.Y + r2.Height - 28;
-            this.Cancel.Rect.X = r2.X + r2.Width / 2 - 73;
-            this.Cancel.Rect.Y = r2.Y + r2.Height - 28;
+            Ok.Layout(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
+            Cancel.Layout(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
+
             foreach (UIButton b in this.Buttons)
             {
                 b.Draw(base.ScreenManager.SpriteBatch);
@@ -170,23 +165,24 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.End();
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
-            this.CurrentMouse = input.MouseCurr;
-            Vector2 MousePos = new Vector2((float)this.CurrentMouse.X, (float)this.CurrentMouse.Y);
-            if (input.MenuSelect && (!this.PauseMenu || input.GamepadCurr.Buttons.A == ButtonState.Pressed))
+            var mousePos = input.MouseScreenPos;
+            if (input.MenuSelect && !PauseMenu)
             {
                 Accepted?.Invoke(this, EventArgs.Empty);
-                this.ExitScreen();
+                ExitScreen();
+                return true;
             }
-            else if (input.MenuCancel || input.MenuSelect && this.PauseMenu && input.GamepadCurr.Buttons.A == ButtonState.Released)
+            if (input.MenuCancel || input.MenuSelect && PauseMenu)
             {
                 Cancelled?.Invoke(this, EventArgs.Empty);
-                this.ExitScreen();
+                ExitScreen();
+                return true;
             }
             foreach (UIButton b in this.Buttons)
             {
-                if (!b.Rect.HitTest(MousePos))
+                if (!b.Rect.HitTest(mousePos))
                 {
                     b.State = UIButton.PressState.Default;
                 }
@@ -197,11 +193,11 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("mouse_over4");
                     }
                     b.State = UIButton.PressState.Hover;
-                    if (this.CurrentMouse.LeftButton == ButtonState.Pressed && this.PreviousMouse.LeftButton == ButtonState.Pressed)
+                    if (input.LeftMouseHeldDown)
                     {
                         b.State = UIButton.PressState.Pressed;
                     }
-                    if (this.CurrentMouse.LeftButton != ButtonState.Released || this.PreviousMouse.LeftButton != ButtonState.Pressed)
+                    if (!input.LeftMouseClick)
                     {
                         continue;
                     }
@@ -230,12 +226,7 @@ namespace Ship_Game
                     }
                 }
             }
-            this.PreviousMouse = this.CurrentMouse;
-        }
-
-        public override void LoadContent()
-        {
-            this.smallFont = Fonts.Arial20Bold;
+            return base.HandleInput(input);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)

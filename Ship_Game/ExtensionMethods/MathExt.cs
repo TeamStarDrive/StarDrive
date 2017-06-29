@@ -163,6 +163,8 @@ namespace Ship_Game
             return new Vector2(p.BackBufferWidth / 2f, p.BackBufferHeight / 2f);
         }
 
+        public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
+
         // True if pos is inside the rectangle
         public static bool HitTest(this Rectangle r, Vector2 pos)
         {

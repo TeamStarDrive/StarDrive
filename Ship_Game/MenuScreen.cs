@@ -56,7 +56,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (input.MenuUp)
 			{
@@ -73,12 +73,13 @@ namespace Ship_Game
 			if (input.MenuSelect)
 			{
 				this.OnSelectEntry(this.selectedEntry);
-				return;
+				return true;
 			}
 			if (input.MenuCancel)
 			{
 				this.OnCancel();
 			}
+            return base.HandleInput(input);
 		}
 
 		protected abstract void OnCancel();

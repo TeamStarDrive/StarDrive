@@ -98,8 +98,8 @@ namespace Ship_Game
             this.orbitalResourcesSub = new Submenu(this.ScreenManager, psubRect);
             this.orbitalResourcesSub.AddTab("In Orbit");
             this.OrbitSL = new ScrollList(this.orbitalResourcesSub);
-            Empire.Universe.ShipsInCombat.Active = false;
-            Empire.Universe.PlanetsInCombat.Active = false;
+            Empire.Universe.ShipsInCombat.Visible = false;
+            Empire.Universe.PlanetsInCombat.Visible = false;
             this.LandAll = new UIButton()
             {
                 Rect = new Rectangle(this.orbitalResourcesSub.Menu.X + 20, this.orbitalResourcesSub.Menu.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
@@ -418,7 +418,7 @@ namespace Ship_Game
             }
             if (Empire.Universe.IsActive)
             {
-                ToolTip.Draw(this.ScreenManager);
+                ToolTip.Draw(ScreenManager.SpriteBatch);
             }
             this.ScreenManager.SpriteBatch.End();
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
@@ -491,7 +491,7 @@ namespace Ship_Game
             }
             if (this.selector != null)
             {
-                this.selector.Draw();
+                this.selector.Draw(ScreenManager.SpriteBatch);
             }
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, "Ground Combat", this.TitlePos, Color.LightPink);
             Rectangle tilebg = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
@@ -775,7 +775,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    this.selector = new Selector(this.ScreenManager, e.clickRect);
+                    this.selector = new Selector(e.clickRect);
                     if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                     {
                         continue;
@@ -1018,8 +1018,8 @@ namespace Ship_Game
             }
             else if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
             {
-                Empire.Universe.ShipsInCombat.Active = true;
-                Empire.Universe.PlanetsInCombat.Active = true;
+                Empire.Universe.ShipsInCombat.Visible = true;
+                Empire.Universe.PlanetsInCombat.Visible = true;
             }                    
         }
         

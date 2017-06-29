@@ -62,15 +62,18 @@ namespace Ship_Game
 			{
 				b.Draw(ScreenManager.SpriteBatch);
 			}
-		    selector?.Draw();
+		    selector?.Draw(ScreenManager.SpriteBatch);
 		    ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
             selector = null;
 			if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
+			{
 				ExitScreen();
+			    return true;    
+			}
 
 			if (!IsExiting) foreach (UIButton b in Buttons)
 			{
@@ -143,7 +146,7 @@ namespace Ship_Game
             if (CurrentButton != null)
             {
                 CurrentButton.State = UIButton.PressState.Pressed;
-                return;
+                return false;
             }
             ModsSL.HandleInput(input);
 			foreach (ScrollList.Entry e in ModsSL.Entries)
@@ -159,7 +162,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
-					selector = new Selector(ScreenManager, e.clickRect);
+					selector = new Selector(e.clickRect);
 					if (!input.InGameSelect)
 						continue;
 
@@ -179,7 +182,7 @@ namespace Ship_Game
                     }
 				}
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
         private void ClearMods()
         {

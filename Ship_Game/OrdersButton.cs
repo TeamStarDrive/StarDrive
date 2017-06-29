@@ -56,7 +56,7 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, Rectangle r)
 		{
-			Selector selector = new Selector(ScreenManager, r, Color.TransparentBlack);
+			Selector selector = new Selector(r, Color.TransparentBlack);
 			Rectangle iconRect = new Rectangle(r.X + 6, r.Y + 6, 44, 44);
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
@@ -270,7 +270,7 @@ namespace Ship_Game
 			else
 			{
 				//this.Hover = true;
-				ToolTip.CreateTooltip(this.ID_tip, sm);
+				ToolTip.CreateTooltip(this.ID_tip);
 				if (this.SimpleToggle && input.InGameSelect)
 				{
 					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");

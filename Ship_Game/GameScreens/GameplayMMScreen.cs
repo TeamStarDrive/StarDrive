@@ -58,21 +58,16 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
 			}
 			this.window.Draw();
+
+            Save.Enabled = SavedGame.NotSaving;
 			foreach (UIButton b in Buttons)
 			{
-				switch (b.Launches)
-				{
-                    case "Load Game":
-                    case "Exit to Main Menu":
-                    case "Exit to Windows":
-                    case "Save": b.Draw(ScreenManager.SpriteBatch, enabled: SavedGame.NotSaving); break;
-                    default:     b.Draw(ScreenManager.SpriteBatch);                               break;
-				}
+			    b.Draw(ScreenManager.SpriteBatch);
 			}
 			ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.currentMouse = input.MouseCurr;
 			Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
@@ -80,10 +75,12 @@ namespace Ship_Game
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
+                return true;
             }
 			if (input.Escaped || input.RightMouseClick)
 			{
 				this.ExitScreen();
+			    return true;
 			}
 			foreach (UIButton b in this.Buttons)
 			{
@@ -152,7 +149,7 @@ namespace Ship_Game
 				}
 			}
 			previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		} 
         public override void LoadContent()
 		{

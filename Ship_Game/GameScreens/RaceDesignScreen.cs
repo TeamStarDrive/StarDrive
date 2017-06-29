@@ -1196,7 +1196,7 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
                 if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                 {
-                    ToolTip.CreateTooltip(tip, base.ScreenManager);
+                    ToolTip.CreateTooltip(tip);
                 }
             }
             else if (this.mode == RaceDesignScreen.GameMode.Elimination)
@@ -1206,7 +1206,7 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
                 if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                 {
-                    ToolTip.CreateTooltip(tip, base.ScreenManager);
+                    ToolTip.CreateTooltip(tip);
                 }
             }
             else if (this.mode == RaceDesignScreen.GameMode.Corners)    //Added by Gretman
@@ -1216,7 +1216,7 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
                 if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                 {
-                    ToolTip.CreateTooltip(tip, base.ScreenManager);
+                    ToolTip.CreateTooltip(tip);
                 }
             }
             //else if (this.mode == RaceDesignScreen.GameMode.Warlords)
@@ -1231,11 +1231,11 @@ namespace Ship_Game
             //}
             if (this.ScaleRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
             {
-                ToolTip.CreateTooltip(125, base.ScreenManager);
+                ToolTip.CreateTooltip(125);
             }
             if (this.PacingRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
             {
-                ToolTip.CreateTooltip(126, base.ScreenManager);
+                ToolTip.CreateTooltip(126);
             }
             foreach (UIButton b in this.Buttons)
             {
@@ -1243,7 +1243,7 @@ namespace Ship_Game
             }
             if (this.selector != null)
             {
-                this.selector.Draw();
+                this.selector.Draw(ScreenManager.SpriteBatch);
             }
             if (this.DrawingColorSelector)
             {
@@ -1252,7 +1252,7 @@ namespace Ship_Game
             this.RulesOptions.Draw(base.ScreenManager.SpriteBatch);
             if (base.IsActive)
             {
-                ToolTip.Draw(base.ScreenManager);
+                ToolTip.Draw(ScreenManager.SpriteBatch);
             }
             base.ScreenManager.SpriteBatch.End();
         }
@@ -1289,7 +1289,7 @@ namespace Ship_Game
         }
 
         
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             this.currentMouse = Mouse.GetState();
             Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -1459,7 +1459,7 @@ namespace Ship_Game
                         {
                             GameAudio.PlaySfxAsync("sd_ui_mouseover");
                         }
-                        this.selector = new Selector(base.ScreenManager, f.clickRect);
+                        this.selector = new Selector(f.clickRect);
                         f.clickRectHover = 1;
                         TraitEntry t = f.item as TraitEntry;
                         if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
@@ -1724,7 +1724,9 @@ namespace Ship_Game
             if (input.Escaped)
             {
                 this.ExitScreen();
+                return true;
             }
+            return base.HandleInput(input);
         }
 
 

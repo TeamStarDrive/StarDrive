@@ -101,8 +101,8 @@ namespace Ship_Game
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
 			Color c = new Color(255, 239, 208);
-			Selector fleetstats = new Selector(base.ScreenManager, this.FleetStatsRect, new Color(0, 0, 0, 180));
-			fleetstats.Draw();
+			Selector fleetstats = new Selector(this.FleetStatsRect, new Color(0, 0, 0, 180));
+			fleetstats.Draw(ScreenManager.SpriteBatch);
 			this.Cursor = new Vector2((float)(this.FleetStatsRect.X + 25), (float)(this.FleetStatsRect.Y + 25));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", this.Cursor, c);
 			this.Cursor.Y = this.Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
@@ -203,17 +203,10 @@ namespace Ship_Game
 			Cursor.X = column1;
 		}
 
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
 
-		
-
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.currentMouse = input.MouseCurr;
-			Vector2 vector2 = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			if (this.numThatFit > 0 && this.AssignNow.HandleInput(input))
 			{
 				this.AssignAvailableShips();
@@ -227,9 +220,10 @@ namespace Ship_Game
 			if (input.Escaped || input.RightMouseClick)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			this.previousMouse = input.MousePrev;
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
