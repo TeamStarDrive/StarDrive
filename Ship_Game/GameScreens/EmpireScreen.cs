@@ -27,7 +27,7 @@ namespace Ship_Game
 
 		private Rectangle leftRect;
 
-		private DropOptions GovernorDropdown;
+		private DropOptions<int> GovernorDropdown;
 
 		private CloseButton close;
 
@@ -90,7 +90,7 @@ namespace Ship_Game
             this.res = new SortButton(this.eui.empire.data.ESSort, "res");
             this.money = new SortButton(this.eui.empire.data.ESSort, "money");
 			this.SelectedPlanet = (this.ColoniesList.Entries[this.ColoniesList.indexAtTop].item as EmpireScreenEntry).p;
-			this.GovernorDropdown = new DropOptions(new Rectangle(0, 0, 100, 18));
+			this.GovernorDropdown = new DropOptions<int>(new Rectangle(0, 0, 100, 18));
 			this.GovernorDropdown.AddOption("--", 1);
 			this.GovernorDropdown.AddOption(Localizer.Token(4064), 0);
 			this.GovernorDropdown.AddOption(Localizer.Token(4065), 2);
@@ -99,9 +99,9 @@ namespace Ship_Game
 			this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
             this.GovernorDropdown.AddOption(Localizer.Token(393), 6);
 			this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
-			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
+			if (this.GovernorDropdown.ActiveValue != (int)this.SelectedPlanet.colonyType)
 			{
-				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
+				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.ActiveValue;
 				if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 				{
 					this.SelectedPlanet.FoodLocked = true;
@@ -671,9 +671,9 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						this.SelectedPlanet = entry.p;
 						this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
-						if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
+						if (this.GovernorDropdown.ActiveValue != (int)this.SelectedPlanet.colonyType)
 						{
-							this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
+							this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.ActiveValue;
 							if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 							{
 								this.SelectedPlanet.FoodLocked = true;
@@ -704,9 +704,9 @@ namespace Ship_Game
 				}
 			}
 			this.GovernorDropdown.HandleInput(input);
-			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
+			if (this.GovernorDropdown.ActiveValue != (int)this.SelectedPlanet.colonyType)
 			{
-				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
+				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.ActiveValue;
 				if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 				{
 					this.SelectedPlanet.FoodLocked = true;
@@ -748,9 +748,9 @@ namespace Ship_Game
 			}
 			this.SelectedPlanet = (this.ColoniesList.Entries[this.ColoniesList.indexAtTop].item as EmpireScreenEntry).p;
 			this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
-			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
+			if (this.GovernorDropdown.ActiveValue != (int)this.SelectedPlanet.colonyType)
 			{
-				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
+				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.ActiveValue;
 				if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 				{
 					this.SelectedPlanet.FoodLocked = true;
