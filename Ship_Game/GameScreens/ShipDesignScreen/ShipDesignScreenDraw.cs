@@ -995,14 +995,11 @@ namespace Ship_Game
             }
 
             //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
-            foreach (Entry e in this.CategoryList.Options)
+            if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
             {
-                if (e.Name == LoadCategory.ToString() && this.Fmlevenmore)
-                {
-                    this.CategoryList.ActiveIndex = e.IntValue - 1;
-                    this.Fmlevenmore = false;
-                }
+                Fmlevenmore = false;
             }
+
             this.CategoryList.Draw(ScreenManager.SpriteBatch);
             this.CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
             string classifTitle = "Behaviour Presets";
