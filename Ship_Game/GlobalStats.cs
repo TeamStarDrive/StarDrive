@@ -126,6 +126,14 @@ namespace Ship_Game
         public static float EffectsVolume = 1f;
         public static Language Language   = Language.English;
 
+        //Render options
+        public static int TextureQuality  = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int TextureSampling = 2;    //0=Bilinear, 1=Trilinear, 2=Anisotropic
+        public static int MaxAnisotropy   = 2;    //# of samples, only applies with TextureSampling = 2
+        public static float ShadowQuality = 1.0f; //1.0f highest, 0.0f lowest
+        public static int ShadowDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int EffectDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+
         public static bool IsEnglish => Language == Language.English;
         public static bool IsFrench  => Language == Language.French;
         public static bool IsGerman  => Language == Language.German;
@@ -161,12 +169,17 @@ namespace Ship_Game
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);
             GetSetting("AutoSaveFreq",           ref AutoSaveFreq);
-            GetSetting("IsFirstRun",                ref IsFirstRun);
+            GetSetting("IsFirstRun",             ref IsFirstRun);
             GetSetting("ForceFullSim",           ref ForceFullSim);
             GetSetting("WindowMode",             ref WindowMode);
             GetSetting("AntiAliasSamples",       ref AntiAlias);
             GetSetting("PostProcessBloom",       ref RenderBloom);
-            //GetSetting("8XAntiAliasing",         ref AntiAlias8XOverride);
+            GetSetting("TextureQuality",         ref TextureQuality);   
+            GetSetting("TextureSampling",        ref TextureSampling);  
+            GetSetting("MaxAnisotropy",          ref MaxAnisotropy);    
+            GetSetting("ShadowQuality",          ref ShadowQuality); 
+            GetSetting("ShadowDetail",           ref ShadowDetail);
+            GetSetting("EffectDetail",           ref EffectDetail);
             GetSetting("AutoErrorReport",        ref AutoErrorReport);
             GetSetting("ActiveMod",              ref ModName);
             Statreset();
@@ -256,7 +269,12 @@ namespace Ship_Game
             WriteSetting(config, "WindowMode",     WindowMode);
             WriteSetting(config, "AntiAliasSamples", AntiAlias);
             WriteSetting(config, "PostProcessBloom", RenderBloom);
-            //WriteSetting(config, "8XAntiAliasing", AntiAlias8XOverride);
+            WriteSetting(config, "TextureQuality", TextureQuality);
+            WriteSetting(config, "TextureSampling", TextureSampling);
+            WriteSetting(config, "MaxAnisotropy", MaxAnisotropy);
+            WriteSetting(config, "ShadowQuality", ShadowQuality);
+            WriteSetting(config, "ShadowDetail", ShadowDetail);
+            WriteSetting(config, "EffectDetail", EffectDetail);
             WriteSetting(config, "AutoErrorReport", AutoErrorReport);
             WriteSetting(config, "ActiveMod",       ModName);
 
