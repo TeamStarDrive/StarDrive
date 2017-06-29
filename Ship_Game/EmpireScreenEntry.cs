@@ -294,16 +294,16 @@ namespace Ship_Game
 			{
 				if (this.p.Owner.data.Traits.Cybernetic != 0)
 				{
-					ToolTip.CreateTooltip(77, ScreenManager);
+					ToolTip.CreateTooltip(77);
 				}
 				else
 				{
-					ToolTip.CreateTooltip(73, ScreenManager);
+					ToolTip.CreateTooltip(73);
 				}
 			}
 			if (this.prodStorageIcon.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(74, ScreenManager);
+				ToolTip.CreateTooltip(74);
 			}
 			if (this.p.ConstructionQueue.Count > 0)
 			{
@@ -527,7 +527,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				ToolTip.CreateTooltip(50, ScreenManager);
+				ToolTip.CreateTooltip(50);
 				this.ApplyHover = true;
 			}
 			if (HelperFunctions.ClickedRect(this.ApplyProductionRect, input) && this.p.ConstructionQueue.Count > 0)
@@ -588,7 +588,7 @@ namespace Ship_Game
 							GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						}
 					}
-					ToolTip.CreateTooltip(69, ScreenManager);
+					ToolTip.CreateTooltip(69);
 				}
 			}
 			if (!this.ProdLock.LockRect.HitTest(input.CursorPosition))
@@ -617,7 +617,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
-				ToolTip.CreateTooltip(69, ScreenManager);
+				ToolTip.CreateTooltip(69);
 			}
 			if (!this.ResLock.LockRect.HitTest(input.CursorPosition))
 			{
@@ -645,7 +645,7 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					}
 				}
-				ToolTip.CreateTooltip(69, ScreenManager);
+				ToolTip.CreateTooltip(69);
 			}
 			if (this.p.Owner.data.Traits.Cybernetic == 0 && this.foodDropDown.r.HitTest(input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 			{

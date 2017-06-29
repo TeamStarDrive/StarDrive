@@ -99,9 +99,9 @@ namespace Ship_Game
 			this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
             this.GovernorDropdown.AddOption(Localizer.Token(393), 6);
 			this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
-			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.SelectedPlanet.colonyType)
+			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
 			{
-				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value;
+				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
 				if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 				{
 					this.SelectedPlanet.FoodLocked = true;
@@ -169,7 +169,7 @@ namespace Ship_Game
 			Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(75, base.ScreenManager);
+				ToolTip.CreateTooltip(75);
 			}
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
@@ -178,7 +178,7 @@ namespace Ship_Game
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(20, base.ScreenManager);
+				ToolTip.CreateTooltip(20);
 			}
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
@@ -187,7 +187,7 @@ namespace Ship_Game
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(21, base.ScreenManager);
+				ToolTip.CreateTooltip(21);
 			}
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
@@ -308,7 +308,7 @@ namespace Ship_Game
                 }
 			}
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Governor", TextPosition, Color.White);
-			TextPosition.Y = (float)(this.GovernorDropdown.r.Y + 25);
+			TextPosition.Y = (float)(this.GovernorDropdown.Rect.Y + 25);
 			string desc = "";
 			switch (this.SelectedPlanet.colonyType)
 			{
@@ -351,8 +351,8 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, TextPosition, Color.White);
 			desc = Localizer.Token(388);
 			TextPosition = new Vector2((float)(this.AutoButton.X + this.AutoButton.Width / 2) - Fonts.Pirulen16.MeasureString(desc).X / 2f, (float)(this.AutoButton.Y + this.AutoButton.Height / 2 - Fonts.Pirulen16.LineSpacing / 2));
-			this.GovernorDropdown.r.X = (int)GovPos.X;
-			this.GovernorDropdown.r.Y = (int)GovPos.Y + Fonts.Arial12Bold.LineSpacing + 5;
+			this.GovernorDropdown.Rect.X = (int)GovPos.X;
+			this.GovernorDropdown.Rect.Y = (int)GovPos.Y + Fonts.Arial12Bold.LineSpacing + 5;
 			this.GovernorDropdown.Reset();
 			this.GovernorDropdown.Draw(base.ScreenManager.SpriteBatch);
 			if (this.ColoniesList.Entries.Count > 0)
@@ -441,7 +441,7 @@ namespace Ship_Game
 			Vector2 pos = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
 			this.close.Draw(base.ScreenManager);
-			ToolTip.Draw(base.ScreenManager);
+			ToolTip.Draw(ScreenManager.SpriteBatch);
 			base.ScreenManager.SpriteBatch.End();
 		}
 
@@ -529,7 +529,7 @@ namespace Ship_Game
 			this.ColoniesList.HandleInput(input);
 			if (this.pop.rect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(Localizer.Token(2278), base.ScreenManager);
+				ToolTip.CreateTooltip(Localizer.Token(2278));
 			}
 			if (this.pop.HandleInput(input) )
             {
@@ -555,7 +555,7 @@ namespace Ship_Game
 			}
 			if (this.food.rect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(139, base.ScreenManager);
+				ToolTip.CreateTooltip(139);
 			}
             if (this.food.HandleInput(input) )
             {
@@ -580,7 +580,7 @@ namespace Ship_Game
 			}
 			if (this.prod.rect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(140, base.ScreenManager);
+				ToolTip.CreateTooltip(140);
 			}
             if (this.prod.HandleInput(input) )
             {
@@ -612,7 +612,7 @@ namespace Ship_Game
 			}
 			if (this.res.rect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(141, base.ScreenManager);
+				ToolTip.CreateTooltip(141);
 			}
 			if (this.res.HandleInput(input))
 			{
@@ -637,7 +637,7 @@ namespace Ship_Game
 			}
 			if (this.money.rect.HitTest(MousePos))
 			{
-				ToolTip.CreateTooltip(142, base.ScreenManager);
+				ToolTip.CreateTooltip(142);
 			}
 			if (this.money.HandleInput(input))
 			{
@@ -671,9 +671,9 @@ namespace Ship_Game
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 						this.SelectedPlanet = entry.p;
 						this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
-						if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.SelectedPlanet.colonyType)
+						if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
 						{
-							this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value;
+							this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
 							if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 							{
 								this.SelectedPlanet.FoodLocked = true;
@@ -704,9 +704,9 @@ namespace Ship_Game
 				}
 			}
 			this.GovernorDropdown.HandleInput(input);
-			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.SelectedPlanet.colonyType)
+			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
 			{
-				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value;
+				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
 				if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 				{
 					this.SelectedPlanet.FoodLocked = true;
@@ -748,9 +748,9 @@ namespace Ship_Game
 			}
 			this.SelectedPlanet = (this.ColoniesList.Entries[this.ColoniesList.indexAtTop].item as EmpireScreenEntry).p;
 			this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
-			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.SelectedPlanet.colonyType)
+			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.SelectedPlanet.colonyType)
 			{
-				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value;
+				this.SelectedPlanet.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
 				if (this.SelectedPlanet.colonyType != Planet.ColonyType.Colony)
 				{
 					this.SelectedPlanet.FoodLocked = true;

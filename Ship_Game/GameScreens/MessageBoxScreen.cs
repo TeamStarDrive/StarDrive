@@ -130,16 +130,16 @@ namespace Ship_Game
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             if (!this.Timed)
             {
-                Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
+                Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135,
+                    base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
                 Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Message).X / 2f, (float)(r.Y + 10));
                 base.ScreenManager.SpriteBatch.Begin();
                 base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
                 base.ScreenManager.SpriteBatch.DrawRectangle(r, Color.Orange);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
-                this.Ok.Rect.X = r.X + r.Width / 2 + 5;
-                this.Ok.Rect.Y = r.Y + r.Height - 28;
-                this.Cancel.Rect.X = r.X + r.Width / 2 - 73;
-                this.Cancel.Rect.Y = r.Y + r.Height - 28;
+
+                Ok.Layout(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
+                Cancel.Layout(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
                 foreach (UIButton b in this.Buttons)
                 {
                     b.Draw(base.ScreenManager.SpriteBatch);
@@ -155,10 +155,9 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.FillRectangle(r2, Color.Black);
             base.ScreenManager.SpriteBatch.DrawRectangle(r2, Color.Orange);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
-            this.Ok.Rect.X = r2.X + r2.Width / 2 + 5;
-            this.Ok.Rect.Y = r2.Y + r2.Height - 28;
-            this.Cancel.Rect.X = r2.X + r2.Width / 2 - 73;
-            this.Cancel.Rect.Y = r2.Y + r2.Height - 28;
+            Ok.Layout(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
+            Cancel.Layout(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
+
             foreach (UIButton b in this.Buttons)
             {
                 b.Draw(base.ScreenManager.SpriteBatch);

@@ -90,7 +90,7 @@ namespace Ship_Game
                             : ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
                 }
             }
-            selector?.Draw();
+            selector?.Draw(ScreenManager.SpriteBatch);
             foreach (UIButton b in this.Buttons)
             {
                 b.Draw(base.ScreenManager.SpriteBatch);
@@ -125,7 +125,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    this.selector = new Selector(base.ScreenManager, e.clickRect);
+                    this.selector = new Selector(e.clickRect);
                     if (e.clickRectHover == 0)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_mouseover");

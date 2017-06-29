@@ -74,7 +74,7 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = sm;
 			this.ElementRect = r;
-			this.sel = new Selector(this.ScreenManager, r, Color.Black);
+			this.sel = new Selector(r, Color.Black);
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			this.SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
@@ -296,7 +296,7 @@ namespace Ship_Game
 				float mechanicalBoardingDefense = this.HoveredShip.MechanicalBoardingDefense + this.HoveredShip.TroopBoardingDefense;
 				spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
 				text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
-                Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
+                Vector2 ShipStatus = new Vector2((float)(this.sel.Rect.X + this.sel.Rect.Width - 170), this.Housing.Y + 68);
 				text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
 				HelperFunctions.ClampVectorToInt(ref ShipStatus);
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
@@ -377,7 +377,7 @@ namespace Ship_Game
 						button.Hover = true;
 						if (button.HasToolTip)
 						{
-							ToolTip.CreateTooltip(button.WhichToolTip, this.ScreenManager);
+							ToolTip.CreateTooltip(button.WhichToolTip);
 						}
 						if (input.InGameSelect)
 						{
@@ -676,7 +676,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
+				ToolTip.CreateTooltip(ti.TIP_ID);
 			}
 			if (this.ElementRect.HitTest(input.CursorPosition))
 			{

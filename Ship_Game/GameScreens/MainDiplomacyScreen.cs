@@ -693,7 +693,7 @@ namespace Ship_Game
 			this.close.Draw(base.ScreenManager);
 			if (base.IsActive)
 			{
-				ToolTip.Draw(base.ScreenManager);
+				ToolTip.Draw(base.ScreenManager.SpriteBatch);
 			}
 			base.ScreenManager.SpriteBatch.End();
 		}
@@ -1051,7 +1051,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			for (int i = this.ArtifactsSL.indexAtTop; i < this.ArtifactsSL.Entries.Count && i < this.ArtifactsSL.indexAtTop + this.ArtifactsSL.entriesToDisplay; i++)
+			for (int i = ArtifactsSL.indexAtTop; i < ArtifactsSL.Entries.Count && i < ArtifactsSL.indexAtTop + ArtifactsSL.entriesToDisplay; i++)
 			{
 				foreach (SkinnableButton button in (this.ArtifactsSL.Entries[i].item as ArtifactEntry).ArtifactButtons)
 				{
@@ -1061,7 +1061,7 @@ namespace Ship_Game
 					}
 					string Text = string.Concat(Localizer.Token((button.ReferenceObject as Artifact).NameIndex), "\n\n");
 					Text = string.Concat(Text, Localizer.Token((button.ReferenceObject as Artifact).DescriptionIndex));
-					ToolTip.CreateTooltip(Text, base.ScreenManager);
+					ToolTip.CreateTooltip(Text);
 				}
 			}
 			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
