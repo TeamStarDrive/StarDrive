@@ -15,6 +15,7 @@ namespace Ship_Game
         public GraphicsDeviceManager Graphics;
         public static Game1 Instance;
         public ScreenManager ScreenManager;
+        public SynapseGaming.LightingSystem.Core.LightingSystemPreferences RenderPrefs;
         public Viewport Viewport { get; private set; }
         public bool IsLoaded { get; private set; }
 
@@ -69,6 +70,14 @@ namespace Ship_Game
             Graphics.PreferMultiSampling = false; //true
             Graphics.SynchronizeWithVerticalRetrace = true;
             Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
+            RenderPrefs = new SynapseGaming.LightingSystem.Core.LightingSystemPreferences();
+
+            RenderPrefs.ShadowQuality   = GlobalStats.ShadowQuality;
+            RenderPrefs.MaxAnisotropy   = GlobalStats.MaxAnisotropy;
+            RenderPrefs.ShadowDetail    = (SynapseGaming.LightingSystem.Core.DetailPreference)GlobalStats.ShadowDetail;
+            RenderPrefs.EffectDetail    = (SynapseGaming.LightingSystem.Core.DetailPreference)GlobalStats.EffectDetail;
+            RenderPrefs.TextureQuality  = (SynapseGaming.LightingSystem.Core.DetailPreference)GlobalStats.TextureQuality;
+            RenderPrefs.TextureSampling = (SynapseGaming.LightingSystem.Core.SamplingPreference)GlobalStats.TextureSampling;
 
             int width  = GlobalStats.XRES;
             int height = GlobalStats.YRES;
@@ -94,6 +103,7 @@ namespace Ship_Game
         {
             Graphics.ApplyChanges();
             Viewport = GraphicsDevice.Viewport;
+            ScreenManager?.UpdatePreferences(RenderPrefs);
             ScreenManager?.UpdateViewports();
         }
 
@@ -111,6 +121,7 @@ namespace Ship_Game
         {
             Window.Title = "StarDrive";
             ScreenManager = new ScreenManager(this, Graphics);
+            
             GameAudio.Initialize("Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
 
             ResourceManager.ScreenManager = ScreenManager;
