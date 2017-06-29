@@ -102,7 +102,7 @@ namespace Ship_Game
         public void ApplySettings()
         {
             Graphics.ApplyChanges();
-            Viewport = GraphicsDevice.Viewport;
+            Viewport     = GraphicsDevice.Viewport;
             ScreenManager?.UpdatePreferences(RenderPrefs);
             ScreenManager?.UpdateViewports();
         }
