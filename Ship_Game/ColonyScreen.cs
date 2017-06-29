@@ -39,7 +39,7 @@ namespace Ship_Game
         private ToggleButton RightColony;
         private UIButton launchTroops;
         private UIButton SendTroops;  //fbedard
-        private DropOptions GovernorDropdown;
+        private DropOptions<int> GovernorDropdown;
         public CloseButton close;
         private Rectangle MoneyRect;
         private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
@@ -234,7 +234,7 @@ namespace Ship_Game
                 this.detailInfo = (object)p.Description;
                 Rectangle rectangle4 = new Rectangle(this.pDescription.Menu.X + 10, this.pDescription.Menu.Y + 30, 124, 148);
                 Rectangle rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
-                this.GovernorDropdown = new DropOptions(new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
+                this.GovernorDropdown = new DropOptions<int>(new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 this.GovernorDropdown.AddOption("--", 1);
                 this.GovernorDropdown.AddOption(Localizer.Token(4064), 0);
                 this.GovernorDropdown.AddOption(Localizer.Token(4065), 2);
@@ -243,9 +243,9 @@ namespace Ship_Game
                 this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
                 this.GovernorDropdown.AddOption(Localizer.Token(5087), 6);
                 this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(p);
-                if ((Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != this.p.colonyType)
+                if ((Planet.ColonyType)this.GovernorDropdown.ActiveValue != this.p.colonyType)
                 {
-                    this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
+                    this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.ActiveValue;
                     if (this.p.colonyType == Planet.ColonyType.Colony)
                     {
                         this.p.GovernorOn = false;
@@ -2179,9 +2179,9 @@ namespace Ship_Game
                 this.PlanetName.HandleTextInput(ref this.PlanetName.Text, input);
             }
             this.GovernorDropdown.HandleInput(input);
-            if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue != (int)this.p.colonyType)
+            if (this.GovernorDropdown.ActiveValue != (int)this.p.colonyType)
             {
-                this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].IntValue;
+                this.p.colonyType = (Planet.ColonyType)this.GovernorDropdown.ActiveValue;
                 if (this.p.colonyType != Planet.ColonyType.Colony)
                 {
                     this.p.FoodLocked = true;

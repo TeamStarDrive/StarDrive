@@ -34,7 +34,7 @@ namespace Ship_Game
 
 		private CloseButton close;
 
-		private DropOptions ShowRoles;
+		private DropOptions<int> ShowRoles;
 
 		private SortButton SortSystem;
 
@@ -122,10 +122,10 @@ namespace Ship_Game
 			cb_hide_proj = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 10, TitleBar.Menu.Y + 15,
                 () => HidePlatforms, x => {
                     HidePlatforms = x;
-                    ResetList(ShowRoles.Options[ShowRoles.ActiveIndex].IntValue);
+                    ResetList(ShowRoles.ActiveValue);
                 }, Fonts.Arial12Bold, title: 191, tooltip:0);
 
-			this.ShowRoles = new DropOptions(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
+			this.ShowRoles = new DropOptions<int>(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
 			this.ShowRoles.AddOption("All Ships", 1);
             this.ShowRoles.AddOption("Not in Fleets", 11);
 			this.ShowRoles.AddOption("Fighters", 2);
@@ -152,7 +152,7 @@ namespace Ship_Game
             this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
             //this.Maint.rect = this.MaintRect;
             this.ShowRoles.ActiveIndex = indexLast;  //fbedard: remember last filter
-            this.ResetList(this.ShowRoles.Options[indexLast].IntValue);
+            this.ResetList(this.ShowRoles.ActiveValue);
 		}
 
         protected override void Dispose(bool disposing)
@@ -303,7 +303,7 @@ namespace Ship_Game
 			this.ShowRoles.HandleInput(input);
 			if (this.ShowRoles.ActiveIndex != indexLast)
 			{
-				this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].IntValue);
+				this.ResetList(this.ShowRoles.ActiveValue);
                 indexLast = this.ShowRoles.ActiveIndex;
 				return true;
 			}

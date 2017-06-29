@@ -122,7 +122,7 @@ namespace Ship_Game
                 var cursor = new Vector2(SecondaryOptionsRect.X + 10, SecondaryOptionsRect.Y + 10);
 				ResolutionOptions.Clear();
 				//ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
-                ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y - 2, 105, 18));
+                ResolutionDropDown = new DropOptions<Option>(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y - 2, 105, 18));
 				foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
 				{
 					if (mode.Width < 1280)
@@ -160,14 +160,8 @@ namespace Ship_Game
 					{
 						continue;
 					}
-					foreach (Entry e in ResolutionDropDown.Options)
-					{
-						if ((e.ObjValue as Option).Name != resolut.Name)
-						{
-							continue;
-						}
-						ResolutionDropDown.ActiveIndex = ResolutionDropDown.Options.IndexOf(e);
-					}
+
+				    ResolutionDropDown.SetActiveEntry(resolut.Name);
 				}
 				cursor = new Vector2(SecondaryOptionsRect.X, (SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 60));
 				Apply.Rect = new Rectangle((int)cursor.X, (int)cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
@@ -240,7 +234,7 @@ namespace Ship_Game
 			EffectsVolumeSlider.Amount = GlobalStats.EffectsVolume;
 			Vector2 cursor = new Vector2((SecondaryOptionsRect.X + 10), (SecondaryOptionsRect.Y + 10));
 			ResolutionOptions.Clear();
-			ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
+			ResolutionDropDown = new DropOptions<Option>(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
 			foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
 			{
 				if (mode.Width < 1280)
@@ -279,14 +273,8 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				foreach (Entry e in ResolutionDropDown.Options)
-				{
-					if ((e.ObjValue as Option).Name != resolut.Name)
-					{
-						continue;
-					}
-					ResolutionDropDown.ActiveIndex = ResolutionDropDown.Options.IndexOf(e);
-				}
+
+			    ResolutionDropDown.SetActiveEntry(resolut.Name);
 			}
 			cursor = new Vector2((float)SecondaryOptionsRect.X, (float)(SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 15));
 			Apply.Rect = new Rectangle((int)cursor.X, (int)cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
@@ -447,7 +435,7 @@ namespace Ship_Game
 
 
             var position = new Vector2(SecondaryOptionsRect.X + 10, SecondaryOptionsRect.Y + 10);
-            ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y - 2, 105, 18));
+            ResolutionDropDown = new DropOptions<Option>(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y - 2, 105, 18));
             foreach (DisplayMode displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
             {
                 if (displayMode.Width >= 1280)
@@ -473,13 +461,10 @@ namespace Ship_Game
 
             foreach (Option option in ResolutionOptions)
             {
-                if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth == option.x && ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight == option.y)
+                if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth == option.x &&
+                    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight == option.y)
                 {
-                    foreach (Entry entry in ResolutionDropDown.Options)
-                    {
-                        if ((entry.ObjValue as Option).Name == option.Name)
-                            ResolutionDropDown.ActiveIndex = ResolutionDropDown.Options.IndexOf(entry);
-                    }
+                    ResolutionDropDown.SetActiveEntry(option.Name);
                 }
             }
 
@@ -523,7 +508,7 @@ namespace Ship_Game
 			EffectsVolumeSlider.Amount = GlobalStats.EffectsVolume;
 
 			var cursor = new Vector2((float)(SecondaryOptionsRect.X + 10), (float)(SecondaryOptionsRect.Y + 10));
-			ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
+			ResolutionDropDown = new DropOptions<Option>(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 3, 105, 18));
 			foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
 			{
 				if (mode.Width < 1280)
@@ -560,12 +545,7 @@ namespace Ship_Game
 				if (p.BackBufferWidth != resolut.x || p.BackBufferHeight != resolut.y)
 					continue;
 
-				foreach (Entry e in ResolutionDropDown.Options)
-				{
-					if (((Option)e.ObjValue).Name != resolut.Name)
-						continue;
-					ResolutionDropDown.ActiveIndex = ResolutionDropDown.Options.IndexOf(e);
-				}
+			    ResolutionDropDown.SetActiveEntry(resolut.Name);
 			}
 			cursor = new Vector2(SecondaryOptionsRect.X, (SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 15));
 
