@@ -1049,13 +1049,9 @@ namespace Ship_Game {
                 new Rectangle((int) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f),
                     (int) ordersBarPos.Y, 100, 18);
 
-            CategoryList = new CategoryDropDown(DropdownRect,this);
-
-            foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category))
-                .Cast<ShipData.Category>())
-            {
-                CategoryList.AddOption(item.ToString(), (int) item + 1);
-            }
+            CategoryList = new CategoryDropDown(DropdownRect);
+            foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
+                CategoryList.AddOption(item.ToString(), item);
 
             CarrierOnly    = ActiveHull.CarrierShip;
             CoBoxCursor    = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
@@ -1148,15 +1144,7 @@ namespace Ship_Game {
             toSave.CombatState = CombatState;
             toSave.Name = name;
 
-            //Cases correspond to the 5 options in the drop-down menu; default exists for... Propriety, mainly. The option selected when saving will always be the Category saved, pretty straightforward.
-            foreach (var item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
-            {
-                if (CategoryList.Options[CategoryList.ActiveIndex].Name == item.ToString())
-                {
-                    ActiveHull.ShipCategory = item;
-                    break;
-                }
-            }
+            ActiveHull.ShipCategory = CategoryList.ActiveValue;
 
             //Adds the category determined by the case from the dropdown to the 'toSave' ShipData.
             toSave.ShipCategory = ActiveHull.ShipCategory;

@@ -5,33 +5,29 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen : GameScreen
     {
-        private class CategoryDropDown : DropOptions
+        private class CategoryDropDown : DropOptions<ShipData.Category>
         {            
-            private readonly ScreenManager ScreenManager;
-            public CategoryDropDown(Rectangle dropdownRect, GameScreen screen) : base(dropdownRect)
+            public CategoryDropDown(Rectangle dropdownRect) : base(dropdownRect)
             {                
-                ScreenManager = screen.ScreenManager;
             }
-            public override void HandleInput (InputState input)
+            public override void HandleInput(InputState input)
             {
                 if (Rect.HitTest(input.CursorPosition)) //fbedard: add tooltip for CategoryList
                 {
-                    switch (Options[ActiveIndex].IntValue)
+                    switch (ActiveValue)
                     {
-                        case 1: ToolTip.CreateTooltip("Repair when damaged at 75%"); break;
-                        case 2: ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 15%"); break;
-                        case 3: ToolTip.CreateTooltip("Repair when damaged at 35%"); break;
-                        case 4:
-                        case 5:
-                        case 6: ToolTip.CreateTooltip("Repair when damaged at 55%"); break;
-                        case 7: ToolTip.CreateTooltip("Never Repair!"); break;
-                        default: ToolTip.CreateTooltip("Repair when damaged at 75%"); break;
+                        default:
+                        case ShipData.Category.Unclassified: ToolTip.CreateTooltip("Repair when damaged at 75%"); break;
+                        case ShipData.Category.Civilian: ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 15%"); break;
+                        case ShipData.Category.Recon:    ToolTip.CreateTooltip("Repair when damaged at 35%"); break;
+                        case ShipData.Category.Combat:   
+                        case ShipData.Category.Bomber:
+                        case ShipData.Category.Fighter:  ToolTip.CreateTooltip("Repair when damaged at 55%"); break;
+                        case ShipData.Category.Kamikaze: ToolTip.CreateTooltip("Never Repair!"); break;
                     }
                 }
                 base.HandleInput(input);
             }
-
-
         }
     }
 }
