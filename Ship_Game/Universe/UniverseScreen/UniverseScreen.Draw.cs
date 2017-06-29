@@ -657,7 +657,7 @@ namespace Ship_Game
                 DrawLinesToScreen(pos, lines);
             }
             if (IsActive)
-                ToolTip.Draw(ScreenManager);
+                ToolTip.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
 
             // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
@@ -788,7 +788,7 @@ namespace Ship_Game
             {
                 foreach (UniverseScreen.FleetButton item_0 in this.FleetButtons)
                 {
-                    Selector local_1 = new Selector(this.ScreenManager, item_0.ClickRect, Color.TransparentBlack);
+                    Selector local_1 = new Selector(item_0.ClickRect, Color.TransparentBlack);
                     Rectangle local_2 = new Rectangle(item_0.ClickRect.X + 6, item_0.ClickRect.Y + 6,
                         item_0.ClickRect.Width - 12, item_0.ClickRect.Width - 12);
                     bool local_3 = false;
@@ -810,7 +810,7 @@ namespace Ship_Game
                         local_3
                             ? new Color(byte.MaxValue, (byte) 0, (byte) 0, (byte) local_6_1)
                             : new Color((byte) 0, (byte) 0, (byte) 0, (byte) 80));
-                    local_1.Draw();
+                    local_1.Draw(ScreenManager.SpriteBatch);
                     this.ScreenManager.SpriteBatch.Draw(
                         ResourceManager.TextureDict["FleetIcons/" + item_0.Fleet.FleetIconIndex.ToString()], local_2,
                         EmpireManager.Player.EmpireColor);

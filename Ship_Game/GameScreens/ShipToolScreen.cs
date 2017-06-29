@@ -392,7 +392,7 @@ namespace Ship_Game
                     button.Hover = true;
                     if (button.HasToolTip)
                     {
-                        ToolTip.CreateTooltip(button.WhichToolTip, base.ScreenManager);
+                        ToolTip.CreateTooltip(button.WhichToolTip);
                     }
                     if (input.InGameSelect)
                     {

@@ -51,7 +51,7 @@ namespace Ship_Game
                 }
                 else if (e.clickRect.HitTest(input.CursorPosition))
                 {
-                    SelectionBox = new Selector(Screen.ScreenManager, e.clickRect);
+                    SelectionBox = new Selector(e.clickRect);
                     e.clickRectHover = 1;
                     if (!Screen.Input.InGameSelect) continue;
                     Screen.SetActiveModule(ShipModule.CreateNoParent(((ShipModule)e.item).UID));
@@ -184,7 +184,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            SelectionBox?.Draw();
+            SelectionBox?.Draw(spriteBatch);
             if (Screen.ModSel.Tabs[0].Selected)
             {
                 DrawTab1();
@@ -459,8 +459,7 @@ namespace Ship_Game
                             rotateRect, Color.White);
                         if (rotateRect.HitTest(MousePos))
                         {
-                            ToolTip.CreateTooltip("Indicates that this module can be rotated using the arrow keys",
-                                Screen.ScreenManager);
+                            ToolTip.CreateTooltip("Indicates that this module can be rotated using the arrow keys");
                         }
                     }
                     if (e.clickRect.HitTest(MousePos))

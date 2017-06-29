@@ -58,16 +58,11 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
 			}
 			this.window.Draw();
+
+            Save.Enabled = SavedGame.NotSaving;
 			foreach (UIButton b in Buttons)
 			{
-				switch (b.Launches)
-				{
-                    case "Load Game":
-                    case "Exit to Main Menu":
-                    case "Exit to Windows":
-                    case "Save": b.Draw(ScreenManager.SpriteBatch, enabled: SavedGame.NotSaving); break;
-                    default:     b.Draw(ScreenManager.SpriteBatch);                               break;
-				}
+			    b.Draw(ScreenManager.SpriteBatch);
 			}
 			ScreenManager.SpriteBatch.End();
 		}
