@@ -207,7 +207,7 @@ namespace Ship_Game
             this.MainMenu.DrawHollow();
             this.close.Draw(this.ScreenManager);
             this.qcomponent.Draw();
-            ToolTip.Draw(this.ScreenManager);
+            ToolTip.Draw(ScreenManager.SpriteBatch);
             this.ScreenManager.SpriteBatch.End();
         }
 
@@ -247,18 +247,18 @@ namespace Ship_Game
 			return deepest;
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
             if (input.KeysCurr.IsKeyDown(Keys.R) && !input.KeysPrev.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
-                return;
+                return true;
             }
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
-				return;
+				return true;
 			}
             if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
 			{
@@ -298,16 +298,9 @@ namespace Ship_Game
                 {
                     EmpireManager.Player.GetHDict()[hull.Key] = true;
                 }
-                //foreach (KeyValuePair<string, ShipModule> Module in ResourceManager.ShipModulesDict)
-                //{
-                    
-                //    EmpireManager.Player.GetMDict()[Module.Key] = true;
-                //}
-
 
                 foreach (KeyValuePair<string, Ship_Game.Building> Building in ResourceManager.BuildingsDict)
                 {
-                    //if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
                     if (string.IsNullOrEmpty(ResourceManager.BuildingsDict[Building.Key].EventTriggerUID))
                         EmpireManager.Player.GetBDict()[Building.Key] = true;
                 }
@@ -334,7 +327,7 @@ namespace Ship_Game
 			this.qcomponent.HandleInput(input);
 			if (this.qcomponent.Visible && this.qcomponent.container.HitTest(input.CursorPosition))
 			{
-				return;
+				return true;
 			}
 			foreach (KeyValuePair<string, Node> tech in this.TechTree)
 			{
@@ -403,12 +396,9 @@ namespace Ship_Game
 			if (input.Escaped)
 			{
 				this.ExitScreen();
+                return true;
 			}
-			Vector2 vector21 = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
-			if (!this.RightClicked)
-			{
-				bool rightMouseClick = input.RightMouseClick;
-			}
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

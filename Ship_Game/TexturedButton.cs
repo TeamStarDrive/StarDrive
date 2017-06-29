@@ -69,11 +69,11 @@ namespace Ship_Game
 				{
 					if (string.IsNullOrEmpty(this.Hotkey))
 					{
-						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), Empire.Universe.ScreenManager, this.Hotkey);
+						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), this.Hotkey);
 					}
 					else
 					{
-						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), Empire.Universe.ScreenManager);
+						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip));
 					}
 				}
 				if (input.InGameSelect)

@@ -62,11 +62,11 @@ namespace Ship_Game
 			Rectangle r = this.sub_ships.Menu;
 			r.Y = r.Y + 25;
 			r.Height = r.Height - 25;
-			Selector sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
-			sel.Draw();
+			Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+			sel.Draw(ScreenManager.SpriteBatch);
 			if (this.selector != null)
 			{
-				this.selector.Draw();
+				this.selector.Draw(ScreenManager.SpriteBatch);
 			}
 			this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
 			Vector2 bCursor = new Vector2((float)(this.sub_ships.Menu.X + 5), (float)(this.sub_ships.Menu.Y + 25));
@@ -103,7 +103,7 @@ namespace Ship_Game
 			}
 			if (base.IsActive)
 			{
-				ToolTip.Draw(base.ScreenManager);
+				ToolTip.Draw(ScreenManager.SpriteBatch);
 			}
 			base.ScreenManager.SpriteBatch.End();
 		}
@@ -119,12 +119,13 @@ namespace Ship_Game
 
 	
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.ShipSL.HandleInput(input);
 			if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			this.selector = null;
 			for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
@@ -132,7 +133,7 @@ namespace Ship_Game
 				ScrollList.Entry e = this.ShipSL.Copied[i];
 				if (e.clickRect.HitTest(input.CursorPosition))
 				{
-					this.selector = new Selector(base.ScreenManager, e.clickRect);
+					this.selector = new Selector(e.clickRect);
 					if (input.InGameSelect)
 					{
 						GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -144,17 +145,18 @@ namespace Ship_Game
 			{
 				if (this.RefitOne.Rect.HitTest(input.CursorPosition))
 				{
-					ToolTip.CreateTooltip(Localizer.Token(2267), base.ScreenManager);
+					ToolTip.CreateTooltip(Localizer.Token(2267));
 					if (input.InGameSelect)
 					{
 						this.shiptorefit.AI.OrderRefitTo(this.RefitTo);
 						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
+                        return true;
 					}
 				}
 				if (this.RefitAll.Rect.HitTest(input.CursorPosition))
 				{
-					ToolTip.CreateTooltip(Localizer.Token(2268), base.ScreenManager);
+					ToolTip.CreateTooltip(Localizer.Token(2268));
 					if (input.InGameSelect)
 					{
 						foreach (Ship ship in EmpireManager.Player.GetShips())
@@ -167,9 +169,11 @@ namespace Ship_Game
 						}
 						GameAudio.PlaySfxAsync("echo_affirm");
 						this.ExitScreen();
+                        return true;
 					}
 				}
 			}
+            return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

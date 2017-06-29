@@ -52,7 +52,7 @@ namespace Ship_Game
 			if (this.Available)
 			{
 				this.DoMission.Rect = new Rectangle(smallmoney.X + 50, (int)Cursor.Y - 1, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Height);
-				this.DoMission.DrawLight(ScreenManager.SpriteBatch);
+				this.DoMission.Draw(ScreenManager.SpriteBatch);
 			}
 			ScreenManager.SpriteBatch.DrawLine(new Vector2((float)clickRect.X, (float)(clickRect.Y + clickRect.Height)), new Vector2((float)(clickRect.X + clickRect.Width), (float)(clickRect.Y + clickRect.Height)), Color.OrangeRed);
 		}

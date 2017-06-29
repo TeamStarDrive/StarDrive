@@ -836,13 +836,12 @@ namespace Ship_Game
             return true;
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             if (!AllSystemsGenerated || !input.InGameSelect)
-                return;
+                return false;
 
             GameAudio.StopGenericMusic(immediate: false);
-
             
             us = new UniverseScreen(Data)
             {
@@ -864,6 +863,7 @@ namespace Ship_Game
             ScreenManager.RemoveScreen(mmscreen);
  
             ExitScreen();
+            return true;
         }
 
         public override void Draw(GameTime gameTime)

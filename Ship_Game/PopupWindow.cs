@@ -59,28 +59,28 @@ namespace Ship_Game
 		public void DrawBase(GameTime gameTime)
 		{
 			ScreenManager.SpriteBatch.Begin();
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_TL"], TL, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_TR"], TR, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_BL"], BL, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_BR"], BR, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_TL_stroke"], TLc, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_TR_stroke"], TRc, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_horiz_T"], TopHoriz, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_horiz_T_gradient"], TopSep, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_vert_L"], LeftVert, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_vert_R"], RightVert, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_BL_stroke"], BLc, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_corner_BR_stroke"], BRc, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_horiz_B"], BotHoriz, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_horiz_B_gradient"], BotSep, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_filler_lower"], BottomFill, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_filler_lower"], BottomBigFill, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_filler_mid"], MidContainer, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_separator"], MidSepTop, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_separator"], MidSepBot, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_filler_title"], TitleRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_filler_title"], TitleLeft, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Popup/popup_filler_title"], TitleRight, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TL"), TL, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TR"), TR, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BL"), BL, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BR"), BR, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TL_stroke"), TLc, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TR_stroke"), TRc, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_T"), TopHoriz, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_T_gradient"), TopSep, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_vert_L"), LeftVert, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_vert_R"), RightVert, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BL_stroke"), BLc, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BR_stroke"), BRc, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_B"), BotHoriz, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_B_gradient"), BotSep, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomFill, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomBigFill, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_mid"), MidContainer, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepTop, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepBot, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleLeft, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRight, Color.White);
 			if (TitleText != null)
 			{   //draw title text
 				HelperFunctions.DrawDropShadowText(ScreenManager, TitleText, TitleTextPos, Fonts.Arial20Bold);
@@ -101,13 +101,14 @@ namespace Ship_Game
             return theirTextPos;
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
 		{
 			if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
 			{
 				ExitScreen();
+                return true;
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

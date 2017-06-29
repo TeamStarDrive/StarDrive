@@ -181,7 +181,7 @@ namespace Ship_Game {
 
 
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
             CarrierOnlyBox.HandleInput(input);
@@ -207,9 +207,10 @@ namespace Ship_Game {
             if (Close.HandleInput(input))
             {
                 ExitScreen();
-                return;
+                return true;
             }
-            if (HandleInputUndo(input)) return;
+            if (HandleInputUndo(input))
+                return true;
             HandleInputZoom(input);
 
             HandleInputDebug(input);
@@ -227,29 +228,29 @@ namespace Ship_Game {
                 if (e.item is ModuleHeader moduleHeader)
                 {
                     if (moduleHeader.HandleInput(input, e))
-                        return;
+                        return true;
                 }
                 else if (e.clickRect.HitTest(mousePos))
                 {
-                    selector = new Selector(ScreenManager, e.clickRect);
+                    selector = new Selector(e.clickRect);
                     e.clickRectHover = 1;
-                    selector = new Selector(ScreenManager, e.clickRect);
+                    selector = new Selector(e.clickRect);
                     if (!input.InGameSelect) continue;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     if (!ShipSaved && !CheckDesign())
                     {
                         Changeto = e.item as ShipData;
                         MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
-                        return;
+                        return true;
                     }
                     ChangeHull(e.item as ShipData);
-                    return;
+                    return true;
                 }
                 else
                     e.clickRectHover = 0;
             }
             if (ModSel.HandleInput(input))
-                return;
+                return true;
             if (ActiveModule != null)
             {
                 if (ActiveModule.ModuleType == ShipModuleType.Hangar && !ActiveModule.IsTroopBay
@@ -265,15 +266,15 @@ namespace Ship_Game {
                         ScrollList.Entry entry = ChooseFighterSL.Copied[index];
                         if (entry.clickRect.HitTest(mousePos))
                         {
-                            selector = new Selector(ScreenManager, entry.clickRect);
+                            selector = new Selector(entry.clickRect);
                             entry.clickRectHover = 1;
-                            selector = new Selector(ScreenManager, entry.clickRect);
+                            selector = new Selector(entry.clickRect);
                             if (!input.InGameSelect) continue;
 
                             ActiveModule.hangarShipUID = (entry.item as Ship).Name;
                             HangarShipUIDLast = (entry.item as Ship).Name;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            return;
+                            return true;
                         }
                     }
                 }
@@ -289,14 +290,14 @@ namespace Ship_Game {
                 {
                     ScrollList.Entry entry = ChooseFighterSL.Copied[index];
                     if (!entry.clickRect.HitTest(mousePos)) continue;
-                    selector = new Selector(ScreenManager, entry.clickRect);
+                    selector = new Selector(entry.clickRect);
                     entry.clickRectHover = 1;
-                    selector = new Selector(ScreenManager, entry.clickRect);
+                    selector = new Selector(entry.clickRect);
                     if (!input.InGameSelect) continue;
                     HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
                     HangarShipUIDLast = (entry.item as Ship).Name;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    return;
+                    return true;
                 }
             }
             //if (WeaponSl.HandleInput(input))
@@ -306,10 +307,10 @@ namespace Ship_Game {
                 && input.LeftMouseDown)
                 //|| ActiveModSubMenu.Menu.HitTest(input.CursorPosition)
                 //&& input.LeftMousePressed)
-                return;
+                return true;
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(134, ScreenManager);
+                ToolTip.CreateTooltip(134);
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
@@ -363,7 +364,7 @@ namespace Ship_Game {
                             if (Debug)
                             {
                                 DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
-                                return;
+                                return true;
                             }
                             if (slotStruct.Module != null)
                                 HighlightedModule = slotStruct.Module;
@@ -391,7 +392,7 @@ namespace Ship_Game {
             HandleInputMoveArcs(input);
             UIButtonHandleInput(input);
             CheckToggleButton(input);
-            base.HandleInput(input);
+            return base.HandleInput(input);
         }
 
         private void HandleInputMoveArcs(InputState input)
@@ -626,7 +627,7 @@ namespace Ship_Game {
                 if (toggleButton.r.HitTest(input.CursorPosition))
                 {
                     if (toggleButton.HasToolTip)
-                        ToolTip.CreateTooltip(toggleButton.WhichToolTip, ScreenManager);
+                        ToolTip.CreateTooltip(toggleButton.WhichToolTip);
                     if (input.InGameSelect)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -1058,7 +1059,7 @@ namespace Ship_Game {
 
             CarrierOnly    = ActiveHull.CarrierShip;
             CoBoxCursor    = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
-            CarrierOnlyBox = new Checkbox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
+            CarrierOnlyBox = new UICheckBox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
                 "Carrier Only", 0);
 
             ShipStats = new Menu1(ScreenManager, shipStatsPanel);

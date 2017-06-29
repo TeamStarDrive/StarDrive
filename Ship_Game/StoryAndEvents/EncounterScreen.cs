@@ -39,10 +39,10 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.encounter.HandleInput(input, this);
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

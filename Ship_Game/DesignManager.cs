@@ -90,7 +90,7 @@ namespace Ship_Game
                             : ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
                 }
             }
-            selector?.Draw();
+            selector?.Draw(ScreenManager.SpriteBatch);
             foreach (UIButton b in this.Buttons)
             {
                 b.Draw(base.ScreenManager.SpriteBatch);
@@ -105,7 +105,7 @@ namespace Ship_Game
 
 
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             this.currentMouse = input.MouseCurr;
             Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -113,6 +113,7 @@ namespace Ship_Game
             if (input.Escaped || input.RightMouseClick)
             {
                 this.ExitScreen();
+                return true;
             }
             this.selector = null;
             for (int i = 0; i < this.ShipDesigns.Entries.Count; i++)
@@ -124,7 +125,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    this.selector = new Selector(base.ScreenManager, e.clickRect);
+                    this.selector = new Selector(e.clickRect);
                     if (e.clickRectHover == 0)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_mouseover");
@@ -196,7 +197,7 @@ namespace Ship_Game
                 }
             }
             this.previousMouse = input.MousePrev;
-            base.HandleInput(input);
+            return base.HandleInput(input);
         }
 
         public override void LoadContent()
