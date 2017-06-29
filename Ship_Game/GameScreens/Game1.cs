@@ -70,7 +70,7 @@ namespace Ship_Game
                 Graphics.IsFullScreen = true;
             }
             Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-            Graphics.PreferMultiSampling = true;
+            Graphics.PreferMultiSampling = false; //true
             Graphics.SynchronizeWithVerticalRetrace = true;
             Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
 
@@ -143,24 +143,17 @@ namespace Ship_Game
             GraphicsAdapter a = e.GraphicsDeviceInformation.Adapter;
             PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;
 
+            MultiSampleType samples = (MultiSampleType)GlobalStats.AntiAlias;
             if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, 
-                                                   false, MultiSampleType.TwoSamples, out int quality))
+                                                   false, samples, out int quality))
             {
                 p.MultiSampleQuality = (quality == 1 ? 0 : 1);
-                p.MultiSampleType    = MultiSampleType.FourSamples;
+                p.MultiSampleType    = samples;
             }
             else
             {
                 p.MultiSampleType    = MultiSampleType.None;
                 p.MultiSampleQuality = 0;
-            }
-
-            if (GlobalStats.AntiAlias8XOverride && a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out quality))
-            {
-                // even if a greater quality is returned, we only want quality 0
-                p.MultiSampleQuality = 0;
-                p.MultiSampleType = MultiSampleType.EightSamples;
-                    
             }
 
             e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;

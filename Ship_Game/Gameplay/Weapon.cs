@@ -167,7 +167,7 @@ namespace Ship_Game.Gameplay
         public float SalvoTimer;
         [XmlIgnore][JsonIgnore]
         private int SalvosToFire;
-        private Vector2 SalvoDirection;
+        private float SalvoDirection;
         private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
         private GameplayObject SalvoTarget;
 
@@ -301,7 +301,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-
         private bool CanFireWeapon()
         {
             return Module.Active
@@ -346,7 +345,17 @@ namespace Ship_Game.Gameplay
                 return;
             if (!PrepareToFireSalvo())
                 return;
-            SpawnSalvo(SalvoDirection, SalvoTarget);
+            //check for new direction
+            //if target is gone, keep firing as before
+            if (SalvoTarget != null)
+            {
+                Vector2 targetPos = FindProjectedImpactPoint(SalvoTarget);
+                //if target is out of fire arc, keep firing as before
+                if (CheckFireArc(targetPos, SalvoTarget))
+                    SalvoDirection = (targetPos - Module.Center).ToRadians() - Owner.Rotation;
+            }
+            
+            SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget);
         }
 
         private void FireAtTarget(Vector2 targetPos, GameplayObject target = null)
@@ -362,7 +371,7 @@ namespace Ship_Game.Gameplay
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
             {
                 SalvosToFire   = SalvoCount - 1;
-                SalvoDirection = direction;
+                SalvoDirection = direction.ToRadians() - Owner.Rotation; //keep direction relative to source
                 SalvoFireTimer = 0f;
                 SalvoTarget    = target;
             }
