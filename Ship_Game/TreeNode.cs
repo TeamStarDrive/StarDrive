@@ -52,13 +52,17 @@ namespace Ship_Game
 			this.BaseRect.Y = (int)Position.Y;
 			this.progressRect = new Rectangle(this.BaseRect.X + 14, this.BaseRect.Y + 21, 1, 34);
 			int numUnlocks = 0;
-			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].ModulesUnlocked.Count; i++)
+            Technology techTemplate = ResourceManager.TechTree[tech.UID];
+
+            for (int i = 0; i < techTemplate.ModulesUnlocked.Count; i++)
 			{
                 if (numUnlocks > 3) break;
-                if (ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].Type == null || ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].Type == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
+                if (techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
+                    techTemplate.ModulesUnlocked[i].Type == null || 
+                    techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem();
-                    unlock.module = ResourceManager.ShipModulesDict[ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].ModuleUID];
+                    unlock.module = ResourceManager.GetModuleTemplate(techTemplate.ModulesUnlocked[i].ModuleUID);
                     unlock.privateName = Localizer.Token(unlock.module.NameIndex);
                     unlock.Description = Localizer.Token(unlock.module.DescriptionIndex);
                     unlock.Type = UnlockType.SHIPMODULE;
@@ -66,30 +70,32 @@ namespace Ship_Game
                     numUnlocks++;
                 }
 			}
-			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].BonusUnlocked.Count; i++)
+			for (int i = 0; i < techTemplate.BonusUnlocked.Count; i++)
 			{
                 if (numUnlocks > 3) break;
-                if (ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == null || ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
+                if (techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
+                    techTemplate.BonusUnlocked[i].Type == null ||
+                    techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
-                        privateName = ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Name,
-                        Description = Localizer.Token(ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].BonusIndex),
+                        privateName = techTemplate.BonusUnlocked[i].Name,
+                        Description = Localizer.Token(techTemplate.BonusUnlocked[i].BonusIndex),
                         Type = UnlockType.ADVANCE
                     };
                     numUnlocks++;
                     this.Unlocks.Add(unlock);
                 }
 			}
-			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked.Count; i++)
+			for (int i = 0; i < techTemplate.BuildingsUnlocked.Count; i++)
 			{
                 if (numUnlocks > 3) break;
-                if (ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
-                    ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Type == null || 
-                    ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Type == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
+                if (techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
+                    techTemplate.BuildingsUnlocked[i].Type == null || 
+                    techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem();
-                    unlock.building = ResourceManager.BuildingsDict[ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Name];
+                    unlock.building = ResourceManager.BuildingsDict[techTemplate.BuildingsUnlocked[i].Name];
                     unlock.privateName = Localizer.Token(unlock.building.NameTranslationIndex);
                     unlock.Description = Localizer.Token(unlock.building.DescriptionIndex);
                     unlock.Type = UnlockType.BUILDING;
@@ -97,17 +103,17 @@ namespace Ship_Game
                     this.Unlocks.Add(unlock);
                 }
 			}
-			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].HullsUnlocked.Count; i++)
+			for (int i = 0; i < techTemplate.HullsUnlocked.Count; i++)
 			{
                 if (numUnlocks > 3) break;
-				if (ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == EmpireManager.Player.data.Traits.ShipType || 
-                    ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == null || 
-                    ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
+				if (techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.data.Traits.ShipType || 
+                    techTemplate.HullsUnlocked[i].ShipType == null || 
+                    techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
 				{
 					UnlockItem unlock = new UnlockItem()
 					{
-						HullUnlocked = ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].Name,
-						privateName = ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].Name,
+						HullUnlocked = techTemplate.HullsUnlocked[i].Name,
+						privateName = techTemplate.HullsUnlocked[i].Name,
 						Description = "",
 						Type = UnlockType.HULL
 					};
@@ -115,20 +121,21 @@ namespace Ship_Game
 					this.Unlocks.Add(unlock);
 				}
 			}
-			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].TroopsUnlocked.Count; i++)
+			for (int i = 0; i < techTemplate.TroopsUnlocked.Count; i++)
 			{
                 if (numUnlocks > 3) break;
-                if (ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == "ALL" || ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == null || ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
+                if (techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
+                    techTemplate.TroopsUnlocked[i].Type == "ALL" || 
+                    techTemplate.TroopsUnlocked[i].Type == null || 
+                    techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
 				{
 					UnlockItem unlock = new UnlockItem();
-					//{
-						unlock.troop = ResourceManager.TroopsDict[ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Name];
-						unlock.privateName = ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Name;
-						unlock.Description = unlock.troop.Description;
-                        unlock.Type = UnlockType.TROOP;
-					//};
+					unlock.troop       = ResourceManager.GetTroopTemplate(techTemplate.TroopsUnlocked[i].Name);
+					unlock.privateName = techTemplate.TroopsUnlocked[i].Name;
+					unlock.Description = unlock.troop.Description;
+                    unlock.Type        = UnlockType.TROOP;
 					numUnlocks++;
-					this.Unlocks.Add(unlock);
+					Unlocks.Add(unlock);
 				}
 			}
 			int numColumns = numUnlocks / 2 + numUnlocks % 2;
@@ -185,8 +192,8 @@ namespace Ship_Game
                     bool flag = false;
                     if (EmpireManager.Player.ResearchTopic == this.tech.UID || EmpireManager.Player.data.ResearchQueue.Contains(this.tech.UID))
                         flag = true;
-                    Primitives2D.FillRectangle(spriteBatch, this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, this.complete || flag ? new Color((byte)34, (byte)136, (byte)200) : Color.Black);
+                    spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
+                    spriteBatch.DrawRectangle(this.UnlocksRect, this.complete || flag ? new Color((byte)34, (byte)136, (byte)200) : Color.Black);
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -235,8 +242,8 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle1, Color.White);
                     break;
                 case NodeState.Hover:
-                    Primitives2D.FillRectangle(spriteBatch, this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
+                    spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
+                    spriteBatch.DrawRectangle(this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -267,8 +274,8 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle2, Color.White);
                     break;
                 case NodeState.Press:
-                    Primitives2D.FillRectangle(spriteBatch, this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
+                    spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
+                    spriteBatch.DrawRectangle(this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -306,11 +313,11 @@ namespace Ship_Game
 		{
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 			spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_underglow_base"], this.BaseRect, Color.White);
-			Primitives2D.DrawRectangleGlow(spriteBatch, this.TitleRect);
-			Primitives2D.DrawRectangleGlow(spriteBatch, this.UnlocksRect);
+			spriteBatch.DrawRectangleGlow(this.TitleRect);
+			spriteBatch.DrawRectangleGlow(this.UnlocksRect);
 		}
 
-		public bool HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager, Camera2d camera)
+		public bool HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager, Camera2D camera)
 		{
 			Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)this.BaseRect.X, (float)this.BaseRect.Y));
 			Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, this.BaseRect.Width, this.BaseRect.Height);
@@ -318,11 +325,11 @@ namespace Ship_Game
 			Rectangle moddedRect2 = new Rectangle((int)RectPos2.X, (int)RectPos2.Y, this.UnlocksRect.Width, this.UnlocksRect.Height);
 			Vector2 RectPos3 = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)this.IconRect.X, (float)this.IconRect.Y));
 			Rectangle moddedRect3 = new Rectangle((int)RectPos3.X, (int)RectPos3.Y, this.IconRect.Width, this.IconRect.Height);
-			if (HelperFunctions.CheckIntersection(moddedRect, input.CursorPosition) || HelperFunctions.CheckIntersection(moddedRect2, input.CursorPosition))
+			if (moddedRect.HitTest(input.CursorPosition) || moddedRect2.HitTest(input.CursorPosition))
 			{
 				if (this.nodeState != NodeState.Hover)
 				{
-					AudioManager.PlayCue("mouse_over4");
+					GameAudio.PlaySfxAsync("mouse_over4");
 				}
 				this.nodeState = NodeState.Hover;
 				if (input.InGameSelect)
@@ -341,13 +348,13 @@ namespace Ship_Game
 			{
 				this.nodeState = NodeState.Normal;
 			}
-			if (!HelperFunctions.CheckIntersection(moddedRect3, input.CursorPosition))
+			if (!moddedRect3.HitTest(input.CursorPosition))
 			{
 				foreach (UnlocksGrid.GridItem gridItem in this.grid.GridOfUnlocks)
 				{
 					Vector2 RectPos4 = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)gridItem.rect.X, (float)gridItem.rect.Y));
 					Rectangle moddedRect4 = new Rectangle((int)RectPos4.X, (int)RectPos4.Y, gridItem.rect.Width, gridItem.rect.Height);
-					if (!HelperFunctions.CheckIntersection(moddedRect4, input.CursorPosition))
+					if (!moddedRect4.HitTest(input.CursorPosition))
 					{
 						continue;
 					}

@@ -73,6 +73,7 @@ namespace Ship_Game
                 }
             }
         }
+
         public void QueuePendingRemoval(T item)
         {
             PendingRemovals.Push(item);
@@ -114,11 +115,12 @@ namespace Ship_Game
             ThisLock.ExitWriteLock();
             PendingRemovals?.Clear();
         }
-        public new void Remove(T item)
+        public new bool Remove(T item)
         {
             ThisLock.EnterWriteLock();
-            base.Remove(item);
+            bool found = base.Remove(item);
             ThisLock.ExitWriteLock();
+            return found;
         }
         public void ClearAdd(IEnumerable<T> item)
         {
@@ -145,10 +147,17 @@ namespace Ship_Game
         //    return result;
         //}
 
-        public new void AddRange(IEnumerable<T> collection)
+        public new void AddRange(ICollection<T> collection)
         {
             ThisLock.EnterWriteLock();
             base.AddRange(collection);
+            ThisLock.ExitWriteLock();
+        }
+
+        public new void AddRange(IEnumerable<T> enumerable)
+        {
+            ThisLock.EnterWriteLock();
+            base.AddRange(enumerable);
             ThisLock.ExitWriteLock();
         }
         // to use this:

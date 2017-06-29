@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+    
+    <Type Name="mesh::VertexDescr">
+        <DisplayString>v={v} t={t} n={n} c={c}</DisplayString>
+        <Expand>
+            <Item Name="[vertexId]">v</Item>
+            <Item Name="[textureId]">t</Item>
+            <Item Name="[normalId]">n</Item>
+            <Item Name="[colorId]">c</Item>
+        </Expand>
+    </Type>
+
+    <Type Name="mesh::Face">
+        <DisplayString>[{Count}]={{{VDS,na}}}</DisplayString>
+        <Expand>
+            <Item Name="[Count]" ExcludeView="simple">Count</Item>
+            <ArrayItems>
+                <Size>Count</Size>
+                <ValuePointer>VDS</ValuePointer>
+            </ArrayItems>
+        </Expand>
+    </Type>
+
+</AutoVisualizer>

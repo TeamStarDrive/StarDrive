@@ -4,84 +4,82 @@ using System;
 
 namespace Ship_Game
 {
-	public sealed class Camera2d
-	{
-        private float _zoom;
+    public sealed class Camera2D
+    {
+        private Matrix WorldMatrix;
+        private bool Changed = true;
 
-		public Matrix _transform;
+        private Vector2 CamPos = Vector2.Zero;
+        private float CamRot  = 0f;
+        private float CamZoom = 1f;
 
-		public Vector2 _pos;
+        public Vector2 Pos
+        {
+            get => CamPos;
+            set
+            {
+                CamPos = value;
+                Changed = true;
+            }
+        }
+        public float Rotation
+        {
+            get => CamRot;
+            set
+            {
+                CamRot = value;
+                Changed = true;
+            }
+        }
 
-		private float _rotation;
+        public float Zoom
+        {
+            get => CamZoom;
+            set
+            {
+                CamZoom = value.Clamp(0.01f, 10f);
+                Changed = true;
+            }
+        }
 
-		public Vector2 Pos
+        private static Vector3 ScreenCenter => new Vector3(
+            Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f,
+            Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f, 0f);
+
+        private void UpdateTransform()
+        {
+            WorldMatrix = Matrix.CreateTranslation(new Vector3(-CamPos.X, -CamPos.Y, 0f))
+                          * Matrix.CreateScale(new Vector3(CamZoom, CamZoom, 1f))
+                          * Matrix.CreateTranslation(ScreenCenter);
+        }
+
+        public Matrix Transform
+        {
+            get
+            {
+                if (Changed)
+                    UpdateTransform();
+                return WorldMatrix;
+            }
+        }
+
+        public Vector2 GetScreenSpaceFromWorldSpace(Vector2 worldCoordinate)
 		{
-			get
-			{
-				return this._pos;
-			}
-			set
-			{
-				this._pos = value;
-			}
-		}
-
-		public float Rotation
-		{
-			get
-			{
-				return this._rotation;
-			}
-			set
-			{
-				this._rotation = value;
-			}
-		}
-
-		public float Zoom
-		{
-			get
-			{
-				return this._zoom;
-			}
-			set
-			{
-				this._zoom = value;
-				if (this._zoom < 0.01f)
-				{
-					this._zoom = 0.01f;
-				}
-				if (this._zoom >= 10f)
-				{
-					this._zoom = 10f;
-				}
-			}
-		}
-
-		public Camera2d()
-		{
-			this._zoom = 1f;
-			this._rotation = 0f;
-			this._pos = Vector2.Zero;
-		}
-
-		public Matrix get_transformation(GraphicsDevice graphicsDevice)
-		{
-			this._transform = (Matrix.CreateTranslation(new Vector3(-this._pos.X, -this._pos.Y, 0f)) * Matrix.CreateScale(new Vector3(this.Zoom, this.Zoom, 1f))) * Matrix.CreateTranslation(new Vector3((float)Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, (float)Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f, 0f));
-			return this._transform;
-		}
-
-		public Vector2 GetScreenSpaceFromWorldSpace(Vector2 worldCoordinate)
-		{
-			Matrix transform = (Matrix.CreateTranslation(new Vector3(-this._pos.X, -this._pos.Y, 0f)) * Matrix.CreateScale(new Vector3(this.Zoom, this.Zoom, 1f))) * Matrix.CreateTranslation(new Vector3((float)Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, (float)Game1.Instance.GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f, 0f));
-			Matrix matrix = Matrix.CreateRotationY(3.14159274f) * Matrix.CreateRotationX(3.14159274f);
-			return Vector2.Transform(worldCoordinate, transform);
+		    if (Changed)
+		        UpdateTransform();
+			Vector2.Transform(ref worldCoordinate, ref WorldMatrix, out Vector2 screenSpace);
+            return screenSpace;
 		}
 
 		public void Move(Vector2 amount)
 		{
-			Camera2d camera2d = this;
-			camera2d._pos = camera2d._pos + amount;
+			CamPos += amount;
 		}
+        
+        public void Move(float dx, float dy)
+        {
+            CamPos.X += dx;
+            CamPos.Y += dy;
+        }
 	}
 }

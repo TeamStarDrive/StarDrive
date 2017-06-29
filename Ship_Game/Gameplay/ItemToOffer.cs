@@ -55,7 +55,7 @@ namespace Ship_Game.Gameplay
 
 		public string HandleInput(InputState input, ScrollList.Entry e)
 		{
-			if (!HelperFunctions.CheckIntersection(this.ClickRect, input.CursorPosition))
+			if (!this.ClickRect.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -68,26 +68,26 @@ namespace Ship_Game.Gameplay
 				{
 					if (str == "NAPact")
 					{
-						ToolTip.CreateTooltip(129, Ship.universeScreen.ScreenManager);
+						ToolTip.CreateTooltip(129, Empire.Universe.ScreenManager);
 					}
 					else if (str == "OpenBorders")
 					{
-						ToolTip.CreateTooltip(130, Ship.universeScreen.ScreenManager);
+						ToolTip.CreateTooltip(130, Empire.Universe.ScreenManager);
 					}
 					else if (str == "Peace Treaty")
 					{
-						ToolTip.CreateTooltip(131, Ship.universeScreen.ScreenManager);
+						ToolTip.CreateTooltip(131, Empire.Universe.ScreenManager);
 					}
 					else if (str == "TradeTreaty")
 					{
-						ToolTip.CreateTooltip(132, Ship.universeScreen.ScreenManager);
+						ToolTip.CreateTooltip(132, Empire.Universe.ScreenManager);
 					}
 					else if (str == "OfferAlliance")
 					{
-						ToolTip.CreateTooltip(133, Ship.universeScreen.ScreenManager);
+						ToolTip.CreateTooltip(133, Empire.Universe.ScreenManager);
 					}
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 				{
 					this.Selected = !this.Selected;
 					e.ShowingSub = !e.ShowingSub;

@@ -50,10 +50,10 @@ namespace Ship_Game
 			string title = Localizer.Token(310);
 			Vector2 Cursor = new Vector2((float)(this.window.Menu.X + this.window.Menu.Width / 2) - Fonts.Arial12Bold.MeasureString(title).X / 2f, (float)(this.window.Menu.Y + 20));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, title, Cursor, Color.White);
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.TaxRateRect, new Color(17, 21, 28));
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.IncomesRect, new Color(18, 29, 29));
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.TradeRect, new Color(30, 26, 19));
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, this.CostRect, new Color(27, 22, 25));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.TaxRateRect, new Color(17, 21, 28));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.IncomesRect, new Color(18, 29, 29));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.TradeRect, new Color(30, 26, 19));
+			base.ScreenManager.SpriteBatch.FillRectangle(this.CostRect, new Color(27, 22, 25));
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
 			Cursor.X = (float)(this.window.Menu.X + 30);
 			this.TaxSlider.UpdatePosition(Cursor, 313, 12, string.Concat(Localizer.Token(311), " : "));
@@ -206,19 +206,19 @@ namespace Ship_Game
         //    }
         //}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
-			currentMouse = input.CurrentMouseState;
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
+			currentMouse = input.MouseCurr;
+            if (input.KeysCurr.IsKeyDown(Keys.T) && !input.KeysPrev.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
             {
-                AudioManager.PlayCue("echo_affirm");
+                GameAudio.PlaySfxAsync("echo_affirm");
                 ExitScreen();
-                return;
+                return true;
             }
 			if (close.HandleInput(input))
 			{
 				ExitScreen();
-				return;
+				return true;
 			}
             TreasuryGoal.HandleInput(input);
 
@@ -230,21 +230,23 @@ namespace Ship_Game
 			if (input.Escaped)
 			{
 				ExitScreen();
+			    return true;
 			}
-			if (HelperFunctions.CheckIntersection(TaxSlider.rect, input.CursorPosition))
+			if (TaxSlider.rect.HitTest(input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(66, base.ScreenManager);
 			}
-            if (HelperFunctions.CheckIntersection(TreasuryGoal.rect, input.CursorPosition))
+            if (TreasuryGoal.rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(66, base.ScreenManager);
             }
-			if (input.CurrentMouseState.RightButton == ButtonState.Released && input.LastMouseState.RightButton == ButtonState.Pressed)
+			if (input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed)
 			{
 				ExitScreen();
+                return true;
 			}
-			previousMouse = input.LastMouseState;
-			base.HandleInput(input);
+			previousMouse = input.MousePrev;
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()

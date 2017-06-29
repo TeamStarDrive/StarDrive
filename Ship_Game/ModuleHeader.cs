@@ -55,35 +55,33 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input, ScrollList.Entry e)
 		{
-			if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+			if (!e.clickRect.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
 			else
 			{
 				this.Hover = true;
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
-				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.Open = !this.Open;
-					e.ShowingSub = !e.ShowingSub;
-					if (!this.Open)
-					{
-						int num = 0;
-						foreach (ScrollList.Entry subEntry in e.SubEntries)
-						{
-							num++;
-						}
-						ScrollList parentList = e.ParentList;
-						parentList.indexAtTop = parentList.indexAtTop - num;
-						if (e.ParentList.indexAtTop < 0)
-						{
-							e.ParentList.indexAtTop = 0;
-						}
-					}
-					e.ParentList.Update();
-					return true;
-				}
+			    if (!input.LeftMouseClick) return false;
+			    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+			    this.Open = !this.Open;
+			    e.ShowingSub = !e.ShowingSub;
+			    if (!this.Open)
+			    {
+			        int num = 0;
+			        foreach (ScrollList.Entry subEntry in e.SubEntries)
+			        {
+			            num++;
+			        }
+			        ScrollList parentList = e.ParentList;
+			        parentList.indexAtTop = parentList.indexAtTop - num;
+			        if (e.ParentList.indexAtTop < 0)
+			        {
+			            e.ParentList.indexAtTop = 0;
+			        }
+			    }
+			    e.ParentList.Update();
+			    return true;
 			}
 			return false;
 		}

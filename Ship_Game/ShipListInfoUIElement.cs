@@ -352,7 +352,7 @@ namespace Ship_Game
 			}
 			if (this.gridbutton.HandleInput(input))
 			{
-				AudioManager.PlayCue("sd_ui_accept_alt3");
+				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				this.ShowModules = !this.ShowModules;
 				if (!this.ShowModules)
 				{
@@ -368,7 +368,7 @@ namespace Ship_Game
 			{
 				foreach (ToggleButton button in this.CombatStatusButtons)
 				{
-					if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+					if (!button.r.HitTest(input.CursorPosition))
 					{
 						button.Hover = false;
 					}
@@ -381,7 +381,7 @@ namespace Ship_Game
 						}
 						if (input.InGameSelect)
 						{
-							AudioManager.PlayCue("sd_ui_accept_alt3");
+							GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 							string action = button.Action;
 							string str = action;
 							if (action != null)
@@ -390,63 +390,63 @@ namespace Ship_Game
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.AttackRuns;
+										ship.AI.CombatState = CombatState.AttackRuns;
 									}
 								}
 								else if (str == "arty")
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.Artillery;
+										ship.AI.CombatState = CombatState.Artillery;
 									}
 								}
 								else if (str == "hold")
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.HoldPosition;
+										ship.AI.CombatState = CombatState.HoldPosition;
 									}
 								}
 								else if (str == "orbit_left")
 								{
 									foreach (Ship ship in this.ShipList)
 									{
-										ship.GetAI().CombatState = CombatState.OrbitLeft;
+										ship.AI.CombatState = CombatState.OrbitLeft;
 									}
 								}
                                 else if (str == "broadside_left")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.BroadsideLeft;
+                                        ship.AI.CombatState = CombatState.BroadsideLeft;
                                     }
                                 }
                                 else if (str == "orbit_right")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.OrbitRight;
+                                        ship.AI.CombatState = CombatState.OrbitRight;
                                     }
                                 }
                                 else if (str == "broadside_right")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.BroadsideRight;
+                                        ship.AI.CombatState = CombatState.BroadsideRight;
                                     }
                                 }
                                 else if (str == "short")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.ShortRange;
+                                        ship.AI.CombatState = CombatState.ShortRange;
                                     }
                                 }
                                 else if (str == "evade")
                                 {
                                     foreach (Ship ship in this.ShipList)
                                     {
-                                        ship.GetAI().CombatState = CombatState.Evade;
+                                        ship.AI.CombatState = CombatState.Evade;
                                     }
                                 }
 							}
@@ -466,7 +466,7 @@ namespace Ship_Game
 						}
 						if (str1 == "attack")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.AttackRuns)
+							if (this.HoveredShip.AI.CombatState != CombatState.AttackRuns)
 							{
 								button.Active = false;
 							}
@@ -477,7 +477,7 @@ namespace Ship_Game
 						}
 						else if (str1 == "arty")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.Artillery)
+							if (this.HoveredShip.AI.CombatState != CombatState.Artillery)
 							{
 								button.Active = false;
 							}
@@ -488,7 +488,7 @@ namespace Ship_Game
 						}
 						else if (str1 == "hold")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.HoldPosition)
+							if (this.HoveredShip.AI.CombatState != CombatState.HoldPosition)
 							{
 								button.Active = false;
 							}
@@ -499,7 +499,7 @@ namespace Ship_Game
 						}
 						else if (str1 == "orbit_left")
 						{
-							if (this.HoveredShip.GetAI().CombatState != CombatState.OrbitLeft)
+							if (this.HoveredShip.AI.CombatState != CombatState.OrbitLeft)
 							{
 								button.Active = false;
 							}
@@ -510,7 +510,7 @@ namespace Ship_Game
 						}
                         else if (str1 == "broadside_left")
                         {
-                            if (this.HoveredShip.GetAI().CombatState != CombatState.BroadsideLeft)
+                            if (this.HoveredShip.AI.CombatState != CombatState.BroadsideLeft)
                             {
                                 button.Active = false;
                             }
@@ -523,7 +523,7 @@ namespace Ship_Game
                         {
                             if (str1 == "evade")
                             {
-                                if (this.HoveredShip.GetAI().CombatState != CombatState.Evade)
+                                if (this.HoveredShip.AI.CombatState != CombatState.Evade)
                                 {
                                     button.Active = false;
                                 }
@@ -535,7 +535,7 @@ namespace Ship_Game
                         }
                         else if (str1 == "broadside_right")
                         {
-                            if (this.HoveredShip.GetAI().CombatState != CombatState.BroadsideRight)
+                            if (this.HoveredShip.AI.CombatState != CombatState.BroadsideRight)
                             {
                                 button.Active = false;
                             }
@@ -546,7 +546,7 @@ namespace Ship_Game
                         }
                         else if (str1 == "short")
                         {
-                            if (this.HoveredShip.GetAI().CombatState != CombatState.ShortRange)
+                            if (this.HoveredShip.AI.CombatState != CombatState.ShortRange)
                             {
                                 button.Active = false;
                             }
@@ -555,7 +555,7 @@ namespace Ship_Game
                                 button.Active = true;
                             }
                         }
-                        else if (this.HoveredShip.GetAI().CombatState != CombatState.OrbitRight)
+                        else if (this.HoveredShip.AI.CombatState != CombatState.OrbitRight)
                         {
                             button.Active = false;
                         }
@@ -596,11 +596,11 @@ namespace Ship_Game
                         {
                             bool flag = true;                            
                             foreach (Ship ship2 in (Array<Ship>)this.screen.SelectedFleet.Ships)
-                                if (ship2.GetAI().State != AIState.Resupply)
+                                if (ship2.AI.State != AIState.Resupply)
                                     flag = false;
                             
                             if (flag)
-                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].GetAI().OrbitTarget.Position;  //fbedard: center fleet on resupply planet
+                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].AI.OrbitTarget.Center;  //fbedard: center fleet on resupply planet
                             
                         }
                         //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
@@ -617,7 +617,7 @@ namespace Ship_Game
 				{
 					foreach (SkinnableButton button in (this.SelectedShipsSL.Entries[i].item as SelectedShipEntry).ShipButtons)
 					{
-						if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+						if (!button.r.HitTest(input.CursorPosition))
 						{
 							button.Hover = false;
 						}
@@ -625,7 +625,7 @@ namespace Ship_Game
 						{
 							if (this.HoveredShipLast != (Ship)button.ReferenceObject)
 							{
-								AudioManager.PlayCue("sd_ui_mouseover");
+								GameAudio.PlaySfxAsync("sd_ui_mouseover");
 							}
 							button.Hover = true;
 							this.HoveredShip = (Ship)button.ReferenceObject;
@@ -634,7 +634,7 @@ namespace Ship_Game
 								continue;
 							}
                             //added by gremlin filter by selected ship in shiplist.
-                            if (input.CurrentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
+                            if (input.KeysCurr.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
                             {
                                
                                 foreach(Ship filter in this.screen.SelectedShipList)
@@ -672,13 +672,13 @@ namespace Ship_Game
 			}
 			foreach (ShipListInfoUIElement.TippedItem ti in this.ToolTipItems)
 			{
-				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
+				if (!ti.r.HitTest(input.CursorPosition))
 				{
 					continue;
 				}
 				ToolTip.CreateTooltip(ti.TIP_ID, this.ScreenManager);
 			}
-			if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition))
+			if (this.ElementRect.HitTest(input.CursorPosition))
 			{
 				return true;
 			}
@@ -718,7 +718,7 @@ namespace Ship_Game
 					this.SelectedShipsSL.AddItem(entry);
 					entry = new SelectedShipEntry();
 				}
-				if (ship.GetAI().State != AIState.Resupply)
+				if (ship.AI.State != AIState.Resupply)
 				{
 					AllResupply = false;
 				}
@@ -727,11 +727,11 @@ namespace Ship_Game
 					this.AllShipsMine = false;
 				}
 				//if (ship.CargoSpace_Max == 0f)
-                if (ship.CargoSpace_Max == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.GetAI().State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
+                if (ship.CargoSpaceMax == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.AI.State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
 				{
 					AllFreighters = false;
 				}
-                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State == AIState.Colonize || ship.Mothership != null)
+                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.AI.State == AIState.Colonize || ship.Mothership != null)
                 {
                     AllCombat = false;
                 }

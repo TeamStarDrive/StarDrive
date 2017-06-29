@@ -63,7 +63,7 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			if (this.SimpleToggle)
 			{
-				if (!HelperFunctions.CheckIntersection(r, MousePos))
+				if (!r.HitTest(MousePos))
 				{
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_disabled"], r, Color.White);
 				}
@@ -157,7 +157,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(r, MousePos))
+			if (r.HitTest(MousePos))
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_hover"], r, Color.White);
 			}
@@ -262,7 +262,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input, ScreenManager sm)
 		{
-			if (!HelperFunctions.CheckIntersection(this.clickRect, input.CursorPosition))
+			if (!this.clickRect.HitTest(input.CursorPosition))
 			{
 				//this.Hover = false;
 				this.hovering = false;
@@ -273,16 +273,16 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(this.ID_tip, sm);
 				if (this.SimpleToggle && input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					switch (this.orderType)
 					{
 						case OrderType.TradeFood:
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-                                this.ShipList[i].GetAI().start = null;
-                                this.ShipList[i].GetAI().end = null;
-								this.ShipList[i].GetAI().OrderTrade(5f);
+                                this.ShipList[i].AI.start = null;
+                                this.ShipList[i].AI.end = null;
+								this.ShipList[i].AI.OrderTrade(5f);
 							}
 							return true;
 						}
@@ -290,9 +290,9 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-                                this.ShipList[i].GetAI().start = null;
-                                this.ShipList[i].GetAI().end = null;
-								this.ShipList[i].GetAI().OrderTrade(5f);
+                                this.ShipList[i].AI.start = null;
+                                this.ShipList[i].AI.end = null;
+								this.ShipList[i].AI.OrderTrade(5f);
 							}
 							return true;
 						}
@@ -300,7 +300,7 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-								this.ShipList[i].GetAI().OrderTransportPassengers(5f);
+								this.ShipList[i].AI.OrderTransportPassengers(5f);
 							}
 							return true;
 						}
@@ -312,7 +312,7 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-								this.ShipList[i].GetAI().OrderExplore();
+								this.ShipList[i].AI.OrderExplore();
 							}
 							return true;
 						}
@@ -320,7 +320,7 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-								this.ShipList[i].GetAI().OrderResupplyNearest(true);
+								this.ShipList[i].AI.OrderResupplyNearest(true);
 							}
 							return true;
 						}
@@ -334,20 +334,20 @@ namespace Ship_Game
 									if (!EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
 									{
 										EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
-										ship.GetAI().OrderQueue.Clear();
-										ship.GetAI().HasPriorityOrder = false;
-										ship.GetAI().SystemToDefend = null;
-										ship.GetAI().SystemToDefendGuid = Guid.Empty;
-										ship.GetAI().State = AIState.SystemDefender;
+										ship.AI.OrderQueue.Clear();
+										ship.AI.HasPriorityOrder = false;
+										ship.AI.SystemToDefend = null;
+										ship.AI.SystemToDefendGuid = Guid.Empty;
+										ship.AI.State = AIState.SystemDefender;
 									}
                                     else
                                     {
                                         EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(ship);
-                                        ship.GetAI().OrderQueue.Clear();
-                                        ship.GetAI().HasPriorityOrder = false;
-                                        ship.GetAI().SystemToDefend = null;
-                                        ship.GetAI().SystemToDefendGuid = Guid.Empty;
-                                        ship.GetAI().State = AIState.AwaitingOrders;
+                                        ship.AI.OrderQueue.Clear();
+                                        ship.AI.HasPriorityOrder = false;
+                                        ship.AI.SystemToDefend = null;
+                                        ship.AI.SystemToDefendGuid = Guid.Empty;
+                                        ship.AI.State = AIState.AwaitingOrders;
                                     }
 								}
 							}
@@ -357,7 +357,7 @@ namespace Ship_Game
                         {
                             for (int i = 0; i < this.ShipList.Count; i++)
                             {
-                                this.ShipList[i].GetAI().OrderScrapShip();
+                                this.ShipList[i].AI.OrderScrapShip();
                             }
                             return true;
                         }
@@ -369,13 +369,13 @@ namespace Ship_Game
 				}
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					this.ValueToModify.Value = !this.ValueToModify.Value;
 					return true;
 				}
 				if (input.RightMouseClick)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					if (this.RightClickValueToModify != null)
 					{
 						this.RightClickValueToModify.Value = !this.RightClickValueToModify.Value;

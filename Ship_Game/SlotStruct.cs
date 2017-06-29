@@ -1,43 +1,38 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
-using System;
+using System.Linq;
 
 namespace Ship_Game
 {
-	public sealed class SlotStruct
-	{
-		public Ship_Game.Gameplay.Restrictions Restrictions;
+    public sealed class SlotStruct
+    {
+        public Restrictions Restrictions;
+        public PrimitiveQuad PQ;
+        public float Facing;
+        public bool CheckedConduits;
+        public SlotStruct Parent;
+        public ShipDesignScreen.ActiveModuleState State;
+        public bool Powered;
+        public ModuleSlotData SlotReference;
+        public string ModuleUID;
+        public ShipModule Module;
+        public string SlotOptions;
+        public Texture2D Tex;
+        public bool ShowValid = true;
 
-		public PrimitiveQuad pq;
+        private bool CanSlotSupportModule(ShipModule module)
+        {
+            if (module == null || module.Restrictions == Restrictions.IOE)
+                return true;
+            string moduleFitsToSlots = module.Restrictions.ToString();
 
-		public float facing;
+            // just check if this slot's capabilities match any in the module placement restrictions
+            return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Contains(slotCapability));
+        }
 
-		public bool CheckedConduits;
-
-		public SlotStruct parent;
-
-		public ShipDesignScreen.ActiveModuleState state;
-
-		public bool Powered;
-
-		public ModuleSlotData slotReference;
-
-		public string ModuleUID;
-
-		public ShipModule module;
-
-		public string SlotOptions;
-
-		public bool isDummy;
-
-		public Texture2D tex;
-
-		public bool ShowValid;
-
-		public bool ShowInvalid;
-
-		public SlotStruct()
-		{
-		}
-	}
+        public void SetValidity(ShipModule module = null)
+        {
+            ShowValid = CanSlotSupportModule(module);
+        }
+    }
 }

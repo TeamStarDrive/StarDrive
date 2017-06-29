@@ -1,321 +1,283 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using Ship_Game;
 
 namespace Particle3DSample
 {
-	public sealed class ParticleSystem : IDisposable
-	{
-		private string settingsName;
+    public sealed class ParticleSystem : IDisposable
+    {
+        private readonly string SettingsName;
+        private ParticleSettings Settings;
+        private readonly GameContentManager Content;
 
-		private ParticleSettings settings;
+        private Effect ParticleEffect;
+        private EffectParameter EffectViewParameter;
+        private EffectParameter EffectProjectionParameter;
+        private EffectParameter EffectViewportHeightParameter;
+        private EffectParameter EffectTimeParameter;
 
-		private GameContentManager content;
+        private ParticleVertex[] Particles;
+        private DynamicVertexBuffer VertexBuffer;
+        private VertexDeclaration VertexDeclaration;
 
-		private Effect particleEffect;
+        private int FirstActiveParticle;
+        private int FirstNewParticle;
+        private int FirstFreeParticle;
+        private int FirstRetiredParticle;
+        private float CurrentTime;
+        private int DrawCounter;
 
-		private EffectParameter effectViewParameter;
+        private static readonly Random RandomA = new Random();
+        private static readonly Random RandomB = new Random();
+        private readonly GraphicsDevice GraphicsDevice;
 
-		private EffectParameter effectProjectionParameter;
+        private struct ParticleVertex
+        {
+            public const int SizeInBytes = 32;
 
-		private EffectParameter effectViewportHeightParameter;
+            public Vector3 Position;
+            public Vector3 Velocity;
+            public Color Random;
+            public float Time;
 
-		private EffectParameter effectTimeParameter;
+            public static readonly VertexElement[] VertexElements =
+            {
+                new VertexElement(0, 0,  VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0),
+                new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0),
+                new VertexElement(0, 24, VertexElementFormat.Color,   VertexElementMethod.Default, VertexElementUsage.Color, 0),
+                new VertexElement(0, 28, VertexElementFormat.Single,  VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0)
+            };
+        }
 
-		private ParticleVertex[] particles;
-
-		private DynamicVertexBuffer vertexBuffer;
-
-		private VertexDeclaration vertexDeclaration;
-
-		private int firstActiveParticle;
-
-		private int firstNewParticle;
-
-		private int firstFreeParticle;
-
-		private int firstRetiredParticle;
-
-		private float currentTime;
-
-		private int drawCounter;
-
-		private static Random randomA;
-
-		private static Random randomB;
-
-		private GraphicsDevice GraphicsDevice;
-
-
-		static ParticleSystem()
-		{
-			ParticleSystem.randomA = new Random();
-			ParticleSystem.randomB = new Random();
-		}
-
-		public ParticleSystem(Game1 game, GameContentManager content, string settingsName, Microsoft.Xna.Framework.Graphics.GraphicsDevice gd)
-		{
-			this.GraphicsDevice = gd;
-			this.content = content;
-			this.settingsName = settingsName;
+        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device)
+        {
+            GraphicsDevice = device;
+            Content        = content;
+            SettingsName   = settingsName;
             LoadContent();
-		}
+        }
 
-		private void AddNewParticlesToVertexBuffer()
-		{
-			int stride = 32;
-			if (this.firstNewParticle >= this.firstFreeParticle)
-			{
-				this.vertexBuffer.SetData<ParticleVertex>(this.firstNewParticle * stride, this.particles, this.firstNewParticle, (int)this.particles.Length - this.firstNewParticle, stride, SetDataOptions.NoOverwrite);
-				if (this.firstFreeParticle > 0)
-				{
-					this.vertexBuffer.SetData<ParticleVertex>(0, this.particles, 0, this.firstFreeParticle, stride, SetDataOptions.NoOverwrite);
-				}
-			}
-			else
-			{
-				this.vertexBuffer.SetData<ParticleVertex>(this.firstNewParticle * stride, this.particles, this.firstNewParticle, this.firstFreeParticle - this.firstNewParticle, stride, SetDataOptions.NoOverwrite);
-			}
-			this.firstNewParticle = this.firstFreeParticle;
-		}
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition)
+        {
+            return new ParticleEmitter(this, particlesPerSecond, initialPosition);
+        }
 
-		public void AddParticleThreadA(Vector3 position, Vector3 velocity)
-		{
-			int nextFreeParticle = this.firstFreeParticle + 1;
-			if (nextFreeParticle >= (int)this.particles.Length)
-			{
-				nextFreeParticle = 0;
-			}
-			if (nextFreeParticle == this.firstRetiredParticle)
-			{
-				return;
-			}
-			velocity = velocity * this.settings.EmitterVelocitySensitivity;
-			float horizontalVelocity = MathHelper.Lerp(this.settings.MinHorizontalVelocity, this.settings.MaxHorizontalVelocity, (float)ParticleSystem.randomA.NextDouble());
-			double horizontalAngle = ParticleSystem.randomA.NextDouble() * 6.28318548202515;
-			velocity.X = velocity.X + horizontalVelocity * (float)Math.Cos(horizontalAngle);
-			velocity.Z = velocity.Z + horizontalVelocity * (float)Math.Sin(horizontalAngle);
-			velocity.Y = velocity.Y + MathHelper.Lerp(this.settings.MinVerticalVelocity, this.settings.MaxVerticalVelocity, (float)ParticleSystem.randomA.NextDouble());
-			Color randomValues = new Color((byte)ParticleSystem.randomA.Next(255), (byte)ParticleSystem.randomA.Next(255), (byte)ParticleSystem.randomA.Next(255), (byte)ParticleSystem.randomA.Next(255));
-			this.particles[this.firstFreeParticle].Position = position;
-			this.particles[this.firstFreeParticle].Velocity = velocity;
-			this.particles[this.firstFreeParticle].Random = randomValues;
-			this.particles[this.firstFreeParticle].Time = this.currentTime;
-			this.firstFreeParticle = nextFreeParticle;
-		}
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialCenter, float initialZ = 0f)
+        {
+            return new ParticleEmitter(this, particlesPerSecond, new Vector3(initialCenter, initialZ));
+        }
 
-		public void AddParticleThreadB(Vector3 position, Vector3 velocity)
-		{
-			int nextFreeParticle = this.firstFreeParticle + 1;
-			if (nextFreeParticle >= (int)this.particles.Length)
-			{
-				nextFreeParticle = 0;
-			}
-			if (nextFreeParticle == this.firstRetiredParticle)
-			{
-				return;
-			}
-			velocity = velocity * this.settings.EmitterVelocitySensitivity;
-			float horizontalVelocity = MathHelper.Lerp(this.settings.MinHorizontalVelocity, this.settings.MaxHorizontalVelocity, (float)ParticleSystem.randomB.NextDouble());
-			double horizontalAngle = ParticleSystem.randomB.NextDouble() * 6.28318548202515;
-			velocity.X = velocity.X + horizontalVelocity * (float)Math.Cos(horizontalAngle);
-			velocity.Z = velocity.Z + horizontalVelocity * (float)Math.Sin(horizontalAngle);
-			velocity.Y = velocity.Y + MathHelper.Lerp(this.settings.MinVerticalVelocity, this.settings.MaxVerticalVelocity, (float)ParticleSystem.randomB.NextDouble());
-			Color randomValues = new Color((byte)ParticleSystem.randomB.Next(255), (byte)ParticleSystem.randomB.Next(255), (byte)ParticleSystem.randomB.Next(255), (byte)ParticleSystem.randomB.Next(255));
-			this.particles[this.firstFreeParticle].Position = position;
-			this.particles[this.firstFreeParticle].Velocity = velocity;
-			this.particles[this.firstFreeParticle].Random = randomValues;
-			this.particles[this.firstFreeParticle].Time = this.currentTime;
-			this.firstFreeParticle = nextFreeParticle;
-		}
+        private void AddNewParticlesToVertexBuffer()
+        {
+            const int stride = 32;
+            if (FirstNewParticle >= FirstFreeParticle)
+            {
+                VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
+                    Particles.Length - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
+                if (FirstFreeParticle > 0)
+                {
+                    VertexBuffer.SetData(0, Particles, 0, FirstFreeParticle, stride, SetDataOptions.NoOverwrite);
+                }
+            }
+            else
+            {
+                VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
+                    FirstFreeParticle - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
+            }
+            FirstNewParticle = FirstFreeParticle;
+        }
 
-		public void Draw(GameTime gameTime)
-		{
-			Microsoft.Xna.Framework.Graphics.GraphicsDevice device = this.GraphicsDevice;
-			if (this.vertexBuffer.IsContentLost)
-			{
-				this.vertexBuffer.SetData<ParticleVertex>(this.particles);
-			}
-			if (this.firstNewParticle != this.firstFreeParticle)
-			{
-				this.AddNewParticlesToVertexBuffer();
-			}
-			if (this.firstActiveParticle != this.firstFreeParticle)
-			{
-				this.SetParticleRenderStates(device.RenderState);
-				this.effectViewportHeightParameter.SetValue(device.Viewport.Height);
-				this.effectTimeParameter.SetValue(this.currentTime);
-				device.Vertices[0].SetSource(this.vertexBuffer, 0, 32);
-				device.VertexDeclaration = this.vertexDeclaration;
-				this.particleEffect.Begin();
-				foreach (EffectPass pass in this.particleEffect.CurrentTechnique.Passes)
-				{
-					pass.Begin();
-					if (this.firstActiveParticle >= this.firstFreeParticle)
-					{
-						device.DrawPrimitives(PrimitiveType.PointList, this.firstActiveParticle, (int)this.particles.Length - this.firstActiveParticle);
-						if (this.firstFreeParticle > 0)
-						{
-							device.DrawPrimitives(PrimitiveType.PointList, 0, this.firstFreeParticle);
-						}
-					}
-					else
-					{
-						device.DrawPrimitives(PrimitiveType.PointList, this.firstActiveParticle, this.firstFreeParticle - this.firstActiveParticle);
-					}
-					pass.End();
-				}
-				this.particleEffect.End();
-				device.RenderState.PointSpriteEnable = false;
-				device.RenderState.DepthBufferWriteEnable = true;
-			}
-			ParticleSystem particleSystem = this;
-			particleSystem.drawCounter = particleSystem.drawCounter + 1;
-		}
+        private void AddParticleThread(Random random, Vector3 position, Vector3 velocity)
+        {
+            int nextFreeParticle = FirstFreeParticle + 1;
+            if (nextFreeParticle >= Particles.Length)
+                nextFreeParticle = 0;
 
-		private void FreeRetiredParticles()
-		{
-			while (this.firstRetiredParticle != this.firstActiveParticle)
-			{
-				if (this.drawCounter - (int)this.particles[this.firstRetiredParticle].Time < 3)
-				{
-					return;
-				}
-				ParticleSystem particleSystem = this;
-				particleSystem.firstRetiredParticle = particleSystem.firstRetiredParticle + 1;
-				if (this.firstRetiredParticle < (int)this.particles.Length)
-				{
-					continue;
-				}
-				this.firstRetiredParticle = 0;
-			}
-		}
+            if (nextFreeParticle == FirstRetiredParticle)
+                return;
 
-		public void LoadContent()
-		{
-			this.settings = this.content.Load<ParticleSettings>(this.settingsName);
-			this.particles = new ParticleVertex[this.settings.MaxParticles];
-			this.LoadParticleEffect();
-			this.vertexDeclaration = new VertexDeclaration(this.GraphicsDevice, ParticleVertex.VertexElements);
-			int size = 32 * (int)this.particles.Length;
-			this.vertexBuffer = new DynamicVertexBuffer(this.GraphicsDevice, size, BufferUsage.WriteOnly | BufferUsage.Points);
-		}
+            velocity *= Settings.EmitterVelocitySensitivity;
+            float horizontalVelocity = Settings.MinHorizontalVelocity.LerpTo(Settings.MaxHorizontalVelocity, (float)random.NextDouble());
+            double horizontalAngle = random.NextDouble() * 6.28318548202515;
+            velocity.X += horizontalVelocity * (float)Math.Cos(horizontalAngle);
+            velocity.Z += horizontalVelocity * (float)Math.Sin(horizontalAngle);
+            velocity.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, (float)random.NextDouble());
+            Particles[FirstFreeParticle].Position = position;
+            Particles[FirstFreeParticle].Velocity = velocity;
+            Particles[FirstFreeParticle].Random   = new Color((byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
+            Particles[FirstFreeParticle].Time     = CurrentTime;
+            FirstFreeParticle = nextFreeParticle;
+        }
 
-		private void LoadParticleEffect()
-		{
-			string techniqueName;
-			Effect effect = this.content.Load<Effect>("3DParticles/ParticleEffect");
-			this.particleEffect = effect.Clone(this.GraphicsDevice);
-			EffectParameterCollection parameters = this.particleEffect.Parameters;
-			this.effectViewParameter = parameters["View"];
-			this.effectProjectionParameter = parameters["Projection"];
-			this.effectViewportHeightParameter = parameters["ViewportHeight"];
-			this.effectTimeParameter = parameters["CurrentTime"];
-			parameters["Duration"].SetValue((float)this.settings.Duration.TotalSeconds);
-			parameters["DurationRandomness"].SetValue(this.settings.DurationRandomness);
-			parameters["Gravity"].SetValue(this.settings.Gravity);
-			parameters["EndVelocity"].SetValue(this.settings.EndVelocity);
-			parameters["MinColor"].SetValue(this.settings.MinColor.ToVector4());
-			parameters["MaxColor"].SetValue(this.settings.MaxColor.ToVector4());
-			parameters["RotateSpeed"].SetValue(new Vector2(this.settings.MinRotateSpeed, this.settings.MaxRotateSpeed));
-			parameters["StartSize"].SetValue(new Vector2(this.settings.MinStartSize, this.settings.MaxStartSize));
-			parameters["EndSize"].SetValue(new Vector2(this.settings.MinEndSize, this.settings.MaxEndSize));
-			Texture2D texture = content.Load<Texture2D>("3DParticles/" + settings.TextureName);
-			parameters["Texture"].SetValue(texture);
-			if (settings.Duration.TotalSeconds != 6.66)
-			{
-				techniqueName = (settings.MinRotateSpeed != 0f || settings.MaxRotateSpeed != 0f ? "RotatingParticles" : "NonRotatingParticles");
-			}
-			else
-			{
-				techniqueName = "StaticParticles";
-			}
-			this.particleEffect.CurrentTechnique = this.particleEffect.Techniques[techniqueName];
-		}
+        public void AddParticleThreadA(Vector3 position, Vector3 velocity) => AddParticleThread(RandomA, position, velocity);
+        public void AddParticleThreadB(Vector3 position, Vector3 velocity) => AddParticleThread(RandomB, position, velocity);
 
-		private void RetireActiveParticles()
-		{
-			float particleDuration = (float)this.settings.Duration.TotalSeconds;
-			if (particleDuration == 6.66f)
-			{
-				return;
-			}
-			while (this.firstActiveParticle != this.firstNewParticle)
-			{
-				float particleAge = this.currentTime - this.particles[this.firstActiveParticle].Time;
-				if (particleAge < particleDuration && particleAge > 0f)
-				{
-					return;
-				}
-				this.particles[this.firstActiveParticle].Time = (float)this.drawCounter;
-				ParticleSystem particleSystem = this;
-				particleSystem.firstActiveParticle = particleSystem.firstActiveParticle + 1;
-				if (this.firstActiveParticle < (int)this.particles.Length)
-				{
-					continue;
-				}
-				this.firstActiveParticle = 0;
-			}
-		}
+        public void Draw(GameTime gameTime)
+        {
+            GraphicsDevice device = GraphicsDevice;
+            if (VertexBuffer.IsContentLost)
+            {
+                VertexBuffer.SetData(Particles);
+            }
+            if (FirstNewParticle != FirstFreeParticle)
+            {
+                AddNewParticlesToVertexBuffer();
+            }
+            if (FirstActiveParticle != FirstFreeParticle)
+            {
+                SetParticleRenderStates(device.RenderState);
+                EffectViewportHeightParameter.SetValue(Game1.Instance.Viewport.Height);
+                EffectTimeParameter.SetValue(CurrentTime);
+                device.Vertices[0].SetSource(VertexBuffer, 0, 32);
+                device.VertexDeclaration = VertexDeclaration;
+                ParticleEffect.Begin();
+                foreach (EffectPass pass in ParticleEffect.CurrentTechnique.Passes)
+                {
+                    pass.Begin();
+                    if (FirstActiveParticle >= FirstFreeParticle)
+                    {
+                        device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, Particles.Length - FirstActiveParticle);
+                        if (FirstFreeParticle > 0)
+                        {
+                            device.DrawPrimitives(PrimitiveType.PointList, 0, FirstFreeParticle);
+                        }
+                    }
+                    else
+                    {
+                        device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, FirstFreeParticle - FirstActiveParticle);
+                    }
+                    pass.End();
+                }
+                ParticleEffect.End();
+                device.RenderState.PointSpriteEnable = false;
+                device.RenderState.DepthBufferWriteEnable = true;
+            }
+            ++DrawCounter;
+        }
 
-		public void SetCamera(Matrix view, Matrix projection)
-		{
-			this.effectViewParameter.SetValue(view);
-			this.effectProjectionParameter.SetValue(projection);
-		}
+        private void FreeRetiredParticles()
+        {
+            while (FirstRetiredParticle != FirstActiveParticle)
+            {
+                if (DrawCounter - (int)Particles[FirstRetiredParticle].Time < 3)
+                    return;
 
-		private void SetParticleRenderStates(RenderState renderState)
-		{
-			renderState.PointSpriteEnable = true;
-			renderState.PointSizeMax = 256f;
-			renderState.AlphaBlendEnable = true;
-			renderState.AlphaBlendOperation = BlendFunction.Add;
-			renderState.SourceBlend = this.settings.SourceBlend;
-			renderState.DestinationBlend = this.settings.DestinationBlend;
-			renderState.AlphaTestEnable = true;
-			renderState.AlphaFunction = CompareFunction.Greater;
-			renderState.ReferenceAlpha = 0;
-			renderState.DepthBufferEnable = true;
-			renderState.DepthBufferWriteEnable = false;
-		}
+                ++FirstRetiredParticle;
+                if (FirstRetiredParticle >= Particles.Length)
+                    FirstRetiredParticle = 0;
+            }
+        }
 
-		public void UnloadContent()
-		{
-			this.particles = null;
-			this.vertexDeclaration.Dispose();
-			this.vertexBuffer.Dispose();
-		}
+        public void LoadContent()
+        {
+            Settings = Content.Load<ParticleSettings>(SettingsName);
+            Particles = new ParticleVertex[Settings.MaxParticles];
+            LoadParticleEffect();
+            VertexDeclaration = new VertexDeclaration(GraphicsDevice, ParticleVertex.VertexElements);
+            int size = 32 * Particles.Length;
+            VertexBuffer = new DynamicVertexBuffer(GraphicsDevice, size, BufferUsage.WriteOnly | BufferUsage.Points);
+        }
 
-		public void Update(GameTime gameTime)
-		{
-			ParticleSystem totalSeconds = this;
-			totalSeconds.currentTime = totalSeconds.currentTime + (float)gameTime.ElapsedGameTime.TotalSeconds;
-			this.RetireActiveParticles();
-			this.FreeRetiredParticles();
-			if (this.firstActiveParticle == this.firstFreeParticle)
-			{
-				this.currentTime = 0f;
-			}
-			if (this.firstRetiredParticle == this.firstActiveParticle)
-			{
-				this.drawCounter = 0;
-			}
-		}
+        private void LoadParticleEffect()
+        {
+            var effect = Content.Load<Effect>("3DParticles/ParticleEffect");
+            ParticleEffect = effect.Clone(GraphicsDevice);
+            EffectParameterCollection parameters = ParticleEffect.Parameters;
+            EffectViewParameter                  = parameters["View"];
+            EffectProjectionParameter            = parameters["Projection"];
+            EffectViewportHeightParameter        = parameters["ViewportHeight"];
+            EffectTimeParameter                  = parameters["CurrentTime"];
+            parameters["Duration"].SetValue((float)Settings.Duration.TotalSeconds);
+            parameters["DurationRandomness"].SetValue(Settings.DurationRandomness);
+            parameters["Gravity"].SetValue(Settings.Gravity);
+            parameters["EndVelocity"].SetValue(Settings.EndVelocity);
+            parameters["MinColor"].SetValue(Settings.MinColor.ToVector4());
+            parameters["MaxColor"].SetValue(Settings.MaxColor.ToVector4());
+            parameters["RotateSpeed"].SetValue(new Vector2(Settings.MinRotateSpeed, Settings.MaxRotateSpeed));
+            parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize));
+            parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize));
+
+            var texture = Content.Load<Texture2D>("3DParticles/" + Settings.TextureName);
+            parameters["Texture"].SetValue(texture);
+
+            string techniqueName;
+            if (Settings.Duration.TotalSeconds < 6.66)
+            {
+                techniqueName = (Settings.MinRotateSpeed > 0f || Settings.MaxRotateSpeed > 0f) ? "RotatingParticles" : "NonRotatingParticles";
+            }
+            else
+            {
+                techniqueName = "StaticParticles";
+            }
+            ParticleEffect.CurrentTechnique = ParticleEffect.Techniques[techniqueName];
+        }
+
+        private void RetireActiveParticles()
+        {
+            float particleDuration = (float)Settings.Duration.TotalSeconds;
+            if (particleDuration == 6.66f) // wtf?? "StaticParticles" ?
+                return;
+            while (FirstActiveParticle != FirstNewParticle)
+            {
+                float particleAge = CurrentTime - Particles[FirstActiveParticle].Time;
+                if (particleAge < particleDuration && particleAge > 0f)
+                    return;
+                Particles[FirstActiveParticle++].Time = DrawCounter;
+                if (FirstActiveParticle >= Particles.Length)
+                    FirstActiveParticle = 0;
+            }
+        }
+
+        public void SetCamera(Matrix view, Matrix projection)
+        {
+            EffectViewParameter.SetValue(view);
+            EffectProjectionParameter.SetValue(projection);
+        }
+
+        private void SetParticleRenderStates(RenderState renderState)
+        {
+            renderState.PointSpriteEnable      = true;
+            renderState.PointSizeMax           = 256f;
+            renderState.AlphaBlendEnable       = true;
+            renderState.AlphaBlendOperation    = BlendFunction.Add;
+            renderState.SourceBlend            = Settings.SourceBlend;
+            renderState.DestinationBlend       = Settings.DestinationBlend;
+            renderState.AlphaTestEnable        = true;
+            renderState.AlphaFunction          = CompareFunction.Greater;
+            renderState.ReferenceAlpha         = 0;
+            renderState.DepthBufferEnable      = true;
+            renderState.DepthBufferWriteEnable = false;
+        }
+
+        public void UnloadContent()
+        {
+            Particles = null;
+            VertexDeclaration.Dispose();
+            VertexBuffer.Dispose();
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            CurrentTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            RetireActiveParticles();
+            FreeRetiredParticles();
+
+            if (FirstActiveParticle == FirstFreeParticle)    CurrentTime = 0f;
+            if (FirstRetiredParticle == FirstActiveParticle) DrawCounter = 0;
+        }
 
         public void Dispose()
         {
-            vertexBuffer?.Dispose(ref vertexBuffer);
-            vertexDeclaration?.Dispose(ref vertexDeclaration);
+            VertexBuffer?.Dispose(ref VertexBuffer);
+            VertexDeclaration?.Dispose(ref VertexDeclaration);
             GC.SuppressFinalize(this);
         }
 
         ~ParticleSystem()
         {
-            vertexBuffer?.Dispose(ref vertexBuffer);
-            vertexDeclaration?.Dispose(ref vertexDeclaration);
+            VertexBuffer?.Dispose(ref VertexBuffer);
+            VertexDeclaration?.Dispose(ref VertexDeclaration);
         }
-	}
+    }
 }

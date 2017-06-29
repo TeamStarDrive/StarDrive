@@ -4,9 +4,9 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-	public class EmpireManager
-	{
-		private static readonly Array<Empire> EmpireList = new Array<Empire>();
+    public class EmpireManager
+    {
+        private static readonly Array<Empire>       EmpireList = new Array<Empire>();
         private static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>(); 
 
         private static Empire PlayerEmpire;
@@ -30,9 +30,13 @@ namespace Ship_Game
         public static void Add(Empire e)
         {
             // avoid duplicate entries, due to some bad design code structuring...
-            if (!EmpireList.Contains(e)) 
+            if (!EmpireList.Contains(e))
+            {
                 EmpireList.Add(e);
+                e.Id = EmpireList.Count;
+            }
         }
+
         public static void Clear()
         {
             EmpireList.Clear();
@@ -43,6 +47,13 @@ namespace Ship_Game
             UnknownFaction   = null;
             CorsairsFaction  = null;
         }
+
+        
+        public static Empire GetEmpireById(int empireId)
+        {
+            return empireId == 0 ? null : EmpireList[empireId-1];
+        }
+
         public static Empire GetEmpireByName(string name)
         {
             if (name == null)
@@ -87,5 +98,5 @@ namespace Ship_Game
                     allies.Add(empire);
             return allies;
         }
-	}
+    }
 }

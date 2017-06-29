@@ -43,7 +43,7 @@ namespace Ship_Game
 		{
 			if (this.Toggled)
 			{
-				Primitives2D.FillRectangle(screenManager.SpriteBatch, this.r, this.ToggleColor);
+				screenManager.SpriteBatch.FillRectangle(this.r, this.ToggleColor);
 			}
             Texture2D path = null;
             if(!ResourceManager.TextureDict.TryGetValue(this.tPath,out path))            
@@ -64,7 +64,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.r, input.CursorPosition))
+			if (!this.r.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -73,7 +73,7 @@ namespace Ship_Game
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					if (this.IsToggle)
 					{
 						this.Toggled = !this.Toggled;

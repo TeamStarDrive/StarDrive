@@ -66,11 +66,14 @@ namespace Ship_Game
 		    ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
             selector = null;
 			if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
+			{
 				ExitScreen();
+			    return true;    
+			}
 
 			if (!IsExiting) foreach (UIButton b in Buttons)
 			{
@@ -143,12 +146,12 @@ namespace Ship_Game
             if (CurrentButton != null)
             {
                 CurrentButton.State = UIButton.PressState.Pressed;
-                return;
+                return false;
             }
             ModsSL.HandleInput(input);
 			foreach (ScrollList.Entry e in ModsSL.Entries)
 			{
-				if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
+				if (!e.clickRect.HitTest(input.CursorPosition))
 				{
 					e.clickRectHover = 0;
 				}
@@ -156,14 +159,14 @@ namespace Ship_Game
 				{
 					if (e.clickRectHover == 0)
 					{
-						AudioManager.PlayCue("sd_ui_mouseover");
+						GameAudio.PlaySfxAsync("sd_ui_mouseover");
 					}
 					e.clickRectHover = 1;
 					selector = new Selector(ScreenManager, e.clickRect);
 					if (!input.InGameSelect)
 						continue;
 
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     SelectedMod = e.item as ModEntry;
 					EnterNameArea.Text = SelectedMod.ModName;
 
@@ -179,7 +182,7 @@ namespace Ship_Game
                     }
 				}
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
         private void ClearMods()
         {

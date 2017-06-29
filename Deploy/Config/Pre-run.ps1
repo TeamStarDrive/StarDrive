@@ -1,8 +1,9 @@
 ﻿$Newfile = @()
 $updatefile = $true
-$ver = .\Deploy\TortoiseHg\hg.exe id -n -r .
-$branch = .\Deploy\TortoiseHg\hg.exe id -b
-$newline = "`[assembly`: AssemblyInformationalVersion(`"" + $branch + "_" + $ver + "`")`]"
+$ver = .\Deploy\TortoiseHg\hg.exe log -r tip --template `{latesttag`}_`{latesttagdistance`}
+
+$newline = "`[assembly`: AssemblyInformationalVersion(`"" + $ver + "`")`]"
+Write-Host -ForegroundColor Yellow $ver " " $newline
 Get-Content ".\Properties\AssemblyInfo.cs" | ForEach-Object {
 
     $currentline = $_

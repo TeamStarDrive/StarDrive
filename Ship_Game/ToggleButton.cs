@@ -137,7 +137,7 @@ namespace Ship_Game
 		public bool HandleInput(InputState input)
 		{
 			this.Pressed = false;
-			if (!HelperFunctions.CheckIntersection(this.r, input.CursorPosition))
+			if (!this.r.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -145,10 +145,10 @@ namespace Ship_Game
 			{
 				if (!this.Hover)
 				{
-					AudioManager.PlayCue("sd_ui_mouseover");
+					GameAudio.PlaySfxAsync("sd_ui_mouseover");
 				}
 				this.Hover = true;
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+				if (input.MouseCurr.LeftButton == ButtonState.Pressed)
 				{
 					this.Pressed = true;
 				}

@@ -31,13 +31,19 @@ namespace Ship_Game
         {
         }
 
+        // Separated throw from this[] to enable MSIL inlining
+        private void ThrowMapKeyNotFound(TKey key)
+        {
+            throw new MapKeyNotFoundException($"Key [{key}] was not found in {ToString()} (len={Count})");
+        }
+
         public new TValue this[TKey key]
         {
             get
             {
-                if (TryGetValue(key, out TValue val))
-                    return val;
-                throw new MapKeyNotFoundException($"Key [{key}] was not found in {ToString()} (len={Count})");
+                if (!TryGetValue(key, out TValue val))
+                    ThrowMapKeyNotFound(key);
+                return val;
             }
             set
             {
@@ -57,6 +63,16 @@ namespace Ship_Game
         {
             TryGetValue(key, out TValue old);
             base[key] = (dynamic)old + valueToAdd;
+        }
+
+        public KeyValuePair<TKey, TValue>[] ToArray()
+        {
+            return (this as ICollection<KeyValuePair<TKey, TValue>>).ToArray();
+        }
+
+        public TValue[] AtomicValuesArray()
+        {
+            lock (this) return Values.ToArray();
         }
     }
 }
