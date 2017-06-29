@@ -30,7 +30,7 @@ namespace Ship_Game {
 
         public void OpenCombatMenu(object sender)
         {
-            this.workersPanel = new CombatScreen(this.ScreenManager, this.SelectedPlanet);
+            this.workersPanel = new CombatScreen(this, SelectedPlanet);
             this.LookingAtPlanet = true;
             this.transitionStartPosition = this.CamPos;
             this.CamDestination = new Vector3(this.SelectedPlanet.Center.X,

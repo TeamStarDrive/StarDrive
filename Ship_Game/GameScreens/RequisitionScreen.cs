@@ -95,7 +95,7 @@ namespace Ship_Game
 			}
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			string text;
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);

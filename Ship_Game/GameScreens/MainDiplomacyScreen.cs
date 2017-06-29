@@ -105,10 +105,10 @@ namespace Ship_Game
             this.Moles = empires;
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             ArtifactsSL?.Dispose(ref ArtifactsSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
         private int IntelligenceLevel(Empire e)
@@ -159,7 +159,7 @@ namespace Ship_Game
             
             return intelligence;
         }
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -192,7 +192,6 @@ namespace Ship_Game
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
 						Rectangle r = new Rectangle(race.container.X, race.container.Y, 124, 124);
-						SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 						KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).data.Traits.FlagIndex];
 						spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
 					}
@@ -1077,16 +1076,16 @@ namespace Ship_Game
 			float screenWidth = (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 			float screenHeight = (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
 			Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
-			this.TitleBar = new Menu2(base.ScreenManager, titleRect);
+			this.TitleBar = new Menu2(titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1600)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle leftRect = new Rectangle((int)screenWidth / 2 - 640, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
-			this.DMenu = new Menu2(base.ScreenManager, leftRect);
+			this.DMenu = new Menu2(leftRect);
 			this.close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
 			this.SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
 			this.IntelligenceRect = new Rectangle(this.SelectedInfoRect.X + this.SelectedInfoRect.Width + 30, this.SelectedInfoRect.Y, 368, 376);
 			this.OperationsRect = new Rectangle(this.IntelligenceRect.X + this.IntelligenceRect.Width + 30, this.SelectedInfoRect.Y, 368, 376);
 			this.ArtifactsRect = new Rectangle(this.SelectedInfoRect.X + 20, this.SelectedInfoRect.Y + 180, this.SelectedInfoRect.Width - 40, 130);
-			Submenu ArtifactsSub = new Submenu(base.ScreenManager, this.ArtifactsRect);
+			Submenu ArtifactsSub = new Submenu(this.ArtifactsRect);
 			this.ArtifactsSL = new ScrollList(ArtifactsSub, 40);
 			this.Contact = new DanButton(new Vector2((float)(this.SelectedInfoRect.X + this.SelectedInfoRect.Width / 2 - 91), (float)(this.SelectedInfoRect.Y + this.SelectedInfoRect.Height - 45)), Localizer.Token(1644))
 			{

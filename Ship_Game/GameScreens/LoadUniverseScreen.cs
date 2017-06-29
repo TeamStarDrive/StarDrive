@@ -309,17 +309,17 @@ namespace Ship_Game
             GateKeeper.Set();
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             lock (this)
             {
                 GateKeeper?.Dispose(ref GateKeeper);
                 data = null;
             }
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             ScreenManager.SpriteBatch.Begin();
@@ -340,7 +340,7 @@ namespace Ship_Game
                 cursor.Y = cursor.Y - Fonts.Pirulen16.LineSpacing - 10f;
                 const string begin = "Click to Continue!";
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
-                TimeSpan totalGameTime = gameTime.TotalGameTime;
+                TimeSpan totalGameTime = Game1.Instance.GameTime.TotalGameTime;
                 float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                 f = Math.Abs(f) * 255f;
                 var flashColor = new Color(255, 255, 255, (byte)f);

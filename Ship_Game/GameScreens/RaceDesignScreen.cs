@@ -441,12 +441,12 @@ namespace Ship_Game
             return lastKeyboardState.IsKeyDown(theKey) && this.currentKeyboardState.IsKeyUp(theKey);
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             traitsSL?.Dispose(ref traitsSL);
             RaceArchetypeSL?.Dispose(ref RaceArchetypeSL);
             DescriptionSL?.Dispose(ref DescriptionSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
         protected void DoRaceDescription()
@@ -898,7 +898,7 @@ namespace Ship_Game
             HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12, ref this.DescriptionSL);
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -949,6 +949,9 @@ namespace Ship_Game
                     }
                 }
             }
+
+            GameTime gameTime = Game1.Instance.GameTime;
+
             this.Name.Draw();
             Color c = new Color(255, 239, 208);
             this.NameSub.Draw();
@@ -1005,7 +1008,6 @@ namespace Ship_Game
             this.HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), this.FlagPos, Color.BurlyWood);
             this.FlagRect = new Rectangle((int)this.FlagPos.X + 16, (int)this.FlagPos.Y + 15, 80, 80);
-            SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
             KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[this.FlagIndex];
             spriteBatch.Draw(item.Value, this.FlagRect, this.currentObjectColor);
             this.FlagLeft = new Rectangle(this.FlagRect.X - 20, this.FlagRect.Y + 40 - 10, 20, 20);
@@ -1786,14 +1788,14 @@ namespace Ship_Game
                 this.LowRes = true;
             }
             Rectangle titleRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 203, (this.LowRes ? 10 : 44), 406, 80);
-            this.TitleBar = new Menu2(base.ScreenManager, titleRect);
+            this.TitleBar = new Menu2(titleRect);
             this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             Rectangle nameRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, titleRect.Y + titleRect.Height + 5, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), 150);
-            this.Name = new Menu1(base.ScreenManager, nameRect);
+            this.Name = new Menu1(nameRect);
             Rectangle nsubRect = new Rectangle(nameRect.X + 20, nameRect.Y - 5, nameRect.Width - 40, nameRect.Height - 15);
-            this.NameSub = new Submenu(base.ScreenManager, nsubRect);
+            this.NameSub = new Submenu(nsubRect);
             this.ColorSelector = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 310, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 280, 620, 560);
-            this.ColorSelectMenu = new Menu1(base.ScreenManager, this.ColorSelector);
+            this.ColorSelectMenu = new Menu1(this.ColorSelector);
             this.RaceNamePos = new Vector2((float)(nameRect.X + 40), (float)(nameRect.Y + 30));
             this.FlagPos = new Vector2((float)(nameRect.X + nameRect.Width - 80 - 100), (float)(nameRect.Y + 30));
             Rectangle leftRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, nameRect.Y + nameRect.Height + 5, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.28f * (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight));
@@ -1801,24 +1803,16 @@ namespace Ship_Game
             {
                 leftRect.Height = 580;
             }
-            this.Left = new Menu1(base.ScreenManager, leftRect);
+            this.Left = new Menu1(leftRect);
             Vector2 Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(leftRect.Y + leftRect.Height + 10));
-            this.RulesOptions = new UIButton()
-            {
-                Rect = new Rectangle((int)Position.X, (int)Position.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-                Text = Localizer.Token(4006),
-                Launches = "Rule Options"
-            };
-            this.Buttons.Add(this.RulesOptions);
+            RulesOptions = Button(Position.X, Position.Y, "Rule Options", localization:4006);
+
             Rectangle ChooseRaceRect = new Rectangle(5, (this.LowRes ? nameRect.Y : leftRect.Y), leftRect.X - 10, (this.LowRes ? leftRect.Y + leftRect.Height - nameRect.Y : leftRect.Height));
-            this.ChooseRaceMenu = new Menu1(base.ScreenManager, ChooseRaceRect);
+            this.ChooseRaceMenu = new Menu1(ChooseRaceRect);
             Rectangle smaller = ChooseRaceRect;
             smaller.Y = smaller.Y - 20;
             smaller.Height = smaller.Height + 20;
-            this.arch = new Submenu(base.ScreenManager, smaller);
+            this.arch = new Submenu(smaller);
             this.RaceArchetypeSL = new ScrollList(this.arch, 135);
 
             foreach (EmpireData e in ResourceManager.Empires)
@@ -1860,10 +1854,10 @@ namespace Ship_Game
             Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
             this.Description = new Menu1(base.ScreenManager, dRect, true);
             this.dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
-            Submenu dsub = new Submenu(base.ScreenManager, this.dslrect);
+            Submenu dsub = new Submenu(this.dslrect);
             this.DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
             Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-            this.Traits = new Submenu(base.ScreenManager, psubRect);
+            this.Traits = new Submenu(psubRect);
             this.Traits.AddTab(Localizer.Token(19));
             this.Traits.AddTab(Localizer.Token(20));
             this.Traits.AddTab(Localizer.Token(21));
@@ -1882,79 +1876,20 @@ namespace Ship_Game
                 if (t.trait.Category == "Physical")
                     this.traitsSL.AddItem(t);
             }
-            this.Engage = new UIButton()
-            {
-                Rect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 140, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 40, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = Localizer.Token(22),
-                Launches = "Engage"
-            };
-            this.Buttons.Add(this.Engage);
-            this.Abort = new UIButton()
-            {
-                Rect = new Rectangle(10, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 40, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = Localizer.Token(23),
-                Launches = "Abort"
-            };
-            this.Buttons.Add(this.Abort);
-            this.ClearTraits = new UIButton()
-            {
-                Rect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150, this.Description.Menu.Y + this.Description.Menu.Height - 40, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = "Clear Traits",
-                Launches = "Clear"
-            };
-            this.Buttons.Add(this.ClearTraits);
+
+            Engage = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, "Engage", localization:22);
+            Abort  = ButtonMedium(10, ScreenHeight - 40, "Abort", localization:23);
+            ClearTraits = ButtonMedium(ScreenWidth - 150,
+                            Description.Menu.Y + Description.Menu.Height - 40, "Clear", "Clear Traits");
+
             this.DoRaceDescription();
             this.SetEmpireData(this.SelectedData.Traits);
 
-            this.LoadRace = new UIButton()         // Added by EVWeb to allow loading and saving of races
-            {
-                Rect = new Rectangle(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = "Load Race",
-                Launches = "LoadRace"
-            };
-            this.Buttons.Add(this.LoadRace);
-            this.SaveRace = new UIButton()
-            {
-                Rect = new Rectangle(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = "Save Race",
-                Launches = "SaveRace"
-            };
-            this.Buttons.Add(this.SaveRace);
-            this.LoadSetup = new UIButton()         // Added by EVWeb to allow loading and saving of new game setup
-            {
-                Rect = new Rectangle((int)Position.X - 142, (int)Position.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = "Load Setup",
-                Launches = "LoadSetup"
-            };
-            this.Buttons.Add(this.LoadSetup);
-            this.SaveSetup = new UIButton()
-            {
-                Rect = new Rectangle((int)Position.X + 178, (int)Position.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
-                Text = "Save Setup",
-                Launches = "SaveSetup"
-            };
-            this.Buttons.Add(this.SaveSetup);
+            LoadRace = ButtonMedium(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, "LoadRace", "Load Race");
+            SaveRace = ButtonMedium(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, "SaveRace", "Save Race");
+            LoadSetup = ButtonMedium((int)Position.X - 142, (int)Position.Y, "LoadSetup", "Load Setup");
+            SaveSetup = ButtonMedium((int)Position.X + 178, (int)Position.Y, "SaveSetup", "Save Setup");
+
             base.LoadContent();
         }
 

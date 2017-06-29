@@ -39,7 +39,7 @@ namespace Ship_Game
 			int WindowWidth = 320;
 			this.win = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth, 260, WindowWidth, 225);
 			Rectangle rectangle = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth + 20, 225, WindowWidth - 40, 455);
-			this.ConstructionSubMenu = new Submenu(ScreenManager, this.win, true);
+			this.ConstructionSubMenu = new Submenu(this.win, true);
 			this.ConstructionSubMenu.AddTab("Build Menu");
 			this.SL = new ScrollList(this.ConstructionSubMenu, 40);
 

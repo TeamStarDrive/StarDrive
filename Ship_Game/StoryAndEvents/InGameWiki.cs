@@ -38,19 +38,19 @@ namespace Ship_Game
             R = r;
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             VideoPlayer?.Dispose(ref VideoPlayer);
             HelpCategories?.Dispose(ref HelpCategories);
             HelpEntries?.Dispose(ref HelpEntries);
-            base.Dispose(disposing);
+            base.Destroy();
         } 
          
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            DrawBase(gameTime);
+            DrawBase(GameTime);
             ScreenManager.SpriteBatch.Begin();
             HelpCategories.Draw(ScreenManager.SpriteBatch);
             Vector2 bCursor;
@@ -241,11 +241,11 @@ namespace Ship_Game
             var presentation = ScreenManager.GraphicsDevice.PresentationParameters;
             
             CategoriesRect       = new Rectangle(R.X + 25, R.Y + 130, 330, 430);
-            Submenu blah         = new Submenu(ScreenManager, CategoriesRect);
+            Submenu blah         = new Submenu(CategoriesRect);
             HelpCategories       = new ScrollList(blah, 40);
             TextRect             = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
             Rectangle textSlRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
-            Submenu bler         = new Submenu(ScreenManager, textSlRect);
+            Submenu bler         = new Submenu(textSlRect);
             HelpEntries          = new ScrollList(bler, Fonts.Arial12Bold.LineSpacing + 2);
             SmallViewer          = new Rectangle(TextRect.X + 20, TextRect.Y + 40, 336, 189);
             BigViewer            = new Rectangle(presentation.BackBufferWidth / 2 - 640, presentation.BackBufferHeight / 2 - 360, 1280, 720);

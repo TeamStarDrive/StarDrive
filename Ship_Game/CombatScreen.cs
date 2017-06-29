@@ -75,14 +75,13 @@ namespace Ship_Game
 
         private static bool popup = false;  //fbedard
 
-        public CombatScreen(ScreenManager screenMgr, Planet p)
+        public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {            
             this.p = p;
-            this.ScreenManager = screenMgr;
             int screenWidth = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             this.GridRect = new Rectangle(screenWidth / 2 - 639, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
             Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
-            this.TitleBar = new Menu2(this.ScreenManager, titleRect);
+            this.TitleBar = new Menu2(titleRect);
             this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             this.SelectedItemRect = new Rectangle(screenWidth - 240, 100, 225, 205);
             this.AssetsRect = new Rectangle(10, 48, 225, 200);
@@ -91,33 +90,19 @@ namespace Ship_Game
             this.tInfo = new TroopInfoUIElement(this.SelectedItemRect, this.ScreenManager, Empire.Universe);
             this.hInfo = new TroopInfoUIElement(this.HoveredItemRect, this.ScreenManager, Empire.Universe);
             Rectangle ColonyGrid = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
-            this.CombatField = new Menu2(screenMgr, ColonyGrid);
+            this.CombatField = new Menu2(ColonyGrid);
             Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height+20);
-            this.OrbitalResources = new Menu1(this.ScreenManager, OrbitalRect);
+            this.OrbitalResources = new Menu1(OrbitalRect);
             Rectangle psubRect = new Rectangle(this.AssetsRect.X + 225, this.AssetsRect.Y+23, 185, this.AssetsRect.Height);
-            this.orbitalResourcesSub = new Submenu(this.ScreenManager, psubRect);
+            this.orbitalResourcesSub = new Submenu(psubRect);
             this.orbitalResourcesSub.AddTab("In Orbit");
             this.OrbitSL = new ScrollList(this.orbitalResourcesSub);
             Empire.Universe.ShipsInCombat.Visible = false;
             Empire.Universe.PlanetsInCombat.Visible = false;
-            this.LandAll = new UIButton()
-            {
-                Rect = new Rectangle(this.orbitalResourcesSub.Menu.X + 20, this.orbitalResourcesSub.Menu.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-                Launches = "Land",
-                Text = "Land All"
-            };
-            this.LaunchAll = new UIButton()
-            {
-                Rect = new Rectangle(this.orbitalResourcesSub.Menu.X + 20, this.LandAll.Rect.Y -2- this.LandAll.Rect.Height, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-                Launches = "LaunchAll",
-                Text = "Launch All"
-            };
+
+            LandAll = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land", "Land All");
+            LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "LaunchAll", "Launch All");
+
             using (Empire.Universe.MasterShipList.AcquireReadLock())
             foreach (Ship ship in Empire.Universe.MasterShipList)			                        
             {
@@ -297,8 +282,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            GameTime gameTime = Game1.Instance.GameTime;
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("PlanetTiles/", this.p.GetTile(), "_tilt")], this.GridRect, Color.White);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/grid"], this.GridRect, Color.White);
             if (this.assetsUI.LandTroops.Toggled)
@@ -669,7 +655,7 @@ namespace Ship_Game
             }
         }
 
-        public override void HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             this.currentMouse = Mouse.GetState();
             Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -1013,14 +999,15 @@ namespace Ship_Game
             if (popup)
             {
                 if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
-                        return;
+                        return true;
                     popup = false;
             }
             else if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
             {
                 Empire.Universe.ShipsInCombat.Visible = true;
                 Empire.Universe.PlanetsInCombat.Visible = true;
-            }                    
+            }
+            return base.HandleInput(input);
         }
         
         private void ResetTroopList()
@@ -1264,20 +1251,13 @@ namespace Ship_Game
             }
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~CombatScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
+        protected override void Destroy()
         {
             Explosions?.Dispose(ref Explosions);
             OrbitSL?.Dispose(ref OrbitSL);
             tInfo?.Dispose(ref tInfo);
             hInfo?.Dispose(ref hInfo);
+            base.Destroy();
         }
     }
 }

@@ -84,14 +84,16 @@ namespace Ship_Game
 			this.LoadContent();
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             ShipDesigns?.Dispose(ref ShipDesigns);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
+            GameTime gameTime = Game1.Instance.GameTime;
+
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
 			this.loadMenu.Draw();
@@ -299,9 +301,9 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
-			this.loadMenu = new Menu1(base.ScreenManager, this.Window);
+			this.loadMenu = new Menu1(this.Window);
 			Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 60, this.Window.Width - 40, this.Window.Height - 80);
-			this.SaveShips = new Submenu(base.ScreenManager, sub);
+			this.SaveShips = new Submenu(sub);
 			this.SaveShips.AddTab(Localizer.Token(198));
 			this.ShipDesigns = new ScrollList(this.SaveShips);
 			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
@@ -375,17 +377,8 @@ namespace Ship_Game
 			}
 			this.EnternamePos = this.TitlePosition;
 			this.EnterNameArea.Text = Localizer.Token(199);
-			this.Load = new UIButton()
-			{
-				Rect = new Rectangle(sub.X + sub.Width - 88, (int)this.EnternamePos.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-				Launches = "Load",
-				Text = Localizer.Token(8)
-			};
-			this.Buttons.Add(this.Load);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height + 15);
+		    Load = ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, "Load", localization:8);
+
 			base.LoadContent();
 		}
 

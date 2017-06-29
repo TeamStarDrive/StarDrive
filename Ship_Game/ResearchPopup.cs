@@ -41,12 +41,12 @@ namespace Ship_Game
 			this.MiddleText = Localizer.Token(ResourceManager.TechTree[uid].DescriptionIndex);
 		}
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             if (this.fade)
                 this.ScreenManager.FadeBackBufferToBlack((int)this.TransitionAlpha * 2 / 3);
             //draw frame, name and description
-            this.DrawBase(gameTime);
+            this.DrawBase(GameTime);
             this.ScreenManager.SpriteBatch.Begin();
             //draw some scroll bar? never actually seen
             this.UnlockSL.Draw(this.ScreenManager.SpriteBatch);
@@ -159,7 +159,7 @@ namespace Ship_Game
 		{
 			base.LoadContent();
 			this.UnlocksRect = new Rectangle(this.MidContainer.X + 20, this.MidContainer.Y + this.MidContainer.Height - 20, this.R.Width - 40, this.R.Height - this.MidContainer.Height - this.TitleRect.Height - 20);
-			Submenu UnlocksSubMenu = new Submenu(base.ScreenManager, this.UnlocksRect);
+			Submenu UnlocksSubMenu = new Submenu(this.UnlocksRect);
 			this.UnlockSL = new ScrollList(UnlocksSubMenu, 100);
 			Technology unlockedTech = ResourceManager.TechTree[this.TechUID];
             foreach (Technology.UnlockedMod UnlockedMod in unlockedTech.ModulesUnlocked)
@@ -231,10 +231,10 @@ namespace Ship_Game
 			}
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             UnlockSL?.Dispose(ref UnlockSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
     }
 }
