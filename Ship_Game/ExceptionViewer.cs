@@ -27,7 +27,7 @@ namespace Ship_Game
                 tbError.Select(0, 0);
             }
         }
-
+        [STAThread]
         private void btClip_Click(object sender, EventArgs e)
         {
             string all = tbError.Text + "\n\nUser Comment: " + tbComment.Text;
@@ -67,7 +67,7 @@ namespace Ship_Game
                     "If this error keep reocurring, you can add comments and create a new issue on BitBucket.";
             }
 
-            view.Error = Log.CurryExceptionMessage(ex) + "\r\n" + Log.CleanStackTrace(ex);
+            view.Error = Log.CurryExceptionMessage(ex) + "\r\n" + Log.CleanStackTrace(ex.StackTrace);
             view.ShowDialog();
         }
     }

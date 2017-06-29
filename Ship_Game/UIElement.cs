@@ -1,149 +1,80 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public abstract class UIElement
-	{
-		public Rectangle ElementRect;
+    public abstract class UIElement
+    {
+        public enum ElementState
+        {
+            TransitionOn,
+            Open,
+            TransitionOff,
+            Closed
+        }
 
-		public Ship_Game.ScreenManager ScreenManager;
+        public Rectangle ElementRect;
 
-		public Color tColor = new Color(255, 239, 208);
+        public ScreenManager ScreenManager;
 
-		private TimeSpan transitionOnTime = TimeSpan.Zero;
+        public Color tColor = new Color(255, 239, 208);
 
-		private TimeSpan transitionOffTime = TimeSpan.Zero;
+        public bool IsExiting { get; protected set; }
+        public ElementState State { get; protected set; } = ElementState.Closed;
+        public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
+        public TimeSpan TransitionOnTime { get; protected set; } = TimeSpan.Zero;
+        public float TransitionPosition { get; protected set; } = 1f;
+        public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-		private float transitionPosition = 1f;
+        protected UIElement()
+        {
+        }
 
-		private bool isExiting;
+        public abstract void Draw(GameTime gameTime);
 
-		private UIElement.ElementState elementState = UIElement.ElementState.Closed;
+        public virtual bool HandleInput(InputState input)
+        {
+            return false;
+        }
 
-		public bool IsExiting
-		{
-			get
-			{
-				return this.isExiting;
-			}
-			protected set
-			{
-				this.isExiting = value;
-			}
-		}
+        public virtual void Update(GameTime gameTime)
+        {
+            if (State == ElementState.TransitionOn)
+            {
+                if (UpdateTransition(gameTime, TransitionOnTime, -1))
+                {
+                    State = ElementState.TransitionOn;
+                    return;
+                }
+                State = ElementState.Open;
+                return;
+            }
+            if (State == ElementState.TransitionOff)
+            {
+                if (UpdateTransition(gameTime, TransitionOffTime, 1))
+                {
+                    IsExiting = false;
+                    return;
+                }
+                State = ElementState.Closed;
+            }
+        }
 
-		public UIElement.ElementState State
-		{
-			get
-			{
-				return this.elementState;
-			}
-			protected set
-			{
-				this.elementState = value;
-			}
-		}
+        private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
+        {
+            float transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
+            TransitionPosition += transitionDelta * direction;
+            if (TransitionPosition > 0f && TransitionPosition < 1f)
+                return true;
+            TransitionPosition = TransitionPosition.Clamp(0f, 1f);
+            return false;
+        }
 
-		public byte TransitionAlpha
-		{
-			get
-			{
-				return (byte)(255f - this.TransitionPosition * 255f);
-			}
-		}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawCircle(Vector2 center, float radius, int sides, Color color, float thickness = 1.0f)
+            => ScreenManager.SpriteBatch.DrawCircle(center, radius, sides, color, thickness);
 
-		public TimeSpan TransitionOffTime
-		{
-			get
-			{
-				return this.transitionOffTime;
-			}
-			protected set
-			{
-				this.transitionOffTime = value;
-			}
-		}
-
-		public TimeSpan TransitionOnTime
-		{
-			get
-			{
-				return this.transitionOnTime;
-			}
-			protected set
-			{
-				this.transitionOnTime = value;
-			}
-		}
-
-		public float TransitionPosition
-		{
-			get
-			{
-				return this.transitionPosition;
-			}
-			protected set
-			{
-				this.transitionPosition = value;
-			}
-		}
-
-		protected UIElement()
-		{
-		}
-
-		public abstract void Draw(GameTime gameTime);
-
-		public virtual bool HandleInput(InputState input)
-		{
-			return false;
-		}
-
-		public virtual void Update(GameTime gameTime)
-		{
-			if (this.State == UIElement.ElementState.TransitionOn)
-			{
-				if (this.UpdateTransition(gameTime, this.transitionOnTime, -1))
-				{
-					this.State = UIElement.ElementState.TransitionOn;
-					return;
-				}
-				this.State = UIElement.ElementState.Open;
-				return;
-			}
-			if (this.State == UIElement.ElementState.TransitionOff)
-			{
-				if (this.UpdateTransition(gameTime, this.transitionOffTime, 1))
-				{
-					this.isExiting = false;
-					return;
-				}
-				this.State = UIElement.ElementState.Closed;
-			}
-		}
-
-		private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
-		{
-			float transitionDelta;
-			transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
-			UIElement uIElement = this;
-			uIElement.transitionPosition = uIElement.transitionPosition + transitionDelta * (float)direction;
-			if (this.transitionPosition > 0f && this.transitionPosition < 1f)
-			{
-				return true;
-			}
-			this.transitionPosition = MathHelper.Clamp(this.transitionPosition, 0f, 1f);
-			return false;
-		}
-
-		public enum ElementState
-		{
-			TransitionOn,
-			Open,
-			TransitionOff,
-			Closed
-		}
-	}
+    }
 }

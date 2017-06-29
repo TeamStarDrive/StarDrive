@@ -74,16 +74,16 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.Button, input.CursorPosition))
+			if (!this.Button.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
 			else
 			{
 				this.Hover = true;
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (input.LeftMouseClick)
 				{
-					AudioManager.PlayCue("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					return true;
 				}
 			}

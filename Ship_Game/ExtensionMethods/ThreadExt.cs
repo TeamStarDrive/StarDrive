@@ -19,15 +19,15 @@ namespace Ship_Game
         // Use this rather than Parallel.ForEach, to improve iteration performance and avoid callback overhead
         // @note This is about 3x slower than Ship_Game.Parallel.For, but it's tens of times faster
         //       than System.Threading.Tasks.Parallel.ForEach
-        public static void ParallelRange<T>(this T[] array, Action<SubrangeEnumerator<T>> action)
+        public static void ParallelRange<T>(this T[] array, Action<ArrayView<T>> action)
         {
             Parallel.For(0, array.Length, (start, end) =>
             {
-                action(new SubrangeEnumerator<T>(start, end, array));
+                action(new ArrayView<T>(start, end, array));
             });
         }
 
-        public static void ParallelRange<T>(this Array<T> array, Action<SubrangeEnumerator<T>> action)
+        public static void ParallelRange<T>(this Array<T> array, Action<ArrayView<T>> action)
         {
             Parallel.For(0, array.Count, (start, end) =>
             {

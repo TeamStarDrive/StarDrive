@@ -1,20 +1,37 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-	public abstract class GameplayObject
-	{
+    [Flags]
+    public enum GameObjectType : byte
+    {
+        None       = 0,
+        Ship       = 1,
+        ShipModule = 2,
+        Proj       = 4,
+        Beam       = 8,
+        Asteroid   = 16,
+        Moon       = 32,
+    }
+
+    public abstract class GameplayObject
+    {
         public static GraphicsDevice device;
-        public static AudioListener audioListener { get; set; }
+
+        /**
+         *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
+         *        will be accidentally serialized! 
+         */
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] protected Cue dieCue;
-        [XmlIgnore][JsonIgnore] public SolarSystem System;
+        [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx;
+        [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
 
         [Serialize(0)] public Vector2 Position;
         [Serialize(1)] public Vector2 Center;
@@ -25,68 +42,81 @@ namespace Ship_Game
         [Serialize(5)] public float Radius = 1f;
         [Serialize(6)] public float Mass = 1f;
         [Serialize(7)] public float Health;
-        [Serialize(8)] public bool isInDeepSpace = true;
+
+        [Serialize(8)] public GameObjectType Type;
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
-        [XmlIgnore][JsonIgnore] public bool CollidedThisFrame;
 
-        protected GameplayObject()
-		{
-		}
+        [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
+        [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
 
-		public virtual bool Damage(GameplayObject source, float damageAmount)
-		{
-			return false;
-		}
+        [XmlIgnore][JsonIgnore]
+        public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
-		public virtual void Die(GameplayObject source, bool cleanupOnly)
-		{
-			Active = false;
-		}
+        private static int GameObjIds;
+        [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
-		public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color)
-		{
-			if (sprite != null)
-				spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
-                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), 2f * Radius / Math.Min(sprite.Width, sprite.Height), SpriteEffects.None, 0f);
-		}
+        protected GameplayObject(GameObjectType typeFlags)
+        {
+            Type = typeFlags;
+        }
 
-		public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
-		{
-			if (sprite != null) spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
-                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), scaleFactor, SpriteEffects.None, 0f);
-		}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
-		public virtual void DrawShield(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
-		{
-			if (sprite != null)
-				spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
-                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), scaleFactor + Radius / 10000f, SpriteEffects.None, 0f);
-		}
-
-        public string SystemName => System?.Name ?? "Deep Space";
+        public virtual bool Damage(GameplayObject source, float damageAmount)
+        {
+            return false;
+        }
 
         public virtual void Initialize()
-		{
-		}
+        {
+        }
 
-		public void SetSystem(SolarSystem s)
-		{
-			this.System = s;
-		}
+        public virtual void Die(GameplayObject source, bool cleanupOnly)
+        {
+            Active = false;
+            if (SpatialIndex != -1)
+                UniverseScreen.SpaceManager.Remove(this);
+        }
 
-		public virtual bool Touch(GameplayObject target)
-		{
-			return true;
-		}
+        [XmlIgnore][JsonIgnore] 
+        public string SystemName => System?.Name ?? "Deep Space";
 
-		public virtual void Update(float elapsedTime)
-		{
-			this.CollidedThisFrame = false;
-		}
+        public void SetSystem(SolarSystem system)
+        {
+            // SetSystem means this GameplayObject is used somewhere in the universe
+            // Regardless whether the system itself is null, we insert self to SpaceManager
+            if (!DisableSpatialCollision && SpatialIndex == -1 && Active)
+                UniverseScreen.SpaceManager.Add(this);
 
-		public void UpdateSystem(float elapsedTime)
-		{
-		}
-	}
+            if (System == system)
+                return;
+
+            if (this is Ship ship)
+            {
+                System?.ShipList.RemoveSwapLast(ship);
+                system?.ShipList.AddUnique(ship);
+            }
+            System = system;
+        }
+
+        public int GetLoyaltyId()
+        {
+            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty?.Id ?? 0;
+            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty?.Id ?? 0;
+            return 0;
+        }
+
+        public virtual bool Touch(GameplayObject target)
+        {
+            return false; // by default, objects can't be touched
+        }
+
+        public virtual void Update(float elapsedTime)
+        {
+        }
+
+        public override string ToString() => $"GameObj Id={Id} Pos={Position}";
+    }
 }

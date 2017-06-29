@@ -40,15 +40,15 @@ namespace Ship_Game.Gameplay
 
 	    public string HandleInput(InputState input)
 	    {
-	        if (!HelperFunctions.CheckIntersection(_clickRect, input.CursorPosition))
+	        if (!_clickRect.HitTest(input.CursorPosition))
 	        {
 	            Hover = false;
 	            return null;
 	        }
 
 	        Hover = true;
-	        if (input.CurrentMouseState.LeftButton == ButtonState.Pressed &&
-	            input.LastMouseState.LeftButton == ButtonState.Released)	        
+	        if (input.MouseCurr.LeftButton == ButtonState.Pressed &&
+	            input.MousePrev.LeftButton == ButtonState.Released)	        
 	            return Response;
 
 	        return null;

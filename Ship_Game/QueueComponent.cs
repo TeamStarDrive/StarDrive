@@ -61,7 +61,7 @@ namespace Ship_Game
 				return;
 			}
 			this.ShowQueue.DrawBlue(this.ScreenManager);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.container, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.container, Color.Black);
 			this.QSL.DrawBlue(this.ScreenManager.SpriteBatch);
 			this.csub.Draw();
 			if (this.CurrentResearch != null)
@@ -94,7 +94,7 @@ namespace Ship_Game
 
 		public void HandleInput(InputState input)
 		{
-			if (input.RightMouseClick && this.Visible && HelperFunctions.CheckIntersection(this.Queue, input.CursorPosition) || input.Escaped)
+			if (input.RightMouseClick && this.Visible && this.Queue.HitTest(input.CursorPosition) || input.Escaped)
 			{
 				this.screen.ExitScreen();
 				return;
@@ -112,13 +112,13 @@ namespace Ship_Game
 					}
 					else
 					{
-						AudioManager.PlayCue("sd_ui_research_select");
+						GameAudio.PlaySfxAsync("sd_ui_research_select");
 						break;
 					}
 				}
 				if (this.CurrentResearch != null && this.CurrentResearch.HandleInput(input))
 				{
-					AudioManager.PlayCue("sd_ui_research_select");
+					GameAudio.PlaySfxAsync("sd_ui_research_select");
 				}
 				if (this.ShowQueue.HandleInput(input))
 				{

@@ -37,7 +37,7 @@ namespace Ship_Game
 
         private static void AddLight(Explosion newExp, Vector3 position, float radius, float intensity)
         {
-            if (Universe.viewState != UniverseScreen.UnivScreenState.ShipView)
+            if (Universe.viewState > UniverseScreen.UnivScreenState.ShipView)
                 return;
 
             if (radius <= 0f) radius = 1f;
@@ -52,7 +52,7 @@ namespace Ship_Game
                 Intensity    = intensity,
                 Enabled      = true
             };
-            newExp.light.AddTo(Universe);
+            Universe.AddLight(newExp.light);
         }
 
         private static void PickRandomExplosion(Explosion newExp)
@@ -230,7 +230,7 @@ namespace Ship_Game
                 if (explosion.duration <= 0f)
                 {
                     ExplosionList.QueuePendingRemoval(explosion);
-                    explosion.light?.RemoveFrom(Universe);
+                    Universe.RemoveLight(explosion.light);
                 }
             }
 			ExplosionList.ApplyPendingRemovals();
@@ -238,7 +238,7 @@ namespace Ship_Game
 
         public static void DrawExplosions(ScreenManager screen, Matrix view, Matrix projection)
         {
-            var vp = screen.GraphicsDevice.Viewport;
+            var vp = Game1.Instance.Viewport;
             using (ExplosionList.AcquireReadLock())
             {
                 foreach (Explosion exp in ExplosionList)

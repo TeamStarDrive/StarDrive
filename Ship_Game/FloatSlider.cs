@@ -6,13 +6,12 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class FloatSlider
+	public sealed class FloatSlider : IInputHandler
 	{
 		public Rectangle rect;
-		public Rectangle ContainerRect;
+		private Rectangle ContainerRect;
 		public bool Hover;
 		public string Text = "";
-		public float amount = 0.5f;
 		public Rectangle cursor;
 		public int Tip_ID;
 		private bool dragging;
@@ -20,7 +19,21 @@ namespace Ship_Game
         private float top ;
         public float amountRange;
 
-        private static readonly Color TextColor = new Color(255, 239, 208);
+        private float Value = 0.5f;
+	    public float Amount
+	    {
+	        get => Value;
+	        set
+	        {
+	            Value = value;
+	            cursor = new Rectangle(rect.X + (int)(rect.Width * value), 
+	                rect.Y + rect.Height / 2 - SliderKnob.Height / 2,
+	                SliderKnob.Width, SliderKnob.Height);
+	        }
+	    }
+
+
+	    private static readonly Color TextColor = new Color(255, 239, 208);
         private static readonly Color HoverColor = new Color(164, 154, 133);
         private static readonly Color NormalColor = new Color(72, 61, 38);
 
@@ -47,7 +60,7 @@ namespace Ship_Game
 			Text   = text;
             bottom = 0;
             top    = 10000f;
-            cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
+            cursor = new Rectangle(rect.X + (int)(rect.Width * Amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
         }
         public FloatSlider(Rectangle r, int text) : this(r, Localizer.Token(text))
         {
@@ -66,20 +79,22 @@ namespace Ship_Game
                     amountRange = bottom;
                 if (amountRange > top + bottom)
                     amountRange = top + bottom;
-                amount = (amountRange - bottom) / top;
+                Amount = (amountRange - bottom) / top;
             }
-            else amount = 0;
-            cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
+            else Amount = 0;
+            cursor = new Rectangle(rect.X + (int)(rect.Width * Amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
         }
+
+        public bool HitTest(Vector2 pos) => ContainerRect.HitTest(pos);
 
         private void Draw(ScreenManager screenManager, string valueIndicator)
         {
             SpriteBatch sb = screenManager.SpriteBatch;
             sb.DrawString(Fonts.Arial12Bold, Text, new Vector2(ContainerRect.X + 10, ContainerRect.Y), TextColor);
 
-            var gradient = new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6);
+            var gradient = new Rectangle(rect.X, rect.Y, (int)(Amount * rect.Width), 6);
             sb.Draw(SliderGradient, gradient, gradient, Color.White);
-            Primitives2D.DrawRectangle(sb, rect, Hover ? HoverColor : NormalColor);
+            sb.DrawRectangle(rect, Hover ? HoverColor : NormalColor);
 
             for (int i = 0; i < 11; i++)
             {
@@ -100,52 +115,41 @@ namespace Ship_Game
             }
         }
 
-	    public void Draw(ScreenManager screenManager)
+	    public void DrawPercent(ScreenManager screenManager)
 		{
-            int num = (int)(amount * 100f);
+            int num = (int)(Amount * 100f);
             Draw(screenManager, num.ToString("00") + "%");
 		}
 
 		public void DrawDecimal(ScreenManager screenManager)
 		{
-            int num = (int)(amount * top + bottom);
+            int num = (int)(Amount * top + bottom);
             Draw(screenManager, num.ToString());
 		}
 
-		public float HandleInput(InputState input)
+		public bool HandleInput(InputState input)
 		{
             Hover = rect.HitTest(input.CursorPosition);
 
 			Rectangle clickCursor = cursor;
 			clickCursor.X -= cursor.Width / 2;
-			if (clickCursor.HitTest(input.CursorPosition) && 
-                input.CurrentMouseState.LeftButton == ButtonState.Pressed && 
-                input.LastMouseState.LeftButton    == ButtonState.Pressed)
-			{
+
+			if (clickCursor.HitTest(input.CursorPosition) && input.LeftMouseHeldDown)
 				dragging = true;
-			}
+
 			if (dragging)
 			{
 				cursor.X = (int)input.CursorPosition.X;
 				if (cursor.X > rect.X + rect.Width) cursor.X = rect.X + rect.Width;
 				else if (cursor.X < rect.X)         cursor.X = rect.X;
 
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.LeftMouseReleased)
 					dragging = false;
-				amount = 1f - (rect.X + rect.Width - cursor.X) / (float)rect.Width;
+				Amount = 1f - (rect.X + rect.Width - cursor.X) / (float)rect.Width;
 			}
-            amountRange = bottom + amount * top;
-			return amount;
+            amountRange = bottom + Amount * top;
+            return dragging;
 		}
-
-		public void SetAmount(float amt)
-		{
-            amount = amt;
-            cursor = new Rectangle(rect.X + (int)(rect.Width * amt), 
-                                   rect.Y + rect.Height / 2 - SliderKnob.Height / 2,
-                                   SliderKnob.Width, SliderKnob.Height);
-		}
-
 
 	}
 }

@@ -1,92 +1,19 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game;
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class ModuleSlot
-	{
-		public Vector2 Position;
+    public sealed class ModuleSlotData
+    {
+        public Vector2 Position;
+        public string InstalledModuleUID;
+        public Guid HangarshipGuid;
+        public float Health;
+        public float ShieldPower;
+        public float Facing;
+        public Restrictions Restrictions;
+        public string SlotOptions;
 
-		public float facing;
-
-		public Guid HangarshipGuid;
-
-		public Restrictions Restrictions;
-
-		public bool Powered;
-
-		public bool CheckedConduits;
-
-		public string SlotOptions;
-
-		public ShipDesignScreen.ActiveModuleState state;
-
-		public float ModuleHealth;
-
-		public float Shield_Power;
-
-		public bool isDummy;
-
-		public string InstalledModuleUID;
-
-		private Ship Parent;
-
-        public ShipModule module;
-
-		public ModuleSlot()
-		{
-		}
-
-		public void Draw(SpriteBatch spriteBatch)
-		{
-			this.module.Draw(spriteBatch);
-		}
-
-		public Ship GetParent()
-		{
-			return this.Parent;
-		}
-
-		public void Initialize()
-		{
-			if (this.InstalledModuleUID != "Dummy" && this.InstalledModuleUID != null)
-			{
-				this.module = ResourceManager.GetModule(this.InstalledModuleUID);
-                this.module.installedSlot = this;
-				this.module.SetParent(this.Parent);
-				this.module.facing = this.facing;
-				this.module.Initialize(this.Position);
-			}
-		}
-        public void InitializeFromSave()
-        {
-            if (this.InstalledModuleUID != "Dummy" && this.InstalledModuleUID != null)
-            {
-                this.module = ResourceManager.GetModule(this.InstalledModuleUID);
-                this.module.installedSlot = this;
-                this.module.SetParent(this.Parent);
-                this.module.facing = this.facing;
-                this.module.InitializeFromSave(this.Position);
-            }
-        }
-
-		public void InitializeForLoad()
-		{
-			this.module = ResourceManager.ShipModulesDict[this.InstalledModuleUID];
-		}
-
-		public void SetParent(Ship ship)
-		{
-			this.Parent = ship;
-		}
-
-		public void Update(float elapsedTime)
-		{
-			this.module.Update(elapsedTime);
-		}
-	}
+        public override string ToString() => $"{InstalledModuleUID} {Position} {Facing} {Restrictions}";
+    }
 }
