@@ -19,7 +19,6 @@ namespace Ship_Game
         public LightingSystemEditor editor;
         private readonly SceneState GameSceneState;
         public SceneEnvironment environment;
-        public LightingSystemPreferences preferences;
         private SplashScreenGameComponent SplashScreen;
         private readonly SceneInterface SceneInter;
         private readonly object InterfaceLock = new object();
@@ -57,6 +56,11 @@ namespace Ship_Game
 
             SplashScreen = new SplashScreenGameComponent(game, graphics);
             game.Components.Add(SplashScreen);
+        }
+
+        public void UpdatePreferences(LightingSystemPreferences prefs)
+        {
+            SceneInter.ApplyPreferences(prefs);
         }
 
         public void UpdateViewports()
