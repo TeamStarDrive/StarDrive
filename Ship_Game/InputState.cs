@@ -228,7 +228,7 @@ namespace Ship_Game
             TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
             EndRightHold       = endHoldPoint;
             RightDblClickTimer =  RightDblClickTimer <= 0 && RightMouseClick ? DoubleClickTime : RightDblClickTimer - time;
-            LeftDblClickTimer  = LeftDblClickTimer <=0 && RightMouseClick ? DoubleClickTime : LeftDblClickTimer - time;
+            LeftDblClickTimer  = LeftDblClickTimer <=0 && LeftMouseClick ? DoubleClickTime : LeftDblClickTimer - time;
 
         }
         private void TimerUpdate(float time, bool update, ref float timer, ref bool wasHeld, ref bool held)
