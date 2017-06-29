@@ -26,14 +26,7 @@ namespace Ship_Game
 		{
 			this.Component = parent;
 			this.TheMission = am;
-			this.DoMission = new UIButton()
-			{
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px_pressed"],
-				Text = "Go",
-				Launches = "New Campaign"
-			};
+            DoMission = new UIButton(ButtonStyle.Low80, 0f, 0f, "New Campaign", "Go");
 		}
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, Rectangle clickRect)

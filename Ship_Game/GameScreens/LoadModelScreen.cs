@@ -32,13 +32,13 @@ namespace Ship_Game
 			base.IsPopup = true;
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             SavesSL?.Dispose(ref SavesSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
 		{
 			base.ScreenManager.SpriteBatch.Begin();
 			this.SaveMenu.Draw();
@@ -147,11 +147,11 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			Window               = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
-			SaveMenu             = new Menu1(ScreenManager, Window);
+			SaveMenu             = new Menu1(Window);
 			Rectangle sub        = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
 			TitlePosition        = new Vector2(sub.X + 20, sub.Y + 45);
 			Rectangle scrollList = new Rectangle(sub.X, sub.Y, sub.Width, Window.Height - 45);
-			AllSaves             = new Submenu(ScreenManager, scrollList);
+			AllSaves             = new Submenu(scrollList);
 			AllSaves.AddTab("Load Model");
 			SavesSL              = new ScrollList(AllSaves, 55);
 			ModuleHeader original = new ModuleHeader("Vanilla StarDrive");

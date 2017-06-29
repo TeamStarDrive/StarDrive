@@ -45,7 +45,7 @@ namespace Ship_Game
 			this.DefenseRect.X = this.DefenseRect.X - 3;
 			this.ItemDisplayRect = new Rectangle(this.LeftRect.X + 85, this.LeftRect.Y + 5, 128, 128);
 			Rectangle DesRect = new Rectangle(this.HardAttackRect.X, this.HardAttackRect.Y - 10, this.LeftRect.Width + 8, 95);
-			Submenu sub = new Submenu(this.ScreenManager, DesRect);
+			Submenu sub = new Submenu(DesRect);
 			this.DescriptionSL = new ScrollList(sub, Fonts.Arial12.LineSpacing + 1);
 			TroopInfoUIElement.TippedItem def = new TroopInfoUIElement.TippedItem()
 			{

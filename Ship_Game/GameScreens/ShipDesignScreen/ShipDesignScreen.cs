@@ -318,11 +318,11 @@ namespace Ship_Game
             ChangeHull(ActiveHull);
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             HullSL?.Dispose(ref HullSL);
             ModSel?.Dispose();
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
         private float GetMaintCostShipyard(ShipData ship, float Size, Empire empire)

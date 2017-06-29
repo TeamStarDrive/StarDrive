@@ -36,13 +36,13 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             ModsSL?.Dispose(ref ModsSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
 		{
             if (IsExiting)
                 return;
@@ -57,7 +57,8 @@ namespace Ship_Game
 				(e.item as ModEntry)?.Draw(ScreenManager, e.clickRect);
 			}
 			ModsSL.Draw(ScreenManager.SpriteBatch);
-			EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, gameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+			EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
+                Game1.Instance.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
 			foreach (UIButton b in Buttons)
 			{
 				b.Draw(ScreenManager.SpriteBatch);
@@ -208,14 +209,14 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 425, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 850, 600);
-			SaveMenu = new Menu1(ScreenManager, Window);
+			SaveMenu = new Menu1(Window);
 			Rectangle sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
-            NameSave = new Submenu(ScreenManager, sub);
+            NameSave = new Submenu(sub);
             NameSave.AddTab(Localizer.Token(4013));
 			Vector2 cursor = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100);
             TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
 			Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
-            AllSaves = new Submenu(ScreenManager, scrollList);
+            AllSaves = new Submenu(scrollList);
             AllSaves.AddTab(Localizer.Token(4013));
             ModsSL = new ScrollList(AllSaves, 140);
 
@@ -240,57 +241,11 @@ namespace Ship_Game
 			EnterNameArea.Text = "";
             EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            var defaultSmall  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"];
-            var hoverSmall   = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"];
-            var pressedSmall = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];
+            Save     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "Load", localization:8);
+            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, "Visit", localization:4015);
+            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, "shiptool", localization:4044);
+		    Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Disable", localization:4016);
 
-            Save = new UIButton
-			{
-				Rect = new Rectangle(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, defaultSmall.Width, defaultSmall.Height),
-				NormalTexture  = defaultSmall,
-				HoverTexture   = hoverSmall,
-				PressedTexture = pressedSmall,
-				Text = Localizer.Token(8),
-				Launches = "Load"
-			};
-			Buttons.Add(Save);
-			cursor.Y = cursor.Y + defaultSmall.Height + 15;
-
-            var defaultTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
-            var hoverTexture   = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
-            var pressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
-
-            Visit = new UIButton
-			{
-				Rect = new Rectangle(Window.X + 3, Window.Y + Window.Height + 20, defaultTexture.Width, defaultTexture.Height),
-				NormalTexture  = defaultTexture,
-				HoverTexture   = hoverTexture,
-				PressedTexture = pressedTexture,
-				Text = Localizer.Token(4015),
-				Launches = "Visit"
-			};
-            Buttons.Add(Visit);
-
-            shiptool = new UIButton
-			{
-				Rect = new Rectangle(Window.X + 200, Window.Y + Window.Height + 20, defaultTexture.Width, defaultTexture.Height),
-				NormalTexture  = defaultTexture,
-				HoverTexture   = hoverTexture,
-				PressedTexture = pressedTexture,
-                Text = Localizer.Token(4044),
-				Launches = "shiptool"
-			};
-			Buttons.Add(shiptool);
-			Disable = new UIButton
-			{
-				Rect = new Rectangle(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, defaultTexture.Width, defaultTexture.Height),
-				NormalTexture  = defaultTexture,
-				HoverTexture   = hoverTexture,
-				PressedTexture = pressedTexture,
-				Text = Localizer.Token(4016),
-				Launches = "Disable"
-			};
-			Buttons.Add(Disable);
 			base.LoadContent();
 		}
 	}

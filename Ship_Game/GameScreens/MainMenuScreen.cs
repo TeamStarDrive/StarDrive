@@ -138,8 +138,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            GameTime gameTime = this.GameTime;
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             MainMenuScreen mainMenuScreen = this;
             mainMenuScreen.Rotate = mainMenuScreen.Rotate + elapsedTime / 350f;
@@ -717,12 +718,12 @@ namespace Ship_Game
             public float Rotation;
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             CometList?.Dispose(ref CometList);
             WaveOut?.Dispose(ref WaveOut);
             Mp3FileReader?.Dispose(ref Mp3FileReader);
-            base.Dispose(disposing);
+            base.Destroy();
         }
     }
 }

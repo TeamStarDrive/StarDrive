@@ -22,7 +22,6 @@ namespace Ship_Game
         private Model model;
 
         private InputState designInputState;
-        private SpriteBatch spriteBatch;
 
         private Texture2D DottedLine;
 
@@ -102,7 +101,6 @@ namespace Ship_Game
         private void ConfigureSlots()
         {
             this.border = new PrimitiveQuad(this.aspect.X / 2f - 256f, this.aspect.Y / 2f - 256f, 512f, 512f);
-            this.spriteBatch = new SpriteBatch(base.ScreenManager.GraphicsDevice);
             for (int x = -32; x < 32; x++)
             {
                 for (int y = -32; y < 32; y++)
@@ -118,17 +116,15 @@ namespace Ship_Game
             }
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
-            spriteBatch?.Dispose(ref spriteBatch);
             border?.Dispose(ref border);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            this.spriteBatch = base.ScreenManager.SpriteBatch;
-
+            GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
 
             base.ScreenManager.GraphicsDevice.Clear(Color.Black);
@@ -138,7 +134,7 @@ namespace Ship_Game
             }
             ScreenManager.RenderSceneObjects();
             Rectangle rectangle = new Rectangle(this.border.X, this.border.Y, 512, 512);
-            this.spriteBatch.Begin();
+            spriteBatch.Begin();
             Vector2 TitlePos = new Vector2(20f, 20f);
             HelperFunctions.DrawDropShadowText(base.ScreenManager, "Ship Mod Tools", TitlePos, Fonts.Arial20Bold);
             TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 3);
@@ -146,7 +142,6 @@ namespace Ship_Game
             if (this.shipSO != null)
             {
                 TitlePos = new Vector2((float)this.what.X, 20f);
-                SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
                 float radius = this.shipSO.WorldBoundingSphere.Radius;
                 spriteBatch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
@@ -155,7 +150,7 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12, text, 600f), TitlePos, Color.White);
             }
             Vector2 WhichSelectionPos = new Vector2((float)this.what.X, (float)(this.what.Y - Fonts.Arial20Bold.LineSpacing));
-            this.spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(this.DesignState, " - ", this.GetDesignStateText()), WhichSelectionPos, Color.Orange);
+            spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(this.DesignState, " - ", this.GetDesignStateText()), WhichSelectionPos, Color.Orange);
             WhichSelectionPos.X = WhichSelectionPos.X + 150f;
             WhichSelectionPos.Y = WhichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
             WhichSelectionPos.Y = WhichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
@@ -164,8 +159,8 @@ namespace Ship_Game
             {
                 if (!this.applyThruster && slot.PQ.isFilled)
                 {
-                    this.spriteBatch.Draw(this.moduleSlot, slot.PQ.enclosingRect, Color.White);
-                    this.spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                    spriteBatch.Draw(this.moduleSlot, slot.PQ.enclosingRect, Color.White);
+                    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
                 if (this.applyThruster || slot.ModuleUID == null)
                 {
@@ -173,30 +168,30 @@ namespace Ship_Game
                 }
                 if (slot.Module.XSIZE > 1 || slot.Module.YSIZE > 1)
                 {
-                    this.spriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
+                    spriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
                 }
                 else
                 {
-                    this.spriteBatch.Draw(slot.Tex, slot.PQ.enclosingRect, Color.White);
+                    spriteBatch.Draw(slot.Tex, slot.PQ.enclosingRect, Color.White);
                 }
             }
-            this.DrawHorizontalLine(this.SelectionBox.Y);
-            this.DrawHorizontalLine(this.SelectionBox.Y + this.SelectionBox.Height);
-            this.DrawVerticalLine(this.SelectionBox.X);
-            this.DrawVerticalLine(this.SelectionBox.X + this.SelectionBox.Width);
+            this.DrawHorizontalLine(spriteBatch, this.SelectionBox.Y);
+            this.DrawHorizontalLine(spriteBatch, this.SelectionBox.Y + this.SelectionBox.Height);
+            this.DrawVerticalLine(spriteBatch, this.SelectionBox.X);
+            this.DrawVerticalLine(spriteBatch, this.SelectionBox.X + this.SelectionBox.Width);
             foreach (ToggleButton button in this.DesignStateButtons)
             {
                 button.Draw(base.ScreenManager);
             }
             if (this.ActiveModule != null)
             {
-                this.spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+                spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
                 for (int i = 0; i < this.ActiveModule.XSIZE; i++)
                 {
                     for (int j = 0; j < this.ActiveModule.YSIZE; j++)
                     {
                         PrimitiveQuad pq = new PrimitiveQuad(new Rectangle(this.mouseStateCurrent.X + i * 16, this.mouseStateCurrent.Y + j * 16, 16, 16));
-                        pq.Draw(this.spriteBatch, Color.White);
+                        pq.Draw(spriteBatch, Color.White);
                     }
                 }
             }
@@ -205,11 +200,11 @@ namespace Ship_Game
             this.ShipNameBox.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, new Vector2((float)this.ShipNameBox.ClickableArea.X, (float)this.ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
             this.SaveHullButton.Draw(base.ScreenManager);
             this.LoadModelButton.Draw(base.ScreenManager);
-            this.spriteBatch.End();
+            spriteBatch.End();
             ScreenManager.EndFrameRendering();
         }
 
-        private void DrawHorizontalLine(int thePositionY)
+        private void DrawHorizontalLine(SpriteBatch spriteBatch, int thePositionY)
         {
             if (this.SelectionBox.Width > 0)
             {
@@ -217,7 +212,7 @@ namespace Ship_Game
                 {
                     if (this.SelectionBox.Width - aCounter >= 0)
                     {
-                        this.spriteBatch.Draw(this.DottedLine, new Rectangle(this.SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
+                        spriteBatch.Draw(this.DottedLine, new Rectangle(this.SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
                     }
                 }
                 return;
@@ -228,13 +223,13 @@ namespace Ship_Game
                 {
                     if (this.SelectionBox.Width - aCounter <= 0)
                     {
-                        this.spriteBatch.Draw(this.DottedLine, new Rectangle(this.SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
+                        spriteBatch.Draw(this.DottedLine, new Rectangle(this.SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
                     }
                 }
             }
         }
 
-        private void DrawVerticalLine(int thePositionX)
+        private void DrawVerticalLine(SpriteBatch spriteBatch, int thePositionX)
         {
             if (this.SelectionBox.Height <= 0)
             {
@@ -244,7 +239,7 @@ namespace Ship_Game
                     {
                         if (this.SelectionBox.Height - aCounter <= 0)
                         {
-                            this.spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX - 10, this.SelectionBox.Y + aCounter, 10, 5), Color.White);
+                            spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX - 10, this.SelectionBox.Y + aCounter, 10, 5), Color.White);
                         }
                     }
                 }
@@ -254,7 +249,7 @@ namespace Ship_Game
             {
                 if (this.SelectionBox.Height - aCounter >= 0)
                 {
-                    this.spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX, this.SelectionBox.Y + aCounter, 10, 5), new Rectangle?(new Rectangle(0, 0, this.DottedLine.Width, this.DottedLine.Height)), Color.White, 90f.ToRadians(), new Vector2(0f, 0f), SpriteEffects.None, 0f);
+                    spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX, this.SelectionBox.Y + aCounter, 10, 5), new Rectangle?(new Rectangle(0, 0, this.DottedLine.Width, this.DottedLine.Height)), Color.White, 90f.ToRadians(), new Vector2(0f, 0f), SpriteEffects.None, 0f);
                 }
             }
         }

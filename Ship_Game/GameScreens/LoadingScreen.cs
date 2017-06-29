@@ -18,7 +18,7 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (ScreenState == ScreenState.Active && ScreenManager.ScreenCount == 1)
 			{
@@ -26,7 +26,6 @@ namespace Ship_Game
 			}
 			if (LoadingIsSlow)
 			{
-				SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 				Viewport viewport       = Viewport;
 				Vector2 viewportSize    = new Vector2(viewport.Width, viewport.Height);
 				Vector2 textSize        = Fonts.Arial12Bold.MeasureString("Loading...");

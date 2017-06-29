@@ -64,17 +64,17 @@ namespace Ship_Game
 			}
 
 			Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
-			this.TitleBar = new Menu2(ScreenManager, titleRect);
+			this.TitleBar = new Menu2( titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(383)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			this.leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
 			this.close = new CloseButton(new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
-			this.EMenu = new Menu2(ScreenManager, this.leftRect);
+			this.EMenu = new Menu2(this.leftRect);
 			this.eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, (int)(0.66f * (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7)));
 			while (this.eRect.Height % 80 != 0)
 			{
 				this.eRect.Height = this.eRect.Height - 1;
 			}
-			this.ColonySubMenu = new Submenu(ScreenManager, this.eRect);
+			this.ColonySubMenu = new Submenu(this.eRect);
 			this.ColoniesList = new ScrollList(this.ColonySubMenu, 80);
             //if (!this.firstSort || this.pop.Ascending !=true)
             {
@@ -121,13 +121,13 @@ namespace Ship_Game
             //this.firstSort = true;
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             ColoniesList?.Dispose(ref ColoniesList);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			Rectangle buildingsRect;
 			float x = Mouse.GetState().X;
@@ -160,7 +160,6 @@ namespace Ship_Game
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
-			SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			float population = this.SelectedPlanet.Population / 1000f;
 			string str = population.ToString(fmt);

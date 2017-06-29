@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     using BoolExpression = Expression<Func<bool>>;
 
-	public sealed class UICheckBox : IElement
+	public sealed class UICheckBox : UIElementV2
 	{
 		private readonly SpriteFont Font;
         private readonly string Text;
@@ -17,8 +17,6 @@ namespace Ship_Game
 
 		private readonly Vector2 TextPos;
 		private readonly Vector2 CheckPos;
-
-	    public Rectangle Rect { get; private set; }
 
 		public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
 		{
@@ -58,7 +56,7 @@ namespace Ship_Game
 	        Rect = new Rectangle((int)pos.X, (int)pos.Y, Rect.Width, Rect.Height);
 	    }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (Rect.HitTest(Mouse.GetState().Pos()) && !TipText.IsEmpty())
 			{
@@ -72,7 +70,7 @@ namespace Ship_Game
 			}
 		}
 
-		public bool HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (Rect.HitTest(input.CursorPosition) && input.LeftMouseClick)
 			{

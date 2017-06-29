@@ -158,7 +158,7 @@ namespace Ship_Game
 			this.TopRect = new Rectangle(this.MainRect.X, this.MainRect.Y, this.MainRect.Width, 28);
 			this.BlackRect = new Rectangle(FitRect.X, FitRect.Y, FitRect.Width, 240);
 			this.ResponseRect = new Rectangle(FitRect.X, this.BlackRect.Y + this.BlackRect.Height + 10, FitRect.Width, 180);
-			Submenu resp = new Submenu(ScreenManager, this.ResponseRect);
+			Submenu resp = new Submenu(this.ResponseRect);
 			this.ResponseSL = new ScrollList(resp, 20);
 			this.SetResponses();
 		}

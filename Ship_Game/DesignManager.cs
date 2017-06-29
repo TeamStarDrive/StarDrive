@@ -35,19 +35,20 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             ShipDesigns?.Dispose(ref ShipDesigns);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
             this.SaveMenu.Draw();
             this.SaveShips.Draw();
-            this.EnterNameArea.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            this.EnterNameArea.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, 
+                Game1.Instance.GameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             this.subAllDesigns.Draw();
             this.ShipDesigns.Draw(base.ScreenManager.SpriteBatch);
             Vector2 bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
@@ -203,14 +204,14 @@ namespace Ship_Game
         public override void LoadContent()
         {
             this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
-            this.SaveMenu = new Menu1(base.ScreenManager, this.Window);
+            this.SaveMenu = new Menu1(this.Window);
             Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
-            this.SaveShips = new Submenu(base.ScreenManager, sub);
+            this.SaveShips = new Submenu(sub);
             this.SaveShips.AddTab("Save Ship Design");
             Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
             this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
-            this.subAllDesigns = new Submenu(base.ScreenManager, scrollList);
+            this.subAllDesigns = new Submenu(scrollList);
             this.subAllDesigns.AddTab("All Designs");
             this.ShipDesigns = new ScrollList(this.subAllDesigns);
             foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
@@ -220,15 +221,9 @@ namespace Ship_Game
             this.EnternamePos = this.TitlePosition;
             this.EnterNameArea.ClickableArea = new Rectangle((int)(this.EnternamePos.X + Fonts.Arial20Bold.MeasureString("Design Name: ").X), (int)this.EnternamePos.Y - 2, 256, Fonts.Arial20Bold.LineSpacing);
             this.EnterNameArea.Text = this.ShipName;
-            this.Save = new UIButton()
-            {
-                Rect = new Rectangle(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
-                HoverTexture   = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = "Save"
-            };
-            Buttons.Add(Save);
+
+            Save = ButtonSmall(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, "Save", "Save");
+
             Cursor.Y = Cursor.Y + (ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height + 15);
             base.LoadContent();
         }

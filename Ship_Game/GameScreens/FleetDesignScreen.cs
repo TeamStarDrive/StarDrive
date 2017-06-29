@@ -235,7 +235,7 @@ namespace Ship_Game
             }
 		}
 
-		protected override void Dispose(bool disposing)
+		protected override void Destroy()
 		{
 			lock (this)
 			{
@@ -245,14 +245,14 @@ namespace Ship_Game
 				ShipSL?.Dispose(ref ShipSL);
 				FleetSL?.Dispose(ref FleetSL);
 			}
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			Viewport viewport;
 
-            ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
+            ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref view, ref projection);
 
 			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
 			screen.bg.Draw(screen, screen.starfield);
@@ -466,7 +466,6 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
 				}
 				Vector2 num = new Vector2((float)(rect.Value.X + 4), (float)(rect.Value.Y + 4));
-				SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 				SpriteFont pirulen12 = Fonts.Pirulen12;
 				int key = rect.Key;
 				spriteBatch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
@@ -661,7 +660,7 @@ namespace Ship_Game
 				state = Mouse.GetState();
 				spriteBatch1.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
 			}
-			this.DrawSelectedData(gameTime);
+			this.DrawSelectedData(Game1.Instance.GameTime);
 			this.close.Draw(base.ScreenManager);
 			ToolTip.Draw(ScreenManager.SpriteBatch);
 			base.ScreenManager.SpriteBatch.End();
@@ -1715,7 +1714,7 @@ namespace Ship_Game
 			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
 			this.starfield.LoadContent();
 			Rectangle titleRect = new Rectangle(2, 44, 250, 80);
-			this.TitleBar = new Menu2(base.ScreenManager, titleRect);
+			this.TitleBar = new Menu2(titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, 500);
 			this.LeftMenu = new Menu1(base.ScreenManager, leftRect, true);
@@ -1727,11 +1726,11 @@ namespace Ship_Game
 				i++;
 			}
 			Rectangle shipRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 140, 280, 80);
-			this.ShipDesigns = new Menu2(base.ScreenManager, shipRect);
+			this.ShipDesigns = new Menu2(shipRect);
 			this.ShipDesignsTitlePos = new Vector2((float)(shipRect.X + shipRect.Width / 2) - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, (float)(shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle shipDesignsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
-			this.RightMenu = new Menu1(base.ScreenManager, shipDesignsRect);
-			this.sub_ships = new Submenu(base.ScreenManager, shipDesignsRect);
+			this.RightMenu = new Menu1(shipDesignsRect);
+			this.sub_ships = new Submenu(shipDesignsRect);
 			this.ShipSL = new ScrollList(this.sub_ships, 40);
 			this.sub_ships.AddTab("Designs");
 			this.sub_ships.AddTab("Owned");

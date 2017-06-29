@@ -26,11 +26,10 @@ namespace Ship_Game
 
 		private MouseState previousMouse;
 
-		public UnownedPlanetScreen(Planet p, ScreenManager screenMgr)
+		public UnownedPlanetScreen(GameScreen parent, Planet p) : base(parent)
 		{
-			ScreenManager = screenMgr;
 			this.p = p;
-			if (screenMgr.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+			if (ScreenWidth <= 1280)
 			{
 				this.LowRes = true;
 			}
@@ -39,17 +38,18 @@ namespace Ship_Game
 			{
 				titleRect.Width = 365;
 			}
-			this.TitleBar = new Menu2(screenMgr, titleRect);
+			this.TitleBar = new Menu2(titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(p.Name).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * (float)screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight));
-			this.PlanetMenu = new Menu1(screenMgr, leftRect);
+			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
+                ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
+			this.PlanetMenu = new Menu1(leftRect);
 			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-			this.PlanetInfo = new Submenu(screenMgr, psubRect);
+			this.PlanetInfo = new Submenu(psubRect);
 			this.PlanetInfo.AddTab("Planet Info");
 			this.PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
@@ -108,10 +108,11 @@ namespace Ship_Game
 			spriteBatch.DrawString(Fonts.Arial12Bold, this.parseText(this.p.Description, (float)(this.PlanetInfo.Menu.Width - 40)), PNameCursor, new Color(255, 239, 208));
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			this.currentMouse = Mouse.GetState();
 			this.previousMouse = Mouse.GetState();
+            return base.HandleInput(input);
 		}
 
 		private string parseText(string text, float Width)

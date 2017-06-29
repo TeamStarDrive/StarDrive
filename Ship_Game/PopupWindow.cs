@@ -52,7 +52,7 @@ namespace Ship_Game
 			R = r;
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 		}
 
