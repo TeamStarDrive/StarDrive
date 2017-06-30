@@ -180,8 +180,8 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost.ToString(), costPos, Color.White);
 
             // @todo Why are we creating new checkboxes every frame??
-            CBAutoRepeat = new UICheckBox(OpsSubRect.X - 10, moneyRect.Y - 30, () => AutoTrain, Fonts.Arial12, "Repeat Missions", 0);
-            cbSpyMute    = new UICheckBox(OpsSubRect.X - 10, moneyRect.Y - 15, () => SpyMute,   Fonts.Arial12, "Mute Spies", 0);
+            CBAutoRepeat = new UICheckBox(null, OpsSubRect.X - 10, moneyRect.Y - 30, () => AutoTrain, Fonts.Arial12, "Repeat Missions", 0);
+            cbSpyMute    = new UICheckBox(null, OpsSubRect.X - 10, moneyRect.Y - 15, () => SpyMute,   Fonts.Arial12, "Mute Spies", 0);
 
             EmpireManager.Player.data.SpyMute = SpyMute;
             EmpireManager.Player.data.SpyMissionRepeat = AutoTrain;

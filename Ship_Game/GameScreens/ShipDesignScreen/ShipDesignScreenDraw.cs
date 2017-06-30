@@ -302,7 +302,7 @@ namespace Ship_Game
                 HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, pos, Fonts.Arial20Bold);
 #endif
             }
-            Close.Draw(ScreenManager);
+            Close.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
             ScreenManager.EndFrameRendering();
         }
@@ -316,7 +316,7 @@ namespace Ship_Game
             Rectangle r = this.HullSelectionSub.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             this.HullSL.Draw(ScreenManager.SpriteBatch);
             float x = (float) Mouse.GetState().X;

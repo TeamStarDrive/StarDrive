@@ -649,14 +649,13 @@ namespace Ship_Game
 				{
 					scale = 0.15f;
 				}
-				SpriteBatch spriteBatch1 = spriteBatch;
                 Texture2D item = Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)];
 				float single = (float)Mouse.GetState().X;
 				state = Mouse.GetState();
-				spriteBatch1.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+			    spriteBatch.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
 			}
 			this.DrawSelectedData(Game1.Instance.GameTime);
-			this.close.Draw(base.ScreenManager);
+			this.close.Draw(spriteBatch);
 			ToolTip.Draw(spriteBatch);
 			spriteBatch.End();
 
@@ -1707,7 +1706,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
+			this.close = new CloseButton(this, new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
 		    AssignLightRig("example/ShipyardLightrig");
 			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
 			this.starfield.LoadContent();
@@ -1847,9 +1846,9 @@ namespace Ship_Game
 			};
 			this.PrioritiesRect = new Rectangle(this.SelectedStuffRect.X - this.OperationsRect.Width - 2, this.OperationsRect.Y, this.OperationsRect.Width, this.OperationsRect.Height);
 			Rectangle oprect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
-			this.OperationalRadius = new FloatSlider(oprect, "Operational Radius");
+			this.OperationalRadius = new FloatSlider(this, oprect, "Operational Radius");
 			this.OperationalRadius.RelativeValue = 0.2f;
-			this.OperationalRadius.ToolTipId = 13;
+			this.OperationalRadius.TooltipId = 13;
 			Rectangle sizerect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
 			this.Slider_Size = new SizeSlider(sizerect, "Target UniverseRadius Preference");
 			this.Slider_Size.SetAmount(0.5f);

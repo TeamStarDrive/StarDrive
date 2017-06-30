@@ -1018,14 +1018,13 @@ namespace Ship_Game {
                 new Rectangle((int) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f),
                     (int) ordersBarPos.Y, 100, 18);
 
-            CategoryList = new CategoryDropDown(DropdownRect);
+            CategoryList = new CategoryDropDown(this, DropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
             CarrierOnly    = ActiveHull.CarrierShip;
             CoBoxCursor    = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
-            CarrierOnlyBox = new UICheckBox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
-                "Carrier Only", 0);
+            CarrierOnlyBox = Checkbox(CoBoxCursor, () => CarrierOnly, "Carrier Only", 0);
 
             ShipStats = new Menu1(shipStatsPanel);
             StatsSub  = new Submenu(shipStatsPanel);
@@ -1033,7 +1032,7 @@ namespace Ship_Game {
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs",
                 Fonts.Pirulen20,
                 Fonts.Pirulen16); 
-            Close = new CloseButton(new Rectangle(
+            Close = new CloseButton(this, new Rectangle(
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
             OriginalZ = cameraPosition.Z;
         }

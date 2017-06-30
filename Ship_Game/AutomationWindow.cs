@@ -1,94 +1,71 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public sealed class AutomationWindow
+    public sealed class AutomationWindow : GameScreen
     {
         public bool isOpen;
-        private ScreenManager ScreenManager;
         private Submenu ConstructionSubMenu;
         private UniverseScreen Universe;
-        private Rectangle win;
-        private Array<UICheckBox> Checkboxes = new Array<UICheckBox>();
         private DropOptions<int> AutoFreighterDropDown;
         private DropOptions<int> ColonyShipDropDown;
         private DropOptions<int> ScoutDropDown;
         private DropOptions<int> ConstructorDropDown;
-        private Vector2 ConstructorTitle;
-        private string ConstructorString;
 
-        private void Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
-        {
-            Checkboxes.Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
-        }
-        private void Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
-        {
-            Checkboxes.Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
-        }
-
-        public AutomationWindow(ScreenManager screenManager, UniverseScreen universe)
+        public AutomationWindow(UniverseScreen universe) : base(universe)
         {
             Universe = universe;
-            ScreenManager = screenManager;
             const int windowWidth = 210;
-            win = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 115 - windowWidth, 490, windowWidth, 300);
+            Rect = new Rectangle(ScreenWidth - 115 - windowWidth, 490, windowWidth, 300);
+            Rectangle win = Rect;
             ConstructionSubMenu = new Submenu(win, true);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
-            ScoutDropDown      = new DropOptions<int>(new Rectangle(win.X + 12, win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
-            ColonyShipDropDown = new DropOptions<int>(new Rectangle(win.X + 12, win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            ScoutDropDown      = DropOptions<int>(win.X + 12, win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18);
+            ColonyShipDropDown = DropOptions<int>(win.X + 12, win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18);
 
             Checkbox(win.X, win.Y + 25,  () => EmpireManager.Player.AutoExplore,    title:305, tooltip:2226);
             Checkbox(win.X, win.Y + 65,  () => EmpireManager.Player.AutoColonize,   title:306, tooltip:2227);
             Checkbox(win.X, win.Y + 105, () => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
 
-            AutoFreighterDropDown = new DropOptions<int>(new Rectangle(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            AutoFreighterDropDown = DropOptions<int>(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18);
 
-            ConstructorTitle = new Vector2(win.X + 29, win.Y + 155);
-            ConstructorString = Localizer.Token(6181);
-            ConstructorDropDown = new DropOptions<int>(new Rectangle(this.win.X + 12, this.win.Y + 155 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            Label(win.X + 29, win.Y + 155, localization:6181);
+            ConstructorDropDown = DropOptions<int>(win.X + 12, win.Y + 155 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18);
 
             Checkbox(win.X, win.Y + 210, () => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
 
-            Func<int, int> yPos = i => win.Y + 210 + Fonts.Arial12Bold.LineSpacing * i + 3 * i;
-            Checkbox(win.X, yPos(1), () => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
-            Checkbox(win.X, yPos(2), () => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
-            Checkbox(win.X, yPos(3), () => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
+            int YPos(int i) => win.Y + 210 + Fonts.Arial12Bold.LineSpacing * i + 3 * i;
+            Checkbox(win.X, YPos(1), () => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
+            Checkbox(win.X, YPos(2), () => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
+            Checkbox(win.X, YPos(3), () => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
 
-            this.SetDropDowns();
+            SetDropDowns();
         }
 
 
-        public void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            spriteBatch.Begin();
+
             Rectangle r = ConstructionSubMenu.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
             Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             ConstructionSubMenu.Draw();
-            foreach (UICheckBox cb in Checkboxes)
-            {
-                cb.Draw(ScreenManager.SpriteBatch);
-            }
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ConstructorString, ConstructorTitle, Color.White);
-            ConstructorDropDown.Draw(ScreenManager.SpriteBatch);
-            AutoFreighterDropDown.Draw(ScreenManager.SpriteBatch);
-            ColonyShipDropDown.Draw(ScreenManager.SpriteBatch);
-            ScoutDropDown.Draw(ScreenManager.SpriteBatch);
+
+            base.Draw(spriteBatch);
+
+            spriteBatch.End();
         }
 
 
-        public bool HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
-            return false;
+            return base.HandleInput(input);
             //var empire = EmpireManager.Player;
             //if (!ColonyShipDropDown.Open && !ScoutDropDown.Open && !ConstructorDropDown.Open)
             //{

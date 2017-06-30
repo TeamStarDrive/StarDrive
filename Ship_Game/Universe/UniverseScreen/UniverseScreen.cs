@@ -366,7 +366,7 @@ namespace Ship_Game
             SystemInfoUIElement.SysFont  = Fonts.Arial12Bold;
             SystemInfoUIElement.DataFont = Fonts.Arial10;
             NotificationManager = new NotificationManager(ScreenManager, this);
-            aw = new AutomationWindow(ScreenManager, this);
+            aw = new AutomationWindow(this);
             for (int i = 0; i < UniverseSize / 5000.0f; ++i)
             {
                 var nebulousOverlay = new NebulousOverlay
@@ -581,7 +581,7 @@ namespace Ship_Game
             EmpireUI           = new EmpireUIOverlay(player, device);
             bloomComponent     = new BloomComponent(ScreenManager);
             bloomComponent.LoadContent();
-            aw = new AutomationWindow(ScreenManager, this);
+            aw = new AutomationWindow(this);
             SurfaceFormat backBufferFormat = device.PresentationParameters.BackBufferFormat;
             sceneMap      = new ResolveTexture2D(device, width, height, 1, backBufferFormat);
             MainTarget    = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);

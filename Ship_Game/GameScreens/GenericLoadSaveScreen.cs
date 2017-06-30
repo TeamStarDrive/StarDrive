@@ -158,7 +158,7 @@ namespace Ship_Game
             {
                 this.selector.Draw(ScreenManager.SpriteBatch);
             }
-            this.close.Draw(base.ScreenManager);
+            this.close.Draw(ScreenManager.SpriteBatch);
             ToolTip.Draw(ScreenManager.SpriteBatch);
             base.ScreenManager.SpriteBatch.End();
         }
@@ -292,7 +292,7 @@ namespace Ship_Game
         {
             this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
             this.SaveMenu = new Menu1(this.Window);
-            this.close = new CloseButton(new Rectangle(this.Window.X + this.Window.Width - 35, this.Window.Y + 10, 20, 20));
+            this.close = new CloseButton(this, new Rectangle(this.Window.X + this.Window.Width - 35, this.Window.Y + 10, 20, 20));
             Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
             this.NameSave = new Submenu(sub);
             this.NameSave.AddTab(this.TitleText);
