@@ -169,6 +169,10 @@ namespace Ship_Game
                     continue;
                 AutoFreighterDropDown.AddOption(automation.Name, 0);
             }
+            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
+            //make sure the dropdown has a dummy listing when no fitting designs are available
+            if (AutoFreighterDropDown.Count == 0)
+                AutoFreighterDropDown.AddOption("None", 0);
 
             if (AutoFreighterDropDown.SetActiveEntry(currentFreighter))
                 empire.data.CurrentAutoFreighter = currentFreighter;
@@ -183,6 +187,10 @@ namespace Ship_Game
                     continue;
                 ColonyShipDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
             }
+            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
+            //make sure the dropdown has a dummy listing when no fitting designs are available
+            if (ColonyShipDropDown.Count == 0)
+                ColonyShipDropDown.AddOption("None", 0);
 
             empire.data.CurrentAutoColony = ColonyShipDropDown.ActiveName;
             if (empire.data.CurrentAutoColony.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoColony))
@@ -220,6 +228,11 @@ namespace Ship_Game
                     ConstructorDropDown.AddOption(ship.Name, 0);
                 }
             }
+            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
+            //make sure the dropdown has a dummy listing when no fitting designs are available
+            if (ConstructorDropDown.Count == 0)
+                ConstructorDropDown.AddOption("None", 0);
+
             if (empire.data.CurrentConstructor.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
             {
                 empire.data.CurrentConstructor = ConstructorDropDown.ActiveName;
@@ -257,6 +270,10 @@ namespace Ship_Game
                     ScoutDropDown.AddOption(ship.Name, 0);
                 }
             }
+            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
+            //make sure the dropdown has a dummy listing when no fitting designs are available
+            if (ScoutDropDown.Count == 0)
+                ScoutDropDown.AddOption("None", 0);
 
             if (empire.data.CurrentAutoScout.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoScout))
             {
