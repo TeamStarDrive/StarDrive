@@ -205,7 +205,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.End();
             this.ScreenManager.SpriteBatch.Begin();
             this.MainMenu.DrawHollow();
-            this.close.Draw(this.ScreenManager);
+            this.close.Draw(spriteBatch);
             this.qcomponent.Draw();
             ToolTip.Draw(ScreenManager.SpriteBatch);
             this.ScreenManager.SpriteBatch.End();
@@ -408,7 +408,7 @@ namespace Ship_Game
 			Rectangle main = new Rectangle(0, 0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
 			this.MainMenu = new Menu2(main);
 			this.MainMenuOffset = new Vector2((float)(main.X + 20), (float)(main.Y + 30));
-			this.close = new CloseButton(new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20));
+			this.close = new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20));
 			this.QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
 			this.qcomponent = new QueueComponent(base.ScreenManager, this.QueueContainer, this);
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth < 1600)

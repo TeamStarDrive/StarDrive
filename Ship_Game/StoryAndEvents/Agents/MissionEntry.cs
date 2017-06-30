@@ -26,7 +26,7 @@ namespace Ship_Game
 		{
 			this.Component = parent;
 			this.TheMission = am;
-            DoMission = new UIButton(ButtonStyle.Low80, 0f, 0f, "New Campaign", "Go");
+            DoMission = new UIButton(null, ButtonStyle.Low80, 0f, 0f, "New Campaign", "Go");
 		}
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, Rectangle clickRect)

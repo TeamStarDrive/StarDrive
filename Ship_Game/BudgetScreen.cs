@@ -184,7 +184,7 @@ namespace Ship_Game
 			{
 				b.Draw(base.ScreenManager.SpriteBatch);
 			}
-			this.close.Draw(base.ScreenManager);
+			this.close.Draw(ScreenManager.SpriteBatch);
 			ToolTip.Draw(ScreenManager.SpriteBatch);
 			base.ScreenManager.SpriteBatch.End();
 		}
@@ -252,7 +252,7 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			this.window = new Menu2(new Rectangle(ScreenWidth / 2 - 197, ScreenHeight / 2 - 225, 394, 450));
-			this.close = new CloseButton(new Rectangle(this.window.Menu.X + this.window.Menu.Width - 40, this.window.Menu.Y + 20, 20, 20));
+			this.close = new CloseButton(this, new Rectangle(this.window.Menu.X + this.window.Menu.Width - 40, this.window.Menu.Y + 20, 20, 20));
 			Rectangle rectangle = new Rectangle();
 			this.TaxSlider = new GenericSlider(rectangle, Localizer.Token(309), 0f, 100f)
 			{
