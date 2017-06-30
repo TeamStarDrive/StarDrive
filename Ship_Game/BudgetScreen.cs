@@ -42,7 +42,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -99,7 +99,7 @@ namespace Ship_Game
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			float totalBuildingMaintenance = EmpireManager.Player.GetTotalBuildingMaintenance();
 			ColumnB.X = x - arial12Bold.MeasureString(totalBuildingMaintenance.ToString("#.0")).X;
-			SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
+
 			SpriteFont spriteFont = Fonts.Arial12Bold;
 			float single = EmpireManager.Player.GetTotalBuildingMaintenance();
 			spriteBatch.DrawString(spriteFont, single.ToString("#.0"), ColumnB, Color.White);
@@ -251,7 +251,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.window = new Menu2(base.ScreenManager, new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 197, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 225, 394, 450));
+			this.window = new Menu2(new Rectangle(ScreenWidth / 2 - 197, ScreenHeight / 2 - 225, 394, 450));
 			this.close = new CloseButton(new Rectangle(this.window.Menu.X + this.window.Menu.Width - 40, this.window.Menu.Y + 20, 20, 20));
 			Rectangle rectangle = new Rectangle();
 			this.TaxSlider = new GenericSlider(rectangle, Localizer.Token(309), 0f, 100f)

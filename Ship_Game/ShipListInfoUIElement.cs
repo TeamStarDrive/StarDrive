@@ -189,7 +189,7 @@ namespace Ship_Game
 			Evade.HasToolTip = true;
 			Evade.WhichToolTip = 6;
 			Rectangle slsubRect = new Rectangle(this.RightRect.X, this.Housing.Y + 110 - 35, this.RightRect.Width - 5, 140);
-			Submenu shipssub = new Submenu(this.ScreenManager, slsubRect);
+			Submenu shipssub = new Submenu(slsubRect);
 			this.SelectedShipsSL = new ScrollList(shipssub, 24);
 		}
 

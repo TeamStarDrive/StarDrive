@@ -1,8 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -28,27 +26,8 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Texture2D texture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
-            this.Ok = new UIButton()
-            {
-                Rect = new Rectangle(0, 0, texture.Width, texture.Height),
-                NormalTexture = texture,
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = Localizer.Token(15),
-                Launches = "OK"
-            };
-            this.Buttons.Add(this.Ok);
-            this.Cancel = new UIButton()
-            {
-                Rect = new Rectangle(0, 0, texture.Width, texture.Height),
-                NormalTexture = texture,
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = Localizer.Token(16),
-                Launches = "Cancel"
-            };
-            this.Buttons.Add(this.Cancel);
+            Ok     = ButtonSmall(0f, 0f, "OK", localization: 15);
+            Cancel = ButtonSmall(0f, 0f, "Cancel", localization:16);
         }
 
         public MessageBoxScreen(GameScreen parent, int localID, string oktext, string canceltext)
@@ -64,27 +43,8 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Texture2D normal = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
-            this.Ok = new UIButton()
-            {
-                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
-                NormalTexture = normal,
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = oktext,
-                Launches = "OK"
-            };
-            this.Buttons.Add(this.Ok);
-            this.Cancel = new UIButton()
-            {
-                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
-                NormalTexture = normal,
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = canceltext,
-                Launches = "Cancel"
-            };
-            this.Buttons.Add(this.Cancel);
+            Ok     = ButtonSmall(0f, 0f, "OK", oktext);
+            Cancel = ButtonSmall(0f, 0f, "Cancel", canceltext);
         }
 
         public MessageBoxScreen(GameScreen parent, string message, float Timer) : base(parent)
@@ -97,27 +57,8 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Texture2D normal = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
-            this.Ok = new UIButton()
-            {
-                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
-                NormalTexture = normal,
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = Localizer.Token(15),
-                Launches = "OK"
-            };
-            this.Buttons.Add(this.Ok);
-            this.Cancel = new UIButton()
-            {
-                Rect = new Rectangle(0, 0, normal.Width, normal.Height),
-                NormalTexture = normal,
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = Localizer.Token(16),
-                Launches = "Cancel"
-            };
-            this.Buttons.Add(this.Cancel);
+            Ok     = ButtonSmall(0f, 0f, "OK", localization: 15);
+            Cancel = ButtonSmall(0f, 0f, "Cancel", localization:16);
         }
 
         public MessageBoxScreen(GameScreen parent, string message, bool pauseMenu) : this(parent, message)
@@ -125,7 +66,7 @@ namespace Ship_Game
             this.PauseMenu = pauseMenu;
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             if (!this.Timed)
@@ -138,8 +79,9 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawRectangle(r, Color.Orange);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
 
-                Ok.Layout(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
-                Cancel.Layout(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
+
+                Ok.SetPos(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
+                Cancel.SetPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
                 foreach (UIButton b in this.Buttons)
                 {
                     b.Draw(base.ScreenManager.SpriteBatch);
@@ -155,8 +97,8 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.FillRectangle(r2, Color.Black);
             base.ScreenManager.SpriteBatch.DrawRectangle(r2, Color.Orange);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
-            Ok.Layout(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
-            Cancel.Layout(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
+            Ok.SetPos(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
+            Cancel.SetPos(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
 
             foreach (UIButton b in this.Buttons)
             {

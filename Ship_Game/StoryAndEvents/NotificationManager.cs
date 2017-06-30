@@ -466,7 +466,7 @@ namespace Ship_Game
                                     TriggerExplorationEvent(n.ReferencedItem1 as ExplorationEvent);
                                     break;
                                 case "ResearchScreen":
-                                    ScreenManager.AddScreen(new ResearchPopup(Screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
+                                    ScreenManager.AddScreen(new ResearchPopup(Screen, n.ReferencedItem1 as string));
                                     break;
                                 case "SnapToExpandSystem":
                                     SnapToExpandedSystem(n.ReferencedItem2 as Planet, n.ReferencedItem1 as SolarSystem);

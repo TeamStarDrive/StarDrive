@@ -29,10 +29,10 @@ namespace Ship_Game
 			this.Current = new Rectangle(container.X, container.Y, container.Width, 150);
 			this.ShowQueue = new DanButton(new Vector2((float)(container.X + container.Width - 192), (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 55)), Localizer.Token(2136));
 			this.TimeLeft = new Rectangle(this.Current.X + this.Current.Width - 119, this.Current.Y + this.Current.Height - 24, 111, 20);
-			this.csub = new Submenu(true, ScreenManager, this.Current);
+			this.csub = new Submenu(true, this.Current);
 			this.csub.AddTab(Localizer.Token(1405));
 			this.Queue = new Rectangle(this.Current.X, this.Current.Y + 165, container.Width, container.Height - 165);
-			this.qsub = new Submenu(true, ScreenManager, this.Queue);
+			this.qsub = new Submenu(true, this.Queue);
 			this.qsub.AddTab(Localizer.Token(1404));
 			this.QSL = new ScrollList(this.qsub, 125);
 		}

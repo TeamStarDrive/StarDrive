@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,8 +9,9 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
 
             Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
@@ -35,7 +34,6 @@ namespace Ship_Game
                     {
                         if (this.ActiveModule != null)
                         {
-                            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                             Texture2D item = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
                             Color activeColor = slot.ShowValid ? Color.LightGreen : Color.Red;
 

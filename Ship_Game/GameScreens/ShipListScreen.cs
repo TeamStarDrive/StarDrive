@@ -3,10 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -93,17 +90,17 @@ namespace Ship_Game
 				//this.LowRes = true;
 			}
 			Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
-			this.TitleBar = new Menu2(ScreenManager, titleRect);
+			this.TitleBar = new Menu2(titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			this.leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
-			this.EMenu = new Menu2(ScreenManager, this.leftRect);
+			this.EMenu = new Menu2(this.leftRect);
 			this.close = new CloseButton(new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
 			this.eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
 			while (this.eRect.Height % 80 != 0)
 			{
 				this.eRect.Height = this.eRect.Height - 1;
 			}
-			this.ShipSubMenu = new Submenu(ScreenManager, this.eRect);
+			this.ShipSubMenu = new Submenu(this.eRect);
 			this.ShipSL = new ScrollList(this.ShipSubMenu, 30);
 			if (EmpireManager.Player.GetShips().Count > 0)
 			{
@@ -155,13 +152,13 @@ namespace Ship_Game
             this.ResetList(this.ShowRoles.ActiveValue);
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             ShipSL?.Dispose(ref ShipSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -233,7 +230,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
 					}
 					entry.SetNewPos(this.eRect.X + 22, this.ShipSL.Entries[i].clickRect.Y);
-					entry.Draw(base.ScreenManager, gameTime);
+					entry.Draw(base.ScreenManager, GameTime);
 					base.ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
 				}
 				Color lineColor = new Color(118, 102, 67, 255);

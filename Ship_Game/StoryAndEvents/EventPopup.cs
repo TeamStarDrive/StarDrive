@@ -19,7 +19,7 @@ namespace Ship_Game
 
         public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
-		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool triggerNow) : base(s)
+		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool triggerNow) : base(s, 600, 600)
 		{
 			if (triggerNow)
 			{
@@ -32,20 +32,20 @@ namespace Ship_Game
 			FromGame = true;
 			TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			TransitionOffTime = TimeSpan.FromSeconds(0);
-			R = new Rectangle(0, 0, 600, 600);
 		    foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
 		    {
 		        DrawPackages.Add(packagetype,new Array<DrawPackage>());
 		    }
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (Fade)
 			{
 				ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 			}
-			DrawBase(gameTime);
+			base.Draw(spriteBatch);
+
 			ScreenManager.SpriteBatch.Begin();
 			Vector2 theirTextPos = new Vector2((float)(_blackRect.X + 10), (float)(_blackRect.Y + 10));
 			string description = HelperFunctions.ParseText(Fonts.Verdana10, _outcome.DescriptionText, (float)(_blackRect.Width - 40));			

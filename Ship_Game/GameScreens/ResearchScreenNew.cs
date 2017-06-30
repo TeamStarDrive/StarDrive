@@ -79,15 +79,15 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             qcomponent?.Dispose(ref qcomponent);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            double totalSeconds = gameTime.ElapsedGameTime.TotalSeconds;
+            double totalSeconds = Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
             this.ScreenManager.FadeBackBufferToBlack((int)this.TransitionAlpha * 2 / 3);
             this.ScreenManager.SpriteBatch.Begin();
             this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
@@ -406,7 +406,7 @@ namespace Ship_Game
 			camera = new Camera2D();
 		    camera.Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f);
 			Rectangle main = new Rectangle(0, 0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-			this.MainMenu = new Menu2(base.ScreenManager, main);
+			this.MainMenu = new Menu2(main);
 			this.MainMenuOffset = new Vector2((float)(main.X + 20), (float)(main.Y + 30));
 			this.close = new CloseButton(new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20));
 			this.QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
@@ -679,7 +679,7 @@ namespace Ship_Game
 			//this.ShowingDetailPopUp = true;
 			this.DetailInfo = node;
 			this.DetailPopUpRect = node.NodeRect;
-			this.UnlocksSubMenu = new Submenu(base.ScreenManager, this.DetailPopUpRect);
+			this.UnlocksSubMenu = new Submenu(this.DetailPopUpRect);
 			this.UnlockSL = new ScrollList(this.UnlocksSubMenu, 96)
 			{
 				indexAtTop = 0

@@ -77,10 +77,10 @@ namespace Ship_Game
                 //LowRes = true;
             }
             Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
-            TitleBar = new Menu2(ScreenManager, titleRect);
+            TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
-            EMenu = new Menu2(ScreenManager, leftRect);
+            EMenu = new Menu2(leftRect);
             close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
             sb_Sys = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
@@ -96,7 +96,7 @@ namespace Ship_Game
                 eRect.Height = eRect.Height - 1;
             }
             eRect.Height = eRect.Height - 20;
-            ShipSubMenu = new Submenu(ScreenManager, eRect);
+            ShipSubMenu = new Submenu(eRect);
             PlanetSL = new ScrollList(ShipSubMenu, 40);
            // LastSorted = empUI.empire.data.PLSort;
 
@@ -124,13 +124,13 @@ namespace Ship_Game
             
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             PlanetSL?.Dispose(ref PlanetSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -185,6 +185,8 @@ namespace Ship_Game
                 this.sb_Owned.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
                 Color smallHighlight = TextColor;
                 smallHighlight.A = (byte)(TextColor.A / 2);
+
+                GameTime gameTime = Game1.Instance.GameTime;
                 for (int i = this.PlanetSL.indexAtTop; i < this.PlanetSL.Entries.Count && i < this.PlanetSL.indexAtTop + this.PlanetSL.entriesToDisplay; i++)
                 {
                     PlanetListScreenEntry entry2 = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;

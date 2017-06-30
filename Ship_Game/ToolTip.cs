@@ -68,12 +68,12 @@ namespace Ship_Game
 
 		public static void CreateTooltip(string intext)
 		{
-            SpawnTooltip(intext, 0, "");
+            SpawnTooltip(intext, -1, "");
 		}
 
 		public static void CreateTooltip(string intext, string hotKey)
 		{
-		    SpawnTooltip(intext, 0, hotKey, 5);
+		    SpawnTooltip(intext, -1, hotKey, 5);
 		}
 
 		public static void CreateTooltip(int which)
