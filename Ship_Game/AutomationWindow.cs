@@ -169,13 +169,7 @@ namespace Ship_Game
                     continue;
                 AutoFreighterDropDown.AddOption(automation.Name, 0);
             }
-            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
-            //make sure the dropdown has a dummy listing when no fitting designs are available
-            if (AutoFreighterDropDown.Count == 0)
-                AutoFreighterDropDown.AddOption("None", 0);
-
-            if (AutoFreighterDropDown.SetActiveEntry(currentFreighter))
-                empire.data.CurrentAutoFreighter = currentFreighter;
+            SetAutomationDropdown(AutoFreighterDropDown, currentFreighter, out empire.data.CurrentAutoFreighter);
 
             string currentColony = playerData.CurrentAutoColony.NotEmpty()
                                  ? playerData.CurrentAutoColony : playerData.DefaultColonyShip;
@@ -187,22 +181,7 @@ namespace Ship_Game
                     continue;
                 ColonyShipDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
             }
-            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
-            //make sure the dropdown has a dummy listing when no fitting designs are available
-            if (ColonyShipDropDown.Count == 0)
-                ColonyShipDropDown.AddOption("None", 0);
-
-            empire.data.CurrentAutoColony = ColonyShipDropDown.ActiveName;
-            if (empire.data.CurrentAutoColony.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoColony))
-            {
-                empire.data.CurrentAutoColony = ColonyShipDropDown.ActiveName;
-            }
-            else
-            {
-                if (ColonyShipDropDown.SetActiveEntry(currentColony))
-                    empire.data.CurrentAutoColony = currentColony;
-            }
-
+            SetAutomationDropdown(ColonyShipDropDown, currentColony, out empire.data.CurrentAutoColony);
 
             string currentConstructor;
             if (playerData.CurrentConstructor.NotEmpty())
@@ -228,21 +207,7 @@ namespace Ship_Game
                     ConstructorDropDown.AddOption(ship.Name, 0);
                 }
             }
-            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
-            //make sure the dropdown has a dummy listing when no fitting designs are available
-            if (ConstructorDropDown.Count == 0)
-                ConstructorDropDown.AddOption("None", 0);
-
-            if (empire.data.CurrentConstructor.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
-            {
-                empire.data.CurrentConstructor = ConstructorDropDown.ActiveName;
-            }
-            else
-            {
-                if (ConstructorDropDown.SetActiveEntry(currentConstructor))
-                    empire.data.CurrentConstructor = currentConstructor;
-            }
-
+            SetAutomationDropdown(ConstructorDropDown, currentConstructor, out empire.data.CurrentConstructor);
 
             string currentScout = playerData.CurrentAutoScout.NotEmpty() ? playerData.CurrentAutoScout : playerData.StartingScout;
             if (ScoutDropDown.NotEmpty)
@@ -270,20 +235,23 @@ namespace Ship_Game
                     ScoutDropDown.AddOption(ship.Name, 0);
                 }
             }
-            //if for any reason the dropdown is empty, trying to get the selected item name causes an IooB crash.
-            //make sure the dropdown has a dummy listing when no fitting designs are available
-            if (ScoutDropDown.Count == 0)
-                ScoutDropDown.AddOption("None", 0);
+            SetAutomationDropdown(ScoutDropDown, currentScout, out empire.data.CurrentAutoScout);
+        }
 
-            if (empire.data.CurrentAutoScout.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoScout))
+        private void SetAutomationDropdown(DropOptions<int> dropdown, string CurrentAutoShip, out string CurrentEmpireAutoShip)
+        {
+            if (dropdown.Count == 0)
+                dropdown.AddOption("None", 0);
+
+            CurrentEmpireAutoShip = dropdown.ActiveName;
+            if (CurrentEmpireAutoShip.IsEmpty() || !ResourceManager.ShipsDict.ContainsKey(CurrentEmpireAutoShip))
             {
-                if (ScoutDropDown.NotEmpty)
-                    empire.data.CurrentAutoScout = ScoutDropDown.ActiveName;
+                CurrentEmpireAutoShip = dropdown.ActiveName;
             }
             else
             {
-                if (ScoutDropDown.SetActiveEntry(currentScout))
-                    empire.data.CurrentAutoScout = currentScout;
+                if (dropdown.SetActiveEntry(CurrentAutoShip))
+                    CurrentEmpireAutoShip = CurrentAutoShip;
             }
         }
 
