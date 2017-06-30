@@ -1,13 +1,8 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Editor;
-using SynapseGaming.LightingSystem.Lights;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
@@ -235,7 +230,7 @@ namespace Ship_Game
             }
 		}
 
-		protected override void Dispose(bool disposing)
+		protected override void Destroy()
 		{
 			lock (this)
 			{
@@ -245,32 +240,32 @@ namespace Ship_Game
 				ShipSL?.Dispose(ref ShipSL);
 				FleetSL?.Dispose(ref FleetSL);
 			}
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			Viewport viewport;
 
-            ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
+            ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref view, ref projection);
 
 			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
 			screen.bg.Draw(screen, screen.starfield);
-			base.ScreenManager.SpriteBatch.Begin();
+			spriteBatch.Begin();
 			this.DrawGrid();
 			if (this.SelectedNodeList.Count == 1)
 			{
 				viewport = base.Viewport;
 				Vector3 screenSpacePosition = viewport.Project(new Vector3(this.SelectedNodeList[0].FleetOffset.X, this.SelectedNodeList[0].FleetOffset.Y, 0f), this.projection, this.view, Matrix.Identity);
 				Vector2 screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
-				Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * this.OperationalRadius.Amount);
+				Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * this.OperationalRadius.RelativeValue);
 				viewport = base.Viewport;
 				Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
 				Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
 				float SSRadius = (float)Math.Abs(insetRadialSS.X - screenPos.X);
 				Rectangle nodeRect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)SSRadius * 2, (int)SSRadius * 2);
 				Vector2 Origin = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["UI/node"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["UI/node"].Height / 2));
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/node1"], nodeRect, null, new Color(0, 255, 0, 75), 0f, Origin, SpriteEffects.None, 1f);
+				spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/node1"], nodeRect, null, new Color(0, 255, 0, 75), 0f, Origin, SpriteEffects.None, 1f);
 			}
 			this.ClickableNodes.Clear();
 			foreach (FleetDataNode node in this.fleet.DataNodes)
@@ -339,7 +334,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						base.ScreenManager.SpriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
+						spriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
 					DrawCircle(pPos, Radius, 250, new Color(255, 255, 255, 70), 2f);
 				}
@@ -361,7 +356,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						base.ScreenManager.SpriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
+						spriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
 					DrawCircle(pPos, Radius, 250, new Color(255, 255, 255, 70), 2f);
 				}
@@ -389,7 +384,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						base.ScreenManager.SpriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
+						spriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
 					DrawCircle(pPos, Radius, 250, Color.White, 2f);
 				}
@@ -411,20 +406,20 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						base.ScreenManager.SpriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
+						spriteBatch.DrawLine(squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
 					DrawCircle(pPos, Radius, 250, Color.White, 2f);
 				}
 			}
 			this.DrawFleetManagementIndicators();
-			base.ScreenManager.SpriteBatch.DrawRectangle(this.SelectionBox, Color.Green, 1f);
-			base.ScreenManager.SpriteBatch.End();
+			spriteBatch.DrawRectangle(this.SelectionBox, Color.Green, 1f);
+			spriteBatch.End();
 
             ScreenManager.RenderSceneObjects();
 
-			base.ScreenManager.SpriteBatch.Begin();
+			spriteBatch.Begin();
 			this.TitleBar.Draw();
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", this.TitlePos, new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", this.TitlePos, new Color(255, 239, 208));
 			int numEntries = 9;
 			int k = 9;
 			int m = 0;
@@ -452,42 +447,41 @@ namespace Ship_Game
 				Selector sel = new Selector(r, Color.TransparentBlack);
 				if (rect.Key != this.FleetToEdit)
 				{
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, Color.Black);
+					spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, Color.Black);
 				}
 				else
 				{
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, new Color(0, 0, 255, 80));
+					spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, new Color(0, 0, 255, 80));
 				}
-				sel.Draw(ScreenManager.SpriteBatch);
+				sel.Draw(spriteBatch);
 				Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
 				if (f.DataNodes.Count > 0)
 				{
 					Rectangle firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12, rect.Value.Width - 12);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
+					spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
 				}
 				Vector2 num = new Vector2((float)(rect.Value.X + 4), (float)(rect.Value.Y + 4));
-				SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 				SpriteFont pirulen12 = Fonts.Pirulen12;
 				int key = rect.Key;
 				spriteBatch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
 				num.X = num.X + (float)(rect.Value.Width + 5);
 				if (rect.Key != this.FleetToEdit)
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, f.Name, num, Color.Gray);
+					spriteBatch.DrawString(Fonts.Pirulen12, f.Name, num, Color.Gray);
 				}
 				else
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, f.Name, num, Color.White);
+					spriteBatch.DrawString(Fonts.Pirulen12, f.Name, num, Color.White);
 				}
 				m++;
 			}
 			if (this.FleetToEdit != -1)
 			{
 				this.ShipDesigns.Draw();
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, "Ship Designs", this.ShipDesignsTitlePos, new Color(255, 239, 208));
-				base.ScreenManager.SpriteBatch.FillRectangle(this.sub_ships.Menu, new Color(0, 0, 0, 130));
+				spriteBatch.DrawString(Fonts.Laserian14, "Ship Designs", this.ShipDesignsTitlePos, new Color(255, 239, 208));
+				spriteBatch.FillRectangle(this.sub_ships.Menu, new Color(0, 0, 0, 130));
 				this.sub_ships.Draw();
-				this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
+				this.ShipSL.Draw(spriteBatch);
 				Vector2 bCursor = new Vector2((float)(this.RightMenu.Menu.X + 5), (float)(this.RightMenu.Menu.Y + 25));
 				for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
 				{
@@ -500,31 +494,31 @@ namespace Ship_Game
 					else if (e.clickRectHover != 0)
 					{
 						bCursor.Y = (float)e.clickRect.Y;
-						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+						spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 						Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
+						spriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
 						tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
+                        spriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 						if (e.Plus != 0)
 						{
 							if (e.PlusHover != 0)
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
 							}
 							else
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], e.addRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], e.addRect, Color.White);
 							}
 						}
 						if (e.Edit != 0)
 						{
 							if (e.EditHover != 0)
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], e.editRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], e.editRect, Color.White);
 							}
 							else
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], e.editRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], e.editRect, Color.White);
 							}
 						}
 						if (e.clickRect.Y == 0)
@@ -533,42 +527,42 @@ namespace Ship_Game
 					}
 					else
 					{
-						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+						spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 						Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
+						spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
 						tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						if (this.sub_ships.Tabs[0].Selected)
 						{
-                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
+                            spriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 						}
 						else if ((e.item as Ship).System== null)
 						{
-							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
+							spriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
 						}
 						else
 						{
-							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((e.item as Ship).System.Name, " system"), tCursor, Color.Orange);
+							spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((e.item as Ship).System.Name, " system"), tCursor, Color.Orange);
 						}
 						if (e.Plus != 0)
 						{
 							if (e.PlusHover != 0)
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
 							}
 							else
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add"], e.addRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_add"], e.addRect, Color.White);
 							}
 						}
 						if (e.Edit != 0)
 						{
 							if (e.EditHover != 0)
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], e.editRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], e.editRect, Color.White);
 							}
 							else
 							{
-								base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
+								spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
 							}
 						}
 						if (e.clickRect.Y == 0)
@@ -577,7 +571,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			this.EmpireUI.Draw(base.ScreenManager.SpriteBatch);
+			this.EmpireUI.Draw(spriteBatch);
 			foreach (FleetDataNode node in this.fleet.DataNodes)
 			{
 				Vector2 vector2 = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
@@ -601,11 +595,11 @@ namespace Ship_Game
 					Guid goalGUID = node.GoalGUID;
 					if (node.GoalGUID == Guid.Empty)
 					{
-                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Red));
+                        spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Red));
 					}
 					else
 					{
-                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Yellow));
+                        spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Yellow));
 						string buildingat = "";
 						foreach (Goal g in this.fleet.Owner.GetGSAI().Goals)
 						{
@@ -615,7 +609,7 @@ namespace Ship_Game
 							}
 							buildingat = g.GetPlanetWhereBuilding().Name;
 						}
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (!string.IsNullOrEmpty(buildingat) ? string.Concat("Building at:\n", buildingat) : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
+						spriteBatch.DrawString(Fonts.Arial8Bold, (!string.IsNullOrEmpty(buildingat) ? string.Concat("Building at:\n", buildingat) : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
 					}
 				}
 				else
@@ -635,7 +629,7 @@ namespace Ship_Game
 						Radius = 10f;
 					}
 					Rectangle r = new Rectangle((int)pPos.X - (int)Radius, (int)pPos.Y - (int)Radius, (int)Radius * 2, (int)Radius * 2);
-                    base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Green));
+                    spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Green));
 				}
 			}
 			if (this.ActiveShipDesign != null)
@@ -655,16 +649,16 @@ namespace Ship_Game
 				{
 					scale = 0.15f;
 				}
-				SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
+				SpriteBatch spriteBatch1 = spriteBatch;
                 Texture2D item = Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)];
 				float single = (float)Mouse.GetState().X;
 				state = Mouse.GetState();
 				spriteBatch1.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
 			}
-			this.DrawSelectedData(gameTime);
+			this.DrawSelectedData(Game1.Instance.GameTime);
 			this.close.Draw(base.ScreenManager);
-			ToolTip.Draw(ScreenManager.SpriteBatch);
-			base.ScreenManager.SpriteBatch.End();
+			ToolTip.Draw(spriteBatch);
+			spriteBatch.End();
 
             ScreenManager.EndFrameRendering();
 		}
@@ -674,8 +668,10 @@ namespace Ship_Game
 			Viewport viewport = base.Viewport;
 			Vector3 pScreenSpace = viewport.Project(new Vector3(0f, 0f, 0f), this.projection, this.view, Matrix.Identity);
 			Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-			base.ScreenManager.SpriteBatch.FillRectangle(new Rectangle((int)pPos.X - 3, (int)pPos.Y - 3, 6, 6), new Color(255, 255, 255, 80));
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Fleet Center", new Vector2(pPos.X - Fonts.Arial12Bold.MeasureString("Fleet Center").X / 2f, pPos.Y + 5f), new Color(255, 255, 255, 70));
+
+            var spriteBatch = ScreenManager.SpriteBatch;
+			spriteBatch.FillRectangle(new Rectangle((int)pPos.X - 3, (int)pPos.Y - 3, 6, 6), new Color(255, 255, 255, 80));
+			spriteBatch.DrawString(Fonts.Arial12Bold, "Fleet Center", new Vector2(pPos.X - Fonts.Arial12Bold.MeasureString("Fleet Center").X / 2f, pPos.Y + 5f), new Color(255, 255, 255, 70));
 			foreach (Array<Fleet.Squad> flank in this.fleet.AllFlanks)
 			{
 				foreach (Fleet.Squad squad in flank)
@@ -683,14 +679,16 @@ namespace Ship_Game
 					Viewport viewport1 = base.Viewport;
 					pScreenSpace = viewport1.Project(new Vector3(squad.Offset, 0f), this.projection, this.view, Matrix.Identity);
 					pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-					base.ScreenManager.SpriteBatch.FillRectangle(new Rectangle((int)pPos.X - 2, (int)pPos.Y - 2, 4, 4), new Color(0, 255, 0, 110));
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, "Squad", new Vector2(pPos.X - Fonts.Arial8Bold.MeasureString("Squad").X / 2f, pPos.Y + 5f), new Color(0, 255, 0, 70));
+					spriteBatch.FillRectangle(new Rectangle((int)pPos.X - 2, (int)pPos.Y - 2, 4, 4), new Color(0, 255, 0, 110));
+					spriteBatch.DrawString(Fonts.Arial8Bold, "Squad", new Vector2(pPos.X - Fonts.Arial8Bold.MeasureString("Squad").X / 2f, pPos.Y + 5f), new Color(0, 255, 0, 70));
 				}
 			}
 		}
 
 		private void DrawGrid()
 		{
+		    var spriteBatch = ScreenManager.SpriteBatch;
+
 			int size = 20000;
 			for (int x = 0; x < 21; x++)
 			{
@@ -702,7 +700,7 @@ namespace Ship_Game
 				Vector3 EndScreenSpace = viewport1.Project(End, this.projection, this.view, Matrix.Identity);
 				Vector2 origin = new Vector2(OriginScreenSpace.X, OriginScreenSpace.Y);
 				Vector2 end = new Vector2(EndScreenSpace.X, EndScreenSpace.Y);
-				base.ScreenManager.SpriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
+				spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
 			}
 			for (int y = 0; y < 21; y++)
 			{
@@ -714,35 +712,36 @@ namespace Ship_Game
 				Vector3 EndScreenSpace = viewport3.Project(End, this.projection, this.view, Matrix.Identity);
 				Vector2 origin = new Vector2(OriginScreenSpace.X, OriginScreenSpace.Y);
 				Vector2 end = new Vector2(EndScreenSpace.X, EndScreenSpace.Y);
-				base.ScreenManager.SpriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
+				spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
 			}
 		}
 
 		private void DrawSelectedData(GameTime gameTime)
 		{
+            var spriteBatch = ScreenManager.SpriteBatch;
 			if (this.SelectedNodeList.Count == 1)
 			{
 				this.stuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-				this.stuffSelector.Draw(ScreenManager.SpriteBatch);
+				this.stuffSelector.Draw(spriteBatch);
 				Vector2 Cursor = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
 				if (this.SelectedNodeList[0].Ship== null)
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("(", this.SelectedNodeList[0].ShipName, ")"), Cursor, new Color(255, 239, 208));
+				    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("(", this.SelectedNodeList[0].ShipName, ")"), Cursor, new Color(255, 239, 208));
 				}
 				else
 				{
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(this.SelectedNodeList[0].Ship.VanityName) ? this.SelectedNodeList[0].Ship.VanityName : string.Concat(this.SelectedNodeList[0].Ship.Name, " (", this.SelectedNodeList[0].Ship.shipData.Role, ")")), Cursor, new Color(255, 239, 208));
+				    spriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(this.SelectedNodeList[0].Ship.VanityName) ? this.SelectedNodeList[0].Ship.VanityName : string.Concat(this.SelectedNodeList[0].Ship.Name, " (", this.SelectedNodeList[0].Ship.shipData.Role, ")")), Cursor, new Color(255, 239, 208));
 				}
 				Cursor.Y = (float)(this.OperationsRect.Y + 10);
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Movement Orders", Cursor, new Color(255, 239, 208));
+				spriteBatch.DrawString(Fonts.Pirulen12, "Movement Orders", Cursor, new Color(255, 239, 208));
 				foreach (ToggleButton button in this.OrdersButtons)
 				{
 					button.Draw(base.ScreenManager);
 				}
 				this.operationsSelector = new Selector(this.OperationsRect, new Color(0, 0, 0, 180));
-				this.operationsSelector.Draw(ScreenManager.SpriteBatch);
+				this.operationsSelector.Draw(spriteBatch);
 				Cursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Target Selection", Cursor, new Color(255, 239, 208));
+				spriteBatch.DrawString(Fonts.Pirulen12, "Target Selection", Cursor, new Color(255, 239, 208));
 				this.Slider_Armor.Draw(base.ScreenManager);
 				this.Slider_Assist.Draw(base.ScreenManager);
 				this.Slider_Defend.Draw(base.ScreenManager);
@@ -750,42 +749,40 @@ namespace Ship_Game
 				this.Slider_Shield.Draw(base.ScreenManager);
 				this.Slider_Vulture.Draw(base.ScreenManager);
 				this.priorityselector = new Selector( this.PrioritiesRect, new Color(0, 0, 0, 180));
-				this.priorityselector.Draw(ScreenManager.SpriteBatch);
+				this.priorityselector.Draw(spriteBatch);
 				Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Priorities", Cursor, new Color(255, 239, 208));
-				this.OperationalRadius.DrawDecimal(base.ScreenManager);
+				spriteBatch.DrawString(Fonts.Pirulen12, "Priorities", Cursor, new Color(255, 239, 208));
+				this.OperationalRadius.Draw(spriteBatch);
 				this.Slider_Size.Draw(base.ScreenManager);
 				return;
 			}
 			if (this.SelectedNodeList.Count > 1)
 			{
 				this.stuffSelector = new Selector( this.SelectedStuffRect, new Color(0, 0, 0, 180));
-				this.stuffSelector.Draw(ScreenManager.SpriteBatch);
+				this.stuffSelector.Draw(spriteBatch);
 				Vector2 Cursor = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
 				if (this.SelectedNodeList[0].Ship== null)
 				{
-					SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 					SpriteFont arial20Bold = Fonts.Arial20Bold;
 					int count = this.SelectedNodeList.Count;
 					spriteBatch.DrawString(arial20Bold, string.Concat("Group of ", count.ToString(), " ships selected"), Cursor, new Color(255, 239, 208));
 				}
 				else
 				{
-					SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
 					SpriteFont spriteFont = Fonts.Arial20Bold;
 					int num = this.SelectedNodeList.Count;
-					spriteBatch1.DrawString(spriteFont, string.Concat("Group of ", num.ToString(), " ships selected"), Cursor, new Color(255, 239, 208));
+					spriteBatch.DrawString(spriteFont, string.Concat("Group of ", num.ToString(), " ships selected"), Cursor, new Color(255, 239, 208));
 				}
 				Cursor.Y = (float)(this.OperationsRect.Y + 10);
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Group Movement Orders", Cursor, new Color(255, 239, 208));
+				spriteBatch.DrawString(Fonts.Pirulen12, "Group Movement Orders", Cursor, new Color(255, 239, 208));
 				foreach (ToggleButton button in this.OrdersButtons)
 				{
 					button.Draw(base.ScreenManager);
 				}
 				this.operationsSelector = new Selector(this.OperationsRect, new Color(0, 0, 0, 180));
-				this.operationsSelector.Draw(ScreenManager.SpriteBatch);
+				this.operationsSelector.Draw(spriteBatch);
 				Cursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Group Target Selection", Cursor, new Color(255, 239, 208));
+				spriteBatch.DrawString(Fonts.Pirulen12, "Group Target Selection", Cursor, new Color(255, 239, 208));
 				this.Slider_Armor.Draw(base.ScreenManager);
 				this.Slider_Assist.Draw(base.ScreenManager);
 				this.Slider_Defend.Draw(base.ScreenManager);
@@ -793,10 +790,10 @@ namespace Ship_Game
 				this.Slider_Shield.Draw(base.ScreenManager);
 				this.Slider_Vulture.Draw(base.ScreenManager);
 				this.priorityselector = new Selector(this.PrioritiesRect, new Color(0, 0, 0, 180));
-				this.priorityselector.Draw(ScreenManager.SpriteBatch);
+				this.priorityselector.Draw(spriteBatch);
 				Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Group Priorities", Cursor, new Color(255, 239, 208));
-				this.OperationalRadius.DrawDecimal(base.ScreenManager);
+				spriteBatch.DrawString(Fonts.Pirulen12, "Group Priorities", Cursor, new Color(255, 239, 208));
+				this.OperationalRadius.Draw(spriteBatch);
 				this.Slider_Size.Draw(base.ScreenManager);
 				return;
 			}
@@ -809,38 +806,38 @@ namespace Ship_Game
 					r.Y = r.Y + (int)(transitionOffset * 256f);
 				}
 				this.stuffSelector = new Selector(r, new Color(0, 0, 0, 180));
-				this.stuffSelector.Draw(ScreenManager.SpriteBatch);
+				this.stuffSelector.Draw(spriteBatch);
 				Vector2 Cursor = new Vector2((float)(r.X + 20), (float)(r.Y + 10));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", Cursor, new Color(255, 239, 208));
+				spriteBatch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", Cursor, new Color(255, 239, 208));
 				Cursor.Y = Cursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
 				string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
 				txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, (float)(this.SelectedStuffRect.Width - 40));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt, Cursor, new Color(255, 239, 208));
+				spriteBatch.DrawString(Fonts.Arial12Bold, txt, Cursor, new Color(255, 239, 208));
 				return;
 			}
 			this.stuffSelector = new Selector(this.SelectedStuffRect, new Color(0, 0, 0, 180));
-			this.stuffSelector.Draw(ScreenManager.SpriteBatch);
+			this.stuffSelector.Draw(spriteBatch);
 			Fleet f = EmpireManager.Player.GetFleetsDict()[this.FleetToEdit];
 			Vector2 Cursor1 = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
 			this.FleetNameEntry.Text = f.Name;
 			this.FleetNameEntry.ClickableArea = new Rectangle((int)Cursor1.X, (int)Cursor1.Y, (int)Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
-			this.FleetNameEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, Cursor1, gameTime, (this.FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
+			this.FleetNameEntry.Draw(Fonts.Arial20Bold, spriteBatch, Cursor1, gameTime, (this.FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
 			Cursor1.Y = Cursor1.Y + (float)(Fonts.Arial20Bold.LineSpacing + 10);
 			Cursor1 = Cursor1 + new Vector2(50f, 30f);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Fleet Icon", Cursor1, new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Icon", Cursor1, new Color(255, 239, 208));
 			Rectangle ficonrect = new Rectangle((int)Cursor1.X + 12, (int)Cursor1.Y + Fonts.Pirulen12.LineSpacing + 5, 64, 64);
-			base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], ficonrect, f.Owner.EmpireColor);
+			spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], ficonrect, f.Owner.EmpireColor);
 			this.RequisitionForces.Draw(base.ScreenManager);
 			this.SaveDesign.Draw(base.ScreenManager);
 			this.LoadDesign.Draw(base.ScreenManager);
 			this.priorityselector = new Selector(this.PrioritiesRect, new Color(0, 0, 0, 180));
-			this.priorityselector.Draw(ScreenManager.SpriteBatch);
+			this.priorityselector.Draw(spriteBatch);
 			Cursor1 = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", Cursor1, new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", Cursor1, new Color(255, 239, 208));
 			Cursor1.Y = Cursor1.Y + (float)(Fonts.Pirulen12.LineSpacing + 2);
 			string txt0 = Localizer.Token(4043);
 			txt0 = HelperFunctions.ParseText(Fonts.Arial12Bold, txt0, (float)(this.PrioritiesRect.Width - 40));
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt0, Cursor1, new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.Arial12Bold, txt0, Cursor1, new Color(255, 239, 208));
 		}
 
 		public override void ExitScreen()
@@ -1017,7 +1014,7 @@ namespace Ship_Game
 				{
 					dragTimer = 0f;
 				    OperationalRadius.HandleInput(input);
-                    SelectedNodeList[0].OrdersRadius = OperationalRadius.Amount;
+                    SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
 					return true;
 				}
 				if (this.SelectedStuffRect.HitTest(MousePos))
@@ -1120,7 +1117,7 @@ namespace Ship_Game
 				{
 					dragTimer = 0f;
 				    OperationalRadius.HandleInput(input);
-				    SelectedNodeList[0].OrdersRadius = OperationalRadius.Amount;
+				    SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
 					return true;
 				}
 				if (this.SelectedStuffRect.HitTest(MousePos))
@@ -1525,7 +1522,7 @@ namespace Ship_Game
 					this.Slider_DPS.SetAmount(node.nodeToClick.DPSWeight);
 					this.Slider_Shield.SetAmount(node.nodeToClick.AttackShieldedWeight);
 					this.Slider_Vulture.SetAmount(node.nodeToClick.VultureWeight);
-					this.OperationalRadius.Amount = node.nodeToClick.OrdersRadius;
+					this.OperationalRadius.RelativeValue = node.nodeToClick.OrdersRadius;
 					this.Slider_Size.SetAmount(node.nodeToClick.SizeWeight);
 					break;
 				}
@@ -1553,7 +1550,7 @@ namespace Ship_Game
 					this.Slider_DPS.SetAmount(this.SelectedSquad.MasterDataNode.DPSWeight);
 					this.Slider_Shield.SetAmount(this.SelectedSquad.MasterDataNode.AttackShieldedWeight);
 					this.Slider_Vulture.SetAmount(this.SelectedSquad.MasterDataNode.VultureWeight);
-					this.OperationalRadius.Amount = SelectedSquad.MasterDataNode.OrdersRadius;
+					this.OperationalRadius.RelativeValue = SelectedSquad.MasterDataNode.OrdersRadius;
 					this.Slider_Size.SetAmount(this.SelectedSquad.MasterDataNode.SizeWeight);
 					break;
 				}
@@ -1715,7 +1712,7 @@ namespace Ship_Game
 			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
 			this.starfield.LoadContent();
 			Rectangle titleRect = new Rectangle(2, 44, 250, 80);
-			this.TitleBar = new Menu2(base.ScreenManager, titleRect);
+			this.TitleBar = new Menu2(titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, 500);
 			this.LeftMenu = new Menu1(base.ScreenManager, leftRect, true);
@@ -1727,11 +1724,11 @@ namespace Ship_Game
 				i++;
 			}
 			Rectangle shipRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 140, 280, 80);
-			this.ShipDesigns = new Menu2(base.ScreenManager, shipRect);
+			this.ShipDesigns = new Menu2(shipRect);
 			this.ShipDesignsTitlePos = new Vector2((float)(shipRect.X + shipRect.Width / 2) - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, (float)(shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle shipDesignsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
-			this.RightMenu = new Menu1(base.ScreenManager, shipDesignsRect);
-			this.sub_ships = new Submenu(base.ScreenManager, shipDesignsRect);
+			this.RightMenu = new Menu1(shipDesignsRect);
+			this.sub_ships = new Submenu(shipDesignsRect);
 			this.ShipSL = new ScrollList(this.sub_ships, 40);
 			this.sub_ships.AddTab("Designs");
 			this.sub_ships.AddTab("Owned");
@@ -1851,8 +1848,8 @@ namespace Ship_Game
 			this.PrioritiesRect = new Rectangle(this.SelectedStuffRect.X - this.OperationsRect.Width - 2, this.OperationsRect.Y, this.OperationsRect.Width, this.OperationsRect.Height);
 			Rectangle oprect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
 			this.OperationalRadius = new FloatSlider(oprect, "Operational Radius");
-			this.OperationalRadius.Amount = 0.2f;
-			this.OperationalRadius.Tip_ID = 13;
+			this.OperationalRadius.RelativeValue = 0.2f;
+			this.OperationalRadius.ToolTipId = 13;
 			Rectangle sizerect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
 			this.Slider_Size = new SizeSlider(sizerect, "Target UniverseRadius Preference");
 			this.Slider_Size.SetAmount(0.5f);

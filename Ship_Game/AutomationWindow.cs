@@ -39,7 +39,7 @@ namespace Ship_Game
             ScreenManager = screenManager;
             const int windowWidth = 210;
             win = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 115 - windowWidth, 490, windowWidth, 300);
-            ConstructionSubMenu = new Submenu(screenManager, win, true);
+            ConstructionSubMenu = new Submenu(win, true);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
             ScoutDropDown      = new DropOptions<int>(new Rectangle(win.X + 12, win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));

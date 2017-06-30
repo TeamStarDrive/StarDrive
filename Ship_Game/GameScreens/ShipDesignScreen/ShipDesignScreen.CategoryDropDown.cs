@@ -10,7 +10,7 @@ namespace Ship_Game
             public CategoryDropDown(Rectangle dropdownRect) : base(dropdownRect)
             {                
             }
-            public override void HandleInput(InputState input)
+            public override bool HandleInput(InputState input)
             {
                 if (Rect.HitTest(input.CursorPosition)) //fbedard: add tooltip for CategoryList
                 {
@@ -26,7 +26,7 @@ namespace Ship_Game
                         case ShipData.Category.Kamikaze: ToolTip.CreateTooltip("Never Repair!"); break;
                     }
                 }
-                base.HandleInput(input);
+                return base.HandleInput(input);
             }
         }
     }

@@ -619,27 +619,8 @@ namespace Ship_Game
             starfield = new Starfield(Vector2.Zero, device, content);
             starfield.LoadContent();
 
-            // fbedard: new button for ShipsInCombat
-            var empireTopBtnTex = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"];
-            ShipsInCombat = new UIButton
-            {
-                Rect           = new Rectangle(width - 275, height - 280, empireTopBtnTex.Width, empireTopBtnTex.Height),
-                NormalTexture  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"],
-                HoverTexture   = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"],
-                Text           = "Ships: 0",
-                Launches       = "ShipsInCombat"
-            };
-            // fbedard: new button for PlanetsInCombat
-            PlanetsInCombat = new UIButton
-            {
-                Rect           = new Rectangle(width - 135, height - 280, empireTopBtnTex.Width, empireTopBtnTex.Height),
-                NormalTexture  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"],
-                HoverTexture   = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"],
-                Text           = "Planets: 0",
-                Launches       = "PlanetsInCombat"
-            };
+            ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "ShipsInCombat",   "Ships: 0");
+            PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "PlanetsInCombat", "Planets: 0");
         }
 
         public override void UnloadContent()
@@ -938,7 +919,7 @@ namespace Ship_Game
         //This will likely only work with "this UI\planetNamePointer" texture 
         //Other textures might work but would need the x and y offset adjusted. 
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             starfield               ?.Dispose(ref starfield);
             DeepSpaceDone           ?.Dispose(ref DeepSpaceDone);
@@ -975,7 +956,7 @@ namespace Ship_Game
             NotificationManager     ?.Dispose(ref NotificationManager);
             FogMapTarget            ?.Dispose(ref FogMapTarget);
 
-            base.Dispose(true);
+            base.Destroy();
         }
 
         public struct ClickablePlanets

@@ -14,13 +14,13 @@ namespace Ship_Game
 
 		protected IList<string> MenuEntries => menuEntries;
 
-	    protected MenuScreen(GameScreen parent) : base(parent)
+	    protected MenuScreen(GameScreen parent) : base(parent, new Rectangle(0,0, 400, 400))
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(1);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			Viewport viewport = base.Viewport;
 			Vector2 viewportSize = new Vector2((float)viewport.Width, (float)viewport.Height);
@@ -41,7 +41,7 @@ namespace Ship_Game
 				float scale = 1f;
 				if (base.IsActive && i == this.selectedEntry)
 				{
-					double time = gameTime.TotalGameTime.TotalSeconds;
+					double time = Game1.Instance.GameTime.TotalGameTime.TotalSeconds;
 					float pulsate = (float)Math.Sin(time * 6) + 1f;
 					color = Color.Orange;
 					scale = scale + pulsate * 0.05f;

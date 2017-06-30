@@ -8,8 +8,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game {
@@ -749,7 +747,7 @@ namespace Ship_Game {
                 else if (str3 == "?")
                 {
                     GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                    var wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
+                    var wiki = new InGameWiki(this)
                     {
                         TitleText = "StarDrive Help",
                         MiddleText =
@@ -772,7 +770,7 @@ namespace Ship_Game {
             Rectangle leftRect = new Rectangle(5, 45, 405,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45 -
                 (int) (0.4f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
-            ModuleSelectionMenu = new Menu1(ScreenManager, leftRect);
+            ModuleSelectionMenu = new Menu1(leftRect);
             Rectangle modSelR   = new Rectangle(0, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
             //ModSel              = new Submenu(ScreenManager, modSelR, true);
             ModSel = new ModuleSelection(this, modSelR);
@@ -966,46 +964,17 @@ namespace Ship_Game {
             cursor = new Vector2(
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150,
                 (float) ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47);
-            
-            SaveButton = new UIButton
-            {
-                Rect = new Rectangle((int) cursor.X, (int) cursor.Y,
-                    TopBar132.Width,
-                    TopBar132.Height),
-                NormalTexture  = TopBar132,
-                HoverTexture   = TopBar132Hover,
-                PressedTexture = TopBar132Pressed,
-                Text           = Localizer.Token(105),
-                Launches       = "Save As..."
-            };
-            Buttons.Add(SaveButton);
-            LoadButton = new UIButton
-            {
-                Rect           = new Rectangle((int) cursor.X - 78, (int) cursor.Y, TopBar68.Width, TopBar68.Height),
-                NormalTexture  = TopBar68,
-                HoverTexture   = TopBar68Hover,
-                PressedTexture = TopBar68Pressed,
-                Text           = Localizer.Token(8),
-                Launches       = "Load"
-            };
-            Buttons.Add(LoadButton);
-            ToggleOverlayButton = new UIButton
-            {
-                Rect = new Rectangle(LoadButton.Rect.X - 140, (int) cursor.Y,
-                    TopBar132.Width,
-                    TopBar68.Height),
-                NormalTexture  = TopBar132,
-                HoverTexture   = TopBar68Hover,
-                PressedTexture = TopBar132Pressed,
-                Launches       = "Toggle Overlay",
-                Text           = Localizer.Token(106)
-            };
-            Buttons.Add(ToggleOverlayButton);
+
+            SaveButton = ButtonMedium(cursor.X, cursor.Y, "Save As...", localization:105);
+            LoadButton = ButtonMedium(cursor.X - 78, cursor.Y, "Load", localization:8);
+
+            ToggleOverlayButton = ButtonMedium(cursor.X - 140, cursor.Y, "Toggle Overlay", localization:106);
+
+
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
-            HullSelectionRect =
-                new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285,
-                    (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
-            HullSelectionSub = new Submenu(ScreenManager, HullSelectionRect, true);
+            HullSelectionRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285,
+                                              (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
+            HullSelectionSub = new Submenu(HullSelectionRect, true);
             WeaponSL         = new WeaponScrollList(ModSel,this);
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
@@ -1058,8 +1027,8 @@ namespace Ship_Game {
             CarrierOnlyBox = new UICheckBox(CoBoxCursor.X, CoBoxCursor.Y, () => CarrierOnly, Fonts.Arial12Bold,
                 "Carrier Only", 0);
 
-            ShipStats = new Menu1(ScreenManager, shipStatsPanel);
-            StatsSub  = new Submenu(ScreenManager, shipStatsPanel);
+            ShipStats = new Menu1(shipStatsPanel);
+            StatsSub  = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs",
                 Fonts.Pirulen20,

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -15,7 +16,7 @@ namespace Ship_Game
 
 		public Encounter encounter;
 
-		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(s)
+		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(s, 600, 600)
 		{
 			this.screen = s;
 			this.encounter = e;
@@ -28,16 +29,16 @@ namespace Ship_Game
 			this.FromGame = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
-			this.R = new Rectangle(0, 0, 600, 600);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (this.fade)
 			{
 				base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			}
-			base.DrawBase(gameTime);
+			base.Draw(spriteBatch);
+
 			base.ScreenManager.SpriteBatch.Begin();
 			this.encounter.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();

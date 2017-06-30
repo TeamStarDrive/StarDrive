@@ -25,8 +25,6 @@ namespace Ship_Game
 
 		private Rectangle horizBot;
 
-		private Ship_Game.ScreenManager ScreenManager;
-
 		private Array<Rectangle> RepeatTops = new Array<Rectangle>();
 
 		private Rectangle extendTopLeft;
@@ -35,9 +33,8 @@ namespace Ship_Game
 
 		private Rectangle topExtender;
 
-		public Menu2(Ship_Game.ScreenManager sm, Rectangle theMenu)
+		public Menu2(Rectangle theMenu)
 		{
-			this.ScreenManager = sm;
 			this.Menu = theMenu;
 			this.corner_TL = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/menu_2_corner_TL"].Width, ResourceManager.TextureDict["NewUI/menu_2_corner_TL"].Height);
 			this.corner_TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/menu_2_corner_TR"].Width, theMenu.Y, ResourceManager.TextureDict["NewUI/menu_2_corner_TR"].Width, ResourceManager.TextureDict["NewUI/menu_2_corner_TR"].Height);
@@ -62,56 +59,59 @@ namespace Ship_Game
 
 		public void Draw(Color bgcolor)
 		{
-			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), bgcolor);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
+            var spriteBatch = Game1.Instance.ScreenManager.SpriteBatch;
+		    spriteBatch.FillRectangle(new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), bgcolor);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
 			foreach (Rectangle r in this.RepeatTops)
 			{
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_repeat"], r, Color.White);
+			    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_repeat"], r, Color.White);
 			}
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_left"], this.vertLeft, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_right"], this.vertRight, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TL"], this.corner_TL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TR"], this.corner_TR, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BL"], this.corner_BL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BR"], this.corner_BR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_left"], this.vertLeft, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_right"], this.vertRight, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TL"], this.corner_TL, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TR"], this.corner_TR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BL"], this.corner_BL, Color.White);
+			spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BR"], this.corner_BR, Color.White);
 		}
 
 		public void Draw()
 		{
-			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), new Color(0, 0, 0, 240));
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
+		    var spriteBatch = Game1.Instance.ScreenManager.SpriteBatch;
+		    spriteBatch.FillRectangle(new Rectangle(this.Menu.X + 8, this.Menu.Y + 8, this.Menu.Width - 8, this.Menu.Height - 8), new Color(0, 0, 0, 240));
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
 			foreach (Rectangle r in this.RepeatTops)
 			{
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_repeat"], r, Color.White);
+			    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_repeat"], r, Color.White);
 			}
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_left"], this.vertLeft, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_right"], this.vertRight, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TL"], this.corner_TL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TR"], this.corner_TR, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BL"], this.corner_BL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BR"], this.corner_BR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_left"], this.vertLeft, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_right"], this.vertRight, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TL"], this.corner_TL, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TR"], this.corner_TR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BL"], this.corner_BL, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BR"], this.corner_BR, Color.White);
 		}
 
 		public void DrawHollow()
 		{
-			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, this.Menu.Width, 10), Color.Black);
-			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, 10, this.Menu.Height), Color.Black);
-			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, this.Menu.Height - 10, this.Menu.Width, 10), Color.Black);
-			this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(this.Menu.Width - 10, 0, 10, this.Menu.Height), Color.Black);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
+		    var spriteBatch = Game1.Instance.ScreenManager.SpriteBatch;
+		    spriteBatch.FillRectangle(new Rectangle(0, 0, this.Menu.Width, 10), Color.Black);
+		    spriteBatch.FillRectangle(new Rectangle(0, 0, 10, this.Menu.Height), Color.Black);
+		    spriteBatch.FillRectangle(new Rectangle(0, this.Menu.Height - 10, this.Menu.Width, 10), Color.Black);
+		    spriteBatch.FillRectangle(new Rectangle(this.Menu.Width - 10, 0, 10, this.Menu.Height), Color.Black);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_lower"], this.horizBot, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_extender"], this.topExtender, Color.White);
 			foreach (Rectangle r in this.RepeatTops)
 			{
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_repeat"], r, Color.White);
+			    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_horiz_upper_repeat"], r, Color.White);
 			}
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_left"], this.vertLeft, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_right"], this.vertRight, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TL"], this.corner_TL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TR"], this.corner_TR, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BL"], this.corner_BL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BR"], this.corner_BR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_left"], this.vertLeft, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_vert_right"], this.vertRight, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TL"], this.corner_TL, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_TR"], this.corner_TR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BL"], this.corner_BL, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_2_corner_BR"], this.corner_BR, Color.White);
 		}
 	}
 }

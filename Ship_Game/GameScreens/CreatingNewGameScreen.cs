@@ -4,12 +4,9 @@
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -126,11 +123,6 @@ namespace Ship_Game
             EmpireManager.Add(empire);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.SnapshotsDict.Clear();
-        }
-
-        ~CreatingNewGameScreen()
-        {
-            Dispose(false);
         }
 
         private void SaveRace(Empire empire)
@@ -866,7 +858,7 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             ScreenManager.SpriteBatch.Begin();
@@ -887,20 +879,23 @@ namespace Ship_Game
                 position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
                 string token = Localizer.Token(2108);
                 position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
-                var color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
+
+                GameTime gameTime = Game1.Instance.GameTime;
+                var color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 
+                    (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, token, position, color);
             }
             ScreenManager.SpriteBatch.End();
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             lock (this) {
                 WorkerBeginEvent?.Dispose(ref WorkerBeginEvent);
                 WorkerCompletedEvent?.Dispose(ref WorkerCompletedEvent);
                 LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);                
             }
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
         private struct SysDisPair

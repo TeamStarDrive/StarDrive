@@ -24,7 +24,7 @@ namespace Ship_Game
         private bool HoverSmallVideo;
         public bool PlayingVideo;
 
-        public InGameWiki(GameScreen parent) : base(parent)
+        public InGameWiki(GameScreen parent) : base(parent, 750, 600)
         {
             IsPopup           = true;
             TransitionOnTime  = TimeSpan.FromSeconds(0.25);
@@ -33,31 +33,28 @@ namespace Ship_Game
             if (help.Length  != 0)
                 HelpTopics    = help[0].Deserialize<HelpTopics>();
         }
-        public InGameWiki(GameScreen parent, Rectangle r) : this(parent)
-        {
-            R = r;
-        }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             VideoPlayer?.Dispose(ref VideoPlayer);
             HelpCategories?.Dispose(ref HelpCategories);
             HelpEntries?.Dispose(ref HelpEntries);
-            base.Dispose(disposing);
+            base.Destroy();
         } 
          
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            DrawBase(gameTime);
+            base.Draw(spriteBatch);
+
             ScreenManager.SpriteBatch.Begin();
             HelpCategories.Draw(ScreenManager.SpriteBatch);
             Vector2 bCursor;
             for (int i = HelpCategories.indexAtTop; i < HelpCategories.Copied.Count 
                 && i < HelpCategories.indexAtTop + HelpCategories.entriesToDisplay; i++)
             {
-                bCursor = new Vector2(R.X + 35, R.Y + 20);
+                bCursor = new Vector2(Rect.X + 35, Rect.Y + 20);
                 ScrollList.Entry e = HelpCategories.Copied[i];
                 bCursor.Y = e.clickRect.Y;
                 if (!(e.item is ModuleHeader))
@@ -240,12 +237,12 @@ namespace Ship_Game
             }
             var presentation = ScreenManager.GraphicsDevice.PresentationParameters;
             
-            CategoriesRect       = new Rectangle(R.X + 25, R.Y + 130, 330, 430);
-            Submenu blah         = new Submenu(ScreenManager, CategoriesRect);
+            CategoriesRect       = new Rectangle(Rect.X + 25, Rect.Y + 130, 330, 430);
+            Submenu blah         = new Submenu(CategoriesRect);
             HelpCategories       = new ScrollList(blah, 40);
             TextRect             = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
             Rectangle textSlRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
-            Submenu bler         = new Submenu(ScreenManager, textSlRect);
+            Submenu bler         = new Submenu(textSlRect);
             HelpEntries          = new ScrollList(bler, Fonts.Arial12Bold.LineSpacing + 2);
             SmallViewer          = new Rectangle(TextRect.X + 20, TextRect.Y + 40, 336, 189);
             BigViewer            = new Rectangle(presentation.BackBufferWidth / 2 - 640, presentation.BackBufferHeight / 2 - 360, 1280, 720);

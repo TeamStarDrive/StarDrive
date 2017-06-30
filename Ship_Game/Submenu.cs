@@ -28,10 +28,11 @@ namespace Ship_Game
 
         private InputState Input;
 
-        public Submenu(ScreenManager sm, Rectangle theMenu)
+        public Submenu(Rectangle theMenu)
         {
-            Input = sm.input;
-            if (sm.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+            ScreenManager = Game1.Instance.ScreenManager;
+            Input = ScreenManager.input;
+            if (Game1.Instance.RenderWidth <= 1280)
             {
                 this.LowRes = true;
             }
@@ -44,7 +45,6 @@ namespace Ship_Game
                 this.toUse = Fonts.Arial12Bold;
             }
             this.toUse = Fonts.Pirulen12;
-            this.ScreenManager = sm;
             this.Menu = theMenu;
             this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/submenu_header_left"].Width, ResourceManager.TextureDict["NewUI/submenu_header_left"].Height);
             this.TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Height);
@@ -57,16 +57,16 @@ namespace Ship_Game
             this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BR.Height - 2);
         }
 
-        public Submenu(bool blue, Ship_Game.ScreenManager sm, Rectangle theMenu)
+        public Submenu(bool blue, Rectangle theMenu)
         {
             Blue = blue;
-            if (sm.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+            ScreenManager = Game1.Instance.ScreenManager;
+            if (Game1.Instance.RenderWidth <= 1280)
             {
                 LowRes = true;
             }
 
             this.toUse = Fonts.Pirulen12;
-            this.ScreenManager = sm;
             this.Menu = theMenu;
             this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["ResearchMenu/submenu_header_left"].Width, ResourceManager.TextureDict["ResearchMenu/submenu_header_left"].Height);
             this.TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"].Width, ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"].Height);
@@ -79,10 +79,11 @@ namespace Ship_Game
             this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BR.Height - 2);
         }
 
-        public Submenu(Ship_Game.ScreenManager sm, Rectangle theMenu, bool LowRes)
+        public Submenu(Rectangle theMenu, bool LowRes)
         {
+            ScreenManager = Game1.Instance.ScreenManager;
             this.LowRes = LowRes;
-            if (sm.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+            if (Game1.Instance.RenderWidth <= 1280)
             {
                 LowRes = true;
             }
@@ -95,7 +96,6 @@ namespace Ship_Game
                 this.toUse = Fonts.Arial12Bold;
             }
             this.toUse = Fonts.Pirulen12;
-            this.ScreenManager = sm;
             this.Menu = theMenu;
             this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/submenu_header_left"].Width, ResourceManager.TextureDict["NewUI/submenu_header_left"].Height);
             this.TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Height);

@@ -66,7 +66,7 @@ namespace Ship_Game
 		}
 
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
 			base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);

@@ -26,11 +26,10 @@ namespace Ship_Game
 
 		private MouseState previousMouse;
 
-		public UnexploredPlanetScreen(Planet p, ScreenManager screenMgr)
+		public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen)
 		{
-			this.ScreenManager = screenMgr;
 			this.p = p;
-			if (screenMgr.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+			if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				this.LowRes = true;
 			}
@@ -39,21 +38,22 @@ namespace Ship_Game
 			{
 				titleRect.Width = 365;
 			}
-			this.TitleBar = new Menu2(screenMgr, titleRect);
+			this.TitleBar = new Menu2(titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(p.Name).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * (float)screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight));
+			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
+                ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
 			if (leftRect.Height < 350)
 			{
 				leftRect.Height = 350;
 			}
-			this.PlanetMenu = new Menu1(screenMgr, leftRect);
+			this.PlanetMenu = new Menu1(leftRect);
 			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-			this.PlanetInfo = new Submenu(screenMgr, psubRect);
+			this.PlanetInfo = new Submenu(psubRect);
 			this.PlanetInfo.AddTab("Planet Info");
 			this.PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 55, 128, 128);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			string d;
 			this.TitleBar.Draw();
@@ -162,10 +162,11 @@ namespace Ship_Game
 			}
 		}
 
-		public override void HandleInput(InputState input)
+	    public override bool HandleInput(InputState input)
 		{
 			this.currentMouse = Mouse.GetState();
 			this.previousMouse = Mouse.GetState();
+            return base.HandleInput(input);
 		}
 
 		private string parseText(string text, float Width)

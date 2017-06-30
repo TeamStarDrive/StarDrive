@@ -18,7 +18,7 @@ namespace Ship_Game
         private ScrollList ChooseFighterSL;
         public Rectangle Choosefighterrect;
         public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
-        public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(parentScreen.ScreenManager, window, true)
+        public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window, true)
         {
             ParentScreen = parentScreen;
             Window = window;
@@ -39,7 +39,7 @@ namespace Ship_Game
             {
                 acsub.Height = acsub.Height + 120;
             }
-            ActiveModSubMenu = new Submenu(ScreenManager, acsub);
+            ActiveModSubMenu = new Submenu(acsub);
             ActiveModSubMenu.AddTab("Active Module");
             Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
             if (Choosefighterrect.Y + Choosefighterrect.Height >
@@ -50,7 +50,7 @@ namespace Ship_Game
                 Choosefighterrect.Height = Choosefighterrect.Height - (diff + 10);
             }
             Choosefighterrect.Height = acsub.Height;
-            ChooseFighterSub = new Submenu(ScreenManager, Choosefighterrect);
+            ChooseFighterSub = new Submenu(Choosefighterrect);
             ChooseFighterSub.AddTab("Choose Fighter");
             ChooseFighterSL = new ScrollList(ChooseFighterSub, 40);
         }

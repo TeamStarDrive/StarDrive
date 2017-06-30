@@ -2,11 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -90,10 +86,10 @@ namespace Ship_Game
             this.eHeight = eHeight;
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             SavesSL?.Dispose(ref SavesSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
         public virtual void DoSave()
@@ -118,7 +114,7 @@ namespace Ship_Game
 
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -153,7 +149,7 @@ namespace Ship_Game
                 }
             }
             this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
-            this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
+            this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, GameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
             foreach (UIButton b in this.Buttons)
             {
                 b.Draw(base.ScreenManager.SpriteBatch);
@@ -295,15 +291,14 @@ namespace Ship_Game
         public override void LoadContent()
         {
             this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
-            this.SaveMenu = new Menu1(base.ScreenManager, this.Window);
+            this.SaveMenu = new Menu1(this.Window);
             this.close = new CloseButton(new Rectangle(this.Window.X + this.Window.Width - 35, this.Window.Y + 10, 20, 20));
             Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
-            this.NameSave = new Submenu(base.ScreenManager, sub);
+            this.NameSave = new Submenu(sub);
             this.NameSave.AddTab(this.TitleText);
-            Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
             this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
-            this.AllSaves = new Submenu(base.ScreenManager, scrollList);
+            this.AllSaves = new Submenu(scrollList);
             this.AllSaves.AddTab(this.TabText);
             this.SavesSL = new ScrollList(this.AllSaves, this.eHeight, true, false, false, false);
 
@@ -316,18 +311,8 @@ namespace Ship_Game
             EnterNameArea.Text = this.InitText;
             EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            this.DoBtn = new UIButton()
-            {
-                Rect = new Rectangle(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-                Text = (mode == SLMode.Save ? "Save" : "Load"),
-                Launches = "DoBtn"
-            };
-            this.Buttons.Add(this.DoBtn);
-            Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height + 15);
-            base.LoadContent();
+            DoBtn = ButtonSmall(ScreenWidth / 2 - 84, ScreenHeight / 2 - 100,"DoBtn", mode == SLMode.Save ? "Save" : "Load");
+
             base.LoadContent();
         }
 

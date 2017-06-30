@@ -71,11 +71,11 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
-			base.ScreenManager.SpriteBatch.Begin();
-			this.DrawUI(gameTime);
-			base.ScreenManager.SpriteBatch.End();
+		    spriteBatch.Begin();
+			DrawUI(Game1.Instance.GameTime);
+		    spriteBatch.End();
 		}
 
 		private void DrawUI(GameTime gameTime)
@@ -150,7 +150,7 @@ namespace Ship_Game
 			this.BlackBar = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 2000, 70);
 			this.bottom_sep = new Rectangle(this.BlackBar.X, this.BlackBar.Y, this.BlackBar.Width, 1);
 			this.HullSelectionRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285, 100, 280, 400);
-			this.hullSelectionSub = new Submenu(base.ScreenManager, this.HullSelectionRect, true);
+			this.hullSelectionSub = new Submenu(this.HullSelectionRect, true);
 			this.Fleets = new DanButton(new Vector2(21f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47)), "Fleets")
 			{
 				IsToggle = true,
