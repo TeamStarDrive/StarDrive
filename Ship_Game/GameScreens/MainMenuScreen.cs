@@ -526,7 +526,7 @@ namespace Ship_Game
 
             LogoRect = new Rectangle((int)size.X - 600, 128, 512, 128);
             MoonPosition = new Vector3(size.X / 2 - 300, LogoRect.Y + 70 - size.Y / 2, 0f);
-            ShipPosition = new Vector3(size.X / 2 - 1200, LogoRect.Y + 400 - size.Y / 2, 0f);
+            ShipPosition = new Vector3(-size.X / 4, LogoRect.Y + 400 - size.Y / 2, 0f);
 
             string planet = "Model/SpaceObjects/planet_" + RandomMath.IntBetween(1, 29);
             MoonObj = new SceneObject(TransientContent.Load<Model>(planet).Meshes[0]) { ObjectType = ObjectType.Dynamic };
