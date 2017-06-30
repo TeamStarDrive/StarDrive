@@ -1445,7 +1445,7 @@ namespace Ship_Game
             }
             if (Universe == null || !isPlayer)
                 return;
-            Universe.aw.SetDropDowns();
+            Universe.aw.UpdateDropDowns();
         }
         
         public float GetTotalBuildingMaintenance()

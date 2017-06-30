@@ -98,7 +98,6 @@ namespace Ship_Game
             UILabel aa = Label(cx, y, AntiAliasString());
             aa.OnClick += (label)=>
             {
-
                 GlobalStats.AntiAlias = GlobalStats.AntiAlias == 0 ? 2 : GlobalStats.AntiAlias * 2;
                 if (GlobalStats.AntiAlias > 8)
                     GlobalStats.AntiAlias = 0;

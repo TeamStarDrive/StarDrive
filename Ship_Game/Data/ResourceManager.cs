@@ -1327,8 +1327,19 @@ namespace Ship_Game
                 }
             }
         }
+
+        private static readonly HashSet<int> MissingTooltips = new HashSet<int>();
         public static ToolTip GetToolTip(int tipId)
         {
+            if (tipId >= ToolTips.Count)
+            {
+                if (!MissingTooltips.Contains(tipId))
+                {
+                    MissingTooltips.Add(tipId);
+                    Log.Warning("Missing ToolTip: {0}", tipId);
+                }
+                return null;
+            }
             return ToolTips[tipId - 1];
         }
 
