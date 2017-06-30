@@ -56,6 +56,20 @@ namespace Ship_Game
             return GlobalStats.AntiAlias + "x MSAA";
         }
 
+        private static string TextureFilterString()
+        {
+            if (GlobalStats.MaxAnisotropy == 0)
+                return new string[]{"Bilinear", "Trilinear"}[GlobalStats.TextureSampling];
+            return "Anisotropic x" + GlobalStats.MaxAnisotropy;
+        }
+
+        private static string QualityString(int parameter)
+        {
+            return parameter >= 0 && parameter <= 3 //"Off" makes no sense for texture quality
+                ? new string[] { "High", "Normal", "Low", "Ultra-Low" }[parameter] 
+                : "Uh what?";
+        }
+
         private void InitScreen()
         {
             RemoveAll();
@@ -64,12 +78,12 @@ namespace Ship_Game
             RightArea = new Rectangle(LeftArea.Right + 20, LeftArea.Y, 210, 305);
 
             float x  = LeftArea.X + 10;
-            float y  = LeftArea.Y + 10;
+            float y  = LeftArea.Y;
             float cx = LeftArea.Center.X;
             float startY = y;
             Label(x, y, $"{Localizer.Token(9)}: ");
 
-            y += Fonts.Arial12Bold.LineSpacing * 2;
+            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
             Label(x, y, $"{Localizer.Token(10)}: ");
 
             UILabel fullscreen = Label(cx, y, GlobalStats.WindowMode.ToString());
@@ -81,7 +95,7 @@ namespace Ship_Game
                 label.Text = ModeToSet.ToString();
             };
 
-            y += Fonts.Arial12Bold.LineSpacing * 2;
+            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
             Label(x, y, "AntiAliasing");
             UILabel aa = Label(cx, y, AntiAliasString());
             aa.OnClick += (label)=>
@@ -91,6 +105,67 @@ namespace Ship_Game
                 if (GlobalStats.AntiAlias > 8)
                     GlobalStats.AntiAlias = 0;
                 aa.Text = AntiAliasString();
+            };
+
+            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
+            Label(x, y, "Texture Quality");
+            UILabel tq = Label(cx, y, QualityString(GlobalStats.TextureQuality));
+            tq.OnClick += (label) =>
+            {
+
+                GlobalStats.TextureQuality = GlobalStats.TextureQuality == 3 
+                ? 0
+                : GlobalStats.TextureQuality + 1;
+
+                tq.Text = QualityString(GlobalStats.TextureQuality);
+            };
+
+            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
+            Label(x, y, "Texture Filtering");
+            UILabel tf = Label(cx, y, TextureFilterString());
+            tf.OnClick += (label) =>
+            {
+
+                GlobalStats.TextureSampling += 1;
+                if (GlobalStats.TextureSampling >= 2)
+                {
+                    GlobalStats.MaxAnisotropy  += 1;
+                    GlobalStats.TextureSampling = 2;
+                }
+                if (GlobalStats.MaxAnisotropy > 4)
+                {
+                    GlobalStats.MaxAnisotropy   = 0;
+                    GlobalStats.TextureSampling = 0;
+                }
+                tf.Text = TextureFilterString();
+            };
+
+            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
+            Label(x, y, "Shadow Quality");
+            UILabel sq = Label(cx, y, QualityString(GlobalStats.ShadowDetail));
+            sq.OnClick += (label) =>
+            {
+
+                GlobalStats.ShadowDetail = GlobalStats.ShadowDetail == 3
+                ? 0
+                : GlobalStats.ShadowDetail + 1;
+                //1.0f is max quality, pairing with detail level here to keep options clutter to a minimum.
+                GlobalStats.ShadowQuality = 1.0f - (0.33f * GlobalStats.ShadowDetail);
+
+                sq.Text = QualityString(GlobalStats.ShadowDetail);
+            };
+
+            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
+            Label(x, y, "Effects Quality");
+            UILabel eq = Label(cx, y, QualityString(GlobalStats.EffectDetail));
+            eq.OnClick += (label) =>
+            {
+
+                GlobalStats.EffectDetail = GlobalStats.EffectDetail == 3
+                ? 0
+                : GlobalStats.EffectDetail + 1;
+
+                eq.Text = QualityString(GlobalStats.EffectDetail);
             };
 
             y += Fonts.Arial12Bold.LineSpacing * 2;
@@ -115,9 +190,9 @@ namespace Ship_Game
             AutoSaveFreq.ToolTipId = 4100;
 
 
-            r = new Rectangle(RightArea.X, nextY + 110, 225, 50);
+            r = new Rectangle(RightArea.X, nextY, 225, 50);//nextY + 110, 225, 50);
             FreighterLimiter = Slider(r, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit);
-            r = new Rectangle(RightArea.X, nextY + 160, 225, 50);
+            r = new Rectangle(RightArea.X, nextY + 50, 225, 50);//nextY + 160, 225, 50);
             ShipLimiter = Slider(r, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
                                  500, 3500, GlobalStats.ShipCountLimit);
 
