@@ -336,8 +336,10 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            GameTime gameTime = Game1.Instance.GameTime;
+
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
                 if (!ProcessTurnsCompletedEvt.WaitOne(100))
@@ -410,7 +412,7 @@ namespace Ship_Game
             DrawPlanetInfo();
 
             if (LookingAtPlanet && SelectedPlanet != null)
-                workersPanel?.Draw(ScreenManager.SpriteBatch, gameTime);
+                workersPanel?.Draw(ScreenManager.SpriteBatch);
             DrawShipsInRange();
 
             foreach (SolarSystem solarSystem in SolarSystemList)
@@ -496,30 +498,22 @@ namespace Ship_Game
             ShipsInCombat.Text = "Ships: " + this.player.empireShipCombat;
             if (player.empireShipCombat > 0)
             {
-                ShipsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-                ShipsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
-                ShipsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
+                ShipsInCombat.Style = ButtonStyle.Medium;
             }
             else
             {
-                ShipsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
-                ShipsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
-                ShipsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
+                ShipsInCombat.Style = ButtonStyle.MediumMenu;
             }
             ShipsInCombat.Draw(ScreenManager.SpriteBatch);
 
             PlanetsInCombat.Text = "Planets: " + player.empirePlanetCombat;
             if (player.empirePlanetCombat > 0)
             {
-                PlanetsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-                PlanetsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
-                PlanetsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
+                PlanetsInCombat.Style = ButtonStyle.Medium;
             }
             else
             {
-                PlanetsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
-                PlanetsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
-                PlanetsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
+                PlanetsInCombat.Style = ButtonStyle.MediumMenu;
             }
             PlanetsInCombat.Draw(ScreenManager.SpriteBatch);
 

@@ -134,10 +134,10 @@ namespace Ship_Game
                     }
                 }
                 workersPanel = SelectedPlanet.Owner == player || flag || Debug && SelectedPlanet.Owner != null
-                    ? new ColonyScreen(SelectedPlanet, ScreenManager, EmpireUI)
+                    ? new ColonyScreen(this, SelectedPlanet, EmpireUI)
                     : (SelectedPlanet.Owner == null
-                        ? new UnexploredPlanetScreen(SelectedPlanet, ScreenManager)
-                        : (PlanetScreen) new UnownedPlanetScreen(SelectedPlanet, ScreenManager));
+                        ? new UnexploredPlanetScreen(this, SelectedPlanet)
+                        : (PlanetScreen) new UnownedPlanetScreen(this, SelectedPlanet));
                 LookingAtPlanet = true;
                 transitionStartPosition = CamPos;
                 CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
@@ -194,16 +194,16 @@ namespace Ship_Game
                 bool flag = player.data.MoleList.Any(mole => mole.PlanetGuid == SelectedPlanet.guid);
 
                 if (SelectedPlanet.Owner == player || flag || Debug && SelectedPlanet.Owner != null)
-                    workersPanel = new ColonyScreen(SelectedPlanet, ScreenManager, EmpireUI);
+                    workersPanel = new ColonyScreen(this, SelectedPlanet, EmpireUI);
                 else if (SelectedPlanet.Owner != null)
                 {
-                    workersPanel = new UnownedPlanetScreen(SelectedPlanet, ScreenManager);
+                    workersPanel = new UnownedPlanetScreen(this, SelectedPlanet);
                     CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
                         95000f);
                 }
                 else
                 {
-                    workersPanel = new UnexploredPlanetScreen(SelectedPlanet, ScreenManager);
+                    workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
                     CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
                         95000f);
                 }

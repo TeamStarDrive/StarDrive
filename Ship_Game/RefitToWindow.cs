@@ -48,13 +48,13 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             ShipSL?.Dispose(ref ShipSL);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -179,7 +179,7 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			Rectangle shipDesignsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 140, 100, 280, 500);
-			this.sub_ships = new Submenu(base.ScreenManager, shipDesignsRect);
+			this.sub_ships = new Submenu(shipDesignsRect);
 			this.ShipSL = new ScrollList(this.sub_ships, 40);
 			this.sub_ships.AddTab("Refit to...");
 			foreach (string shipname in this.shiptorefit.loyalty.ShipsWeCanBuild)
@@ -190,23 +190,11 @@ namespace Ship_Game
 				}
 				this.ShipSL.AddItem(shipname);
 			}
-			this.ConfirmRefit = new DanButton(new Vector2((float)shipDesignsRect.X, (float)(shipDesignsRect.Y + 505)), "Do Refit");
-			this.RefitOne = new UIButton()
-			{
-				Rect = new Rectangle(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_pressed"],
-				Text = Localizer.Token(2265)
-			};
-			this.RefitAll = new UIButton()
-			{
-				Rect = new Rectangle(shipDesignsRect.X + 140, shipDesignsRect.Y + 505, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_pressed"],
-				Text = Localizer.Token(2266)
-			};
+			ConfirmRefit = new DanButton(new Vector2((float)shipDesignsRect.X, (float)(shipDesignsRect.Y + 505)), "Do Refit");
+
+            RefitOne = ButtonLow(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, "", localization:2265);
+		    RefitAll = ButtonLow(shipDesignsRect.X + 140, shipDesignsRect.Y + 505, "", localization:2266);
+
 			base.LoadContent();
 		}
 

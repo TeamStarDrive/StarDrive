@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using System;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Lights;
@@ -9,7 +8,7 @@ using SynapseGaming.LightingSystem.Rendering;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public abstract class GameScreen : IDisposable, IInputHandler
+    public abstract class GameScreen : UIElementContainer, IDisposable
     {
         public InputState Input;
         public bool IsLoaded;
@@ -29,29 +28,34 @@ namespace Ship_Game
         public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
         public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
         public float TransitionPosition   { get; protected set; } = 1f;
-        public Vector2 MousePos =>  Input.CursorPosition;
         
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
         
-        protected readonly Array<IElement> Elements = new Array<IElement>();
-        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
         protected Texture2D BtnDefault;
         protected Texture2D BtnHovered;
         protected Texture2D BtnPressed;
 
-        // automatic layout spacing between elements
-        protected int LayoutMargin = 15;
+        public Vector2 MousePos => Input.CursorPosition;
+        public int ScreenWidth  => Game1.Instance.RenderWidth;
+        public int ScreenHeight => Game1.Instance.RenderHeight;
+        public Vector2 ScreenArea => Game1.Instance.RenderArea;
+        public GameTime GameTime  => Game1.Instance.GameTime;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
 
-        protected GameScreen(GameScreen parent)
+        protected GameScreen(GameScreen parent) 
+            : this(parent, new Rectangle(0, 0, Game1.Instance.RenderWidth, Game1.Instance.RenderHeight))
+        {
+        }
+
+        protected GameScreen(GameScreen parent, Rectangle rect) : base(rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
             UpdateViewport();
-            if(Input == null)
+            if (Input == null)
                 Input = ScreenManager.input;
         }
 
@@ -69,7 +73,6 @@ namespace Ship_Game
             ScreenManager.AssignLightRig(lightRig);
         }
 
-        public abstract void Draw(GameTime gameTime);
 
         public virtual void ExitScreen()
         {
@@ -80,14 +83,6 @@ namespace Ship_Game
                 return;
             }
             ScreenManager.RemoveScreen(this);
-        }
-
-        public virtual bool HandleInput(InputState input)
-        {
-            foreach (IElement element in Elements)
-                if (element.HandleInput(input))
-                    return true;
-            return false;
         }
 
 
@@ -101,7 +96,10 @@ namespace Ship_Game
         public virtual void UnloadContent()
         {
             TransientContent?.Unload();
+            Elements.Clear();
+            Buttons.Clear();
         }
+
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
@@ -127,6 +125,7 @@ namespace Ship_Game
             }
         }
 
+
         private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
         {
             float transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
@@ -139,53 +138,7 @@ namespace Ship_Game
         }
 
 
-        // Shared utility functions:
-        protected UIButton Button(ref Vector2 pos, string launches, int localization)
-            => Button(ref pos, launches, Localizer.Token(localization));
-
-        protected UIButton Button(ref Vector2 pos, string launches, string text)
-        {
-            return Add(ref pos, new UIButton
-            {
-                NormalTexture  = BtnDefault,
-                HoverTexture   = BtnHovered,
-                PressedTexture = BtnPressed,
-                Launches       = launches,
-                Text           = text
-            });
-        }
-
-        protected T Layout<T>(ref Vector2 pos, T element) where T : IElement
-        {
-            element.Layout(pos);
-            pos.Y += element.Rect.Height + LayoutMargin;
-            return element;
-        }
-
-        protected T Add<T>(ref Vector2 pos, T element) where T : IElement
-        {
-            Layout(ref pos, element);
-            Elements.Add(element);
-
-            var button = element as UIButton;
-            if (button != null) Buttons.Add(button);
-            return element;
-        }
-
-        protected UICheckBox Checkbox(ref Vector2 pos, Expression<Func<bool>> binding, int title, int tooltip)
-            => Add(ref pos, new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
-
-        protected UICheckBox Checkbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, string tooltip)
-            => Add(ref pos, new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
-
-        protected UICheckBox Checkbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
-            => Add(ref pos, new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
-
-
-        protected FloatSlider AddFloatSlider(ref Vector2 pos)
-        {
-            return null;
-        }
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
         // just draws a line, no fancy reprojections
@@ -251,17 +204,13 @@ namespace Ship_Game
         public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
-            {
                 ToolTip.CreateTooltip(toolTipId);                
-            }
         }
 
         public void CheckToolTip(string text, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
-            {
                 ToolTip.CreateTooltip(text);
-            }
         }
         public void CheckToolTip(string text, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
         {
@@ -276,7 +225,8 @@ namespace Ship_Game
                 , (int)font.MeasureString(words).X + (int)font.MeasureString(numbers).X
                 , font.LineSpacing);
             CheckToolTip(toolTipId, rect, mousePos);
-        }        
+        }
+
         public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
         {
             cursor.X += (spacing - font.MeasureString(drawnString).X);
@@ -305,20 +255,20 @@ namespace Ship_Game
 
 
 
-        public void MakeMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted,int localID, string okText, string cancelledText)
+        public void MakeMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId, string okText, string cancelledText)
         {
-            var messageBox = new MessageBoxScreen(screen, localID, okText, cancelledText);
+            var messageBox = new MessageBoxScreen(screen, localId, okText, cancelledText);
             messageBox.Cancelled += cancelled;
             messageBox.Accepted += accepted;
             ScreenManager.AddScreen(messageBox);            
         }
-        public void ExitMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localID)
+        public void ExitMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId)
         {
-            MakeMessageBox(screen, cancelled, accepted, 2137, "Save", "Exit");
+            MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
         }
 
 
-        public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool LightingEnabled = false)
+        public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool lightingEnabled = false)
         {
             foreach (ModelMesh modelMesh in model.Meshes)
             {
@@ -333,21 +283,21 @@ namespace Ship_Game
                     basicEffect.Alpha           = alpha > 0 ? alpha : basicEffect.Alpha;                    
                     basicEffect.TextureEnabled  = true;
                     basicEffect.Projection      = projection;
-                    basicEffect.LightingEnabled = false;
+                    basicEffect.LightingEnabled = lightingEnabled;
                 }
                 modelMesh.Draw();
             }
         }
 
-        ~GameScreen() { Dispose(false); }
+        ~GameScreen() { Destroy(); }
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Destroy()
         {
             TransientContent?.Dispose(ref TransientContent);
         }

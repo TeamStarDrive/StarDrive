@@ -1,13 +1,10 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
@@ -420,13 +417,13 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             OurItemsSL?.Dispose(ref OurItemsSL);
             TheirItemsSL?.Dispose(ref TheirItemsSL);
             StatementsSL?.Dispose(ref StatementsSL);
             OfferTextSL?.Dispose(ref OfferTextSL);
-            base.Dispose(disposing);
+            base.Destroy();
 		}
 
 		private void DoNegotiationResponse(string answer)
@@ -446,9 +443,8 @@ namespace Ship_Game
 			this.dState = DiplomacyScreen.DialogState.Them;
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
-            
             string text;
 			Vector2 Position;
 			Vector2 drawCurs;
@@ -1394,7 +1390,7 @@ namespace Ship_Game
 		{
 			Rectangle prect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 659, 0, 1318, 757);
 			this.BridgeRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
-			this.Player = new Menu2(base.ScreenManager, prect);
+			this.Player = new Menu2(prect);
 			this.Portrait = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 640, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 360, 1280, 720);
 			Vector2 Cursor = new Vector2((float)(this.Portrait.X + this.Portrait.Width - 85), (float)(this.Portrait.Y + 140));
 			this.EmpireNamePos = new Vector2(Cursor.X - Fonts.Pirulen20.MeasureString(this.them.data.Traits.Name).X, (float)(this.Portrait.Y + 40));
@@ -1447,7 +1443,7 @@ namespace Ship_Game
 			}
 			Rectangle blerdybloo = this.R;
 			blerdybloo.Height = blerdybloo.Height - 40;
-			Submenu ot = new Submenu(base.ScreenManager, blerdybloo);
+			Submenu ot = new Submenu(blerdybloo);
 			this.OfferTextSL = new ScrollList(ot, Fonts.Consolas18.LineSpacing + 2, true);
 			this.Attitude_Pleading_Rect = new Rectangle(this.R.X + 45, this.R.Y + this.R.Height - 48, 180, 48);
 			this.Attitude_Respectful_Rect = new Rectangle(this.R.X + 250 + 5, this.R.Y + this.R.Height - 48, 180, 48);
@@ -1469,11 +1465,11 @@ namespace Ship_Game
 			this.UsRect = new Rectangle(this.Negotiate_Right.X + 20, this.Negotiate_Right.Y + 35, this.BigTradeRect.Width / 2 - 9, 300);
 			this.ThemRect = new Rectangle(this.Negotiate_Left.X + 15, this.Negotiate_Left.Y + 35, this.BigTradeRect.Width / 2 - 10, 300);
 			this.SendOffer = new GenericButton(new Rectangle(this.R.X + this.R.Width / 2 - 90, this.R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
-			var themsub = new Submenu(base.ScreenManager, this.ThemRect);
+			var themsub = new Submenu(this.ThemRect);
 			this.TheirItemsSL = new ScrollList(themsub, Fonts.Consolas18.LineSpacing + 5, true);
-			var ussub = new Submenu(base.ScreenManager, this.UsRect);
+			var ussub = new Submenu(this.UsRect);
 			this.OurItemsSL = new ScrollList(ussub, Fonts.Consolas18.LineSpacing + 5, true);
-			var sub = new Submenu(base.ScreenManager, blerdybloo);
+			var sub = new Submenu(blerdybloo);
 			this.StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
 			if (!string.IsNullOrEmpty(them.data.Traits.VideoPath))
 			{

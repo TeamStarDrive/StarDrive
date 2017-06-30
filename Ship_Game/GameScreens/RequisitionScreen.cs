@@ -2,9 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
 using Ship_Game.AI;
 
 namespace Ship_Game
@@ -95,7 +93,7 @@ namespace Ship_Game
 			}
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			string text;
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);

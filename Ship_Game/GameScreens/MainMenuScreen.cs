@@ -138,8 +138,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            GameTime gameTime = this.GameTime;
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             MainMenuScreen mainMenuScreen = this;
             mainMenuScreen.Rotate = mainMenuScreen.Rotate + elapsedTime / 350f;
@@ -426,7 +427,7 @@ namespace Ship_Game
                             ScreenManager.AddScreen(new LoadSaveScreen(this));
                             break;
                         case "Options":
-                            ScreenManager.AddScreen(new OptionsScreen(this, new Rectangle(0, 0, 600, 600))
+                            ScreenManager.AddScreen(new OptionsScreen(this)
                             {
                                 TitleText  = Localizer.Token(4),
                                 MiddleText = Localizer.Token(4004)
@@ -440,7 +441,7 @@ namespace Ship_Game
                             break;
                         case "Info":
                             GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                            ScreenManager.AddScreen(new InGameWiki(this, new Rectangle(0, 0, 750, 600)));
+                            ScreenManager.AddScreen(new InGameWiki(this));
                             break;
                         
                     }
@@ -717,12 +718,12 @@ namespace Ship_Game
             public float Rotation;
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             CometList?.Dispose(ref CometList);
             WaveOut?.Dispose(ref WaveOut);
             Mp3FileReader?.Dispose(ref Mp3FileReader);
-            base.Dispose(disposing);
+            base.Destroy();
         }
     }
 }
