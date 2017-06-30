@@ -103,7 +103,7 @@ namespace Ship_Game
 			}
 			if (this.bAutomation.HandleInput(input))
 			{
-				MinimapButtons.screen.aw.isOpen = !MinimapButtons.screen.aw.isOpen;
+			    screen.aw.ToggleVisibility();
 				clicked = true;
 			}
 			return clicked;
