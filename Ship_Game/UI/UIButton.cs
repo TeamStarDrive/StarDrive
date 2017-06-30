@@ -13,23 +13,24 @@ namespace Ship_Game
         Medium,     // empiretopbar_btn_132px
         MediumMenu, // empiretopbar_btn_132px_menu
         BigDip,     // empiretopbar_btn_168px_dip
+        Close,      // NewUI/Close_Normal
     }
 
     // Refactored by RedFox
-    public sealed class UIButton : UIElementV2
+    public class UIButton : UIElementV2
     {
         public enum PressState
         {
             Default, Hover, Pressed
         }
-        public PressState State  = PressState.Default;
+        public PressState  State = PressState.Default;
         public ButtonStyle Style = ButtonStyle.Default;
         public string Text;
         public string Launches;
         public readonly Color DefaultColor = new Color(255, 240, 189);
         public readonly Color HoverColor   = new Color(255, 240, 189);
         public readonly Color PressColor   = new Color(255, 240, 189);
-        public int ToolTip;
+        public string Tooltip;
 
         public bool Visible = true;
         public bool Enabled = true; // if false, button will be visible, but gray and not interactive
@@ -39,7 +40,8 @@ namespace Ship_Game
         public delegate void ClickHandler(UIButton button);
         public event ClickHandler OnClick;
 
-        public UIButton(float x = 0f, float y = 0f, string launches = "", string text = "") : base(new Vector2(x, y))
+        
+        public UIButton(UIElementV2 parent, Vector2 pos, string launches = "", string text = "") : base(parent, pos)
         {
             InitializeStyles();
             Text     = text;
@@ -47,7 +49,7 @@ namespace Ship_Game
             Size     = ButtonTexture().Size();
         }
 
-        public UIButton(ButtonStyle style, float x = 0f, float y = 0f, string launches = "", string text = "") : base(new Vector2(x, y))
+        public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, string launches = "", string text = "") : base(parent, pos)
         {
             InitializeStyles();
             Style    = style;
@@ -56,6 +58,15 @@ namespace Ship_Game
             Size     = ButtonTexture().Size();
         }
 
+        public UIButton(UIElementV2 parent, float x = 0f, float y = 0f, string launches = "", string text = "")
+            : this(parent, new Vector2(x, y), launches, text)
+        {
+        }
+
+        public UIButton(UIElementV2 parent, ButtonStyle style, float x = 0f, float y = 0f, string launches = "", string text = "")
+            : this(parent, style, new Vector2(x, y), launches, text)
+        {
+        }
 
         private class StyleTextures
         {
@@ -67,6 +78,12 @@ namespace Ship_Game
                 Normal  = ResourceManager.Texture(normal);
                 Hover   = ResourceManager.Texture(normal+"_hover");
                 Pressed = ResourceManager.Texture(normal+"_pressed");
+            }
+            public StyleTextures(string normal, string hover)
+            {
+                Normal  = ResourceManager.Texture(normal);
+                Hover   = ResourceManager.Texture(hover);
+                Pressed = Hover;
             }
         }
 
@@ -85,6 +102,7 @@ namespace Ship_Game
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_132px"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_132px_menu"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_dip"),
+                new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover"),
             };
         }
 
@@ -109,8 +127,13 @@ namespace Ship_Game
             }
         }
 
-        private void DrawButtonText(SpriteBatch spriteBatch, Rectangle r)
+        public void Draw(SpriteBatch spriteBatch, Rectangle r)
         {
+            if (!Visible)
+                return;
+
+            spriteBatch.Draw(ButtonTexture(), r, Color.White);
+
             SpriteFont font = Fonts.Arial12Bold;
 
             Vector2 textCursor;
@@ -120,22 +143,16 @@ namespace Ship_Game
                 textCursor.Y += 1f; // pressed down effect
 
             spriteBatch.DrawString(font, Text, textCursor, Enabled ? TextColor() : Color.Gray);
-        }
 
-        public void Draw(SpriteBatch spriteBatch, Rectangle r)
-        {
-            if (!Visible)
-                return;
-            spriteBatch.Draw(ButtonTexture(), r, Color.White);
-            DrawButtonText(spriteBatch, r);
+            if (State == PressState.Hover && Tooltip.NotEmpty())
+            {
+                ToolTip.CreateTooltip(Tooltip);
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (!Visible)
-                return;
-            spriteBatch.Draw(ButtonTexture(), Rect, Color.White);
-            DrawButtonText(spriteBatch, Rect);
+            Draw(spriteBatch, Rect);
         }
 
         public override bool HandleInput(InputState input)
@@ -169,6 +186,11 @@ namespace Ship_Game
 
             State = PressState.Hover;
             return false;
+        }
+
+        public override void PerformLegacyLayout(Vector2 pos)
+        {
+            Pos = pos;
         }
 
         public override string ToString() => $"Button '{Launches}' visible:{Visible} enabled:{Enabled} state:{State}";

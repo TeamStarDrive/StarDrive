@@ -75,12 +75,12 @@ namespace Ship_Game
 				this.marked = true;
 			}
 
-            Colonize = new UIButton(marked ? ButtonStyle.Default : ButtonStyle.BigDip);
-            Colonize.SetPos(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height - Colonize.Size.Y);
+            Colonize = new UIButton(null, marked ? ButtonStyle.Default : ButtonStyle.BigDip);
+            Colonize.SetAbsPos(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height - Colonize.Size.Y);
             Colonize.Text = !this.marked ? Localizer.Token(1425) : "Cancel Colonize";
             Colonize.Launches = Localizer.Token(1425);
 
-            SendTroops = new UIButton(ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10);
+            SendTroops = new UIButton(null, ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10);
 		}
 
         public void Draw(Ship_Game.ScreenManager ScreenManager, GameTime gameTime)

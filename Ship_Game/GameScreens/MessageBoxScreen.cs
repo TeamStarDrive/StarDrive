@@ -80,8 +80,8 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
 
 
-                Ok.SetPos(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
-                Cancel.SetPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
+                Ok.SetAbsPos(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
+                Cancel.SetAbsPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
                 foreach (UIButton b in this.Buttons)
                 {
                     b.Draw(base.ScreenManager.SpriteBatch);
@@ -97,8 +97,8 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.FillRectangle(r2, Color.Black);
             base.ScreenManager.SpriteBatch.DrawRectangle(r2, Color.Orange);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
-            Ok.SetPos(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
-            Cancel.SetPos(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
+            Ok.SetAbsPos(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
+            Cancel.SetAbsPos(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
 
             foreach (UIButton b in this.Buttons)
             {

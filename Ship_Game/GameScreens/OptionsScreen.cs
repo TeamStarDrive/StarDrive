@@ -58,8 +58,6 @@ namespace Ship_Game
 
         private void InitScreen()
         {
-            RemoveAll();
-
             LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 175, 300, 375);
             RightArea = new Rectangle(LeftArea.Right + 20, LeftArea.Y, 210, 305);
 
@@ -95,8 +93,8 @@ namespace Ship_Game
 
             y += Fonts.Arial12Bold.LineSpacing * 2;
             var pos = new Vector2(cx, y);
-            Checkbox(ref pos, () => GlobalStats.RenderBloom, "Bloom", 
-                                        "Disabling bloom effect will increase performance on low-end devices");
+            Checkbox(pos, () => GlobalStats.RenderBloom, "Bloom", 
+                     "Disabling bloom effect will increase performance on low-end devices");
 
 
             int nextX = (int)x;
@@ -112,7 +110,7 @@ namespace Ship_Game
             IconSize = Slider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
             r = new Rectangle(nextX, nextY + 160, 225, 50);
             AutoSaveFreq = Slider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);
-            AutoSaveFreq.ToolTipId = 4100;
+            AutoSaveFreq.TooltipId = 4100;
 
 
             r = new Rectangle(RightArea.X, nextY + 110, 225, 50);
@@ -121,15 +119,16 @@ namespace Ship_Game
             ShipLimiter = Slider(r, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
                                  500, 3500, GlobalStats.ShipCountLimit);
 
-
             pos = new Vector2(RightArea.X, RightArea.Y);
-            Checkbox(ref pos, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
-            Checkbox(ref pos, () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
-            Checkbox(ref pos, () => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
-            Checkbox(ref pos, () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
-            Checkbox(ref pos, () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
-            Checkbox(ref pos, () => GlobalStats.AutoErrorReport, "Automatic Error Report", 
-                                       "Send automatic error reports to Blackbox developers");
+            var cb = Checkbox(pos, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
+
+            Vector2 NextPos() => pos = new Vector2(pos.X, pos.Y + cb.Height + 15);
+            Checkbox(NextPos(), () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
+            Checkbox(NextPos(), () => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
+            Checkbox(NextPos(), () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
+            Checkbox(NextPos(), () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
+            Checkbox(NextPos(), () => GlobalStats.AutoErrorReport, "Automatic Error Report", 
+                                "Send automatic error reports to Blackbox developers");
 
 
             UIButton apply = Button(RightArea.X, RightArea.Y + RightArea.Height + 60, "Apply Settings", localization:13);
@@ -162,17 +161,27 @@ namespace Ship_Game
 
         private void ReloadGameContent()
         {
-            Setup();
             if (FromGame)
             {
                 Universe.LoadGraphics();
                 Universe.NotificationManager.ReSize();
-                UniverseMainMenu.LoadGraphics();
+                UniverseMainMenu.LoadContent();
             }
             else
             {
                 MainMenu.LoadContent();
             }
+
+            base.LoadContent();
+            InitScreen();
+        }
+
+        public override void LoadContent()
+        {
+            NewWidth  = OriginalWidth  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            NewHeight = OriginalHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            base.LoadContent();
             InitScreen();
         }
 
@@ -220,19 +229,10 @@ namespace Ship_Game
             ReloadGameContent();
         }
 
-        public override void LoadContent()
-        {
-            base.LoadContent();
-            NewWidth  = OriginalWidth  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            NewHeight = OriginalHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            InitScreen();
-        }
-
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (fade)
-                ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            if (fade) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             base.Draw(spriteBatch);
         }
 

@@ -592,7 +592,7 @@ namespace Ship_Game
                 DebugWin.Draw(gameTime);
 
             if (aw.isOpen && !LookingAtPlanet)
-                aw.Draw(gameTime);
+                aw.Draw(spriteBatch);
 
             if (Paused)
             {

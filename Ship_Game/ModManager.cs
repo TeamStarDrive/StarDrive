@@ -69,7 +69,10 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
+            selector?.RemoveFromParent();
             selector = null;
+            
+
 			if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
 			{
 				ExitScreen();

@@ -110,7 +110,7 @@ namespace Ship_Game
             Rectangle r = ActiveModSubMenu.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             ShipModule mod = ParentScreen.ActiveModule;
 
@@ -846,7 +846,7 @@ namespace Ship_Game
                 Rectangle r = ChooseFighterSub.Menu;
                 r.Y = r.Y + 25;
                 r.Height = r.Height - 25;
-                var sel = new Selector( r, new Color(0, 0, 0, 210));
+                var sel = new Selector(r, new Color(0, 0, 0, 210));
                 sel.Draw(ScreenManager.SpriteBatch);
                 ParentScreen.UpdateHangarOptions(mod);
                 ChooseFighterSub.Draw();

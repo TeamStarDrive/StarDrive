@@ -229,7 +229,8 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Setup();
+            base.LoadContent();
+
             TitleText += $" {GlobalStats.ExtendedVersion}";
             if (GlobalStats.HasMod)
             {
@@ -276,7 +277,6 @@ namespace Ship_Game
                     e.AddItem(halp);
                 }
             }
-            base.LoadContent();
         }
     }
 }
