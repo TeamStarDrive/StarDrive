@@ -49,7 +49,8 @@ namespace Ship_Game.Gameplay
         public void Remove(GameplayObject obj)
         {
             QuadTree?.Remove(obj);
-            AllObjects[obj.SpatialIndex] = null;
+            if (AllObjects.NotEmpty)
+                AllObjects[obj.SpatialIndex] = null;
             obj.SpatialIndex = -1;
         }
 

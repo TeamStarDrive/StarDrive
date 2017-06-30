@@ -64,7 +64,7 @@ namespace Ship_Game
 			this.TitleBar = new Menu2( titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(383)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			this.leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
-			this.close = new CloseButton(new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
+			this.close = new CloseButton(this, new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
 			this.EMenu = new Menu2(this.leftRect);
 			this.eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, (int)(0.66f * (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7)));
 			while (this.eRect.Height % 80 != 0)
@@ -87,7 +87,7 @@ namespace Ship_Game
             this.res = new SortButton(this.eui.empire.data.ESSort, "res");
             this.money = new SortButton(this.eui.empire.data.ESSort, "money");
 			this.SelectedPlanet = (this.ColoniesList.Entries[this.ColoniesList.indexAtTop].item as EmpireScreenEntry).p;
-			this.GovernorDropdown = new DropOptions<int>(new Rectangle(0, 0, 100, 18));
+			this.GovernorDropdown = new DropOptions<int>(this, new Rectangle(0, 0, 100, 18));
 			this.GovernorDropdown.AddOption("--", 1);
 			this.GovernorDropdown.AddOption(Localizer.Token(4064), 0);
 			this.GovernorDropdown.AddOption(Localizer.Token(4065), 2);
@@ -348,7 +348,7 @@ namespace Ship_Game
 			desc = Localizer.Token(388);
 			TextPosition = new Vector2((float)(this.AutoButton.X + this.AutoButton.Width / 2) - Fonts.Pirulen16.MeasureString(desc).X / 2f, (float)(this.AutoButton.Y + this.AutoButton.Height / 2 - Fonts.Pirulen16.LineSpacing / 2));
 
-		    GovernorDropdown.SetPos(GovPos.X, GovPos.Y + Fonts.Arial12Bold.LineSpacing + 5);
+		    GovernorDropdown.SetAbsPos(GovPos.X, GovPos.Y + Fonts.Arial12Bold.LineSpacing + 5);
 			GovernorDropdown.Reset();
 			GovernorDropdown.Draw(ScreenManager.SpriteBatch);
 
@@ -436,10 +436,10 @@ namespace Ship_Game
 			botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
 			base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
 			Vector2 pos = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
-			this.close.Draw(base.ScreenManager);
-			ToolTip.Draw(ScreenManager.SpriteBatch);
-			base.ScreenManager.SpriteBatch.End();
+		    spriteBatch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
+			this.close.Draw(spriteBatch);
+			ToolTip.Draw(spriteBatch);
+		    spriteBatch.End();
 		}
 
 		private void DrawPGSIcons(PlanetGridSquare pgs)

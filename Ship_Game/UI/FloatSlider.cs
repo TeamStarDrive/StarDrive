@@ -12,41 +12,43 @@ namespace Ship_Game
     public sealed class FloatSlider : UIElementV2
     {
         private Rectangle SliderRect; // colored slider
-        private Rectangle KnobRect;
+        private Rectangle KnobRect;   // knob area used to move the slider value
         public string Text;
-        public int ToolTipId;
+        public string Tooltip;
+
+        public int TooltipId
+        {
+            set => Tooltip = Localizer.Token(value);
+        }
 
         private bool Hover;
         private bool Dragging;
         private readonly float Min;
         private readonly float Max;
-
-        private float Value = 0.5f;
-
+        private float Value;
         public SliderStyle Style = SliderStyle.Decimal;
 
         public float Range => Max-Min;
-
         public float AbsoluteValue
         {
             get => Min + RelativeValue * Range;
             set
             {
                 RelativeValue = (value.Clamp(Min, Max) - Min) / Range;
-                UpdateKnobRect();
+                RequiresLayout = true;
+                PerformLegacyLayout(Pos);
             }
         }
-
         public float RelativeValue
         {
             get => Value;
             set
             {
                 Value = value.Clamp(0f, 1f);
-                UpdateKnobRect();
+                RequiresLayout = true;
+                PerformLegacyLayout(Pos);
             }
         }
-
 
         private static readonly Color TextColor   = new Color(255, 239, 208);
         private static readonly Color HoverColor  = new Color(164, 154, 133);
@@ -59,11 +61,12 @@ namespace Ship_Game
         private static Texture2D SliderGradient;   // background gradient for the slider
 
         
-        public FloatSlider(Rectangle r, int text) : this(r, Localizer.Token(text))
+        public FloatSlider(UIElementV2 parent, Rectangle r, int text) : this(parent, r, Localizer.Token(text))
         {
         }
 
-        public FloatSlider(Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f) : base(r)
+        public FloatSlider(UIElementV2 parent, Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
+            : base(parent, r)
         {
             if (SliderKnob == null)
             {
@@ -74,25 +77,34 @@ namespace Ship_Game
                 SliderGradient    = ResourceManager.Texture("NewUI/slider_grd_green");
             }
 
-            Text = text;
-            Min = min;
-            Max = max;
-
-            SliderRect = new Rectangle(r.X, r.Y + r.Height/2 + 3, r.Width - 20, 6);
-            AbsoluteValue = value;
+            Text  = text;
+            Min   = min;
+            Max   = max;
+            Value = (value.Clamp(Min, Max) - Min) / Range;
+            PerformLegacyLayout(Pos);
         }
 
-        public FloatSlider(SliderStyle style, Rectangle r, string text, float min, float max, float value)
-            : this(r, text, min, max, value)
+        public FloatSlider(UIElementV2 parent, SliderStyle style, Rectangle r, string text, float min, float max, float value)
+            : this(parent, r, text, min, max, value)
         {
             Style = style;
         }
 
-        private void UpdateKnobRect()
+        public override void PerformLegacyLayout(Vector2 pos)
         {
+            SliderRect = new Rectangle((int)pos.X, (int)pos.Y + (int)Height/2 + 3, (int)Width - 20, 6);
             KnobRect = new Rectangle(SliderRect.X + (int)(SliderRect.Width * Value), 
-                SliderRect.Y + SliderRect.Height / 2 - SliderKnob.Height / 2, 
-                SliderKnob.Width, SliderKnob.Height);
+                                     SliderRect.Y + SliderRect.Height / 2 - SliderKnob.Height / 2, 
+                                     SliderKnob.Width, SliderKnob.Height);
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            SliderRect = new Rectangle((int)Pos.X, (int)Pos.Y + (int)Height/2 + 3, (int)Width - 20, 6);
+            KnobRect = new Rectangle(SliderRect.X + (int)(SliderRect.Width * Value), 
+                                     SliderRect.Y + SliderRect.Height / 2 - SliderKnob.Height / 2, 
+                                     SliderKnob.Width, SliderKnob.Height);
         }
 
         public string StyledValue
@@ -128,8 +140,8 @@ namespace Ship_Game
             var textPos = new Vector2(SliderRect.X + SliderRect.Width + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             spriteBatch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, new Color(255, 239, 208));
 
-            if (Hover && ToolTipId != 0)
-                ToolTip.CreateTooltip(Localizer.Token(ToolTipId));
+            if (Hover && Tooltip.NotEmpty())
+                ToolTip.CreateTooltip(Tooltip);
         }
 
         public override bool HandleInput(InputState input)

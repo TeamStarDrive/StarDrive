@@ -30,10 +30,6 @@ namespace Ship_Game
         public float TransitionPosition   { get; protected set; } = 1f;
         
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
-        
-        protected Texture2D BtnDefault;
-        protected Texture2D BtnHovered;
-        protected Texture2D BtnPressed;
 
         public Vector2 MousePos => Input.CursorPosition;
         public int ScreenWidth  => Game1.Instance.RenderWidth;
@@ -49,7 +45,7 @@ namespace Ship_Game
         {
         }
 
-        protected GameScreen(GameScreen parent, Rectangle rect) : base(rect)
+        protected GameScreen(GameScreen parent, Rectangle rect) : base(parent, rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
@@ -73,7 +69,6 @@ namespace Ship_Game
             ScreenManager.AssignLightRig(lightRig);
         }
 
-
         public virtual void ExitScreen()
         {
             ScreenManager.exitScreenTimer =.024f;
@@ -85,12 +80,8 @@ namespace Ship_Game
             ScreenManager.RemoveScreen(this);
         }
 
-
         public virtual void LoadContent()
         {
-            BtnDefault = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
-            BtnHovered = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
-            BtnPressed = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
         }
 
         public virtual void UnloadContent()

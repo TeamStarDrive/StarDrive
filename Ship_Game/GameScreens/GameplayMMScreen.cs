@@ -155,33 +155,19 @@ namespace Ship_Game
         public override void LoadContent()
         {
             base.LoadContent();
+            RemoveAll();
 
             var para = ScreenManager.GraphicsDevice.PresentationParameters;
             var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);
             window = new Menu2(new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
 
             Vector2 pos = new Vector2(size.X - 84, size.Y - 100);
-            Save       = Button(ref pos, "Save",              localization: 300);
-            Load       = Button(ref pos, "Load Game",         localization: 2);
-            Options    = Button(ref pos, "Options",           localization: 4);
-            Return     = Button(ref pos, "Return to Game",    localization: 301);
-            ExitToMain = Button(ref pos, "Exit to Main Menu", localization: 302);
-            Exit       = Button(ref pos, "Exit to Windows",   localization: 303);
+            Save       = Button(pos, "Save",              localization: 300);
+            Load       = Button(pos, "Load Game",         localization: 2);
+            Options    = Button(pos, "Options",           localization: 4);
+            Return     = Button(pos, "Return to Game",    localization: 301);
+            ExitToMain = Button(pos, "Exit to Main Menu", localization: 302);
+            Exit       = Button(pos, "Exit to Windows",   localization: 303);
         }  
-
-        public void LoadGraphics()
-        {
-            var para = ScreenManager.GraphicsDevice.PresentationParameters;
-            var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);
-            window = new Menu2(new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
-
-            Vector2 pos = new Vector2(size.X - 84, size.Y - 100);
-            Layout(ref pos, Save);
-            Layout(ref pos, Load);
-            Layout(ref pos, Options);
-            Layout(ref pos, Return);
-            Layout(ref pos, ExitToMain);
-            Layout(ref pos, Exit);
-        }
     }
 }

@@ -55,11 +55,14 @@ namespace Ship_Game
         private readonly Texture2D AlienText3     = ResourceManager.Texture("MainMenu/moon_3");
         private Vector2 MoonFlarePos = Vector2.Zero;
 
+
         public MainMenuScreen() : base(null /*no parent*/)
         {
             TransitionOnTime  = TimeSpan.FromSeconds(1);
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
         }
+
+
 
         private FadeInOutAnim[] AlienTextAnim;
 
@@ -471,6 +474,8 @@ namespace Ship_Game
         public override void LoadContent()
         {
             base.LoadContent();
+            RemoveAll();
+
             GameAudio.ConfigureAudioSettings();
 
             var para = ScreenManager.GraphicsDevice.PresentationParameters;
@@ -490,15 +495,17 @@ namespace Ship_Game
             StarFieldRect = new Rectangle(0, 0, (int)size.X, (int)size.Y);
 
             var pos = new Vector2(size.X - 200, size.Y / 2 - 100);
-            Buttons.Clear();
-            Button(ref pos, "New Campaign", localization: 1);
+            var button = Button(pos.X, pos.Y, "New Campaign", localization: 1);
+
+            Vector2 NextPos() => pos = new Vector2(pos.X, pos.Y + button.Height + 15);
+
             //Button(ref pos, "", "Battle Mode");
-            Button(ref pos, "Tutorials", localization: 3);
-            Button(ref pos, "Load Game", localization: 2);
-            Button(ref pos, "Options", localization: 4);
-            Button(ref pos, "Mods", "Mods");
-            Button(ref pos, "Info", "BlackBox Info");
-            Button(ref pos, "Exit", localization: 5);
+            Button(NextPos(), "Tutorials", localization: 3);
+            Button(NextPos(), "Load Game", localization: 2);
+            Button(NextPos(), "Options", localization: 4);
+            Button(NextPos(), "Mods", "Mods");
+            Button(NextPos(), "Info", "BlackBox Info");
+            Button(NextPos(), "Exit", localization: 5);
 
             ScreenManager.ClearScene();
 
