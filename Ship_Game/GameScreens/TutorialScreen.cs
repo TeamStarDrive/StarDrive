@@ -26,16 +26,11 @@ namespace Ship_Game
 
 		public override void Draw(SpriteBatch spriteBatch)
 		{
-			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-			base.ScreenManager.SpriteBatch.Begin();
-			base.ScreenManager.SpriteBatch.Draw(this.TexDict[string.Concat("Slide_", this.Index.ToString("00"))], this.BridgeRect, Color.White);
-			this.close.Draw(base.ScreenManager);
-			base.ScreenManager.SpriteBatch.End();
-		}
-
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
+			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+		    spriteBatch.Begin();
+		    spriteBatch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
+			this.close.Draw(spriteBatch);
+		    spriteBatch.End();
 		}
 
 		public override bool HandleInput(InputState input)
@@ -90,7 +85,7 @@ namespace Ship_Game
 			}
             var center = ScreenManager.Center();
 			BridgeRect = new Rectangle((int)center.X - 640, (int)center.Y - 360, 1280, 720);
-			close = new CloseButton(new Rectangle(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15, 20, 20));
+			close = new CloseButton(this, new Rectangle(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15, 20, 20));
 			base.LoadContent();
 		}
 	}

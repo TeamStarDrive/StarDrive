@@ -7,7 +7,7 @@ namespace Ship_Game
     {
         private class CategoryDropDown : DropOptions<ShipData.Category>
         {            
-            public CategoryDropDown(Rectangle dropdownRect) : base(dropdownRect)
+            public CategoryDropDown(UIElementV2 parent, Rectangle dropdownRect) : base(parent, dropdownRect)
             {                
             }
             public override bool HandleInput(InputState input)

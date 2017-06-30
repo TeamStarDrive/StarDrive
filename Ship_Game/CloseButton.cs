@@ -1,47 +1,20 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class CloseButton
+	public sealed class CloseButton : UIButton
 	{
-		private Rectangle rect;
-
-		private bool Hover;
-
-		public CloseButton(Rectangle r)
+		public CloseButton(UIElementV2 parent, Rectangle r)
+            : base(parent, ButtonStyle.Close, new Vector2(r.X, r.Y))
 		{
-			this.rect = r;
+            Tooltip = "Exit Screen";
+            OnClick += CloseButton_OnClick;
 		}
 
-		public void Draw(ScreenManager screenManager)
-		{
-			if (this.Hover)
-			{
-				screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/Close_Hover"], this.rect, Color.White);
-				return;
-			}
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/Close_Normal"], this.rect, Color.White);
-		}
-
-		public bool HandleInput(InputState input)
-		{
-			if (!this.rect.HitTest(input.CursorPosition))
-			{
-				this.Hover = false;
-			}
-			else
-			{
-				this.Hover = true;
-				ToolTip.CreateTooltip("Exit Screen");
-				if (input.InGameSelect)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-	}
+        private void CloseButton_OnClick(UIButton button)
+        {
+            if (Parent is GameScreen screen && !screen.IsExiting)
+                screen.ExitScreen();
+        }
+    }
 }

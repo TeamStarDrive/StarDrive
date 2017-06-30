@@ -687,7 +687,7 @@ namespace Ship_Game
                 if (this.SelectedEmpire.data.MissileDodgeChance != 0)
                     this.DrawStat(Localizer.Token(4035), this.SelectedEmpire.data.MissileDodgeChance, ref TextCursor, false); 
             }
-			this.close.Draw(base.ScreenManager);
+			this.close.Draw(spriteBatch);
 			if (base.IsActive)
 			{
 				ToolTip.Draw(base.ScreenManager.SpriteBatch);
@@ -1078,7 +1078,7 @@ namespace Ship_Game
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1600)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle leftRect = new Rectangle((int)screenWidth / 2 - 640, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
 			this.DMenu = new Menu2(leftRect);
-			this.close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+			this.close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
 			this.SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
 			this.IntelligenceRect = new Rectangle(this.SelectedInfoRect.X + this.SelectedInfoRect.Width + 30, this.SelectedInfoRect.Y, 368, 376);
 			this.OperationsRect = new Rectangle(this.IntelligenceRect.X + this.IntelligenceRect.Width + 30, this.SelectedInfoRect.Y, 368, 376);

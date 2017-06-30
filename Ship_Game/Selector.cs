@@ -19,7 +19,7 @@ namespace Ship_Game
 
 		private readonly Color Fill;
 
-		public Selector(Rectangle theMenu) : base(Vector2.Zero)
+		public Selector(Rectangle theMenu) : base(null, Vector2.Zero)
 		{
 			theMenu.X = theMenu.X - 15;
 			theMenu.Y = theMenu.Y - 5;
@@ -27,12 +27,12 @@ namespace Ship_Game
             Initialize(theMenu);
 		}
 
-		public Selector(Rectangle theMenu, bool useRealRect) : base(Vector2.Zero)
+		public Selector(Rectangle theMenu, bool useRealRect) : base(null, Vector2.Zero)
 		{
 		    Initialize(theMenu);
 		}
 
-		public Selector(Rectangle theMenu, Color fillColor) : base(Vector2.Zero)
+		public Selector(Rectangle theMenu, Color fillColor) : base(null, Vector2.Zero)
 		{
 			Fill = fillColor;
 		    Initialize(theMenu);
@@ -78,16 +78,10 @@ namespace Ship_Game
             VR = new Rectangle(x + w - 2, y + TR.Height - 2, 2, h - BR.Height - 2);
         }
 
-
-	    public void Layout(Vector2 pos)
-	    {
-	        throw new NotImplementedException();
-	    }
-
 	    public override void Draw(SpriteBatch spriteBatch)
 		{
-            int x = Rect.X,     y = Rect.Y;
-            int w = Rect.Width, h = Rect.Height;
+            int x = (int)X,     y = (int)Y;
+            int w = (int)Width, h = (int)Height;
 			var upperleft  = new Rectangle(x, y, 24, 24);
 		    var upperRight = new Rectangle(x + w - 24, y, 24, 24);
 		    var lowerLeft  = new Rectangle(x, y + h - 24, 24, 24);
@@ -121,6 +115,12 @@ namespace Ship_Game
 	    public override bool HandleInput(InputState input)
 	    {
 	        return false;
+	    }
+
+	    public override void PerformLegacyLayout(Vector2 pos)
+	    {
+            Pos = pos;
+            Initialize(Rect);
 	    }
 	}
 }

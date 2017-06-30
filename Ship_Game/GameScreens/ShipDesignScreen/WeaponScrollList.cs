@@ -19,6 +19,12 @@ namespace Ship_Game
             Screen = shipDesignScreen;
             Input = Screen.Input;
         }
+
+        private void DestroySelectionBox()
+        {
+            SelectionBox?.RemoveFromParent();
+            SelectionBox = null;
+        }
         public override bool HandleInput(InputState input)
         {
             base.HandleInput(input);
@@ -29,7 +35,7 @@ namespace Ship_Game
 
             if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
             {
-                SelectionBox = null;
+                DestroySelectionBox();
                 return false;
             }
             for (int index = indexAtTop;
@@ -43,11 +49,11 @@ namespace Ship_Game
                 {
                     if (moduleHeader.HandleInput(input, e))
                     {
-                        SelectionBox = null;
+                        DestroySelectionBox();
                         return true;
                     }
                     if (moduleHeader.Hover)
-                        SelectionBox = null;
+                        DestroySelectionBox();
                 }
                 else if (e.clickRect.HitTest(input.CursorPosition))
                 {

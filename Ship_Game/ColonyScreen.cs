@@ -103,7 +103,7 @@ namespace Ship_Game
             this.RightMenu = new Menu1(theMenu3);
             var iconMoney = ResourceManager.TextureDict["NewUI/icon_money"];
             this.MoneyRect = new Rectangle(theMenu2.X + theMenu2.Width - 75, theMenu2.Y + 20, iconMoney.Width, iconMoney.Height);
-            this.close = new CloseButton(new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
+            this.close = new CloseButton(this, new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
             Rectangle theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
             this.PlanetInfo = new Submenu(theMenu4);
             this.PlanetInfo.AddTab(Localizer.Token(326));
@@ -220,7 +220,7 @@ namespace Ship_Game
                 this.detailInfo = (object)p.Description;
                 Rectangle rectangle4 = new Rectangle(this.pDescription.Menu.X + 10, this.pDescription.Menu.Y + 30, 124, 148);
                 Rectangle rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
-                this.GovernorDropdown = new DropOptions<int>(new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
+                this.GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 this.GovernorDropdown.AddOption("--", 1);
                 this.GovernorDropdown.AddOption(Localizer.Token(4064), 0);
                 this.GovernorDropdown.AddOption(Localizer.Token(4065), 2);
@@ -249,10 +249,10 @@ namespace Ship_Game
                 }
 
                 // @todo add localization
-                GovBuildings = new UICheckBox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing * 2 + 15, 
+                GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing * 2 + 15, 
                                             () => p.GovBuildings, Fonts.Arial12Bold, "Governor manages buildings", 0);
 
-                GovSliders = new UICheckBox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing + 10,
+                GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing + 10,
                                           () => p.GovSliders, Fonts.Arial12Bold, "Governor manages labor sliders", 0);
             }
             else
@@ -1232,7 +1232,7 @@ namespace Ship_Game
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
 
-                GovernorDropdown.SetPos(vector2_3.X, vector2_3.Y + Fonts.Arial12Bold.LineSpacing + 5);
+                GovernorDropdown.SetAbsPos(vector2_3.X, vector2_3.Y + Fonts.Arial12Bold.LineSpacing + 5);
                 GovernorDropdown.Reset();
                 GovernorDropdown.Draw(ScreenManager.SpriteBatch);
             }
@@ -1284,7 +1284,7 @@ namespace Ship_Game
             if (this.ScreenManager.NumScreens == 2)
                 popup = true;
 
-            this.close.Draw(this.ScreenManager);
+            this.close.Draw(spriteBatch);
 
             if (this.foodStorageIcon.HitTest(pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(73);

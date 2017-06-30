@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
@@ -19,6 +14,7 @@ namespace Ship_Game
         public Color Color = Color.White;
         public Color Highlight = UIColors.LightBeige;
 
+        public bool DropShadow = false;
         public bool IsMouseOver { get; private set; }
 
         public string Text
@@ -42,18 +38,18 @@ namespace Ship_Game
         }
 
 
-        public UILabel(Vector2 pos, string text, SpriteFont font) : base(pos, font.MeasureString(text))
+        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font) : base(parent, pos, font.MeasureString(text))
         {
             LabelText = text;
             LabelFont = font;
         }
-        public UILabel(Vector2 pos, int localization, SpriteFont font) : this(pos, Localizer.Token(localization), font)
+        public UILabel(UIElementV2 parent, Vector2 pos, int localization, SpriteFont font) : this(parent, pos, Localizer.Token(localization), font)
         {
         }
-        public UILabel(Vector2 pos, int localization) : this(pos, Localizer.Token(localization), Fonts.Arial12Bold)
+        public UILabel(UIElementV2 parent, Vector2 pos, int localization) : this(parent, pos, Localizer.Token(localization), Fonts.Arial12Bold)
         {
         }
-        public UILabel(Vector2 pos, string text) : this(pos, text, Fonts.Arial12Bold)
+        public UILabel(UIElementV2 parent, Vector2 pos, string text) : this(parent, pos, text, Fonts.Arial12Bold)
         {
         }
 
@@ -61,10 +57,14 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (LabelText.NotEmpty())
-            {
-                spriteBatch.DrawString(LabelFont, LabelText, Pos, IsMouseOver ? Highlight : Color);
-            }
+            if (LabelText.IsEmpty())
+                return;
+
+            Color color = IsMouseOver ? Highlight : Color;
+            if (DropShadow)
+                HelperFunctions.DrawDropShadowText(spriteBatch, LabelText, Pos, LabelFont, color);
+            else
+                spriteBatch.DrawString(LabelFont, LabelText, Pos, color);
         }
 
         public override bool HandleInput(InputState input)
@@ -89,6 +89,11 @@ namespace Ship_Game
             }
             IsMouseOver = false;
             return false;
+        }
+
+        public override void PerformLegacyLayout(Vector2 pos)
+        {
+            Pos = pos;
         }
     }
 }
