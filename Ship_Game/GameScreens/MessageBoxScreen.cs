@@ -26,8 +26,8 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Ok     = ButtonSmall(0f, 0f, "OK", localization: 15);
-            Cancel = ButtonSmall(0f, 0f, "Cancel", localization:16);
+            Ok     = ButtonSmall(0f, 0f, "OK", titleId: 15);
+            Cancel = ButtonSmall(0f, 0f, "Cancel", titleId:16);
         }
 
         public MessageBoxScreen(GameScreen parent, int localID, string oktext, string canceltext)
@@ -57,8 +57,8 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Ok     = ButtonSmall(0f, 0f, "OK", localization: 15);
-            Cancel = ButtonSmall(0f, 0f, "Cancel", localization:16);
+            Ok     = ButtonSmall(0f, 0f, "OK", titleId: 15);
+            Cancel = ButtonSmall(0f, 0f, "Cancel", titleId:16);
         }
 
         public MessageBoxScreen(GameScreen parent, string message, bool pauseMenu) : this(parent, message)

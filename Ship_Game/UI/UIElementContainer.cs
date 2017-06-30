@@ -23,7 +23,11 @@ namespace Ship_Game
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
 
         // @todo Remove this list of buttons. It's purely for backwards compatibility
-        protected readonly Array<UIButton>    Buttons  = new Array<UIButton>();
+        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
+
+        protected bool LayoutStarted = false;
+        protected Vector2 LayoutCursor = Vector2.Zero;
+        protected Vector2 LayoutStep = Vector2.Zero;
 
         public LayoutStyle Layout
         {
@@ -37,7 +41,7 @@ namespace Ship_Game
             }
         }
 
-        public bool IsEvenLayout => CurrentLayout == LayoutStyle.HorizontalEven 
+        public bool IsEvenLayout => CurrentLayout == LayoutStyle.HorizontalEven
                                  || CurrentLayout == LayoutStyle.VerticalEven;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +83,7 @@ namespace Ship_Game
                 case LayoutStyle.HorizontalEven:
                 case LayoutStyle.HorizontalPacked: return new Vector2(1f, 0f);
                 case LayoutStyle.VerticalEven:
-                case LayoutStyle.VerticalPacked:   return new Vector2(0f, 1f);
+                case LayoutStyle.VerticalPacked: return new Vector2(0f, 1f);
             }
         }
 
@@ -105,7 +109,7 @@ namespace Ship_Game
             if (IsEvenLayout)
             {
                 Vector2 adjustedSize = Size - Margin * Elements.Count;
-                Vector2 evenSpacing  = (adjustedSize / Elements.Count) + Margin;
+                Vector2 evenSpacing = (adjustedSize / Elements.Count) + Margin;
                 for (int i = 0; i < Elements.Count; ++i)
                 {
                     UIElementV2 e = Elements[i];
@@ -158,34 +162,71 @@ namespace Ship_Game
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
+        public void BeginLayout(float x, float y)
+        {
+            LayoutStarted = true;
+            LayoutCursor = new Vector2(x, y);
+            LayoutStep = new Vector2(15f, 15f);
+        }
+
+        public void BeginVLayout(float x, float y, float ystep = 15f)
+        {
+            LayoutStarted = true;
+            LayoutCursor = new Vector2(x, y);
+            LayoutStep = new Vector2(0f, ystep);
+        }
+
+        public void BeginVLayout(Vector2 pos, float ystep = 15f)
+        {
+            LayoutStarted = true;
+            LayoutCursor = pos;
+            LayoutStep = new Vector2(0f, ystep);
+        }
+
+        public void EndLayout()
+        {
+            LayoutStarted = false;
+        }
+
+        private Vector2 LayoutNext()
+        {
+            if (!LayoutStarted)
+                throw new InvalidOperationException("You must call BeginLayout befor calling auto-layout methods");
+
+            Vector2 result = LayoutCursor;
+            LayoutCursor += LayoutStep;
+            return result;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Shared utility functions:
-        protected UIButton Button(Vector2 pos, string launches, int localization)
-            => Add(new UIButton(this, pos, launches, Localizer.Token(localization)));
+        protected UIButton Button(Vector2 pos, string launches, int titleId)
+            => Add(new UIButton(this, pos, launches, Localizer.Token(titleId)));
         protected UIButton Button(Vector2 pos, string launches, string text)
             => Add(new UIButton(this, pos, launches, text));
 
-        protected UIButton Button(Vector2 pos, int localization, UIButton.ClickHandler click)
+        protected UIButton Button(int titleId, UIButton.ClickHandler click)
         {
-            return Button(pos, Localizer.Token(localization), click);
+            return Button(Localizer.Token(titleId), click);
         }
-        protected UIButton Button(Vector2 pos, string text, UIButton.ClickHandler click)
+        protected UIButton Button(string text, UIButton.ClickHandler click)
         {
-            UIButton button = Add(new UIButton(this, pos, text));
+            UIButton button = Add(new UIButton(this, LayoutNext(), text));
             button.OnClick += click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
         }
 
 
-        protected UIButton Button(float x, float y, string launches, int localization)
-            => Add(new UIButton(this, x, y, launches, Localizer.Token(localization)));
+        protected UIButton Button(float x, float y, string launches, int titleId)
+            => Add(new UIButton(this, x, y, launches, Localizer.Token(titleId)));
         protected UIButton Button(float x, float y, string launches, string text)
             => Add(new UIButton(this, x, y, launches, text));
 
-        protected UIButton Button(ButtonStyle style, float x, float y, string launches, int localization)
-            => Add(new UIButton(this, style, x, y, launches, Localizer.Token(localization)));
+        protected UIButton Button(ButtonStyle style, float x, float y, string launches, int titleId)
+            => Add(new UIButton(this, style, x, y, launches, Localizer.Token(titleId)));
         protected UIButton Button(ButtonStyle style, float x, float y, string launches, string text)
             => Add(new UIButton(this, style, x, y, launches, text));
 
@@ -193,30 +234,30 @@ namespace Ship_Game
             => Add(new UIButton(this, style, x, y));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        
-        
-        protected UIButton ButtonSmall(float x, float y, string launches, int localization)
-            => Add(new UIButton(this, ButtonStyle.Small, x, y, launches, Localizer.Token(localization)));
+
+
+        protected UIButton ButtonSmall(float x, float y, string launches, int titleId)
+            => Add(new UIButton(this, ButtonStyle.Small, x, y, launches, Localizer.Token(titleId)));
         protected UIButton ButtonSmall(float x, float y, string launches, string text)
             => Add(new UIButton(this, ButtonStyle.Small, x, y, launches, text));
 
-        protected UIButton ButtonLow(float x, float y, string launches, int localization)
-            => Add(new UIButton(this, ButtonStyle.Low80, x, y, launches, Localizer.Token(localization)));
+        protected UIButton ButtonLow(float x, float y, string launches, int titleId)
+            => Add(new UIButton(this, ButtonStyle.Low80, x, y, launches, Localizer.Token(titleId)));
         protected UIButton ButtonLow(float x, float y, string launches, string text)
             => Add(new UIButton(this, ButtonStyle.Low80, x, y, launches, text));
 
-        protected UIButton ButtonMedium(float x, float y, string launches, int localization)
-            => Add(new UIButton(this, ButtonStyle.Medium, x, y, launches, Localizer.Token(localization)));
+        protected UIButton ButtonMedium(float x, float y, string launches, int titleId)
+            => Add(new UIButton(this, ButtonStyle.Medium, x, y, launches, Localizer.Token(titleId)));
         protected UIButton ButtonMedium(float x, float y, string launches, string text)
             => Add(new UIButton(this, ButtonStyle.Medium, x, y, launches, text));
 
-        protected UIButton ButtonMediumMenu(float x, float y, string launches, int localization)
-            => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, launches, Localizer.Token(localization)));
+        protected UIButton ButtonMediumMenu(float x, float y, string launches, int titleId)
+            => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, launches, Localizer.Token(titleId)));
         protected UIButton ButtonMediumMenu(float x, float y, string launches, string text)
             => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, launches, text));
 
-        protected UIButton ButtonDip(float x, float y, string launches, int localization)
-            => Add(new UIButton(this, ButtonStyle.BigDip, x, y, launches, Localizer.Token(localization)));
+        protected UIButton ButtonDip(float x, float y, string launches, int titleId)
+            => Add(new UIButton(this, ButtonStyle.BigDip, x, y, launches, Localizer.Token(titleId)));
         protected UIButton ButtonDip(float x, float y, string launches, string text)
             => Add(new UIButton(this, ButtonStyle.BigDip, x, y, launches, text));
 
@@ -277,16 +318,32 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        protected UILabel Label(Vector2 pos, string text)                       => Add(new UILabel(this, pos, text));
-        protected UILabel Label(Vector2 pos, string text,      SpriteFont font) => Add(new UILabel(this, pos, text, font));
-        protected UILabel Label(Vector2 pos, int localization)                  => Add(new UILabel(this, pos, localization));
-        protected UILabel Label(Vector2 pos, int localization, SpriteFont font) => Add(new UILabel(this, pos, localization, font));
+        protected UILabel Label(Vector2 pos, string text) => Add(new UILabel(this, pos, text));
+        protected UILabel Label(Vector2 pos, int titleId) => Add(new UILabel(this, pos, titleId));
+        protected UILabel Label(Vector2 pos, string text, SpriteFont font) => Add(new UILabel(this, pos, text, font));
+        protected UILabel Label(Vector2 pos, int titleId, SpriteFont font) => Add(new UILabel(this, pos, titleId, font));
 
 
-        protected UILabel Label(float x, float y, string text)                       => Add(new UILabel(this, new Vector2(x,y), text));
-        protected UILabel Label(float x, float y, string text,      SpriteFont font) => Add(new UILabel(this, new Vector2(x,y), text, font));
-        protected UILabel Label(float x, float y, int localization)                  => Add(new UILabel(this, new Vector2(x,y), localization));
-        protected UILabel Label(float x, float y, int localization, SpriteFont font) => Add(new UILabel(this, new Vector2(x,y), localization, font));
+        protected UILabel Label(float x, float y, string text) => Label(new Vector2(x, y), text);
+        protected UILabel Label(float x, float y, int titleId) => Label(new Vector2(x, y), titleId);
+        protected UILabel Label(float x, float y, string text, SpriteFont font) => Label(new Vector2(x, y), text, font);
+        protected UILabel Label(float x, float y, int titleId, SpriteFont font) => Label(new Vector2(x, y), titleId, font);
+
+
+        protected UILabel Label(string text) => Add(new UILabel(this, LayoutNext(), text));
+        protected UILabel Label(int titleId) => Add(new UILabel(this, LayoutNext(), titleId));
+
+
+        protected UILabel Label(int titleId, UILabel.ClickHandler click)
+        {
+            return Label(Localizer.Token(titleId), click);
+        }
+        protected UILabel Label(string text, UILabel.ClickHandler click)
+        {
+            UILabel label = Add(new UILabel(this, LayoutNext(), text));
+            label.OnClick += click;
+            return label;
+        }
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
