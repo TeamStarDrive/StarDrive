@@ -19,7 +19,7 @@ namespace Ship_Game
 
 		private readonly Color Fill;
 
-		public Selector(Rectangle theMenu)
+		public Selector(Rectangle theMenu) : base(Vector2.Zero)
 		{
 			theMenu.X = theMenu.X - 15;
 			theMenu.Y = theMenu.Y - 5;
@@ -27,12 +27,12 @@ namespace Ship_Game
             Initialize(theMenu);
 		}
 
-		public Selector(Rectangle theMenu, bool useRealRect)
+		public Selector(Rectangle theMenu, bool useRealRect) : base(Vector2.Zero)
 		{
 		    Initialize(theMenu);
 		}
 
-		public Selector(Rectangle theMenu, Color fillColor)
+		public Selector(Rectangle theMenu, Color fillColor) : base(Vector2.Zero)
 		{
 			Fill = fillColor;
 		    Initialize(theMenu);

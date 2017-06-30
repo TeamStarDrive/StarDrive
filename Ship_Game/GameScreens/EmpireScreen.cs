@@ -1,11 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
@@ -350,10 +347,11 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, TextPosition, Color.White);
 			desc = Localizer.Token(388);
 			TextPosition = new Vector2((float)(this.AutoButton.X + this.AutoButton.Width / 2) - Fonts.Pirulen16.MeasureString(desc).X / 2f, (float)(this.AutoButton.Y + this.AutoButton.Height / 2 - Fonts.Pirulen16.LineSpacing / 2));
-			this.GovernorDropdown.Rect.X = (int)GovPos.X;
-			this.GovernorDropdown.Rect.Y = (int)GovPos.Y + Fonts.Arial12Bold.LineSpacing + 5;
-			this.GovernorDropdown.Reset();
-			this.GovernorDropdown.Draw(base.ScreenManager.SpriteBatch);
+
+		    GovernorDropdown.SetPos(GovPos.X, GovPos.Y + Fonts.Arial12Bold.LineSpacing + 5);
+			GovernorDropdown.Reset();
+			GovernorDropdown.Draw(ScreenManager.SpriteBatch);
+
 			if (this.ColoniesList.Entries.Count > 0)
 			{
 				EmpireScreenEntry entry = this.ColoniesList.Entries[this.ColoniesList.indexAtTop].item as EmpireScreenEntry;

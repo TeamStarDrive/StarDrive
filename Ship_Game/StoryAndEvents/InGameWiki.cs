@@ -24,7 +24,7 @@ namespace Ship_Game
         private bool HoverSmallVideo;
         public bool PlayingVideo;
 
-        public InGameWiki(GameScreen parent) : base(parent)
+        public InGameWiki(GameScreen parent) : base(parent, 750, 600)
         {
             IsPopup           = true;
             TransitionOnTime  = TimeSpan.FromSeconds(0.25);
@@ -32,10 +32,6 @@ namespace Ship_Game
             var help          = ResourceManager.GatherFilesModOrVanilla("HelpTopics/" + GlobalStats.Language,"xml");
             if (help.Length  != 0)
                 HelpTopics    = help[0].Deserialize<HelpTopics>();
-        }
-        public InGameWiki(GameScreen parent, Rectangle r) : this(parent)
-        {
-            R = r;
         }
 
         protected override void Destroy()
@@ -50,14 +46,15 @@ namespace Ship_Game
         public override void Draw(SpriteBatch spriteBatch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            DrawBase(GameTime);
+            base.Draw(spriteBatch);
+
             ScreenManager.SpriteBatch.Begin();
             HelpCategories.Draw(ScreenManager.SpriteBatch);
             Vector2 bCursor;
             for (int i = HelpCategories.indexAtTop; i < HelpCategories.Copied.Count 
                 && i < HelpCategories.indexAtTop + HelpCategories.entriesToDisplay; i++)
             {
-                bCursor = new Vector2(R.X + 35, R.Y + 20);
+                bCursor = new Vector2(Rect.X + 35, Rect.Y + 20);
                 ScrollList.Entry e = HelpCategories.Copied[i];
                 bCursor.Y = e.clickRect.Y;
                 if (!(e.item is ModuleHeader))
@@ -240,7 +237,7 @@ namespace Ship_Game
             }
             var presentation = ScreenManager.GraphicsDevice.PresentationParameters;
             
-            CategoriesRect       = new Rectangle(R.X + 25, R.Y + 130, 330, 430);
+            CategoriesRect       = new Rectangle(Rect.X + 25, Rect.Y + 130, 330, 430);
             Submenu blah         = new Submenu(CategoriesRect);
             HelpCategories       = new ScrollList(blah, 40);
             TextRect             = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
