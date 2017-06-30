@@ -448,24 +448,16 @@ namespace Ship_Game
                         ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
             StarFieldRect = new Rectangle(0, 0, (int)size.X, (int)size.Y);
 
-            var pos = new Vector2(size.X - 200, size.Y / 2 - 100);
-            var step = UIButton.StyleSize().Y + 15;
-
-            Vector2 NextPos()
-            {
-                var next = pos;
-                pos = new Vector2(pos.X, pos.Y + step);
-                return next;
-            }
-
-            Button(NextPos(), localization: 1, click:NewGameClicked);
-            Button(NextPos(), localization: 3, click:TutorialsClicked);
-            Button(NextPos(), localization: 2, click:LoadGameClicked);
-            Button(NextPos(), localization: 4, click:OptionsClicked);
-            Button(NextPos(), "Mods", click:ModsClicked);
-            Button(NextPos(), "Hull Designer", click:ShipToolClicked);
-            Button(NextPos(), "BlackBox Info", click:InfoClicked );
-            Button(NextPos(), localization: 5, click:ExitClicked);
+            BeginVLayout(size.X - 200, size.Y / 2 - 100, UIButton.StyleSize().Y + 15);
+                Button(titleId: 1,      click: NewGameClicked);
+                Button(titleId: 3,      click: TutorialsClicked);
+                Button(titleId: 2,      click: LoadGameClicked);
+                Button(titleId: 4,      click: OptionsClicked);
+                Button("Mods",          click: ModsClicked);
+                Button("Hull Designer", click: ShipToolClicked);
+                Button("BlackBox Info", click: InfoClicked);
+                Button(titleId: 5,      click: ExitClicked);
+            EndLayout();
 
             ScreenManager.ClearScene();
 

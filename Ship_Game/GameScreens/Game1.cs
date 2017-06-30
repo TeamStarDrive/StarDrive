@@ -21,9 +21,10 @@ namespace Ship_Game
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Instance.Content;
 
-        public int RenderWidth { get; private set; }
-        public int RenderHeight { get; private set; }
-        public Vector2 RenderArea => new Vector2(RenderWidth, RenderHeight);
+        public int ScreenWidth { get; private set; }
+        public int ScreenHeight { get; private set; }
+        public Vector2 ScreenArea { get; private set; }
+        public Vector2 ScreenCenter { get; private set; }
 
         public GameTime GameTime;
 
@@ -108,8 +109,13 @@ namespace Ship_Game
             Graphics.ApplyChanges();
 
             PresentationParameters p = GraphicsDevice.PresentationParameters;
-            RenderWidth  = p.BackBufferWidth;
-            RenderHeight = p.BackBufferHeight;
+            ScreenWidth  = p.BackBufferWidth;
+            ScreenHeight = p.BackBufferHeight;
+            ScreenArea   = new Vector2(ScreenWidth, ScreenHeight);
+            ScreenCenter = new Vector2(ScreenWidth * 0.5f, ScreenHeight * 0.5f);
+            Log.Info("ApplySettings(): {0}x{1}", ScreenWidth, ScreenHeight);
+
+
             Viewport     = GraphicsDevice.Viewport;
             ScreenManager?.UpdatePreferences(RenderPrefs);
             ScreenManager?.UpdateViewports();
@@ -128,11 +134,9 @@ namespace Ship_Game
 
         protected override void Initialize()
         {
-            Window.Title = "StarDrive";
-            ScreenManager = new ScreenManager(this, Graphics);
+            Window.Title = "StarDrive BlackBox";
+            ResourceManager.ScreenManager = ScreenManager = new ScreenManager(this, Graphics);
             GameAudio.Initialize("Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
-
-            ResourceManager.ScreenManager = ScreenManager;
 
             Instance = this;
             base.Initialize();

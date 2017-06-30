@@ -72,6 +72,36 @@ namespace Ship_Game
                 : "Uh what?";
         }
 
+        
+        private void AntiAliasing_OnClick(UILabel label)
+        {
+            GlobalStats.AntiAlias = GlobalStats.AntiAlias == 0 ? 2 : GlobalStats.AntiAlias * 2;
+            if (GlobalStats.AntiAlias > 8)
+                GlobalStats.AntiAlias = 0;
+            label.Text = AntiAliasString();
+        }
+
+        private void TextureQuality_OnClick(UILabel label)
+        {
+            GlobalStats.TextureQuality = GlobalStats.TextureQuality == 3 ? 0 : GlobalStats.TextureQuality + 1;
+            label.Text = QualityString(GlobalStats.TextureQuality);
+        }
+
+        private void Fullscreen_OnClick(UILabel label)
+        {
+            ++ModeToSet;
+            if (ModeToSet > WindowMode.Borderless)
+                ModeToSet = WindowMode.Fullscreen;
+            label.Text = ModeToSet.ToString();
+        }
+
+        private void EffectsQuality_OnClick(UILabel label)
+        {
+            GlobalStats.EffectDetail = GlobalStats.EffectDetail == 3 ? 0 : GlobalStats.EffectDetail + 1;
+            label.Text = QualityString(GlobalStats.EffectDetail);
+        }
+
+
         private void InitScreen()
         {
             LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 175, 300, 375);
@@ -87,24 +117,13 @@ namespace Ship_Game
             Label(x, y, $"{Localizer.Token(10)}: ");
 
             UILabel fullscreen = Label(cx, y, GlobalStats.WindowMode.ToString());
-            fullscreen.OnClick += (label)=>
-            {
-                ++ModeToSet;
-                if (ModeToSet > WindowMode.Borderless)
-                    ModeToSet = WindowMode.Fullscreen;
-                label.Text = ModeToSet.ToString();
-            };
+            fullscreen.OnClick += Fullscreen_OnClick;
+
 
             y += Fonts.Arial12Bold.LineSpacing * 1.5f;
             Label(x, y, "AntiAliasing");
             UILabel aa = Label(cx, y, AntiAliasString());
-            aa.OnClick += (label)=>
-            {
-                GlobalStats.AntiAlias = GlobalStats.AntiAlias == 0 ? 2 : GlobalStats.AntiAlias * 2;
-                if (GlobalStats.AntiAlias > 8)
-                    GlobalStats.AntiAlias = 0;
-                aa.Text = AntiAliasString();
-            };
+            aa.OnClick += AntiAliasing_OnClick;
 
             y += Fonts.Arial12Bold.LineSpacing * 1.5f;
             Label(x, y, "Texture Quality");
@@ -157,15 +176,8 @@ namespace Ship_Game
             y += Fonts.Arial12Bold.LineSpacing * 1.5f;
             Label(x, y, "Effects Quality");
             UILabel eq = Label(cx, y, QualityString(GlobalStats.EffectDetail));
-            eq.OnClick += (label) =>
-            {
+            eq.OnClick += EffectsQuality_OnClick;
 
-                GlobalStats.EffectDetail = GlobalStats.EffectDetail == 3
-                ? 0
-                : GlobalStats.EffectDetail + 1;
-
-                eq.Text = QualityString(GlobalStats.EffectDetail);
-            };
 
             y += Fonts.Arial12Bold.LineSpacing * 2;
             var pos = new Vector2(cx, y);
@@ -207,7 +219,7 @@ namespace Ship_Game
                                 "Send automatic error reports to Blackbox developers");
 
 
-            UIButton apply = Button(RightArea.X, RightArea.Y + RightArea.Height + 60, "Apply Settings", localization:13);
+            UIButton apply = Button(RightArea.X, RightArea.Y + RightArea.Height + 60, "Apply Settings", titleId:13);
             apply.OnClick += button => ApplySettings();
 
             CreateResolutionDropOptions(startY);
