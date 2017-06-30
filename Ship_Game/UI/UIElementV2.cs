@@ -41,6 +41,9 @@ namespace Ship_Game
         public float Height { get => Size.Y; set => Size.Y = value; }
 
 
+        // Elements are sorted by ZOrder during EndLayout()
+        public int ZOrder;
+
         public void SetAbsPos(float x, float y)
         {
             Pos = new Vector2(x, y);
