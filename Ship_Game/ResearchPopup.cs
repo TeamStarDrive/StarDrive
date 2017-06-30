@@ -12,29 +12,20 @@ namespace Ship_Game
 
 		public bool FromGame;
 
-		private UniverseScreen screen;
-
 		public string TechUID;
 
 		private ScrollList UnlockSL;
 
 		private Rectangle UnlocksRect;
         
-		public ResearchPopup(UniverseScreen s, Rectangle dimensions, string uid) : base(s)
+		public ResearchPopup(UniverseScreen s, string uid) : base(s, 600, 600)
 		{
-			if (!GlobalStats.IsEnglish)
-			{
-				dimensions.X = dimensions.X - 20;
-				dimensions.Width = dimensions.Width + 40;
-			}
 			this.TechUID = uid;
-			this.screen = s;
 			this.fade = true;
 			base.IsPopup = true;
 			this.FromGame = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
-			this.R = dimensions;
             this.TitleText = string.Concat(Localizer.Token(ResourceManager.TechTree[uid].NameIndex), 
                 ResourceManager.TechTree[uid].MaxLevel > 1 ? " " + 
                 NumberToRomanConvertor.NumberToRoman(EmpireManager.Player.TechnologyDict[uid].Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
@@ -45,8 +36,11 @@ namespace Ship_Game
         {
             if (this.fade)
                 this.ScreenManager.FadeBackBufferToBlack((int)this.TransitionAlpha * 2 / 3);
-            //draw frame, name and description
-            this.DrawBase(GameTime);
+
+
+            base.Draw(spriteBatch);
+
+
             this.ScreenManager.SpriteBatch.Begin();
             //draw some scroll bar? never actually seen
             this.UnlockSL.Draw(this.ScreenManager.SpriteBatch);
@@ -158,7 +152,7 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			base.LoadContent();
-			this.UnlocksRect = new Rectangle(this.MidContainer.X + 20, this.MidContainer.Y + this.MidContainer.Height - 20, this.R.Width - 40, this.R.Height - this.MidContainer.Height - this.TitleRect.Height - 20);
+			this.UnlocksRect = new Rectangle(this.MidContainer.X + 20, this.MidContainer.Y + this.MidContainer.Height - 20, this.Rect.Width - 40, this.Rect.Height - this.MidContainer.Height - this.TitleRect.Height - 20);
 			Submenu UnlocksSubMenu = new Submenu(this.UnlocksRect);
 			this.UnlockSL = new ScrollList(UnlocksSubMenu, 100);
 			Technology unlockedTech = ResourceManager.TechTree[this.TechUID];

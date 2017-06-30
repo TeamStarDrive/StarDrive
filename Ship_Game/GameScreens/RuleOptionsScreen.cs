@@ -2,9 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
@@ -35,28 +33,32 @@ namespace Ship_Game
 		public override void Draw(SpriteBatch spriteBatch)
 		{
 			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-			ScreenManager.SpriteBatch.Begin();
+		    spriteBatch.Begin();
 			MainMenu.Draw(Color.Black);
 
 			var titlePos = new Vector2(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "Advanced Rule Options", titlePos, Color.White);
-			titlePos.Y += Fonts.Arial20Bold.LineSpacing + 2;
-			string text = Localizer.Token(2289);
-			text = HelperFunctions.ParseText(Fonts.Arial12, text, MainMenu.Menu.Width - 80);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, titlePos, Color.White);
+		    spriteBatch.DrawString(Fonts.Arial20Bold, "Advanced Rule Options", titlePos, Color.White);
 
-			FTLPenaltySlider      .DrawPercent(ScreenManager);
-            EnemyFTLPenaltySlider .DrawPercent(ScreenManager);
-            GravityWellSize       .DrawDecimal(ScreenManager);
-            extraPlanets          .DrawDecimal(ScreenManager);
-            IncreaseMaintenance   .DrawDecimal(ScreenManager);
-            MinimumWarpRange      .DrawDecimal(ScreenManager);
-            StartingPlanetRichness.DrawDecimal(ScreenManager);
-            TurnTimer             .DrawDecimal(ScreenManager);
+			titlePos.Y += Fonts.Arial20Bold.LineSpacing + 2;
+
+		    string text = HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token(2289), MainMenu.Menu.Width - 80);
+		    spriteBatch.DrawString(Fonts.Arial12, text, titlePos, Color.White);
+
+			FTLPenaltySlider      .Draw(spriteBatch);
+            EnemyFTLPenaltySlider .Draw(spriteBatch);
+            GravityWellSize       .Draw(spriteBatch);
+            extraPlanets          .Draw(spriteBatch);
+            IncreaseMaintenance   .Draw(spriteBatch);
+            MinimumWarpRange      .Draw(spriteBatch);
+            StartingPlanetRichness.Draw(spriteBatch);
+            TurnTimer             .Draw(spriteBatch);
+
 			close.Draw(ScreenManager);
-			foreach (var cb in Checkboxes) cb.Draw(ScreenManager.SpriteBatch);
-			ToolTip.Draw(ScreenManager.SpriteBatch);
-			ScreenManager.SpriteBatch.End();
+			foreach (UICheckBox cb in Checkboxes)
+                cb.Draw(spriteBatch);
+
+			ToolTip.Draw(spriteBatch);
+		    spriteBatch.End();
 		}
 
 	
@@ -92,14 +94,14 @@ namespace Ship_Game
             StartingPlanetRichness.HandleInput(input);
             TurnTimer.HandleInput(input);
 
-            GlobalStats.FTLInSystemModifier      = FTLPenaltySlider.Amount;
-            GlobalStats.EnemyFTLInSystemModifier = EnemyFTLPenaltySlider.Amount;
-            GlobalStats.GravityWellRange         = GravityWellSize.AmountRange; //amount replaced with amountRange
-            GlobalStats.ExtraPlanets             = (int)extraPlanets.AmountRange;
-            GlobalStats.MinimumWarpRange         = MinimumWarpRange.AmountRange;
-            GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.AmountRange;
-            GlobalStats.StartingPlanetRichness   = StartingPlanetRichness.AmountRange;
-            GlobalStats.TurnTimer                = (byte)TurnTimer.AmountRange;
+            GlobalStats.FTLInSystemModifier      = FTLPenaltySlider.RelativeValue;
+            GlobalStats.EnemyFTLInSystemModifier = EnemyFTLPenaltySlider.RelativeValue;
+            GlobalStats.GravityWellRange         = GravityWellSize.AbsoluteValue; //amount replaced with amountRange
+            GlobalStats.ExtraPlanets             = (int)extraPlanets.AbsoluteValue;
+            GlobalStats.MinimumWarpRange         = MinimumWarpRange.AbsoluteValue;
+            GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.AbsoluteValue;
+            GlobalStats.StartingPlanetRichness   = StartingPlanetRichness.AbsoluteValue;
+            GlobalStats.TurnTimer                = (byte)TurnTimer.AbsoluteValue;
 
             return false;
 		}
@@ -129,11 +131,13 @@ namespace Ship_Game
 
             var ftlRect = new Rectangle(x, leftRect.Y + 100, 270, 50);
 			FTLPenaltySlider = new FloatSlider(ftlRect, Localizer.Token(4007));
-			FTLPenaltySlider.Amount = GlobalStats.FTLInSystemModifier;
+            FTLPenaltySlider.Style = SliderStyle.Percent;
+			FTLPenaltySlider.RelativeValue = GlobalStats.FTLInSystemModifier;
 
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
             EnemyFTLPenaltySlider = new FloatSlider(eftlRect, text:6139);
-            EnemyFTLPenaltySlider.Amount = GlobalStats.EnemyFTLInSystemModifier;
+		    EnemyFTLPenaltySlider.Style = SliderStyle.Percent;
+            EnemyFTLPenaltySlider.RelativeValue = GlobalStats.EnemyFTLInSystemModifier;
 
             Checkboxes.Clear();
             Checkbox(ftlRect.X, ftlRect.Y + 100, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);

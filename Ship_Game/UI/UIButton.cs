@@ -24,8 +24,8 @@ namespace Ship_Game
         }
         public PressState State  = PressState.Default;
         public ButtonStyle Style = ButtonStyle.Default;
-        public string Text     = "";
-        public string Launches = "";
+        public string Text;
+        public string Launches;
         public readonly Color DefaultColor = new Color(255, 240, 189);
         public readonly Color HoverColor   = new Color(255, 240, 189);
         public readonly Color PressColor   = new Color(255, 240, 189);
@@ -39,28 +39,21 @@ namespace Ship_Game
         public delegate void ClickHandler(UIButton button);
         public event ClickHandler OnClick;
 
-        public UIButton(Vector2 size)
-        {
-            Size = size;
-        }
-
-        public UIButton(float x = 0f, float y = 0f, string launches = "", string text = "")
+        public UIButton(float x = 0f, float y = 0f, string launches = "", string text = "") : base(new Vector2(x, y))
         {
             InitializeStyles();
-            Text = text;
+            Text     = text;
             Launches = launches;
-            Pos  = new Vector2(x, y);
-            Size = ButtonTexture().Size();
+            Size     = ButtonTexture().Size();
         }
 
-        public UIButton(ButtonStyle style, float x = 0f, float y = 0f, string launches = "", string text = "")
+        public UIButton(ButtonStyle style, float x = 0f, float y = 0f, string launches = "", string text = "") : base(new Vector2(x, y))
         {
             InitializeStyles();
-            Style = style;
-            Text = text;
+            Style    = style;
+            Text     = text;
             Launches = launches;
-            Pos  = new Vector2(x, y);
-            Size = ButtonTexture().Size();
+            Size     = ButtonTexture().Size();
         }
 
 
@@ -177,5 +170,7 @@ namespace Ship_Game
             State = PressState.Hover;
             return false;
         }
+
+        public override string ToString() => $"Button '{Launches}' visible:{Visible} enabled:{Enabled} state:{State}";
     }
 }

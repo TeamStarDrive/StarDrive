@@ -8,28 +8,33 @@ namespace Ship_Game
 {
     using BoolExpression = Expression<Func<bool>>;
 
-	public sealed class UICheckBox : UIElementV2
-	{
-		private readonly SpriteFont Font;
+    public sealed class UICheckBox : UIElementV2
+    {
+        private readonly SpriteFont Font;
         private readonly string Text;
         private readonly string TipText;
         private readonly Ref<bool> Binding;
 
-		private readonly Vector2 TextPos;
-		private readonly Vector2 CheckPos;
+        private readonly Vector2 TextPos;
+        private readonly Vector2 CheckPos;
 
-		public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
-		{
-		    Binding = binding;
-			Font    = font;
+        private static Rectangle CreateRect(float x, float y, SpriteFont font)
+        {
+            return new Rectangle((int)x, (int)y + (font.LineSpacing + 6) / 2 - 5, 10, 10);
+        }
+
+        public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
+            : base(CreateRect(x, y, font))
+        {
+            Binding = binding;
+            Font    = font;
             Text    = title;
             TipText = tooltip;
-		    var bounds = new Rectangle((int)x, (int)y, (int)font.MeasureString(title).X + 32, font.LineSpacing + 6);
-		    Rect       = new Rectangle(bounds.X + 15, bounds.Y + bounds.Height / 2 - 5, 10, 10);
-			TextPos    = new Vector2(Rect.X + 15, Rect.Y + Rect.Height / 2 - font.LineSpacing / 2);
-			CheckPos   = new Vector2(Rect.X + 5 - font.MeasureString("x").X / 2f, 
-			                         Rect.Y + 4 - font.LineSpacing / 2);
-		}
+            TextPos  = new Vector2(Rect.X + 15, Rect.Y + Rect.Height / 2 - font.LineSpacing / 2);
+            CheckPos = new Vector2(Rect.X + 5 - font.MeasureString("x").X / 2f, 
+                                   Rect.Y + 4 - font.LineSpacing / 2);
+        }
+
         public UICheckBox(float x, float y, BoolExpression binding, SpriteFont font, string title, string tooltip)
             : this(x, y, new Ref<bool>(binding), font, title, tooltip)
         {
@@ -51,34 +56,30 @@ namespace Ship_Game
         {
         }
 
-	    public void Layout(Vector2 pos)
-	    {
-	        Rect = new Rectangle((int)pos.X, (int)pos.Y, Rect.Width, Rect.Height);
-	    }
-
         public override void Draw(SpriteBatch spriteBatch)
-		{
-			if (Rect.HitTest(Mouse.GetState().Pos()) && !TipText.IsEmpty())
-			{
-				ToolTip.CreateTooltip(TipText);
-			}
-		    spriteBatch.DrawRectangle(Rect, new Color(96, 81, 49));
-		    spriteBatch.DrawString(Font, Text, TextPos, Color.White);
-			if (Binding.Value)
-			{
-			    spriteBatch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);
-			}
-		}
+        {
+            if (Rect.HitTest(Mouse.GetState().Pos()) && !TipText.IsEmpty())
+            {
+                ToolTip.CreateTooltip(TipText);
+            }
+            spriteBatch.DrawRectangle(Rect, new Color(96, 81, 49));
+            spriteBatch.DrawString(Font, Text, TextPos, Color.White);
+            if (Binding.Value)
+            {
+                spriteBatch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);
+            }
+        }
 
-		public override bool HandleInput(InputState input)
-		{
-			if (Rect.HitTest(input.CursorPosition) && input.LeftMouseClick)
-			{
-				Binding.Value = !Binding.Value;
+        public override bool HandleInput(InputState input)
+        {
+            if (Rect.HitTest(input.CursorPosition) && input.LeftMouseClick)
+            {
+                Binding.Value = !Binding.Value;
                 return true;
-			}
-			return false;
-		}
+            }
+            return false;
+        }
 
-	}
+        public override string ToString() => $"Checkbox '{Text}' value:{Binding.Value}";
+    }
 }

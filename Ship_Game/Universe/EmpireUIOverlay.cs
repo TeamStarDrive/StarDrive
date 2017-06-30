@@ -573,7 +573,7 @@ namespace Ship_Game
 			if (input.KeysCurr.IsKeyDown(Keys.P) && !input.KeysPrev.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
 			{
 				GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-				InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
+				InGameWiki wiki = new InGameWiki(Empire.Universe)
 				{
 					TitleText = Localizer.Token(2304),
 					MiddleText = Localizer.Token(2303)
@@ -720,7 +720,7 @@ namespace Ship_Game
 					else if (str5 == "?")
 					{
 						GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-						InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
+						InGameWiki wiki = new InGameWiki(Empire.Universe)
 						{
 							TitleText = Localizer.Token(2304),
 							MiddleText = Localizer.Token(2303)
@@ -842,7 +842,7 @@ namespace Ship_Game
 					else if (str3 == "?")
 					{
 						GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-						InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
+						InGameWiki wiki = new InGameWiki(Empire.Universe)
 						{
 							TitleText = "StarDrive Help",
 							MiddleText = "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."

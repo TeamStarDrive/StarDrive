@@ -33,11 +33,11 @@ namespace Ship_Game
 
 		public Rectangle MoneyRect;
 
-		private ColonyScreen.Slider SliderFood;
+		private ColonyScreen.ColonySlider ColonySliderFood;
 
-		private ColonyScreen.Slider SliderProd;
+		private ColonyScreen.ColonySlider ColonySliderProd;
 
-		private ColonyScreen.Slider SliderRes;
+		private ColonyScreen.ColonySlider ColonySliderRes;
 
 		private ColonyScreen.Lock FoodLock;
 
@@ -123,14 +123,14 @@ namespace Ship_Game
 				width = width + 1f;
 			}
 			Rectangle foodRect = new Rectangle(this.SliderRect.X + 10, this.SliderRect.Y + (int)(0.25 * (double)this.SliderRect.Height), (int)width, 6);
-			this.SliderFood = new ColonyScreen.Slider();
+			this.ColonySliderFood = new ColonyScreen.ColonySlider();
 			
-				this.SliderFood.sRect = foodRect;
-                this.SliderFood.amount = this.p.FarmerPercentage;
+				this.ColonySliderFood.sRect = foodRect;
+                this.ColonySliderFood.amount = this.p.FarmerPercentage;
 			
 			this.FoodLock = new ColonyScreen.Lock();
 
-            this.FoodLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 10, this.SliderFood.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
+            this.FoodLock.LockRect = new Rectangle(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width + 10, this.ColonySliderFood.sRect.Y + 2 + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
 			
 			if (this.p.Owner.data.Traits.Cybernetic != 0)
 			{
@@ -138,25 +138,25 @@ namespace Ship_Game
 			}
 			this.FoodLock.Locked = this.p.FoodLocked;
 			Rectangle prodRect = new Rectangle(this.SliderRect.X + 10, this.SliderRect.Y + (int)(0.5 * (double)this.SliderRect.Height), (int)width, 6);
-			this.SliderProd = new ColonyScreen.Slider()
+			this.ColonySliderProd = new ColonyScreen.ColonySlider()
 			{
 				sRect = prodRect,
 				amount = this.p.WorkerPercentage
 			};
 			this.ProdLock = new ColonyScreen.Lock()
 			{
-				LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 10, this.SliderProd.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height),
+				LockRect = new Rectangle(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width + 10, this.ColonySliderProd.sRect.Y + 2 + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height),
 				Locked = this.p.ProdLocked
 			};
 			Rectangle resRect = new Rectangle(this.SliderRect.X + 10, this.SliderRect.Y + (int)(0.75 * (double)this.SliderRect.Height), (int)width, 6);
-			this.SliderRes = new ColonyScreen.Slider()
+			this.ColonySliderRes = new ColonyScreen.ColonySlider()
 			{
 				sRect = resRect,
 				amount = this.p.ResearcherPercentage
 			};
 			this.ResLock = new ColonyScreen.Lock()
 			{
-				LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 10, this.SliderRes.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height),
+				LockRect = new Rectangle(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width + 10, this.ColonySliderRes.sRect.Y + 2 + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height),
 				Locked = this.p.ResLocked
 			};
 			this.FoodStorage = new ProgressBar(new Rectangle(this.StorageRect.X + 50, this.SliderRect.Y + (int)(0.25 * (double)this.SliderRect.Height), (int)(0.4f * (float)this.StorageRect.Width), 18))
@@ -366,21 +366,21 @@ namespace Ship_Game
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 vector2 = new Vector2(x, (float)state.Y);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)(this.SliderFood.amount * (float)this.SliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderFood.sRect.X, this.SliderFood.sRect.Y, (int)(this.SliderFood.amount * (float)this.SliderFood.sRect.Width), 6)), (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
-			ScreenManager.SpriteBatch.DrawRectangle(this.SliderFood.sRect, this.SliderFood.Color);
-			if (this.SliderFood.cState != "normal")
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6)), (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+			ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderFood.sRect, this.ColonySliderFood.Color);
+			if (this.ColonySliderFood.cState != "normal")
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.SliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.ColonySliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
 			}
 			else
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.ColonySliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
 			}
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2((float)(this.SliderFood.sRect.X + this.SliderFood.sRect.Width / 10 * i), (float)(this.SliderFood.sRect.Y + this.SliderFood.sRect.Height + 2));
-				if (this.SliderFood.state != "normal")
+				tickCursor = new Vector2((float)(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width / 10 * i), (float)(this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height + 2));
+				if (this.ColonySliderFood.state != "normal")
 				{
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute_hover"], tickCursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
 				}
@@ -389,7 +389,7 @@ namespace Ship_Game
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
 				}
 			}
-			Vector2 textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.SliderFood.sRect.Y + this.SliderFood.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
 				float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.consumption;
@@ -409,20 +409,20 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, Color.LightPink);
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_brown"], new Rectangle(this.SliderProd.sRect.X, this.SliderProd.sRect.Y, (int)(this.SliderProd.amount * (float)this.SliderProd.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderProd.sRect.X, this.SliderProd.sRect.Y, (int)(this.SliderProd.amount * (float)this.SliderProd.sRect.Width), 6)), Color.White);
-			ScreenManager.SpriteBatch.DrawRectangle(this.SliderProd.sRect, this.SliderProd.Color);
-			if (this.SliderProd.cState != "normal")
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_brown"], new Rectangle(this.ColonySliderProd.sRect.X, this.ColonySliderProd.sRect.Y, (int)(this.ColonySliderProd.amount * (float)this.ColonySliderProd.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderProd.sRect.X, this.ColonySliderProd.sRect.Y, (int)(this.ColonySliderProd.amount * (float)this.ColonySliderProd.sRect.Width), 6)), Color.White);
+			ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderProd.sRect, this.ColonySliderProd.Color);
+			if (this.ColonySliderProd.cState != "normal")
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.SliderProd.cursor, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.ColonySliderProd.cursor, Color.White);
 			}
 			else
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderProd.cursor, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.ColonySliderProd.cursor, Color.White);
 			}
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2((float)(this.SliderFood.sRect.X + this.SliderProd.sRect.Width / 10 * i), (float)(this.SliderProd.sRect.Y + this.SliderProd.sRect.Height + 2));
-				if (this.SliderProd.state != "normal")
+				tickCursor = new Vector2((float)(this.ColonySliderFood.sRect.X + this.ColonySliderProd.sRect.Width / 10 * i), (float)(this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height + 2));
+				if (this.ColonySliderProd.state != "normal")
 				{
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute_hover"], tickCursor, Color.White);
 				}
@@ -431,7 +431,7 @@ namespace Ship_Game
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, Color.White);
 				}
 			}
-			textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.SliderProd.sRect.Y + this.SliderProd.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			if (this.p.Owner.data.Traits.Cybernetic != 0)
 			{
 				float netProductionPerTurn = this.p.NetProductionPerTurn - this.p.consumption;
@@ -451,20 +451,20 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, prod, textPos, Color.LightPink);
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_blue"], new Rectangle(this.SliderRes.sRect.X, this.SliderRes.sRect.Y, (int)(this.SliderRes.amount * (float)this.SliderRes.sRect.Width), 6), new Rectangle?(new Rectangle(this.SliderRes.sRect.X, this.SliderRes.sRect.Y, (int)(this.SliderRes.amount * (float)this.SliderRes.sRect.Width), 6)), Color.White);
-			ScreenManager.SpriteBatch.DrawRectangle(this.SliderRes.sRect, this.SliderRes.Color);
-			if (this.SliderRes.cState != "normal")
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_blue"], new Rectangle(this.ColonySliderRes.sRect.X, this.ColonySliderRes.sRect.Y, (int)(this.ColonySliderRes.amount * (float)this.ColonySliderRes.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderRes.sRect.X, this.ColonySliderRes.sRect.Y, (int)(this.ColonySliderRes.amount * (float)this.ColonySliderRes.sRect.Width), 6)), Color.White);
+			ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderRes.sRect, this.ColonySliderRes.Color);
+			if (this.ColonySliderRes.cState != "normal")
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.SliderRes.cursor, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.ColonySliderRes.cursor, Color.White);
 			}
 			else
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderRes.cursor, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.ColonySliderRes.cursor, Color.White);
 			}
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2((float)(this.SliderFood.sRect.X + this.SliderRes.sRect.Width / 10 * i), (float)(this.SliderRes.sRect.Y + this.SliderRes.sRect.Height + 2));
-				if (this.SliderRes.state != "normal")
+				tickCursor = new Vector2((float)(this.ColonySliderFood.sRect.X + this.ColonySliderRes.sRect.Width / 10 * i), (float)(this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height + 2));
+				if (this.ColonySliderRes.state != "normal")
 				{
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute_hover"], tickCursor, Color.White);
 				}
@@ -473,7 +473,7 @@ namespace Ship_Game
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, Color.White);
 				}
 			}
-			textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			string res = this.p.NetResearchPerTurn.ToString(this.fmt);
 			textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(res).X;
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, res, textPos, new Color(255, 239, 208));
@@ -671,90 +671,90 @@ namespace Ship_Game
 			}
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
-				if (this.SliderFood.sRect.HitTest(input.CursorPosition) || this.draggingSlider1)
+				if (this.ColonySliderFood.sRect.HitTest(input.CursorPosition) || this.draggingSlider1)
 				{
-					this.SliderFood.state = "hover";
-					this.SliderFood.Color = new Color(164, 154, 133);
+					this.ColonySliderFood.state = "hover";
+					this.ColonySliderFood.Color = new Color(164, 154, 133);
 				}
 				else
 				{
-					this.SliderFood.state = "normal";
-					this.SliderFood.Color = new Color(72, 61, 38);
+					this.ColonySliderFood.state = "normal";
+					this.ColonySliderFood.Color = new Color(72, 61, 38);
 				}
-				if (this.SliderFood.cursor.HitTest(input.CursorPosition) || this.draggingSlider1)
+				if (this.ColonySliderFood.cursor.HitTest(input.CursorPosition) || this.draggingSlider1)
 				{
-					this.SliderFood.cState = "hover";
+					this.ColonySliderFood.cState = "hover";
 				}
 				else
 				{
-					this.SliderFood.cState = "normal";
+					this.ColonySliderFood.cState = "normal";
 				}
 			}
-			if (this.SliderProd.sRect.HitTest(input.CursorPosition) || this.draggingSlider2)
+			if (this.ColonySliderProd.sRect.HitTest(input.CursorPosition) || this.draggingSlider2)
 			{
-				this.SliderProd.state = "hover";
-				this.SliderProd.Color = new Color(164, 154, 133);
+				this.ColonySliderProd.state = "hover";
+				this.ColonySliderProd.Color = new Color(164, 154, 133);
 			}
 			else
 			{
-				this.SliderProd.state = "normal";
-				this.SliderProd.Color = new Color(72, 61, 38);
+				this.ColonySliderProd.state = "normal";
+				this.ColonySliderProd.Color = new Color(72, 61, 38);
 			}
-			if (this.SliderProd.cursor.HitTest(input.CursorPosition) || this.draggingSlider2)
+			if (this.ColonySliderProd.cursor.HitTest(input.CursorPosition) || this.draggingSlider2)
 			{
-				this.SliderProd.cState = "hover";
+				this.ColonySliderProd.cState = "hover";
 			}
 			else
 			{
-				this.SliderProd.cState = "normal";
+				this.ColonySliderProd.cState = "normal";
 			}
-			if (this.SliderRes.sRect.HitTest(input.CursorPosition) || this.draggingSlider3)
+			if (this.ColonySliderRes.sRect.HitTest(input.CursorPosition) || this.draggingSlider3)
 			{
-				this.SliderRes.state = "hover";
-				this.SliderRes.Color = new Color(164, 154, 133);
+				this.ColonySliderRes.state = "hover";
+				this.ColonySliderRes.Color = new Color(164, 154, 133);
 			}
 			else
 			{
-				this.SliderRes.state = "normal";
-				this.SliderRes.Color = new Color(72, 61, 38);
+				this.ColonySliderRes.state = "normal";
+				this.ColonySliderRes.Color = new Color(72, 61, 38);
 			}
-			if (this.SliderRes.cursor.HitTest(input.CursorPosition) || this.draggingSlider3)
+			if (this.ColonySliderRes.cursor.HitTest(input.CursorPosition) || this.draggingSlider3)
 			{
-				this.SliderRes.cState = "hover";
+				this.ColonySliderRes.cState = "hover";
 			}
 			else
 			{
-				this.SliderRes.cState = "normal";
+				this.ColonySliderRes.cState = "normal";
 			}
-			if (this.SliderFood.cursor.HitTest(input.CursorPosition) && (!this.ProdLock.Locked || !this.ResLock.Locked) && !this.FoodLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+			if (this.ColonySliderFood.cursor.HitTest(input.CursorPosition) && (!this.ProdLock.Locked || !this.ResLock.Locked) && !this.FoodLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider1 = true;
 			}
-			if (this.SliderProd.cursor.HitTest(input.CursorPosition) && (!this.FoodLock.Locked || !this.ResLock.Locked) && !this.ProdLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+			if (this.ColonySliderProd.cursor.HitTest(input.CursorPosition) && (!this.FoodLock.Locked || !this.ResLock.Locked) && !this.ProdLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider2 = true;
 			}
-			if (this.SliderRes.cursor.HitTest(input.CursorPosition) && (!this.ProdLock.Locked || !this.FoodLock.Locked) && !this.ResLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+			if (this.ColonySliderRes.cursor.HitTest(input.CursorPosition) && (!this.ProdLock.Locked || !this.FoodLock.Locked) && !this.ResLock.Locked && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
 			{
 				this.draggingSlider3 = true;
 			}
 			if (this.draggingSlider1 && !this.FoodLock.Locked && (!this.ProdLock.Locked || !this.ResLock.Locked))
 			{
-				this.SliderFood.cursor.X = this.currentMouse.X;
-				if (this.SliderFood.cursor.X > this.SliderFood.sRect.X + this.SliderFood.sRect.Width)
+				this.ColonySliderFood.cursor.X = this.currentMouse.X;
+				if (this.ColonySliderFood.cursor.X > this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width)
 				{
-					this.SliderFood.cursor.X = this.SliderFood.sRect.X + this.SliderFood.sRect.Width;
+					this.ColonySliderFood.cursor.X = this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width;
 				}
-				else if (this.SliderFood.cursor.X < this.SliderFood.sRect.X)
+				else if (this.ColonySliderFood.cursor.X < this.ColonySliderFood.sRect.X)
 				{
-					this.SliderFood.cursor.X = this.SliderFood.sRect.X;
+					this.ColonySliderFood.cursor.X = this.ColonySliderFood.sRect.X;
 				}
 				if (this.currentMouse.LeftButton == ButtonState.Released)
 				{
 					this.draggingSlider1 = false;
 				}
 				this.fPercentLast = this.p.FarmerPercentage;
-				this.p.FarmerPercentage = ((float)this.SliderFood.cursor.X - (float)this.SliderFood.sRect.X) / (float)this.SliderFood.sRect.Width;
+				this.p.FarmerPercentage = ((float)this.ColonySliderFood.cursor.X - (float)this.ColonySliderFood.sRect.X) / (float)this.ColonySliderFood.sRect.Width;
 				float difference = this.fPercentLast - this.p.FarmerPercentage;
 				if (!this.ProdLock.Locked && !this.ResLock.Locked)
 				{
@@ -800,21 +800,21 @@ namespace Ship_Game
 			}
 			if (this.draggingSlider2 && !this.ProdLock.Locked && (!this.FoodLock.Locked || !this.ResLock.Locked))
 			{
-				this.SliderProd.cursor.X = this.currentMouse.X;
-				if (this.SliderProd.cursor.X > this.SliderProd.sRect.X + this.SliderProd.sRect.Width)
+				this.ColonySliderProd.cursor.X = this.currentMouse.X;
+				if (this.ColonySliderProd.cursor.X > this.ColonySliderProd.sRect.X + this.ColonySliderProd.sRect.Width)
 				{
-					this.SliderProd.cursor.X = this.SliderProd.sRect.X + this.SliderProd.sRect.Width;
+					this.ColonySliderProd.cursor.X = this.ColonySliderProd.sRect.X + this.ColonySliderProd.sRect.Width;
 				}
-				else if (this.SliderProd.cursor.X < this.SliderProd.sRect.X)
+				else if (this.ColonySliderProd.cursor.X < this.ColonySliderProd.sRect.X)
 				{
-					this.SliderProd.cursor.X = this.SliderProd.sRect.X;
+					this.ColonySliderProd.cursor.X = this.ColonySliderProd.sRect.X;
 				}
 				if (this.currentMouse.LeftButton == ButtonState.Released)
 				{
 					this.draggingSlider2 = false;
 				}
 				this.pPercentLast = this.p.WorkerPercentage;
-				this.p.WorkerPercentage = ((float)this.SliderProd.cursor.X - (float)this.SliderProd.sRect.X) / (float)this.SliderProd.sRect.Width;
+				this.p.WorkerPercentage = ((float)this.ColonySliderProd.cursor.X - (float)this.ColonySliderProd.sRect.X) / (float)this.ColonySliderProd.sRect.Width;
 				float difference = this.pPercentLast - this.p.WorkerPercentage;
 				if (!this.FoodLock.Locked && !this.ResLock.Locked)
 				{
@@ -860,21 +860,21 @@ namespace Ship_Game
 			}
 			if (this.draggingSlider3 && !this.ResLock.Locked && (!this.FoodLock.Locked || !this.ProdLock.Locked))
 			{
-				this.SliderRes.cursor.X = this.currentMouse.X;
-				if (this.SliderRes.cursor.X > this.SliderRes.sRect.X + this.SliderRes.sRect.Width)
+				this.ColonySliderRes.cursor.X = this.currentMouse.X;
+				if (this.ColonySliderRes.cursor.X > this.ColonySliderRes.sRect.X + this.ColonySliderRes.sRect.Width)
 				{
-					this.SliderRes.cursor.X = this.SliderRes.sRect.X + this.SliderRes.sRect.Width;
+					this.ColonySliderRes.cursor.X = this.ColonySliderRes.sRect.X + this.ColonySliderRes.sRect.Width;
 				}
-				else if (this.SliderRes.cursor.X < this.SliderRes.sRect.X)
+				else if (this.ColonySliderRes.cursor.X < this.ColonySliderRes.sRect.X)
 				{
-					this.SliderRes.cursor.X = this.SliderRes.sRect.X;
+					this.ColonySliderRes.cursor.X = this.ColonySliderRes.sRect.X;
 				}
 				if (this.currentMouse.LeftButton == ButtonState.Released)
 				{
 					this.draggingSlider3 = false;
 				}
 				this.rPercentLast = this.p.ResearcherPercentage;
-				this.p.ResearcherPercentage = ((float)this.SliderRes.cursor.X - (float)this.SliderRes.sRect.X) / (float)this.SliderRes.sRect.Width;
+				this.p.ResearcherPercentage = ((float)this.ColonySliderRes.cursor.X - (float)this.ColonySliderRes.sRect.X) / (float)this.ColonySliderRes.sRect.Width;
 				float difference = this.rPercentLast - this.p.ResearcherPercentage;
 				if (!this.ProdLock.Locked && !this.FoodLock.Locked)
 				{
@@ -921,15 +921,15 @@ namespace Ship_Game
 			MathHelper.Clamp(this.p.FarmerPercentage, 0f, 1f);
 			MathHelper.Clamp(this.p.WorkerPercentage, 0f, 1f);
 			MathHelper.Clamp(this.p.ResearcherPercentage, 0f, 1f);
-			this.slider1Last = (float)this.SliderFood.cursor.X;
-			this.slider2Last = (float)this.SliderProd.cursor.X;
-			this.slider3Last = (float)this.SliderRes.cursor.X;
-			this.SliderFood.amount = this.p.FarmerPercentage;
-			this.SliderFood.cursor = new Rectangle(this.SliderFood.sRect.X + (int)((float)this.SliderFood.sRect.Width * this.SliderFood.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderFood.sRect.Y + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
-			this.SliderProd.amount = this.p.WorkerPercentage;
-			this.SliderProd.cursor = new Rectangle(this.SliderProd.sRect.X + (int)((float)this.SliderProd.sRect.Width * this.SliderProd.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderProd.sRect.Y + this.SliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
-			this.SliderRes.amount = this.p.ResearcherPercentage;
-			this.SliderRes.cursor = new Rectangle(this.SliderRes.sRect.X + (int)((float)this.SliderRes.sRect.Width * this.SliderRes.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
+			this.slider1Last = (float)this.ColonySliderFood.cursor.X;
+			this.slider2Last = (float)this.ColonySliderProd.cursor.X;
+			this.slider3Last = (float)this.ColonySliderRes.cursor.X;
+			this.ColonySliderFood.amount = this.p.FarmerPercentage;
+			this.ColonySliderFood.cursor = new Rectangle(this.ColonySliderFood.sRect.X + (int)((float)this.ColonySliderFood.sRect.Width * this.ColonySliderFood.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
+			this.ColonySliderProd.amount = this.p.WorkerPercentage;
+			this.ColonySliderProd.cursor = new Rectangle(this.ColonySliderProd.sRect.X + (int)((float)this.ColonySliderProd.sRect.Width * this.ColonySliderProd.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
+			this.ColonySliderRes.amount = this.p.ResearcherPercentage;
+			this.ColonySliderRes.cursor = new Rectangle(this.ColonySliderRes.sRect.X + (int)((float)this.ColonySliderRes.sRect.Width * this.ColonySliderRes.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
 			this.previousMouse = this.currentMouse;
             this.p.UpdateIncomes(false);
 		}
@@ -967,17 +967,17 @@ namespace Ship_Game
 				width = width + 1f;
 			}
 			Rectangle foodRect = new Rectangle(this.SliderRect.X + 10, this.SliderRect.Y + (int)(0.25 * (double)this.SliderRect.Height), (int)width, 6);
-			this.SliderFood.sRect = foodRect;
-			this.SliderFood.amount = this.p.FarmerPercentage;
-			this.FoodLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 10, this.SliderFood.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
+			this.ColonySliderFood.sRect = foodRect;
+			this.ColonySliderFood.amount = this.p.FarmerPercentage;
+			this.FoodLock.LockRect = new Rectangle(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width + 10, this.ColonySliderFood.sRect.Y + 2 + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
 			Rectangle prodRect = new Rectangle(this.SliderRect.X + 10, this.SliderRect.Y + (int)(0.5 * (double)this.SliderRect.Height), (int)width, 6);
-			this.SliderProd.sRect = prodRect;
-			this.SliderProd.amount = this.p.WorkerPercentage;
-			this.ProdLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 10, this.SliderProd.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
+			this.ColonySliderProd.sRect = prodRect;
+			this.ColonySliderProd.amount = this.p.WorkerPercentage;
+			this.ProdLock.LockRect = new Rectangle(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width + 10, this.ColonySliderProd.sRect.Y + 2 + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
 			Rectangle resRect = new Rectangle(this.SliderRect.X + 10, this.SliderRect.Y + (int)(0.75 * (double)this.SliderRect.Height), (int)width, 6);
-			this.SliderRes.sRect = resRect;
-			this.SliderRes.amount = this.p.ResearcherPercentage;
-			this.ResLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 10, this.SliderRes.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
+			this.ColonySliderRes.sRect = resRect;
+			this.ColonySliderRes.amount = this.p.ResearcherPercentage;
+			this.ResLock.LockRect = new Rectangle(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width + 10, this.ColonySliderRes.sRect.Y + 2 + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
 			this.FoodStorage = new ProgressBar(new Rectangle(this.StorageRect.X + 50, this.SliderRect.Y + (int)(0.25 * (double)this.SliderRect.Height), (int)(0.4f * (float)this.StorageRect.Width), 18))
 			{
 				Max = this.p.MAX_STORAGE,
