@@ -244,10 +244,10 @@ namespace Ship_Game
 			EnterNameArea.Text = "";
             EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            Save     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "Load", localization:8);
-            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, "Visit", localization:4015);
-            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, "shiptool", localization:4044);
-		    Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Disable", localization:4016);
+            Save     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "Load", titleId:8);
+            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, "Visit", titleId:4015);
+            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, "shiptool", titleId:4044);
+		    Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Disable", titleId:4016);
 
 			base.LoadContent();
 		}

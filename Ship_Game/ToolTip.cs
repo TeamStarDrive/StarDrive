@@ -61,9 +61,9 @@ namespace Ship_Game
             var tipRect = new Rectangle((int)pos.X  + 10, (int)pos.Y  + 10, 
                                         (int)size.X + 20, (int)size.Y + 10);
 
-            if (tipRect.X + tipRect.Width > Game1.Instance.RenderWidth)
+            if (tipRect.X + tipRect.Width > Game1.Instance.ScreenWidth)
                 tipRect.X = tipRect.X - (tipRect.Width + 10);
-            while (tipRect.Y + tipRect.Height > Game1.Instance.RenderHeight)
+            while (tipRect.Y + tipRect.Height > Game1.Instance.ScreenHeight)
                 tipRect.Y = tipRect.Y - 1;
 
             if (TextLast != Text)

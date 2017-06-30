@@ -1804,7 +1804,7 @@ namespace Ship_Game
             }
             this.Left = new Menu1(leftRect);
             Vector2 Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(leftRect.Y + leftRect.Height + 10));
-            RulesOptions = Button(Position.X, Position.Y, "Rule Options", localization:4006);
+            RulesOptions = Button(Position.X, Position.Y, "Rule Options", titleId:4006);
 
             Rectangle ChooseRaceRect = new Rectangle(5, (this.LowRes ? nameRect.Y : leftRect.Y), leftRect.X - 10, (this.LowRes ? leftRect.Y + leftRect.Height - nameRect.Y : leftRect.Height));
             this.ChooseRaceMenu = new Menu1(ChooseRaceRect);
@@ -1876,8 +1876,8 @@ namespace Ship_Game
                     this.traitsSL.AddItem(t);
             }
 
-            Engage = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, "Engage", localization:22);
-            Abort  = ButtonMedium(10, ScreenHeight - 40, "Abort", localization:23);
+            Engage = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, "Engage", titleId:22);
+            Abort  = ButtonMedium(10, ScreenHeight - 40, "Abort", titleId:23);
             ClearTraits = ButtonMedium(ScreenWidth - 150,
                             Description.Menu.Y + Description.Menu.Height - 40, "Clear", "Clear Traits");
 

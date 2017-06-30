@@ -33,7 +33,7 @@ namespace Ship_Game
 
             AutoFreighterDropDown = DropOptions<int>(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18);
 
-            Label(win.X + 29, win.Y + 155, localization:6181);
+            Label(win.X + 29, win.Y + 155, titleId:6181);
             ConstructorDropDown = DropOptions<int>(win.X + 12, win.Y + 155 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18);
 
             Checkbox(win.X, win.Y + 210, () => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);

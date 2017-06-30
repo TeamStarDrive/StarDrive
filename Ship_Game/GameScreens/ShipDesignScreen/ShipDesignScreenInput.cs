@@ -965,10 +965,10 @@ namespace Ship_Game {
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150,
                 (float) ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47);
 
-            SaveButton = ButtonMedium(cursor.X, cursor.Y, "Save As...", localization:105);
-            LoadButton = ButtonMedium(cursor.X - 78, cursor.Y, "Load", localization:8);
+            SaveButton = ButtonMedium(cursor.X, cursor.Y, "Save As...", titleId:105);
+            LoadButton = ButtonMedium(cursor.X - 78, cursor.Y, "Load", titleId:8);
 
-            ToggleOverlayButton = ButtonMedium(cursor.X - 140, cursor.Y, "Toggle Overlay", localization:106);
+            ToggleOverlayButton = ButtonMedium(cursor.X - 140, cursor.Y, "Toggle Overlay", titleId:106);
 
 
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);

@@ -13,7 +13,6 @@ namespace Ship_Game
 {
     public sealed class LoadUniverseScreen : GameScreen
     {
-        private Vector2 ScreenCenter;
         private UniverseData data;
         private SavedGame.UniverseSaveData savedData;
         private float GamePace;
@@ -390,9 +389,6 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            ScreenCenter = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth  / 2f, 
-                                       ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2f);
-
             LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
             text = HelperFunctions.ParseText(Fonts.Arial12Bold, ResourceManager.LoadRandomAdvice(), 500f);
             base.LoadContent();

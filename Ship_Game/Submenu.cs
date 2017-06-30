@@ -32,7 +32,7 @@ namespace Ship_Game
         {
             ScreenManager = Game1.Instance.ScreenManager;
             Input = ScreenManager.input;
-            if (Game1.Instance.RenderWidth <= 1280)
+            if (Game1.Instance.ScreenWidth <= 1280)
             {
                 this.LowRes = true;
             }
@@ -61,7 +61,7 @@ namespace Ship_Game
         {
             Blue = blue;
             ScreenManager = Game1.Instance.ScreenManager;
-            if (Game1.Instance.RenderWidth <= 1280)
+            if (Game1.Instance.ScreenWidth <= 1280)
             {
                 LowRes = true;
             }
@@ -83,7 +83,7 @@ namespace Ship_Game
         {
             ScreenManager = Game1.Instance.ScreenManager;
             this.LowRes = LowRes;
-            if (Game1.Instance.RenderWidth <= 1280)
+            if (Game1.Instance.ScreenWidth <= 1280)
             {
                 LowRes = true;
             }
