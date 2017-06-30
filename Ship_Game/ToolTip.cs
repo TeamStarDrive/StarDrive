@@ -38,8 +38,16 @@ namespace Ship_Game
             if (toolTipId >= 0)
             {
                 var tooltip = ResourceManager.GetToolTip(toolTipId);
-                intext = Localizer.Token(tooltip.Data);
-                Ti     = tooltip.Title;
+                if (tooltip != null)
+                {
+                    intext = Localizer.Token(tooltip.Data);
+                    Ti     = tooltip.Title;
+                }
+                else if (intext.IsEmpty()) // try to recover.. somehow
+                {
+                    intext = Localizer.Token(toolTipId);
+                    Ti = "";
+                }
             }
             else
             {
