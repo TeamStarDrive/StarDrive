@@ -176,7 +176,7 @@ namespace Ship_Game
             GlobalStats.Statreset();
         }
 
-        public RaceDesignScreen(GraphicsDevice device, MainMenuScreen mmscreen) : base(mmscreen)
+        public RaceDesignScreen(MainMenuScreen mmscreen) : base(mmscreen)
         {
             this.mmscreen = mmscreen;
             base.IsPopup = true;

@@ -166,6 +166,18 @@ namespace Ship_Game
         protected UIButton Button(Vector2 pos, string launches, string text)
             => Add(new UIButton(this, pos, launches, text));
 
+        protected UIButton Button(Vector2 pos, int localization, UIButton.ClickHandler click)
+        {
+            return Button(pos, Localizer.Token(localization), click);
+        }
+        protected UIButton Button(Vector2 pos, string text, UIButton.ClickHandler click)
+        {
+            UIButton button = Add(new UIButton(this, pos, text));
+            button.OnClick += click;
+            button.ClickSfx = "sd_ui_tactical_pause";
+            return button;
+        }
+
 
         protected UIButton Button(float x, float y, string launches, int localization)
             => Add(new UIButton(this, x, y, launches, Localizer.Token(localization)));

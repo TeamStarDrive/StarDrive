@@ -94,9 +94,9 @@ namespace Ship_Game
             this.ApplyCol = ac;
         }
 
-        public ScrollList.Entry AddItem(object o)
+        public Entry AddItem(object o)
         {
-            ScrollList.Entry e = new ScrollList.Entry()
+            Entry e = new Entry()
             {
                 item = o
             };
@@ -900,25 +900,22 @@ namespace Ship_Game
 
             public int ah;
             //moved this here for consistency
-            public Array<ScrollList.Entry> SubEntries = new Array<ScrollList.Entry>();
+            public Array<Entry> SubEntries = new Array<Entry>();
 
             public Entry()
             {
-               
             }
 
             public void AddItem(object o)
             {
-                ScrollList.Entry e = new ScrollList.Entry();
-
+                Entry e = new Entry();
                 e.item = o;
-                
-                this.SubEntries.Add(e);
+                SubEntries.Add(e);
             }
 
             public void AddItem(object o, int addrect, int addpencil)
             {
-                ScrollList.Entry e = new ScrollList.Entry()
+                Entry e = new Entry()
                 {
                     item = o
                 };
@@ -937,7 +934,7 @@ namespace Ship_Game
 
             public void AddItemWithCancel(object o)
             {
-                ScrollList.Entry e = new ScrollList.Entry()
+                Entry e = new Entry()
                 {
                     item = o
                 };

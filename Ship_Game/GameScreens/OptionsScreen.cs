@@ -36,6 +36,8 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TitleText  = Localizer.Token(4);
+            MiddleText = Localizer.Token(4004);
         }
 
         public OptionsScreen(UniverseScreen s, GameplayMMScreen universeMainMenuScreen) : base(s, 600, 700)
