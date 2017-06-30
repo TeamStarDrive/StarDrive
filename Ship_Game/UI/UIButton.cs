@@ -49,6 +49,13 @@ namespace Ship_Game
             Size     = ButtonTexture().Size();
         }
 
+        public UIButton(UIElementV2 parent, Vector2 pos, string text = "") : base(parent, pos)
+        {
+            InitializeStyles();
+            Text     = text;
+            Size     = ButtonTexture().Size();
+        }
+
         public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, string launches = "", string text = "") : base(parent, pos)
         {
             InitializeStyles();
@@ -104,6 +111,12 @@ namespace Ship_Game
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_dip"),
                 new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover"),
             };
+        }
+
+        public static Vector2 StyleSize(ButtonStyle style = ButtonStyle.Default)
+        {
+            InitializeStyles();
+            return Styling[(int)style].Normal.Size();
         }
 
         private Texture2D ButtonTexture()

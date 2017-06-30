@@ -7,7 +7,7 @@ namespace Ship_Game
 {
     public sealed class AutomationWindow : GameScreen
     {
-        public bool isOpen;
+        public bool IsOpen { get; private set; }
         private readonly Submenu ConstructionSubMenu;
         private readonly UniverseScreen Universe;
         private readonly DropOptions<int> AutoFreighterDropDown;
@@ -47,28 +47,30 @@ namespace Ship_Game
         }
 
 
+        public void ToggleVisibility()
+        {
+            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            IsOpen = !IsOpen;
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin();
-
             Rectangle r = ConstructionSubMenu.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             ConstructionSubMenu.Draw();
 
             base.Draw(spriteBatch);
-
-            spriteBatch.End();
         }
 
 
         public override bool HandleInput(InputState input)
         {
-            if (!ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || !input.RightMouseClick)
+            if (/*!ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || */input.RightMouseClick)
             {
-                isOpen = false;
+                IsOpen = false;
                 return false;
             }
 
