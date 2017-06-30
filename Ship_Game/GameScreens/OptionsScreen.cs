@@ -8,13 +8,12 @@ namespace Ship_Game
     {
         public bool fade = true;
         public bool FromGame;
-        private MainMenuScreen MainMenu;
-        private UniverseScreen Universe;
-        private GameplayMMScreen UniverseMainMenu; // the little menu in universe view
+        private readonly MainMenuScreen MainMenu;
+        private readonly UniverseScreen Universe;
+        private readonly GameplayMMScreen UniverseMainMenu; // the little menu in universe view
         private DropOptions<DisplayMode> ResolutionDropDown;
         private Rectangle LeftArea;
         private Rectangle RightArea;
-
 
         private readonly WindowMode StartingMode = GlobalStats.WindowMode;
         private int OriginalWidth;
@@ -29,13 +28,7 @@ namespace Ship_Game
         private FloatSlider IconSize;
         private FloatSlider ShipLimiter;
         private FloatSlider FreighterLimiter;
-        private FloatSlider AutoSaveFreq; //Added by Gretman
-
-        private class Option
-        {
-            public string Name;
-            public int X, Y;
-        }
+        private FloatSlider AutoSaveFreq;     // Added by Gretman
 
         public OptionsScreen(MainMenuScreen s) : base(s, 600, 600)
         {
