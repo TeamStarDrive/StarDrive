@@ -142,7 +142,7 @@ namespace Ship_Game
         {
             if (IsLoaded)
                 return;
-
+            ScreenManager.UpdatePreferences(RenderPrefs);
             ScreenManager.LoadContent();
             Fonts.LoadContent(Content);
             ScreenManager.AddScreen(new GameLoadingScreen());
