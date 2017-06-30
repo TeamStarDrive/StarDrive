@@ -200,6 +200,12 @@ namespace Ship_Game
             return result;
         }
 
+        private Rectangle LayoutNextRect(int width, int height)
+        {
+            Vector2 next = LayoutNext();
+            return new Rectangle((int)next.X, (int)next.Y, width, height);
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Shared utility functions:
@@ -313,6 +319,11 @@ namespace Ship_Game
             => SliderPercent(new Rectangle((int)pos.X, (int)pos.Y, w, h), text, min, max, value);
 
 
+        protected FloatSlider Slider(int w, int h, string text, float min, float max, float value)
+            => Slider(LayoutNextRect(w, h), text, min, max, value);
+        protected FloatSlider SliderPercent(int w, int h, string text, float min, float max, float value)
+            => SliderPercent(LayoutNextRect(w, h), text, min, max, value);
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -347,8 +358,6 @@ namespace Ship_Game
 
         protected UILabel Label(string text) => Add(new UILabel(this, LayoutNext(), text));
         protected UILabel Label(int titleId) => Add(new UILabel(this, LayoutNext(), titleId));
-
-
         protected UILabel Label(int titleId, UILabel.ClickHandler click)
         {
             return Label(Localizer.Token(titleId), click);
