@@ -187,6 +187,7 @@ namespace Ship_Game
         public void EndLayout()
         {
             LayoutStarted = false;
+            Elements.Sort((a,b) => a.ZOrder - b.ZOrder);
         }
 
         private Vector2 LayoutNext()
@@ -281,6 +282,13 @@ namespace Ship_Game
         protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
             => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
 
+        protected UICheckBox Checkbox(Expression<Func<bool>> binding, int title, int tooltip)
+            => Checkbox(LayoutNext(), binding, title, tooltip);
+        protected UICheckBox Checkbox(Expression<Func<bool>> binding, string title, string tooltip)
+            => Checkbox(LayoutNext(), binding, title, tooltip);
+        protected UICheckBox Checkbox(Expression<Func<bool>> binding, string title, int tooltip)
+            => Checkbox(LayoutNext(), binding, title, tooltip);
+
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -313,6 +321,13 @@ namespace Ship_Game
 
         protected DropOptions<T> DropOptions<T>(int x, int y, int width, int height)
             => Add(new DropOptions<T>(this, new Rectangle(x, y, width, height)));
+
+        protected DropOptions<T> DropOptions<T>(int width, int height, int zorder = 0)
+        {
+            DropOptions<T> option = Add(new DropOptions<T>(this, LayoutNext(), width, height));
+            option.ZOrder = zorder;
+            return option;
+        }
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
