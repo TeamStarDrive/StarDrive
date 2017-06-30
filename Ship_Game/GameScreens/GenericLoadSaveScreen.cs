@@ -346,11 +346,6 @@ namespace Ship_Game
             }
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
         protected class FileData
         {
             public string FileName;
@@ -363,16 +358,6 @@ namespace Ship_Game
             public FileData()
             {
             }
-
-            /*public FileData(FileInfo fileLink, object data)
-            {
-                this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
-                this.FileName = "";
-                this.Info = "";
-                this.ExtraInfo = "";
-                this.FileLink = fileLink;
-                this.Data = data;
-            }*/
 
             public FileData(FileInfo fileLink, object data, string fileName)
             {
