@@ -8,8 +8,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game {
@@ -749,7 +747,7 @@ namespace Ship_Game {
                 else if (str3 == "?")
                 {
                     GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                    var wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
+                    var wiki = new InGameWiki(this)
                     {
                         TitleText = "StarDrive Help",
                         MiddleText =

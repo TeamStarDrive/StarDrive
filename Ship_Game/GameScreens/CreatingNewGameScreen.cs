@@ -4,12 +4,9 @@
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;

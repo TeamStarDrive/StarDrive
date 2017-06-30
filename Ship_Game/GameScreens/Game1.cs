@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -155,9 +154,9 @@ namespace Ship_Game
             GraphicsAdapter a = e.GraphicsDeviceInformation.Adapter;
             PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;
 
-            MultiSampleType samples = (MultiSampleType)GlobalStats.AntiAlias;
+            var samples = (MultiSampleType)GlobalStats.AntiAlias;
             if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, 
-                                                   false, samples, out int quality))
+                                             false, samples, out int quality))
             {
                 p.MultiSampleQuality = (quality == 1 ? 0 : 1);
                 p.MultiSampleType    = samples;
@@ -181,9 +180,12 @@ namespace Ship_Game
             var form = (Form)Control.FromHandle(Window.Handle);        
             if (Debugger.IsAttached && mode == WindowMode.Fullscreen)
                 mode = WindowMode.Borderless;
+
             GlobalStats.WindowMode = mode;
             Graphics.PreferredBackBufferWidth  = width;
             Graphics.PreferredBackBufferHeight = height;
+            Graphics.SynchronizeWithVerticalRetrace = true;
+
             switch (mode)
             {
                 case WindowMode.Windowed:   form.FormBorderStyle = FormBorderStyle.Fixed3D; break;
