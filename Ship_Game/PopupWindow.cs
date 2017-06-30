@@ -30,9 +30,10 @@ namespace Ship_Game
         private Rectangle MidSepBot;
         public string TitleText;
         public string MiddleText;
-        private Vector2 TitleTextPos;
-        private Vector2 MiddleTextPos;
-        private CloseButton close;
+
+        public UILabel TitleLabel;
+        public UILabel MiddleLabel;
+        public CloseButton Close;
 
         private static Rectangle CenterScreen(int width, int height)
         {
@@ -69,20 +70,8 @@ namespace Ship_Game
             spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRect, Color.White);
             spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleLeft, Color.White);
             spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRight, Color.White);
-            if (TitleText != null)
-            {   //draw title text
-                HelperFunctions.DrawDropShadowText(ScreenManager, TitleText, TitleTextPos, Fonts.Arial20Bold);
-            }
-            if (MiddleText != null)
-            {   //draw description test
-                spriteBatch.DrawString(Fonts.Arial12Bold, MiddleText, MiddleTextPos, Color.White);
-            }
-            close.Draw(ScreenManager);
-
 
             base.Draw(spriteBatch);
-            ToolTip.Draw(spriteBatch);
-
 
             spriteBatch.End();
         }
@@ -97,7 +86,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
+            if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
                 return true;
@@ -107,14 +96,9 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Setup();
-            base.LoadContent();
-        }
+            RemoveAll();
 
-        public void Setup()
-        {
             Rect = CenterScreen(Rect.Width, Rect.Height);
-            close = new CloseButton(new Rectangle(Rect.X + Rect.Width - 38, Rect.Y + 15, 20, 20));
             TL    = new Rectangle(Rect.X, Rect.Y, 28, 30);
             TLc        = TL;
             TLc.X      = TLc.X - 2;
@@ -145,24 +129,26 @@ namespace Ship_Game
             MidSepTop    = new Rectangle(MidContainer.X, MidContainer.Y, MidContainer.Width, 2);
             MidSepBot    = new Rectangle(MidContainer.X, MidContainer.Y + MidContainer.Height - 2, MidContainer.Width, 2);
             BottomBigFill = new Rectangle(MidContainer.X, MidContainer.Y + MidContainer.Height, 
-                                          MidContainer.Width, BottomFill.Y - (MidContainer.Y + MidContainer.Height));
+                MidContainer.Width, BottomFill.Y - (MidContainer.Y + MidContainer.Height));
+
+            Close = CloseButton(Rect.X + Rect.Width - 38, Rect.Y + 15);
+
             if (TitleText != null)
             {
-                TitleTextPos = new Vector2(TL.X + TL.Width, TitleRect.Y + TitleRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
-                
-                    TitleTextPos.X = (int)TitleTextPos.X;
-                    TitleTextPos.Y = (int)TitleTextPos.Y;
-                
+                var pos = new Vector2(TitleRect.X, TitleRect.Y + TitleRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
+                TitleLabel = Label(pos, TitleText, Fonts.Arial20Bold);
             }
             if (MiddleText != null)
             {
                 MiddleText = HelperFunctions.ParseText(Fonts.Arial12Bold, MiddleText, MidContainer.Width - 50);
+
                 var textSize = Fonts.Arial12Bold.MeasureString(MiddleText);
-                MiddleTextPos = new Vector2(MidContainer.X + MidContainer.Width / 2  - textSize.X / 2f, 
-                                            MidContainer.Y + MidContainer.Height / 2 - textSize.Y / 2f);
-                MiddleTextPos.X = (int)MiddleTextPos.X;
-                MiddleTextPos.Y = (int)MiddleTextPos.Y;
+                var pos = new Vector2(MidContainer.X + MidContainer.Width  / 2 - textSize.X / 2f, 
+                                      MidContainer.Y + MidContainer.Height / 2 - textSize.Y / 2f);
+                MiddleLabel = Label(pos, MiddleText, Fonts.Arial12Bold);
             }
+
+            base.LoadContent();
         }
     }
 }

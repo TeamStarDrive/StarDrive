@@ -49,7 +49,7 @@ namespace Ship_Game
         {
         }
 
-        protected GameScreen(GameScreen parent, Rectangle rect) : base(rect)
+        protected GameScreen(GameScreen parent, Rectangle rect) : base(parent, rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
@@ -85,6 +85,10 @@ namespace Ship_Game
             ScreenManager.RemoveScreen(this);
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            return base.HandleInput(input);
+        }
 
         public virtual void LoadContent()
         {

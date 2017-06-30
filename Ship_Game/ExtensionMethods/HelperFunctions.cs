@@ -171,12 +171,20 @@ namespace Ship_Game
         {
             DrawDropShadowText(screenManager, text, pos, font, c, 1f);
         }
-        public static void DrawDropShadowText(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font, Color c, float offs = 2f)
+        public static void DrawDropShadowText(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
         {
             pos.X = (int)pos.X;
             pos.Y = (int)pos.Y;
-            screenManager.SpriteBatch.DrawString(font, text, pos + new Vector2(offs), Color.Black);
+            screenManager.SpriteBatch.DrawString(font, text, pos + new Vector2(shadowOffset), Color.Black);
             screenManager.SpriteBatch.DrawString(font, text, pos, c);
+        }
+
+        public static void DrawDropShadowText(SpriteBatch spriteBatch, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
+        {
+            pos.X = (int)pos.X;
+            pos.Y = (int)pos.Y;
+            spriteBatch.DrawString(font, text, pos + new Vector2(shadowOffset), Color.Black);
+            spriteBatch.DrawString(font, text, pos, c);
         }
 
         public static void DrawGrid(SpriteBatch spriteBatch, int xpos, int ypos, int xGridSize, int yGridSize, int numberXs, int numberYs)

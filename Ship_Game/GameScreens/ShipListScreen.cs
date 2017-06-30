@@ -94,7 +94,7 @@ namespace Ship_Game
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			this.leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
 			this.EMenu = new Menu2(this.leftRect);
-			this.close = new CloseButton(new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
+			this.close = new CloseButton(this, new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
 			this.eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
 			while (this.eRect.Height % 80 != 0)
 			{
@@ -116,13 +116,13 @@ namespace Ship_Game
                 this.SelectedShip = null;
 			}
 
-			cb_hide_proj = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 10, TitleBar.Menu.Y + 15,
+			cb_hide_proj = new UICheckBox(this, TitleBar.Menu.X + TitleBar.Menu.Width + 10, TitleBar.Menu.Y + 15,
                 () => HidePlatforms, x => {
                     HidePlatforms = x;
                     ResetList(ShowRoles.ActiveValue);
                 }, Fonts.Arial12Bold, title: 191, tooltip:0);
 
-			this.ShowRoles = new DropOptions<int>(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
+			this.ShowRoles = new DropOptions<int>(this, new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
 			this.ShowRoles.AddOption("All Ships", 1);
             this.ShowRoles.AddOption("Not in Fleets", 11);
 			this.ShowRoles.AddOption("Fighters", 2);
@@ -279,13 +279,13 @@ namespace Ship_Game
 				botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
 				base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
 			}
-			this.ShowRoles.Draw(base.ScreenManager.SpriteBatch);
-			this.close.Draw(base.ScreenManager);
+			this.ShowRoles.Draw(spriteBatch);
+			this.close.Draw(spriteBatch);
 			if (base.IsActive)
 			{
-				ToolTip.Draw(ScreenManager.SpriteBatch);
+				ToolTip.Draw(spriteBatch);
 			}
-			base.ScreenManager.SpriteBatch.End();
+		    spriteBatch.End();
 		}
 
 

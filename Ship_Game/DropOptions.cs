@@ -44,7 +44,7 @@ namespace Ship_Game
             public override string ToString() => $"{Name}: {Value}";
         }
 
-        public DropOptions(Rectangle rect) : base(rect)
+        public DropOptions(UIElementV2 parent, Rectangle rect) : base(parent, rect)
         {
             Reset();
         }
@@ -207,7 +207,13 @@ namespace Ship_Game
             }
             return false;
         }
-        
+
+        public override void PerformLegacyLayout(Vector2 pos)
+        {
+            Pos = pos;
+            Reset();
+        }
+
         public void Reset()
         {
             Array.Clear(Border, 0, Border.Length);
