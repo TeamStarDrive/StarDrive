@@ -4,19 +4,19 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadSavedFleetDesignScreen : GenericLoadSaveScreen, IDisposable
-	{
-		private FleetDesignScreen parentScreen;
+    public sealed class LoadSavedFleetDesignScreen : GenericLoadSaveScreen, IDisposable
+    {
+        private FleetDesignScreen parentScreen;
 
 
-		public LoadSavedFleetDesignScreen(GameScreen parent) : base(parent, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
+        public LoadSavedFleetDesignScreen(GameScreen parent) : base(parent, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
             this.Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
         }
 
         public LoadSavedFleetDesignScreen(FleetDesignScreen caller) : base(caller, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
-			this.parentScreen = caller;
+            this.parentScreen = caller;
             this.Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
         }
 
@@ -36,40 +36,40 @@ namespace Ship_Game
         }
 
         protected override void SetSavesSL()
-		{
+        {
             var serializer = new XmlSerializer(typeof(FleetDesign));
 
             foreach (FileInfo info in ResourceManager.GatherFilesModOrVanilla("FleetDesigns", "xml"))
-			{
-				bool ok = true;
-				foreach (FleetDataNode node in serializer.Deserialize<FleetDesign>(info).Data)
-				{
-					if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
-						continue;
-					ok = false;
-					break;
-				}
-				if (ok)
-				{
-					SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
-				}
-			}
+            {
+                bool ok = true;
+                foreach (FleetDataNode node in serializer.Deserialize<FleetDesign>(info).Data)
+                {
+                    if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
+                        continue;
+                    ok = false;
+                    break;
+                }
+                if (ok)
+                {
+                    SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
+                }
+            }
 
             foreach (FileInfo info in Dir.GetFiles(Path)) // player made fleets, can be deleted
-			{
-				bool ok = true;
-				foreach (FleetDataNode node in serializer.Deserialize<FleetDesign>(info).Data)
-				{
-					if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
-						continue;
-					ok = false;
-					break;
-				}
-				if (ok)
-				{
+            {
+                bool ok = true;
+                foreach (FleetDataNode node in serializer.Deserialize<FleetDesign>(info).Data)
+                {
+                    if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
+                        continue;
+                    ok = false;
+                    break;
+                }
+                if (ok)
+                {
                     SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItemWithCancel(info);
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 }

@@ -927,7 +927,9 @@ namespace Ship_Game.AI {
         
         public bool ShipGoodToBuild(Ship ship)
         {
-            if (ship.shipData.HullRole == ShipData.RoleName.station || ship.shipData.HullRole == ShipData.RoleName.platform || ship.shipData.CarrierShip)
+            if (ship.shipData.HullRole == ShipData.RoleName.station || 
+                ship.shipData.HullRole == ShipData.RoleName.platform || 
+                ship.shipData.CarrierShip)
                 return true;
             return ShipIsGoodForGoals(ship, float.MinValue);
 

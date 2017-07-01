@@ -40,9 +40,10 @@ namespace Ship_Game
             bgw.RunWorkerAsync(activeFile);
         }
 
-        private static Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData sdata)
+        private static Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData sdata, bool isPlayer)
         {
             var e = new Empire();
+            e.isPlayer = isPlayer;
             //TempEmpireData  Tdata = new TempEmpireData();
 
             if (sdata.IsFaction)
@@ -416,14 +417,15 @@ namespace Ship_Game
          
             foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
             {
-                Empire e = CreateEmpireFromEmpireSaveData(d);
+                bool isPlayer = d.Traits.Name == PlayerLoyalty;
+                Empire e = CreateEmpireFromEmpireSaveData(d, isPlayer);
                 data.EmpireList.Add(e);
-                if (e.data.Traits.Name == PlayerLoyalty)
+                if (isPlayer)
                 {
-                    e.AutoColonize = savedData.AutoColonize;
-                    e.AutoExplore = savedData.AutoExplore;
+                    e.AutoColonize   = savedData.AutoColonize;
+                    e.AutoExplore    = savedData.AutoExplore;
                     e.AutoFreighters = savedData.AutoFreighters;
-                    e.AutoBuild = savedData.AutoProjectors;
+                    e.AutoBuild      = savedData.AutoProjectors;
                 }
                 EmpireManager.Add(e);
             }
@@ -438,11 +440,8 @@ namespace Ship_Game
                 Empire masterEmpire = EmpireManager.GetEmpireByName(servantEmpire.data.AbsorbedBy);
                 foreach (KeyValuePair<string, TechEntry> masterEmpireTech in masterEmpire.GetTDict())
                 {
-                    if (!masterEmpireTech.Value.Unlocked)
-                    {
-                        continue;
-                    }
-                    masterEmpire.UnlockHullsSave(masterEmpireTech.Value, servantEmpire.data.Traits.ShipType);
+                    if (masterEmpireTech.Value.Unlocked)
+                        masterEmpire.UnlockHullsSave(masterEmpireTech.Value, servantEmpire.data.Traits.ShipType);
                 }
             }
             foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
@@ -827,12 +826,12 @@ namespace Ship_Game
                 Log.Warning("Invalid Module: {0}", slot.InstalledModuleUID);
             }
 
-            ship.PowerCurrent = shipData.Power;
-            ship.yRotation = shipData.yRotation;
-            ship.Ordinance = shipData.Ordnance;
-            ship.Rotation = shipData.Rotation;
-            ship.Velocity = shipData.Velocity;
-            ship.isSpooling = shipData.AfterBurnerOn;
+            ship.PowerCurrent  = shipData.Power;
+            ship.yRotation     = shipData.yRotation;
+            ship.Ordinance     = shipData.Ordnance;
+            ship.Rotation      = shipData.Rotation;
+            ship.Velocity      = shipData.Velocity;
+            ship.isSpooling    = shipData.AfterBurnerOn;
             ship.InCombatTimer = shipData.InCombatTimer;
 
             if (shipData.TroopList != null) foreach (Troop t in shipData.TroopList)
