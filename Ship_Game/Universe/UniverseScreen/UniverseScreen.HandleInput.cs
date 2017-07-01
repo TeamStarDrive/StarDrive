@@ -1156,12 +1156,11 @@ namespace Ship_Game
             if ((SelectedItem = CheckBuildItemClicked()) != null)
                 GameAudio.BuildItemClicked();
         }
-
         private void HandleSelectionBox(InputState input)
         {
             if (LookingAtPlanet)
                 return;
-          
+
             if (input.LeftMouseClick)
                 SelectionBox = new Rectangle(input.MouseCurr.X, input.MouseCurr.Y, 0, 0);
             if (SelectedShipList.Count == 1)
@@ -1171,222 +1170,127 @@ namespace Ship_Game
                     previousSelection = SelectedShip;
                 SelectedShip = SelectedShipList[0];
             }
-            if (input.LeftMouseDown)
+            if (input.LeftMouseHeld())
             {
                 SelectingWithBox = true;
                 if (SelectionBox.X == 0 || SelectionBox.Y == 0)
                     return;
                 SelectionBox = new Rectangle(SelectionBox.X, SelectionBox.Y,
                     input.MouseCurr.X - SelectionBox.X, input.MouseCurr.Y - SelectionBox.Y);
+                return;
             }
-            else if (input.IsShiftKeyDown && input.LeftMouseReleased)                     
+            if (!input.LeftMouseWasHeld) return;
+
+            if (input.MouseCurr.X < SelectionBox.X)
+                SelectionBox.X = input.MouseCurr.X;
+            if (input.MouseCurr.Y < SelectionBox.Y)
+                SelectionBox.Y = input.MouseCurr.Y;
+            SelectionBox.Width = Math.Abs(SelectionBox.Width);
+            SelectionBox.Height = Math.Abs(SelectionBox.Height);
+
+            if (!GetAllShipsInArea(SelectionBox, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeSupply,
+                out Fleet fleet))
             {
-                if (input.MouseCurr.X < SelectionBox.X)
-                    SelectionBox.X  = input.MouseCurr.X;
-                if (input.MouseCurr.Y < SelectionBox.Y)
-                    SelectionBox.Y  = input.MouseCurr.Y;
-                SelectionBox.Width  = Math.Abs(SelectionBox.Width);
-                SelectionBox.Height = Math.Abs(SelectionBox.Height);
-                bool flag1          = true;
-                var list            = new Array<Ship>();
-                foreach (ClickableShip clickableShip in ClickableShipsList)
-                {
-                    if (SelectionBox.HitTest(clickableShip.ScreenPos)  &&
-                        !SelectedShipList.Contains(clickableShip.shipToClick))
-                    {
-                        SelectedPlanet = null;
-                        SelectedShipList.Add(clickableShip.shipToClick);
-                        SelectedSomethingTimer = 3f;
-                        list.Add(clickableShip.shipToClick);
-                    }
-                }
-                if (SelectedShipList.Count > 0 && flag1)
-                {
-                    bool supplyRoleOrLess = false;
-                    bool greaterThanSupplyRole = false;
-                    foreach (Ship shipType in list)
-                    {
-                        if (shipType.shipData.Role <= ShipData.RoleName.supply)
-                            supplyRoleOrLess = true;
-                        else
-                            greaterThanSupplyRole = true;
-
-                        if (!greaterThanSupplyRole || !supplyRoleOrLess) continue;
-                        foreach (Ship ship in SelectedShipList)
-                        {
-                            if (ship.shipData.Role <= ShipData.RoleName.supply)
-                                SelectedShipList.QueuePendingRemoval(ship);
-                        }
-                        break;
-                    }
-                    
-                    SelectedShipList.ApplyPendingRemovals();
-                }
-                if (SelectedShipList.Count > 1)
-                {
-                    bool isplayerShip = false;
-                    bool notPlayerShip = false;
-                    foreach (Ship shipLoyalty in SelectedShipList)
-                    {
-                        if (shipLoyalty.loyalty == player)
-                            isplayerShip = true;
-                        if (shipLoyalty.loyalty != player)
-                            notPlayerShip = true;
-                        if (!isplayerShip || !notPlayerShip) continue;
-                        foreach (Ship ship in SelectedShipList)
-                        {
-                            if (ship.loyalty != player)
-                                SelectedShipList.QueuePendingRemoval(ship);
-                        }
-                        break;
-                    }
-                    SelectedShipList.ApplyPendingRemovals();
-
-                    if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip = null;
-
-                    shipListInfoUI.SetShipList((Array<Ship>)SelectedShipList,
-                        false); //fbedard: this is not a fleet!
-                }
-                else if (SelectedShipList.Count == 1)
-                {
-                    if (SelectedShip != null && previousSelection != SelectedShip &&
-                        SelectedShip != SelectedShipList[0]) //fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip = SelectedShipList[0];
-                    ShipInfoUIElement.SetShip(SelectedShip);
-                }
                 SelectionBox = new Rectangle(0, 0, -1, -1);
+                return;
             }
+
+            bool isFleet = fleet != null;
+            SelectedPlanet = null;
+            if (input.IsShiftKeyDown)
+                SelectedShipList.AddRange(ships.FilterBy(s => !SelectedShipList.Contains(s)));
             else
+                SelectedShipList = new BatchRemovalCollection<Ship>(ships);
+
+            SelectedSomethingTimer = 3f;
+            if (purgeSupply)
             {
-                if (input.MouseCurr.LeftButton != ButtonState.Released ||
-                    input.MousePrev.LeftButton != ButtonState.Pressed)
-                    return;
-                SelectingWithBox    = false;
-                if (input.MouseCurr.X < SelectionBox.X)
-                    SelectionBox.X  = input.MouseCurr.X;
-                if (input.MouseCurr.Y < SelectionBox.Y)
-                    SelectionBox.Y  = input.MouseCurr.Y;
-                SelectionBox.Width  = Math.Abs(SelectionBox.Width);
-                SelectionBox.Height = Math.Abs(SelectionBox.Height);
-                bool flag1          = SelectedShipList.Count == 0;
-                foreach (ClickableShip clickableShip in ClickableShipsList)
+                foreach (Ship ship in SelectedShipList)
                 {
-                    if (SelectionBox.Contains(
-                        new Point((int)clickableShip.ScreenPos.X, (int)clickableShip.ScreenPos.Y)))
-                    {
-                        SelectedPlanet = (Planet)null;
-                        SelectedShipList.Add(clickableShip.shipToClick);
-                        SelectedSomethingTimer = 3f;
-                    }
+                    if (NonCombatShip(ship))
+                        SelectedShipList.QueuePendingRemoval(ship);
                 }
-                if (SelectedShipList.Count > 0 && flag1)
-                {
-                    bool flag2 = false;
-                    bool flag3 = false;
-                    try
-                    {
-                        foreach (Ship ship in (Array<Ship>)SelectedShipList)
-                        {
-                            if (ship.shipData.Role <= ShipData.RoleName.freighter ||
-                                ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                                ship.AI.State == AIState.Colonize)
-                                flag2 = true;
-                            else
-                                flag3 = true;
-                        }
-                    }
-                    catch { }
-                    if (flag3)
-                    {
-                        if (flag2)
-                        {
-                            try
-                            {
-                                foreach (Ship ship in (Array<Ship>)SelectedShipList)
-                                {
-                                    if (ship.shipData.Role <= ShipData.RoleName.freighter ||
-                                        ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                                        ship.AI.State == AIState.Colonize)
-                                        SelectedShipList.QueuePendingRemoval(ship);
-                                }
-                            }
-                            catch { }
-                        }
-                    }
-                    SelectedShipList.ApplyPendingRemovals();
-                }
-                if (SelectedShipList.Count > 1)
-                {
-                    bool flag2 = false;
-                    bool flag3 = false;
-                    foreach (Ship ship in (Array<Ship>)SelectedShipList)
-                    {
-                        if (ship.loyalty == player)
-                            flag2 = true;
-                        if (ship.loyalty != player)
-                            flag3 = true;
-                    }
-                    if (flag2 && flag3)
-                    {
-                        foreach (Ship ship in (Array<Ship>)SelectedShipList)
-                        {
-                            if (ship.loyalty != player)
-                                SelectedShipList.QueuePendingRemoval(ship);
-                        }
-                        SelectedShipList.ApplyPendingRemovals();
-                    }
-                    if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip = (Ship)null;
-                    bool flag4 = true;
-                    if (SelectedShipList.Count > 0)
-                    {
-                        if (SelectedShipList[0].fleet != null)
-                        {
-                            if (SelectedShipList.Count == SelectedShipList[0].fleet.Ships.Count)
-                            {
-                                try
-                                {
-                                    foreach (Ship ship in SelectedShipList)
-                                    {
-                                        if (ship.fleet == null || ship.fleet != SelectedShipList[0].fleet)
-                                            flag4 = false;
-                                    }
-                                    if (flag4)
-                                        SelectedFleet = SelectedShipList[0].fleet;
-                                }
-                                catch { }
-                            }
-                        }
-                        if (SelectedFleet != null)
-                            shipListInfoUI.SetShipList(SelectedShipList, true);
-                        else
-                            shipListInfoUI.SetShipList(SelectedShipList, false);
-                    }
-                    if (SelectedFleet == null)
-                        ShipInfoUIElement.SetShip(SelectedShipList[0]);
-                }
-                else if (SelectedShipList.Count == 1)
-                {
-                    if (SelectedShip != null && previousSelection != SelectedShip &&
-                        SelectedShip != SelectedShipList[0]) //fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip = SelectedShipList[0];
-                    ShipInfoUIElement.SetShip(SelectedShip);
-                    if (SelectedShipList[0] == playerShip)
-                        LoadShipMenuNodes(1);
-                    else if (SelectedShipList[0].loyalty == player)
-                        LoadShipMenuNodes(1);
-                    else
-                        LoadShipMenuNodes(0);
-                }
-                SelectionBox = new Rectangle(0, 0, -1, -1);
+                SelectedShipList.ApplyPendingRemovals();
             }
+            if (purgeLoyalty)
+            {
+                foreach (Ship ship in SelectedShipList)
+                {
+                    if (ship.loyalty != player)
+                        SelectedShipList.QueuePendingRemoval(ship);
+                }
+                SelectedShipList.ApplyPendingRemovals();
+            }
+            if (isFleet)
+            {
+                foreach (Ship ship in SelectedShipList)
+                {
+                    if (ship?.fleet != fleet)
+                        SelectedShipList.QueuePendingRemoval(ship);
+                }
+                SelectedShipList.ApplyPendingRemovals();
+            }
+
+
+            shipListInfoUI.SetShipList(SelectedShipList, isFleet);
+            SelectedFleet = fleet;
+
+            if (SelectedShipList.Count == 1)
+            {
+                if (SelectedShip != null && previousSelection != SelectedShip &&
+                    SelectedShip != SelectedShipList[0]) //fbedard
+                    previousSelection = SelectedShip;
+                SelectedShip = SelectedShipList[0];
+                ShipInfoUIElement.SetShip(SelectedShip);
+                if (SelectedShipList[0] == playerShip)
+                    LoadShipMenuNodes(1);
+                else if (SelectedShipList[0]?.loyalty == player)
+                    LoadShipMenuNodes(1);
+                else
+                    LoadShipMenuNodes(0);
+            }
+
+            SelectionBox = new Rectangle(0, 0, -1, -1);
         }
 
+        private bool NonCombatShip(Ship ship)
+        {
+            return ship != null && ship.shipData.Role <= ShipData.RoleName.freighter ||
+                ship.shipData.ShipCategory == ShipData.Category.Civilian ||
+                ship.AI.State == AIState.Colonize;
+        }
+
+        private bool GetAllShipsInArea(Rectangle screenArea, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeType, out Fleet fleet)
+        {
+            ships = new Array<Ship>();
+            int playerShips = 0;
+            int nonCombatShips = 0;
+            int fleetShips = 0;
+            fleet = null;
+
+            foreach (ClickableShip clickableShip in ClickableShipsList)
+            {
+                Ship ship = clickableShip.shipToClick;
+                if (!screenArea.HitTest(clickableShip.ScreenPos)) continue;
+                if (SelectedShipList.Contains(ship)) continue;
+                ships.Add(ship);
+                playerShips += ship.loyalty == player ? 1 : 0;
+                if (NonCombatShip(ship))
+                    nonCombatShips++;
+                if (fleet == null)
+                    fleet = ship.fleet;
+                if (fleet != null && fleet == ship.fleet)
+                    fleetShips++;
+
+            }
+            bool isFleet = fleet != null && fleet.CountShips == fleetShips;
+            purgeLoyalty = playerShips != 0 && playerShips != ships.Count && !isFleet;
+            purgeType = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
+
+            return ships.Count > 0;
+
+        }
+        
         private bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
             if (targetShip == null || selectedShip == targetShip) return false;

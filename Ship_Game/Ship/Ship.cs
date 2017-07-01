@@ -29,6 +29,8 @@ namespace Ship_Game.Gameplay
         public float yBankAmount = 0.007f;
         public float maxBank = 0.5235988f;
 
+        public Vector2 Acceleration { get; private set; }
+
         public Vector2 projectedPosition;
         private Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
@@ -44,7 +46,6 @@ namespace Ship_Game.Gameplay
         private float JumpTimer = 3f;
         public AudioEmitter SoundEmitter = new AudioEmitter();
         public float ClickTimer = 10f;
-        public Vector2 VelocityLast = new Vector2();
         public Vector2 ScreenPosition = new Vector2();
         public float ScuttleTimer = -1f;
         public Vector2 FleetOffset;
@@ -1800,14 +1801,14 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public void UpdateShipStatus(float elapsedTime)
+        public void UpdateShipStatus(float deltaTime)
         {
             if (velocityMaximum <= 0f && shipData.Role <= ShipData.RoleName.station && !Empire.Universe.Paused)
                 Rotation += 0.003f;
 
-            MoveModulesTimer -= elapsedTime;
-            updateTimer -= elapsedTime;
-            if (elapsedTime > 0 && (EMPDamage > 0 || disabled))
+            MoveModulesTimer -= deltaTime;
+            updateTimer -= deltaTime;
+            if (deltaTime > 0 && (EMPDamage > 0 || disabled))
             {
                 --EMPDamage;
                 if (EMPDamage < 0f) EMPDamage = 0f;
@@ -1824,7 +1825,7 @@ namespace Ship_Game.Gameplay
             if (InCombat && !disabled && hasCommand || PlayerShip)
             {
                 foreach (Weapon weapon in Weapons)
-                    weapon.Update(elapsedTime);
+                    weapon.Update(deltaTime);
             }
             TroopBoardingDefense = 0.0f;
             for (int i = 0; i < TroopList.Count; i++)
@@ -1949,6 +1950,7 @@ namespace Ship_Game.Gameplay
                 if (loyalty.RecalculateMaxHP) HealthMax = 0;
                 foreach (ShipModule slot in ModuleSlotList)
                     slot.Update(1f);
+
                 //Check Current Shields
                 if (engineState == MoveState.Warp || !ShieldsUp)
                     shield_power = 0f;
@@ -2168,9 +2170,9 @@ namespace Ship_Game.Gameplay
                 || InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
                 || MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim) 
             {
-                if (elapsedTime > 0.0f || UpdatedModulesOnce)
+                if (deltaTime > 0.0f || UpdatedModulesOnce)
                 {
-                    UpdatedModulesOnce = elapsedTime > 0;
+                    UpdatedModulesOnce = deltaTime > 0;
 
                     float cos = (float)Math.Cos(Rotation);
                     float sin = (float)Math.Sin(Rotation);
@@ -2179,7 +2181,7 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < slots.Length; ++i)
                     {
                         if (!Active) break;
-                        slots[i].UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                        slots[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
                         ++GlobalStats.ModuleUpdates;
                     }
                 }
@@ -2192,9 +2194,9 @@ namespace Ship_Game.Gameplay
                 Die(LastDamagedBy, false);
             if (Mass < (Size / 2))
                 Mass = (Size / 2);
-            PowerCurrent -= PowerDraw * elapsedTime;
+            PowerCurrent -= PowerDraw * deltaTime;
             if (PowerCurrent < PowerStoreMax)
-                PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * elapsedTime;
+                PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * deltaTime;
 
             if (PowerCurrent <= 0.0f)
             {
@@ -2223,26 +2225,28 @@ namespace Ship_Game.Gameplay
             speed = velocityMaximum;
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             rotationRadiansPerSecond += (float)(rotationRadiansPerSecond * Level * 0.0500000007450581);
-            yBankAmount = rotationRadiansPerSecond * elapsedTime;// 50f;
-            if (engineState == Ship.MoveState.Warp)
+            yBankAmount = rotationRadiansPerSecond * deltaTime;// 50f;
+
+            Vector2 oldVelocity = Velocity;
+            if (engineState == MoveState.Warp)
             {
-                //if (this.FTLmodifier != 1f)
-                //this.velocityMaximum *= this.FTLmodifier;
-                Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)Rotation), -(float)Math.Cos((double)Rotation))) * velocityMaximum;
+                Velocity = Rotation.RadiansToDirection() * velocityMaximum;
             }
             if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered())
             {
                 EnginesKnockedOut = true;
                 velocityMaximum = Velocity.Length();
-                Velocity -= Velocity * (elapsedTime * 0.1f);
+                Velocity -= Velocity * (deltaTime * 0.1f);
                 if (engineState == MoveState.Warp)
                     HyperspaceReturn();
             }
             else
                 EnginesKnockedOut = false;
-            if (Velocity.Length() <= velocityMaximum)
-                return;
-            Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
+
+            if (Velocity.Length() > velocityMaximum)
+                Velocity = Velocity.Normalized() * velocityMaximum;
+
+            Acceleration = oldVelocity.Acceleration(Velocity, deltaTime);
         }
 
         public void ShipStatusChange()

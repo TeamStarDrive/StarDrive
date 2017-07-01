@@ -46,11 +46,11 @@ namespace Ship_Game
 
         private bool DebugMeshInspect = false;
 
-        private readonly Texture2D TexComet  = ResourceManager.Texture("GameScreens/comet2");
-        private readonly Texture2D MoonFlare = ResourceManager.Texture("MainMenu/moon_flare");
-        private readonly Texture2D AlienText1     = ResourceManager.Texture("MainMenu/moon_1");
-        private readonly Texture2D AlienText2     = ResourceManager.Texture("MainMenu/moon_2");
-        private readonly Texture2D AlienText3     = ResourceManager.Texture("MainMenu/moon_3");
+        private readonly Texture2D TexComet   = ResourceManager.Texture("GameScreens/comet2");
+        private readonly Texture2D MoonFlare  = ResourceManager.Texture("MainMenu/moon_flare");
+        private readonly Texture2D AlienText1 = ResourceManager.Texture("MainMenu/moon_1");
+        private readonly Texture2D AlienText2 = ResourceManager.Texture("MainMenu/moon_2");
+        private readonly Texture2D AlienText3 = ResourceManager.Texture("MainMenu/moon_3");
         private Vector2 MoonFlarePos = Vector2.Zero;
 
 
@@ -411,19 +411,15 @@ namespace Ship_Game
         }
 
 
-        private void NewGameClicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
-        private void TutorialsClicked(UIButton button) => ScreenManager.AddScreen(new TutorialScreen(this));
-        private void LoadGameClicked(UIButton button)  => ScreenManager.AddScreen(new LoadSaveScreen(this));
-        private void OptionsClicked(UIButton button)   => ScreenManager.AddScreen(new OptionsScreen(this));
-        private void ModsClicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
-        private void InfoClicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
-        private void ExitClicked(UIButton button)      => Game1.Instance.Exit();
-
-        private void ShipToolClicked(UIButton button)
-        {
-            ScreenManager.AddScreen(new ShipToolScreen());                
-            //ExitScreen();
-        }
+        private void NewGame_Clicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
+        private void Tutorials_Clicked(UIButton button) => ScreenManager.AddScreen(new TutorialScreen(this));
+        private void LoadGame_Clicked(UIButton button)  => ScreenManager.AddScreen(new LoadSaveScreen(this));
+        private void Options_Clicked(UIButton button)   => ScreenManager.AddScreen(new OptionsScreen(this));
+        private void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
+        private void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
+        private void Exit_Clicked(UIButton button)      => Game1.Instance.Exit();
+        private void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
+        private void DevSandbox_Clicked(UIButton button)  => ScreenManager.AddScreen(new DeveloperSandbox(this));
 
         public override void LoadContent()
         {
@@ -449,14 +445,15 @@ namespace Ship_Game
             StarFieldRect = new Rectangle(0, 0, (int)size.X, (int)size.Y);
 
             BeginVLayout(size.X - 200, size.Y / 2 - 100, UIButton.StyleSize().Y + 15);
-                Button(titleId: 1,      click: NewGameClicked);
-                Button(titleId: 3,      click: TutorialsClicked);
-                Button(titleId: 2,      click: LoadGameClicked);
-                Button(titleId: 4,      click: OptionsClicked);
-                Button("Mods",          click: ModsClicked);
-                Button("Hull Designer", click: ShipToolClicked);
-                Button("BlackBox Info", click: InfoClicked);
-                Button(titleId: 5,      click: ExitClicked);
+                Button(titleId: 1,      click: NewGame_Clicked);
+                Button(titleId: 3,      click: Tutorials_Clicked);
+                Button(titleId: 2,      click: LoadGame_Clicked);
+                Button(titleId: 4,      click: Options_Clicked);
+                Button("Mods",          click: Mods_Clicked);
+                //Button("Hull Designer", click: ShipTool_Clicked);
+                Button("Dev Sandbox",   click: DevSandbox_Clicked);
+                Button("BlackBox Info", click: Info_Clicked);
+                Button(titleId: 5,      click: Exit_Clicked);
             EndLayout();
 
             ScreenManager.ClearScene();
