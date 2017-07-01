@@ -385,11 +385,11 @@ namespace Ship_Game.Gameplay
 
         public Vector2 FindProjectedImpactPoint(GameplayObject target)
         {
-            GameplayObject targetShip = target is ShipModule sm ? sm.GetParent() : target;
+            Ship targetShip = target is ShipModule sm ? sm.GetParent() : (Ship)target;
             Vector2 center = Module?.Center ?? Center;
 
             Vector2 pip = center.FindProjectedImpactPoint(
-                (Owner?.Velocity ?? Vector2.Zero), ProjectileSpeed, target.Center, targetShip.Velocity);
+                (Owner?.Velocity ?? Vector2.Zero), ProjectileSpeed, target.Center, targetShip.Velocity, targetShip.VelocityLast);
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
             return pip;

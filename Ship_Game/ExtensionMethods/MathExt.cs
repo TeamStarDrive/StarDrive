@@ -316,43 +316,52 @@ namespace Ship_Game
             return targetPos + targetVelocity * time;
         }
 
-        public static Vector2 FindProjectedImpactPoint(this Vector2 weaponPos, Vector2 ownerVelocity, 
-            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        public static float Determinant(this Vector2 v1, Vector2 v2)
         {
-            Vector2 delta = targetPos - weaponPos;
+            return (v1.X * v2.Y) - (v2.X * v1.Y);
+        }
 
-            // projectile inherits parent velocity
-            float sqProjectileSpeed = projectileSpeed*projectileSpeed + ownerVelocity.LengthSquared();
+        public static Vector2 FindProjectedImpactPoint(this Vector2 weaponPos, Vector2 ownerVelocity, 
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity, Vector2 lastVelocity)
+        {
+            float predictedTimeToImpact = findRabbitInterceptTime(weaponPos, projectileSpeed, targetPos, targetVelocity);
+            if (predictedTimeToImpact < 0)
+                return Vector2.Zero;
+            Vector2 firstResult = targetPos + (targetVelocity - ownerVelocity) * predictedTimeToImpact;
+            
+            if (lastVelocity == targetVelocity)       //if no acceleration is evident (or provided) the first result is good
+                return firstResult;
 
-            float a  = targetVelocity.Dot(targetVelocity) - sqProjectileSpeed;
-            float bm = -2 * delta.Dot(targetVelocity);
-            float c  = delta.Dot(delta);
+            //repeat adjusting for acceleration
+            Vector2 finalVelocity = targetVelocity + (targetVelocity - lastVelocity) * predictedTimeToImpact;
+            predictedTimeToImpact = findRabbitInterceptTime(weaponPos, projectileSpeed, targetPos, finalVelocity);
+            if (predictedTimeToImpact < 0) //muddy case, as projectile could still intercept target before reaching runaway speed
+                return Vector2.Zero;       //negative TTI will skew the result anyway though
+            Vector2 secondResult = targetPos + (finalVelocity - ownerVelocity) * predictedTimeToImpact;
+            Vector2 finalOffset = secondResult - firstResult;  //second result is wildly inaccurate, but gives us an idea of where the target will actually be
+            return firstResult + finalOffset / 2;              //and the truth is somewhere in the middle.
+            //this is wildly inaccurate in math terms too, but should still constitute an improvement
+        }
 
-            // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
-            if (Abs(a) < 0.0001f)
-                return Vector2.Zero; // no solution
+        private static float findRabbitInterceptTime(Vector2 weaponPos, float projectileSpeed, 
+            Vector2 targetPos, Vector2 targetVelocity)
+        {
+            Vector2 targetDelta = targetPos + targetVelocity * 10; //virtual path vector
+            float targetSpeed   = targetVelocity.Length();
+            if (targetSpeed == 0)//div0 avoidance
+                return (targetPos - weaponPos).Length() / projectileSpeed;
 
-            float sqrt = bm*bm - 4 * a * c;
-            if (sqrt < 0.0f)
-                return Vector2.Zero; // no solution
-            sqrt = (float)Sqrt(sqrt);
+            float sin_b = (weaponPos - targetPos).Determinant(targetDelta - targetPos) / ((weaponPos - targetPos).Length() 
+                * (targetDelta - targetPos).Length());
+            float sin_a = (targetSpeed / projectileSpeed) * sin_b;
+            if (Abs(sin_a) > 1)
+                return -1; // never catch the rabbit
 
-            // Those values are the time values at which point you can hit the target.
-            float timeToImpact1 = (bm - sqrt) / (2 * a);
-            float timeToImpact2 = (bm + sqrt) / (2 * a);
-
-            // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
-            // Take any of the remaining positive values (probably the smaller one).
-            if (timeToImpact1 <= 0.0f && timeToImpact2 <= 0.0f)
-                 return Vector2.Zero; // no solution, can't go back in time
-
-            float predictedTimeToImpact;
-            if      (timeToImpact1 < 0.0f) predictedTimeToImpact = timeToImpact2;
-            else if (timeToImpact2 < 0.0f) predictedTimeToImpact = timeToImpact1;
-            else predictedTimeToImpact = timeToImpact1 < timeToImpact2 ? timeToImpact1 : timeToImpact2;
-
-            // this is the predicted target position
-            return targetPos + targetVelocity * predictedTimeToImpact;
+            float sin_c = (sin_a * (float)Sqrt(1 - (sin_b * sin_b))) + (sin_b * (float)Sqrt(1 - (sin_a * sin_a)));
+            if (sin_c == 0) //rarer div0 avoidance
+                return 0;
+            
+            return ((targetPos - weaponPos).Length() * (sin_a / sin_c)) / targetSpeed; // predicted time to intercept based on constant speed.
         }
 
         // can be used for collision detection
