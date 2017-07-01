@@ -24,7 +24,8 @@ namespace Ship_Game
         {
             try
             {
-                FileInfo headerToDel = new FileInfo(Path + "Headers/" + fileToDel.Name.Substring(0, fileToDel.Name.LastIndexOf('.')));       // find header of save file
+                // find header of save file
+                var headerToDel = new FileInfo(Path + "Headers/" + fileToDel.Name.Substring(0, fileToDel.Name.LastIndexOf('.')));
                 headerToDel.Delete();
             }
             catch { }

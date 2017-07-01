@@ -34,8 +34,6 @@ namespace Ship_Game
         private Matrix Projection;
 
         private AnimationController ShipAnim;
-        private MouseState CurrentMouse;
-        private MouseState PreviousMouse;
 
         private Rectangle Portrait;
         private Rectangle LogoRect;
@@ -377,8 +375,23 @@ namespace Ship_Game
                     Log.Info("rot {0}   {1}", ShipRotation, MoonRotation);
             }
 
+            // handle buttons and stuff
+            if (base.HandleInput(input))
+                return true; // something was clicked, return early
+
+            // we didn't hit any buttons or stuff, so just spawn a comet
             if (input.InGameSelect)
             {
+                var c = new Comet
+                {
+                    Position = new Vector2(RandomMath.RandomBetween(-100f,
+                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100), 0f)
+                };
+                c.Velocity = c.Position.DirectionToTarget(input.CursorPosition);
+                c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
+                CometList.Add(c);
+
+                // and if we clicked on the moon, then play a cool sfx
                 Viewport viewport = Viewport;
                 Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, Matrix.Identity);
                 Vector3 farPoint  = viewport.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, Matrix.Identity);
@@ -393,83 +406,24 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("sd_bomb_impact_01");
                 }
             }
-            CurrentMouse = input.MouseCurr;
-            bool okcomet = true;
-            foreach (UIButton b in Buttons)
-            {
-                if (!b.Rect.HitTest(CurrentMouse.X, CurrentMouse.Y))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    okcomet = false;
-                    if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-                        GameAudio.PlaySfxAsync("mouse_over4");
 
-                    b.State = UIButton.PressState.Hover;
-                    if (CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed)
-                        b.State = UIButton.PressState.Pressed;
-
-                    if (CurrentMouse.LeftButton != ButtonState.Pressed || PreviousMouse.LeftButton != ButtonState.Released)
-                    {
-                        continue;
-                    }
-                    switch (b.Launches)
-                    {
-                        case "New Campaign":
-                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                            OnPlayGame();
-                            break;
-                        case "Tutorials":
-                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                            ScreenManager.AddScreen(new TutorialScreen(this));
-                            break;
-                        case "Load Game":
-                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                            ScreenManager.AddScreen(new LoadSaveScreen(this));
-                            break;
-                        case "Options":
-                            ScreenManager.AddScreen(new OptionsScreen(this)
-                            {
-                                TitleText  = Localizer.Token(4),
-                                MiddleText = Localizer.Token(4004)
-                            });
-                            break;
-                        case "Mods":
-                            ScreenManager.AddScreen(new ModManager(this));
-                            break;
-                        case "Exit":
-                            Game1.Instance.Exit();
-                            break;
-                        case "Info":
-                            GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                            ScreenManager.AddScreen(new InGameWiki(this));
-                            break;
-                        
-                    }
-                }
-            }
-            if (input.C && input.KeysCurr.IsKeyDown(Keys.LeftShift))
-            {
-                ScreenManager.AddScreen(new ShipToolScreen());                
-                ExitScreen();
-            }
-            if (okcomet && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
-            {
-                var c = new Comet
-                {
-                    Position = new Vector2(RandomMath.RandomBetween(-100f,
-                                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100), 0f)
-                };
-                c.Velocity = c.Position.DirectionToTarget(input.CursorPosition);
-                c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
-                CometList.Add(c);
-            }
-            PreviousMouse = input.MousePrev;
-            return base.HandleInput(input);
+            return false;
         }
 
+
+        private void NewGameClicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
+        private void TutorialsClicked(UIButton button) => ScreenManager.AddScreen(new TutorialScreen(this));
+        private void LoadGameClicked(UIButton button)  => ScreenManager.AddScreen(new LoadSaveScreen(this));
+        private void OptionsClicked(UIButton button)   => ScreenManager.AddScreen(new OptionsScreen(this));
+        private void ModsClicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
+        private void InfoClicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
+        private void ExitClicked(UIButton button)      => Game1.Instance.Exit();
+
+        private void ShipToolClicked(UIButton button)
+        {
+            ScreenManager.AddScreen(new ShipToolScreen());                
+            //ExitScreen();
+        }
 
         public override void LoadContent()
         {
@@ -494,25 +448,23 @@ namespace Ship_Game
                         ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
             StarFieldRect = new Rectangle(0, 0, (int)size.X, (int)size.Y);
 
-            var pos = new Vector2(size.X - 200, size.Y / 2 - 100);
-            var button = Button(pos.X, pos.Y, "New Campaign", localization: 1);
-
-            Vector2 NextPos() => pos = new Vector2(pos.X, pos.Y + button.Height + 15);
-
-            //Button(ref pos, "", "Battle Mode");
-            Button(NextPos(), "Tutorials", localization: 3);
-            Button(NextPos(), "Load Game", localization: 2);
-            Button(NextPos(), "Options", localization: 4);
-            Button(NextPos(), "Mods", "Mods");
-            Button(NextPos(), "Info", "BlackBox Info");
-            Button(NextPos(), "Exit", localization: 5);
+            BeginVLayout(size.X - 200, size.Y / 2 - 100, UIButton.StyleSize().Y + 15);
+                Button(titleId: 1,      click: NewGameClicked);
+                Button(titleId: 3,      click: TutorialsClicked);
+                Button(titleId: 2,      click: LoadGameClicked);
+                Button(titleId: 4,      click: OptionsClicked);
+                Button("Mods",          click: ModsClicked);
+                Button("Hull Designer", click: ShipToolClicked);
+                Button("BlackBox Info", click: InfoClicked);
+                Button(titleId: 5,      click: ExitClicked);
+            EndLayout();
 
             ScreenManager.ClearScene();
 
             // @todo Why are these global inits here??
             ShieldManager.LoadContent(Game1.GameContent);
             Beam.BeamEffect = Game1.GameContent.Load<Effect>("Effects/BeamFX");
-            BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+            BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.GraphicsDevice, null)
             {
                 World = Matrix.Identity,
                 View = View,
@@ -562,7 +514,7 @@ namespace Ship_Game
         private void LoadTestContent()
         {
             //var atlas = TextureAtlas.Load(ScreenManager.Content, "Explosions/smaller/shipExplosion");
-            ResetMusic();
+            //ResetMusic();
         }
 
         public void OnPlaybackStopped(object sender, EventArgs e)
@@ -570,11 +522,6 @@ namespace Ship_Game
             if (WaveOut == null) return;
             WaveOut.Dispose();
             Mp3FileReader.Dispose();
-        }
-
-        private void OnPlayGame()
-        {
-            ScreenManager.AddScreen(new RaceDesignScreen(ScreenManager.GraphicsDevice, this));
         }
 
         private void PlayMp3(string fileName)
