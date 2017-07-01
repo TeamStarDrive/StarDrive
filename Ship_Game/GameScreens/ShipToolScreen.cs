@@ -88,7 +88,7 @@ namespace Ship_Game
 
         private ShipModule ActiveModule;
 
-        public ShipToolScreen() : base(null /*no parent*/)
+        public ShipToolScreen(GameScreen parent) : base(parent)
         {
             base.TransitionOnTime = TimeSpan.FromSeconds(0);
             base.TransitionOffTime = TimeSpan.FromSeconds(0);

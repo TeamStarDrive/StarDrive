@@ -552,7 +552,7 @@ namespace Ship_Game.AI {
         private void Stop(float elapsedTime)
         {
             Owner.HyperspaceReturn();
-            if (Owner.Velocity == Vector2.Zero || Owner.Velocity.Length() > Owner.VelocityLast.Length())
+            if (Owner.Velocity == Vector2.Zero)
             {
                 Owner.Velocity = Vector2.Zero;
                 return;
@@ -572,7 +572,7 @@ namespace Ship_Game.AI {
         private void Stop(float elapsedTime, ShipGoal Goal)
         {
             Owner.HyperspaceReturn();
-            if (Owner.Velocity == Vector2.Zero || Owner.Velocity.Length() > Owner.VelocityLast.Length())
+            if (Owner.Velocity == Vector2.Zero)
             {
                 Owner.Velocity = Vector2.Zero;
                 OrderQueue.RemoveFirst();

@@ -345,14 +345,12 @@ namespace Ship_Game.Gameplay
                 return;
             if (!PrepareToFireSalvo())
                 return;
-            //check for new direction
-            //if target is gone, keep firing as before
-            if (SalvoTarget != null)
+            
+            if (SalvoTarget != null) // check for new direction
             {
-                Vector2 targetPos = FindProjectedImpactPoint(SalvoTarget);
-                //if target is out of fire arc, keep firing as before
-                if (CheckFireArc(targetPos, SalvoTarget))
-                    SalvoDirection = (targetPos - Module.Center).ToRadians() - Owner.Rotation;
+                // update direction only if we have a new valid pip
+                if (ProjectedImpactPoint(SalvoTarget, out Vector2 pip) && CheckFireArc(pip, SalvoTarget))
+                    SalvoDirection = (pip - Module.Center).ToRadians() - Owner.Rotation;
             }
             
             SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget);
@@ -363,8 +361,11 @@ namespace Ship_Game.Gameplay
             if (!CheckFireArc(targetPos, target) ||!PrepareToFire())
                 return;
 
-            Vector2 pos = target != null ? FindProjectedImpactPoint(target) : targetPos;
-            Vector2 direction = (pos - Module.Center).Normalized();
+            Vector2 pip = targetPos;
+            if (target != null && !ProjectedImpactPoint(target, out pip))
+                return; // no projected impact point
+
+            Vector2 direction = (pip - Module.Center).Normalized();
 
             SpawnSalvo(direction, target);
 
@@ -383,16 +384,17 @@ namespace Ship_Game.Gameplay
             SalvoTarget = null;
         }
 
-        public Vector2 FindProjectedImpactPoint(GameplayObject target)
+        public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
-            Ship targetShip = target is ShipModule sm ? sm.GetParent() : (Ship)target;
-            Vector2 center = Module?.Center ?? Center;
+            Ship targetShip  = target is ShipModule sm ? sm.GetParent() : (Ship)target;
+            Vector2 center   = Module?.Center ?? Center;
+            Vector2 ownerVel = Owner?.Velocity ?? Vector2.Zero;
 
-            Vector2 pip = center.FindProjectedImpactPoint(
-                (Owner?.Velocity ?? Vector2.Zero), ProjectileSpeed, target.Center, targetShip.Velocity, targetShip.VelocityLast);
+            pip = center.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
+                     target.Center, targetShip.Velocity, targetShip.Acceleration);
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
-            return pip;
+            return pip != Vector2.Zero;
         }
 
         public void UpdatePrimaryFireTarget(GameplayObject prevTarget, 
@@ -537,8 +539,9 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            Vector2 impact = FindProjectedImpactPoint(target);
-            Vector2 direction = (impact - Center).Normalized();
+            if (!ProjectedImpactPoint(target, out Vector2 pip))
+                return;
+            Vector2 direction = (pip - Center).Normalized();
 
             foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
                 Projectile.Create(this, planet, fireSource.Direction, target);
