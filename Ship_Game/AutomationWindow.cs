@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -69,7 +70,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (/*!ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || */input.RightMouseClick)
+            if (input.RightMouseClick)
             {
                 IsOpen = false;
                 return false;
@@ -87,6 +88,16 @@ namespace Ship_Game
             return false;
         }
 
+        private static void WarnBuildableShips()
+        {
+            var sb = new StringBuilder("Player.ShipsWeCanBuild = {\n");
+
+            foreach (string ship in EmpireManager.Player.ShipsWeCanBuild)
+                sb.Append("  '").Append(ship).Append("',\n");
+            sb.Append("}");
+
+            Log.Warning(sb.ToString());
+        }
 
         private static void InitDropOptions(DropOptions<int> options, ref string automationShip, string defaultShip, Func<Ship, bool> predicate)
         {
@@ -103,7 +114,7 @@ namespace Ship_Game
                 if (!options.SetActiveEntry(defaultShip)) // we can't build a default ship??? wtf
                 {
                     Log.Warning("Failed to enable default automation ship '{0}' for player {1}", defaultShip, EmpireManager.Player);
-                    Log.Warning("Buildable ships: {0}", EmpireManager.Player.ShipsWeCanBuild);
+                    WarnBuildableShips();
                     options.AddOption(defaultShip, 0);
                 }
 
