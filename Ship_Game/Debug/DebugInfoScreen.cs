@@ -167,14 +167,15 @@ namespace Ship_Game.Debug
                     if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided)
                         continue;                        
 
-                    Vector2 impactNew = weapon.FindProjectedImpactPoint(ship.AI.Target);
+                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.Pink);
+
                     Vector2 impactOld = weapon.Center.FindProjectedImpactPointOld(ship.Velocity,
                         weapon.ProjectileSpeed, module.Center, ship.AI.Target.Velocity);
-
-                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.Pink);
-    
-                    Screen.DrawLineProjected(weapon.Center, impactNew, Color.Yellow);
                     Screen.DrawLineProjected(weapon.Center, impactOld, Color.LightYellow);
+                    
+                    if (weapon.ProjectedImpactPoint(ship.AI.Target, out Vector2 impactNew))
+                        Screen.DrawLineProjected(weapon.Center, impactNew, Color.Yellow);
+
 
                     Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.Weapon == weapon);
                     if (projectile != null)
