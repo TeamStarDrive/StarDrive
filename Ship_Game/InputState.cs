@@ -223,7 +223,7 @@ namespace Ship_Game
         private void UpdateTimers(float time)
         {
             Vector2 endHoldPoint =  Vector2.Zero;
-            TimerUpdate(time, LeftMouseHeld(0), ref LeftMouseDownTime, ref LeftMouseWasHeldInteral, ref LeftHeld);
+            TimerUpdate(time, LeftMouseDown, ref LeftMouseDownTime, ref LeftMouseWasHeldInteral, ref LeftHeld);
             EndLeftHold = endHoldPoint;
             TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
             EndRightHold       = endHoldPoint;
