@@ -107,7 +107,7 @@ namespace Ship_Game.AI {
         {
             Vector2 ownerCenter = Owner.Center;
             Vector2 interceptPoint = ownerCenter.FindProjectedImpactPoint(
-                                        Owner.Velocity, Owner.speed, Target.Center, Target.Velocity);
+                                        Owner.Velocity, Owner.speed, Target.Center, Target.Velocity, Target.Velocity); //over ranges this happens at, adjusting for acceleration without capping is going to give ridiculous results
             float distanceToTarget = ownerCenter.Distance(Target.Center);
             float adjustedWeaponRange = Owner.maxWeaponsRange * .35f;
             float spacerdistance = Owner.Radius * 3 + Target.Radius;
