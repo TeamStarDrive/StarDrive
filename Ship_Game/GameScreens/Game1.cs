@@ -26,6 +26,7 @@ namespace Ship_Game
         public Vector2 ScreenArea { get; private set; }
         public Vector2 ScreenCenter { get; private set; }
 
+        public float DeltaTime { get; private set; }
         public GameTime GameTime;
 
         public Game1()
@@ -104,34 +105,6 @@ namespace Ship_Game
             ScreenManager.ExitAll();
         }
 
-        public void ApplySettings()
-        {
-            Graphics.ApplyChanges();
-
-            PresentationParameters p = GraphicsDevice.PresentationParameters;
-            ScreenWidth  = p.BackBufferWidth;
-            ScreenHeight = p.BackBufferHeight;
-            ScreenArea   = new Vector2(ScreenWidth, ScreenHeight);
-            ScreenCenter = new Vector2(ScreenWidth * 0.5f, ScreenHeight * 0.5f);
-            Log.Info("ApplySettings(): {0}x{1}", ScreenWidth, ScreenHeight);
-
-
-            Viewport     = GraphicsDevice.Viewport;
-            ScreenManager?.UpdatePreferences(RenderPrefs);
-            ScreenManager?.UpdateViewports();
-        }
-
-        protected override void Draw(GameTime gameTime)
-        {
-            if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
-                return;
-
-            GameTime = gameTime;
-            GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
-            ScreenManager.Draw(gameTime);
-            base.Draw(gameTime);
-        }
-
         protected override void Initialize()
         {
             Window.Title = "StarDrive BlackBox";
@@ -152,6 +125,51 @@ namespace Ship_Game
             ScreenManager.AddScreen(new GameLoadingScreen());
             IsLoaded = true;
         }
+
+        protected override void UnloadContent()
+        {
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            GameTime = gameTime;
+            DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            GameAudio.Update();
+            ScreenManager.Update(gameTime);
+            base.Update(gameTime);
+        }
+
+
+        protected override void Draw(GameTime gameTime)
+        {
+            if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
+                return;
+
+            GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
+            ScreenManager.Draw(gameTime);
+            base.Draw(gameTime);
+        }
+
+
+
+        
+        public void ApplySettings()
+        {
+            Graphics.ApplyChanges();
+
+            PresentationParameters p = GraphicsDevice.PresentationParameters;
+            ScreenWidth  = p.BackBufferWidth;
+            ScreenHeight = p.BackBufferHeight;
+            ScreenArea   = new Vector2(ScreenWidth, ScreenHeight);
+            ScreenCenter = new Vector2(ScreenWidth * 0.5f, ScreenHeight * 0.5f);
+            Log.Info("ApplySettings(): {0}x{1}", ScreenWidth, ScreenHeight);
+
+
+            Viewport     = GraphicsDevice.Viewport;
+            ScreenManager?.UpdatePreferences(RenderPrefs);
+            ScreenManager?.UpdateViewports();
+        }
+        
 
         private static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
@@ -212,17 +230,6 @@ namespace Ship_Game
                 var size = Screen.PrimaryScreen.Bounds.Size;
                 form.Location = new System.Drawing.Point(size.Width / 2 - width / 2, size.Height / 2 - height / 2);
             }
-        }
-
-        protected override void UnloadContent()
-        {
-        }
-
-        protected override void Update(GameTime gameTime)
-        {
-            GameAudio.Update();
-            ScreenManager.Update(gameTime);
-            base.Update(gameTime);
         }
 
         protected override void Dispose(bool disposing)
