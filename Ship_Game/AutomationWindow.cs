@@ -48,7 +48,6 @@ namespace Ship_Game
             UpdateDropDowns();
         }
 
-
         public void ToggleVisibility()
         {
             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -66,7 +65,6 @@ namespace Ship_Game
 
             base.Draw(spriteBatch);
         }
-
 
         public override bool HandleInput(InputState input)
         {

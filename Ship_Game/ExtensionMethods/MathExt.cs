@@ -316,25 +316,24 @@ namespace Ship_Game
             return targetPos + targetVelocity * time;
         }
 
-        public static Vector2 FindProjectedImpactPoint(this Vector2 weaponPos, Vector2 ownerVelocity, 
-            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        // assume we have a relative reference frame and weaponPos is stationary
+        // use additional calculations to set up correct interceptSpeed and deltaVel
+        public static float ProjectedImpactTime(this Vector2 weaponPos, Vector2 targetPos, 
+                                                     Vector2 deltaV, float interceptSpeed)
         {
-            Vector2 delta = targetPos - weaponPos;
+            Vector2 deltaPos = targetPos - weaponPos;
 
-            // projectile inherits parent velocity
-            float sqProjectileSpeed = projectileSpeed*projectileSpeed + ownerVelocity.LengthSquared();
-
-            float a  = targetVelocity.Dot(targetVelocity) - sqProjectileSpeed;
-            float bm = -2 * delta.Dot(targetVelocity);
-            float c  = delta.Dot(delta);
+            float a  = deltaV.Dot(deltaV) - (interceptSpeed*interceptSpeed);
+            float bm = -2 * deltaPos.Dot(deltaV);
+            float c  = deltaPos.Dot(deltaPos);
 
             // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
             if (Abs(a) < 0.0001f)
-                return Vector2.Zero; // no solution
+                return 0f; // no solution
 
             float sqrt = bm*bm - 4 * a * c;
             if (sqrt < 0.0f)
-                return Vector2.Zero; // no solution
+                return 0f; // no solution
             sqrt = (float)Sqrt(sqrt);
 
             // Those values are the time values at which point you can hit the target.
@@ -343,16 +342,55 @@ namespace Ship_Game
 
             // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
             // Take any of the remaining positive values (probably the smaller one).
-            if (timeToImpact1 <= 0.0f && timeToImpact2 <= 0.0f)
-                 return Vector2.Zero; // no solution, can't go back in time
+            if (timeToImpact1 < 0f) return Max(0f, timeToImpact2);
+            if (timeToImpact2 < 0f) return timeToImpact1;
+            return Min(timeToImpact1, timeToImpact2);
+        }
 
-            float predictedTimeToImpact;
-            if      (timeToImpact1 < 0.0f) predictedTimeToImpact = timeToImpact2;
-            else if (timeToImpact2 < 0.0f) predictedTimeToImpact = timeToImpact1;
-            else predictedTimeToImpact = timeToImpact1 < timeToImpact2 ? timeToImpact1 : timeToImpact2;
+        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, float weaponSpeed, 
+                                                      Vector2 targetPos, Vector2 targetVel)
+        {
+            Vector2 deltaV = targetVel-ownerVel;
+            float impactTime = weaponPos.ProjectedImpactTime(targetPos, deltaV, weaponSpeed);
+            if (impactTime <= 0f)
+                return Vector2.Zero; // no PIP: make sure to check for this result
 
             // this is the predicted target position
-            return targetPos + targetVelocity * predictedTimeToImpact;
+            return targetPos + deltaV * impactTime;
+        }
+
+        // http://www.dummies.com/education/science/physics/finding-distance-using-initial-velocity-time-and-acceleration/
+        private static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, Vector2 accel, float time)
+        {
+            // s = v0*t + (a*t^2)/2
+            Vector2 dist = vel*time + accel*(time*time*0.5f);
+            return pos + dist;
+        }
+
+        public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
+        {
+            return (endVel-startVel) / deltaTime;
+        }
+
+        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, float weaponSpeed, 
+                                                      Vector2 targetPos, Vector2 targetVel, Vector2 targetAccel)
+        {
+            Vector2 deltaV = targetVel-ownerVel;
+            float impactTime = weaponPos.ProjectedImpactTime(targetPos, deltaV, weaponSpeed);
+            if (impactTime <= 0f)
+                return Vector2.Zero; // no PIP: make sure to check for this result
+
+            // project target position at impactTime
+            Vector2 pip  = ProjectPosition(targetPos, deltaV, targetAccel, impactTime);
+            Vector2 dist = pip - weaponPos;
+
+            float impactTime2 = dist.Length() / weaponSpeed; // t = s/v
+            if (impactTime2 <= 0f)
+                return Vector2.Zero; // incase of head-on collision
+
+            // this is the final corrected PIP:
+            Vector2 pip2 = ProjectPosition(targetPos, deltaV, targetAccel, impactTime2);
+            return pip2;
         }
 
         // can be used for collision detection
