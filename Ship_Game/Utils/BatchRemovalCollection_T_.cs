@@ -19,9 +19,11 @@ namespace Ship_Game
         public BatchRemovalCollection(bool noQueueForRemoval)
         {
         }
-        public BatchRemovalCollection(ICollection<T> listToCopy)
+        public BatchRemovalCollection(ICollection<T> listToCopy, bool noRemoveQueue = false)
         {
             base.AddRange(listToCopy);
+            if (noRemoveQueue) return;
+            PendingRemovals = new ConcurrentStack<T>();
         }
 
         // Acquires a deterministic Read Lock on this Collection
