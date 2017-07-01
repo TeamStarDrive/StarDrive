@@ -20,7 +20,7 @@ namespace Ship_Game
         private bool HandleGUIClicks(InputState input)
         {
             bool flag = dsbw != null && showingDSBW && dsbw.HandleInput(input);
-            if (aw.isOpen && aw.HandleInput(input))
+            if (aw.IsOpen && aw.HandleInput(input))
                 return true;
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
@@ -65,7 +65,7 @@ namespace Ship_Game
 
             if (input.FTLOverlay)       ToggleUIComponent("sd_ui_accept_alt3", ref showingFTLOverlay);
             if (input.RangeOverlay)     ToggleUIComponent("sd_ui_accept_alt3", ref showingRangeOverlay);
-            if (input.AutomationWindow) ToggleUIComponent("sd_ui_accept_alt3", ref aw.isOpen);
+            if (input.AutomationWindow) aw.ToggleVisibility();
             if (input.PlanetListScreen)
                 ScreenManager.AddScreen(new PlanetListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ShipListScreen) ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI, "sd_ui_accept_alt3"));

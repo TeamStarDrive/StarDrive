@@ -44,10 +44,21 @@ namespace Ship_Game
             public override string ToString() => $"{Name}: {Value}";
         }
 
+
         public DropOptions(UIElementV2 parent, Rectangle rect) : base(parent, rect)
         {
             Reset();
         }
+        public DropOptions(UIElementV2 parent, Vector2 pos, int width, int height)
+            : base(parent, pos, new Vector2(width, height))
+        {
+            Reset();
+        }
+        public DropOptions(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
+        {
+            Reset();
+        }
+
 
         public void Clear()
         {

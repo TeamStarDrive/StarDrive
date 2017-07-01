@@ -311,7 +311,7 @@ namespace Ship_Game
             EnterNameArea.Text = this.InitText;
             EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            DoBtn = ButtonSmall(ScreenWidth / 2 - 84, ScreenHeight / 2 - 100,"DoBtn", mode == SLMode.Save ? "Save" : "Load");
+            DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "DoBtn", mode == SLMode.Save ? "Save" : "Load");
 
             base.LoadContent();
         }
@@ -346,11 +346,6 @@ namespace Ship_Game
             }
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
         protected class FileData
         {
             public string FileName;
@@ -363,16 +358,6 @@ namespace Ship_Game
             public FileData()
             {
             }
-
-            /*public FileData(FileInfo fileLink, object data)
-            {
-                this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
-                this.FileName = "";
-                this.Info = "";
-                this.ExtraInfo = "";
-                this.FileLink = fileLink;
-                this.Data = data;
-            }*/
 
             public FileData(FileInfo fileLink, object data, string fileName)
             {

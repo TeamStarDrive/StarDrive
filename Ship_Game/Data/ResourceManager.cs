@@ -621,10 +621,30 @@ namespace Ship_Game
             return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
         }
 
+        public static FileInfo[] GetAllXnbModelFiles(string folder)
+        {
+            FileInfo[] files = GatherFilesUnified("Model", "xnb");
+            var modelFiles = new Array<FileInfo>();
+
+            for (int i = 0; i < files.Length; ++i)
+            {
+                FileInfo file = files[i];
+                string name = file.Name;
+                if (name.EndsWith("_d.xnb") || name.EndsWith("_g.xnb") ||
+                    name.EndsWith("_n.xnb") || name.EndsWith("_s.xnb") ||
+                    name.EndsWith("_d_0.xnb") || name.EndsWith("_g_0.xnb") ||
+                    name.EndsWith("_n_0.xnb") || name.EndsWith("_s_0.xnb"))
+                {
+                    continue;
+                }
+                modelFiles.Add(file);
+            }
+            return modelFiles.ToArray();
+        }
 
         public static void ExportAllXnbMeshes()
         {
-            FileInfo[] files = GatherFilesUnified("Model", "xnb");
+            FileInfo[] files = GetAllXnbModelFiles("Model");
 
             void ExportXnbMesh(int start, int end)
             {
@@ -633,19 +653,10 @@ namespace Ship_Game
                     try
                     {
                         FileInfo file = files[i];
-                        string name = file.Name;
-                        if (name.EndsWith("_d.xnb") || name.EndsWith("_g.xnb") ||
-                            name.EndsWith("_n.xnb") || name.EndsWith("_s.xnb") ||
-                            name.EndsWith("_d_0.xnb") || name.EndsWith("_g_0.xnb") ||
-                            name.EndsWith("_n_0.xnb") || name.EndsWith("_s_0.xnb"))
-                        {
-                            continue;
-                        }
-
                         string relativePath = file.RelPath().Replace("Content\\", "");
                         var model = ContentManager.Load<Model>(relativePath);
 
-                        string nameNoExt = Path.GetFileNameWithoutExtension(name);
+                        string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
                         string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "obj");
 
                         if (!File.Exists(savePath))

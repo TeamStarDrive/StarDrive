@@ -16,8 +16,6 @@ namespace Ship_Game
         private UIButton Return;
         private UIButton Exit;
         private UIButton ExitToMain;
-        private MouseState currentMouse;
-        private MouseState previousMouse;
 
         private GameplayMMScreen(GameScreen parent) : base(parent)
         {
@@ -46,128 +44,102 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            base.ScreenManager.SpriteBatch.Begin();
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            spriteBatch.Begin();
             if (SavedGame.IsSaving)
             {
                 GameTime gameTime = Game1.Instance.GameTime;
                 TimeSpan totalGameTime = gameTime.TotalGameTime;
-                float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                 f = Math.Abs(f) * 255f;
                 Color flashColor = new Color(255, 255, 255, (byte)f);
                 Vector2 pausePos = new Vector2(ScreenManager.Center().X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
+                spriteBatch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
             }
-            this.window.Draw();
+            window.Draw();
 
             Save.Enabled = SavedGame.NotSaving;
             foreach (UIButton b in Buttons)
-            {
-                b.Draw(ScreenManager.SpriteBatch);
-            }
-            ScreenManager.SpriteBatch.End();
+                b.Draw(spriteBatch);
+
+            spriteBatch.End();
         }
 
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = input.MouseCurr;
-            Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
-            if (input.KeysCurr.IsKeyDown(Keys.O) && !input.KeysPrev.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
+            if (input.WasKeyPressed(Keys.O) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
             if (input.Escaped || input.RightMouseClick)
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
-            foreach (UIButton b in this.Buttons)
-            {
-                if (!b.Rect.HitTest(mousePos))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    switch (b.Launches)
-                    {
-                        case "Save":
-                        case "Load Game":
-                        case "Exit to Windows":
-                            if (SavedGame.NotSaving) b.State = UIButton.PressState.Hover; break;
-                        default: b.State = UIButton.PressState.Hover; break;
-                    }
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                    {
-                        continue;
-                    }
-                    string launches1 = b.Launches;
-                    string str1 = launches1;
-                    if (launches1 == null)
-                    {
-                        continue;
-                    }
-                    switch (str1)
-                    {
-                        case "Save":
-                            if (SavedGame.NotSaving)
-                                ScreenManager.AddScreen(new SaveGameScreen(Empire.Universe));
-                            else GameAudio.PlaySfxAsync("UI_Misc20");
-                            break;
-                        case "Load Game":
-                            if (SavedGame.NotSaving)
-                            {
-                                ScreenManager.AddScreen(new LoadSaveScreen(Empire.Universe));
-                                ExitScreen();
-                            }
-                            else GameAudio.PlaySfxAsync("UI_Misc20");
-                            break;
-                        case "Options":
-                            ScreenManager.AddScreen(new OptionsScreen(screen, this)
-                            {
-                                TitleText  = Localizer.Token(4),
-                                MiddleText = Localizer.Token(4004)
-                            });
-                            break;
-                        case "Return to Game": ExitScreen(); break;
-                        case "Exit to Main Menu":
-                            ExitScreen();
-                            if (caller != null) ScreenManager.RemoveScreen(caller);
-                            screen.ExitScreen();
-                            ScreenManager.AddScreen(new MainMenuScreen());
-                            break;
-                        case "Exit to Windows":
-                            if (SavedGame.NotSaving) Game1.Instance.Exit();
-                            else GameAudio.PlaySfxAsync("UI_Misc20");
-                            break;
-                    }
-                }
-            }
-            previousMouse = input.MousePrev;
+
             return base.HandleInput(input);
-        } 
+        }
+
+
+        private void Save_OnClick(UIButton button)
+        {
+            if (SavedGame.NotSaving) // no save in progress
+                ScreenManager.AddScreen(new SaveGameScreen(Empire.Universe));
+            else GameAudio.PlaySfxAsync("UI_Misc20");
+        }
+        private void Load_OnClick(UIButton button)
+        {
+            if (SavedGame.NotSaving)
+            {
+                ScreenManager.AddScreen(new LoadSaveScreen(Empire.Universe));
+                ExitScreen();
+            }
+            else GameAudio.PlaySfxAsync("UI_Misc20");
+        }
+        private void Options_OnClick(UIButton button)
+        {
+            ScreenManager.AddScreen(new OptionsScreen(screen, this)
+            {
+                TitleText  = Localizer.Token(4),
+                MiddleText = Localizer.Token(4004)
+            });
+        }
+        private void Return_OnClick(UIButton button)
+        {
+            ExitScreen(); 
+        }
+        private void ExitToMain_OnClick(UIButton button)
+        {
+            ExitScreen();
+            if (caller != null)
+                ScreenManager.RemoveScreen(caller);
+            screen.ExitScreen();
+            ScreenManager.AddScreen(new MainMenuScreen());
+        }
+        private void Exit_OnClick(UIButton button)
+        {
+            if (SavedGame.NotSaving) Game1.Instance.Exit();
+            else GameAudio.PlaySfxAsync("UI_Misc20");
+        }
+
         public override void LoadContent()
         {
             base.LoadContent();
             RemoveAll();
 
-            var para = ScreenManager.GraphicsDevice.PresentationParameters;
-            var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);
-            window = new Menu2(new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
+            Vector2 c = ScreenCenter;
+            window = new Menu2(new Rectangle((int)c.X - 100, (int)c.Y - 150, 200, 330));
 
-            Vector2 pos = new Vector2(size.X - 84, size.Y - 100);
-            Save       = Button(pos, "Save",              localization: 300);
-            Load       = Button(pos, "Load Game",         localization: 2);
-            Options    = Button(pos, "Options",           localization: 4);
-            Return     = Button(pos, "Return to Game",    localization: 301);
-            ExitToMain = Button(pos, "Exit to Main Menu", localization: 302);
-            Exit       = Button(pos, "Exit to Windows",   localization: 303);
+            BeginVLayout(c.X - 84, c.Y - 100, UIButton.StyleSize().Y + 15);
+                Save       = Button(titleId: 300, click: Save_OnClick);
+                Load       = Button(titleId: 2,   click: Load_OnClick);
+                Options    = Button(titleId: 4,   click: Options_OnClick);
+                Return     = Button(titleId: 301, click: Return_OnClick);
+                ExitToMain = Button(titleId: 302, click: ExitToMain_OnClick);
+                Exit       = Button(titleId: 303, click: Exit_OnClick);
+            EndLayout();
         }  
     }
 }

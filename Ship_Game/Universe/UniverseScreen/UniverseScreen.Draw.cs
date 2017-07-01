@@ -591,7 +591,7 @@ namespace Ship_Game
             if (Debug && showdebugwindow)
                 DebugWin.Draw(gameTime);
 
-            if (aw.isOpen && !LookingAtPlanet)
+            if (aw.IsOpen && !LookingAtPlanet)
                 aw.Draw(spriteBatch);
 
             if (Paused)

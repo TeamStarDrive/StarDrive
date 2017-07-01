@@ -17,7 +17,6 @@ namespace Ship_Game
         private Matrix view;
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, 1f, 1f, 10000f);
         private SceneObject shipSO;
-        private Model model;
 
         private InputState designInputState;
 
@@ -252,10 +251,6 @@ namespace Ship_Game
             }
         }
 
-        private void ExitMessageBoxAccepted(object sender, EventArgs e)
-        {
-        }
-
         public override void ExitScreen()
         {
             base.ScreenManager.AddScreen(new MainMenuScreen());
@@ -301,11 +296,6 @@ namespace Ship_Game
         public Ship GetDisplayedShip()
         {
             return this.StartingShipList[this.selectedShip];
-        }
-
-        private static FileInfo[] GetFilesFromDirectory(string DirPath)
-        {
-            return (new DirectoryInfo(DirPath)).GetFiles("*.*", SearchOption.AllDirectories);
         }
 
         public Restrictions GetRestrictionFromText(string text)
@@ -547,30 +537,24 @@ namespace Ship_Game
 
         public void LoadModel(string modelPath)
         {
-            ModelPath = modelPath;
-            model = TransientContent.Load<Model>(modelPath);
-            shipSO = new SceneObject(model.Meshes[0])
+            if (shipSO != null)
+                RemoveObject(shipSO);
+            try
             {
-                ObjectType = ObjectType.Dynamic,
-                World = worldMatrix
-            };
-            AddObject(shipSO);
+                shipSO = ResourceManager.GetSceneMesh(modelPath);
+                shipSO.World = worldMatrix;
+                ModelPath = modelPath;
+                AddObject(shipSO);
+            }
+            catch (Exception)
+            {
+                shipSO = ResourceManager.GetSceneMesh(modelPath, animated:true);
+                shipSO.World = worldMatrix;
+                ModelPath = modelPath;
+                AddObject(shipSO);
+            }
         }
 
-        public void LoadModel(Model m, string path)
-        {
-            ScreenManager.RemoveAllObjects();
-            ModelPath = path;
-            model = m;
-            HullName = path;
-            ShipNameBox.Text = path;
-            shipSO = new SceneObject(model.Meshes[0])
-            {
-                ObjectType = ObjectType.Dynamic,
-                World = this.worldMatrix
-            };
-            AddObject(shipSO);
-        }
 
         private void MarkThruster()
         {
