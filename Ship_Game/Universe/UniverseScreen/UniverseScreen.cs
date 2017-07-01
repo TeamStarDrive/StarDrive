@@ -248,7 +248,7 @@ namespace Ship_Game
         {
         }
 
-        public UniverseScreen(UniverseData data) : base(null)
+        public UniverseScreen(UniverseData data) : base(null) // new game
         {
             UniverseSize                = data.Size.X;
             FTLModifier                 = data.FTLSpeedModifier;
@@ -264,7 +264,7 @@ namespace Ship_Game
             SpaceManager.Setup(UniverseSize);
         }
 
-        public UniverseScreen(UniverseData data, string loyalty) : base(null)
+        public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
         {
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;

@@ -36,9 +36,11 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TitleText  = Localizer.Token(4);
+            MiddleText = Localizer.Token(4004);
         }
 
-        public OptionsScreen(UniverseScreen s, GameplayMMScreen universeMainMenuScreen) : base(s, 600, 700)
+        public OptionsScreen(UniverseScreen s, GameplayMMScreen universeMainMenuScreen) : base(s, 600, 720)
         {
             UniverseMainMenu = universeMainMenuScreen;
             Universe = s;
@@ -59,162 +61,129 @@ namespace Ship_Game
         private static string TextureFilterString()
         {
             if (GlobalStats.MaxAnisotropy == 0)
-                return new string[]{"Bilinear", "Trilinear"}[GlobalStats.TextureSampling];
+                return new[]{"Bilinear", "Trilinear"}[GlobalStats.TextureSampling];
             return "Anisotropic x" + GlobalStats.MaxAnisotropy;
         }
 
         private static string QualityString(int parameter)
         {
-            return parameter >= 0 && parameter <= 3 //"Off" makes no sense for texture quality
-                ? new string[] { "High", "Normal", "Low", "Ultra-Low" }[parameter] 
-                : "Uh what?";
+            return (uint)parameter <= 3 ? new[]{ "High", "Normal", "Low", "Ultra-Low" }[parameter] : "None";
         }
+
+        
+        private static void AntiAliasing_OnClick(UILabel label)
+        {
+            GlobalStats.AntiAlias = GlobalStats.AntiAlias == 0 ? 2 : GlobalStats.AntiAlias * 2;
+            if (GlobalStats.AntiAlias > 8)
+                GlobalStats.AntiAlias = 0;
+            label.Text = AntiAliasString();
+        }
+
+        private static void TextureQuality_OnClick(UILabel label)
+        {
+            GlobalStats.TextureQuality = GlobalStats.TextureQuality == 3 ? 0 : GlobalStats.TextureQuality + 1;
+            label.Text = QualityString(GlobalStats.TextureQuality);
+        }
+
+        private static void TextureFiltering_OnClick(UILabel label)
+        {
+            GlobalStats.TextureSampling += 1;
+            if (GlobalStats.TextureSampling >= 2)
+            {
+                GlobalStats.MaxAnisotropy  += 1;
+                GlobalStats.TextureSampling = 2;
+            }
+            if (GlobalStats.MaxAnisotropy > 4)
+            {
+                GlobalStats.MaxAnisotropy   = 0;
+                GlobalStats.TextureSampling = 0;
+            }
+            label.Text = TextureFilterString();
+        }
+
+        private static void ShadowQuality_OnClick(UILabel label)
+        {
+            GlobalStats.ShadowDetail = GlobalStats.ShadowDetail == 3 ? 0 : GlobalStats.ShadowDetail + 1;
+            GlobalStats.ShadowQuality = 1.0f - (0.33f * GlobalStats.ShadowDetail);
+            label.Text = QualityString(GlobalStats.ShadowDetail);
+        }
+
+        private void Fullscreen_OnClick(UILabel label)
+        {
+            ++ModeToSet;
+            if (ModeToSet > WindowMode.Borderless)
+                ModeToSet = WindowMode.Fullscreen;
+            label.Text = ModeToSet.ToString();
+        }
+
+        private static void EffectsQuality_OnClick(UILabel label)
+        {
+            GlobalStats.EffectDetail = GlobalStats.EffectDetail == 3 ? 0 : GlobalStats.EffectDetail + 1;
+            label.Text = QualityString(GlobalStats.EffectDetail);
+        }
+
 
         private void InitScreen()
         {
-            LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 175, 300, 375);
-            RightArea = new Rectangle(LeftArea.Right + 20, LeftArea.Y, 210, 305);
+            LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 150, 300, 375);
+            RightArea = new Rectangle(LeftArea.Right + 10, LeftArea.Y, 210, 330);
 
-            float x  = LeftArea.X + 10;
-            float y  = LeftArea.Y;
-            float cx = LeftArea.Center.X;
-            float startY = y;
-            Label(x, y, $"{Localizer.Token(9)}: ");
+            float spacing = Fonts.Arial12Bold.LineSpacing * 1.6f;
 
-            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
-            Label(x, y, $"{Localizer.Token(10)}: ");
+            BeginVLayout(LeftArea.X, LeftArea.Y, spacing);
+                Label($"{Localizer.Token(9)}: ");
+                Label($"{Localizer.Token(10)}: ");
+                Label("Anti Aliasing: ");
+                Label("Texture Quality: ");
+                Label("Texture Filtering: ");
+                Label("Shadow Quality: ");
+                Label("Effects Quality: ");
+            EndLayout();
 
-            UILabel fullscreen = Label(cx, y, GlobalStats.WindowMode.ToString());
-            fullscreen.OnClick += (label)=>
-            {
-                ++ModeToSet;
-                if (ModeToSet > WindowMode.Borderless)
-                    ModeToSet = WindowMode.Fullscreen;
-                label.Text = ModeToSet.ToString();
-            };
+            BeginVLayout(LeftArea.Center.X, LeftArea.Y, spacing);
+                ResolutionDropDown = DropOptions<DisplayMode>(105, 18, zorder:10);
+                Label(GlobalStats.WindowMode.ToString(),         Fullscreen_OnClick);
+                Label(AntiAliasString(),                         AntiAliasing_OnClick);
+                Label(QualityString(GlobalStats.TextureQuality), TextureQuality_OnClick);
+                Label(TextureFilterString(),                     TextureFiltering_OnClick);
+                Label(QualityString(GlobalStats.ShadowDetail),   ShadowQuality_OnClick);
+                Label(QualityString(GlobalStats.EffectDetail),   EffectsQuality_OnClick);
+                Checkbox(() => GlobalStats.RenderBloom, "Bloom", 
+                    "Disabling bloom effect will increase performance on low-end devices");
+            EndLayout();
 
-            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
-            Label(x, y, "AntiAliasing");
-            UILabel aa = Label(cx, y, AntiAliasString());
-            aa.OnClick += (label)=>
-            {
-                GlobalStats.AntiAlias = GlobalStats.AntiAlias == 0 ? 2 : GlobalStats.AntiAlias * 2;
-                if (GlobalStats.AntiAlias > 8)
-                    GlobalStats.AntiAlias = 0;
-                aa.Text = AntiAliasString();
-            };
+            BeginVLayout(LeftArea.X, LeftArea.Y + 190, 60);
+                MusicVolumeSlider   = SliderPercent(270, 50, "Music Volume", 0f, 1f, GlobalStats.MusicVolume);
+                EffectsVolumeSlider = SliderPercent(270, 50, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume);
+                IconSize            = Slider(270, 50, "Icon Sizes", 0, 30, GlobalStats.IconSize);
+                AutoSaveFreq        = Slider(270, 50, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);
+                AutoSaveFreq.TooltipId = 4100;
+            EndLayout();
 
-            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
-            Label(x, y, "Texture Quality");
-            UILabel tq = Label(cx, y, QualityString(GlobalStats.TextureQuality));
-            tq.OnClick += (label) =>
-            {
+            BeginVLayout(RightArea.X, RightArea.Y + 190, 60);
+                FreighterLimiter = Slider(225, 50, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit);
+                ShipLimiter      = Slider(225, 50, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
+                                          500, 3500, GlobalStats.ShipCountLimit);
+            EndLayout();
 
-                GlobalStats.TextureQuality = GlobalStats.TextureQuality == 3 
-                ? 0
-                : GlobalStats.TextureQuality + 1;
-
-                tq.Text = QualityString(GlobalStats.TextureQuality);
-            };
-
-            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
-            Label(x, y, "Texture Filtering");
-            UILabel tf = Label(cx, y, TextureFilterString());
-            tf.OnClick += (label) =>
-            {
-
-                GlobalStats.TextureSampling += 1;
-                if (GlobalStats.TextureSampling >= 2)
-                {
-                    GlobalStats.MaxAnisotropy  += 1;
-                    GlobalStats.TextureSampling = 2;
-                }
-                if (GlobalStats.MaxAnisotropy > 4)
-                {
-                    GlobalStats.MaxAnisotropy   = 0;
-                    GlobalStats.TextureSampling = 0;
-                }
-                tf.Text = TextureFilterString();
-            };
-
-            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
-            Label(x, y, "Shadow Quality");
-            UILabel sq = Label(cx, y, QualityString(GlobalStats.ShadowDetail));
-            sq.OnClick += (label) =>
-            {
-
-                GlobalStats.ShadowDetail = GlobalStats.ShadowDetail == 3
-                ? 0
-                : GlobalStats.ShadowDetail + 1;
-                //1.0f is max quality, pairing with detail level here to keep options clutter to a minimum.
-                GlobalStats.ShadowQuality = 1.0f - (0.33f * GlobalStats.ShadowDetail);
-
-                sq.Text = QualityString(GlobalStats.ShadowDetail);
-            };
-
-            y += Fonts.Arial12Bold.LineSpacing * 1.5f;
-            Label(x, y, "Effects Quality");
-            UILabel eq = Label(cx, y, QualityString(GlobalStats.EffectDetail));
-            eq.OnClick += (label) =>
-            {
-
-                GlobalStats.EffectDetail = GlobalStats.EffectDetail == 3
-                ? 0
-                : GlobalStats.EffectDetail + 1;
-
-                eq.Text = QualityString(GlobalStats.EffectDetail);
-            };
-
-            y += Fonts.Arial12Bold.LineSpacing * 2;
-            var pos = new Vector2(cx, y);
-            Checkbox(pos, () => GlobalStats.RenderBloom, "Bloom", 
-                     "Disabling bloom effect will increase performance on low-end devices");
-
-
-            int nextX = (int)x;
-            int nextY = (int)pos.Y + 5;
-
-            var r = new Rectangle(nextX, nextY, 270, 50);
-            MusicVolumeSlider = SliderPercent(r, "Music Volume", 0f, 1f, GlobalStats.MusicVolume);
-
-            r = new Rectangle(nextX, nextY + 50, 270, 50);
-            EffectsVolumeSlider = SliderPercent(r, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume);
-
-            r = new Rectangle(nextX, nextY + 110, 225, 50);
-            IconSize = Slider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
-            r = new Rectangle(nextX, nextY + 160, 225, 50);
-            AutoSaveFreq = Slider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);
-            AutoSaveFreq.TooltipId = 4100;
-
-
-            r = new Rectangle(RightArea.X, nextY, 225, 50);//nextY + 110, 225, 50);
-            FreighterLimiter = Slider(r, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit);
-            r = new Rectangle(RightArea.X, nextY + 50, 225, 50);//nextY + 160, 225, 50);
-            ShipLimiter = Slider(r, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
-                                 500, 3500, GlobalStats.ShipCountLimit);
-
-            pos = new Vector2(RightArea.X, RightArea.Y);
-            var cb = Checkbox(pos, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
-
-            Vector2 NextPos() => pos = new Vector2(pos.X, pos.Y + cb.Height + 15);
-            Checkbox(NextPos(), () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
-            Checkbox(NextPos(), () => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
-            Checkbox(NextPos(), () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
-            Checkbox(NextPos(), () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
-            Checkbox(NextPos(), () => GlobalStats.AutoErrorReport, "Automatic Error Report", 
+            BeginVLayout(RightArea.X, RightArea.Y, spacing);
+                Checkbox(() => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
+                Checkbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
+                Checkbox(() => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
+                Checkbox(() => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
+                Checkbox(() => GlobalStats.AutoErrorReport, "Automatic Error Report", 
                                 "Send automatic error reports to Blackbox developers");
+            EndLayout();
 
+            BeginVLayout(RightArea.X, RightArea.Bottom + 60);
+                Button(titleId:13, click: button => ApplySettings());
+            EndLayout();
 
-            UIButton apply = Button(RightArea.X, RightArea.Y + RightArea.Height + 60, "Apply Settings", localization:13);
-            apply.OnClick += button => ApplySettings();
-
-            CreateResolutionDropOptions(startY);
+            CreateResolutionDropOptions();
         }
 
-        private void CreateResolutionDropOptions(float y)
+        private void CreateResolutionDropOptions()
         {
-            ResolutionDropDown = DropOptions<DisplayMode>(LeftArea.Center.X, (int)y, 105, 18);
-
             int screenWidth  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
 

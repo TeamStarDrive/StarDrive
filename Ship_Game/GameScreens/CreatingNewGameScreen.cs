@@ -37,7 +37,6 @@ namespace Ship_Game
         //private SceneObject shipSO;
         private RaceDesignScreen.GameMode Mode;
         private Vector2 GalacticCenter;
-        private Vector2 ScreenCenter;
         private UniverseData Data;
         private string EmpireToRemoveName;
         private Empire PlayerEmpire;
@@ -141,8 +140,6 @@ namespace Ship_Game
             string adviceString  = ResourceManager.LoadRandomAdvice();
             text = HelperFunctions.ParseText(Fonts.Arial12Bold, adviceString, 500f);
 
-            var present = ScreenManager.GraphicsDevice.PresentationParameters;
-            ScreenCenter = 0.5f * new Vector2(present.BackBufferWidth, present.BackBufferHeight);
             WorkerThread = new Thread(Worker) { IsBackground = true };
             WorkerThread.Start();
             base.LoadContent();

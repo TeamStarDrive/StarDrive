@@ -755,12 +755,13 @@ namespace Ship_Game
                 kv.Value.Unlocked = false;
                 UnlockTechFromSave(kv.Value);
             }
-            UpdateShipsWeCanBuild();
+
             foreach (string building in data.unlockBuilding)
                 UnlockedBuildingsDict[building] = true;
             foreach (string ship in data.unlockShips) // unlock ships from empire data
                 ShipsWeCanBuild.Add(ship);
 
+            UpdateShipsWeCanBuild();
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
@@ -857,9 +858,9 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techID) //@todo rewrite. the empire tech dictionary is made of techentries which have a reference to the technology.
+        public void UnlockTech(string techId) //@todo rewrite. the empire tech dictionary is made of techentries which have a reference to the technology.
         {
-            var techEntry = TechnologyDict[techID];
+            var techEntry = TechnologyDict[techId];
             if (techEntry.Unlocked)
                 return;
             techEntry.Unlock(this);            
@@ -867,12 +868,12 @@ namespace Ship_Game
             UpdateShipsWeCanBuild();
             if (!isPlayer)
                 EmpireAI.TriggerRefit();
-            data.ResearchQueue.Remove(techID);
+            data.ResearchQueue.Remove(techId);
         }
 
 
 
-        public void UnlockTechFromSave(TechEntry tech)
+        private void UnlockTechFromSave(TechEntry tech)
         {
             var technology = tech.Tech;
             tech.Progress = technology.Cost * UniverseScreen.GamePaceStatic;
@@ -919,7 +920,6 @@ namespace Ship_Game
                     UnlockedHullsDict[unlockedHull.Name] = true;
                 }
             }
-            UpdateShipsWeCanBuild();
         }
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
@@ -1419,13 +1419,12 @@ namespace Ship_Game
             foreach (var kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;
-                if (hulls != null)
-                    if (!hulls.Contains(ship.GetShipData().Hull))
-                        continue;
-
-                if (ship.Deleted ||  ShipsWeCanBuild.Contains(ship.Name) || ResourceManager.ShipRoles[ship.shipData.Role].Protected)
+                if (hulls != null && !hulls.Contains(ship.shipData.Hull))
                     continue;
-                if (!EmpireAI.ShipGoodToBuild(ship))
+
+                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected || ShipsWeCanBuild.Contains(ship.Name))
+                    continue;
+                if (!isPlayer && !EmpireAI.ShipGoodToBuild(ship))
                     continue;
                 if (!WeCanBuildThis(ship.Name))
                     continue;
@@ -1436,16 +1435,17 @@ namespace Ship_Game
                     if (!ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                         ShipsWeCanBuild.Add(ship.Name);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Log.Error(e);
                     ship.Deleted = true;  //This should prevent this Key from being evaluated again
                     continue;   //This keeps the game going without crashing
                 }
                 ship.MarkShipRolesUsableForEmpire(this);
             }
-            if (Universe == null || !isPlayer)
-                return;
-            Universe.aw.UpdateDropDowns();
+
+            if (Universe != null && isPlayer)
+                Universe.aw.UpdateDropDowns();
         }
         
         public float GetTotalBuildingMaintenance()

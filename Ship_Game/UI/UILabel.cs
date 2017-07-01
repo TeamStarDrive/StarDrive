@@ -8,7 +8,7 @@ namespace Ship_Game
         private string LabelText;
         private SpriteFont LabelFont;
 
-        public delegate void ClickHandler(UILabel button);
+        public delegate void ClickHandler(UILabel label);
         public event ClickHandler OnClick;
 
         public Color Color = Color.White;
@@ -43,10 +43,10 @@ namespace Ship_Game
             LabelText = text;
             LabelFont = font;
         }
-        public UILabel(UIElementV2 parent, Vector2 pos, int localization, SpriteFont font) : this(parent, pos, Localizer.Token(localization), font)
+        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font) : this(parent, pos, Localizer.Token(titleId), font)
         {
         }
-        public UILabel(UIElementV2 parent, Vector2 pos, int localization) : this(parent, pos, Localizer.Token(localization), Fonts.Arial12Bold)
+        public UILabel(UIElementV2 parent, Vector2 pos, int titleId) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
         {
         }
         public UILabel(UIElementV2 parent, Vector2 pos, string text) : this(parent, pos, text, Fonts.Arial12Bold)
