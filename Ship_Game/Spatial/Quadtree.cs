@@ -8,11 +8,10 @@ using Ship_Game.Gameplay;
 namespace Ship_Game
 {
     [StructLayout(LayoutKind.Sequential, Pack=4)]
-    public struct SpatialObj // sizeof: 40 bytes, neatly fits in one cache line
+    public struct SpatialObj // sizeof: 36 bytes, neatly fits in one cache line
     {
         public GameplayObject Obj;
 
-        public int ProjCollided; // this is used to prevent projectiles colliding twice
         public GameObjectType Type; // GameObjectType : byte
         public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
         public byte OverlapsQuads;  // does it overlap multiple quads?
@@ -27,7 +26,6 @@ namespace Ship_Game
         public SpatialObj(GameplayObject go)
         {
             Obj           = go;
-            ProjCollided  = 0;
             Type          = go.Type;
             Loyalty       = (byte)go.GetLoyaltyId();
             OverlapsQuads = 0;
@@ -58,7 +56,6 @@ namespace Ship_Game
         public SpatialObj(GameplayObject go, float radius)
         {
             Obj           = go;
-            ProjCollided  = 0;
             Type          = go.Type;
             Loyalty       = (byte)go.GetLoyaltyId();
             OverlapsQuads = 0;
@@ -97,8 +94,6 @@ namespace Ship_Game
         public float HitTestBeam(ref SpatialObj target, out ShipModule hitModule)
         {
             var beam = (Beam)Obj;
-            //if (obj.Owner == target.Obj) // actually we dont need this here because of Loyalty check
-            //    return 0f; // ignore our parent ship
             ++GlobalStats.BeamTests;
 
             Vector2 beamStart = beam.Source;
@@ -111,10 +106,6 @@ namespace Ship_Game
                 if (hitModule == null)
                     return 0f;
                 return hitModule.Center.FindClosestPointOnLine(beamStart, beamEnd).Distance(beamStart);
-                //float hitDist = hitModule.Center.RayCircleIntersect(hitModule.Radius, beamStart, beamEnd);
-                //if (hitDist < 0f) // beam barely glanced the module
-                //    return hitModule.Center.FindClosestPointOnLine(beamStart, beamEnd).Distance(beamStart);
-                //return hitDist;
             }
             hitModule = null;
             return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd);
@@ -375,11 +366,6 @@ namespace Ship_Game
                     obj.UpdateBounds();
                     obj.LastUpdate = frameId;
 
-                    //bool isFullyOutsideBounds = obj.LastX < nx || obj.LastY < ny ||
-                    //                            obj.X > nlastX || obj.Y > nlastY;
-                    //bool insideBoundsRect = nx <= obj.X && ny <= obj.Y && 
-                    //                        obj.LastX < nlastX && obj.LastY < nlastY;
-                    //if (!insideBoundsRect)
                     if (obj.X < nx || obj.Y < ny || obj.LastX > nlastX || obj.LastY > nlastY) // out of Node bounds??
                     {
                         SpatialObj reinsert = obj;
@@ -458,18 +444,16 @@ namespace Ship_Game
 
         // ship collision; this can collide with multiple projectiles..
         // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
-        private static void CollideShipAtNode(Node node, int frameId, ref SpatialObj ship)
+        private static void CollideShipAtNode(Node node, ref SpatialObj ship)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj proj = ref node.Items[i]; // potential projectile ?
-                if (frameId      != proj.ProjCollided && // projectile already collided this frame
-                    proj.Loyalty != ship.Loyalty      && // friendlies don't collide
+                if (proj.Loyalty != ship.Loyalty      && // friendlies don't collide
                     (proj.Type & GameObjectType.Proj) != 0 && // only collide with projectiles
                     (proj.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(ref ship, out ShipModule hitModule))
                 {
-                    proj.ProjCollided = frameId;
                     var projectile = proj.Obj as Projectile;
                     HandleProjCollision(projectile, hitModule ?? ship.Obj);
 
@@ -477,10 +461,10 @@ namespace Ship_Game
                 }
             }
             if (node.NW == null) return;
-            CollideShipAtNode(node.NW, frameId, ref ship);
-            CollideShipAtNode(node.NE, frameId, ref ship);
-            CollideShipAtNode(node.SE, frameId, ref ship);
-            CollideShipAtNode(node.SW, frameId, ref ship);
+            CollideShipAtNode(node.NW, ref ship);
+            CollideShipAtNode(node.NE, ref ship);
+            CollideShipAtNode(node.SE, ref ship);
+            CollideShipAtNode(node.SW, ref ship);
         }
 
         
@@ -489,20 +473,15 @@ namespace Ship_Game
 
 
         // projectile collision, return the first match because the projectile destroys itself anyway
-        private static bool CollideProjAtNode(Node node, int frameId, ref SpatialObj proj)
+        private static bool CollideProjAtNode(Node node, ref SpatialObj proj)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (frameId      != item.ProjCollided && // projectile already collided this frame
-                    item.Loyalty != proj.Loyalty      && // friendlies don't collide
+                if (item.Loyalty != proj.Loyalty &&           // friendlies don't collide, also ignores self
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(ref item, out ShipModule hitModule))
                 {
-                    if ((item.Type & GameObjectType.Proj) != 0)
-                        item.ProjCollided = frameId;
-                    proj.ProjCollided = frameId;
-
                     HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj);
 
                     if ((item.Type & GameObjectType.Proj) != 0 && (item.Obj as Projectile).DieNextFrame)
@@ -511,10 +490,10 @@ namespace Ship_Game
                 }
             }
             if (node.NW == null) return false;
-            return CollideProjAtNode(node.NW, frameId, ref proj)
-                || CollideProjAtNode(node.NE, frameId, ref proj)
-                || CollideProjAtNode(node.SE, frameId, ref proj)
-                || CollideProjAtNode(node.SW, frameId, ref proj);
+            return CollideProjAtNode(node.NW, ref proj)
+                || CollideProjAtNode(node.NE, ref proj)
+                || CollideProjAtNode(node.SE, ref proj)
+                || CollideProjAtNode(node.SW, ref proj);
         }
 
         private struct BeamHitResult
@@ -524,13 +503,12 @@ namespace Ship_Game
         }
 
         // for beams it's important to only collide the CLOSEST object, so the lookup is exhaustive
-        private static void CollideBeamAtNode(Node node, int frameId, ref SpatialObj beam, ref BeamHitResult result)
+        private static void CollideBeamAtNode(Node node, ref SpatialObj beam, ref BeamHitResult result)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (frameId      != item.ProjCollided && // projectile already collided this frame
-                    item.Loyalty != beam.Loyalty      && // friendlies don't collide
+                if (item.Loyalty != beam.Loyalty &&         // friendlies don't collide
                     (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
                 {
                     float dist = beam.HitTestBeam(ref item, out ShipModule hitModule);
@@ -542,49 +520,48 @@ namespace Ship_Game
                 }
             }
             if (node.NW == null) return;
-            CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
-            CollideBeamAtNode(node.NW, frameId, ref beam, ref result);
-            CollideBeamAtNode(node.SE, frameId, ref beam, ref result);
-            CollideBeamAtNode(node.SW, frameId, ref beam, ref result);
+            CollideBeamAtNode(node.NW, ref beam, ref result);
+            CollideBeamAtNode(node.NW, ref beam, ref result);
+            CollideBeamAtNode(node.SE, ref beam, ref result);
+            CollideBeamAtNode(node.SW, ref beam, ref result);
         }
 
-        private static void CollideBeamAtNode(Node node, int frameId, ref SpatialObj beam)
+        private static void CollideBeamAtNode(Node node, ref SpatialObj beam)
         {
             // this whole thing is quite ugly... but we need some way to set .LastCollided
             var hit = new BeamHitResult{Distance = 9999999f};
-            CollideBeamAtNode(node, frameId, ref beam, ref hit);
+            CollideBeamAtNode(node, ref beam, ref hit);
             if (hit.Collided != null)
             {
-                beam.ProjCollided = frameId;
                 HandleBeamCollision(beam.Obj as Beam, hit.Collided, hit.Distance);
             }
         }
 
-        public void CollideAll() => CollideAllAt(Root, FrameId);
+        public void CollideAll() => CollideAllAt(Root);
 
-        private static void CollideAllAt(Node node, int frameId)
+        private static void CollideAllAt(Node node)
         {
             if (node.NW != null) // depth first approach, to early filter LastCollided
             {
-                CollideAllAt(node.NW, frameId);
-                CollideAllAt(node.NE, frameId);
-                CollideAllAt(node.SE, frameId);
-                CollideAllAt(node.SW, frameId);
+                CollideAllAt(node.NW);
+                CollideAllAt(node.NE);
+                CollideAllAt(node.SE);
+                CollideAllAt(node.SW);
             }
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
-                if (frameId == so.ProjCollided || so.Obj.Active == false)
+                if (so.Obj.Active == false)
                     continue; // already collided inside this loop
 
                 // each collision instigator type has a very specific recursive handler
-                if      ((so.Type & GameObjectType.Beam) != 0) CollideBeamAtNode(node, frameId, ref so);
+                if      ((so.Type & GameObjectType.Beam) != 0) CollideBeamAtNode(node, ref so);
                 else if ((so.Type & GameObjectType.Proj) != 0)
                 {
-                    if (CollideProjAtNode(node, frameId, ref so) && ProjectileIsDying(ref so))
+                    if (CollideProjAtNode(node, ref so) && ProjectileIsDying(ref so))
                         FastRemoval(so.Obj, node, i);
                 }
-                else if ((so.Type & GameObjectType.Ship) != 0) CollideShipAtNode(node, frameId, ref so);
+                else if ((so.Type & GameObjectType.Ship) != 0) CollideShipAtNode(node, ref so);
             }
         }
 
@@ -618,7 +595,7 @@ namespace Ship_Game
             else // the beam probably glanced the module from side, so just get the closest point:
                 hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
 
-            beam.CollidedThisFrame = true;
+            beam.BeamCollidedThisFrame = true;
             beam.ActualHitDestination = hitPos;
         }
 
