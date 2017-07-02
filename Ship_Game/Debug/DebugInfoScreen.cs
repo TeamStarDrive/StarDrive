@@ -469,10 +469,6 @@ namespace Ship_Game.Debug
         private void SpatialManagement()
         {
             UniverseScreen.SpaceManager.DebugVisualize(Screen);
-            //foreach (SolarSystem system in Screen.SolarSystemDict.Values)
-            //{
-            //    system.spatialManager.DebugVisualize(Screen);
-            //}
         }
         private bool MouseWasHeld = false;
         private void InputDebug()

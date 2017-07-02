@@ -193,9 +193,35 @@ namespace Ship_Game
             SpaceManager.Update(elapsedTime);
 
             ProcessTurnUpdateMisc(elapsedTime);
+            
+            // bulk remove all dead projectiles to prevent their update next frame
+            ProcessProjectileDeaths();
 
             perfavg5.Stop();
             Lag = perfavg5.AvgTime;
+        }
+
+        private static void ProcessProjectileDeaths(Ship ship)
+        {
+            for (int i = 0; i < ship.Projectiles.Count; ++i)
+            {
+                Projectile projectile = ship.Projectiles[i];
+                if (projectile.DieNextFrame)
+                    projectile.Die(projectile, false);
+            }
+        }
+
+        private void ProcessProjectileDeaths()
+        {
+            for (int i = 0; i < DeepSpaceShips.Count; i++)
+                ProcessProjectileDeaths(DeepSpaceShips[i]);
+
+            for (int i = 0; i < SolarSystemList.Count; i++)
+            {
+                SolarSystem system = SolarSystemList[i];
+                for (int j = 0; j < system.ShipList.Count; ++j)
+                    ProcessProjectileDeaths(system.ShipList[j]);
+            }
         }
 
         private void ProcessTurnUpdateMisc(float elapsedTime)
