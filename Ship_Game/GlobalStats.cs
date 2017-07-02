@@ -97,6 +97,7 @@ namespace Ship_Game
         public static bool EliminationMode;
         public static bool ZoomTracking;
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
+        public static bool UnlimitedSpeed = false;
 
         public static int ShipCountLimit;
         public static float spaceroadlimit          = .025f;
