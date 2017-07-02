@@ -299,11 +299,11 @@ namespace Ship_Game.Gameplay
                         Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                     }
                 }
-            }
-            if (ProjSO != null && Active)
-            {
-                Empire.Universe.RemoveObject(ProjSO);
-                ProjSO.Clear();
+                if (ProjSO != null)
+                {
+                    Empire.Universe.RemoveObject(ProjSO);
+                    ProjSO.Clear();
+                }
             }
             if (DroneAI != null)
             {
