@@ -798,19 +798,20 @@ namespace Ship_Game
             }
         }
 
-        void HandleGameSpeedChange(InputState input)
+        private void HandleGameSpeedChange(InputState input)
         {
             if (input.SpeedReset)
                 GameSpeed = 1f;
-            if (input.SpeedUp || input.SpeedDown)
+            else if (input.SpeedUp || input.SpeedDown)
             {
-                float GameSpeedMin = (GlobalStats.UnlimitedSpeed || Debug) ? 0.0625f : 0.25f;
-                float GameSpeedMax = (GlobalStats.UnlimitedSpeed || Debug) ? 128f : 6f;
-                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamp(GameSpeedMin, GameSpeedMax);
+                bool unlimited = GlobalStats.UnlimitedSpeed || Debug;
+                float speedMin = unlimited ? 0.0625f : 0.25f;
+                float speedMax = unlimited ? 128f    : 6f;
+                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamp(speedMin, speedMax);
             }
         }
 
-        public float GetGameSpeedAdjust(bool increase)
+        private float GetGameSpeedAdjust(bool increase)
         {
             return increase
                 ? GameSpeed <= 1 ? GameSpeed * 2 : GameSpeed + 1
