@@ -619,9 +619,9 @@ namespace Ship_Game
                     new Color(255, 255, 255, (float) Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * 255f));
             }
 
-            if (IsActive && (GameSpeed > 1.0f || GameSpeed < 1.0f))
+            if (IsActive && (SelectedGameSpeed != 4)) //don't show "1.0x"
             {
-                string speed = GameSpeed.ToString("#.000").TrimEnd('0') + "x";
+                string speed = GameSpeed[SelectedGameSpeed].ToString("0.0##") + "x";
                 Vector2 speedTextPos = new Vector2(
                     ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth -
                     Fonts.Pirulen16.MeasureString(speed).X - 13f, 64f);
