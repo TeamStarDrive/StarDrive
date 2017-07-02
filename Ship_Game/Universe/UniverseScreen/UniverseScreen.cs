@@ -35,8 +35,7 @@ namespace Ship_Game
         //private static string fmt = "00000.##";
         public float GamePace = 1f;
         public float GameScale = 1f;
-        public float[] GameSpeed = { 0.0625f, 0.125f, 0.25f, 0.5f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f };
-        public int SelectedGameSpeed = 4;
+        public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateFmt = "0000.0";
         public float StarDateTimer = 5f;

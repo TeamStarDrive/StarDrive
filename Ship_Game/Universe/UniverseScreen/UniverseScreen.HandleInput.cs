@@ -371,9 +371,7 @@ namespace Ship_Game
             }
 
             HandleEdgeDetection(input);
-            GameSpeedIncrease(input.SpeedUp);
-            GameSpeedDecrease(input.SpeedDown);
-
+            HandleGameSpeedChange(input);
 
             // fbedard: Click button to Cycle through ships in Combat
             if (!ShipsInCombat.Rect.HitTest(input.CursorPosition))
