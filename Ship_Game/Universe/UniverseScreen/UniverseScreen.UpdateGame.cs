@@ -61,12 +61,13 @@ namespace Ship_Game
                         {
                             if (GameSpeed < 1.0f) // default to 0.5x,
                             {
-                                if (TurnFlip)
+                                if (TurnFlipCounter >= 1)
                                 {
+                                    TurnFlipCounter = 0;
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
                                 }
-                                TurnFlip = !TurnFlip;
+                                TurnFlipCounter += GameSpeed;
                             }
                             else
                             {
@@ -776,7 +777,7 @@ namespace Ship_Game
             if (!increase) return;
 
             if (GameSpeed < 1.0)
-                GameSpeed = 1f;
+                GameSpeed = GameSpeed * 2;
             else
                 ++GameSpeed;
             if (GameSpeed > 4.0 && GlobalStats.LimitSpeed)
@@ -787,10 +788,12 @@ namespace Ship_Game
         {
             if (!decrease) return;
 
-            if (GameSpeed <= 1.0)
-                GameSpeed = 0.5f;
-            else
-                --GameSpeed;
+            --GameSpeed;
+            if (GameSpeed < 0.01f) //decreasing a <1.0 speed
+            {
+                ++GameSpeed;
+                GameSpeed = Math.Max(GameSpeed / 2, 0.0625f);
+            }
         }
     }
 }
