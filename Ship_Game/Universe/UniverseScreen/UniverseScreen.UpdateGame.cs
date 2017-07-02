@@ -59,14 +59,15 @@ namespace Ship_Game
                         }
                         if (IsActive)
                         {
-                            if (GameSpeed < 1.0f) // default to 0.5x,
+                            if (GameSpeed < 1f) //Speed <1.0
                             {
-                                if (TurnFlip)
+                                if (TurnFlipCounter >= 1)
                                 {
+                                    TurnFlipCounter = 0;
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
                                 }
-                                TurnFlip = !TurnFlip;
+                                TurnFlipCounter += GameSpeed;
                             }
                             else
                             {
@@ -797,26 +798,23 @@ namespace Ship_Game
             }
         }
 
-        public void GameSpeedIncrease(bool increase)
+        void HandleGameSpeedChange(InputState input)
         {
-            if (!increase) return;
-
-            if (GameSpeed < 1.0)
+            if (input.SpeedReset)
                 GameSpeed = 1f;
-            else
-                ++GameSpeed;
-            if (GameSpeed > 4.0 && GlobalStats.LimitSpeed)
-                GameSpeed = 4f;
+            if (input.SpeedUp || input.SpeedDown)
+            {
+                float GameSpeedMin = (GlobalStats.UnlimitedSpeed || Debug) ? 0.0625f : 0.25f;
+                float GameSpeedMax = (GlobalStats.UnlimitedSpeed || Debug) ? 128f : 6f;
+                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamp(GameSpeedMin, GameSpeedMax);
+            }
         }
 
-        private void GameSpeedDecrease(bool decrease)
+        public float GetGameSpeedAdjust(bool increase)
         {
-            if (!decrease) return;
-
-            if (GameSpeed <= 1.0)
-                GameSpeed = 0.5f;
-            else
-                --GameSpeed;
+            return increase
+                ? GameSpeed <= 1 ? GameSpeed * 2 : GameSpeed + 1
+                : GameSpeed <= 1 ? GameSpeed / 2 : GameSpeed - 1;
         }
     }
 }
