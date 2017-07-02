@@ -72,6 +72,7 @@ namespace Ship_Game
         private GameTime zgameTime = new GameTime();
         public Array<ShipModule> ModulesNeedingReset = new Array<ShipModule>();
         private bool TurnFlip = true;
+        private float TurnFlipCounter = 0;
         private int Auto = 1;
         private AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
         private ManualResetEvent SystemThreadGateKeeper = new ManualResetEvent(false);

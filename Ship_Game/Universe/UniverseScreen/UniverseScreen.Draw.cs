@@ -621,7 +621,7 @@ namespace Ship_Game
 
             if (IsActive && (GameSpeed > 1.0f || GameSpeed < 1.0f))
             {
-                string speed = GameSpeed.ToString("#.0") + "x";
+                string speed = GameSpeed.ToString("#.000").TrimEnd('0') + "x";
                 Vector2 speedTextPos = new Vector2(
                     ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth -
                     Fonts.Pirulen16.MeasureString(speed).X - 13f, 64f);
