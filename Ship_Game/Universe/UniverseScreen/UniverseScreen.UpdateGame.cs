@@ -59,7 +59,7 @@ namespace Ship_Game
                         }
                         if (IsActive)
                         {
-                            if (SelectedGameSpeed < 4) //Speed <1.0
+                            if (GameSpeed < 1f) //Speed <1.0
                             {
                                 if (TurnFlipCounter >= 1)
                                 {
@@ -67,12 +67,12 @@ namespace Ship_Game
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
                                 }
-                                TurnFlipCounter += GameSpeed[SelectedGameSpeed];
+                                TurnFlipCounter += GameSpeed;
                             }
                             else
                             {
                                 // With higher GameSpeed, we take more than 1 turn
-                                for (int numTurns = 0; numTurns < GameSpeed[SelectedGameSpeed] && IsActive; ++numTurns)
+                                for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
                                 {
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
@@ -798,21 +798,23 @@ namespace Ship_Game
             }
         }
 
-        public void GameSpeedIncrease(bool increase)
+        void HandleGameSpeedChange(InputState input)
         {
-            if (!increase) return;
-
-            if (SelectedGameSpeed < (GlobalStats.LimitSpeed && !Debug ? 7 : 11))
-                ++SelectedGameSpeed; //unlimited selectedgamespeed goes up to 11. I swear that was unintentional. XD
-            
+            if (input.SpeedReset)
+                GameSpeed = 1f;
+            if (input.SpeedUp || input.SpeedDown)
+            {
+                float GameSpeedMin = (GlobalStats.UnlimitedSpeed || Debug) ? 0.0625f : 0.25f;
+                float GameSpeedMax = (GlobalStats.UnlimitedSpeed || Debug) ? 128f : 6f;
+                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamp(GameSpeedMin, GameSpeedMax);
+            }
         }
 
-        private void GameSpeedDecrease(bool decrease)
+        public float GetGameSpeedAdjust(bool increase)
         {
-            if (!decrease) return;
-
-            if (SelectedGameSpeed > (GlobalStats.LimitSpeed && !Debug ? 3 : 0))
-                --SelectedGameSpeed;
+            return increase
+                ? GameSpeed <= 1 ? GameSpeed * 2 : GameSpeed + 1
+                : GameSpeed <= 1 ? GameSpeed / 2 : GameSpeed - 1;
         }
     }
 }
