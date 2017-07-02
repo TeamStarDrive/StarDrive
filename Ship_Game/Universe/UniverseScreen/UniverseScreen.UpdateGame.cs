@@ -59,7 +59,7 @@ namespace Ship_Game
                         }
                         if (IsActive)
                         {
-                            if (GameSpeed < 1.0f) // default to 0.5x,
+                            if (SelectedGameSpeed < 4) //Speed <1.0
                             {
                                 if (TurnFlipCounter >= 1)
                                 {
@@ -67,12 +67,12 @@ namespace Ship_Game
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
                                 }
-                                TurnFlipCounter += GameSpeed;
+                                TurnFlipCounter += GameSpeed[SelectedGameSpeed];
                             }
                             else
                             {
                                 // With higher GameSpeed, we take more than 1 turn
-                                for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
+                                for (int numTurns = 0; numTurns < GameSpeed[SelectedGameSpeed] && IsActive; ++numTurns)
                                 {
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
@@ -802,24 +802,17 @@ namespace Ship_Game
         {
             if (!increase) return;
 
-            if (GameSpeed < 1.0)
-                GameSpeed = GameSpeed * 2;
-            else
-                ++GameSpeed;
-            if (GameSpeed > 4.0 && GlobalStats.LimitSpeed)
-                GameSpeed = 4f;
+            if (SelectedGameSpeed < (GlobalStats.LimitSpeed && !Debug ? 7 : 11))
+                ++SelectedGameSpeed; //unlimited selectedgamespeed goes up to 11. I swear that was unintentional. XD
+            
         }
 
         private void GameSpeedDecrease(bool decrease)
         {
             if (!decrease) return;
 
-            --GameSpeed;
-            if (GameSpeed < 0.01f) //decreasing a <1.0 speed
-            {
-                ++GameSpeed;
-                GameSpeed = Math.Max(GameSpeed / 2, 0.0625f);
-            }
+            if (SelectedGameSpeed > (GlobalStats.LimitSpeed && !Debug ? 3 : 0))
+                --SelectedGameSpeed;
         }
     }
 }
