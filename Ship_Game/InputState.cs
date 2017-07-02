@@ -108,10 +108,11 @@ namespace Ship_Game
 
         //Ingame 
         //UniverseScreen
-        public bool PauseGame            => KeyPressed(Keys.Space);
+        public bool PauseGame            => KeyPressed(Keys.Space) && !IsShiftKeyDown;
         public bool UseRealLights        => KeyPressed(Keys.F5);
         public bool ShowExceptionTracker => KeyPressed(Keys.F6);
         public bool SendKudos            => KeyPressed(Keys.F7);
+        public bool SpeedReset           => KeyPressed(Keys.Space) && IsShiftKeyDown;
         public bool SpeedUp              => KeyPressed(Keys.OemPlus) || KeyPressed(Keys.Add);
         public bool SpeedDown            => KeyPressed(Keys.OemMinus) || KeyPressed(Keys.Subtract);
         public bool ScrapShip            => KeyPressed(Keys.Back) || KeyPressed(Keys.Delete);
