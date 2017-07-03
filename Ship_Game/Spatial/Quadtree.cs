@@ -197,16 +197,14 @@ namespace Ship_Game
                 }
                 Items[Count++] = obj;
             }
-            public void RemoveAtSwapLast(int index)
+
+            // Because SwapLast reorders elements, we decrement the ref index to allow loops to continue
+            // naturally. Index is not decremented if it is the last element
+            public void RemoveAtSwapLast(ref int index)
             {
                 ref SpatialObj last = ref Items[--Count];
-                Items[index] = last;
-                last.Obj = null; // prevent zombie objects
-                if (Count == 0) Items = NoObjects;
-            }
-            public void PopLast()
-            {
-                ref SpatialObj last = ref Items[--Count];
+                if (index != Count) // only swap and change ref index if it wasn't the last element
+                    Items[index--] = last;
                 last.Obj = null; // prevent zombie objects
                 if (Count == 0) Items = NoObjects;
             }
@@ -327,7 +325,7 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 if (node.Items[i].Obj != go) continue;
-                node.RemoveAtSwapLast(i);
+                node.RemoveAtSwapLast(ref i);
                 return true;
             }
             return node.NW != null
@@ -337,11 +335,10 @@ namespace Ship_Game
 
         public void Remove(GameplayObject go) => RemoveAt(Root, go);
 
-        private static void FastRemoval(GameplayObject obj, Node node, int index)
+        private static void FastRemoval(GameplayObject obj, Node node, ref int index)
         {
             UniverseScreen.SpaceManager.FastNonTreeRemoval(obj);
-            if (index == node.Count - 1) node.PopLast();
-            else                         node.RemoveAtSwapLast(index);
+            node.RemoveAtSwapLast(ref index);
         }
 
         private void UpdateNode(Node node, int level, byte frameId)
@@ -359,7 +356,7 @@ namespace Ship_Game
 
                     if (obj.Obj.Active == false)
                     {
-                        FastRemoval(obj.Obj, node, i--);
+                        FastRemoval(obj.Obj, node, ref i);
                         continue;
                     }
 
@@ -369,8 +366,7 @@ namespace Ship_Game
                     if (obj.X < nx || obj.Y < ny || obj.LastX > nlastX || obj.LastY > nlastY) // out of Node bounds??
                     {
                         SpatialObj reinsert = obj;
-                        if (i == node.Count - 1) node.PopLast(); // bugfix: this avoids infinite loop with RemoveAtSwapLast
-                        else                     node.RemoveAtSwapLast(i--);
+                        node.RemoveAtSwapLast(ref i);
                         InsertAt(Root, Levels, ref reinsert); // warning: this call can modify our node.Items
                     }
                     // we previously overlapped the boundary, so insertion was at parent node;
@@ -381,8 +377,7 @@ namespace Ship_Game
                         if (quad != null)
                         {
                             SpatialObj reinsert = obj;
-                            if (i == node.Count - 1) node.PopLast(); // bugfix: this avoids infinite loop with RemoveAtSwapLast
-                            else                     node.RemoveAtSwapLast(i--);
+                            node.RemoveAtSwapLast(ref i);
                             InsertAt(quad, level-1, ref reinsert); // warning: this call can modify our node.Items
                         }
                     }
@@ -457,7 +452,7 @@ namespace Ship_Game
                     var projectile = proj.Obj as Projectile;
                     HandleProjCollision(projectile, hitModule ?? ship.Obj);
 
-                    if (projectile.DieNextFrame) FastRemoval(projectile, node, i);
+                    if (projectile.DieNextFrame) FastRemoval(projectile, node, ref i);
                 }
             }
             if (node.NW == null) return;
@@ -485,7 +480,7 @@ namespace Ship_Game
                     HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj);
 
                     if ((item.Type & GameObjectType.Proj) != 0 && (item.Obj as Projectile).DieNextFrame)
-                        FastRemoval(item.Obj, node, i);
+                        FastRemoval(item.Obj, node, ref i);
                     return true;
                 }
             }
@@ -559,7 +554,7 @@ namespace Ship_Game
                 else if ((so.Type & GameObjectType.Proj) != 0)
                 {
                     if (CollideProjAtNode(node, ref so) && ProjectileIsDying(ref so))
-                        FastRemoval(so.Obj, node, i);
+                        FastRemoval(so.Obj, node, ref i);
                 }
                 else if ((so.Type & GameObjectType.Ship) != 0) CollideShipAtNode(node, ref so);
             }
