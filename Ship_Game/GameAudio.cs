@@ -228,6 +228,8 @@ namespace Ship_Game
         public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
         public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
 
+        public static void MiniMapButton()    => PlaySfxAsync("sd_ui_accept_alt3");
+
 
         //subbasewoosh
         public static void OpenSolarSystemPopUp() => PlaySfxAsync("sub_bass_whoosh");
