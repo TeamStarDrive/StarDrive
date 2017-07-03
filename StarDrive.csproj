@@ -220,6 +220,9 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShipDesignScreenDraw.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShipDesignScreenInput.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\WeaponScrollList.cs" />
+    <Compile Include="Ship_Game\Input\InputBindings.cs" />
+    <Compile Include="Ship_Game\Input\ScreenInputBinding.cs" />
+    <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
     <Compile Include="Ship_Game\Ship\Ship_Cargo.cs" />
     <Compile Include="Ship_Game\Ship\Ship_Initialize.cs" />
     <Compile Include="Ship_Game\Ship\Ship_ModuleGrid.cs" />
@@ -748,7 +751,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\InputState.cs">
+    <Compile Include="Ship_Game\Input\InputState.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
