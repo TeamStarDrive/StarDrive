@@ -2,58 +2,74 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+// ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
     public sealed class MiniMap
     {
-        private Rectangle Housing;
+        private readonly Rectangle Housing;
 
         private Rectangle ActualMap;
 
-        private Rectangle R;
+        private readonly ToggleButton ZoomOut;
 
-        private ToggleButton zOut;
+        private readonly ToggleButton ZoomToShip;
 
-        private ToggleButton zIn;
+        private readonly ToggleButton PlanetScreen;
 
-        private ToggleButton pList;
+        private readonly ToggleButton ShipScreen;
 
-        private ToggleButton sList;
+        private readonly ToggleButton AIScreen;
 
-        private ToggleButton Auto;
+        private readonly ToggleButton DeepSpaceBuild;
 
-        private ToggleButton DSB;
+        private readonly ToggleButton Fleets;
 
-        private ToggleButton Fleets;
+        private int ButtonOffset;
+
+        private const string CNormal       = "Minimap/button_C_normal";
+        private const string BNormal       = "Minimap/button_B_normal";
+        private const string Normal        = "Minimap/button_normal";
+        private const string Hover         = "Minimap/button_hover";
+        private const string CHover        = "Minimap/button_hover";
+        private const string Active        = "Minimap/button_active";
+        private const string BHover        = "Minimap/button_B_hover";
 
         public MiniMap(Rectangle housing)
         {
-            this.Housing = housing;
-            this.ActualMap = new Rectangle(housing.X + 61, housing.Y + 43, 200, 200);
+            Housing   = housing;
+            ActualMap = new Rectangle(housing.X + 61 + 14 + 5, housing.Y + 43, 200, 200);
+            
+            ZoomToShip        = new ToggleButton(ButtonRectLeftRow(), CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
+            
+            ZoomOut           = new ToggleButton(ButtonRectLeftRow(), CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
 
-            this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70, 22, 22);
-            this.zIn = new ToggleButton(this.R, "Minimap/button_C_normal", "Minimap/button_C_normal", "Minimap/button_C_hover", "Minimap/button_C_normal", "Minimap/icons_zoomctrl");
-            this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 25, 22, 22);
-            this.zOut = new ToggleButton(this.R, "Minimap/button_C_normal", "Minimap/button_C_normal", "Minimap/button_C_hover", "Minimap/button_C_normal", "Minimap/icons_zoomout");
-            this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 50, 22, 22);
-            this.pList = new ToggleButton(this.R, "Minimap/button_B_normal", "Minimap/button_B_normal", "Minimap/button_B_hover", "Minimap/button_B_normal", "UI/icon_planetslist");
-            this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 75, 22, 22);
-            this.sList = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_ftloverlay");
-            this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 100, 22, 22);
-            this.Fleets = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_rangeoverlay");
-            this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 125, 22, 22);
-            this.DSB = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_dsbw");
-            this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 150, 22, 26);
-            this.Auto = new ToggleButton(this.R, "Minimap/button_down_active", "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
+            PlanetScreen      = new ToggleButton(ButtonRectLeftRow(), BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
+
+            ShipScreen        = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
+
+            Fleets            = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
+
+            DeepSpaceBuild    = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_dsbw");
+
+            AIScreen          = new ToggleButton(ButtonRectLeftRow(26), Active, "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
+        }
+
+        
+        private Rectangle ButtonRectLeftRow(int height = 22)
+        {
+            var r = new Rectangle(Housing.X + 14, Housing.Y + 70 +ButtonOffset, 22, height);
+            ButtonOffset += 25;
+            return r;
         }
 
         public void Draw(ScreenManager screenManager, UniverseScreen screen)
         {
-            screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
-            float scale = (float)this.ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
-            Vector2 minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
-            var uiNode  = ResourceManager.TextureDict["UI/node"];
-            var uiNode1 = ResourceManager.TextureDict["UI/node1"];
+            screenManager.SpriteBatch.Draw(ResourceManager.Texture("Minimap/radar_over"), Housing, Color.White);
+            float scale     = ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
+            var minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
+            var uiNode      = ResourceManager.Texture("UI/node");
+            var uiNode1     = ResourceManager.Texture("UI/node1");
 
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -61,116 +77,81 @@ namespace Ship_Game
                     continue;
 
                 using (e.BorderNodes.AcquireReadLock())
-                {
                     foreach (Empire.InfluenceNode node in e.BorderNodes)
                     {
                         float radius = node.Radius * scale;
-                        Vector2 nodepos = new Vector2(minimapZero.X + node.Position.X * scale, minimapZero.Y + node.Position.Y * scale);
-                        Color ec = new Color(e.EmpireColor.R, e.EmpireColor.G, e.EmpireColor.B, 30);
+                        var nodepos = new Vector2(minimapZero.X + node.Position.X * scale,
+                            minimapZero.Y + node.Position.Y * scale);
+                        var ec = new Color(e.EmpireColor.R, e.EmpireColor.G, e.EmpireColor.B, 30);
                         float rscale = radius * 0.005f;
+
                         if (rscale < 0.006f) rscale = 0.006f;
-                        screenManager.SpriteBatch.Draw(uiNode1, nodepos, null, ec, 0f, uiNode.Center(), rscale, SpriteEffects.None, 1f);
+                        screenManager.SpriteBatch.Draw(uiNode1, nodepos, null, ec, 0f, uiNode.Center(), rscale,
+                            SpriteEffects.None, 1f);
                     }
-                }
             }
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                Rectangle star = new Rectangle((int)(minimapZero.X + system.Position.X * scale), (int)(minimapZero.Y + system.Position.Y * scale), 2, 2);
+                var star = new Rectangle((int)(minimapZero.X + system.Position.X * scale), (int)(minimapZero.Y + system.Position.Y * scale), 2, 2);
                 if (system.OwnerList.Count <= 0 || !system.ExploredDict[EmpireManager.Player])
-                {
                     screenManager.SpriteBatch.FillRectangle(star, Color.Gray);
-                }
                 else
-                {
                     screenManager.SpriteBatch.FillRectangle(star, system.OwnerList.ToList()[0].EmpireColor);
-                }
             }
             Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
-            upperLeftView = new Vector2((float)HelperFunctions.RoundTo(upperLeftView.X, 20000), (float)HelperFunctions.RoundTo(upperLeftView.Y, 20000));
-            Vector2 right = screen.UnprojectToWorldPosition(new Vector2((float)screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
-            right = new Vector2((float)HelperFunctions.RoundTo(right.X, 20000), 0f);
-            float xdist = (right.X - upperLeftView.X) * scale;
-            xdist = (float)HelperFunctions.RoundTo(xdist, 1);
-            float ydist = xdist * (float)screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / (float)screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            Rectangle LookingAt = new Rectangle((int)minimapZero.X + (int)(upperLeftView.X * scale), (int)minimapZero.Y + (int)(upperLeftView.Y * scale), (int)xdist, (int)ydist);
-            if (LookingAt.Width < 2)
+            upperLeftView         = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 20000), HelperFunctions.RoundTo(upperLeftView.Y, 20000));
+            Vector2 right         = screen.UnprojectToWorldPosition(new Vector2(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
+            right                 = new Vector2(HelperFunctions.RoundTo(right.X, 20000), 0f);
+            float xdist           = (right.X - upperLeftView.X) * scale;
+            xdist                 = HelperFunctions.RoundTo(xdist, 1);
+            float ydist           = xdist * screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            Rectangle lookingAt   = new Rectangle((int)minimapZero.X + (int)(upperLeftView.X * scale), (int)minimapZero.Y + (int)(upperLeftView.Y * scale), (int)xdist, (int)ydist);
+            if (lookingAt.Width < 2)
             {
-                LookingAt.Width = 2;
-                LookingAt.Height = 2;
+                lookingAt.Width = 2;
+                lookingAt.Height = 2;
             }
-            if (LookingAt.X < this.ActualMap.X)
+            if (lookingAt.X < ActualMap.X)
             {
-                LookingAt.X = this.ActualMap.X;
+                lookingAt.X = ActualMap.X;
             }
-            if (LookingAt.Y < this.ActualMap.Y)
+            if (lookingAt.Y < ActualMap.Y)
             {
-                LookingAt.Y = this.ActualMap.Y;
+                lookingAt.Y = ActualMap.Y;
             }
-            screenManager.SpriteBatch.FillRectangle(LookingAt, new Color(255, 255, 255, 30));
-            screenManager.SpriteBatch.DrawRectangle(LookingAt, Color.White);
-            Vector2 topMiddleView = new Vector2((float)(LookingAt.X + LookingAt.Width / 2), (float)LookingAt.Y);
-            Vector2 botMiddleView = new Vector2(topMiddleView.X - 1f, (float)(LookingAt.Y + LookingAt.Height));
-            Vector2 leftMiddleView = new Vector2((float)LookingAt.X, (float)(LookingAt.Y + LookingAt.Height / 2));
-            Vector2 rightMiddleView = new Vector2((float)(LookingAt.X + LookingAt.Width), leftMiddleView.Y + 1f);
+            screenManager.SpriteBatch.FillRectangle(lookingAt, new Color(255, 255, 255, 30));
+            screenManager.SpriteBatch.DrawRectangle(lookingAt, Color.White);
+            var topMiddleView   = new Vector2(lookingAt.X + lookingAt.Width / 2, lookingAt.Y);
+            var botMiddleView   = new Vector2(topMiddleView.X - 1f, lookingAt.Y + lookingAt.Height);
+            var leftMiddleView  = new Vector2(lookingAt.X, lookingAt.Y + lookingAt.Height / 2);
+            var rightMiddleView = new Vector2(lookingAt.X + lookingAt.Width, leftMiddleView.Y + 1f);
             screenManager.SpriteBatch.DrawLine(new Vector2(topMiddleView.X, minimapZero.Y - 100), topMiddleView, Color.White);
-            screenManager.SpriteBatch.DrawLine(new Vector2(botMiddleView.X, (float)(this.ActualMap.Y + this.ActualMap.Height)), botMiddleView, Color.White);
-            screenManager.SpriteBatch.DrawLine(new Vector2((float)this.ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
-            screenManager.SpriteBatch.DrawLine(new Vector2((float)(this.ActualMap.X + this.ActualMap.Width), rightMiddleView.Y), rightMiddleView, Color.White);
-            //ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
-            if (screen.showingFTLOverlay)
-            {
-                this.sList.Active = true;
-            }
-            else
-            {
-                this.sList.Active = false;
-            }
+            screenManager.SpriteBatch.DrawLine(new Vector2(botMiddleView.X, ActualMap.Y + ActualMap.Height), botMiddleView, Color.White);
+            screenManager.SpriteBatch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
+            screenManager.SpriteBatch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            if (screen.showingDSBW)
-            {
-                this.DSB.Active = true;
-            }
-            else
-            {
-                this.DSB.Active = false;
-            }
+            ShipScreen.Active     = screen.showingFTLOverlay;
+            DeepSpaceBuild.Active = screen.showingDSBW;
+            AIScreen.Active       = screen.aw.IsOpen;
+            Fleets.Active         = screen.showingRangeOverlay;
 
-            if (screen.aw.IsOpen)
-            {
-                this.Auto.Active = true;
-            }
-            else
-            {
-                this.Auto.Active = false;
-            }
-
-            if (screen.showingRangeOverlay)
-            {
-                this.Fleets.Active = true;
-            }
-            else
-            {
-                this.Fleets.Active = false;
-            }
-
-            this.zOut.DrawIconResized(screenManager);
-            this.zIn.DrawIconResized(screenManager);
-            this.DSB.DrawIconResized(screenManager);
-            this.pList.DrawIconResized(screenManager);
-            this.sList.DrawIconResized(screenManager);
-            this.Fleets.DrawIconResized(screenManager);
-            this.Auto.DrawIconResized(screenManager);
+            ZoomOut.DrawIconResized(screenManager);
+            ZoomToShip.DrawIconResized(screenManager);
+            DeepSpaceBuild.DrawIconResized(screenManager);
+            PlanetScreen.DrawIconResized(screenManager);
+            ShipScreen.DrawIconResized(screenManager);
+            Fleets.DrawIconResized(screenManager);
+            AIScreen.DrawIconResized(screenManager);
         }
 
         public bool HandleInput(InputState input, UniverseScreen screen)
         {
-            if (this.zIn.r.HitTest(input.CursorPosition))
-            {
+            if (ZoomToShip.r.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(57, "Page Up");
-            }
-            if (this.zIn.HandleInput(input))
+
+            if (ZoomToShip.HandleInput(input))
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.MiniMapButton();
                 screen.AdjustCamTimer = 1f;
                 screen.transitionElapsedTime = 0f;
                 screen.CamDestination.Z = 4500f;
@@ -178,27 +159,26 @@ namespace Ship_Game
                 screen.ViewingShip = true;
                 return true;
             }
-            if (this.zOut.r.HitTest(input.CursorPosition))
-            {
+            if (ZoomOut.r.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(58, "Page Down");
-            }
-            if (this.zOut.HandleInput(input))
+
+            if (ZoomOut.HandleInput(input))
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                screen.AdjustCamTimer = 1f;
+                GameAudio.MiniMapButton();
+                screen.AdjustCamTimer        = 1f;
                 screen.transitionElapsedTime = 0f;
-                screen.CamDestination.X = screen.CamPos.X;
-                screen.CamDestination.Y = screen.CamPos.Y;
-                screen.CamDestination.Z = 4200000f * UniverseScreen.GameScaleStatic;
+                screen.CamDestination.X      = screen.CamPos.X;
+                screen.CamDestination.Y      = screen.CamPos.Y;
+                screen.CamDestination.Z      = 4200000f * UniverseScreen.GameScaleStatic;
                 return true;
             }
-            if (this.DSB.r.HitTest(input.CursorPosition))
+            if (DeepSpaceBuild.r.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(54, "B");
             }
-            if (this.DSB.HandleInput(input))
+            if (DeepSpaceBuild.HandleInput(input))
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.MiniMapButton();
                 if (screen.showingDSBW)
                 {
                     screen.showingDSBW = false;
@@ -210,61 +190,40 @@ namespace Ship_Game
                 }
                 return true;
             }
-            if (this.pList.r.HitTest(input.CursorPosition))
-            {
+            if (PlanetScreen.r.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(56);
-            }
-            if (this.pList.HandleInput(input))
+
+            if (PlanetScreen.HandleInput(input))
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.MiniMapButton();
                 screen.ScreenManager.AddScreen(new PlanetListScreen(screen, screen.EmpireUI));
                 return true;
             }
-            if (this.sList.r.HitTest(input.CursorPosition))
-            {
+            if (ShipScreen.r.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(223, "F1");
-            }
-            if (this.sList.HandleInput(input))
+
+            if (ShipScreen.HandleInput(input))
             {                
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                if (screen.showingFTLOverlay)
-                {
-                    screen.showingFTLOverlay = false;
-                }
-                else
-                {
-                    screen.showingFTLOverlay = true;
-                }
+                GameAudio.MiniMapButton();
+                screen.showingFTLOverlay = !screen.showingFTLOverlay;
                 return true;
             }
-            if (this.Fleets.r.HitTest(input.CursorPosition))
-            {
+            if (Fleets.r.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(224, "F2");
-            }
-            if (this.Fleets.HandleInput(input))
+
+            if (Fleets.HandleInput(input))
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                if (screen.showingRangeOverlay)
-                {
-                    screen.showingRangeOverlay = false;
-                }
-                else
-                {
-                    screen.showingRangeOverlay = true;
-                }
-                //screen.ScreenManager.AddScreen(new FleetDesignScreen(screen.EmpireUI));
+                GameAudio.MiniMapButton();
+                screen.showingRangeOverlay = !screen.showingRangeOverlay;
                 return true;
             }
-            if (this.Auto.r.HitTest(input.CursorPosition))
-            {
+            if (AIScreen.r.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(59, "H");
-            }
-            if (this.Auto.HandleInput(input))
-            {
-                screen.aw.ToggleVisibility();
-                return true;
-            }
-            return false;
+
+            if (!AIScreen.HandleInput(input)) return false;
+
+            screen.aw.ToggleVisibility();
+            return true;
         }
     }
 }
