@@ -867,7 +867,7 @@ namespace Ship_Game
                     if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
                     {
                         SelectedSomethingTimer = 3f;
-                        MoveFleetToLocation(shipClicked, planetClicked, targetVector, targetVector); //, targetFacingR, vectorToTarget);
+                        MoveFleetToLocation(shipClicked, planetClicked, targetVector, targetVector);
                     }
                     else if (SelectedShip != null && SelectedShip.loyalty.isPlayer)
                     {
@@ -1255,18 +1255,18 @@ namespace Ship_Game
 
         private bool NonCombatShip(Ship ship)
         {
-            return ship != null && ship.shipData.Role <= ShipData.RoleName.freighter ||
+            return ship != null && (ship.shipData.Role <= ShipData.RoleName.freighter ||
                 ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                ship.AI.State == AIState.Colonize;
+                ship.AI.State == AIState.Colonize);
         }
 
         private bool GetAllShipsInArea(Rectangle screenArea, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeType, out Fleet fleet)
         {
-            ships = new Array<Ship>();
-            int playerShips = 0;
+            ships              = new Array<Ship>();
+            int playerShips    = 0;
             int nonCombatShips = 0;
-            int fleetShips = 0;
-            fleet = null;
+            int fleetShips     = 0;
+            fleet              = null;
 
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
@@ -1274,9 +1274,9 @@ namespace Ship_Game
                 if (!screenArea.HitTest(clickableShip.ScreenPos)) continue;
                 if (SelectedShipList.Contains(ship)) continue;
                 ships.Add(ship);
-                playerShips += ship.loyalty == player ? 1 : 0;
-                if (NonCombatShip(ship))
-                    nonCombatShips++;
+                playerShips    += ship.loyalty == player ? 1 : 0;
+                nonCombatShips += NonCombatShip(ship) ? 1 : 0;
+                
                 if (fleet == null)
                     fleet = ship.fleet;
                 if (fleet != null && fleet == ship.fleet)
@@ -1285,7 +1285,7 @@ namespace Ship_Game
             }
             bool isFleet = fleet != null && fleet.CountShips == fleetShips;
             purgeLoyalty = playerShips != 0 && playerShips != ships.Count && !isFleet;
-            purgeType = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
+            purgeType    = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
 
             return ships.Count > 0;
 
@@ -1297,7 +1297,7 @@ namespace Ship_Game
 
             if (targetShip.loyalty == player)
             {
-                if (selectedShip.shipData.Role == ShipData.RoleName.troop)
+                if (selectedShip.DesignRole == ShipData.RoleName.troop)
                 {
                     if (targetShip.TroopList.Count < targetShip.TroopCapacity)
                         selectedShip.AI.OrderTroopToShip(targetShip);
@@ -1307,7 +1307,7 @@ namespace Ship_Game
                 else
                     selectedShip.DoEscort(targetShip);
             }
-            else if (selectedShip.shipData.Role == ShipData.RoleName.troop)
+            else if (selectedShip.DesignRole == ShipData.RoleName.troop)
                 selectedShip.AI.OrderTroopToBoardShip(targetShip);
             else if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
                 selectedShip.AI.OrderQueueSpecificTarget(targetShip);
@@ -1337,19 +1337,19 @@ namespace Ship_Game
                     else
                         ship.AI.OrderToOrbit(planet, true);
                 }
-                else if (ship.shipData.Role == ShipData.RoleName.troop || (ship.TroopList.Count > 0 && (ship.HasTroopBay || ship.hasTransporter)))
+                else if (ship.DesignRole == ShipData.RoleName.troop || (ship.TroopList.Count > 0 && ship.DesignRole == ShipData.RoleName.troopShip))
                 {
-                    if (planet.Owner != null && planet.Owner == this.player && (!ship.HasTroopBay && !ship.hasTransporter))
+                    if (planet.Owner != null && planet.Owner == player && (!ship.HasTroopBay && !ship.hasTransporter))
                     {
-                        if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                        if (Input.IsShiftKeyDown)
                             ship.AI.OrderToOrbit(planet, false);
                         else
                             ship.AI.OrderRebase(planet, true);
                     }
-                    else if (planet.habitable && (planet.Owner == null || planet.Owner != player && (ship.loyalty.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)))
+                    else if (planet.habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
                     {
                         //add new right click troop and troop ship options on planets
-                        if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                        if (Input.IsShiftKeyDown)
                             ship.AI.OrderToOrbit(planet, false);
                         else
                         {
@@ -1357,64 +1357,53 @@ namespace Ship_Game
                             ship.AI.OrderLandAllTroops(planet);
                         }
                     }
-                    else
-                    {
-                        ship.AI.OrderOrbitPlanet(planet);// OrderRebase(planet, true);
-                    }
+                    else                    
+                        ship.AI.OrderOrbitPlanet(planet);
+                    
                 }
                 else if (ship.BombBays.Count > 0)
                 {
-                    float enemies = planet.GetGroundStrengthOther(this.player) * 1.5f;
-                    float friendlies = planet.GetGroundStrength(this.player);
-                    if (planet.Owner != this.player)
+                    float enemies = planet.GetGroundStrengthOther(player) * 1.5f;
+                    float friendlies = planet.GetGroundStrength(player);
+                    if (planet.Owner != player)
                     {
-                        if (planet.Owner == null || this.player.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
+                        if (planet.Owner == null || player.IsEmpireAttackable(planet.Owner))
                         {
-                            if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                            if (Input.IsShiftKeyDown)
                                 ship.AI.OrderBombardPlanet(planet);
                             else if (enemies > friendlies || planet.Population > 0f)
                                 ship.AI.OrderBombardPlanet(planet);
-                            else
-                            {
-                                ship.AI.OrderToOrbit(planet, false);
-                            }
+                            else                            
+                                ship.AI.OrderToOrbit(planet, false);                            
                         }
-                        else
-                        {
+                        else                        
                             ship.AI.OrderToOrbit(planet, false);
-                        }
-
-
+                        
                     }
-                    else if (enemies > friendlies && Input.KeysCurr.IsKeyDown(Keys.LeftShift))
-                    {
+                    else if (enemies > friendlies && Input.IsShiftKeyDown)                    
                         ship.AI.OrderBombardPlanet(planet);
-                    }
+                    
                     else
                         ship.AI.OrderToOrbit(planet, true);
                 }
-                else if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                else if (Input.IsShiftKeyDown)
                     ship.AI.OrderToOrbit(planet, false);
                 else
                     ship.AI.OrderToOrbit(planet, true);
-            }
-                            
-
-
-
+            }                           
         }
 
         public void UpdateClickableItems()
         {
             lock (GlobalStats.ClickableItemLocker)
-                this.ItemsToBuild.Clear();
+                ItemsToBuild.Clear();
             for (int index = 0; index < EmpireManager.Player.GetGSAI().Goals.Count; ++index)
             {
                 Goal goal = player.GetGSAI().Goals[index];
                 if (goal.GoalName != "BuildConstructionShip") continue;
                 const float radius = 100f;                    
-                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), this.projection, this.view, Matrix.Identity).ToVec2();
-                Vector3 buildOffSet = this.Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), projection, view, Matrix.Identity).ToVec2();
+                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), projection, view, Matrix.Identity);
                 float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
                 var underConstruction = new ClickableItemUnderConstruction
                 {
@@ -1583,20 +1572,17 @@ namespace Ship_Game
                     {
                         if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active)
                             continue;
-                        else
+                        if (nbrship == lastshipcombat)
                         {
-                            if (nbrship == lastshipcombat)
-                            {
-                                if (SelectedShip != null && SelectedShip != previousSelection && SelectedShip != ship)
-                                    previousSelection = SelectedShip;
-                                SelectedShip = ship;
-                                ViewToShip(null);
-                                SelectedShipList.Add(SelectedShip);
-                                lastshipcombat++;
-                                break;
-                            }
-                            else nbrship++;
+                            if (SelectedShip != null && SelectedShip != previousSelection && SelectedShip != ship)
+                                previousSelection = SelectedShip;
+                            SelectedShip = ship;
+                            ViewToShip(null);
+                            SelectedShipList.Add(SelectedShip);
+                            lastshipcombat++;
+                            break;
                         }
+                        else nbrship++;
                     }
                 }
                 else
@@ -1717,25 +1703,24 @@ namespace Ship_Game
                 {
                     foreach (QueueItem queueItem in planet.ConstructionQueue)
                     {
-                        if (queueItem.Goal == SelectedItem.AssociatedGoal)
-                        {
-                            planet.ProductionHere += queueItem.productionTowards;
-                            if ((double)planet.ProductionHere > (double)planet.MAX_STORAGE)
-                                planet.ProductionHere = planet.MAX_STORAGE;
-                            planet.ConstructionQueue.QueuePendingRemoval(queueItem);
-                        }
+                        if (queueItem.Goal != SelectedItem.AssociatedGoal) continue;
+
+                        planet.ProductionHere += queueItem.productionTowards;
+                        if (planet.ProductionHere > planet.MAX_STORAGE)
+                            planet.ProductionHere = planet.MAX_STORAGE;
+                        planet.ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                     planet.ConstructionQueue.ApplyPendingRemovals();
                 }
             }
             lock (GlobalStats.ClickableItemLocker)
             {
-                for (int local_10 = 0; local_10 < ItemsToBuild.Count; ++local_10)
+                for (int x = 0; x < ItemsToBuild.Count; ++x)
                 {
-                    ClickableItemUnderConstruction local_11 = ItemsToBuild[local_10];
-                    if (local_11.BuildPos == SelectedItem.BuildPos)
+                    ClickableItemUnderConstruction item = ItemsToBuild[x];
+                    if (item.BuildPos == SelectedItem.BuildPos)
                     {
-                        ItemsToBuild.QueuePendingRemoval(local_11);
+                        ItemsToBuild.QueuePendingRemoval(item);
                         GameAudio.PlaySfxAsync("blip_click");
                     }
                 }
@@ -1780,22 +1765,19 @@ namespace Ship_Game
                 return;
             lock (GlobalStats.FleetButtonLocker)
             {
-                int local_0 = 0;
-                int local_1 = 60;
-                int local_2 = 20;
+                int shipCounter = 0;
                 FleetButtons.Clear();
-                foreach (KeyValuePair<int, Fleet> item_0 in player.GetFleetsDict())
+                foreach (KeyValuePair<int, Fleet> kv in player.GetFleetsDict())
                 {
-                    if (item_0.Value.Ships.Count > 0)
+                    if (kv.Value.Ships.Count <= 0) continue;
+
+                    FleetButtons.Add(new FleetButton()
                     {
-                        FleetButtons.Add(new FleetButton()
-                        {
-                            ClickRect = new Rectangle(local_2, local_1 + local_0 * local_1, 52, 48),
-                            Fleet = item_0.Value,
-                            Key = item_0.Key
-                        });
-                        ++local_0;
-                    }
+                        ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
+                        Fleet = kv.Value,
+                        Key = kv.Key
+                    });
+                    ++shipCounter;
                 }
                 FBTimer = 0;
             }
@@ -1803,7 +1785,7 @@ namespace Ship_Game
 
         private void HandleEdgeDetection(InputState input)
         {
-            if (this.LookingAtPlanet || ViewingShip )
+            if (LookingAtPlanet || ViewingShip )
                 return;
             PresentationParameters p = ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 spaceFromScreenSpace1 = UnprojectToWorldPosition(new Vector2(0.0f, 0.0f));
@@ -1838,112 +1820,98 @@ namespace Ship_Game
             CamDestination.X = CamDestination.X.Clamp(-UniverseSize, UniverseSize);
             CamDestination.Y = CamDestination.Y.Clamp(-UniverseSize, UniverseSize);
 
-            //fbedard: remove middle button scrolling
-            //if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
-            //{
-            //    this.snappingToShip = false;
-            //    this.ViewingShip = false;
-            //}
-            //if (input.CurrentMouseState.MiddleButton != ButtonState.Pressed || input.LastMouseState.MiddleButton != ButtonState.Released)
-            //    return;
-            //Vector2 spaceFromScreenSpace2 = this.GetWorldSpaceFromScreenSpace(input.CursorPosition);
-            //this.transitionDestination.X = spaceFromScreenSpace2.X;
-            //this.transitionDestination.Y = spaceFromScreenSpace2.Y;
-            //this.transitionDestination.Z = this.camHeight;
-            //this.AdjustCamTimer = 1f;
-            //this.transitionElapsedTime = 0.0f;
         }
 
         private void HandleScrolls(InputState input)
         {
-            if ((double)this.AdjustCamTimer >= 0.0)
+            if (AdjustCamTimer >= 0f)
                 return;
 
             float scrollAmount = 1500.0f * CamHeight / 3000.0f + 100.0f;
 
-            if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
+            if ((input.ScrollOut || input.BButtonHeld) && !LookingAtPlanet)
             {
-                this.CamDestination.X = this.CamPos.X;
-                this.CamDestination.Y = this.CamPos.Y;
-                this.CamDestination.Z = this.CamHeight + scrollAmount;
-                if ((double)this.CamHeight > 12000.0)
+                CamDestination.X = CamPos.X;
+                CamDestination.Y = CamPos.Y;
+                CamDestination.Z = CamHeight + scrollAmount;
+                if (CamHeight > 12000f)
                 {
-                    this.CamDestination.Z += 3000f;
-                    this.viewState = UniverseScreen.UnivScreenState.SectorView;
-                    if ((double)this.CamHeight > 32000.0)
-                        this.CamDestination.Z += 15000f;
-                    if ((double)this.CamHeight > 100000.0)
-                        this.CamDestination.Z += 40000f;
+                    CamDestination.Z += 3000f;
+                    viewState = UniverseScreen.UnivScreenState.SectorView;
+                    if (CamHeight > 32000.0f)
+                        CamDestination.Z += 15000f;
+                    if (CamHeight > 100000.0f)
+                        CamDestination.Z += 40000f;
                 }
-                if (input.KeysCurr.IsKeyDown(Keys.LeftControl))
+                if (input.IsCtrlKeyDown)
                 {
-                    if ((double)this.CamHeight < 55000.0)
+                    if (CamHeight < 55000f)
                     {
-                        this.CamDestination.Z = 60000f;
-                        this.AdjustCamTimer = 1f;
-                        this.transitionElapsedTime = 0.0f;
+                        CamDestination.Z = 60000f;
+                        AdjustCamTimer = 1f;
+                        transitionElapsedTime = 0.0f;
                     }
                     else
                     {
-                        this.CamDestination.Z = 4200000f * this.GameScale;
-                        this.AdjustCamTimer = 1f;
-                        this.transitionElapsedTime = 0.0f;
+                        CamDestination.Z = 4200000f * GameScale;
+                        AdjustCamTimer = 1f;
+                        transitionElapsedTime = 0.0f;
                     }
                 }
             }
-            if (!input.YButtonHeld && !input.ScrollIn || this.LookingAtPlanet)
+            if (!input.YButtonHeld && !input.ScrollIn || LookingAtPlanet)
                 return;
 
-            this.CamDestination.Z = this.CamHeight - scrollAmount;
-            if ((double)this.CamHeight >= 16000.0)
+            CamDestination.Z = CamHeight - scrollAmount;
+            if (CamHeight >= 16000f)
             {
-                this.CamDestination.Z -= 2000f;
-                if ((double)this.CamHeight > 32000.0)
-                    this.CamDestination.Z -= 7500f;
-                if ((double)this.CamHeight > 150000.0)
-                    this.CamDestination.Z -= 40000f;
+                CamDestination.Z -= 2000f;
+                if (CamHeight > 32000f)
+                    CamDestination.Z -= 7500f;
+                if (CamHeight > 150000f)
+                    CamDestination.Z -= 40000f;
             }
-            if (input.KeysCurr.IsKeyDown(Keys.LeftControl) && (double)this.CamHeight > 10000.0)
-                this.CamDestination.Z = (double)this.CamHeight <= 65000.0 ? 10000f : 60000f;
-            if (this.ViewingShip)
+            if (input.IsCtrlKeyDown && CamHeight > 10000f)
+                CamDestination.Z = CamHeight <= 65000f ? 10000f : 60000f;
+            if (ViewingShip)
                 return;
-            if ((double)this.CamHeight <= 450.0f)
-                this.CamHeight = 450f;
-            float num2 = this.CamDestination.Z;
+            if (CamHeight <= 450.0f)
+                CamHeight = 450f;
+            float camDestinationZ = CamDestination.Z;
             
             //fbedard: add a scroll on selected object
-            if ((!input.KeysCurr.IsKeyDown(Keys.LeftShift) && GlobalStats.ZoomTracking) || (input.KeysCurr.IsKeyDown(Keys.LeftShift) && !GlobalStats.ZoomTracking))
+            if ((!input.IsShiftKeyDown && GlobalStats.ZoomTracking) || (input.KeysCurr.IsKeyDown(Keys.LeftShift) && !GlobalStats.ZoomTracking))
             {
-                if (this.SelectedShip != null && this.SelectedShip.Active)
+                if (SelectedShip != null && SelectedShip.Active)
                 {
-                    this.CamDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
+                    CamDestination = new Vector3(SelectedShip.Position.X, SelectedShip.Position.Y, camDestinationZ);
                 }
                 else
-                if (this.SelectedPlanet != null)
+                if (SelectedPlanet != null)
                 {
-                    this.CamDestination = new Vector3(this.SelectedPlanet.Center.X, this.SelectedPlanet.Center.Y, num2);
+                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, camDestinationZ);
                 }  
                 else
-                if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
+                if (SelectedFleet != null && SelectedFleet.Ships.Count > 0)
                 {
-                    this.CamDestination = new Vector3(this.SelectedFleet.FindAveragePosition().X, this.SelectedFleet.FindAveragePosition().Y, num2);
+                    CamDestination = new Vector3(SelectedFleet.FindAveragePosition().X, SelectedFleet.FindAveragePosition().Y, camDestinationZ);
                 }
                 else
-                if (this.SelectedShipList.Count > 0 && this.SelectedShipList[0] != null && this.SelectedShipList[0].Active)
+                if (SelectedShipList.Count > 0 && SelectedShipList[0] != null && SelectedShipList[0].Active)
                 {
-                    this.CamDestination = new Vector3(this.SelectedShipList[0].Position.X, this.SelectedShipList[0].Position.Y, num2);
+                    CamDestination = new Vector3(SelectedShipList[0].Position.X, SelectedShipList[0].Position.Y, camDestinationZ);
                 }
                 else
-                    this.CamDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y), num2), num2);
+                    CamDestination = new Vector3(CalculateCameraPositionOnMouseZoom(new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y), camDestinationZ), camDestinationZ);
             }
             else
-                this.CamDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y), num2), num2);
+                CamDestination = new Vector3(CalculateCameraPositionOnMouseZoom(new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y), camDestinationZ), camDestinationZ);
         }
 
         private void HandleScrollsSectorMiniMap(InputState input)
         {
             this.SectorMiniMapHeight = MathHelper.SmoothStep(this.SectorMiniMapHeight, this.desiredSectorZ, 0.2f);
-            if ((double)this.SectorMiniMapHeight < 6000.0)
+            if (SectorMiniMapHeight < 6000.0)
                 this.SectorMiniMapHeight = 6000f;
             if (input.InGameSelect)
             {
