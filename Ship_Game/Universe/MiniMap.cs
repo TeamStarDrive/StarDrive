@@ -38,25 +38,25 @@ namespace Ship_Game
         public MiniMap(Rectangle housing)
         {
             Housing   = housing;
-            ActualMap = new Rectangle(housing.X + 61, housing.Y + 43, 200, 200);
+            ActualMap = new Rectangle(housing.X + 61 + 14 + 5, housing.Y + 43, 200, 200);
             
-            ZoomToShip        = new ToggleButton(ButtonRect(), CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
+            ZoomToShip        = new ToggleButton(ButtonRectLeftRow(), CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
             
-            ZoomOut           = new ToggleButton(ButtonRect(), CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
+            ZoomOut           = new ToggleButton(ButtonRectLeftRow(), CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
 
-            PlanetScreen      = new ToggleButton(ButtonRect(), BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
+            PlanetScreen      = new ToggleButton(ButtonRectLeftRow(), BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
 
-            ShipScreen        = new ToggleButton(ButtonRect(), Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
+            ShipScreen        = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
 
-            Fleets            = new ToggleButton(ButtonRect(), Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
+            Fleets            = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
 
-            DeepSpaceBuild    = new ToggleButton(ButtonRect(), Active, Normal, Hover, Normal, "UI/icon_dsbw");
+            DeepSpaceBuild    = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_dsbw");
 
-            AIScreen          = new ToggleButton(ButtonRect(26), Active, "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
+            AIScreen          = new ToggleButton(ButtonRectLeftRow(26), Active, "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
         }
 
         
-        private Rectangle ButtonRect(int height = 22)
+        private Rectangle ButtonRectLeftRow(int height = 22)
         {
             var r = new Rectangle(Housing.X + 14, Housing.Y + 70 +ButtonOffset, 22, height);
             ButtonOffset += 25;
@@ -130,13 +130,10 @@ namespace Ship_Game
             screenManager.SpriteBatch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             screenManager.SpriteBatch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.Active = screen.showingFTLOverlay;
-
+            ShipScreen.Active     = screen.showingFTLOverlay;
             DeepSpaceBuild.Active = screen.showingDSBW;
-
-            AIScreen.Active = screen.aw.IsOpen;
-
-            Fleets.Active = screen.showingRangeOverlay;
+            AIScreen.Active       = screen.aw.IsOpen;
+            Fleets.Active         = screen.showingRangeOverlay;
 
             ZoomOut.DrawIconResized(screenManager);
             ZoomToShip.DrawIconResized(screenManager);
