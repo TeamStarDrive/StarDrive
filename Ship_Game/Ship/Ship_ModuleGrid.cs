@@ -482,7 +482,7 @@ namespace Ship_Game.Gameplay
                 Vector2 delta = b - a;
                 Vector2 step  = delta.Normalized() * 16f;
                 int n = (int)(delta.Length() / 16f);
-                for (; n > 0; --n, pos += step)
+                for (; n >= 0; --n, pos += step)
                 {
                     Point p = GridLocalToPoint(pos);
                     ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
