@@ -1974,11 +1974,11 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             this.pFacilities.HandleInputNoReset();
-            if (this.RightColony.r.HitTest(input.CursorPosition))
+            if (this.RightColony.Rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Localizer.Token(2279));
             }
-            if (this.LeftColony.r.HitTest(input.CursorPosition))
+            if (this.LeftColony.Rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Localizer.Token(2280));
             }
@@ -2186,7 +2186,7 @@ namespace Ship_Game
             this.HandleSlider();
             if (this.p.HasShipyard && this.build.Tabs.Count > 1 && this.build.Tabs[1].Selected)
             {
-                if (this.playerDesignsToggle.r.HitTest(input.CursorPosition))
+                if (this.playerDesignsToggle.Rect.HitTest(input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2225));
                 }

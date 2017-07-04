@@ -1020,7 +1020,7 @@ namespace Ship_Game
                 {
                     foreach (ToggleButton button in this.OrdersButtons)
                     {
-                        if (!button.r.HitTest(MousePos))
+                        if (!button.Rect.HitTest(MousePos))
                         {
                             button.Hover = false;
                         }
@@ -1123,7 +1123,7 @@ namespace Ship_Game
                 {
                     foreach (ToggleButton button in this.OrdersButtons)
                     {
-                        if (!button.r.HitTest(MousePos))
+                        if (!button.Rect.HitTest(MousePos))
                         {
                             button.Hover = false;
                         }

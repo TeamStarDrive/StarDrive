@@ -290,7 +290,7 @@ namespace Ship_Game
                 }
                 this.ResetSL();
             }
-            if (this.playerDesignsToggle.r.HitTest(input.CursorPosition))
+            if (this.playerDesignsToggle.Rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Localizer.Token(2225));
             }
