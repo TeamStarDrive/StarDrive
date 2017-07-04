@@ -368,7 +368,7 @@ namespace Ship_Game
 			{
 				foreach (ToggleButton button in this.CombatStatusButtons)
 				{
-					if (!button.r.HitTest(input.CursorPosition))
+					if (!button.Rect.HitTest(input.CursorPosition))
 					{
 						button.Hover = false;
 					}

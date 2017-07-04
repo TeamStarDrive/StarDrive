@@ -454,7 +454,7 @@ namespace Ship_Game
                 }
                 else
                     GlobalStats.TakingInput = false;
-                if (this.gridbutton.r.HitTest(input.CursorPosition))
+                if (this.gridbutton.Rect.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(Localizer.Token(2204));
                 if (this.gridbutton.HandleInput(input))
                 {
@@ -484,7 +484,7 @@ namespace Ship_Game
                     {
                         foreach (ToggleButton toggleButton in this.CombatStatusButtons)
                         {
-                            if (toggleButton.r.HitTest(input.CursorPosition))
+                            if (toggleButton.Rect.HitTest(input.CursorPosition))
                             {
                                 toggleButton.Hover = true;
                                 if (toggleButton.HasToolTip)

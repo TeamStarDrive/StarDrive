@@ -1168,7 +1168,7 @@ namespace Ship_Game
                     previousSelection = SelectedShip;
                 SelectedShip = SelectedShipList[0];
             }
-            if (input.LeftMouseHeld())
+            if (input.LeftMouseHeld() && (SelectingWithBox || !minimap.HitTest(input.CursorPosition)))
             {
                 SelectingWithBox = true;
                 if (SelectionBox.X == 0 || SelectionBox.Y == 0)
@@ -1177,7 +1177,11 @@ namespace Ship_Game
                     input.MouseCurr.X - SelectionBox.X, input.MouseCurr.Y - SelectionBox.Y);
                 return;
             }
-            if (!input.LeftMouseWasHeld) return;
+            if (!input.LeftMouseWasHeld || !SelectingWithBox)
+            {
+                SelectingWithBox = false;
+                return;
+            }
 
             if (input.MouseCurr.X < SelectionBox.X)
                 SelectionBox.X = input.MouseCurr.X;
