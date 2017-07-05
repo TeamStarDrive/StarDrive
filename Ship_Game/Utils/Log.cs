@@ -23,6 +23,7 @@ namespace Ship_Game
         // instead, we count identical exceptions and resend them only over a certain threshold 
         private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         private const int ErrorThreshold = 100;
+        private static bool IsTerminating;
 
         static Log()
         {
@@ -138,7 +139,7 @@ namespace Ship_Game
             if (!HasDebugger && ShouldIgnoreErrorText(error))
                 return;
 
-            string text = "!! Error: " + error;
+            string text = "(!) Error: " + error;
             LogFile.WriteLine(text);
 
             if (!HasDebugger) // only log errors to sentry if debugger not attached
@@ -148,6 +149,7 @@ namespace Ship_Game
             }
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(text);
+
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
@@ -164,7 +166,7 @@ namespace Ship_Game
             if (!HasDebugger && ShouldIgnoreErrorText(text))
                 return;
 
-            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace);
+            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
             LogFile.WriteLine(withStack);
             
             if (!HasDebugger) // only log errors to sentry if debugger not attached
@@ -174,8 +176,31 @@ namespace Ship_Game
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine(withStack);
+
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
+        }
+
+        public static void ErrorDialog(Exception ex, string error = null)
+        {
+            if (IsTerminating)
+                return;
+            IsTerminating = true;
+
+            string text = CurryExceptionMessage(ex, error);
+            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
+            LogFile.WriteLine(withStack);
+            
+            if (!HasDebugger) // only log errors to sentry if debugger not attached
+            {
+                CaptureEvent(text, ErrorLevel.Fatal, ex);
+                return;
+            }
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine(withStack);
+
+            ExceptionViewer.ShowExceptionDialog(withStack);
+            Environment.Exit(-1);
         }
 
         [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)
@@ -188,7 +213,7 @@ namespace Ship_Game
             var evt = new SentryEvent(ex)
             {
                 Message = text,
-                Level = level
+                Level   = level
             };
             if (GlobalStats.HasMod)
             {
@@ -198,8 +223,7 @@ namespace Ship_Game
             Raven.CaptureAsync(evt);
         }
 
-
-        public static string CurryExceptionMessage(Exception ex, string moreInfo = null)
+        private static string CurryExceptionMessage(Exception ex, string moreInfo = null)
         {
             IDictionary evt = ex.Data;
             if (evt.Count == 0)
@@ -220,9 +244,14 @@ namespace Ship_Game
                 evt["XnaMemory"] = Game1.Instance != null ? (Game1.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
             }
-            var sb = new StringBuilder("!! Exception: ");
+            var sb = new StringBuilder("(!) Exception: ");
             sb.Append(ex.Message);
-            if (moreInfo.NotEmpty()) sb.Append(" | ").Append(moreInfo);
+
+            if (ex.InnerException != null)
+                sb.Append("\nInnerEx: ").Append(ex.InnerException.Message);
+
+            if (moreInfo.NotEmpty())
+                sb.Append("\nInfo: ").Append(moreInfo);
 
             if (evt.Count != 0)
             {
@@ -232,7 +261,7 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        public static string CleanStackTrace(string stackTrace)
+        private static string CleanStackTrace(string stackTrace)
         {
             var sb = new StringBuilder("StackTrace:\r\n");
             string[] lines = stackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
