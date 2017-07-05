@@ -132,9 +132,10 @@ namespace Ship_Game
         // in loading, the brunt work is offloaded to C++ and then copied back into C#
         public static unsafe ShipData Parse(FileInfo info)
         {
-            CShipDataParser* s = CreateShipDataParser(info.FullName); // @note This will never throw
+            CShipDataParser* s = null;
             try
             {
+                s = CreateShipDataParser(info.FullName); // @note This will never throw
                 if (!s->ErrorMessage.Empty)
                     throw new InvalidDataException(s->ErrorMessage.AsString);
 
@@ -204,6 +205,11 @@ namespace Ship_Game
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.techsNeeded.Add(s->Techs[i].AsInterned);
                 return ship;
+            }
+            catch (Exception e)
+            {
+                Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'");
+                throw;
             }
             finally
             {
