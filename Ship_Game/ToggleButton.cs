@@ -45,9 +45,9 @@ namespace Ship_Game
             HoverTexture    = ResourceManager.Texture(hoverPath);
             ActiveTexture   = ResourceManager.Texture(activePath);
             InactiveTexture = ResourceManager.Texture(inactivePath);                        
-            IconTexture = ResourceManager.Texture(iconPath, false);
-            IconActive = ResourceManager.Texture(string.Concat(iconPath, "_active"));
-            //Icon = ResourceManager.Texture(IconPath);
+            IconTexture     = ResourceManager.Texture(iconPath, false);
+            IconActive      = ResourceManager.Texture(string.Concat(iconPath, "_active"));
+            //Icon          = ResourceManager.Texture(IconPath);
             if (IconTexture == null)
             {
                 IconPath = iconPath;
