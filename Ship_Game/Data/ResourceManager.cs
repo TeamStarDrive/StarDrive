@@ -681,10 +681,10 @@ namespace Ship_Game
         // Gets a loaded texture using the given abstract texture path
         public static Texture2D Texture(string texturePath, bool errorOnFail = true)
         {
-            if (!string.IsNullOrEmpty(texturePath) && TextureDict.TryGetValue(texturePath, out Texture2D texture))
+            if (texturePath.NotEmpty() && TextureDict.TryGetValue(texturePath, out Texture2D texture))
                 return texture;
             if (errorOnFail)
-                Log.Warning($"texture path not found: {texturePath}");
+                Log.Error($"texture path not found: {texturePath}");
             return null;
         }
         public static Texture2D ProjTexture(string texturePath)
