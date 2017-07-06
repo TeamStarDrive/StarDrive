@@ -679,9 +679,13 @@ namespace Ship_Game
 
 
         // Gets a loaded texture using the given abstract texture path
-        public static Texture2D Texture(string texturePath)
+        public static Texture2D Texture(string texturePath, bool errorOnFail = true)
         {
-            return TextureDict[texturePath];
+            if (texturePath.NotEmpty() && TextureDict.TryGetValue(texturePath, out Texture2D texture))
+                return texture;
+            if (errorOnFail)
+                Log.Error($"texture path not found: {texturePath}");
+            return null;
         }
         public static Texture2D ProjTexture(string texturePath)
         {
@@ -910,7 +914,8 @@ namespace Ship_Game
             var retList = new Array<ShipData>();
 
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
-            Parallel.For(hullFiles.Length, (start, end) =>
+
+            void LoadHulls(int start, int end)
             {
                 for (int i = start; i < end; ++i)
                 {
@@ -933,7 +938,8 @@ namespace Ship_Game
                         Log.Error(e, $"LoadHullData {info.Name} failed");
                     }
                 }
-            });
+            }
+            Parallel.For(hullFiles.Length, LoadHulls);
             return retList;
         }
 
@@ -1175,7 +1181,7 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e, $"LoadShip {info.Name} failed");
+                        Log.Error(e, $"LoadShip '{info.Name}' failed");
                     }
                 }
             }
@@ -1225,7 +1231,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesModOrVanilla("SmallStars", "xnb"))
             {
-                Texture2D tex = ContentManager.Load<Texture2D>(info.CleanResPath());
+                var tex = ContentManager.Load<Texture2D>(info.CleanResPath());
                 SmallStars.Add(tex);
             }
         }

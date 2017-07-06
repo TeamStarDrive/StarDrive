@@ -13,14 +13,12 @@ namespace Ship_Game
 
         public string Description
         {
-            set
-            {
-                descrLabel.Text = value.Replace("\n", "\r\n");
-            }
+            set => descrLabel.Text = value;
         }
 
         public string Error
         {
+            get => tbError.Text;
             set
             {
                 tbError.Text = value.Replace("\n", "\r\n");
@@ -50,7 +48,7 @@ namespace Ship_Game
             }
         }
 
-        public static void ShowExceptionDialog(Exception ex)
+        public static void ShowExceptionDialog(string dialogText)
         {
             var view = new ExceptionViewer();
 
@@ -67,7 +65,7 @@ namespace Ship_Game
                     "If this error keep reocurring, you can add comments and create a new issue on BitBucket.";
             }
 
-            view.Error = Log.CurryExceptionMessage(ex) + "\r\n" + Log.CleanStackTrace(ex.StackTrace);
+            view.Error = dialogText;
             view.ShowDialog();
         }
     }
