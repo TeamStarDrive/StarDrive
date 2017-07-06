@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -14,7 +15,6 @@ namespace Ship_Game
         public GraphicsDeviceManager Graphics;
         public static Game1 Instance;
         public ScreenManager ScreenManager;
-        public SynapseGaming.LightingSystem.Core.LightingSystemPreferences RenderPrefs;
         public Viewport Viewport { get; private set; }
         public bool IsLoaded { get; private set; }
 
@@ -62,37 +62,21 @@ namespace Ship_Game
             Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
             Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
 
-            if (GlobalStats.IsFirstRun)
-            {
-                Graphics.PreferredBackBufferWidth  = GlobalStats.XRES;
-                Graphics.PreferredBackBufferHeight = GlobalStats.YRES;
-            }
-            else
-            {
-                Graphics.PreferredBackBufferWidth  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-                Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-                Graphics.IsFullScreen = true;
-            }
             Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-            Graphics.PreferMultiSampling = false; //true
-            Graphics.SynchronizeWithVerticalRetrace = true;
+            Graphics.PreferMultiSampling = false;
             Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
-            RenderPrefs = new SynapseGaming.LightingSystem.Core.LightingSystemPreferences();
-            RenderPrefs.ShadowQuality = GlobalStats.ShadowQuality;
-            RenderPrefs.MaxAnisotropy = GlobalStats.MaxAnisotropy;
-            RenderPrefs.ShadowDetail = (SynapseGaming.LightingSystem.Core.DetailPreference)GlobalStats.ShadowDetail;
-            RenderPrefs.EffectDetail = (SynapseGaming.LightingSystem.Core.DetailPreference)GlobalStats.EffectDetail;
-            RenderPrefs.TextureQuality = (SynapseGaming.LightingSystem.Core.DetailPreference)GlobalStats.TextureQuality;
-            RenderPrefs.TextureSampling = (SynapseGaming.LightingSystem.Core.SamplingPreference)GlobalStats.TextureSampling;
 
-            int width  = GlobalStats.XRES;
-            int height = GlobalStats.YRES;
-            if (!GlobalStats.IsFirstRun)
+            GraphicsSettings settings = GraphicsSettings.FromGlobalStats();
+            var currentMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+
+            // check if resolution from graphics settings is ok:
+            if (currentMode.Width < settings.Width || currentMode.Height < settings.Height)
             {
-                width  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-                height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+                settings.Width  = currentMode.Width;
+                settings.Height = currentMode.Height;
             }
-            SetWindowMode(GlobalStats.WindowMode, width, height);
+
+            ApplyGraphics(ref settings);
 
             var cursor = new Bitmap("Content/Cursors/Cursor.png", true);
             System.Drawing.Graphics.FromImage(cursor);
@@ -119,7 +103,10 @@ namespace Ship_Game
         {
             if (IsLoaded)
                 return;
-            ScreenManager.UpdatePreferences(RenderPrefs);
+
+            GraphicsSettings defaults = GraphicsSettings.FromGlobalStats();
+            UpdateRendererPreferences(ref defaults);
+
             ScreenManager.LoadContent();
             Fonts.LoadContent(Content);
             ScreenManager.AddScreen(new GameLoadingScreen());
@@ -151,9 +138,23 @@ namespace Ship_Game
         }
 
 
+        
+        private void UpdateRendererPreferences(ref GraphicsSettings settings)
+        {
+            var prefs = new LightingSystemPreferences
+            {
+                ShadowQuality   = settings.ShadowQuality,
+                MaxAnisotropy   = settings.MaxAnisotropy,
+                ShadowDetail    = (DetailPreference) settings.ShadowDetail,
+                EffectDetail    = (DetailPreference) settings.EffectDetail,
+                TextureQuality  = (DetailPreference) settings.TextureQuality,
+                TextureSampling = (SamplingPreference) settings.TextureSampling
+            };
+            ScreenManager?.UpdatePreferences(prefs);
+        }
 
         
-        public void ApplySettings()
+        private void ApplySettings(ref GraphicsSettings settings)
         {
             Graphics.ApplyChanges();
 
@@ -162,9 +163,9 @@ namespace Ship_Game
             ScreenHeight = p.BackBufferHeight;
             ScreenArea   = new Vector2(ScreenWidth, ScreenHeight);
             ScreenCenter = new Vector2(ScreenWidth * 0.5f, ScreenHeight * 0.5f);
-
             Viewport     = GraphicsDevice.Viewport;
-            ScreenManager?.UpdatePreferences(RenderPrefs);
+
+            UpdateRendererPreferences(ref settings);
             ScreenManager?.UpdateViewports();
         }
         
@@ -190,43 +191,44 @@ namespace Ship_Game
             e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
         }
 
-        public void SetWindowMode(WindowMode mode, int width, int height)
+        public void ApplyGraphics(ref GraphicsSettings settings)
         {
-            if (width <= 0 || height <= 0)
+            if (settings.Width <= 0 || settings.Height <= 0)
             {
-                width  = 800;
-                height = 600;
+                settings.Width  = 800;
+                settings.Height = 600;
             }
             var form = (Form)Control.FromHandle(Window.Handle);        
-            if (Debugger.IsAttached && mode == WindowMode.Fullscreen)
-                mode = WindowMode.Borderless;
+            if (Debugger.IsAttached && settings.Mode == WindowMode.Fullscreen)
+                settings.Mode = WindowMode.Borderless;
 
-            GlobalStats.WindowMode = mode;
-            Graphics.PreferredBackBufferWidth  = width;
-            Graphics.PreferredBackBufferHeight = height;
+            Graphics.PreferredBackBufferWidth  = settings.Width;
+            Graphics.PreferredBackBufferHeight = settings.Height;
             Graphics.SynchronizeWithVerticalRetrace = true;
 
-            switch (mode)
+            switch (settings.Mode)
             {
                 case WindowMode.Windowed:   form.FormBorderStyle = FormBorderStyle.Fixed3D; break;
                 case WindowMode.Borderless: form.FormBorderStyle = FormBorderStyle.None;    break;
             }
-            if (mode != WindowMode.Fullscreen && Graphics.IsFullScreen || 
-                mode == WindowMode.Fullscreen && !Graphics.IsFullScreen)
+            if (settings.Mode != WindowMode.Fullscreen && Graphics.IsFullScreen || 
+                settings.Mode == WindowMode.Fullscreen && !Graphics.IsFullScreen)
             {
                 Graphics.ToggleFullScreen();
             }
 
-            ApplySettings();
+            ApplySettings(ref settings);
 
-            if (mode != WindowMode.Fullscreen)
+            if (settings.Mode != WindowMode.Fullscreen) // set to screen center
             {
                 form.WindowState = FormWindowState.Normal;
-                form.ClientSize = new Size(width, height);
+                form.ClientSize = new Size(settings.Width, settings.Height);
 
                 // set form to the center of the primary screen
                 var size = Screen.PrimaryScreen.Bounds.Size;
-                form.Location = new System.Drawing.Point(size.Width / 2 - width / 2, size.Height / 2 - height / 2);
+                form.Location = new System.Drawing.Point(
+                    size.Width / 2 - settings.Width / 2, 
+                    size.Height / 2 - settings.Height / 2);
             }
         }
 

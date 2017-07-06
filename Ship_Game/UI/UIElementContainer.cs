@@ -166,24 +166,33 @@ namespace Ship_Game
         public void BeginLayout(float x, float y)
         {
             LayoutStarted = true;
-            LayoutCursor = new Vector2(x, y);
-            LayoutStep = new Vector2(15f, 15f);
+            LayoutCursor  = new Vector2(x, y);
+            LayoutStep    = new Vector2(15f, 15f);
         }
 
+        // Begin vertical layout of elements;
+        // you can now call specific Button(), Checkbox(), etc. to create UI elements
         public void BeginVLayout(float x, float y, float ystep = 15f)
-        {
-            LayoutStarted = true;
-            LayoutCursor = new Vector2(x, y);
-            LayoutStep = new Vector2(0f, ystep);
-        }
+            => BeginVLayout(new Vector2(x,y), ystep);
+
+        public void BeginHLayout(float x, float y, float xstep = 50f)
+            => BeginHLayout(new Vector2(x,y), xstep);
 
         public void BeginVLayout(Vector2 pos, float ystep = 15f)
         {
             LayoutStarted = true;
-            LayoutCursor = pos;
-            LayoutStep = new Vector2(0f, ystep);
+            LayoutCursor  = pos;
+            LayoutStep    = new Vector2(0f, ystep);
         }
 
+        public void BeginHLayout(Vector2 pos, float xstep = 50f)
+        {
+            LayoutStarted = true;
+            LayoutCursor  = pos;
+            LayoutStep    = new Vector2(xstep, 0f);
+        }
+
+        // ends the layout process and sorts all elements by their ZOrder values
         public void EndLayout()
         {
             LayoutStarted = false;

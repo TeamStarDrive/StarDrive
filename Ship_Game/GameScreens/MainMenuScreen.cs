@@ -143,8 +143,7 @@ namespace Ship_Game
         {
             GameTime gameTime = this.GameTime;
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            MainMenuScreen mainMenuScreen = this;
-            mainMenuScreen.Rotate = mainMenuScreen.Rotate + elapsedTime / 350f;
+            Rotate += elapsedTime / 350f;
             if (RandomMath.RandomBetween(0f, 100f) > 99.75)
             {
                 var c = new Comet
@@ -174,7 +173,6 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.Begin();
 
                 DrawButtonsTransition();
-
                 GlobalStats.ActiveMod?.DrawMainMenuOverlay(ScreenManager, Portrait);
 
                 ScreenManager.SpriteBatch.Draw(LogoAnimation[0], LogoRect, Color.White);
@@ -450,7 +448,6 @@ namespace Ship_Game
                 Button(titleId: 2,      click: LoadGame_Clicked);
                 Button(titleId: 4,      click: Options_Clicked);
                 Button("Mods",          click: Mods_Clicked);
-                //Button("Hull Designer", click: ShipTool_Clicked);
                 Button("Dev Sandbox",   click: DevSandbox_Clicked);
                 Button("BlackBox Info", click: Info_Clicked);
                 Button(titleId: 5,      click: Exit_Clicked);
