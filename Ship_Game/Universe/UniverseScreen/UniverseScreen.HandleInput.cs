@@ -1166,7 +1166,7 @@ namespace Ship_Game
                 if (SelectedShip != null && previousSelection != SelectedShip &&
                     SelectedShip != SelectedShipList[0]) //fbedard
                     previousSelection = SelectedShip;
-                SelectedShip = SelectedShipList[0];
+                SelectedShip          = SelectedShipList[0];
             }
             if (input.LeftMouseHeld() && (SelectingWithBox || !minimap.HitTest(input.CursorPosition)))
             {
@@ -1184,10 +1184,10 @@ namespace Ship_Game
             }
 
             if (input.MouseCurr.X < SelectionBox.X)
-                SelectionBox.X = input.MouseCurr.X;
+                SelectionBox.X  = input.MouseCurr.X;
             if (input.MouseCurr.Y < SelectionBox.Y)
-                SelectionBox.Y = input.MouseCurr.Y;
-            SelectionBox.Width = Math.Abs(SelectionBox.Width);
+                SelectionBox.Y  = input.MouseCurr.Y;
+            SelectionBox.Width  = Math.Abs(SelectionBox.Width);
             SelectionBox.Height = Math.Abs(SelectionBox.Height);
 
             if (!GetAllShipsInArea(SelectionBox, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeSupply,
@@ -1422,54 +1422,54 @@ namespace Ship_Game
 
         private void DefineAO(InputState input)
         {
-            this.HandleScrolls(input);
-            if (this.SelectedShip == null)
+            HandleScrolls(input);
+            if (SelectedShip == null)
             {
-                this.DefiningAO = false;
+                DefiningAO = false;
                 return;
             }
             if (input.Escaped)      //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
             {
-                this.DefiningAO = false;
+                DefiningAO = false;
                 return;
-            }               
-            Vector3 position = this.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0.0f)
-                , this.projection, this.view, Matrix.Identity);
-            Vector3 direction = this.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f)
-                , this.projection, this.view, Matrix.Identity) - position;
+            }
+            Vector3 position = Viewport.Unproject(input.CursorPosition.ToVec3()
+                , projection, view, Matrix.Identity);
+            Vector3 direction = Viewport.Unproject(input.CursorPosition.ToVec3(1f)
+                , projection, view, Matrix.Identity) - position;
             direction.Normalize();
-            var ray = new Ray(position, direction);
-            float num = -ray.Position.Z / ray.Direction.Z;
-            var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
+            var ray           = new Ray(position, direction);
+            float num         = -ray.Position.Z / ray.Direction.Z;
+            var vector3       = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
             if (input.LeftMouseClick)
-                this.AORect = new Rectangle((int)vector3.X, (int)vector3.Y, 0, 0);
+                AORect        = new Rectangle((int)vector3.X, (int)vector3.Y, 0, 0);
             if (input.LeftMouseHeld())
             {
-                int x = AORect.X;
-                int y = AORect.Y;
+                int x  = AORect.X;
+                int y  = AORect.Y;
                 int x2 = (int)vector3.X;
                 int y2 = (int)vector3.Y;
                     
-                this.AORect = new Rectangle(x, y,  x2 - x, y2 - y);
+                AORect = new Rectangle(x, y,  x2 - x, y2 - y);
             }
             if (input.LeftMouseReleased)
             {
-                if (this.AORect.X > vector3.X)
-                    this.AORect.X = (int)vector3.X;
-                if (this.AORect.Y > vector3.Y)
-                    this.AORect.Y = (int)vector3.Y;
-                this.AORect.Width = Math.Abs(this.AORect.Width);
-                this.AORect.Height = Math.Abs(this.AORect.Height);
-                if (this.AORect.Width > 100 && this.AORect.Height > 100)
+                if (AORect.X > vector3.X)
+                    AORect.X  = (int)vector3.X;
+                if (AORect.Y > vector3.Y)
+                    AORect.Y  = (int)vector3.Y;
+                AORect.Width  = Math.Abs(AORect.Width);
+                AORect.Height = Math.Abs(AORect.Height);
+                if (AORect.Width > 100 && AORect.Height > 100)
                 {
                     GameAudio.PlaySfxAsync("echo_affirm");
-                    this.SelectedShip.AreaOfOperation.Add(this.AORect);
+                    SelectedShip.AreaOfOperation.Add(AORect);
                 }
             }
-            for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; ++index)
+            for (int index = 0; index < SelectedShip.AreaOfOperation.Count; ++index)
             {
-                if (this.SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
-                    this.SelectedShip.AreaOfOperation.Remove(this.SelectedShip.AreaOfOperation[index]);
+                if (SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
+                    SelectedShip.AreaOfOperation.Remove(SelectedShip.AreaOfOperation[index]);
             }
         }
 

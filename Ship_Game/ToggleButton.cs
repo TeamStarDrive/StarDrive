@@ -1,12 +1,13 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
-    public sealed class ToggleButton
+    public sealed class ToggleButton : UIElementV2
     {
-        public Rectangle Rect;
+//        public Rectangle Rect;
 
         public object ReferenceObject;
 
@@ -38,7 +39,7 @@ namespace Ship_Game
         //private readonly Texture2D Icon;
         private readonly Rectangle IconRect;
 
-        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath)
+        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath) : base(null, r)
         {           
             Rect            = r;
             PressTexture    = ResourceManager.Texture(pressPath);
@@ -46,12 +47,12 @@ namespace Ship_Game
             ActiveTexture   = ResourceManager.Texture(activePath);
             InactiveTexture = ResourceManager.Texture(inactivePath);                        
             IconTexture     = ResourceManager.Texture(iconPath, false);
-            IconActive      = ResourceManager.Texture(string.Concat(iconPath, "_active"));
-            //Icon          = ResourceManager.Texture(IconPath);
+            IconActive = ResourceManager.Texture(string.Concat(iconPath, "_active"), false);
+
             if (IconTexture == null)
             {
                 IconPath = iconPath;
-                WordPos = new Vector2(Rect.X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f, Rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);
+                WordPos = new Vector2(Rect.X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f, Rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);             
             }
             else
                 IconRect = new Rectangle(Rect.X + Rect.Width / 2 - IconTexture.Width / 2
@@ -59,43 +60,53 @@ namespace Ship_Game
                     , IconTexture.Width, IconTexture.Height);
         }
 
-        public void Draw(ScreenManager screenManager, bool resizeIcon = false)
+//hack... until this is all straightend out to allow override of base draw.
+        public void Draw(ScreenManager screenManager) => Draw(screenManager.SpriteBatch);
+
+        public void DrawIconResized(ScreenManager screenManager) => Draw(screenManager.SpriteBatch, true);
+
+        public override void Draw(SpriteBatch spriteBatch) => Draw(spriteBatch, false);
+        
+
+        public void Draw(SpriteBatch spriteBatch, bool resizeIcon)
         {
             Rectangle iconRect = resizeIcon ? IconRect : Rect;
 
             if (Pressed)
-                screenManager.SpriteBatch.Draw(PressTexture, Rect, Color.White);
+                spriteBatch.Draw(PressTexture, Rect, Color.White);
             else if (Hover)
-                screenManager.SpriteBatch.Draw(HoverTexture, Rect, Color.White);
+                spriteBatch.Draw(HoverTexture, Rect, Color.White);
             else if (Active)
-                screenManager.SpriteBatch.Draw(ActiveTexture, Rect, Color.White);
+                spriteBatch.Draw(ActiveTexture, Rect, Color.White);
             else if (!Active)
-                screenManager.SpriteBatch.Draw(InactiveTexture, Rect, Color.White);
+                spriteBatch.Draw(InactiveTexture, Rect, Color.White);
             if (IconTexture == null)
             {
                 if (Active)
                 {
-                    screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
+                    spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
                     return;
                 }
 
-                screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
+                spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
             }
             else
             {
                 if (Active && !resizeIcon)
                 {
-                    screenManager.SpriteBatch.Draw(IconActive, Rect, Color.White);
+                    spriteBatch.Draw(IconActive, Rect, Color.White);
                     return;
                 }
-                screenManager.SpriteBatch.Draw(IconTexture, iconRect, Color.White);			    
+                spriteBatch.Draw(IconTexture, iconRect, Color.White);			    
             }
         }
 
-        public void DrawIconResized(ScreenManager screenManager) => Draw(screenManager, true);
+        public override void PerformLegacyLayout(Vector2 pos)
+        {
+            
+        }
 
-
-        public bool HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             Pressed = false;
             if (!Rect.HitTest(input.CursorPosition))
