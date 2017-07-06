@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public sealed class MiniMap
+    public sealed class MiniMap: GameScreen
     {
         private readonly Rectangle Housing;
 
@@ -35,10 +35,20 @@ namespace Ship_Game
         private const string Active        = "Minimap/button_active";
         private const string BHover        = "Minimap/button_B_hover";
 
-        public MiniMap(Rectangle housing)
+        private readonly Texture2D MiniMapHousing;
+        private readonly Texture2D Node;
+        private readonly Texture2D Node1;
+
+        public MiniMap(Rectangle housing) : base(null, housing)
         {
-            Housing   = housing;
-            ActualMap = new Rectangle(housing.X + 61 + 14 + 5, housing.Y + 43, 200, 200);
+            Housing        = housing;
+            Rectangle size = housing;
+            MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");
+            Node           = ResourceManager.Texture("UI/node");
+            Node1          = ResourceManager.Texture("UI/node1");
+            BeginVLayout(size.X - 200, size.Y / 2 - 100, UIButton.StyleSize().Y + 15);
+            
+            ActualMap = new Rectangle(housing.X + 61 + 24, housing.Y + 33, 200, 200);
             
             ZoomToShip        = new ToggleButton(ButtonRectLeftRow(), CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
             
@@ -53,8 +63,9 @@ namespace Ship_Game
             DeepSpaceBuild    = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_dsbw");
 
             AIScreen          = new ToggleButton(ButtonRectLeftRow(26), Active, "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
-        }
 
+            EndLayout();
+        }        
         
         private Rectangle ButtonRectLeftRow(int height = 22)
         {
@@ -65,11 +76,11 @@ namespace Ship_Game
 
         public void Draw(ScreenManager screenManager, UniverseScreen screen)
         {
-            screenManager.SpriteBatch.Draw(ResourceManager.Texture("Minimap/radar_over"), Housing, Color.White);
+            screenManager.SpriteBatch.Draw(MiniMapHousing, Housing, Color.White);
             float scale     = ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
             var minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
-            var uiNode      = ResourceManager.Texture("UI/node");
-            var uiNode1     = ResourceManager.Texture("UI/node1");
+            var uiNode      = Node;
+            var uiNode1     = Node1;
 
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -119,6 +130,11 @@ namespace Ship_Game
             {
                 lookingAt.Y = ActualMap.Y;
             }
+            float lookRightEdge  = lookingAt.X + lookingAt.Width;
+            float lookBottomEdge = lookingAt.Y + lookingAt.Height;
+            lookingAt.X          = lookRightEdge > ActualMap.Width + ActualMap.X ? ActualMap.X + ActualMap.Width - lookingAt.Width : lookingAt.X;
+            lookingAt.Y          = lookBottomEdge > ActualMap.Height + ActualMap.Y ? ActualMap.Height + ActualMap.Y  - lookingAt.Height : lookingAt.Y;
+
             screenManager.SpriteBatch.FillRectangle(lookingAt, new Color(255, 255, 255, 30));
             screenManager.SpriteBatch.DrawRectangle(lookingAt, Color.White);
             var topMiddleView   = new Vector2(lookingAt.X + lookingAt.Width / 2, lookingAt.Y);
@@ -146,7 +162,7 @@ namespace Ship_Game
 
         public bool HandleInput(InputState input, UniverseScreen screen)
         {
-            if (ZoomToShip.r.HitTest(input.CursorPosition))
+            if (ZoomToShip.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(57, "Page Up");
 
             if (ZoomToShip.HandleInput(input))
@@ -159,7 +175,7 @@ namespace Ship_Game
                 screen.ViewingShip = true;
                 return true;
             }
-            if (ZoomOut.r.HitTest(input.CursorPosition))
+            if (ZoomOut.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(58, "Page Down");
 
             if (ZoomOut.HandleInput(input))
@@ -172,7 +188,7 @@ namespace Ship_Game
                 screen.CamDestination.Z      = 4200000f * UniverseScreen.GameScaleStatic;
                 return true;
             }
-            if (DeepSpaceBuild.r.HitTest(input.CursorPosition))
+            if (DeepSpaceBuild.Rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(54, "B");
             }
@@ -190,7 +206,7 @@ namespace Ship_Game
                 }
                 return true;
             }
-            if (PlanetScreen.r.HitTest(input.CursorPosition))
+            if (PlanetScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(56);
 
             if (PlanetScreen.HandleInput(input))
@@ -199,7 +215,7 @@ namespace Ship_Game
                 screen.ScreenManager.AddScreen(new PlanetListScreen(screen, screen.EmpireUI));
                 return true;
             }
-            if (ShipScreen.r.HitTest(input.CursorPosition))
+            if (ShipScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(223, "F1");
 
             if (ShipScreen.HandleInput(input))
@@ -208,7 +224,7 @@ namespace Ship_Game
                 screen.showingFTLOverlay = !screen.showingFTLOverlay;
                 return true;
             }
-            if (Fleets.r.HitTest(input.CursorPosition))
+            if (Fleets.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(224, "F2");
 
             if (Fleets.HandleInput(input))
@@ -217,7 +233,7 @@ namespace Ship_Game
                 screen.showingRangeOverlay = !screen.showingRangeOverlay;
                 return true;
             }
-            if (AIScreen.r.HitTest(input.CursorPosition))
+            if (AIScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(59, "H");
 
             if (!AIScreen.HandleInput(input)) return false;

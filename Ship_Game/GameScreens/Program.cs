@@ -15,8 +15,7 @@ namespace Ship_Game
             try
             {
                 var ex = e.ExceptionObject as Exception;
-                Log.Error(ex, "Unhandled Exception");
-                ExceptionViewer.ShowExceptionDialog(ex);
+                Log.ErrorDialog(ex, "Program.CurrentDomain_UnhandledException");
             }
             finally
             {
@@ -44,8 +43,7 @@ namespace Ship_Game
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Fatal main loop failure");
-                ExceptionViewer.ShowExceptionDialog(ex);
+                Log.ErrorDialog(ex, "Fatal main loop failure");
             }
             finally
             {

@@ -622,7 +622,7 @@ namespace Ship_Game {
             if (ActiveHull == null) return;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
-                if (toggleButton.r.HitTest(input.CursorPosition))
+                if (toggleButton.Rect.HitTest(input.CursorPosition))
                 {
                     if (toggleButton.HasToolTip)
                         ToolTip.CreateTooltip(toggleButton.WhichToolTip);

@@ -162,8 +162,6 @@ namespace Ship_Game
             ScreenHeight = p.BackBufferHeight;
             ScreenArea   = new Vector2(ScreenWidth, ScreenHeight);
             ScreenCenter = new Vector2(ScreenWidth * 0.5f, ScreenHeight * 0.5f);
-            Log.Info("ApplySettings(): {0}x{1}", ScreenWidth, ScreenHeight);
-
 
             Viewport     = GraphicsDevice.Viewport;
             ScreenManager?.UpdatePreferences(RenderPrefs);
