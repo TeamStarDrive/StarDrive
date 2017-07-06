@@ -117,8 +117,7 @@ namespace Ship_Game
         // From old Config
         public static int XRES;
         public static int YRES;
-        public static WindowMode WindowMode;
-        public static bool IsFirstRun; // first time the game is run? we'll use some optimized defaults
+        public static WindowMode WindowMode = WindowMode.Fullscreen;
         public static bool ForceFullSim   = true;
         public static int AntiAlias       = 2;
         public static bool RenderBloom    = true;
@@ -169,7 +168,6 @@ namespace Ship_Game
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);
             GetSetting("AutoSaveFreq",           ref AutoSaveFreq);
-            GetSetting("IsFirstRun",             ref IsFirstRun);
             GetSetting("ForceFullSim",           ref ForceFullSim);
             GetSetting("WindowMode",             ref WindowMode);
             GetSetting("AntiAliasSamples",       ref AntiAlias);
@@ -191,11 +189,6 @@ namespace Ship_Game
             GetSetting("YRES", ref YRES);
 
             LoadModInfo(ModName);
-
-            if (!IsFirstRun) // first run? try full screen
-                WindowMode = 0;
-            IsFirstRun = true;
-
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
 
@@ -211,7 +204,7 @@ namespace Ship_Game
                 return;
             }
 
-            FileInfo info = new FileInfo($"Mods/{modName}.xml");
+            var info = new FileInfo($"Mods/{modName}.xml");
             if (info.Exists)
             {
                 ModPath = "Mods/" + ModName + "/";
@@ -263,20 +256,19 @@ namespace Ship_Game
             WriteSetting(config, "GravityWellRange",       GravityWellRange);
             WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
             WriteSetting(config, "perf", perf);
-            WriteSetting(config, "AutoSaveFreq",   AutoSaveFreq);
-            WriteSetting(config, "IsFirstRun",        IsFirstRun);
-            WriteSetting(config, "ForceFullSim",   ForceFullSim);
-            WriteSetting(config, "WindowMode",     WindowMode);
+            WriteSetting(config, "AutoSaveFreq",     AutoSaveFreq);
+            WriteSetting(config, "ForceFullSim",     ForceFullSim);
+            WriteSetting(config, "WindowMode",       WindowMode);
             WriteSetting(config, "AntiAliasSamples", AntiAlias);
             WriteSetting(config, "PostProcessBloom", RenderBloom);
-            WriteSetting(config, "TextureQuality", TextureQuality);
-            WriteSetting(config, "TextureSampling", TextureSampling);
-            WriteSetting(config, "MaxAnisotropy", MaxAnisotropy);
-            WriteSetting(config, "ShadowQuality", ShadowQuality);
-            WriteSetting(config, "ShadowDetail", ShadowDetail);
-            WriteSetting(config, "EffectDetail", EffectDetail);
-            WriteSetting(config, "AutoErrorReport", AutoErrorReport);
-            WriteSetting(config, "ActiveMod",       ModName);
+            WriteSetting(config, "TextureQuality",   TextureQuality);
+            WriteSetting(config, "TextureSampling",  TextureSampling);
+            WriteSetting(config, "MaxAnisotropy",    MaxAnisotropy);
+            WriteSetting(config, "ShadowQuality",    ShadowQuality);
+            WriteSetting(config, "ShadowDetail",     ShadowDetail);
+            WriteSetting(config, "EffectDetail",     EffectDetail);
+            WriteSetting(config, "AutoErrorReport",  AutoErrorReport);
+            WriteSetting(config, "ActiveMod",        ModName);
 
             WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
