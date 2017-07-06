@@ -1,163 +1,127 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class ToggleButton
-	{
-		public Rectangle r;
+    public sealed class ToggleButton : UIElementV2
+    {
+//        public Rectangle Rect;
 
-		public object ReferenceObject;
+        public object ReferenceObject;
 
-		public string Action = "";
+        public string Action = "";
 
-		public bool Active;
+        public bool Active;
 
-		public bool Hover;
+        public bool Hover;
+        
 
-		private string ActivePath;
+       // private readonly string IconPath;
 
-		private string InactivePath;
+        public int WhichToolTip;
 
-		private string HoverPath;
+        public bool HasToolTip;
 
-		private string PressPath;
+        public Color BaseColor = Color.White;
 
-		private string IconPath;
+        private bool Pressed;
 
-		public int WhichToolTip;
+        private readonly Texture2D PressTexture;
+        private readonly Texture2D HoverTexture;
+        private readonly Texture2D ActiveTexture;
+        private readonly Texture2D InactiveTexture;
+        private readonly Texture2D IconTexture;
+        private readonly Vector2 WordPos;
+        private readonly string IconPath;
+        private readonly Texture2D IconActive;
+        //private readonly Texture2D Icon;
+        private readonly Rectangle IconRect;
 
-		public bool HasToolTip;
+        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath) : base(null, r)
+        {           
+            Rect            = r;
+            PressTexture    = ResourceManager.Texture(pressPath);
+            HoverTexture    = ResourceManager.Texture(hoverPath);
+            ActiveTexture   = ResourceManager.Texture(activePath);
+            InactiveTexture = ResourceManager.Texture(inactivePath);                        
+            IconTexture     = ResourceManager.Texture(iconPath, false);
+            IconActive = ResourceManager.Texture(string.Concat(iconPath, "_active"), false);
 
-		public Color BaseColor = Color.White;
+            if (IconTexture == null)
+            {
+                IconPath = iconPath;
+                WordPos = new Vector2(Rect.X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f, Rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);             
+            }
+            else
+                IconRect = new Rectangle(Rect.X + Rect.Width / 2 - IconTexture.Width / 2
+                    , Rect.Y + Rect.Height / 2 - IconTexture.Height / 2
+                    , IconTexture.Width, IconTexture.Height);
+        }
 
-		private bool Pressed;
+//hack... until this is all straightend out to allow override of base draw.
+        public void Draw(ScreenManager screenManager) => Draw(screenManager.SpriteBatch);
 
-		private Color ToggleColor = new Color(33, 26, 18);
+        public void DrawIconResized(ScreenManager screenManager) => Draw(screenManager.SpriteBatch, true);
 
-		public ToggleButton(Rectangle r, string ActivePath, string InactivePath, string HoverPath, string PressPath, string IconPath)
-		{
-			this.ActivePath = ActivePath;
-			this.InactivePath = InactivePath;
-			this.HoverPath = HoverPath;
-			this.PressPath = PressPath;
-			this.IconPath = IconPath;
-			this.r = r;
-		}
+        public override void Draw(SpriteBatch spriteBatch) => Draw(spriteBatch, false);
+        
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
-		{
-			if (this.Pressed)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.PressPath], this.r, Color.White);
-			}
-			else if (this.Hover)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.HoverPath], this.r, Color.White);
-			}
-			else if (this.Active)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.ActivePath], this.r, Color.White);
-			}
-			else if (!this.Active)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.InactivePath], this.r, Color.White);
-			}
-			if (!ResourceManager.TextureDict.ContainsKey(this.IconPath))
-			{
-				Vector2 wordPos = new Vector2((float)(this.r.X + 12) - Fonts.Arial12Bold.MeasureString(this.IconPath).X / 2f, (float)(this.r.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
-				if (this.Active)
-				{
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.IconPath, wordPos, Color.White);
-					return;
-				}
-				if (!this.Active)
-				{
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.IconPath, wordPos, Color.Gray);
-				}
-			}
-			else
-			{
-				if (this.Active)
-				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat(this.IconPath, "_active")], this.r, Color.White);
-					return;
-				}
-				if (!this.Active)
-				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.IconPath], this.r, Color.White);
-					return;
-				}
-			}
-		}
+        public void Draw(SpriteBatch spriteBatch, bool resizeIcon)
+        {
+            Rectangle iconRect = resizeIcon ? IconRect : Rect;
 
-		public void DrawIconResized(Ship_Game.ScreenManager ScreenManager)
-		{
-			if (this.Pressed)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.PressPath], this.r, Color.White);
-			}
-			else if (this.Hover)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.HoverPath], this.r, Color.White);
-			}
-			else if (this.Active)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.ActivePath], this.r, Color.White);
-			}
-			else if (!this.Active)
-			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.InactivePath], this.r, Color.White);
-			}
+            if (Pressed)
+                spriteBatch.Draw(PressTexture, Rect, Color.White);
+            else if (Hover)
+                spriteBatch.Draw(HoverTexture, Rect, Color.White);
+            else if (Active)
+                spriteBatch.Draw(ActiveTexture, Rect, Color.White);
+            else if (!Active)
+                spriteBatch.Draw(InactiveTexture, Rect, Color.White);
+            if (IconTexture == null)
+            {
+                if (Active)
+                {
+                    spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
+                    return;
+                }
 
-			if (!ResourceManager.TextureDict.ContainsKey(this.IconPath))
-			{
-				Vector2 wordPos = new Vector2((float)(this.r.X + 11) - Fonts.Arial12Bold.MeasureString(this.IconPath).X / 2f, (float)(this.r.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-				if (this.Active)
-				{
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.IconPath, wordPos, Color.White);
-					return;
-				}
-				if (!this.Active)
-				{
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.IconPath, wordPos, Color.Gray);
-				}
-			}
-			else
-			{
-				Rectangle iconRect = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.TextureDict[this.IconPath].Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.TextureDict[this.IconPath].Height / 2, ResourceManager.TextureDict[this.IconPath].Width, ResourceManager.TextureDict[this.IconPath].Height);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.IconPath], iconRect, Color.White);
-				return;
-			}
-		}
+                spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
+            }
+            else
+            {
+                if (Active && !resizeIcon)
+                {
+                    spriteBatch.Draw(IconActive, Rect, Color.White);
+                    return;
+                }
+                spriteBatch.Draw(IconTexture, iconRect, Color.White);			    
+            }
+        }
 
-		public bool HandleInput(InputState input)
-		{
-			this.Pressed = false;
-			if (!this.r.HitTest(input.CursorPosition))
-			{
-				this.Hover = false;
-			}
-			else
-			{
-				if (!this.Hover)
-				{
-					GameAudio.PlaySfxAsync("sd_ui_mouseover");
-				}
-				this.Hover = true;
-				if (input.MouseCurr.LeftButton == ButtonState.Pressed)
-				{
-					this.Pressed = true;
-				}
-				if (input.InGameSelect)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-	}
+        public override void PerformLegacyLayout(Vector2 pos)
+        {
+            
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            Pressed = false;
+            if (!Rect.HitTest(input.CursorPosition))
+                Hover = false;
+            else
+            {
+                if (!Hover)
+                    GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                Hover = true;
+                if (input.MouseCurr.LeftButton == ButtonState.Pressed)
+                    Pressed = true;
+                if (input.InGameSelect)
+                    return true;
+            }
+            return false;
+        }
+    }
 }

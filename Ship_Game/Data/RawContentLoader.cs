@@ -259,42 +259,57 @@ namespace Ship_Game
 
         private unsafe StaticMesh StaticMeshFromFile(string modelName)
         {
-            string meshPath = GetContentPath(modelName);
-
-            SDMesh* sdmesh = SDMeshOpen(meshPath);
-            if (sdmesh == null)
-                return null;
-
-            Log.Info(ConsoleColor.Green, $"SDStaticMesh {sdmesh->Name} | faces:{sdmesh->NumFaces} | groups:{sdmesh->NumGroups}");
-
-            GraphicsDevice device = Device;
-            var staticMesh = new StaticMesh { Name = sdmesh->Name.AsString };
-
-            for (int i = 0; i < sdmesh->NumGroups; ++i)
+            SDMesh* sdmesh = null;
+            try
             {
-                SDMeshGroup* g = SDMeshGetGroup(sdmesh, i);
-                if (g->NumVertices == 0 || g->NumIndices == 0)
-                    continue;
-
-                Log.Info(ConsoleColor.Green, $"  group {g->GroupId}: {g->Name}  verts:{g->NumVertices}  ids:{g->NumIndices}");
-
-                var meshData = new MeshData
+                string meshPath = GetContentPath(modelName);
+                sdmesh = SDMeshOpen(meshPath);
+                if (sdmesh == null)
                 {
-                    Name                      = g->Name.AsString,
-                    Effect                    = g->CreateMaterialEffect(device, Content),
-                    ObjectSpaceBoundingSphere = g->Bounds,
-                    IndexBuffer               = g->CopyIndices(device),
-                    VertexBuffer              = g->CopyVertices(device),
-                    VertexDeclaration         = VertexLayout(device),
-                    PrimitiveCount            = g->NumTriangles,
-                    VertexCount               = g->NumVertices,
-                    VertexStride              = sizeof(SDVertex)
-                };
-                staticMesh.Meshes.Add(meshData);
-            }
+                    if (!File.Exists(meshPath))
+                        throw new InvalidDataException($"Failed to load mesh '{meshPath}' because the file does not exist!");
+                    throw new InvalidDataException($"Failed to load mesh '{meshPath}' because the data format is invalid!");
+                }
 
-            SDMeshClose(sdmesh);
-            return staticMesh;
+                Log.Info(ConsoleColor.Green, $"SDStaticMesh {sdmesh->Name} | faces:{sdmesh->NumFaces} | groups:{sdmesh->NumGroups}");
+
+                GraphicsDevice device = Device;
+                var staticMesh = new StaticMesh { Name = sdmesh->Name.AsString };
+
+                for (int i = 0; i < sdmesh->NumGroups; ++i)
+                {
+                    SDMeshGroup* g = SDMeshGetGroup(sdmesh, i);
+                    if (g->NumVertices == 0 || g->NumIndices == 0)
+                        continue;
+
+                    Log.Info(ConsoleColor.Green, $"  group {g->GroupId}: {g->Name}  verts:{g->NumVertices}  ids:{g->NumIndices}");
+
+                    var meshData = new MeshData
+                    {
+                        Name                      = g->Name.AsString,
+                        Effect                    = g->CreateMaterialEffect(device, Content),
+                        ObjectSpaceBoundingSphere = g->Bounds,
+                        IndexBuffer               = g->CopyIndices(device),
+                        VertexBuffer              = g->CopyVertices(device),
+                        VertexDeclaration         = VertexLayout(device),
+                        PrimitiveCount            = g->NumTriangles,
+                        VertexCount               = g->NumVertices,
+                        VertexStride              = sizeof(SDVertex)
+                    };
+                    staticMesh.Meshes.Add(meshData);
+                }
+
+                return staticMesh;
+            }
+            catch (Exception e)
+            {
+                Log.ErrorDialog(e, $"Failed to load mesh '{modelName}'");
+                throw;
+            }
+            finally
+            {
+                SDMeshClose(sdmesh);
+            }
         }
 
         private static T[] VertexData<T>(VertexBuffer vbo, VertexElement[] vde, int numVerts, int stride, VertexElementUsage usage) where T : struct

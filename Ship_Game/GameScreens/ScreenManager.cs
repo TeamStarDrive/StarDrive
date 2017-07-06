@@ -219,9 +219,9 @@ namespace Ship_Game
 
         public void Draw(GameTime gameTime)
         {
+            SpriteBatch spriteBatch = SpriteBatch;
             try
             {
-                SpriteBatch spriteBatch = SpriteBatch;
                 for (int i = 0; i < Screens.Count; ++i)
                 {
                     GameScreen screen = Screens[i];
@@ -229,10 +229,10 @@ namespace Ship_Game
                         screen.Draw(spriteBatch);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Log.Warning("DrawLoop Crashed : {0}", e.InnerException);
-                SpriteBatch.End();
+                try { spriteBatch.End(); } catch { }
             }
         }
 
