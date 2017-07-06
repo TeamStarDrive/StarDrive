@@ -35,10 +35,17 @@ namespace Ship_Game
         private const string Active        = "Minimap/button_active";
         private const string BHover        = "Minimap/button_B_hover";
 
+        private readonly Texture2D MiniMapHousing;
+        private readonly Texture2D Node;
+        private readonly Texture2D Node1;
+
         public MiniMap(Rectangle housing) : base(null, housing)
         {
-            Housing   = housing;
+            Housing        = housing;
             Rectangle size = housing;
+            MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");
+            Node           = ResourceManager.Texture("UI/node");
+            Node1          = ResourceManager.Texture("UI/node1");
             BeginVLayout(size.X - 200, size.Y / 2 - 100, UIButton.StyleSize().Y + 15);
             
             ActualMap = new Rectangle(housing.X + 61 + 24, housing.Y + 33, 200, 200);
@@ -56,6 +63,8 @@ namespace Ship_Game
             DeepSpaceBuild    = new ToggleButton(ButtonRectLeftRow(), Active, Normal, Hover, Normal, "UI/icon_dsbw");
 
             AIScreen          = new ToggleButton(ButtonRectLeftRow(26), Active, "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
+
+            EndLayout();
         }        
         
         private Rectangle ButtonRectLeftRow(int height = 22)
@@ -67,11 +76,11 @@ namespace Ship_Game
 
         public void Draw(ScreenManager screenManager, UniverseScreen screen)
         {
-            screenManager.SpriteBatch.Draw(ResourceManager.Texture("Minimap/radar_over"), Housing, Color.White);
+            screenManager.SpriteBatch.Draw(MiniMapHousing, Housing, Color.White);
             float scale     = ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
             var minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
-            var uiNode      = ResourceManager.Texture("UI/node");
-            var uiNode1     = ResourceManager.Texture("UI/node1");
+            var uiNode      = Node;
+            var uiNode1     = Node1;
 
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -121,10 +130,10 @@ namespace Ship_Game
             {
                 lookingAt.Y = ActualMap.Y;
             }
-            float lookRightEdge = lookingAt.X + lookingAt.Width;
+            float lookRightEdge  = lookingAt.X + lookingAt.Width;
             float lookBottomEdge = lookingAt.Y + lookingAt.Height;
-            lookingAt.X = lookRightEdge > ActualMap.Width + ActualMap.X ? ActualMap.X + ActualMap.Width - lookingAt.Width : lookingAt.X;
-            lookingAt.Y = lookBottomEdge > ActualMap.Height + ActualMap.Y ? ActualMap.Height + ActualMap.Y  - lookingAt.Height : lookingAt.Y;
+            lookingAt.X          = lookRightEdge > ActualMap.Width + ActualMap.X ? ActualMap.X + ActualMap.Width - lookingAt.Width : lookingAt.X;
+            lookingAt.Y          = lookBottomEdge > ActualMap.Height + ActualMap.Y ? ActualMap.Height + ActualMap.Y  - lookingAt.Height : lookingAt.Y;
 
             screenManager.SpriteBatch.FillRectangle(lookingAt, new Color(255, 255, 255, 30));
             screenManager.SpriteBatch.DrawRectangle(lookingAt, Color.White);
