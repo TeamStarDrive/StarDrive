@@ -231,7 +231,7 @@ namespace Ship_Game
             }
             catch (Exception e)
             {
-                Log.Warning("DrawLoop Crashed : {0}", e.InnerException);
+                Log.Error(e, "ScreenManager.Draw Crashed");
                 try { spriteBatch.End(); } catch { }
             }
         }
