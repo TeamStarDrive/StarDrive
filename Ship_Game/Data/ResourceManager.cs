@@ -17,7 +17,7 @@ namespace Ship_Game
 {
     public sealed class ResourceManager // Refactored by RedFox
     {
-        public static Map<string, Texture2D> TextureDict          = new Map<string, Texture2D>(StringComparer.OrdinalIgnoreCase);
+        public static Map<string, Texture2D> TextureDict          = new Map<string, Texture2D>();
         public static XmlSerializer WeaponSerializer              = new XmlSerializer(typeof(Weapon));
         public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
         public static Map<string, Technology> TechTree            = new Map<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
@@ -25,24 +25,24 @@ namespace Ship_Game
         private static readonly Array<Model> JunkModels           = new Array<Model>();
         private static readonly Array<ToolTip> ToolTips           = new Array<ToolTip>();
         public static Array<Encounter> Encounters                 = new Array<Encounter>();
-        public static Map<string, Building> BuildingsDict         = new Map<string, Building>(StringComparer.OrdinalIgnoreCase);
-        public static Map<string, Good> GoodsDict                 = new Map<string, Good>(StringComparer.OrdinalIgnoreCase);
-        public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>(StringComparer.OrdinalIgnoreCase);
-        private static Map<string, ShipModule> ShipModulesDict    = new Map<string, ShipModule>(StringComparer.OrdinalIgnoreCase);
-        public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>(StringComparer.OrdinalIgnoreCase);
-        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>(StringComparer.OrdinalIgnoreCase);
-        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>(StringComparer.OrdinalIgnoreCase);
+        public static Map<string, Building> BuildingsDict         = new Map<string, Building>();
+        public static Map<string, Good> GoodsDict                 = new Map<string, Good>();
+        public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
+        private static Map<string, ShipModule> ShipModulesDict    = new Map<string, ShipModule>(StringComparer.InvariantCultureIgnoreCase);
+        public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
+        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
+        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
         public static bool Initialized                            = false;
 
         public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
-        private static Map<string, Troop> TroopsDict              = new Map<string, Troop>(StringComparer.OrdinalIgnoreCase);
+        private static Map<string, Troop> TroopsDict              = new Map<string, Troop>();
         private static Array<string>      TroopsDictKeys          = new Array<string>();
         public static IReadOnlyList<string> TroopTypes            => TroopsDictKeys;
-        public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>(StringComparer.OrdinalIgnoreCase);
-        public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>(StringComparer.OrdinalIgnoreCase);
+        public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>();
+        public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>();
 
-        public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>(StringComparer.OrdinalIgnoreCase);
-        public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(StringComparer.OrdinalIgnoreCase);
+        public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
+        public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(StringComparer.InvariantCultureIgnoreCase);
         public static Array<Texture2D> BigNebulas                 = new Array<Texture2D>();
         public static Array<Texture2D> MedNebulas                 = new Array<Texture2D>();
         public static Array<Texture2D> SmallNebulas               = new Array<Texture2D>();
@@ -51,7 +51,7 @@ namespace Ship_Game
         public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
         public static Array<EmpireData> Empires                   = new Array<EmpireData>();
         public static XmlSerializer HeaderSerializer              = new XmlSerializer(typeof(HeaderData));
-        public static Map<string, ShipData> HullsDict             = new Map<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
+        public static Map<string, ShipData> HullsDict             = new Map<string, ShipData>();
 
         public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
         private static Map<string, SoundEffect> SoundEffectDict;
