@@ -159,7 +159,7 @@ namespace Ship_Game
         public Rectangle mmDSBW;
         public Rectangle mmShipView;
         public Rectangle mmAutomation;
-        public MinimapButtons mmButtons;
+        //public MinimapButtons mmButtons;
         public Rectangle mmGalaxyView;
         public Rectangle mmHousing;
         private float MaxCamHeight;
@@ -552,7 +552,7 @@ namespace Ship_Game
             ExplosionManager.Universe             = this;
             Fleet.Screen                          = this;
             Bomb.Screen                           = this;
-            MinimapButtons.screen                 = this;
+            //MinimapButtons.screen                 = this;
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
             Empire.Universe                   = this;
@@ -564,7 +564,7 @@ namespace Ship_Game
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
             minimap            = new MiniMap(mmHousing);
-            mmButtons          = new MinimapButtons(mmHousing, EmpireUI);
+            //mmButtons          = new MinimapButtons(mmHousing, EmpireUI);
             mmShowBorders      = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
             mmDSBW             = new Rectangle(mmShowBorders.X + 32, mmShowBorders.Y, 64, 32);
             mmAutomation       = new Rectangle(mmDSBW.X + mmDSBW.Width, mmShowBorders.Y, 96, 32);
@@ -802,7 +802,7 @@ namespace Ship_Game
             SolarSystemDict.Clear();
             Fleet.Screen                          = null;
             Bomb.Screen                           = null;
-            MinimapButtons.screen                 = null;
+            //MinimapButtons.screen                 = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                       = null;
