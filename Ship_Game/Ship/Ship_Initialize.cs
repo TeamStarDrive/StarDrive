@@ -71,7 +71,7 @@ namespace Ship_Game.Gameplay
                 shipData   = data
             };
 
-            if (!ship.CreateModuleSlotsFromData(data.ModuleSlotList, fromSave, addToShieldManager))
+            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, addToShieldManager))
                 return null;
 
             foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
@@ -110,7 +110,7 @@ namespace Ship_Game.Gameplay
                 Position     = position
             };
 
-            if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlotList, fromSave: false))
+            if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
             {
                 Log.Error($"Unexpected failure while spawning ship '{shipName}'. Is the module list corrupted??");
                 return null; // return and crash again...

@@ -30,6 +30,10 @@ namespace Ship_Game
                             , new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
                                 , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.Gray);
                     }
+                    else if (slot.Parent != null)
+                    {
+                        //twiddle thumbs
+                    }
                     else
                     {
                         if (this.ActiveModule != null)
@@ -68,7 +72,7 @@ namespace Ship_Game
                             spriteBatch1.Draw(texture2D, rectangle1, unpoweredColored);
                         }
                     }
-                    if (slot.Module != null)
+                    if (slot.Module != null || slot.Parent != null)
                         continue;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions)
                         , new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y)
@@ -529,11 +533,11 @@ namespace Ship_Game
 
             targets += fixedtargets;
 
-            Mass = Mass + (float) (ActiveHull.ModuleSlotList.Length / 2);
+            Mass = Mass + (float) (ActiveHull.ModuleSlots.Length / 2);
             Mass = Mass * EmpireManager.Player.data.MassModifier;
-            if (Mass < (float) (ActiveHull.ModuleSlotList.Length / 2))
+            if (Mass < (float) (ActiveHull.ModuleSlots.Length / 2))
             {
-                Mass = (float) (ActiveHull.ModuleSlotList.Length / 2);
+                Mass = (float) (ActiveHull.ModuleSlots.Length / 2);
             }
             float Speed = 0f;
             float WarpSpeed = WarpThrust / (Mass + 0.1f);
@@ -626,7 +630,7 @@ namespace Ship_Game
             this.DrawStat(ref Cursor, "Upkeep Cost:", -Upkeep, 175);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing +
                                            2); //Gretman (so we can see how many total slots are on the ships)
-            this.DrawStat(ref Cursor, "Ship UniverseRadius:", (float) ActiveHull.ModuleSlotList.Length, 230);
+            this.DrawStat(ref Cursor, "Ship UniverseRadius:", (float) ActiveHull.ModuleSlots.Length, 230);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
 
             this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(110), ":"), PowerCapacity, 100,

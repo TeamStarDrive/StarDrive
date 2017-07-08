@@ -819,7 +819,7 @@ namespace Ship_Game
             }
             ship.BaseStrength = ship.CalculateBaseStrength();
 
-            foreach (ModuleSlotData slot in shipData.data.ModuleSlotList)
+            foreach (ModuleSlotData slot in shipData.data.ModuleSlots)
             {
                 if (ResourceManager.ModuleExists(slot.InstalledModuleUID))
                     continue;

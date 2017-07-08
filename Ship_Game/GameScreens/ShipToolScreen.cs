@@ -626,7 +626,7 @@ namespace Ship_Game
                     Restrictions       = slot.Restrictions
                 });
             }
-            data.ModuleSlotList    = filledModules.ToArray();
+            data.ModuleSlots    = filledModules.ToArray();
             data.DefaultAIState = AIState.AwaitingOrders;
             data.ThrusterList   = TList;
             var ser = new XmlSerializer(typeof(ShipData));
