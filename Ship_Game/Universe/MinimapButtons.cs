@@ -3,110 +3,49 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class MinimapButtons
-	{
-		public Rectangle Rect;
+	public sealed class MinimapButtons : UIElementContainer
+    {
+		
+        private readonly ToggleButton ZoomOut;
 
-		private SkinnableButton bDSBW;
+        private readonly ToggleButton ZoomToShip;
 
-		private SkinnableButton bAutomation;
+        private readonly ToggleButton PlanetScreen;
 
-		private SkinnableButton bPlanetsList;
+        private readonly ToggleButton ShipScreen;
 
-		private SkinnableButton bFleets;
+        private readonly ToggleButton AIScreen;
 
-		private SkinnableButton bShipsList;
+        private readonly ToggleButton DeepSpaceBuild;
 
-		private SkinnableButton home;
+        private readonly ToggleButton Fleets;
 
-		private SkinnableButton zoom;
+        private int ButtonOffset;
 
-		public static UniverseScreen screen;
+        private const string CNormal = "Minimap/button_C_normal";
+        private const string BNormal = "Minimap/button_B_normal";
+        private const string Normal  = "Minimap/button_normal";
+        private const string Hover   = "Minimap/button_hover";
+        private const string CHover  = "Minimap/button_hover";
+        private const string Active  = "Minimap/button_active";
+        private const string BHover  = "Minimap/button_B_hover";
 
-		public MinimapButtons(Rectangle r, EmpireUIOverlay eui)
-		{
-			this.Rect = r;
-			Vector2 Cursor = new Vector2((float)(r.X + 11), (float)(r.Y + 13));
-			Color baseColor = new Color(34, 42, 56);
-			this.home = new SkinnableButton(new Rectangle((int)Cursor.X + 3, (int)Cursor.Y, 15, 16), "UI/icon_home")
-			{
-				BaseColor = baseColor,
-				HoverColor = new Color(140, 88, 50),
-				IsToggle = false
-			};
-			Cursor.Y = Cursor.Y + 25f;
-			this.zoom = new SkinnableButton(new Rectangle((int)Cursor.X, (int)Cursor.Y, 22, 22), "UI/icon_minus")
-			{
-				BaseColor = baseColor,
-				HoverColor = new Color(140, 88, 50),
-				IsToggle = false
-			};
-			Cursor.Y = Cursor.Y + 28f;
-			this.bDSBW = new SkinnableButton(new Rectangle((int)Cursor.X, (int)Cursor.Y, 22, 17), "UI/icon_dsbw")
-			{
-				BaseColor = baseColor,
-				HoverColor = new Color(140, 88, 50),
-				IsToggle = false
-			};
-			Cursor.Y = Cursor.Y + 28f;
-			this.bPlanetsList = new SkinnableButton(new Rectangle((int)Cursor.X, (int)Cursor.Y, 21, 21), "UI/icon_planetslist")
-			{
-				BaseColor = baseColor,
-				HoverColor = new Color(140, 88, 50),
-				IsToggle = false
-			};
-			Cursor.Y = Cursor.Y + 28f;
-			this.bShipsList = new SkinnableButton(new Rectangle((int)Cursor.X + 2, (int)Cursor.Y, 18, 19), "UI/icon_shipslist")
-			{
-				BaseColor = baseColor,
-				IsToggle = false,
-				HoverColor = new Color(140, 88, 50)
-			};
-			Cursor.Y = Cursor.Y + 28f;
-			this.bFleets = new SkinnableButton(new Rectangle((int)Cursor.X + 2, (int)Cursor.Y, 18, 16), "UI/icon_fleets")
-			{
-				BaseColor = baseColor,
-				HoverColor = new Color(140, 88, 50),
-				IsToggle = false
-			};
-			Cursor.Y = Cursor.Y + 28f;
-			this.bAutomation = new SkinnableButton(new Rectangle((int)Cursor.X + 2, (int)Cursor.Y, 15, 12), "UI/icon_automation")
-			{
-				BaseColor = baseColor,
-				IsToggle = false,
-				HoverColor = new Color(140, 88, 50)
-			};
+        public MinimapButtons(Vector2 top) : base(null, top)
+		{		    
+            BeginVLayout(top, 22);
+            ToggleButtonLayout(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
+		    ToggleButtonLayout(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
+		    ToggleButtonLayout(25, 22, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
+		    ToggleButtonLayout(25, 22, Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
+		    ToggleButtonLayout(25, 22, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
+		    ToggleButtonLayout(25, 22, Active, Normal, Hover, Normal, "UI/icon_dsbw");
+		    ToggleButtonLayout(25, 26, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
+		        , "Minimap/button_down_inactive", "AI");
+
+		    EndLayout();
+
+            
 		}
 
-		public void Draw()
-		{
-			this.home.Draw(MinimapButtons.screen.ScreenManager);
-			this.zoom.Draw(MinimapButtons.screen.ScreenManager);
-			this.bDSBW.Draw(MinimapButtons.screen.ScreenManager);
-			this.bPlanetsList.Draw(MinimapButtons.screen.ScreenManager);
-			this.bShipsList.Draw(MinimapButtons.screen.ScreenManager);
-			this.bFleets.Draw(MinimapButtons.screen.ScreenManager);
-			this.bAutomation.Draw(MinimapButtons.screen.ScreenManager);
-		}
-
-		public bool HandleInput(InputState input)
-		{
-			bool clicked = false;
-			if (!this.bAutomation.r.HitTest(input.CursorPosition))
-			{
-				this.bAutomation.Hover = false;
-			}
-			else
-			{
-				this.bAutomation.Hover = true;
-				ToolTip.CreateTooltip(59);
-			}
-			if (this.bAutomation.HandleInput(input))
-			{
-			    screen.aw.ToggleVisibility();
-				clicked = true;
-			}
-			return clicked;
-		}
 	}
 }
