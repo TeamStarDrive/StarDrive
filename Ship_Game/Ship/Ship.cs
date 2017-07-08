@@ -1649,7 +1649,7 @@ namespace Ship_Game.Gameplay
             data.Animated         = GetShipData().Animated;
             data.CombatState      = AI.CombatState;
             data.ModelPath        = GetShipData().ModelPath;
-            data.ModuleSlots      = GetModuleSlotDataArray();
+            data.ModuleSlotList      = GetModuleSlotDataArray();
             data.ThrusterList     = new Array<ShipToolScreen.ThrusterZone>();
             data.MechanicalBoardingDefense = MechanicalBoardingDefense;
             foreach (Thruster thruster in ThrusterList)
