@@ -466,25 +466,34 @@ namespace Ship_Game {
                     new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
                 var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
                     , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
-                if (slot.Module == null || !rect.HitTest(mousePos)) continue;
-                slot.SetValidity(slot.Module);
-                var designAction = new DesignAction
-                {
-                    clickedSS = new SlotStruct
-                    {
-                        PQ = slot.PQ,
-                        Restrictions = slot.Restrictions,
-                        Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
-                        ModuleUID = slot.ModuleUID,
-                        Module = slot.Module,
-                        SlotReference = slot.SlotReference
-                    }
-                };
+                if (!rect.HitTest(mousePos)) continue;
+                bool slotModuleExists = slot.Module != null;
+                if (!slotModuleExists && slot.Parent == null) continue;
+                
+                var designAction = DesignateSlotForAction(slotModuleExists ? slot : slot.Parent);
                 DesignStack.Push(designAction);
                 GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                ClearParentSlot(slot);
+                ClearParentSlot(slotModuleExists ? slot : slot.Parent);
                 RecalculatePower();
             }
+        }
+
+        private DesignAction DesignateSlotForAction(SlotStruct slot)
+        {
+            slot.SetValidity(slot.Module);
+            var designAction = new DesignAction
+            {
+                clickedSS = new SlotStruct
+                {
+                    PQ            = slot.PQ,
+                    Restrictions  = slot.Restrictions,
+                    Facing        = slot.Module != null ? slot.Module.Facing : 0.0f,
+                    ModuleUID     = slot.ModuleUID,
+                    Module        = slot.Module,
+                    SlotReference = slot.SlotReference
+                }
+            };
+            return designAction;
         }
 
         private void UIButtonHandleInput(InputState input)
