@@ -128,22 +128,22 @@ namespace Ship_Game
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
                 (ship) =>
                 {
-                    return ship.Thrust > 0f && !ship.isColonyShip && ship.CargoSpaceMax > 0f;
+                    return ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f;
                 });
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
                 (ship) =>
                 {
-                    return ship.Thrust > 0f && ship.isColonyShip;
+                    return ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip;
                 });
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor, 
                 (ship) =>
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ConstructionModule)
-                        return ship.Thrust > 0f && (ship.isConstructor || ship.Name == playerData.DefaultConstructor);
+                        return ship.ShipGoodToBuild(EmpireManager.Player) && (ship.isConstructor || ship.Name == playerData.DefaultConstructor);
 
-                    return ship.Thrust > 0f && !ship.isColonyShip && ship.CargoSpaceMax > 0f && 
+                    return ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f && 
                             (ship.isConstructor || ship.shipData.Role == ShipData.RoleName.freighter);
                 });
 
@@ -151,13 +151,13 @@ namespace Ship_Game
                 (ship) =>
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.reconDropDown)
-                        return ship.Thrust > 0f && 
-                              (ship.shipData?.Role == ShipData.RoleName.scout || 
+                        return ship.ShipGoodToBuild(EmpireManager.Player) && 
+                              (ship.DesignRole == ShipData.RoleName.scout || 
                                ship.shipData?.ShipCategory == ShipData.Category.Recon);
 
-                    return ship.Thrust > 0f && 
-                          (ship.shipData?.Role == ShipData.RoleName.scout ||
-                           ship.shipData?.Role == ShipData.RoleName.fighter ||
+                    return ship.ShipGoodToBuild(EmpireManager.Player) && 
+                          (ship.DesignRole == ShipData.RoleName.scout ||
+                           ship.DesignRole == ShipData.RoleName.fighter ||
                            ship.shipData?.ShipCategory == ShipData.Category.Recon);
                 });
         }

@@ -905,34 +905,5 @@ namespace Ship_Game.AI {
             return name;
         }
 
-        public bool ShipIsGoodForGoals(Ship ship, float baseStrengthNeeded = 0)
-        {
-
-            if (!ship.shipData.BaseCanWarp) return false;
-            float powerDraw = ship.ModulePowerDraw * OwnerEmpire.data.FTLPowerDrainModifier;
-
-            bool warpTimeGood = (ship.PowerStoreMax / (powerDraw - ship.PowerFlowMax)
-                                 * ship.velocityMaximum > MinimumWarpRange);
-
-            bool goodPower = ship.shipData.BaseCanWarp && (powerDraw <= ship.PowerFlowMax || warpTimeGood);
-            
-            if (ship.DesignRole >= ShipData.RoleName.fighter && !ship.shipData.CarrierShip && ship.BaseStrength > baseStrengthNeeded)
-                return goodPower;
-            if(ship.DesignRole == ShipData.RoleName.troopShip || ship.DesignRole == ShipData.RoleName.support)
-                return  goodPower;
-            return false;
-
-        }
-        public bool NonCombatshipIsGoodForGoals(Ship ship) => ShipIsGoodForGoals(ship, float.MinValue);
-        
-        public bool ShipGoodToBuild(Ship ship)
-        {
-            if (ship.shipData.HullRole == ShipData.RoleName.station || 
-                ship.shipData.HullRole == ShipData.RoleName.platform || 
-                ship.shipData.CarrierShip)
-                return true;
-            return ShipIsGoodForGoals(ship, float.MinValue);
-
-        }
     }
 }
