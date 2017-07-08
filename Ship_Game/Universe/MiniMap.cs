@@ -11,6 +11,7 @@ namespace Ship_Game
 
         private Rectangle ActualMap;
 
+        //to get rid of these I need to find a solution for hover and the setting of the active setting
         private readonly ToggleButton ZoomOut;
 
         private readonly ToggleButton ZoomToShip;
@@ -24,9 +25,7 @@ namespace Ship_Game
         private readonly ToggleButton DeepSpaceBuild;
 
         private readonly ToggleButton Fleets;
-        
-
-        private int ButtonOffset;
+        public UniverseScreen Screen => Empire.Universe;
 
         private const string CNormal       = "Minimap/button_C_normal";
         private const string BNormal       = "Minimap/button_B_normal";
@@ -50,14 +49,19 @@ namespace Ship_Game
 
             BeginVLayout(Housing.X + 14, Housing.Y + 70, 25);
             //button spacing isnt quite right. 
-            ZoomToShip     = ToggleButtonLayout(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
-            ZoomOut        = ToggleButtonLayout(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
-            PlanetScreen   = ToggleButtonLayout(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
-            ShipScreen     = ToggleButtonLayout(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
-            Fleets         = ToggleButtonLayout(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
-            DeepSpaceBuild = ToggleButtonLayout(22, 25, Active, Normal, Hover, Normal, "UI/icon_dsbw");
-            AIScreen       = ToggleButtonLayout(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
-                , "Minimap/button_down_inactive", "AI");
+            ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl").OnClick += ZoomToShip_OnClick;
+            ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout").OnClick += ZoomOut_OnClick;
+            
+            ToggleButton(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist").OnClick += PlanetScreen_OnClick;
+            
+            ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay").OnClick += ShipScreen_OnClick;
+            
+            ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay").OnClick += Fleets_OnClick;
+            
+            ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_dsbw").OnClick += DeepSpaceBuild_OnClick;
+            
+            ToggleButton(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
+                , "Minimap/button_down_inactive", "AI").OnClick += AIScreen_OnClick;
 
             EndLayout();
         }        
@@ -67,8 +71,8 @@ namespace Ship_Game
             screenManager.SpriteBatch.Draw(MiniMapHousing, Housing, Color.White);
             float scale     = ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
             var minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
-            var uiNode      = Node;
-            var uiNode1     = Node1;
+            Texture2D uiNode      = Node;
+            Texture2D uiNode1     = Node1;
 
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -104,6 +108,8 @@ namespace Ship_Game
             float xdist           = (right.X - upperLeftView.X) * scale;
             xdist                 = HelperFunctions.RoundTo(xdist, 1);
             float ydist           = xdist * screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+
+            //draw and clamp minimap viewing area rectangle.
             Rectangle lookingAt   = new Rectangle((int)minimapZero.X + (int)(upperLeftView.X * scale), (int)minimapZero.Y + (int)(upperLeftView.Y * scale), (int)xdist, (int)ydist);
             if (lookingAt.Width < 2)
             {
@@ -141,86 +147,83 @@ namespace Ship_Game
             base.Draw(screenManager.SpriteBatch);
         }
 
+        private void ZoomToShip_OnClick(ToggleButton toggleButton)
+        {
+            Empire.Universe.InputZoomToShip();
+            GameAudio.MiniMapButton();
+
+        }
+
+        private void ZoomOut_OnClick(ToggleButton toggleButton)
+        {
+            Empire.Universe.InputZoomOut();
+            GameAudio.MiniMapButton();
+
+        }
+        public void DeepSpaceBuild_OnClick(ToggleButton toggleButton)
+        {
+            GameAudio.MiniMapButton();            
+            GameAudio.MiniMapButton();
+            if (Screen.showingDSBW)
+            {
+                Screen.showingDSBW = false;
+            }
+            else
+            {
+                Screen.dsbw = new DeepSpaceBuildingWindow(Screen.ScreenManager, Screen);
+                Screen.showingDSBW = true;
+            }
+        }
+        public void PlanetScreen_OnClick(ToggleButton toggleButton)
+        {
+            GameAudio.MiniMapButton();
+            Screen.ScreenManager.AddScreen(new PlanetListScreen(Screen, Screen.EmpireUI));
+
+        }
+        public void ShipScreen_OnClick(ToggleButton toggleButton)
+        {
+
+            GameAudio.MiniMapButton();
+            Screen.showingFTLOverlay = !Screen.showingFTLOverlay;
+            
+        }
+        public void Fleets_OnClick(ToggleButton toggleButton)
+        {
+            GameAudio.MiniMapButton();
+            Screen.showingRangeOverlay = !Screen.showingRangeOverlay;            
+        }
+        public void AIScreen_OnClick(ToggleButton toggleButton)
+        {
+            Screen.aw.ToggleVisibility();
+
+        }
         public bool HandleInput(InputState input, UniverseScreen screen)
         {
             if (ZoomToShip.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(57, "Page Up");
 
-            if (ZoomToShip.HandleInput(input))
-            {
-                GameAudio.MiniMapButton();
-                screen.AdjustCamTimer = 1f;
-                screen.transitionElapsedTime = 0f;
-                screen.CamDestination.Z = 4500f;
-                screen.snappingToShip = true;
-                screen.ViewingShip = true;
-                return true;
-            }
             if (ZoomOut.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(58, "Page Down");
 
-            if (ZoomOut.HandleInput(input))
-            {
-                GameAudio.MiniMapButton();
-                screen.AdjustCamTimer        = 1f;
-                screen.transitionElapsedTime = 0f;
-                screen.CamDestination.X      = screen.CamPos.X;
-                screen.CamDestination.Y      = screen.CamPos.Y;
-                screen.CamDestination.Z      = 4200000f * UniverseScreen.GameScaleStatic;
-                return true;
-            }
             if (DeepSpaceBuild.Rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(54, "B");
             }
-            if (DeepSpaceBuild.HandleInput(input))
-            {
-                GameAudio.MiniMapButton();
-                if (screen.showingDSBW)
-                {
-                    screen.showingDSBW = false;
-                }
-                else
-                {
-                    screen.dsbw = new DeepSpaceBuildingWindow(screen.ScreenManager, screen);
-                    screen.showingDSBW = true;
-                }
-                return true;
-            }
+
             if (PlanetScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(56);
 
-            if (PlanetScreen.HandleInput(input))
-            {
-                GameAudio.MiniMapButton();
-                screen.ScreenManager.AddScreen(new PlanetListScreen(screen, screen.EmpireUI));
-                return true;
-            }
             if (ShipScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(223, "F1");
 
-            if (ShipScreen.HandleInput(input))
-            {                
-                GameAudio.MiniMapButton();
-                screen.showingFTLOverlay = !screen.showingFTLOverlay;
-                return true;
-            }
             if (Fleets.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(224, "F2");
 
-            if (Fleets.HandleInput(input))
-            {
-                GameAudio.MiniMapButton();
-                screen.showingRangeOverlay = !screen.showingRangeOverlay;
-                return true;
-            }
             if (AIScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(59, "H");
 
-            if (!AIScreen.HandleInput(input)) return false;
-
-            screen.aw.ToggleVisibility();
-            return true;
+            return HandleInput(input);
+            
         }
     }
 }
