@@ -1085,7 +1085,7 @@ namespace Ship_Game {
 
         public void SaveShipDesign(string name)
         {
-            ActiveHull.Name        = name;
+            ActiveHull.Name = name;
             ShipData toSave = ActiveHull.GetClone();
             toSave.ModuleSlotList = Empty<ModuleSlotData>.Array;
 
@@ -1213,7 +1213,11 @@ namespace Ship_Game {
                 ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);
                 ChangeModuleState(slot.State);
                 InstallModuleFromLoad(slot);
-                if (slot.Module == null || slot.Module.ModuleType != ShipModuleType.Hangar)
+                if (slot.Module == null)
+                    continue;
+                if (slot.Module.XSIZE * slot.Module.YSIZE > 1)
+                    ClearDestinationSlotsNoStack(slot);
+                if(slot.Module.ModuleType != ShipModuleType.Hangar)
                 {
                     continue;
                 }
