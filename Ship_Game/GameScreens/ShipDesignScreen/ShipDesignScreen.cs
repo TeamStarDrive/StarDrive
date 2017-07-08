@@ -281,7 +281,7 @@ namespace Ship_Game
 
         private ModuleSlotData FindModuleSlotAtPos(Vector2 slotPos)
         {
-            ModuleSlotData[] slots = ActiveHull.ModuleSlots;
+            ModuleSlotData[] slots = ActiveHull.ModuleSlotList;
             for (int i = 0; i < slots.Length; ++i)
                 if (slots[i].Position == slotPos)
                     return slots[i];
@@ -298,7 +298,7 @@ namespace Ship_Game
             {
                 default:
                 case SlotModOperation.Normal: return;
-                case SlotModOperation.Delete: ActiveHull.ModuleSlots.Remove(toRemove, out ActiveHull.ModuleSlots); break;
+                case SlotModOperation.Delete: ActiveHull.ModuleSlotList.Remove(toRemove, out ActiveHull.ModuleSlotList); break;
                 case SlotModOperation.I:      toRemove.Restrictions = Restrictions.I;  break;
                 case SlotModOperation.O:      toRemove.Restrictions = Restrictions.O;  break;
                 case SlotModOperation.E:      toRemove.Restrictions = Restrictions.E;  break;

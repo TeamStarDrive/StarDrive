@@ -1491,7 +1491,7 @@ namespace Ship_Game
 
             else
                 // check if all modules in the ship are unlocked
-                foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
+                foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
                 {
                     if (moduleSlotData.InstalledModuleUID.IsEmpty() ||
                         moduleSlotData.InstalledModuleUID == "Dummy" ||
@@ -1509,7 +1509,7 @@ namespace Ship_Game
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
                 {
-                    foreach (ModuleSlotData moduleSlotData in ship.shipData.ModuleSlots)
+                    foreach (ModuleSlotData moduleSlotData in ship.shipData.ModuleSlotList)
                     {
                         if (entry.ModuleUID == moduleSlotData.InstalledModuleUID)
                             return true;
@@ -1537,7 +1537,7 @@ namespace Ship_Game
                 {
                     if (shipData == null || (!UnlockedHullsDict.ContainsKey(shipData.Hull) || !UnlockedHullsDict[shipData.Hull]))
                         continue;
-                    foreach (ModuleSlotData moduleSlotData in ship.Value.shipData.ModuleSlots)
+                    foreach (ModuleSlotData moduleSlotData in ship.Value.shipData.ModuleSlotList)
                     {
                         if (unlocklist.Contains(moduleSlotData.InstalledModuleUID))
                             return true;

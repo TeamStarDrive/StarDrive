@@ -44,7 +44,7 @@ namespace Ship_Game
         public bool CarrierShip;
         public float BaseStrength;
         public bool BaseCanWarp;
-        public ModuleSlotData[] ModuleSlots;
+        public ModuleSlotData[] ModuleSlotList;
         public bool hullUnlockable;
         public bool allModulesUnlocakable = true;
         public bool unLockable;
@@ -172,7 +172,7 @@ namespace Ship_Game
                 Enum.TryParse(s->DefaultAIState.AsString, out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion
-                ship.ModuleSlots = new ModuleSlotData[s->ModuleSlotsLen];
+                ship.ModuleSlotList = new ModuleSlotData[s->ModuleSlotsLen];
                 for (int i = 0; i < s->ModuleSlotsLen; ++i)
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
@@ -185,7 +185,7 @@ namespace Ship_Game
                     slot.Facing             = msd->Facing;
                     slot.SlotOptions        = msd->SlotOptions.AsInterned;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    ship.ModuleSlots[i] = slot;
+                    ship.ModuleSlotList[i] = slot;
                 }
 
                 // @todo Remove conversion to List
