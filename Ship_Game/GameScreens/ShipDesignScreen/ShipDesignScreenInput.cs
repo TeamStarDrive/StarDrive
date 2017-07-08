@@ -45,10 +45,10 @@ namespace Ship_Game {
             Fml = true;
             Fmlevenmore = true;
 
-            ActiveHull.ModuleSlotList = new ModuleSlotData[hull.ModuleSlotList.Length];
-            for (int i = 0; i < hull.ModuleSlotList.Length; ++i)
+            ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
+            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
             {
-                ModuleSlotData hullSlot = hull.ModuleSlotList[i];
+                ModuleSlotData hullSlot = hull.ModuleSlots[i];
                 ModuleSlotData data = new ModuleSlotData
                 {
                     Position = hullSlot.Position,
@@ -56,7 +56,7 @@ namespace Ship_Game {
                     Facing = hullSlot.Facing,
                     InstalledModuleUID = hullSlot.InstalledModuleUID
                 };
-                ActiveHull.ModuleSlotList[i] = data;
+                ActiveHull.ModuleSlots[i] = data;
 #if SHIPYARD
                 if (data.Restrictions == Restrictions.I) TotalI++;
                 if (data.Restrictions == Restrictions.O) TotalO++;
@@ -355,6 +355,8 @@ namespace Ship_Game {
                     {
                         if (slotStruct.Module != null)
                             HoveredModule = slotStruct.Module;
+                        else if (slotStruct.Parent != null)
+                            HoveredModule = slotStruct.Parent.Module;
                         if (input.MouseCurr.LeftButton == ButtonState.Pressed &&
                             input.MousePrev.LeftButton == ButtonState.Released)
                         {
@@ -366,6 +368,8 @@ namespace Ship_Game {
                             }
                             if (slotStruct.Module != null)
                                 HighlightedModule = slotStruct.Module;
+                            else if (slotStruct.Parent != null)
+                                HighlightedModule = slotStruct.Parent.Module;
                         }
                     }
                 }
@@ -530,7 +534,7 @@ namespace Ship_Game {
             if (!Debug) return;
             if (input.KeysCurr.IsKeyDown(Keys.Enter) && input.KeysPrev.IsKeyUp(Keys.Enter))
             {
-                foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlotList)
+                foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
                     moduleSlotData.InstalledModuleUID = null;
                 new XmlSerializer(typeof(ShipData)).Serialize(
                     new StreamWriter("Content/Hulls/" + ActiveHull.ShipStyle + "/" + ActiveHull.Name + ".xml"),
@@ -835,7 +839,7 @@ namespace Ship_Game {
 
 
 
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlotList)
+            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
                 if (slot.Position.X < LowestX)
                 {
@@ -1054,10 +1058,10 @@ namespace Ship_Game {
 
         private void ReallyExit()
         {
-            Empire.Universe?.ResetLighting();
+            Empire.Universe.ResetLighting();
             RemoveObject(shipSO);
 
-            if (Empire.Universe != null && Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
+            if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
             {
                 colonyScreen.Reset = true;
             }
@@ -1085,11 +1089,11 @@ namespace Ship_Game {
 
         public void SaveShipDesign(string name)
         {
-            ActiveHull.Name = name;
-            ShipData toSave = ActiveHull.GetClone();
-            toSave.ModuleSlotList = Empty<ModuleSlotData>.Array;
+            ActiveHull.Name    = name;
+            ShipData toSave    = ActiveHull.GetClone();
+            toSave.ModuleSlots = Empty<ModuleSlotData>.Array;
 
-            toSave.ModuleSlotList = new ModuleSlotData[Slots.Count];
+            toSave.ModuleSlots = new ModuleSlotData[Slots.Count];
             for (int i = 0; i < Slots.Count; ++i)
             {
                 SlotStruct slot = Slots[i];
@@ -1106,7 +1110,7 @@ namespace Ship_Game {
                     if (slot.Module.ModuleType == ShipModuleType.Hangar)
                         savedSlot.SlotOptions = slot.Module.hangarShipUID;
                 }
-                toSave.ModuleSlotList[i] = savedSlot;
+                toSave.ModuleSlots[i] = savedSlot;
             }
             string path = Dir.ApplicationData;
             toSave.CombatState = CombatState;
@@ -1164,7 +1168,7 @@ namespace Ship_Game {
                 };
                 if (slot.Module?.ModuleType == ShipModuleType.Hangar)
                     data.SlotOptions = slot.Module.hangarShipUID;
-                savedShip.ModuleSlotList[i] = data;
+                savedShip.ModuleSlots[i] = data;
             }
             string path                = Dir.ApplicationData;
             CombatState defaultstate   = ActiveHull.CombatState;
@@ -1188,7 +1192,7 @@ namespace Ship_Game {
         private void SetupSlots()
         {
             Slots.Clear();
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlotList)
+            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
                 PrimitiveQuad pq = new PrimitiveQuad(slot.Position.X + offset.X - 8f,
                     slot.Position.Y + offset.Y - 8f, 16f, 16f);
