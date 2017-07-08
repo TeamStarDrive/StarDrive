@@ -630,7 +630,7 @@ namespace Ship_Game.AI {
                             continue;
                         if (!shortTermBest.shipData.techsNeeded.Intersect(useableTech).Any())
                             continue;
-                        if (!ShipGoodToBuild(shortTermBest))
+                        if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
                             continue;
                         
 
@@ -638,7 +638,7 @@ namespace Ship_Game.AI {
                         {
                             if (Empire.Universe.Debug)
                             {
-                                Log.Info(this.OwnerEmpire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
+                                Log.Info(OwnerEmpire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
                             }
                             continue;
                         }
