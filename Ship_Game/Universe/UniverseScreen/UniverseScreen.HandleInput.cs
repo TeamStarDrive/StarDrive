@@ -93,11 +93,6 @@ namespace Ship_Game
                     //    if (SelectedShip.Center.InRadius(mouseWorldPos, SelectedShip.Radius*2) && input.RightMouseClick)
                     //        SelectedShip.ShowGridLocalDebugPoint(mouseWorldPos);
                     //#endif
-                    if(Debug)
-                    {
-                        //SelectedShip.
-                        //DrawLineProjected()
-                    }
 
                     if (input.KillThis)
                     {
