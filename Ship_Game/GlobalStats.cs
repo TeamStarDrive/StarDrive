@@ -39,6 +39,9 @@ namespace Ship_Game
         public static float FTLInSystemModifier = 1f;
         public static float EnemyFTLInSystemModifier = 1f;
 
+        //case control for UIDs set by filename. Legacy support.
+        public static StringComparer CaseControl;
+
         // @todo Get rid of all global locks
         public static object ShieldLocker         = new object();
         public static object ClickableSystemsLock = new object();
@@ -187,7 +190,9 @@ namespace Ship_Game
             GetSetting("Language", ref Language);
             GetSetting("XRES", ref XRES);
             GetSetting("YRES", ref YRES);
-
+            if (bool.TryParse(GetSetting("UIDCaseCheck"), out bool checkForCase))
+                CaseControl = checkForCase ? null : StringComparer.OrdinalIgnoreCase;            
+            
             LoadModInfo(ModName);
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
