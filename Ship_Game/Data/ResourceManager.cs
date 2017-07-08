@@ -17,10 +17,12 @@ namespace Ship_Game
 {
     public sealed class ResourceManager // Refactored by RedFox
     {
+        // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename. 
+        // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         public static Map<string, Texture2D> TextureDict          = new Map<string, Texture2D>();
         public static XmlSerializer WeaponSerializer              = new XmlSerializer(typeof(Weapon));
         public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
-        public static Map<string, Technology> TechTree            = new Map<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
+        public static Map<string, Technology> TechTree            = new Map<string, Technology>(GlobalStats.CaseControl);
         private static readonly Array<Model> RoidsModels          = new Array<Model>();
         private static readonly Array<Model> JunkModels           = new Array<Model>();
         private static readonly Array<ToolTip> ToolTips           = new Array<ToolTip>();
@@ -28,7 +30,7 @@ namespace Ship_Game
         public static Map<string, Building> BuildingsDict         = new Map<string, Building>();
         public static Map<string, Good> GoodsDict                 = new Map<string, Good>();
         public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
-        private static Map<string, ShipModule> ShipModulesDict    = new Map<string, ShipModule>(StringComparer.InvariantCultureIgnoreCase);
+        private static Map<string, ShipModule> ShipModulesDict    = new Map<string, ShipModule>(GlobalStats.CaseControl);
         public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
         public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
         public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
@@ -42,7 +44,7 @@ namespace Ship_Game
         public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>();
 
         public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
-        public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(StringComparer.InvariantCultureIgnoreCase);
+        public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
         public static Array<Texture2D> BigNebulas                 = new Array<Texture2D>();
         public static Array<Texture2D> MedNebulas                 = new Array<Texture2D>();
         public static Array<Texture2D> SmallNebulas               = new Array<Texture2D>();
