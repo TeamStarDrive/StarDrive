@@ -30,7 +30,10 @@ namespace Ship_Game
         private readonly string IconPath;
         private readonly Texture2D IconActive;
         private readonly Rectangle IconRect;
-        
+
+        public delegate void ClickHandler(ToggleButton button);
+        public event ClickHandler OnClick;
+
         public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath, UIElementV2 container = null) : base(container, r)
         {           
             Rect            = r;
@@ -82,13 +85,6 @@ namespace Ship_Game
             }
             else
             {
-                //if (Active && !resizeIcon)
-                //{
-
-                //    spriteBatch.Draw(IconActive, Rect, Color.White);
-                //    return;
-                //}
-                //if (Active)
                     spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);
             }
         }
@@ -109,7 +105,10 @@ namespace Ship_Game
                     GameAudio.MiniMapMouseOver();
                 Hover = true;
                 if (input.LeftMouseClick)
+                {
+                    OnClick?.Invoke(this);
                     Pressed = true;
+                }
                 if (input.InGameSelect)
                     return true;
             }
