@@ -229,6 +229,7 @@ namespace Ship_Game
         public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
 
         public static void MiniMapButton()    => PlaySfxAsync("sd_ui_accept_alt3");
+        public static void MiniMapMouseOver() => PlaySfxAsync("sd_ui_mouseover");
 
 
         //subbasewoosh

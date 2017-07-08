@@ -3045,6 +3045,39 @@ namespace Ship_Game.Gameplay
         }
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty}";
+
+        public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
+        {
+            empire = empire ?? loyalty;
+            if (!shipData.BaseCanWarp) return false;
+            float powerDraw = ModulePowerDraw * (empire?.data.FTLPowerDrainModifier ?? 1);
+
+            bool warpTimeGood = (PowerStoreMax / (powerDraw - PowerFlowMax)
+                                 * velocityMaximum > GlobalStats.MinimumWarpRange);
+
+            bool goodPower = shipData.BaseCanWarp && (powerDraw <= PowerFlowMax || warpTimeGood);
+            if (BaseStrength > baseStrengthNeeded)
+                return goodPower;
+            return false;
+            //if (DesignRole >= ShipData.RoleName.fighter && !shipData.CarrierShip)
+            //    return goodPower;
+            ////if (DesignRole == ShipData.RoleName.troopShip || DesignRole == ShipData.RoleName.support)
+            ////    return goodPower;
+            ////return false;
+            //return goodPower;
+
+        }
+        //public bool NonCombatshipIsGoodForGoals() => ShipIsGoodForGoals(float.MinValue);
+
+        public bool ShipGoodToBuild(Empire empire)
+        {
+            if (shipData.HullRole == ShipData.RoleName.station ||
+                shipData.HullRole == ShipData.RoleName.platform ||
+                shipData.CarrierShip)
+                return true;
+            return ShipIsGoodForGoals(float.MinValue, empire);
+
+        }
     }
 }
 
