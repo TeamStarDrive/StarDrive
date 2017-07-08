@@ -84,7 +84,7 @@ namespace SDNative
                         slotData.parse("Shield_Power"      , sd.ShieldPower);
 						slotData.parse("ShieldPower"       , sd.ShieldPower);
                         slotData.parse("facing"            , sd.Facing);
-						slotData.parse("Facing"			   , sd.Facing);
+						slotData.parse("Facing"            , sd.Facing);
                         slotData.parse("state"             , sd.State);
                         slotData.parse("Restrictions"      , sd.Restrictions);
                         slotData.parse("SlotOptions"       , sd.SlotOptions);
