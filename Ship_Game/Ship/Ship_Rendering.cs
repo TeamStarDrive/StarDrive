@@ -300,7 +300,7 @@ namespace Ship_Game.Gameplay
 
             float moduleSize = (drawRect.Width / (maxSpan + 1));
             if (moduleSize < 2.0)
-                moduleSize = drawRect.Width / (float)maxSpan;
+                moduleSize = drawRect.Width / (float)(maxSpan + 1);
             if (moduleSize > 10.0)
                 moduleSize = 10f;
 
