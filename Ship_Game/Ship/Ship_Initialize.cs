@@ -25,7 +25,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 string uid = templateSlots[i].InstalledModuleUID;
-                if (uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                if (uid == "Dummy" || uid == null) // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
                 if (!ResourceManager.ShipModules.ContainsKey(uid))
                 {
@@ -42,7 +42,7 @@ namespace Ship_Game.Gameplay
             {
                 ModuleSlotData slotData = templateSlots[i];
                 string uid = slotData.InstalledModuleUID;
-                if (uid == "Dummy")
+                if (uid == "Dummy" || uid == null)
                     continue;
                 ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager);
                 if (fromSave)
@@ -71,7 +71,7 @@ namespace Ship_Game.Gameplay
                 shipData   = data
             };
 
-            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, addToShieldManager))
+            if (!ship.CreateModuleSlotsFromData(data.ModuleSlotList, fromSave, addToShieldManager))
                 return null;
 
             foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
@@ -110,7 +110,7 @@ namespace Ship_Game.Gameplay
                 Position     = position
             };
 
-            if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
+            if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlotList, fromSave: false))
             {
                 Log.Error($"Unexpected failure while spawning ship '{shipName}'. Is the module list corrupted??");
                 return null; // return and crash again...

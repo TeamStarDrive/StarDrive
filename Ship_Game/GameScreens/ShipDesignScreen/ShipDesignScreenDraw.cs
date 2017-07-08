@@ -529,11 +529,11 @@ namespace Ship_Game
 
             targets += fixedtargets;
 
-            Mass = Mass + (float) (ActiveHull.ModuleSlots.Length / 2);
+            Mass = Mass + (float) (ActiveHull.ModuleSlotList.Length / 2);
             Mass = Mass * EmpireManager.Player.data.MassModifier;
-            if (Mass < (float) (ActiveHull.ModuleSlots.Length / 2))
+            if (Mass < (float) (ActiveHull.ModuleSlotList.Length / 2))
             {
-                Mass = (float) (ActiveHull.ModuleSlots.Length / 2);
+                Mass = (float) (ActiveHull.ModuleSlotList.Length / 2);
             }
             float Speed = 0f;
             float WarpSpeed = WarpThrust / (Mass + 0.1f);
@@ -626,7 +626,7 @@ namespace Ship_Game
             this.DrawStat(ref Cursor, "Upkeep Cost:", -Upkeep, 175);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing +
                                            2); //Gretman (so we can see how many total slots are on the ships)
-            this.DrawStat(ref Cursor, "Ship UniverseRadius:", (float) ActiveHull.ModuleSlots.Length, 230);
+            this.DrawStat(ref Cursor, "Ship UniverseRadius:", (float) ActiveHull.ModuleSlotList.Length, 230);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
 
             this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(110), ":"), PowerCapacity, 100,
@@ -863,7 +863,7 @@ namespace Ship_Game
             bool EmptySlots = true;
             foreach (SlotStruct slot in this.Slots)
             {
-                if (slot.ModuleUID == null)
+                if (slot.ModuleUID == null && slot.Parent == null)
                     EmptySlots = false;
 
                 if (slot.Module != null)
