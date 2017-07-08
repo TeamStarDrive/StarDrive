@@ -142,7 +142,7 @@ namespace Ship_Game
                 if (shipData.hullUnlockable)
                 {
                     shipData.allModulesUnlocakable = true;
-                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
                     {
                         if (module.InstalledModuleUID == "Dummy")
                             continue;
