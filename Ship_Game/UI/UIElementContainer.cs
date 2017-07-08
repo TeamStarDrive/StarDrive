@@ -280,6 +280,9 @@ namespace Ship_Game
         protected CloseButton CloseButton(float x, float y)
             => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
 
+        protected ToggleButton ToggleButtonLayout(int height, int width, string active, string inactive, string hover, string pressed, string icon)
+            => Add(new ToggleButton(LayoutNextRect(height, width), active, inactive, hover, pressed, icon, this));
+        
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -351,7 +354,7 @@ namespace Ship_Game
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-
+        
 
         protected UILabel Label(Vector2 pos, string text) => Add(new UILabel(this, pos, text));
         protected UILabel Label(Vector2 pos, int titleId) => Add(new UILabel(this, pos, titleId));

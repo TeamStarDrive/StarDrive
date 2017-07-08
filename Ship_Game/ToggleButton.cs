@@ -5,8 +5,6 @@ namespace Ship_Game
 {
     public sealed class ToggleButton : UIElementV2
     {
-//        public Rectangle Rect;
-
         public object ReferenceObject;
 
         public string Action = "";
@@ -14,9 +12,6 @@ namespace Ship_Game
         public bool Active;
 
         public bool Hover;
-        
-
-       // private readonly string IconPath;
 
         public int WhichToolTip;
 
@@ -34,10 +29,9 @@ namespace Ship_Game
         private readonly Vector2 WordPos;
         private readonly string IconPath;
         private readonly Texture2D IconActive;
-        //private readonly Texture2D Icon;
         private readonly Rectangle IconRect;
         
-        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath) : base(null, r)
+        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath, UIElementV2 container = null) : base(container, r)
         {           
             Rect            = r;
             PressTexture    = ResourceManager.Texture(pressPath);
@@ -58,7 +52,7 @@ namespace Ship_Game
                     , IconTexture.Width, IconTexture.Height);
         }
 
-//hack... until this is all straightend out to allow override of base draw.
+        //hack... until this is all straightend out to allow override of base draw.
         public void Draw(ScreenManager screenManager)            => Draw(screenManager.SpriteBatch);
         public void DrawIconResized(ScreenManager screenManager) => Draw(screenManager.SpriteBatch, true);
         public override void Draw(SpriteBatch spriteBatch)       => Draw(spriteBatch, false);
@@ -88,12 +82,14 @@ namespace Ship_Game
             }
             else
             {
-                if (Active && !resizeIcon)
-                {
-                    spriteBatch.Draw(IconActive, Rect, Color.White);
-                    return;
-                }
-                spriteBatch.Draw(IconTexture, iconRect, Color.White);			    
+                //if (Active && !resizeIcon)
+                //{
+
+                //    spriteBatch.Draw(IconActive, Rect, Color.White);
+                //    return;
+                //}
+                //if (Active)
+                    spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);
             }
         }
 
