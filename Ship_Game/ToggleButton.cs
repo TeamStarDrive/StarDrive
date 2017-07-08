@@ -1,7 +1,5 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
@@ -38,7 +36,7 @@ namespace Ship_Game
         private readonly Texture2D IconActive;
         //private readonly Texture2D Icon;
         private readonly Rectangle IconRect;
-
+        
         public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath) : base(null, r)
         {           
             Rect            = r;
@@ -47,7 +45,7 @@ namespace Ship_Game
             ActiveTexture   = ResourceManager.Texture(activePath);
             InactiveTexture = ResourceManager.Texture(inactivePath);                        
             IconTexture     = ResourceManager.Texture(iconPath, false);
-            IconActive = ResourceManager.Texture(string.Concat(iconPath, "_active"), false);
+            IconActive      = ResourceManager.Texture(string.Concat(iconPath, "_active"), false);
 
             if (IconTexture == null)
             {
@@ -61,11 +59,9 @@ namespace Ship_Game
         }
 
 //hack... until this is all straightend out to allow override of base draw.
-        public void Draw(ScreenManager screenManager) => Draw(screenManager.SpriteBatch);
-
+        public void Draw(ScreenManager screenManager)            => Draw(screenManager.SpriteBatch);
         public void DrawIconResized(ScreenManager screenManager) => Draw(screenManager.SpriteBatch, true);
-
-        public override void Draw(SpriteBatch spriteBatch) => Draw(spriteBatch, false);
+        public override void Draw(SpriteBatch spriteBatch)       => Draw(spriteBatch, false);
         
 
         public void Draw(SpriteBatch spriteBatch, bool resizeIcon)
@@ -114,9 +110,9 @@ namespace Ship_Game
             else
             {
                 if (!Hover)
-                    GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                    GameAudio.MiniMapMouseOver();
                 Hover = true;
-                if (input.MouseCurr.LeftButton == ButtonState.Pressed)
+                if (input.LeftMouseClick)
                     Pressed = true;
                 if (input.InGameSelect)
                     return true;

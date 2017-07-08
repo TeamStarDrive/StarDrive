@@ -1424,7 +1424,7 @@ namespace Ship_Game
 
                 if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected || ShipsWeCanBuild.Contains(ship.Name))
                     continue;
-                if (!isPlayer && !EmpireAI.ShipGoodToBuild(ship))
+                if (!isPlayer && !ship.ShipGoodToBuild(this))
                     continue;
                 if (!WeCanBuildThis(ship.Name))
                     continue;
