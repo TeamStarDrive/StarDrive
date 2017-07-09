@@ -42,35 +42,36 @@ namespace Ship_Game
         public MiniMap(Rectangle housing) : base(null, housing)
         {
             Housing        = housing;
-            Rectangle size = housing;
             MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");
             Node           = ResourceManager.Texture("UI/node");
             Node1          = ResourceManager.Texture("UI/node1");
+            ActualMap      = new Rectangle(housing.X + 61 + 24, housing.Y + 33, 200, 200);
 
             BeginVLayout(Housing.X + 14, Housing.Y + 70, 25);
             //button spacing isnt quite right. 
+
             (ZoomToShip = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl")).OnClick += ZoomToShip_OnClick;
             (ZoomOut = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout")).OnClick += ZoomOut_OnClick;
-            
+
             (PlanetScreen = ToggleButton(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist")).OnClick += PlanetScreen_OnClick;
-            
+
             (ShipScreen = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay")).OnClick += ShipScreen_OnClick;
-            
+
             (Fleets = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay")).OnClick += Fleets_OnClick;
-            
+
             (DeepSpaceBuild = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_dsbw")).OnClick += DeepSpaceBuild_OnClick;
-            
+
             (AIScreen = ToggleButton(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
                 , "Minimap/button_down_inactive", "AI")).OnClick += AIScreen_OnClick;
 
             EndLayout();
-        }        
+        }     
         
         public void Draw(ScreenManager screenManager, UniverseScreen screen)
         {
             screenManager.SpriteBatch.Draw(MiniMapHousing, Housing, Color.White);
-            float scale     = ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
-            var minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
+            float scale           = ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
+            var minimapZero       = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
             Texture2D uiNode      = Node;
             Texture2D uiNode1     = Node1;
 
@@ -113,7 +114,7 @@ namespace Ship_Game
             Rectangle lookingAt   = new Rectangle((int)minimapZero.X + (int)(upperLeftView.X * scale), (int)minimapZero.Y + (int)(upperLeftView.Y * scale), (int)xdist, (int)ydist);
             if (lookingAt.Width < 2)
             {
-                lookingAt.Width = 2;
+                lookingAt.Width  = 2;
                 lookingAt.Height = 2;
             }
             if (lookingAt.X < ActualMap.X)
@@ -143,7 +144,7 @@ namespace Ship_Game
             ShipScreen.Active     = screen.showingFTLOverlay;
             DeepSpaceBuild.Active = screen.showingDSBW;
             AIScreen.Active       = screen.aw.IsOpen;
-            Fleets.Active         = screen.showingRangeOverlay;
+            Fleets.Active         = screen.showingRangeOverlay;            
             base.Draw(screenManager.SpriteBatch);
         }
 
@@ -199,6 +200,7 @@ namespace Ship_Game
         }
         public bool HandleInput(InputState input, UniverseScreen screen)
         {
+            if (!Housing.HitTest(input.CursorPosition)) return false;
             if (ZoomToShip.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(57, "Page Up");
 

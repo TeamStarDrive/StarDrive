@@ -62,8 +62,8 @@ namespace Ship_Game
         {
             for (int i = 0; i < Elements.Count; ++i)
                 Elements[i].Draw(spriteBatch);
-
-            ToolTip.Draw(spriteBatch);
+            if (ToolTip.Hotkey.IsEmpty())
+                ToolTip.Draw(spriteBatch);
         }
 
         public override bool HandleInput(InputState input)
