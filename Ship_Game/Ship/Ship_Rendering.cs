@@ -283,19 +283,8 @@ namespace Ship_Game.Gameplay
             if (!showModules || hullData.SelectionGraphic.IsEmpty() || ModuleSlotList.Length == 0)
                 return; //ship has no icon, module display is disabled, or there are no modules
 
-            int maxXCoord = 0,   maxYCoord = 0;
-            int minXCoord = 650, minYCoord = 650;
-            foreach (ShipModule m in ModuleSlotList)
-            {
-                maxXCoord = (int)Math.Max(maxXCoord, m.XMLPosition.X / 16f);
-                maxYCoord = (int)Math.Max(maxYCoord, m.XMLPosition.Y / 16f);
-                minXCoord = (int)Math.Min(minXCoord, m.XMLPosition.X / 16f);
-                minYCoord = (int)Math.Min(minYCoord, m.XMLPosition.Y / 16f);
-            }
-            int XSpan = maxXCoord - minXCoord;
-            int YSpan = maxYCoord - minYCoord;
-            int maxSpan = Math.Max(XSpan, YSpan);
-            Vector2 halfSpan = new Vector2(XSpan / 2, YSpan / 2); //half-span vectors for centering
+            int maxSpan = Math.Max(GridWidth, GridHeight);
+            Vector2 halfSpan = new Vector2(GridWidth / 2, GridHeight / 2); //half-span vectors for centering
             Vector2 halfRect = new Vector2(drawRect.Width / 2, drawRect.Height / 2);
 
             float moduleSize = (drawRect.Width / (maxSpan + 1));
@@ -303,18 +292,14 @@ namespace Ship_Game.Gameplay
                 moduleSize = drawRect.Width / (float)(maxSpan + 1);
             if (moduleSize > 10.0)
                 moduleSize = 10f;
-
             Rectangle shipDrawRect = new Rectangle(
-                    drawRect.X + (int)(halfRect.X - ((halfSpan.X + 1) * moduleSize)),
-                    drawRect.Y + (int)(halfRect.Y - ((halfSpan.Y + 1) * moduleSize)),
-                    (int)(XSpan * moduleSize), (int)(YSpan * moduleSize));
-            Vector2 moduleOffset = new Vector2(minXCoord * 16, minYCoord * 16);
+                    drawRect.X + (int)(halfRect.X - (halfSpan.X * moduleSize)),
+                    drawRect.Y + (int)(halfRect.Y - (halfSpan.Y * moduleSize)),
+                    (int)(GridWidth * moduleSize), (int)(GridHeight * moduleSize));
             foreach (ShipModule m in ModuleSlotList)
             {
-                Vector2 modulePos = (m.XMLPosition - moduleOffset) / 16f * moduleSize;
-                //modulePos = new Vector2(modulePos.X / 16f, modulePos.Y / 16f) * moduleSize;
+                Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
                 var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y, (int)moduleSize * m.XSIZE, (int)moduleSize * m.YSIZE);
-
                 spriteBatch.FillRectangle(rect, m.GetHealthStatusColor());
             }
         }
