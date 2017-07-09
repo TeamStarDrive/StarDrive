@@ -30,6 +30,10 @@ namespace Ship_Game
                             , new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
                                 , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.Gray);
                     }
+                    else if (slot.Parent != null)
+                    {
+                        //twiddle thumbs
+                    }
                     else
                     {
                         if (this.ActiveModule != null)
@@ -68,7 +72,7 @@ namespace Ship_Game
                             spriteBatch1.Draw(texture2D, rectangle1, unpoweredColored);
                         }
                     }
-                    if (slot.Module != null)
+                    if (slot.Module != null || slot.Parent != null)
                         continue;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions)
                         , new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y)
@@ -863,7 +867,7 @@ namespace Ship_Game
             bool EmptySlots = true;
             foreach (SlotStruct slot in this.Slots)
             {
-                if (slot.ModuleUID == null)
+                if (slot.ModuleUID == null && slot.Parent == null)
                     EmptySlots = false;
 
                 if (slot.Module != null)

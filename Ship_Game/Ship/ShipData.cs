@@ -44,7 +44,7 @@ namespace Ship_Game
         public bool CarrierShip;
         public float BaseStrength;
         public bool BaseCanWarp;
-        public ModuleSlotData[] ModuleSlots;
+        [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
         public bool hullUnlockable;
         public bool allModulesUnlocakable = true;
         public bool unLockable;
