@@ -114,7 +114,7 @@ namespace Ship_Game {
             bool hasBridge = false;
             foreach (SlotStruct slot in Slots)
             {
-                if (slot.ModuleUID == null)
+                if (slot.ModuleUID == null && slot.Parent == null)
                     emptySlots = false;
                 hasBridge = hasBridge || (slot.Module?.IsCommandModule ?? false);                
             }
@@ -355,6 +355,8 @@ namespace Ship_Game {
                     {
                         if (slotStruct.Module != null)
                             HoveredModule = slotStruct.Module;
+                        else if (slotStruct.Parent != null)
+                            HoveredModule = slotStruct.Parent.Module;
                         if (input.MouseCurr.LeftButton == ButtonState.Pressed &&
                             input.MousePrev.LeftButton == ButtonState.Released)
                         {
@@ -366,6 +368,8 @@ namespace Ship_Game {
                             }
                             if (slotStruct.Module != null)
                                 HighlightedModule = slotStruct.Module;
+                            else if (slotStruct.Parent != null)
+                                HighlightedModule = slotStruct.Parent.Module;
                         }
                     }
                 }
@@ -462,25 +466,34 @@ namespace Ship_Game {
                     new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
                 var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
                     , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
-                if (slot.Module == null || !rect.HitTest(mousePos)) continue;
-                slot.SetValidity(slot.Module);
-                var designAction = new DesignAction
-                {
-                    clickedSS = new SlotStruct
-                    {
-                        PQ = slot.PQ,
-                        Restrictions = slot.Restrictions,
-                        Facing = slot.Module != null ? slot.Module.Facing : 0.0f,
-                        ModuleUID = slot.ModuleUID,
-                        Module = slot.Module,
-                        SlotReference = slot.SlotReference
-                    }
-                };
+                if (!rect.HitTest(mousePos)) continue;
+                bool slotModuleExists = slot.Module != null;
+                if (!slotModuleExists && slot.Parent == null) continue;
+                
+                var designAction = DesignateSlotForAction(slotModuleExists ? slot : slot.Parent);
                 DesignStack.Push(designAction);
                 GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                ClearParentSlot(slot);
+                ClearParentSlot(slotModuleExists ? slot : slot.Parent);
                 RecalculatePower();
             }
+        }
+
+        private DesignAction DesignateSlotForAction(SlotStruct slot)
+        {
+            slot.SetValidity(slot.Module);
+            var designAction = new DesignAction
+            {
+                clickedSS = new SlotStruct
+                {
+                    PQ            = slot.PQ,
+                    Restrictions  = slot.Restrictions,
+                    Facing        = slot.Module != null ? slot.Module.Facing : 0.0f,
+                    ModuleUID     = slot.ModuleUID,
+                    Module        = slot.Module,
+                    SlotReference = slot.SlotReference
+                }
+            };
+            return designAction;
         }
 
         private void UIButtonHandleInput(InputState input)
@@ -1042,7 +1055,7 @@ namespace Ship_Game {
             ToggleButton toggleButton =
                 new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
                     "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", iconPath
+                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", iconPath
                     );
             CombatStatusButtons.Add(toggleButton);
             toggleButton.Action       = action;
@@ -1085,9 +1098,9 @@ namespace Ship_Game {
 
         public void SaveShipDesign(string name)
         {
-            ActiveHull.ModuleSlots = Empty<ModuleSlotData>.Array;
-            ActiveHull.Name        = name;
-            ShipData toSave        = ActiveHull.GetClone();
+            ActiveHull.Name    = name;
+            ShipData toSave    = ActiveHull.GetClone();
+            toSave.ModuleSlots = Empty<ModuleSlotData>.Array;
 
             toSave.ModuleSlots = new ModuleSlotData[Slots.Count];
             for (int i = 0; i < Slots.Count; ++i)
@@ -1130,10 +1143,10 @@ namespace Ship_Game {
             newShip.InitializeStatus(fromSave: false);
             newShip.IsPlayerDesign = true;
             ResourceManager.ShipsDict[name] = newShip;
-
             newShip.BaseStrength = -1;
             newShip.BaseStrength = newShip.GetStrength();
             EmpireManager.Player.UpdateShipsWeCanBuild();
+            ActiveHull = newShip.GetShipData();
             ActiveHull.CombatState = CombatState;
             ChangeHull(ActiveHull);
         }
@@ -1213,7 +1226,11 @@ namespace Ship_Game {
                 ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);
                 ChangeModuleState(slot.State);
                 InstallModuleFromLoad(slot);
-                if (slot.Module == null || slot.Module.ModuleType != ShipModuleType.Hangar)
+                if (slot.Module == null)
+                    continue;
+                if (slot.Module.XSIZE * slot.Module.YSIZE > 1)
+                    ClearDestinationSlotsNoStack(slot);
+                if(slot.Module.ModuleType != ShipModuleType.Hangar)
                 {
                     continue;
                 }

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -9,7 +10,9 @@ namespace Ship_Game.Gameplay
         public string InstalledModuleUID;
         public Guid HangarshipGuid;
         public float Health;
+        [XmlElement(ElementName = "Shield_Power")]
         public float ShieldPower;
+        [XmlElement(ElementName = "facing")]
         public float Facing;
         public Restrictions Restrictions;
         public string SlotOptions;

@@ -235,18 +235,20 @@ namespace Ship_Game
                 };
                 DesignStack.Peek().AlteredSlots.Add(slot1);
             }
-
-            for (int y = 0; y < parent.Module.YSIZE; ++y)
+            if (parent.Module != null)
             {
-                for (int x = 0; x < parent.Module.XSIZE; ++x)
+                for (int y = 0; y < parent.Module.YSIZE; ++y)
                 {
-                    if (!FindStructFromOffset(parent, x, y, out SlotStruct slot2))
-                        continue;
-                    slot2.ModuleUID = null;
-                    slot2.Tex       = null;
-                    slot2.Module    = null;
-                    slot2.Parent    = null;
-                    slot2.State     = ActiveModuleState.Normal;
+                    for (int x = 0; x < parent.Module.XSIZE; ++x)
+                    {
+                        if (!FindStructFromOffset(parent, x, y, out SlotStruct slot2))
+                            continue;
+                        slot2.ModuleUID = null;
+                        slot2.Tex       = null;
+                        slot2.Module    = null;
+                        slot2.Parent    = null;
+                        slot2.State     = ActiveModuleState.Normal;
+                    }
                 }
             }
             //clear parent slot
