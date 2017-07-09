@@ -62,8 +62,8 @@ namespace Ship_Game
         {
             for (int i = 0; i < Elements.Count; ++i)
                 Elements[i].Draw(spriteBatch);
-
-            ToolTip.Draw(spriteBatch);
+            if (ToolTip.Hotkey.IsEmpty())
+                ToolTip.Draw(spriteBatch);
         }
 
         public override bool HandleInput(InputState input)
@@ -280,7 +280,7 @@ namespace Ship_Game
         protected CloseButton CloseButton(float x, float y)
             => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
 
-        protected ToggleButton ToggleButtonLayout(int height, int width, string active, string inactive, string hover, string pressed, string icon)
+        protected ToggleButton ToggleButton(int height, int width, string active, string inactive, string hover, string pressed, string icon)
             => Add(new ToggleButton(LayoutNextRect(height, width), active, inactive, hover, pressed, icon, this));
         
         /////////////////////////////////////////////////////////////////////////////////////////////////

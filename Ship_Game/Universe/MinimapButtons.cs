@@ -33,13 +33,13 @@ namespace Ship_Game
         public MinimapButtons(Vector2 top) : base(null, top)
 		{		    
             BeginVLayout(top, 22);
-            ToggleButtonLayout(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
-		    ToggleButtonLayout(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
-		    ToggleButtonLayout(25, 22, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
-		    ToggleButtonLayout(25, 22, Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
-		    ToggleButtonLayout(25, 22, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
-		    ToggleButtonLayout(25, 22, Active, Normal, Hover, Normal, "UI/icon_dsbw");
-		    ToggleButtonLayout(25, 26, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
+            ToggleButton(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
+		    ToggleButton(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
+		    ToggleButton(25, 22, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
+		    ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
+		    ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
+		    ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_dsbw");
+		    ToggleButton(25, 26, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
 		        , "Minimap/button_down_inactive", "AI");
 
 		    EndLayout();
