@@ -25,7 +25,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 string uid = templateSlots[i].InstalledModuleUID;
-                if (uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                if (uid == "Dummy" || uid == null) // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
                 if (!ResourceManager.ShipModules.ContainsKey(uid))
                 {
@@ -42,7 +42,7 @@ namespace Ship_Game.Gameplay
             {
                 ModuleSlotData slotData = templateSlots[i];
                 string uid = slotData.InstalledModuleUID;
-                if (uid == "Dummy")
+                if (uid == "Dummy" || uid == null)
                     continue;
                 ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager);
                 if (fromSave)
