@@ -49,19 +49,19 @@ namespace Ship_Game
 
             BeginVLayout(Housing.X + 14, Housing.Y + 70, 25);
             //button spacing isnt quite right. 
-            ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl").OnClick += ZoomToShip_OnClick;
-            ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout").OnClick += ZoomOut_OnClick;
+            (ZoomToShip = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl")).OnClick += ZoomToShip_OnClick;
+            (ZoomOut = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout")).OnClick += ZoomOut_OnClick;
             
-            ToggleButton(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist").OnClick += PlanetScreen_OnClick;
+            (PlanetScreen = ToggleButton(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist")).OnClick += PlanetScreen_OnClick;
             
-            ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay").OnClick += ShipScreen_OnClick;
+            (ShipScreen = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay")).OnClick += ShipScreen_OnClick;
             
-            ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay").OnClick += Fleets_OnClick;
+            (Fleets = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay")).OnClick += Fleets_OnClick;
             
-            ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_dsbw").OnClick += DeepSpaceBuild_OnClick;
+            (DeepSpaceBuild = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_dsbw")).OnClick += DeepSpaceBuild_OnClick;
             
-            ToggleButton(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
-                , "Minimap/button_down_inactive", "AI").OnClick += AIScreen_OnClick;
+            (AIScreen = ToggleButton(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
+                , "Minimap/button_down_inactive", "AI")).OnClick += AIScreen_OnClick;
 
             EndLayout();
         }        
