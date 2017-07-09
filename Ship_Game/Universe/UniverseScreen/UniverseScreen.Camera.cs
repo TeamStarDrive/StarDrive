@@ -348,7 +348,7 @@ namespace Ship_Game
             }
         }
 
-        private void InputZoomToShip()
+        public void InputZoomToShip()
         {
             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
             AdjustCamTimer = 1f;
@@ -358,7 +358,7 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        private void InputZoomOut()
+        public void InputZoomOut()
         {
             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
             AdjustCamTimer = 1f;
