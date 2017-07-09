@@ -21,6 +21,8 @@ namespace Ship_Game
 
         private bool Pressed;
 
+        private string HoverText;
+
         private readonly Texture2D PressTexture;
         private readonly Texture2D HoverTexture;
         private readonly Texture2D ActiveTexture;
@@ -30,7 +32,10 @@ namespace Ship_Game
         private readonly string IconPath;
         private readonly Texture2D IconActive;
         private readonly Rectangle IconRect;
-        
+
+        public delegate void ClickHandler(ToggleButton button);
+        public event ClickHandler OnClick;
+
         public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath, UIElementV2 container = null) : base(container, r)
         {           
             Rect            = r;
@@ -40,6 +45,7 @@ namespace Ship_Game
             InactiveTexture = ResourceManager.Texture(inactivePath);                        
             IconTexture     = ResourceManager.Texture(iconPath, false);
             IconActive      = ResourceManager.Texture(string.Concat(iconPath, "_active"), false);
+            
 
             if (IconTexture == null)
             {
@@ -60,12 +66,16 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch spriteBatch, bool resizeIcon)
         {
-            Rectangle iconRect = resizeIcon ? IconRect : Rect;
+            Rectangle iconRect = IconActive == null ? IconRect : Rect;
 
             if (Pressed)
                 spriteBatch.Draw(PressTexture, Rect, Color.White);
             else if (Hover)
+            {
                 spriteBatch.Draw(HoverTexture, Rect, Color.White);
+                
+
+            }
             else if (Active)
                 spriteBatch.Draw(ActiveTexture, Rect, Color.White);
             else if (!Active)
@@ -81,21 +91,13 @@ namespace Ship_Game
                 spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
             }
             else
-            {
-                //if (Active && !resizeIcon)
-                //{
-
-                //    spriteBatch.Draw(IconActive, Rect, Color.White);
-                //    return;
-                //}
-                //if (Active)
-                    spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);
-            }
+                spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);
+            
         }
 
         public override void PerformLegacyLayout(Vector2 pos)
         {
-            
+            Pos = pos;
         }
 
         public override bool HandleInput(InputState input)
@@ -109,7 +111,10 @@ namespace Ship_Game
                     GameAudio.MiniMapMouseOver();
                 Hover = true;
                 if (input.LeftMouseClick)
+                {
+                    OnClick?.Invoke(this);
                     Pressed = true;
+                }
                 if (input.InGameSelect)
                     return true;
             }

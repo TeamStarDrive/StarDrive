@@ -29,7 +29,14 @@ namespace Ship_Game
 		public ToolTip()
 		{
 		}
-
+	    /* @todo tooltip issues
+  * Main issue here. 
+  * this class doesnt play well with the uielementv2 process.
+  * 
+  * so that several places are creating tooltips here in an unencapsulated way.
+  * 
+  * as far as i can tell... also the tooltip rectangle isnt right.
+  */
         private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 30)
         {
             Hotkey = hotkey;
@@ -96,11 +103,8 @@ namespace Ship_Game
 
 		public static void Draw(SpriteBatch spriteBatch)
 		{
-			TipTimer = TipTimer - 1;
-			if (TipTimer <= 0)
-			{
-				TipTimer = 0;
-			}
+			TipTimer = Math.Max(--TipTimer ,0);
+            
 			float alpha = 210f - 210f * TipTimer / 20f;
 			if (TipTimer < 20 && Text != null)
 			{
