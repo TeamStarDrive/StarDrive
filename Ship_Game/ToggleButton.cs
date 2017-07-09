@@ -13,6 +13,8 @@ namespace Ship_Game
 
         public bool Hover;
 
+        private ToolTip HoverToolTip;
+
         public int WhichToolTip;
 
         public bool HasToolTip;
@@ -34,7 +36,7 @@ namespace Ship_Game
         public delegate void ClickHandler(ToggleButton button);
         public event ClickHandler OnClick;
 
-        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath, UIElementV2 container = null) : base(container, r)
+        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath, UIElementV2 container = null, ToolTip toolTip = null) : base(container, r)
         {           
             Rect            = r;
             PressTexture    = ResourceManager.Texture(pressPath);
@@ -43,6 +45,7 @@ namespace Ship_Game
             InactiveTexture = ResourceManager.Texture(inactivePath);                        
             IconTexture     = ResourceManager.Texture(iconPath, false);
             IconActive      = ResourceManager.Texture(string.Concat(iconPath, "_active"), false);
+            HoverToolTip    = toolTip;
 
             if (IconTexture == null)
             {
@@ -68,7 +71,11 @@ namespace Ship_Game
             if (Pressed)
                 spriteBatch.Draw(PressTexture, Rect, Color.White);
             else if (Hover)
+            {
                 spriteBatch.Draw(HoverTexture, Rect, Color.White);
+                
+
+            }
             else if (Active)
                 spriteBatch.Draw(ActiveTexture, Rect, Color.White);
             else if (!Active)
@@ -84,14 +91,13 @@ namespace Ship_Game
                 spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
             }
             else
-            {
-                    spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);
-            }
+                spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);
+            
         }
 
         public override void PerformLegacyLayout(Vector2 pos)
         {
-            
+            Pos = pos;
         }
 
         public override bool HandleInput(InputState input)
