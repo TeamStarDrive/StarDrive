@@ -13,8 +13,6 @@ namespace Ship_Game
 
         public bool Hover;
 
-        private ToolTip HoverToolTip;
-
         public int WhichToolTip;
 
         public bool HasToolTip;
@@ -22,6 +20,8 @@ namespace Ship_Game
         public Color BaseColor = Color.White;
 
         private bool Pressed;
+
+        private string HoverText;
 
         private readonly Texture2D PressTexture;
         private readonly Texture2D HoverTexture;
@@ -36,7 +36,7 @@ namespace Ship_Game
         public delegate void ClickHandler(ToggleButton button);
         public event ClickHandler OnClick;
 
-        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath, UIElementV2 container = null, ToolTip toolTip = null) : base(container, r)
+        public ToggleButton(Rectangle r, string activePath, string inactivePath, string hoverPath, string pressPath, string iconPath, UIElementV2 container = null) : base(container, r)
         {           
             Rect            = r;
             PressTexture    = ResourceManager.Texture(pressPath);
@@ -45,7 +45,7 @@ namespace Ship_Game
             InactiveTexture = ResourceManager.Texture(inactivePath);                        
             IconTexture     = ResourceManager.Texture(iconPath, false);
             IconActive      = ResourceManager.Texture(string.Concat(iconPath, "_active"), false);
-            HoverToolTip    = toolTip;
+            
 
             if (IconTexture == null)
             {
@@ -66,7 +66,7 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch spriteBatch, bool resizeIcon)
         {
-            Rectangle iconRect = resizeIcon ? IconRect : Rect;
+            Rectangle iconRect = IconActive == null ? IconRect : Rect;
 
             if (Pressed)
                 spriteBatch.Draw(PressTexture, Rect, Color.White);
