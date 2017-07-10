@@ -386,17 +386,17 @@ namespace Ship_Game.Gameplay
 
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
-            Vector2 center   = Module?.Center ?? Center;
+            Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel = Owner?.Velocity ?? Vector2.Zero;
 
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {
-                pip = center.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center, ship.Velocity, ship.Acceleration);
+                pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
+                    ship.Center, ship.Velocity, ship.Acceleration);
             }
             else
             {
-                pip = center.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
+                pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
                     target.Center, target.Velocity);
             }
 
