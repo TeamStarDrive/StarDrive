@@ -219,59 +219,59 @@ namespace Ship_Game
         private void RenderOverFog(GameTime gameTime)
         {
             Vector3 vector3_1 =
-                this.Viewport.Project(Vector3.Zero, this.projection, this.view,
+                Viewport.Project(Vector3.Zero, projection, view,
                     Matrix.Identity);
-            Vector3 vector3_2 = this.Viewport.Project(
-                new Vector3(this.UniverseSize, this.UniverseSize, 0.0f), this.projection, this.view, Matrix.Identity);
-            this.Viewport.Project(new Vector3(this.UniverseSize / 2f, this.UniverseSize / 2f, 0.0f),
-                this.projection, this.view, Matrix.Identity);
+            Vector3 vector3_2 = Viewport.Project(
+                new Vector3(UniverseSize, UniverseSize, 0.0f), projection, view, Matrix.Identity);
+            Viewport.Project(new Vector3(UniverseSize / 2f, UniverseSize / 2f, 0.0f),
+                projection, view, Matrix.Identity);
             Rectangle rectangle1 = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                 (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
-            if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
+            if (viewState >= UniverseScreen.UnivScreenState.SectorView)
             {
-                float num = (float) ((double) byte.MaxValue * (double) this.CamHeight / 9000000.0);
+                float num = (float) ((double) byte.MaxValue * (double) CamHeight / 9000000.0);
                 if ((double) num > (double) byte.MaxValue)
                     num = (float) byte.MaxValue;
                 Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) num);
-                this.ScreenManager.SpriteBatch.End();
-                this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
+                ScreenManager.SpriteBatch.End();
+                ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
                 Rectangle rectangle2 = new Rectangle(rectangle1.X, rectangle1.Y, rectangle1.Width / 2,
                     rectangle1.Height / 2);
-                this.ScreenManager.SpriteBatch.End();
-                this.ScreenManager.SpriteBatch.Begin();
+                ScreenManager.SpriteBatch.End();
+                ScreenManager.SpriteBatch.Begin();
             }
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
-                if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
+                if (viewState >= UniverseScreen.UnivScreenState.SectorView)
                 {
                     Vector3 vector3_3 = new Vector3(solarSystem.Position, 0.0f);
-                    if (this.Frustum.Contains(vector3_3) != ContainmentType.Disjoint)
+                    if (Frustum.Contains(vector3_3) != ContainmentType.Disjoint)
                     {
                         Vector3 vector3_4 =
-                            this.Viewport.Project(vector3_3, this.projection, this.view,
+                            Viewport.Project(vector3_3, projection, view,
                                 Matrix.Identity);
                         Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
                         Vector3 vector3_5 =
-                            this.Viewport.Project(
-                                new Vector3(solarSystem.Position.PointOnCircle(90f, 25000f), 0.0f), this.projection,
-                                this.view, Matrix.Identity);
+                            Viewport.Project(
+                                new Vector3(solarSystem.Position.PointOnCircle(90f, 25000f), 0.0f), projection,
+                                view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
                         Vector2 vector2 = new Vector2(position.X, position.Y);
-                        if ((solarSystem.ExploredDict[this.player] || this.Debug) && this.SelectedSystem != solarSystem)
+                        if ((solarSystem.Explored(player) || Debug) && SelectedSystem != solarSystem)
                         {
-                            if (this.Debug)
+                            if (Debug)
                             {
-                                solarSystem.ExploredDict[this.player] = true;
+                                solarSystem.ExploredDict[player] = true;
                                 foreach (Planet planet in solarSystem.PlanetList)
-                                    planet.ExploredDict[this.player] = true;
+                                    planet.ExploredDict[player] = true;
                             }
                             Vector3 vector3_6 =
-                                this.Viewport.Project(
+                                Viewport.Project(
                                     new Vector3(
                                         new Vector2(100000f * UniverseScreen.GameScaleStatic, 0.0f) +
-                                        solarSystem.Position, 0.0f), this.projection, this.view, Matrix.Identity);
+                                        solarSystem.Position, 0.0f), projection, view, Matrix.Identity);
                             float radius = Vector2.Distance(new Vector2(vector3_6.X, vector3_6.Y), position);
-                            if (this.viewState == UniverseScreen.UnivScreenState.SectorView)
+                            if (viewState == UniverseScreen.UnivScreenState.SectorView)
                             {
                                 vector2.Y += radius;
                                 DrawCircle(new Vector2(vector3_4.X, vector3_4.Y), radius, 100,
@@ -281,11 +281,29 @@ namespace Ship_Game
                                 vector2.Y += num2;
                             vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
                             Vector2 pos = Input.CursorPosition;
-                            if (solarSystem.OwnerList.Count == 0)
+
+                            Array<Empire> owners = new Array<Empire>();
+                            bool wellKnown = false;
+                            
+                            foreach (Empire e in solarSystem.OwnerList)
                             {
-                                if (this.SelectedSystem != solarSystem ||
-                                    this.viewState < UniverseScreen.UnivScreenState.GalaxyView)
-                                    this.ScreenManager.SpriteBatch.DrawString(SystemInfoUIElement.SysFont,
+                                EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
+                                wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;                                
+                                if (wellKnown) break;
+                                if (ssRel.Known) // (ssRel.Treaty_Alliance || ssRel.Treaty_Trade || ssRel.Treaty_OpenBorders))
+                                    owners.Add(e);
+                            }
+     
+                            if(wellKnown)
+                            {
+                                owners = solarSystem.OwnerList.ToArrayList();
+                            }
+                            
+                            if (owners.Count == 0)
+                            {
+                                if (SelectedSystem != solarSystem ||
+                                    viewState < UniverseScreen.UnivScreenState.GalaxyView)
+                                    ScreenManager.SpriteBatch.DrawString(SystemInfoUIElement.SysFont,
                                         solarSystem.Name, vector2, Color.Gray);
                                 int num3 = 0;
                                 --vector2.Y;
@@ -293,7 +311,7 @@ namespace Ship_Game
                                 bool flag = false;
                                 foreach (Planet planet in solarSystem.PlanetList)
                                 {
-                                    if (planet.ExploredDict[this.player])
+                                    if (planet.ExploredDict[player])
                                     {
                                         for (int index = 0; index < planet.BuildingList.Count; ++index)
                                         {
@@ -314,7 +332,7 @@ namespace Ship_Game
                                         (byte) (Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) *
                                                 (float) byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
-                                    this.ScreenManager.SpriteBatch.Draw(
+                                    ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(138);
@@ -332,13 +350,13 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Width,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(
+                                    ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(122);
                                     ++num3;
                                 }
-                                if ((double) solarSystem.DangerTimer > 0.0)
+                                if (solarSystem.DangerTimer > 0f)
                                 {
                                     if (num3 == 1 || num3 == 2)
                                         vector2.X += 20f;
@@ -349,7 +367,7 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Width,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(
+                                    ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(123);
@@ -358,30 +376,30 @@ namespace Ship_Game
                             else
                             {
                                 int num3 = 0;
-                                if (solarSystem.OwnerList.Count == 1)
+                                if (owners.Count == 1)
                                 {
-                                    if (this.SelectedSystem != solarSystem ||
-                                        this.viewState < UniverseScreen.UnivScreenState.GalaxyView)
-                                        HelperFunctions.DrawDropShadowText(this.ScreenManager, solarSystem.Name,
+                                    if (SelectedSystem != solarSystem ||
+                                        viewState < UnivScreenState.GalaxyView)
+                                        HelperFunctions.DrawDropShadowText(ScreenManager, solarSystem.Name,
                                             vector2, SystemInfoUIElement.SysFont,
-                                            solarSystem.OwnerList.ToList()[0].EmpireColor);
+                                            owners.ToList()[0].EmpireColor);
                                 }
-                                else if (this.SelectedSystem != solarSystem ||
-                                         this.viewState < UniverseScreen.UnivScreenState.GalaxyView)
+                                else if (SelectedSystem != solarSystem ||
+                                         viewState < UnivScreenState.GalaxyView)
                                 {
                                     Vector2 Pos = vector2;
                                     int length = solarSystem.Name.Length;
-                                    int num4 = length / solarSystem.OwnerList.Count;
+                                    int num4 = length / owners.Count;
                                     int index1 = 0;
                                     for (int index2 = 0; index2 < length; ++index2)
                                     {
                                         if (index2 + 1 > num4 + num4 * index1)
                                             ++index1;
-                                        HelperFunctions.DrawDropShadowText(this.ScreenManager,
+                                        HelperFunctions.DrawDropShadowText(ScreenManager,
                                             solarSystem.Name[index2].ToString(), Pos, SystemInfoUIElement.SysFont,
-                                            solarSystem.OwnerList.Count > index1
-                                                ? solarSystem.OwnerList.ToList()[index1].EmpireColor
-                                                : ((IEnumerable<Empire>) solarSystem.OwnerList).Last<Empire>()
+                                            owners.Count > index1
+                                                ? owners.ToList()[index1].EmpireColor
+                                                : (owners).Last()
                                                     .EmpireColor);
                                         Pos.X += SystemInfoUIElement.SysFont
                                             .MeasureString(solarSystem.Name[index2].ToString())
@@ -393,7 +411,7 @@ namespace Ship_Game
                                 bool flag = false;
                                 foreach (Planet planet in solarSystem.PlanetList)
                                 {
-                                    if (planet.ExploredDict[this.player])
+                                    if (planet.ExploredDict[player])
                                     {
                                         for (int index = 0; index < planet.BuildingList.Count; ++index)
                                         {
@@ -414,7 +432,7 @@ namespace Ship_Game
                                         (byte) (Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) *
                                                 (float) byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
-                                    this.ScreenManager.SpriteBatch.Draw(
+                                    ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["UI/icon_anomaly_small"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(138);
@@ -432,7 +450,7 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Width,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(
+                                    ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(122);
@@ -449,7 +467,7 @@ namespace Ship_Game
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Width,
                                         ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(
+                                    ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.TextureDict["Ground_UI/EnemyHere"], rectangle2, color);
                                     if (rectangle2.HitTest(pos))
                                         ToolTip.CreateTooltip(123);
@@ -460,21 +478,21 @@ namespace Ship_Game
                             vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
                     }
                 }
-                if (this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
+                if (viewState >= UniverseScreen.UnivScreenState.GalaxyView)
                 {
                     float scale = 0.05f;
                     Vector3 vector3_3 = new Vector3(solarSystem.Position, 0.0f);
                     Vector3 vector3_4 =
-                        this.Viewport.Project(vector3_3, this.projection, this.view,
+                        Viewport.Project(vector3_3, projection, view,
                             Matrix.Identity);
                     Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath],
-                        position, new Rectangle?(), Color.White, this.Zrotate,
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath],
+                        position, new Rectangle?(), Color.White, Zrotate,
                         new Vector2((float) (ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2),
                             (float) (ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale,
                         SpriteEffects.None, 0.9f);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath],
-                        position, new Rectangle?(), Color.White, (float) (-(double) this.Zrotate / 2.0),
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath],
+                        position, new Rectangle?(), Color.White, (float) (-(double) Zrotate / 2.0),
                         new Vector2((float) (ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2),
                             (float) (ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale,
                         SpriteEffects.None, 0.9f);
