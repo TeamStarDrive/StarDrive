@@ -13,6 +13,9 @@ namespace Ship_Game.AI
         public Map<Guid, Pin> Pins = new Map<Guid, Pin>();
         public Map<Guid, Ship> Ship = new Map<Guid, Ship>();
 
+        public bool ContainsGuid(Guid guid) => Pins.ContainsKey(guid);
+        
+        
         public float StrengthOfAllEmpireShipsInBorders(Empire them)
         {
             float str = 0f;
@@ -41,6 +44,19 @@ namespace Ship_Game.AI
 
             }
             return str;
+        }
+        public Array<Ship> GetAllProjectorsExcept(Empire empire)
+        {
+            var projectors = new Array<Ship>();
+            foreach (var kv in Pins.Values.ToArray())
+            {
+                if (kv.EmpireName == string.Empty || kv.Ship == null) continue;
+                if (kv.Ship?.Name != "Subspace Projector") continue;                
+                Empire pinEmpire = kv.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.EmpireName);
+                if (pinEmpire == empire) continue;
+                projectors.Add(kv.Ship);
+            }
+            return projectors;
         }
 
         public Vector2 GetPositionOfNearestEnemyWithinRadius(Vector2 position, float radius, Empire us)
@@ -262,8 +278,6 @@ namespace Ship_Game.AI
             pin.Velocity = ship.Center - pin.Position;
             pin.Position = ship.Center;
         }
-  
-    
         public void UpdatePin(Ship ship, bool shipinBorders, bool inSensorRadius)
         {           
             Pins.TryGetValue(ship.guid, out Pin pin);
