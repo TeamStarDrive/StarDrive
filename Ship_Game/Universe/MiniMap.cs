@@ -1,6 +1,7 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -38,6 +39,8 @@ namespace Ship_Game
         private readonly Texture2D MiniMapHousing;
         private readonly Texture2D Node;
         private readonly Texture2D Node1;
+        private readonly float Scale;
+        private Vector2 MiniMapZero;
 
         public MiniMap(Rectangle housing) : base(null, housing)
         {
@@ -45,73 +48,113 @@ namespace Ship_Game
             MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");
             Node           = ResourceManager.Texture("UI/node");
             Node1          = ResourceManager.Texture("UI/node1");
-            ActualMap      = new Rectangle(housing.X + 61 + 24, housing.Y + 33, 200, 200);
+            ActualMap      = new Rectangle(housing.X + 61 + 20, housing.Y + 33, 200, 210);
 
             BeginVLayout(Housing.X + 14, Housing.Y + 70, 25);
             //button spacing isnt quite right. 
 
-            (ZoomToShip = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl")).OnClick += ZoomToShip_OnClick;
-            (ZoomOut = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout")).OnClick += ZoomOut_OnClick;
-
-            (PlanetScreen = ToggleButton(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist")).OnClick += PlanetScreen_OnClick;
-
-            (ShipScreen = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay")).OnClick += ShipScreen_OnClick;
-
-            (Fleets = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay")).OnClick += Fleets_OnClick;
-
+            (ZoomToShip     = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl")).OnClick += ZoomToShip_OnClick;
+            (ZoomOut        = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout")).OnClick += ZoomOut_OnClick;
+            (PlanetScreen   = ToggleButton(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist")).OnClick += PlanetScreen_OnClick;
+            (ShipScreen     = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay")).OnClick += ShipScreen_OnClick;
+            (Fleets         = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay")).OnClick += Fleets_OnClick;
             (DeepSpaceBuild = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_dsbw")).OnClick += DeepSpaceBuild_OnClick;
-
-            (AIScreen = ToggleButton(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
+            (AIScreen       = ToggleButton(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
                 , "Minimap/button_down_inactive", "AI")).OnClick += AIScreen_OnClick;
 
             EndLayout();
+            Scale = ActualMap.Width / (Screen.UniverseSize * 2.1f);        //Updated to play nice with the new negative map values
+            MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
         }     
         
+        private Vector2 WorldToMiniPos(Vector2 pos)        
+            => new Vector2(MiniMapZero.X + pos.X * Scale, MiniMapZero.Y + pos.Y * Scale);
+        
+        private float WorldToMiniRadius(float radius)
+        {
+            float miniRadius = radius * Scale;
+            float rscale = miniRadius * 0.005f;
+
+            if (rscale < 0.006f) rscale = 0.006f;
+            return rscale;
+        }
+
+
         public void Draw(ScreenManager screenManager, UniverseScreen screen)
         {
+            Rectangle inflateMap = ActualMap;
+            inflateMap.Inflate(10, 10);
+            screen.DrawRectangle(inflateMap, Color.Black, Color.Black);
             screenManager.SpriteBatch.Draw(MiniMapHousing, Housing, Color.White);
-            float scale           = ActualMap.Width / (screen.UniverseSize * 2);        //Updated to play nice with the new negative map values
-            var minimapZero       = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
+            
             Texture2D uiNode      = Node;
             Texture2D uiNode1     = Node1;
-
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                if (e != EmpireManager.Player && !EmpireManager.Player.GetRelations(e).Known)
-                    continue;
+                Vector2 miniSystemPos = WorldToMiniPos(system.Position);
+                var star = new Rectangle((int)miniSystemPos.X, (int)miniSystemPos.Y, 2, 2);
+                screenManager.SpriteBatch.FillRectangle(star, Color.Gray);
+            }
 
-                using (e.BorderNodes.AcquireReadLock())
-                    foreach (Empire.InfluenceNode node in e.BorderNodes)
+            void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list)
+            {
+                using (list.AcquireReadLock())
+                    for (int i = 0; i < empire.BorderNodes.Count; i++)
                     {
-                        float radius = node.Radius * scale;
-                        var nodepos = new Vector2(minimapZero.X + node.Position.X * scale,
-                            minimapZero.Y + node.Position.Y * scale);
-                        var ec = new Color(e.EmpireColor.R, e.EmpireColor.G, e.EmpireColor.B, 30);
-                        float rscale = radius * 0.005f;
+                        Empire.InfluenceNode node = empire.BorderNodes[i];
+                        if (!Empire.Universe.Debug)
+                            if (!node.Known)
+                                continue;
 
-                        if (rscale < 0.006f) rscale = 0.006f;
-                        screenManager.SpriteBatch.Draw(uiNode1, nodepos, null, ec, 0f, uiNode.Center(), rscale,
+                        float radius = WorldToMiniRadius(node.Radius) * 1.2f;
+                        Vector2 nodePos = WorldToMiniPos(node.Position);
+                        var ec = new Color(empire.EmpireColor.R, empire.EmpireColor.G, empire.EmpireColor.B, 80);
+
+                        screenManager.SpriteBatch.Draw(uiNode1, nodePos, null, ec, 0f, uiNode.Center(), radius,
                             SpriteEffects.None, 1f);
                     }
             }
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+
+            foreach (Empire e in EmpireManager.Empires)
             {
-                var star = new Rectangle((int)(minimapZero.X + system.Position.X * scale), (int)(minimapZero.Y + system.Position.Y * scale), 2, 2);
-                if (system.OwnerList.Count <= 0 || !system.ExploredDict[EmpireManager.Player])
-                    screenManager.SpriteBatch.FillRectangle(star, Color.Gray);
-                else
-                    screenManager.SpriteBatch.FillRectangle(star, system.OwnerList.ToList()[0].EmpireColor);
+                Relationship rel = EmpireManager.Player.GetRelations(e);
+                if (!Screen.Debug && e != EmpireManager.Player && !rel.Known)
+                    continue;
+                DrawNode(e, e.BorderNodes);
+                DrawNode(e, e.SensorNodes);
+                //using (e.BorderNodes.AcquireReadLock())
+                //    for (int i = 0; i < e.BorderNodes.Count; i++)
+                //    {
+                //        Empire.InfluenceNode node = e.BorderNodes[i];
+                        
+                //        if (!Empire.Universe.Debug)
+                //            if (!node.Known)
+                //                continue;
+                //        DrawNode(node, e);
+
+
+                //    }
+                //using (e.SensorNodes.AcquireReadLock())
+                //    for (int x = 0; x < e.SensorNodes.Count; x++)
+                //    {
+                //        Empire.InfluenceNode senseNode = e.SensorNodes[x];
+                //        if (!Empire.Universe.Debug)
+                //            if (!senseNode.Known)
+                //                continue;
+                //        DrawNode(senseNode, e);
+                //    }
             }
+
             Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
             upperLeftView         = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 20000), HelperFunctions.RoundTo(upperLeftView.Y, 20000));
             Vector2 right         = screen.UnprojectToWorldPosition(new Vector2(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
             right                 = new Vector2(HelperFunctions.RoundTo(right.X, 20000), 0f);
-            float xdist           = (right.X - upperLeftView.X) * scale;
+            float xdist           = (right.X - upperLeftView.X) * Scale;
             xdist                 = HelperFunctions.RoundTo(xdist, 1);
             float ydist           = xdist * screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 
             //draw and clamp minimap viewing area rectangle.
-            Rectangle lookingAt   = new Rectangle((int)minimapZero.X + (int)(upperLeftView.X * scale), (int)minimapZero.Y + (int)(upperLeftView.Y * scale), (int)xdist, (int)ydist);
+            Rectangle lookingAt   = new Rectangle((int)MiniMapZero.X + (int)(upperLeftView.X * Scale), (int)MiniMapZero.Y + (int)(upperLeftView.Y * Scale), (int)xdist, (int)ydist);
             if (lookingAt.Width < 2)
             {
                 lookingAt.Width  = 2;
@@ -136,7 +179,7 @@ namespace Ship_Game
             var botMiddleView   = new Vector2(topMiddleView.X - 1f, lookingAt.Y + lookingAt.Height);
             var leftMiddleView  = new Vector2(lookingAt.X, lookingAt.Y + lookingAt.Height / 2);
             var rightMiddleView = new Vector2(lookingAt.X + lookingAt.Width, leftMiddleView.Y + 1f);
-            screenManager.SpriteBatch.DrawLine(new Vector2(topMiddleView.X, minimapZero.Y - 100), topMiddleView, Color.White);
+            screenManager.SpriteBatch.DrawLine(new Vector2(topMiddleView.X, MiniMapZero.Y - 100), topMiddleView, Color.White);
             screenManager.SpriteBatch.DrawLine(new Vector2(botMiddleView.X, ActualMap.Y + ActualMap.Height), botMiddleView, Color.White);
             screenManager.SpriteBatch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             screenManager.SpriteBatch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
