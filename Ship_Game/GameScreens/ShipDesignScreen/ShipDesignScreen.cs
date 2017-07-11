@@ -202,10 +202,11 @@ namespace Ship_Game
                 {
                     if (!FindStructFromOffset(slot, x, y, out SlotStruct slot2))
                         continue;
-
-                    if (slot2.Module != null)
-                        ClearParentSlot(slot2, addToAlteredSlots);
-
+                    if (slot2.Module != null || slot2.Parent != null) 
+                    {
+                        ClearParentSlot(slot2.Parent ?? slot2); 
+                    }
+                    
                     slot2.ModuleUID = null;
                     slot2.Tex       = null;
                     slot2.Module    = null;
@@ -263,7 +264,7 @@ namespace Ship_Game
         private void ClearSlot(SlotStruct slot, bool addToAlteredSlots = true)
         {   //this is the clearslot function actually used atm
             //only called from installmodule atm, not from manual module removal
-            if (slot.Module != null || slot.Parent?.Module != null)
+            if (slot.Module != null || slot.Parent != null)
             {
                 ClearParentSlot(slot.Parent ?? slot, addToAlteredSlots);
             }
@@ -666,7 +667,7 @@ namespace Ship_Game
 
                 slot.ModuleUID            = ActiveModule.UID;
                 slot.Module               = ShipModule.CreateNoParent(ActiveModule.UID);
-                slot.Module.XSIZE         = ActiveModule.XSIZE;
+                 slot.Module.XSIZE         = ActiveModule.XSIZE;
                 slot.Module.YSIZE         = ActiveModule.YSIZE;
                 slot.Module.XMLPosition   = ActiveModule.XMLPosition;
                 slot.State                = ActiveModState;
@@ -819,7 +820,7 @@ namespace Ship_Game
 
         public void SetActiveModule(ShipModule mod)
         {
-
+            if(mod == null) return;
             GameAudio.PlaySfxAsync("smallservo");
             mod.SetAttributesNoParent();
             this.ActiveModule = mod;
