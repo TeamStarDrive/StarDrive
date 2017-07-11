@@ -365,19 +365,6 @@ namespace Ship_Game
             }
         }
 
-
-
-        private void DrawModuleSelection()
-        {
-            Rectangle r = this.ModSel.Menu;
-            r.Y = r.Y + 25;
-            r.Height = r.Height - 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(ScreenManager.SpriteBatch);
-            this.ModSel.Draw(ScreenManager.SpriteBatch);
-            //this.WeaponSl.Draw(ScreenManager.SpriteBatch);
-        }
-
         private void DrawRequirement(ref Vector2 Cursor, string words, bool met)
         {
             float amount = 165f;
@@ -1061,7 +1048,8 @@ namespace Ship_Game
                 r.Y = r.Y + (int) (transitionOffset * 50f);
             }
             this.ToggleOverlayButton.Draw(ScreenManager.SpriteBatch, r);
-            this.DrawModuleSelection();
+            ModSel.Draw(ScreenManager.SpriteBatch);
+            
             this.DrawHullSelection();
  
             foreach (ToggleButton button in this.CombatStatusButtons)

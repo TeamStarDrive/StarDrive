@@ -70,6 +70,12 @@ namespace Ship_Game
         }
         public void Draw(SpriteBatch spriteBatch)
         {
+            Rectangle r = Menu;
+            r.Y = r.Y + 25;
+            r.Height = r.Height - 25;
+            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            sel.Draw(ScreenManager.SpriteBatch);
+
             WeaponSl.Draw(spriteBatch);
             if (ParentScreen.ActiveModule != null)
             {
