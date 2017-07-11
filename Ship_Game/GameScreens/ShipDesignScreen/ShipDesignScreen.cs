@@ -263,9 +263,9 @@ namespace Ship_Game
         private void ClearSlot(SlotStruct slot, bool addToAlteredSlots = true)
         {   //this is the clearslot function actually used atm
             //only called from installmodule atm, not from manual module removal
-            if (slot.Module != null)
+            if (slot.Module != null || slot.Parent?.Module != null)
             {
-                ClearParentSlot(slot, addToAlteredSlots);
+                ClearParentSlot(slot.Parent ?? slot, addToAlteredSlots);
             }
             else
             {   //this requires not being a child slot and not containing a module
@@ -624,17 +624,16 @@ namespace Ship_Game
         {
             int numFreeSlots = 0;
             int sx = slot.PQ.X, sy = slot.PQ.Y;
-            for (int y = 0; y < ActiveModule.YSIZE; ++y)
+            for (int x = 0; x < ActiveModule.XSIZE; ++x) 
             {
-                for (int x = 0; x < ActiveModule.XSIZE; ++x)
+                for (int y = 0; y < ActiveModule.YSIZE; ++y)
                 {
                     for (int i = 0; i < Slots.Count; ++i)
                     {
                         SlotStruct ss = Slots[i];
-                        if (ss.ShowValid && ss.PQ.Y == (sy + 16 * y) && ss.PQ.X == (sx + 16 * x))
+                        if (ss.ShowValid && ss.PQ.Y == sy + (16 * y) && ss.PQ.X == sx + (16 * x))
                         {
-                            if (ss.Module == null && ss.Parent == null)
-                                ++numFreeSlots;
+                            ++numFreeSlots;
                         }
                     }
                 }
@@ -657,7 +656,8 @@ namespace Ship_Game
                         Module = slot.Module,
                         Tex = slot.Tex,
                         SlotReference = slot.SlotReference,
-                        State = slot.State
+                        State = slot.State,
+                        
                     }
                 };
                 DesignStack.Push(designAction);

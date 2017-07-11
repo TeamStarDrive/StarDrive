@@ -22,12 +22,17 @@ namespace Ship_Game
 
         private bool CanSlotSupportModule(ShipModule module)
         {
-            if (module == null || module.Restrictions == Restrictions.IOE)
+            if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
                 return true;
             string moduleFitsToSlots = module.Restrictions.ToString();
 
             // just check if this slot's capabilities match any in the module placement restrictions
-            return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Contains(slotCapability));
+            foreach(char c in Restrictions.ToString())
+            {
+                
+            }
+
+            return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
         }
 
         public void SetValidity(ShipModule module = null)
