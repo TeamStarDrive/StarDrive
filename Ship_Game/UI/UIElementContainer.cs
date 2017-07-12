@@ -193,19 +193,21 @@ namespace Ship_Game
         }
 
         // ends the layout process and sorts all elements by their ZOrder values
-        public void EndLayout()
+        // In case the end of the layout position needs to be tracked return it on layout end. 
+        public Vector2 EndLayout()
         {
             LayoutStarted = false;
             Elements.Sort((a,b) => a.ZOrder - b.ZOrder);
+            return LayoutCursor;
         }
 
         private Vector2 LayoutNext()
         {
             if (!LayoutStarted)
                 throw new InvalidOperationException("You must call BeginLayout befor calling auto-layout methods");
-
+            
             Vector2 result = LayoutCursor;
-            LayoutCursor += LayoutStep;
+            LayoutCursor += LayoutStep;            
             return result;
         }
 
@@ -279,6 +281,9 @@ namespace Ship_Game
 
         protected CloseButton CloseButton(float x, float y)
             => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
+
+        protected UIButton ButtonMedium(string launches, int titleId)
+            => Add(new UIButton(this, ButtonStyle.Medium, LayoutNext(), launches, Localizer.Token(titleId)));
 
         protected ToggleButton ToggleButton(int height, int width, string active, string inactive, string hover, string pressed, string icon)
             => Add(new ToggleButton(LayoutNextRect(height, width), active, inactive, hover, pressed, icon, this));
