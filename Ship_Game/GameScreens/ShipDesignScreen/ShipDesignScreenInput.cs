@@ -886,32 +886,11 @@ namespace Ship_Game {
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 3000, 70);
             SideBar = new Rectangle(0, 0, 280,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-            //Rectangle w  = new Rectangle(20, ModSel.Menu.Y - 10, 32, 32);
-            //Rectangle p  = new Rectangle(80, w.Y, 32, 32);
-            //Rectangle df = new Rectangle(150, w.Y, 32, 32);
-            //Rectangle sp = new Rectangle(220, w.Y, 32, 32);
-            //wpn          = new SkinnableButton(w, "Modules/FlakTurret3x3")
-            //{
-            //    IsToggle = true,
-            //    Toggled = true
-            //};
-            //pwr = new SkinnableButton(p, "Modules/NuclearReactorMedium")
-            //{
-            //    IsToggle = true
-            //};
-            //def = new SkinnableButton(df, "Modules/SteelArmorMedium")
-            //{
-            //    IsToggle = true
-            //};
-            //spc = new SkinnableButton(sp, "Modules/sensors_2x2")
-            //{
-            //    IsToggle = true
-            //};
-            //SelectedCatTextPos = new Vector2(20f, w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2);
+      
      
             ClassifCursor =
                 new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f,
-                    ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height + 10);
+                    ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
             var cursor = new Vector2(ClassifCursor.X, ClassifCursor.Y);
             Vector2 ordersBarPos = new Vector2(cursor.X, (int) cursor.Y + 20);
             ordersBarPos.X = ordersBarPos.X - 15;
