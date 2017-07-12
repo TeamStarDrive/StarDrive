@@ -783,34 +783,8 @@ namespace Ship_Game {
                 (int) (0.4f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
             ModuleSelectionMenu = new Menu1(leftRect);
             Rectangle modSelR   = new Rectangle(0, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
-            //ModSel              = new Submenu(ScreenManager, modSelR, true);
             ModSel = new ModuleSelection(this, modSelR);
-            //ModSel.AddTab("Wpn");
-            //ModSel.AddTab("Pwr");
-            //ModSel.AddTab("Def");
-            //ModSel.AddTab("Spc");
-            //WeaponSl         = new WeaponScrollList(ModSel,this);
-            //Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
-            //activeModWindow  = new Menu1(ScreenManager, active);
-            //Rectangle acsub  = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
-            //if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
-            //{
-            //    acsub.Height = acsub.Height + 120;
-            //}
-            //ActiveModSubMenu = new Submenu(ScreenManager, acsub);
-            //ActiveModSubMenu.AddTab("Active Module");
-            //Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
-            //if (Choosefighterrect.Y + Choosefighterrect.Height >
-            //    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
-            //{
-            //    int diff = Choosefighterrect.Y + Choosefighterrect.Height - ScreenManager.GraphicsDevice
-            //                   .PresentationParameters.BackBufferHeight;
-            //    Choosefighterrect.Height = Choosefighterrect.Height - (diff + 10);
-            //}
-            //Choosefighterrect.Height = acsub.Height;
-            //ChooseFighterSub         = new Submenu(ScreenManager, Choosefighterrect);
-            //ChooseFighterSub.AddTab("Choose Fighter");
-            //ChooseFighterSL = new ScrollList(ChooseFighterSub, 40);
+           
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
             {
                 if (!hull.Value)
@@ -912,31 +886,29 @@ namespace Ship_Game {
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 3000, 70);
             SideBar = new Rectangle(0, 0, 280,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-            Rectangle w  = new Rectangle(20, ModSel.Menu.Y - 10, 32, 32);
-            Rectangle p  = new Rectangle(80, w.Y, 32, 32);
-            Rectangle df = new Rectangle(150, w.Y, 32, 32);
-            Rectangle sp = new Rectangle(220, w.Y, 32, 32);
-            wpn          = new SkinnableButton(w, "Modules/FlakTurret3x3")
-            {
-                IsToggle = true,
-                Toggled = true
-            };
-            pwr = new SkinnableButton(p, "Modules/NuclearReactorMedium")
-            {
-                IsToggle = true
-            };
-            def = new SkinnableButton(df, "Modules/SteelArmorMedium")
-            {
-                IsToggle = true
-            };
-            spc = new SkinnableButton(sp, "Modules/sensors_2x2")
-            {
-                IsToggle = true
-            };
-            SelectedCatTextPos = new Vector2(20f, w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2);
-            SearchBar =
-                new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585,
-                    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);
+            //Rectangle w  = new Rectangle(20, ModSel.Menu.Y - 10, 32, 32);
+            //Rectangle p  = new Rectangle(80, w.Y, 32, 32);
+            //Rectangle df = new Rectangle(150, w.Y, 32, 32);
+            //Rectangle sp = new Rectangle(220, w.Y, 32, 32);
+            //wpn          = new SkinnableButton(w, "Modules/FlakTurret3x3")
+            //{
+            //    IsToggle = true,
+            //    Toggled = true
+            //};
+            //pwr = new SkinnableButton(p, "Modules/NuclearReactorMedium")
+            //{
+            //    IsToggle = true
+            //};
+            //def = new SkinnableButton(df, "Modules/SteelArmorMedium")
+            //{
+            //    IsToggle = true
+            //};
+            //spc = new SkinnableButton(sp, "Modules/sensors_2x2")
+            //{
+            //    IsToggle = true
+            //};
+            //SelectedCatTextPos = new Vector2(20f, w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2);
+     
             ClassifCursor =
                 new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f,
                     ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height + 10);
@@ -970,17 +942,18 @@ namespace Ship_Game {
  
             ordersBarPos.Y = ordersBarPos.Y - 29f;
             ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "evade", "SelectionBox/icon_formation_stop", 6);
+            CombatStatusButton(ordersBarPos, "evade", "SelectionBox/icon_formation_stop", 6);            
  
             cursor = new Vector2(
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150,
+                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150f,
                 (float) ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47);
 
-            SaveButton = ButtonMedium(cursor.X, cursor.Y, "Save As...", titleId:105);
-            LoadButton = ButtonMedium(cursor.X - 78, cursor.Y, "Load", titleId:8);
-
-            ToggleOverlayButton = ButtonMedium(cursor.X - 140, cursor.Y, "Toggle Overlay", titleId:106);
-
+            BeginHLayout(cursor, -142);
+            SaveButton          = ButtonMedium("Save As...", titleId: 105);            
+            LoadButton          = ButtonMedium("Load", titleId: 8);            
+            ToggleOverlayButton = ButtonMedium("Toggle Overlay", titleId: 106);
+            Vector2 layoutEndV  = EndLayout();
+            SearchBar           = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
 
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
             HullSelectionRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285,
