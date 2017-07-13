@@ -49,7 +49,7 @@ namespace SDNative
             }
         }
         // usage:
-        // parseSubdefs("ModuleSlotList", [](node_parser slotData) {
+        // parseList("ModuleSlotList", [](node_parser slotData) {
         //     for (; slotData.node; slotData.next()) {
         //         ...
         //     }
@@ -67,7 +67,7 @@ namespace SDNative
             }
         }
         template<int N, class Func>
-        FINLINE void parseChildren(const char(&expectedName)[N], Func&& parseSubdefs)
+        FINLINE void parseChildren(const char (&expectedName)[N], Func&& parseSubdefs)
         {
             if (name.len == N - 1 && memcmp(name.str, expectedName, N - 1) == 0)
             {
