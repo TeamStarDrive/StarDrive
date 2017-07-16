@@ -462,9 +462,10 @@ namespace Ship_Game
             CollideShipAtNode(node.SW, ref ship);
         }
 
-        
+        //@HACK sometime Obj is null and crash the game. added if null mark dienextframe false. 
+        //This is surely a bug but the hack might need to be true?
         private static bool ProjectileIsDying(ref SpatialObj obj)
-            => (obj.Type & GameObjectType.Proj) != 0 && (obj.Obj as Projectile).DieNextFrame;
+            => (obj.Type & GameObjectType.Proj) != 0 && ((obj.Obj as Projectile)?.DieNextFrame ?? false);
 
 
         // projectile collision, return the first match because the projectile destroys itself anyway

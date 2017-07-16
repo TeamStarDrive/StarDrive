@@ -15,7 +15,7 @@ namespace Ship_Game
         private Submenu ActiveModSubMenu;
         private readonly ScreenManager ScreenManager;
         private Submenu ChooseFighterSub;
-        private ScrollList ChooseFighterSL;
+        public ScrollList ChooseFighterSL;
         public Rectangle Choosefighterrect;
         public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
         public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window, true)
@@ -65,6 +65,7 @@ namespace Ship_Game
                 return false;
             WeaponSl.ResetOnNextDraw = true;
             WeaponSl.indexAtTop = 0;
+
             return false;
             //base.HandleInput(ParentScreen);
         }
@@ -369,7 +370,7 @@ namespace Ship_Game
                 if (mod.PlatformModule || mod.StationModule)
                     shipRest += "Stat ";
             }
-
+            //DrawString(ref modTitlePos, string.Concat(Localizer.Token(122), ": ", rest));
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(Localizer.Token(122), ": ", rest),
                 modTitlePos, Color.Orange);
             modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing);
@@ -417,15 +418,14 @@ namespace Ship_Game
 
             string txt = ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
                 (float)(ActiveModSubMenu.Menu.Width - 20), Fonts.Arial12);
+
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
             modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
+            modTitlePos.X = 10;
             float strength = mod.CalculateModuleOffenseDefense(ParentScreen.ActiveHull.ModuleSlots.Length);
-            if (strength > 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
-                WriteLine(ref modTitlePos);
-            }
+            DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
+            
             if (!mod.isWeapon || mod.InstalledWeapon == null)
             {
                 DrawModuleStats(mod, modTitlePos, starty);
@@ -435,449 +435,163 @@ namespace Ship_Game
                 DrawWeaponStats(modTitlePos, mod, mod.InstalledWeapon, starty);
             }
         }
+        private void DrawStat(ref Vector2 cursor, string text, float stat, int toolTipID, bool isPercent = false)
+        {
+            if (stat == 0) return;
+            ParentScreen.DrawStat(ref cursor, text, stat, toolTipID, spacing: ActiveModSubMenu.Menu.Width *.33f, isPercent: isPercent);
+            WriteLine(ref cursor);
+        }
+        private void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipID)
+        {
+            if (stat.IsEmpty()) return;            
+            ParentScreen.DrawStat(ref cursor, text, stat, toolTipID, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * .33f);
+            WriteLine(ref cursor);
+        }
+        private void DrawStatShieldResist(ref Vector2 cursor, string text, float stat, int toolTipID, bool isPercent = true)
+        {
+            if (stat == 0) return;
+            ParentScreen.DrawStatColor(ref cursor, text, stat, toolTipID, Color.LightSkyBlue, spacing: ActiveModSubMenu.Menu.Width * .33f, isPercent: isPercent);
+            WriteLine(ref cursor);
+        }
+        private void DrawString(ref Vector2 cursor, string text, bool valueCheck)
+        {
+            if (!valueCheck) return;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor,
+                Color.OrangeRed);
+            WriteLine(ref cursor);
+    }
 
         private void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
         {
-            if (mod.Cost != 0)
+            DrawStat(ref modTitlePos, Localizer.Token(128),
+                (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
+            float massMod = (float)EmpireManager.Player.data.MassModifier;
+            float armourMassMod = (float)EmpireManager.Player.data.ArmourMassModifier;
+            
+            if (mod.ModuleType == ShipModuleType.Armor)
             {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(128),
-                    (float) mod.Cost * UniverseScreen.GamePaceStatic, 84);
-                WriteLine(ref modTitlePos);
+                DrawStat(ref modTitlePos, Localizer.Token(123), (armourMassMod * mod.Mass) * massMod, 79);
             }
-            if (mod.Mass != 0)
+            else
             {
-                float MassMod = (float) EmpireManager.Player.data.MassModifier;
-                float ArmourMassMod = (float) EmpireManager.Player.data.ArmourMassModifier;
-
-                if (mod.ModuleType == ShipModuleType.Armor)
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(123), (ArmourMassMod * mod.Mass) * MassMod, 79);
-                }
-                else
-                {
-                    ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(123), MassMod * mod.Mass, 79);
-                }
-                WriteLine(ref modTitlePos);
+                DrawStat(ref modTitlePos, Localizer.Token(123), massMod * mod.Mass, 79);
             }
-            if (mod.HealthMax != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(124),
-                    (float) mod.HealthMax + mod.HealthMax * (float) EmpireManager.Player.data.Traits.ModHpModifier,
-                    80);
-                WriteLine(ref modTitlePos);
-            }
+            DrawStat(ref modTitlePos, Localizer.Token(124),
+                (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.Player.data.Traits.ModHpModifier,
+                80);
             float powerDraw;
             if (mod.ModuleType != ShipModuleType.PowerPlant)
             {
-                powerDraw = -(float) mod.PowerDraw;
+                powerDraw = -(float)mod.PowerDraw;
             }
             else
             {
                 powerDraw = (mod.PowerDraw > 0f
-                    ? (float) (-mod.PowerDraw)
+                    ? (float)(-mod.PowerDraw)
                     : mod.PowerFlowMax + mod.PowerFlowMax * EmpireManager.Player.data.PowerFlowMod);
             }
-            if (powerDraw != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.MechanicalBoardingDefense != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2231), (float) mod.MechanicalBoardingDefense, 143);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.BonusRepairRate != 0f)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"),
-                    (float) (
-                        (mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.Player.data.Traits.RepairMod) *
-                        (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
-                         ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
-                            ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].RepairBonus
-                            : 1)), 97);
-                WriteLine(ref modTitlePos);
-            }
-            //Shift to next Column
+            DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
+            
+            DrawStat(ref modTitlePos, Localizer.Token(2231), (float)mod.MechanicalBoardingDefense, 143);
+
+            DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"),
+                (float)(
+                    (mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.Player.data.Traits.RepairMod) *
+                    (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
+                     ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
+                        ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].RepairBonus
+                        : 1)), 97);
+
             float MaxDepth = modTitlePos.Y;
             modTitlePos.X = modTitlePos.X + 152f;
             modTitlePos.Y = starty;
-            if (mod.thrust != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(131), (float) mod.thrust, 91);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.WarpThrust != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2064), (float) mod.WarpThrust, 92);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TurnThrust != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2260), (float) mod.TurnThrust, 148);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_power_max != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(132),
-                    mod.shield_power_max *
-                    (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
-                     ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
-                        ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].ShieldBonus
-                        : 1f) + EmpireManager.Player.data.ShieldPowerMod * mod.shield_power_max, 93);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_radius != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(133), (float) mod.shield_radius, 94);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_recharge_rate != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(134), (float) mod.shield_recharge_rate, 95);
-                WriteLine(ref modTitlePos);
-            }
+            DrawStat(ref modTitlePos, Localizer.Token(131), (float)mod.thrust, 91);
+        
+            DrawStat(ref modTitlePos, Localizer.Token(2064), (float)mod.WarpThrust, 92);
+      
+            DrawStat(ref modTitlePos, Localizer.Token(2260), (float)mod.TurnThrust, 148);
+     
+            DrawStat(ref modTitlePos, Localizer.Token(132),
+                mod.shield_power_max *
+                (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
+                 ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
+                    ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].ShieldBonus
+                    : 1f) + EmpireManager.Player.data.ShieldPowerMod * mod.shield_power_max, 93);
+            
+            DrawStat(ref modTitlePos, Localizer.Token(133), (float)mod.shield_radius, 94);
+            
+            DrawStat(ref modTitlePos, Localizer.Token(134), (float)mod.shield_recharge_rate, 95);
 
+            
             // Doc: new shield resistances, UI info.
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6162), (float)mod.shield_kinetic_resist, 209);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6163), (float)mod.shield_energy_resist, 210);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6164), (float)mod.shield_explosive_resist, 211);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6165), (float)mod.shield_missile_resist, 212);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6166), (float)mod.shield_flak_resist, 213);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6167), (float)mod.shield_hybrid_resist, 214);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6168), (float)mod.shield_railgun_resist, 215);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6169), (float)mod.shield_subspace_resist, 216);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6170), (float)mod.shield_warp_resist, 217);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6171), (float)mod.shield_beam_resist, 218);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222);
 
-            if (mod.shield_kinetic_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6162), (float) mod.shield_kinetic_resist, 209
-                    , Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_energy_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6163), (float) mod.shield_energy_resist, 210,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_explosive_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6164), (float) mod.shield_explosive_resist, 211,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_missile_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6165), (float) mod.shield_missile_resist, 212,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_flak_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6166), (float) mod.shield_flak_resist, 213,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_hybrid_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6167), (float) mod.shield_hybrid_resist, 214,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_railgun_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6168), (float) mod.shield_railgun_resist, 215,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_subspace_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6169), (float) mod.shield_subspace_resist, 216,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_warp_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6170), (float) mod.shield_warp_resist, 217,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_beam_resist != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6171), (float) mod.shield_beam_resist, 218,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.shield_threshold != 0)
-            {
-                ParentScreen.DrawStatColor(ref modTitlePos, Localizer.Token(6176), (float) mod.shield_threshold, 222,
-                    Color.LightSkyBlue, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-
-
-            if (mod.SensorRange != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(126), (float) mod.SensorRange, 96);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.SensorBonus != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6121), (float) mod.SensorBonus, 167);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.HealPerTurn != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TransporterRange != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(126), (float) mod.TransporterRange, 168);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TransporterPower != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6123), (float) mod.TransporterPower, 169);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TransporterTimerConstant != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6122), (float) mod.TransporterTimerConstant, 170);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TransporterOrdnance != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6124), (float) mod.TransporterOrdnance, 171);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TransporterTroopAssault != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6135), (float) mod.TransporterTroopAssault, 187);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TransporterTroopLanding != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6128), (float) mod.TransporterTroopLanding, 172);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.OrdinanceCapacity != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2129), (float) mod.OrdinanceCapacity, 124);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.Cargo_Capacity != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(119), (float) mod.Cargo_Capacity, 109);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.OrdnanceAddedPerSecond != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6120), (float) mod.OrdnanceAddedPerSecond, 162);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.InhibitionRadius != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2233), (float) mod.InhibitionRadius, 144);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TroopCapacity != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(336), (float) mod.TroopCapacity, 173);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.PowerStoreMax != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(2235),
-                    (float) (mod.PowerStoreMax + mod.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier),
-                    145);
-                WriteLine(ref modTitlePos);
-            }
+            DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
+            DrawStat(ref modTitlePos, Localizer.Token(6121), (float)mod.SensorBonus, 167);
+            DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
+            DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.TransporterRange, 168);
+            DrawStat(ref modTitlePos, Localizer.Token(6123), (float)mod.TransporterPower, 169);
+            DrawStat(ref modTitlePos, Localizer.Token(6122), (float)mod.TransporterTimerConstant, 170);
+            DrawStat(ref modTitlePos, Localizer.Token(6124), (float)mod.TransporterOrdnance, 171);
+            DrawStat(ref modTitlePos, Localizer.Token(6135), (float)mod.TransporterTroopAssault, 187);
+            DrawStat(ref modTitlePos, Localizer.Token(6128), (float)mod.TransporterTroopLanding, 172);
+            DrawStat(ref modTitlePos, Localizer.Token(2129), (float)mod.OrdinanceCapacity, 124);
+            DrawStat(ref modTitlePos, Localizer.Token(119), (float)mod.Cargo_Capacity, 109);
+            DrawStat(ref modTitlePos, Localizer.Token(6120), (float)mod.OrdnanceAddedPerSecond, 162);
+            DrawStat(ref modTitlePos, Localizer.Token(2233), (float)mod.InhibitionRadius, 144);
+            DrawStat(ref modTitlePos, Localizer.Token(336), (float)mod.TroopCapacity, 173);
+            DrawStat(ref modTitlePos, Localizer.Token(2235),
+                (float)(mod.PowerStoreMax + mod.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier),
+                145);
+            DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), 178);
             //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
-            if (mod.PowerDrawAtWarp != 0f)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6011), (float) (-mod.PowerDrawAtWarp), 178);
-                WriteLine(ref modTitlePos);
-            }
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM && mod.ECM != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6004), (float) mod.ECM, 154, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.ModuleType == ShipModuleType.Hangar && mod.hangarTimerConstant != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(136), (float) mod.hangarTimerConstant, 98);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.explodes)
-            {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Explodes", modTitlePos,
-                    Color.OrangeRed);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.KineticResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6142), (float) mod.KineticResist, 189,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.EnergyResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6143), (float) mod.EnergyResist, 190,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.GuidedResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6144), (float) mod.GuidedResist, 191,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.MissileResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6145), (float) mod.MissileResist, 192,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.HybridResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6146), (float) mod.HybridResist, 193,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.BeamResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6147), (float) mod.BeamResist, 194, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.ExplosiveResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6148), (float) mod.ExplosiveResist, 195,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.InterceptResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6149), (float) mod.InterceptResist, 196,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.RailgunResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6150), (float) mod.RailgunResist, 197,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.SpaceBombResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6151), (float) mod.SpaceBombResist, 198,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.BombResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6152), (float) mod.BombResist, 199, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.BioWeaponResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6153), (float) mod.BioWeaponResist, 200,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.DroneResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6154), (float) mod.DroneResist, 201,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.WarpResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6155), (float) mod.WarpResist, 202, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TorpedoResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6156), (float) mod.TorpedoResist, 203,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.CannonResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6157), (float) mod.CannonResist, 204,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.SubspaceResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6158), (float) mod.SubspaceResist, 205,
-                    isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.PDResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6159), (float) mod.PDResist, 206, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.FlakResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6160), (float) mod.FlakResist, 207, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.APResist != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6161), (float) mod.APResist, 208, isPercent: true);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.DamageThreshold != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6175), (float) mod.DamageThreshold, 221);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.EMP_Protection != 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6174), (float) mod.EMP_Protection, 219);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.FixedTracking > 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, Localizer.Token(6187), (float) mod.FixedTracking, 231);
-                WriteLine(ref modTitlePos);
-            }
-            if (mod.TargetTracking > 0)
-            {
-                ParentScreen.DrawStat(ref modTitlePos, "+" + Localizer.Token(6186), (float) mod.TargetTracking, 226);
-                WriteLine(ref modTitlePos);
-            }
 
-
-            if (mod.PermittedHangarRoles.Length > 0)
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
             {
-                modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + (float) Fonts.Arial12Bold.LineSpacing;
-                Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                    string.Concat(Localizer.Token(137), " : ", mod.hangarShipUID), shipSelectionPos, Color.Orange);
-                Rectangle r = ChooseFighterSub.Menu;
-                r.Y = r.Y + 25;
-                r.Height = r.Height - 25;
-                var sel = new Selector(r, new Color(0, 0, 0, 210));
-                sel.Draw(ScreenManager.SpriteBatch);
-                ParentScreen.UpdateHangarOptions(mod);
-                ChooseFighterSub.Draw();
-                ChooseFighterSL.Draw(ScreenManager.SpriteBatch);
-                Vector2 bCursor = new Vector2((float) (ChooseFighterSub.Menu.X + 15),
-                    (float) (ChooseFighterSub.Menu.Y + 25));
-                for (int i = ChooseFighterSL.indexAtTop;
-                    i < ChooseFighterSL.Entries.Count && i < ChooseFighterSL.indexAtTop +
-                    ChooseFighterSL.entriesToDisplay;
-                    i++)
-                {
-                    ScrollList.Entry e = ChooseFighterSL.Entries[i];
-                    bCursor.Y = (float) e.clickRect.Y;
-                    ScreenManager.SpriteBatch.Draw(
-                        ResourceManager.TextureDict[
-                            ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath],
-                        new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        (!string.IsNullOrEmpty((e.item as Ship).VanityName)
-                            ? (e.item as Ship).VanityName
-                            : (e.item as Ship).Name), tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
-                }
+                DrawStat(ref modTitlePos, Localizer.Token(6004), (float) mod.ECM, 154, isPercent: true);
+                
             }
+            if (mod.ModuleType == ShipModuleType.Hangar)
+            {
+                DrawStat(ref modTitlePos, Localizer.Token(136), (float) mod.hangarTimerConstant, 98);                
+            }
+            DrawString(ref modTitlePos, "Explodes",  mod.explodes);
+            DrawStat(ref modTitlePos, Localizer.Token(6142), (float)mod.KineticResist, 189, true);
+            DrawStat(ref modTitlePos, Localizer.Token(6143), (float)mod.EnergyResist, 190,  true);
+            DrawStat(ref modTitlePos, Localizer.Token(6144), (float)mod.GuidedResist, 191,  true);
+            DrawStat(ref modTitlePos, Localizer.Token(6145), (float)mod.MissileResist, 192, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6146), (float)mod.HybridResist, 193, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6147), (float)mod.BeamResist, 194, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6148), (float)mod.ExplosiveResist, 195, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6149), (float)mod.InterceptResist, 196, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6150), (float)mod.RailgunResist, 197, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6151), (float)mod.SpaceBombResist, 198, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6152), (float)mod.BombResist, 199, isPercent: true);            
+            DrawStat(ref modTitlePos, Localizer.Token(6153), (float)mod.BioWeaponResist, 200, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6154), (float)mod.DroneResist, 201, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6155), (float)mod.WarpResist, 202, isPercent: true);            
+            DrawStat(ref modTitlePos, Localizer.Token(6156), (float)mod.TorpedoResist, 203, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6157), (float)mod.CannonResist, 204, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6158), (float)mod.SubspaceResist, 205, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6159), (float)mod.PDResist, 206, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6175), (float)mod.DamageThreshold, 221);
+            DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
+            DrawStat(ref modTitlePos, Localizer.Token(6187), (float)mod.FixedTracking, 231);
+            DrawStat(ref modTitlePos, $"+{Localizer.Token(6186)}", (float)mod.TargetTracking, 226);
+            
+            
         }
 
         private void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
@@ -901,25 +615,25 @@ namespace Ship_Game
             float maxHealth = m.HealthMax + EmpireManager.Player.data.Traits.ModHpModifier * m.HealthMax;
             float power     = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
-            DrawStatLine(ref cursor, Localizer.Token(128), cost, 84);
-            DrawStatLine(ref cursor, Localizer.Token(123), mass, 79);
-            DrawStatLine(ref cursor, Localizer.Token(124), maxHealth, 80);
-            DrawStatLine(ref cursor, Localizer.Token(125), power, 81);
-            DrawStatLine(ref cursor, Localizer.Token(126), range, 82);
+            DrawStat(ref cursor, Localizer.Token(128), cost, 84);
+            DrawStat(ref cursor, Localizer.Token(123), mass, 79);
+            DrawStat(ref cursor, Localizer.Token(124), maxHealth, 80);
+            DrawStat(ref cursor, Localizer.Token(125), power, 81);
+            DrawStat(ref cursor, Localizer.Token(126), range, 82);
 
 
             if (isBeam)
             {
-                DrawStatLine(ref cursor, Localizer.Token(repair ? 135 : 127), beamDamage, repair ? 166 : 83);
-                DrawStatLine(ref cursor, "Duration", w.BeamDuration, 188);
+                DrawStat(ref cursor, Localizer.Token(repair ? 135 : 127), beamDamage, repair ? 166 : 83);
+                DrawStat(ref cursor, "Duration", w.BeamDuration, 188);
             }
             else
-                DrawStatLine(ref cursor, Localizer.Token(127), isBallistic ? ballisticDamage : energyDamage, 83);
+                DrawStat(ref cursor, Localizer.Token(127), isBallistic ? ballisticDamage : energyDamage, 83);
 
             cursor.X += 152f;
             cursor.Y = startY;
 
-            if (!isBeam) DrawStatLine(ref cursor, Localizer.Token(129), speed, 85);
+            if (!isBeam) DrawStat(ref cursor, Localizer.Token(129), speed, 85);
 
             if (rawDamage > 0f)
             {
@@ -928,61 +642,57 @@ namespace Ship_Game
                     ? (beamDamage / delay)
                     : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
 
-                DrawStatLine(ref cursor, "DPS", dps, 86);
-                if (salvos > 1) DrawStatLine(ref cursor, "Salvo", salvos, 182);
+                DrawStat(ref cursor, "DPS", dps, 86);
+                if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
             }
 
-            if (w.BeamPowerCostPerSecond > 0f)
-                DrawStatLine(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
-            DrawStatLine(ref cursor, "Delay", delay, 183);
+            
+            DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
+            DrawStat(ref cursor, "Delay", delay, 183);
 
-            if (w.EMPDamage > 0f)
-                DrawStatLine(ref cursor, "EMP", (1f / delay) * w.EMPDamage, 110);
+            
+            DrawStat(ref cursor, "EMP", (1f / delay) * w.EMPDamage, 110);
+            float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
+            DrawStat(ref cursor, "Siphon", siphon, 184);
+            
+            float tractor = w.MassDamage + w.MassDamage * beamMultiplier;
+            DrawStat(ref cursor, "Tractor", tractor, 185);
+            float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
+            DrawStat(ref cursor, "Pwr Dmg", powerDamage, 186);         
 
-            if (w.SiphonDamage > 0f)
-            {
-                float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
-                DrawStatLine(ref cursor, "Siphon", siphon, 184);
-            }
-            if (w.MassDamage > 0f)
-            {
-                float tractor = w.MassDamage + w.MassDamage * beamMultiplier;
-                DrawStatLine(ref cursor, "Tractor", tractor, 185);
-            }
-            if (w.PowerDamage > 0f)
-            {
-                float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
-                DrawStatLine(ref cursor, "Pwr Dmg", powerDamage, 186);
-            }
-
-            DrawStatLine(ref cursor, Localizer.Token(130), m.FieldOfFire, 88);
-
-            if (w.OrdinanceRequiredToFire > 0f)
-                DrawStatLine(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, 89);
-            if (w.PowerRequiredToFire > 0f) DrawStatLine(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, 90);
+            DrawStat(ref cursor, Localizer.Token(130), m.FieldOfFire, 88);
+            DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, 89);
+            
+                
+            DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, 90);
 
             if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
                 DrawStatPercentLine(ref cursor, Localizer.Token(6005), w.ECMResist, 155);
 
-            if (w.EffectVsArmor != 1f)   DrawResistancePercent(ref cursor, w, "VS Armor", WeaponStat.Armor);
-            if (w.EffectVSShields != 1f) DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
-            if (w.ShieldPenChance > 0)   DrawStatLine(ref cursor, "Shield Pen", w.ShieldPenChance, 181);
-            if (m.OrdinanceCapacity != 0)   DrawStatLine(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
+            //if (w.EffectVsArmor != 1f)
+                DrawResistancePercent(ref cursor, w, "VS Armor", WeaponStat.Armor);
+            //if (w.EffectVSShields != 1f)
+                DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
+            //if (w.ShieldPenChance > 0)
+                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance, 181);            
+                DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
 
             if (w.TruePD)
             {
-                WriteLine(ref cursor, 2);
-                cursor.X -= 152f;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target Ships", cursor, Color.LightCoral);
+                //WriteLine(ref cursor, 2);
+                //cursor.X -= 152f;
+                //ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target Ships", cursor, Color.LightCoral);
+                DrawString(ref cursor, "Cannot Target Ships" );
             }
             else 
             if (w.Excludes_Fighters || w.Excludes_Corvettes ||
                 w.Excludes_Capitals || w.Excludes_Stations)
             {
-                WriteLine(ref cursor, 2);
-                cursor.X -= 152f;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target:", cursor, Color.LightCoral);
-                cursor.X += 120f;
+                //WriteLine(ref cursor, 2);
+                //cursor.X -= 152f;
+                //ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target:", cursor, Color.LightCoral);
+                //cursor.X += 120f;
+                DrawString(ref cursor, "Cannot Target:");
 
                 if (w.Excludes_Fighters)
                 {
@@ -998,7 +708,7 @@ namespace Ship_Game
 
         private void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, int tooltipId)
         {
-            ParentScreen.DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
+            DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
             WriteLine(ref cursor);
         }
         private void DrawStatLine(ref Vector2 cursor, string text, float stat, int tooltipId)
@@ -1007,7 +717,7 @@ namespace Ship_Game
             WriteLine(ref cursor);
         }
         private void WriteLine(ref Vector2 cursor, string text)
-        {
+        {          
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
             WriteLine(ref cursor);
         }
@@ -1061,14 +771,15 @@ namespace Ship_Game
 
         private void DrawResistancePercent(ref Vector2 cursor, Weapon weapon, string description, WeaponStat stat)
         {
-            float effect = ModifiedWeaponStat(weapon, stat) * 100f;
-            DrawVSResist(ref cursor, description, $"{effect}%", 147);
-            cursor.Y += Fonts.Arial12Bold.LineSpacing;
+            float effect = ModifiedWeaponStat(weapon, stat) ;
+            if (effect == 1 ) return;
+            DrawStat(ref cursor, description, effect, 147, isPercent: true);
+            
         }
 
         private void DrawVSResist(ref Vector2 cursor, string words, string stat, int tooltipId)
-        {
-            ParentScreen.DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen, 105);
+        {            
+            DrawStat(ref cursor, words, stat, tooltipId);
         }
 
         private float GetHullDamageBonus()
