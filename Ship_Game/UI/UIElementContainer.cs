@@ -365,7 +365,8 @@ namespace Ship_Game
         protected UILabel Label(Vector2 pos, int titleId) => Add(new UILabel(this, pos, titleId));
         protected UILabel Label(Vector2 pos, string text, SpriteFont font) => Add(new UILabel(this, pos, text, font));
         protected UILabel Label(Vector2 pos, int titleId, SpriteFont font) => Add(new UILabel(this, pos, titleId, font));
-
+        protected UILabel Label(Vector2 pos, string text, SpriteFont font, Color color) => Add(new UILabel(this, pos, text, font,color));
+        protected UILabel Label(Vector2 pos, int titleId, SpriteFont font, Color color) => Add(new UILabel(this, pos, titleId, font, color));
 
         protected UILabel Label(float x, float y, string text) => Label(new Vector2(x, y), text);
         protected UILabel Label(float x, float y, int titleId) => Label(new Vector2(x, y), titleId);
@@ -375,6 +376,10 @@ namespace Ship_Game
 
         protected UILabel Label(string text) => Add(new UILabel(this, LayoutNext(), text));
         protected UILabel Label(int titleId) => Add(new UILabel(this, LayoutNext(), titleId));
+        protected UILabel Label(string text, Color color) => Add(new UILabel(this, LayoutNext(), text, color));
+        protected UILabel Label(int titleId, Color color) => Add(new UILabel(this, LayoutNext(), titleId, color));
+        protected UILabel Label(string text, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), text, font, color));
+        protected UILabel Label(int titleId, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), titleId, font, color));
         protected UILabel Label(int titleId, UILabel.ClickHandler click)
         {
             return Label(Localizer.Token(titleId), click);

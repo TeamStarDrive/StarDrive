@@ -696,7 +696,6 @@ namespace Ship_Game
                         ValueToModify = new Ref<bool>(() => this.ship.FightersOut, (bool x) =>
                         {
                             this.ship.FightersOut = x;
-                            /// !this.ship.ManualHangarOverride;
                         })
                     };
                     this.Orders.Add(ob);
