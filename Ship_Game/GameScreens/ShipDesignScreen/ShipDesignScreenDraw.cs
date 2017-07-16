@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -543,6 +544,14 @@ namespace Ship_Game
             Turn = (float) MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float) (this.StatsSub.Menu.X + 10), (float) (this.ShipStats.Menu.Y + 33));
 
+            void hullBonus(float stat, string text)
+            {
+                if (stat > 0 || stat < 0) return;                                
+                Label(string.Concat($"{0}%  text", (stat * 100f).ToString(CultureInfo.CurrentCulture)), Fonts.Verdana12, Color.Orange);
+            }
+
+            BeginVLayout(Cursor, Fonts.Arial12Bold.LineSpacing + 2);
+
             if (bonus != null) //Added by McShooterz: Draw Hull Bonuses
             {
                 Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 145, HullSelectionRect.Y + 31);
@@ -550,61 +559,25 @@ namespace Ship_Game
                     bonus.SpeedBonus != 0 || bonus.CargoBonus != 0 || bonus.DamageBonus != 0 ||
                     bonus.FireRateBonus != 0 || bonus.RepairBonus != 0 || bonus.CostBonus != 0)
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold, Localizer.Token(6015), LCursor,
-                        Color.Orange);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Verdana14Bold.LineSpacing + 2);
+                    Label(Localizer.Token(6015), Fonts.Verdana14Bold, Color.Orange);
                 }
-                if (bonus.ArmoredBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6016), bonus.ArmoredBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.ShieldBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, "Shield Strength", bonus.ShieldBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.SensorBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6017), bonus.SensorBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.SpeedBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6018), bonus.SpeedBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.CargoBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6019), bonus.CargoBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.DamageBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, "Weapon Damage", bonus.DamageBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.FireRateBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6020), bonus.FireRateBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.RepairBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6013), bonus.RepairBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                }
-                if (bonus.CostBonus != 0)
-                {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6021), bonus.CostBonus);
-                    LCursor.Y = LCursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
-                }
+                
+                hullBonus(bonus.ArmoredBonus, Localizer.HullArmorBonus);
+                hullBonus(bonus.ShieldBonus, Localizer.HullShieldBonus);
+                hullBonus(bonus.SensorBonus, Localizer.HullSensorBonus);
+                hullBonus(bonus.SpeedBonus, Localizer.HullSpeedBonus);
+                hullBonus(bonus.CargoBonus, Localizer.HullCargoBonus);
+                hullBonus(bonus.DamageBonus, Localizer.HullDamageBonus);
+                hullBonus(bonus.FireRateBonus, Localizer.HullFireRateBonus);
+                hullBonus(bonus.RepairBonus, Localizer.HullRepairBonus);
+                hullBonus(bonus.CostBonus, Localizer.HullCostBonus);
             }
+            Cursor = EndLayout();
             //Added by McShooterz: hull bonus starting cost
             DrawStat(ref Cursor, Localizer.Token(109) + ":",
                 ((int) Cost + (bonus?.StartingCost ?? 0)) * (1f - bonus?.CostBonus ?? 0), 99);
             Cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
-
+         
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
                 Upkeep = GetMaintCostShipyardProportional(this.ActiveHull, Cost, EmpireManager.Player);
@@ -883,35 +856,32 @@ namespace Ship_Game
             this.DrawRequirement(ref CursorReq, Localizer.Token(121), EmptySlots);
         }
 
-        private void DrawHullBonus(ref Vector2 Cursor, string words, float stat)
-        {
-            ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12,
-                string.Concat((stat * 100f).ToString(), "% ", words), Cursor, Color.Orange);
-        }
-
-        public void DrawStatColor(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, Color color
-            , bool doGoodBadTint = true, bool isPercent = false)
+       public void DrawStatColor(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, Color color
+            , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
             SpriteFont font = Fonts.Arial12Bold;
-            float amount = Spacing(120f);
-            DrawString(Cursor, color, words, font);
+            float amount = Spacing(spacing);
+            Vector2 statCursor = new Vector2(Cursor.X + amount , Cursor.Y);
+            Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
+            DrawString(statNameCursor, color, words, font);
             string numbers = "0.0";
             numbers = isPercent ? stat.ToString("P1") : GetNumberString(stat);
-            if (stat == 0f) numbers = "0.0";
-            Cursor = FontSpace(Cursor, amount, numbers, font);
+            if (stat < .01f) numbers = "0.0";
+            
+            //Cursor = FontSpace(Cursor, amount, numbers, font);
 
             color = doGoodBadTint ? (stat > 0f ? Color.LightGreen : Color.LightPink) : Color.White;
-            DrawString(Cursor, color, numbers, font);
+            DrawString(statCursor, color, numbers, font);
 
-            Cursor = FontBackSpace(Cursor, amount, numbers, font);
+            //Cursor = FontBackSpace(Cursor, amount, numbers, font);
 
             CheckToolTip(Tooltip_ID, Cursor, words, numbers, font, MousePos);
         }
 
         public void DrawStat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, bool doGoodBadTint = true
-            , bool isPercent = false)
+            , bool isPercent = false, float spacing =165)
         {
-            DrawStatColor(ref Cursor, words, stat, Tooltip_ID, Color.White, doGoodBadTint, isPercent);
+            DrawStatColor(ref Cursor, words, stat, Tooltip_ID, Color.White, doGoodBadTint, isPercent, spacing);
         }
 
         public void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID, Color nameColor,
@@ -919,12 +889,13 @@ namespace Ship_Game
         {
             SpriteFont font = Fonts.Arial12Bold;
             float amount = Spacing(spacing);
+            Vector2 statCursor = FontSpace(Cursor, -40, words, font);
             Color color = nameColor;
             DrawString(Cursor, color, words, font);
-            Cursor = FontSpace(Cursor, amount, words, font);
+            //Cursor = FontSpace(Cursor, amount, words, font);
             color = statColor;
-            DrawString(Cursor, color, stat, font);
-            Cursor = FontBackSpace(Cursor, amount, stat, font);
+            DrawString(statCursor, color, stat, font);
+            //Cursor = FontBackSpace(Cursor, amount, stat, font);
             CheckToolTip(Tooltip_ID, Cursor, words, stat, font, MousePos);
         }
 

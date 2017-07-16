@@ -555,7 +555,7 @@ namespace Ship_Game {
 
         private void HandleInputZoom(InputState input)
         {
-            if (!ModuleSelectionMenu.Menu.HitTest(input.CursorPosition)
+            if (!ModSel.Window.HitTest(input.CursorPosition)
                 && !HullSelectionRect.HitTest(input.CursorPosition))
                 //&& !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
             {
@@ -778,13 +778,13 @@ namespace Ship_Game {
             {
                 LowRes = true;
             }
-            Rectangle leftRect = new Rectangle(5, 45, 405,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45 -
-                (int) (0.4f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
-            ModuleSelectionMenu = new Menu1(leftRect);
-            Rectangle modSelR   = new Rectangle(0, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
+            //Rectangle leftRect = new Rectangle(5, 45, 405,
+            //    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45 -
+            //    (int) (0.4f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
+            //ModuleSelectionMenu = new Menu1(leftRect);
+            Rectangle modSelR   = new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
             ModSel = new ModuleSelection(this, modSelR);
-           
+            ChooseFighterSL = ModSel.ChooseFighterSL;
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
             {
                 if (!hull.Value)

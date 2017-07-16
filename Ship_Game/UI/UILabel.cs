@@ -43,8 +43,17 @@ namespace Ship_Game
             LabelText = text;
             LabelFont = font;
         }
+
         public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font) : this(parent, pos, Localizer.Token(titleId), font)
         {
+        }
+        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font, Color color) : this(parent, pos, Localizer.Token(titleId), font)
+        {
+            Color = color;
+        }
+        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font, Color color) : this(parent, pos, text, font)
+        {
+            Color = color;
         }
         public UILabel(UIElementV2 parent, Vector2 pos, int titleId) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
         {
@@ -52,8 +61,14 @@ namespace Ship_Game
         public UILabel(UIElementV2 parent, Vector2 pos, string text) : this(parent, pos, text, Fonts.Arial12Bold)
         {
         }
-
-
+        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, Color color) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
+        {
+            Color = color;
+        }
+        public UILabel(UIElementV2 parent, Vector2 pos, string text, Color color) : this(parent, pos, text, Fonts.Arial12Bold)
+        {
+            Color = color;
+        }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
