@@ -403,9 +403,12 @@ namespace Ship_Game
         }
 
 
-        public static Ship GetShipTemplate(string shipName)
-        {
-            return ShipsDict[shipName];
+        public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
+        {                       
+            if (throwIfError)
+                return ShipsDict[shipName];
+            ShipsDict.TryGetValue(shipName, out Ship ship);
+            return ship;
         }
 
         public static bool ShipTemplateExists(string shipName)
