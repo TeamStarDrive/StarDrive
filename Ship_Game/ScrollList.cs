@@ -42,9 +42,9 @@ namespace Ship_Game
         {
             this.Parent = p;
             this.entriesToDisplay = (p.Menu.Height - 25) / 40;
-            this.ScrollUp = new Rectangle(p.Menu.X + p.Menu.Width - 20, p.Menu.Y + 30, ResourceManager.TextureDict["NewUI/scrollbar_arrow_up"].Width, ResourceManager.TextureDict["NewUI/scrollbar_arrow_up"].Height);
-            this.ScrollDown = new Rectangle(p.Menu.X + p.Menu.Width - 20, p.Menu.Y + p.Menu.Height - 14, ResourceManager.TextureDict["NewUI/scrollbar_arrow_down"].Width, ResourceManager.TextureDict["NewUI/scrollbar_arrow_down"].Height);
-            this.ScrollBarHousing = new Rectangle(this.ScrollUp.X + 1, this.ScrollUp.Y + this.ScrollUp.Height + 3, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, this.ScrollDown.Y - this.ScrollUp.Y - this.ScrollUp.Height - 6);
+            this.ScrollUp = new Rectangle(p.Menu.X + p.Menu.Width - 20, p.Menu.Y + 30, ResourceManager.Texture("NewUI/scrollbar_arrow_up").Width, ResourceManager.Texture("NewUI/scrollbar_arrow_up").Height);
+            this.ScrollDown = new Rectangle(p.Menu.X + p.Menu.Width - 20, p.Menu.Y + p.Menu.Height - 14, ResourceManager.Texture("NewUI/scrollbar_arrow_down").Width, ResourceManager.Texture("NewUI/scrollbar_arrow_down").Height);
+            this.ScrollBarHousing = new Rectangle(this.ScrollUp.X + 1, this.ScrollUp.Y + this.ScrollUp.Height + 3, ResourceManager.Texture("NewUI/scrollbar_bar_mid").Width, this.ScrollDown.Y - this.ScrollUp.Y - this.ScrollUp.Height - 6);
             this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, 0);
         }
 

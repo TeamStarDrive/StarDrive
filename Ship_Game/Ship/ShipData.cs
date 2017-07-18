@@ -227,6 +227,12 @@ namespace Ship_Game
             return RoleArray[(int)Role];
         }
 
+        public static string GetRole(RoleName role)
+        {
+            return RoleArray[(int)role];
+        }
+
+
         public string GetCategory()
         {
             return CategoryArray[(int)ShipCategory];

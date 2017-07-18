@@ -247,57 +247,57 @@ namespace Ship_Game {
                 else
                     e.clickRectHover = 0;
             }
-            if (ModSel.HandleInput(input))
+            if (ModSel.HandleInput(input,ActiveModule,ActiveHangarModule))
                 return true;
-            if (ActiveModule != null)
-            {
-                if (ActiveModule.ModuleType == ShipModuleType.Hangar && !ActiveModule.IsTroopBay
-                    && !ActiveModule.IsSupplyBay)
-                {
-                    UpdateHangarOptions(ActiveModule);
-                    ChooseFighterSL.HandleInput(input);
-                    for (int index = ChooseFighterSL.indexAtTop;
-                        index < ChooseFighterSL.Copied.Count
-                        && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
-                        ++index)
-                    {
-                        ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-                        if (entry.clickRect.HitTest(mousePos))
-                        {
-                            selector = new Selector(entry.clickRect);
-                            entry.clickRectHover = 1;
-                            selector = new Selector(entry.clickRect);
-                            if (!input.InGameSelect) continue;
+            //if (ActiveModule != null)
+            //{
+            //    if (ActiveModule.ModuleType == ShipModuleType.Hangar && !ActiveModule.IsTroopBay
+            //        && !ActiveModule.IsSupplyBay)
+            //    {
+            //        UpdateHangarOptions(ActiveModule);
+            //        ChooseFighterSL.HandleInput(input);
+            //        for (int index = ChooseFighterSL.indexAtTop;
+            //            index < ChooseFighterSL.Copied.Count
+            //            && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
+            //            ++index)
+            //        {
+            //            ScrollList.Entry entry = ChooseFighterSL.Copied[index];
+            //            if (entry.clickRect.HitTest(mousePos))
+            //            {
+            //                selector = new Selector(entry.clickRect);
+            //                entry.clickRectHover = 1;
+            //                selector = new Selector(entry.clickRect);
+            //                if (!input.InGameSelect) continue;
 
-                            ActiveModule.hangarShipUID = (entry.item as Ship).Name;
-                            HangarShipUIDLast = (entry.item as Ship).Name;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            return true;
-                        }
-                    }
-                }
-            }
-            else if (HighlightedModule != null && HighlightedModule.ModuleType == ShipModuleType.Hangar
-                     && (!HighlightedModule.IsTroopBay && !HighlightedModule.IsSupplyBay))
-            {
-                ChooseFighterSL.HandleInput(input);
-                for (int index = ChooseFighterSL.indexAtTop;
-                    index < ChooseFighterSL.Copied.Count
-                    && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
-                    ++index)
-                {
-                    ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-                    if (!entry.clickRect.HitTest(mousePos)) continue;
-                    selector = new Selector(entry.clickRect);
-                    entry.clickRectHover = 1;
-                    selector = new Selector(entry.clickRect);
-                    if (!input.InGameSelect) continue;
-                    HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
-                    HangarShipUIDLast = (entry.item as Ship).Name;
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    return true;
-                }
-            }
+            //                ActiveModule.hangarShipUID = (entry.item as Ship).Name;
+            //                HangarShipUIDLast = (entry.item as Ship).Name;
+            //                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            //                return true;
+            //            }
+            //        }
+            //    }
+            //}
+            //else if (HighlightedModule != null && HighlightedModule.ModuleType == ShipModuleType.Hangar
+            //         && (!HighlightedModule.IsTroopBay && !HighlightedModule.IsSupplyBay))
+            //{
+            //    ChooseFighterSL.HandleInput(input);
+            //    for (int index = ChooseFighterSL.indexAtTop;
+            //        index < ChooseFighterSL.Copied.Count
+            //        && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
+            //        ++index)
+            //    {
+            //        ScrollList.Entry entry = ChooseFighterSL.Copied[index];
+            //        if (!entry.clickRect.HitTest(mousePos)) continue;
+            //        selector = new Selector(entry.clickRect);
+            //        entry.clickRectHover = 1;
+            //        selector = new Selector(entry.clickRect);
+            //        if (!input.InGameSelect) continue;
+            //        HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
+            //        HangarShipUIDLast = (entry.item as Ship).Name;
+            //        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            //        return true;
+            //    }
+            //}
             if (HullSelectionRect.HitTest(input.CursorPosition)
                 && input.LeftMouseDown || ModSel.Menu.HitTest(input.CursorPosition)
                 && input.LeftMouseDown)
@@ -326,8 +326,8 @@ namespace Ship_Game {
                 float num2 = input.CursorPosition.Y - StartDragPos.Y;
                 Camera.Pos += new Vector2(-num1, -num2);
                 StartDragPos = input.CursorPosition;
-                cameraPosition.X += -num1;
-                cameraPosition.Y += -num2;
+                CameraPosition.X += -num1;
+                CameraPosition.Y += -num2;
             }
             else
             {
@@ -784,7 +784,7 @@ namespace Ship_Game {
             //ModuleSelectionMenu = new Menu1(leftRect);
             Rectangle modSelR   = new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
             ModSel = new ModuleSelection(this, modSelR);
-            ChooseFighterSL = ModSel.ChooseFighterSL;
+            //ChooseFighterSL = ModSel.ChooseFighterSL;
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
             {
                 if (!hull.Value)
@@ -797,18 +797,18 @@ namespace Ship_Game {
             float width                  = Viewport.Width;
             Viewport viewport            = Viewport;
             float aspectRatio            = width / viewport.Height;
-            offset                       = new Vector2();
+            Offset                       = new Vector2();
             Viewport viewport1           = Viewport;
-            offset.X                     = viewport1.Width / 2 - 256;
+            Offset.X                     = viewport1.Width / 2 - 256;
             Viewport viewport2           = Viewport;
-            offset.Y                     = viewport2.Height / 2 - 256;
+            Offset.Y                     = viewport2.Height / 2 - 256;
             Camera                       = new Camera2D();
             Camera2D vector2             = Camera;
             Viewport viewport3           = Viewport;
             float single                 = viewport3.Width / 2f;
             Viewport viewport4           = Viewport;
             vector2.Pos                  = new Vector2(single, viewport4.Height / 2f);
-            Vector3 camPos               = cameraPosition * new Vector3(-1f, 1f, 1f);
+            Vector3 camPos               = CameraPosition * new Vector3(-1f, 1f, 1f);
             View                         = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
                          Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
                             new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
@@ -846,7 +846,7 @@ namespace Ship_Game {
             {
                 while (radius > xDistance)
                 {
-                    camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
+                    camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
                     View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
                                  Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
                                     new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
@@ -859,14 +859,14 @@ namespace Ship_Game {
                         Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-                    cameraPosition.Z = cameraPosition.Z + 1f;
+                    CameraPosition.Z = CameraPosition.Z + 1f;
                 }
             }
             else
             {
                 while (radius < xDistance)
                 {
-                    camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
+                    camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
                     View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
                                  Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
                                     new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
@@ -879,7 +879,7 @@ namespace Ship_Game {
                         Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-                    cameraPosition.Z = cameraPosition.Z - 1f;
+                    CameraPosition.Z = CameraPosition.Z - 1f;
                 }
             }
             BlackBar = new Rectangle(0,
@@ -997,7 +997,7 @@ namespace Ship_Game {
                 Fonts.Pirulen16); 
             Close = new CloseButton(this, new Rectangle(
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
-            OriginalZ = cameraPosition.Z;
+            OriginalZ = CameraPosition.Z;
         }
 
         private void CombatStatusButton(Vector2 ordersBarPos, string action, string iconPath, int toolTipIndex)
@@ -1153,8 +1153,8 @@ namespace Ship_Game {
             Slots.Clear();
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
-                PrimitiveQuad pq = new PrimitiveQuad(slot.Position.X + offset.X - 8f,
-                    slot.Position.Y + offset.Y - 8f, 16f, 16f);
+                PrimitiveQuad pq = new PrimitiveQuad(slot.Position.X + Offset.X - 8f,
+                    slot.Position.Y + Offset.Y - 8f, 16f, 16f);
                 SlotStruct ss = new SlotStruct
                 {
                     PQ            = pq,
