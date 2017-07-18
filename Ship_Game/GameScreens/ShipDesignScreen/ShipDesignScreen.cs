@@ -18,11 +18,11 @@ namespace Ship_Game
         public bool Debug;
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
-        private Menu1 ModuleSelectionMenu;
+        //private Menu1 ModuleSelectionMenu;
         private SceneObject shipSO;
-        private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
+        private Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
         public Array<SlotStruct> Slots = new Array<SlotStruct>();
-        private Vector2 offset;
+        private Vector2 Offset;
         private CombatState CombatState = CombatState.AttackRuns;
         private bool ShipSaved = true;
         private Array<ShipData> AvailableHulls = new Array<ShipData>();
@@ -828,28 +828,28 @@ namespace Ship_Game
             foreach (SlotStruct s in this.Slots)                                    
                 s.SetValidity(ActiveModule);
             
-            if (this.ActiveHangarModule != this.ActiveModule && this.ActiveModule.ModuleType == ShipModuleType.Hangar)
-            {
-                this.ActiveHangarModule = this.ActiveModule;
-                this.ChooseFighterSL.Entries.Clear();
-                this.ChooseFighterSL.Copied.Clear();
-                foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
-                {
-                    if (!this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole()) || Ship_Game.ResourceManager.ShipsDict[shipname].Size >= this.ActiveModule.MaximumHangarShipSize)
-                    {
-                        continue;
-                    }
-                    this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
-                }
-                if (this.HangarShipUIDLast != "Undefined" && this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].shipData.GetRole()) && this.ActiveModule.MaximumHangarShipSize >= Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].Size)
-                {
-                    this.ActiveModule.hangarShipUID = this.HangarShipUIDLast;
-                }
-                else if (this.ChooseFighterSL.Entries.Count > 0)
-                {
-                    this.ActiveModule.hangarShipUID = (this.ChooseFighterSL.Entries[0].item as Ship).Name;
-                }
-            }
+            //if (this.ActiveHangarModule != this.ActiveModule && this.ActiveModule.ModuleType == ShipModuleType.Hangar)
+            //{
+            //    this.ActiveHangarModule = this.ActiveModule; 
+            //    this.ChooseFighterSL.Entries.Clear();
+            //    this.ChooseFighterSL.Copied.Clear();
+            //    foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
+            //    {
+            //        if (!this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole()) || Ship_Game.ResourceManager.ShipsDict[shipname].Size >= this.ActiveModule.MaximumHangarShipSize)
+            //        {
+            //            continue;
+            //        }
+            //        this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
+            //    }
+            //    if (this.HangarShipUIDLast != "Undefined" && this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].shipData.GetRole()) && this.ActiveModule.MaximumHangarShipSize >= Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].Size)
+            //    {
+            //        this.ActiveModule.hangarShipUID = this.HangarShipUIDLast;
+            //    }
+            //    else if (this.ChooseFighterSL.Entries.Count > 0)
+            //    {
+            //        this.ActiveModule.hangarShipUID = (this.ChooseFighterSL.Entries[0].item as Ship).Name;
+            //    }
+            //}
             this.HighlightedModule = null;
             this.HoveredModule = null;
             this.ResetModuleState();
@@ -886,8 +886,8 @@ namespace Ship_Game
                 this.Camera.Zoom = 2.65f;
             }
 
-                this.cameraPosition.Z = this.OriginalZ / this.Camera.Zoom;
-            Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
+                this.CameraPosition.Z = this.OriginalZ / this.Camera.Zoom;
+            Vector3 camPos = this.CameraPosition * new Vector3(-1f, 1f, 1f);
             this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }

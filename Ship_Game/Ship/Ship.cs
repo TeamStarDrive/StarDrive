@@ -205,7 +205,6 @@ namespace Ship_Game.Gameplay
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None)
             => UniverseScreen.SpaceManager.FindNearby(this, SensorRange, filter);
-
         public bool IsInNeutralSpace
         {
             get

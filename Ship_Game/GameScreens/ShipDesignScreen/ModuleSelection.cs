@@ -15,9 +15,11 @@ namespace Ship_Game
         private Submenu ActiveModSubMenu;
         private readonly ScreenManager ScreenManager;
         private Submenu ChooseFighterSub;
-        public ScrollList ChooseFighterSL;
+        public FighterScrollList ChooseFighterSL;
         public Rectangle Choosefighterrect;
         public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
+        public bool HitTest(InputState input) => Window.HitTest(input.CursorPosition);
+        public string hangarShipName => ChooseFighterSL.HangarShipUIDLast;
         public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window, true)
         {
             ParentScreen = parentScreen;
@@ -52,22 +54,20 @@ namespace Ship_Game
             Choosefighterrect.Height = acsub.Height;
             ChooseFighterSub = new Submenu(Choosefighterrect);
             ChooseFighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = new ScrollList(ChooseFighterSub, 40);
+            ChooseFighterSL = new FighterScrollList(ChooseFighterSub, ParentScreen);
         }
-        public override bool HandleInput(InputState input)
+        public bool HandleInput(InputState input, ShipModule activeModule = null, ShipModule hangarModule = null)
         {
             if (WeaponSl.HandleInput(input))
-                return true;
-
-            ChooseFighterSL.HandleInput(input);
+                return true;            
+            ChooseFighterSL.HandleInput(input, activeModule, hangarModule);
             ActiveModSubMenu.HandleInputNoReset();
             if (!base.HandleInput(input))
                 return false;
             WeaponSl.ResetOnNextDraw = true;
-            WeaponSl.indexAtTop = 0;
-
+            WeaponSl.indexAtTop = 0;            
             return false;
-            //base.HandleInput(ParentScreen);
+            
         }
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -105,6 +105,8 @@ namespace Ship_Game
             }
             return string.Concat(returnString, line);
         }
+
+       
         private void DrawString(ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
             if (font == null) font = Fonts.Arial8Bold;
