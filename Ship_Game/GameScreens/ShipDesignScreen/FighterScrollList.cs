@@ -148,7 +148,7 @@ namespace Ship_Game
         {
 
             if (ActiveHangarModule == null) return;
-            Screen.DrawRectangle(FighterSubMenu.Menu, Color.Black);  
+            Screen.DrawRectangle(FighterSubMenu.Menu, Color.TransparentWhite, Color.Black);  
             
             Vector2 bCursor = new Vector2(FighterSubMenu.Menu.X + 15, (float)(FighterSubMenu.Menu.Y + 25));
             for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
