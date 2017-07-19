@@ -245,7 +245,6 @@ namespace Ship_Game {
             }
             if (ModSel.HandleInput(input,ActiveModule,HighlightedModule))
             {
-                HangarShipUIDLast = ModSel.HangarShipName;
                 return true;
             }
            
