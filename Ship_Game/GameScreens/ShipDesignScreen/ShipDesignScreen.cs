@@ -51,7 +51,6 @@ namespace Ship_Game
         private Submenu HullSelectionSub;
         private Rectangle BlackBar;
         private Rectangle SideBar;
-        public string HangarShipUIDLast = "Undefined";
         private SkinnableButton wpn;
         private SkinnableButton pwr;
         private SkinnableButton def;
