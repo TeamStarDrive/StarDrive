@@ -247,59 +247,14 @@ namespace Ship_Game {
                 else
                     e.clickRectHover = 0;
             }
-            if (ModSel.HandleInput(input,ActiveModule,ActiveHangarModule))
+            if (ModSel.HandleInput(input,ActiveModule,HighlightedModule))
+            {
+                HangarShipUIDLast = ModSel.HangarShipName;
                 return true;
-            //if (ActiveModule != null)
-            //{
-            //    if (ActiveModule.ModuleType == ShipModuleType.Hangar && !ActiveModule.IsTroopBay
-            //        && !ActiveModule.IsSupplyBay)
-            //    {
-            //        UpdateHangarOptions(ActiveModule);
-            //        ChooseFighterSL.HandleInput(input);
-            //        for (int index = ChooseFighterSL.indexAtTop;
-            //            index < ChooseFighterSL.Copied.Count
-            //            && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
-            //            ++index)
-            //        {
-            //            ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-            //            if (entry.clickRect.HitTest(mousePos))
-            //            {
-            //                selector = new Selector(entry.clickRect);
-            //                entry.clickRectHover = 1;
-            //                selector = new Selector(entry.clickRect);
-            //                if (!input.InGameSelect) continue;
-
-            //                ActiveModule.hangarShipUID = (entry.item as Ship).Name;
-            //                HangarShipUIDLast = (entry.item as Ship).Name;
-            //                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-            //                return true;
-            //            }
-            //        }
-            //    }
-            //}
-            //else if (HighlightedModule != null && HighlightedModule.ModuleType == ShipModuleType.Hangar
-            //         && (!HighlightedModule.IsTroopBay && !HighlightedModule.IsSupplyBay))
-            //{
-            //    ChooseFighterSL.HandleInput(input);
-            //    for (int index = ChooseFighterSL.indexAtTop;
-            //        index < ChooseFighterSL.Copied.Count
-            //        && index < ChooseFighterSL.indexAtTop + ChooseFighterSL.entriesToDisplay;
-            //        ++index)
-            //    {
-            //        ScrollList.Entry entry = ChooseFighterSL.Copied[index];
-            //        if (!entry.clickRect.HitTest(mousePos)) continue;
-            //        selector = new Selector(entry.clickRect);
-            //        entry.clickRectHover = 1;
-            //        selector = new Selector(entry.clickRect);
-            //        if (!input.InGameSelect) continue;
-            //        HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
-            //        HangarShipUIDLast = (entry.item as Ship).Name;
-            //        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-            //        return true;
-            //    }
-            //}
+            }
+           
             if (HullSelectionRect.HitTest(input.CursorPosition)
-                && input.LeftMouseDown || ModSel.Menu.HitTest(input.CursorPosition)
+                && input.LeftMouseDown || ModSel.HitTest(input)
                 && input.LeftMouseDown)
                 return true;
 
@@ -368,23 +323,14 @@ namespace Ship_Game {
                             }                            
                             
                         }
+                        else if (ActiveModule == null)
+                        {
+                            HighlightedModule = slotStruct.Parent?.Module ?? slotStruct.Module;
+                        }
                     }
                 }
             }
-            //if (UpArrow.HitTest(mousePos) && input.LeftMouseClick && ScrollPosition > 0)
-            //{
-            //    --ScrollPosition;
-            //    GameAudio.PlaySfxAsync("blip_click");
-            //    foreach (ModuleButton moduleButton in ModuleButtons)
-            //        moduleButton.moduleRect.Y += 128;
-            //}
-            //if (DownArrow.HitTest(mousePos) && input.LeftMouseClick)
-            //{
-            //    ++ScrollPosition;
-            //    GameAudio.PlaySfxAsync("blip_click");
-            //    foreach (ModuleButton moduleButton in ModuleButtons)
-            //        moduleButton.moduleRect.Y -= 128;
-            //}
+ 
             HandleIntputClearModule(input);
         
             HandleInputPlaceModule(input);
@@ -555,7 +501,7 @@ namespace Ship_Game {
 
         private void HandleInputZoom(InputState input)
         {
-            if (!ModSel.Window.HitTest(input.CursorPosition)
+            if (!ModSel.HitTest(input)
                 && !HullSelectionRect.HitTest(input.CursorPosition))
                 //&& !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
             {
