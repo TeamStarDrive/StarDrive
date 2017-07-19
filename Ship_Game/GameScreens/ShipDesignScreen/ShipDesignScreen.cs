@@ -83,7 +83,6 @@ namespace Ship_Game
         private bool Fmlevenmore = false;
         public bool CarrierOnly;
         private ShipData.Category LoadCategory;
-        public string HangarShipUIDLast = "Undefined";
         private HashSet<string> Techs = new HashSet<string>();
         private readonly Texture2D TopBar132 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
         private readonly Texture2D TopBar132Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
@@ -472,7 +471,6 @@ namespace Ship_Game
 
         }
 
-
         private string GetNumberString(float stat)
         {
             if (stat < 1000f)
@@ -486,8 +484,6 @@ namespace Ship_Game
                 return string.Concat(single.ToString("#.#"), "k");
             return string.Concat(single.ToString("#"), "k");
         }
-
-        //Mer - Gretman left off here
 
         private string GetConduitGraphic(SlotStruct ss)
         {
