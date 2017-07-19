@@ -13,7 +13,7 @@ using Ship_Game.Gameplay;
 namespace Ship_Game {
     public sealed partial class ShipDesignScreen
     {
-        public void ChangeHull(ShipData hull) //Mer
+        public void ChangeHull(ShipData hull)
         {
 #if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
@@ -175,10 +175,6 @@ namespace Ship_Game {
             ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
         }
 
-   
-
-
-
         public override bool HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
@@ -320,6 +316,11 @@ namespace Ship_Game {
                 StartDragPos = input.CursorPosition;
                 CameraVelocity.X = 0.0f;
             }
+
+            Vector2 tempPos = Camera.GeneralCamMovement(input, ScreenManager);
+            CameraPosition.X += tempPos.X;
+            CameraPosition.Y += tempPos.Y;
+
             if (input.RightMouseHeld())
             {
                 float num1 = input.CursorPosition.X - StartDragPos.X;
@@ -386,7 +387,6 @@ namespace Ship_Game {
             //        moduleButton.moduleRect.Y -= 128;
             //}
             HandleIntputClearModule(input);
-        
             HandleInputPlaceModule(input);
             HandleInputMoveArcs(input);
             UIButtonHandleInput(input);

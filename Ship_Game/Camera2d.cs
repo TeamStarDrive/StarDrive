@@ -81,5 +81,21 @@ namespace Ship_Game
             CamPos.X += dx;
             CamPos.Y += dy;
         }
+
+        public Vector2 GeneralCamMovement(InputState input, ScreenManager screenRes)
+        {
+            Vector2 adjustCam = Vector2.Zero;
+            float maxX = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            float maxY = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            input.Repeat = true;
+            if (input.CursorPosition.X <= 1 || input.Left) adjustCam.X -= 16 * (3 - this.Zoom);
+            if (input.CursorPosition.X >= (maxX - 1) || input.Right) adjustCam.X += 16 * (3 - this.Zoom);
+            if (input.CursorPosition.Y <= 1 || input.Up) adjustCam.Y -= 16 * (3 - this.Zoom);
+            if (input.CursorPosition.Y >= (maxY - 1) || input.Down) adjustCam.Y += 16 * (3 - this.Zoom);
+            input.Repeat = false;
+
+            this.Move(adjustCam);
+            return adjustCam;
+        }
 	}
 }
