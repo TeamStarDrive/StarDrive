@@ -304,11 +304,18 @@ namespace Ship_Game {
                             (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom))
                         .HitTest(mousePos))
                     {
-                        if (slotStruct.Module != null)
+                        if (!input.LeftMouseHeld())
+                        {
+                            if (slotStruct.Module != null)
                             HoveredModule = slotStruct.Module;
                         else if (slotStruct.Parent != null)
                             HoveredModule = slotStruct.Parent.Module;
-                        if (input.LeftMouseClick)
+                        }
+                        else if (HighlightedModule != null)
+                        {
+                            HoveredModule = HighlightedModule;
+                        }
+                        if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
                         {
                             GameAudio.PlaySfxAsync("simple_beep");
                             if (Debug)
@@ -323,7 +330,7 @@ namespace Ship_Game {
                             }                            
                             
                         }
-                        else if (ActiveModule == null)
+                        else if (ActiveModule == null && !input.LeftMouseHeld())
                         {
                             HighlightedModule = slotStruct.Parent?.Module ?? slotStruct.Module;
                         }
