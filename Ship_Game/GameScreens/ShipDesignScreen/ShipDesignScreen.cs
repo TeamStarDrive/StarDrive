@@ -35,8 +35,8 @@ namespace Ship_Game
         //private Menu1 activeModWindow;
         //private Submenu ActiveModSubMenu;
         //private WeaponScrollList WeaponSl;
-        private ScrollList ChooseFighterSL;
-        private Rectangle Choosefighterrect;
+        //private ScrollList ChooseFighterSL;
+        //private Rectangle Choosefighterrect;
         private bool LowRes;
         private float LowestX;
         private float HighestX;
@@ -51,7 +51,7 @@ namespace Ship_Game
         private Submenu HullSelectionSub;
         private Rectangle BlackBar;
         private Rectangle SideBar;
-        private Vector2 SelectedCatTextPos;
+        //private Vector2 SelectedCatTextPos;
         private SkinnableButton wpn;
         private SkinnableButton pwr;
         private SkinnableButton def;
@@ -824,50 +824,10 @@ namespace Ship_Game
             foreach (SlotStruct s in this.Slots)                                    
                 s.SetValidity(ActiveModule);
             
-            //if (this.ActiveHangarModule != this.ActiveModule && this.ActiveModule.ModuleType == ShipModuleType.Hangar)
-            //{
-            //    this.ActiveHangarModule = this.ActiveModule; 
-            //    this.ChooseFighterSL.Entries.Clear();
-            //    this.ChooseFighterSL.Copied.Clear();
-            //    foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
-            //    {
-            //        if (!this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole()) || Ship_Game.ResourceManager.ShipsDict[shipname].Size >= this.ActiveModule.MaximumHangarShipSize)
-            //        {
-            //            continue;
-            //        }
-            //        this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
-            //    }
-            //    if (this.HangarShipUIDLast != "Undefined" && this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].shipData.GetRole()) && this.ActiveModule.MaximumHangarShipSize >= Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].Size)
-            //    {
-            //        this.ActiveModule.hangarShipUID = this.HangarShipUIDLast;
-            //    }
-            //    else if (this.ChooseFighterSL.Entries.Count > 0)
-            //    {
-            //        this.ActiveModule.hangarShipUID = (this.ChooseFighterSL.Entries[0].item as Ship).Name;
-            //    }
-            //}
             this.HighlightedModule = null;
             this.HoveredModule = null;
             this.ResetModuleState();
-        }
-
-        public void UpdateHangarOptions(ShipModule mod)
-        {
-            if (this.ActiveHangarModule != mod &&  mod.ModuleType == ShipModuleType.Hangar)
-            {
-                this.ActiveHangarModule = mod;
-                this.ChooseFighterSL.Entries.Clear();
-                this.ChooseFighterSL.Copied.Clear();
-                foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
-                {
-                    if (!mod.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipname].shipData.GetRole()) || ResourceManager.ShipsDict[shipname].Size >= mod.MaximumHangarShipSize)
-                    {
-                        continue;
-                    }
-                    ChooseFighterSL.AddItem(ResourceManager.ShipsDict[shipname]);
-                }
-            }
-        }
+        }        
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
