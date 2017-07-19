@@ -86,7 +86,7 @@ namespace Ship_Game
         {
             Vector2 adjustCam = Vector2.Zero;
             float maxX = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            float maxY = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            float maxY = screenRes.GraphicsDevice.PresentationParameters.BackBufferHeight;
             input.Repeat = true;
             if (input.CursorPosition.X <= 1 || input.Left) adjustCam.X -= 16 * (3 - this.Zoom);
             if (input.CursorPosition.X >= (maxX - 1) || input.Right) adjustCam.X += 16 * (3 - this.Zoom);
