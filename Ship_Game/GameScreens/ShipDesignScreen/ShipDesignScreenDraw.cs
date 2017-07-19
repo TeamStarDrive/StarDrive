@@ -230,11 +230,10 @@ namespace Ship_Game
             
             Vector2 mousePos = Input.CursorPosition;
             if (this.ActiveModule != null &&// !this.ActiveModSubMenu.Menu.HitTest(mousePos) &&
-                !this.ModSel.Menu.HitTest(mousePos) 
+                !this.ModSel.HitTest(Input) )
                 
-                && (!this.Choosefighterrect.HitTest(mousePos) ||
-                                                        this.ActiveModule.ModuleType != ShipModuleType.Hangar ||
-                                                        this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
+                //&& (this.ActiveModule.ModuleType != ShipModuleType.Hangar ||
+                //                                        this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
             {
                 ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
 

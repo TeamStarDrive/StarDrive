@@ -18,8 +18,9 @@ namespace Ship_Game
         public FighterScrollList ChooseFighterSL;
         public Rectangle Choosefighterrect;
         public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
-        public bool HitTest(InputState input) => Window.HitTest(input.CursorPosition);
-        public string hangarShipName => ChooseFighterSL.HangarShipUIDLast;
+        public bool HitTest(InputState input) => Window.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
+        public string HangarShipName => ChooseFighterSL.HangarShipUIDLast;
+        private ShipModule HighlightedModule = null;
         public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window, true)
         {
             ParentScreen = parentScreen;
@@ -56,16 +57,18 @@ namespace Ship_Game
             ChooseFighterSub.AddTab("Choose Fighter");
             ChooseFighterSL = new FighterScrollList(ChooseFighterSub, ParentScreen);
         }
-        public bool HandleInput(InputState input, ShipModule activeModule = null, ShipModule hangarModule = null)
+        public bool HandleInput(InputState input, ShipModule activeModule = null, ShipModule highlightedModule = null)
         {
             if (WeaponSl.HandleInput(input))
                 return true;            
-            ChooseFighterSL.HandleInput(input, activeModule, hangarModule);
+            ChooseFighterSL.HandleInput(input, activeModule, highlightedModule);
             ActiveModSubMenu.HandleInputNoReset();
             if (!base.HandleInput(input))
                 return false;
             WeaponSl.ResetOnNextDraw = true;
-            WeaponSl.indexAtTop = 0;            
+            WeaponSl.indexAtTop = 0;
+            if (activeModule == null)
+                HighlightedModule = highlightedModule;
             return false;
             
         }
@@ -78,7 +81,7 @@ namespace Ship_Game
             sel.Draw(ScreenManager.SpriteBatch);
 
             WeaponSl.Draw(spriteBatch);
-            if (ParentScreen.ActiveModule != null)
+            if (ParentScreen.ActiveModule != null || ParentScreen.HighlightedModule != null)
             {
                 //activeModWindow.Draw();
                 ActiveModSubMenu.Draw();
@@ -121,16 +124,18 @@ namespace Ship_Game
             r.Height = r.Height - 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
-            ShipModule mod = ParentScreen.ActiveModule;
+            ShipModule mod = ParentScreen.ActiveModule ?? ParentScreen.HighlightedModule;
 
-            if (ParentScreen.ActiveModule == null && ParentScreen.HighlightedModule != null)
-            {
-                mod = ParentScreen.HighlightedModule;
-            }
-            else if (ParentScreen.ActiveModule != null)
-            {
-                mod = ParentScreen.ActiveModule;
-            }
+
+
+            //if (ParentScreen.ActiveModule == null && ParentScreen.HighlightedModule != null)
+            //{
+            //    mod = ParentScreen.HighlightedModule;
+            //}
+            //else if (ParentScreen.ActiveModule != null)
+            //{
+            //    mod = ParentScreen.ActiveModule;
+            //}
 
             if (mod != null)
             {
@@ -593,7 +598,16 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6187), (float)mod.FixedTracking, 231);
             DrawStat(ref modTitlePos, $"+{Localizer.Token(6186)}", (float)mod.TargetTracking, 226);
             
-            
+            if (mod.PermittedHangarRoles.Length != 0)
+            {
+                modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + (float)Fonts.Arial12Bold.LineSpacing;
+                Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+                DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", mod.hangarShipUID), Fonts.Arial20Bold);
+                
+                
+                
+           
+            }
         }
 
         private void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
