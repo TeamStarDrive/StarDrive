@@ -184,13 +184,13 @@ namespace Ship_Game {
                                               && ActiveModule.ModuleType != ShipModuleType.Turret ||
                                               ActiveModule.XSIZE != ActiveModule.YSIZE))
             {
-                if (input.Left)
+                if (input.ArrowLeft)
                     ChangeModuleState(ActiveModuleState.Left);
-                if (input.Right)
+                if (input.ArrowRight)
                     ChangeModuleState(ActiveModuleState.Right);
-                if (input.Down)
+                if (input.ArrowDown)
                     ChangeModuleState(ActiveModuleState.Rear);
-                if (input.Up)
+                if (input.ArrowUp)
                     ChangeModuleState(ActiveModuleState.Normal);
             }
             if (input.ShipDesignExit && !GlobalStats.TakingInput)
@@ -271,7 +271,7 @@ namespace Ship_Game {
                 CameraVelocity.X = 0.0f;
             }
 
-            Vector2 tempPos = Camera.GeneralCamMovement(input, ScreenManager);
+            Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager);
             CameraPosition.X += tempPos.X;
             CameraPosition.Y += tempPos.Y;
 
