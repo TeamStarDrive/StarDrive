@@ -97,34 +97,34 @@ namespace Ship_Game
                         switch (slot.State)
                         {
                             case ActiveModuleState.Left:
-                            {
-                                int h = slot.Module.YSIZE * 16;
-                                int w = slot.Module.XSIZE * 16;
-                                r.Width = h; // swap width & height
-                                r.Height = w;
-                                r.Y += h;
-                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f,
-                                    Vector2.Zero
-                                    , SpriteEffects.None, 1f);
-                                break;
-                            }
+                                {
+                                    int h = slot.Module.YSIZE * 16;
+                                    int w = slot.Module.XSIZE * 16;
+                                    r.Width = h; // swap width & height
+                                    r.Height = w;
+                                    r.Y += h;
+                                    ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f,
+                                        Vector2.Zero
+                                        , SpriteEffects.None, 1f);
+                                    break;
+                                }
                             case ActiveModuleState.Right:
-                            {
-                                int w = slot.Module.YSIZE * 16;
-                                int h = slot.Module.XSIZE * 16;
-                                r.Width = w;
-                                r.Height = h;
-                                r.X += h;
-                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero
-                                    , SpriteEffects.None, 1f);
-                                break;
-                            }
+                                {
+                                    int w = slot.Module.YSIZE * 16;
+                                    int h = slot.Module.XSIZE * 16;
+                                    r.Width = w;
+                                    r.Height = h;
+                                    r.X += h;
+                                    ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero
+                                        , SpriteEffects.None, 1f);
+                                    break;
+                                }
                             case ActiveModuleState.Rear:
-                            {
-                                ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero
-                                    , SpriteEffects.FlipVertically, 1f);
-                                break;
-                            }
+                                {
+                                    ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero
+                                        , SpriteEffects.FlipVertically, 1f);
+                                    break;
+                                }
                         }
                     }
                     else if (slot.Module.XSIZE <= 1 && slot.Module.YSIZE <= 1)
@@ -173,21 +173,28 @@ namespace Ship_Game
                     {
                         continue;
                     }
+                    Vector2 center = slot.ModuleCenter();
                     if (slot.Module.shield_power_max > 0f)
                     {
-                        Vector2 center = new Vector2(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2
-                            , slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2);
+
                         DrawCircle(center, slot.Module.shield_radius, 50, Color.LightGreen);
                     }
 
+                    if (slot.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
+                    {
+                        Vector2 arcString = center;
+                        Color color = Color.Black;
+                        color.A = 100;
+                        DrawRectangle(slot.ModuleRectangle(), Color.White, color);
+                        DrawString(arcString, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
 
+
+                    }
                     // @todo Use this to fix the 'original' code below :)))
                     var arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
 
                     void DrawArc(Color drawcolor)
                     {
-                        var center = new Vector2(slot.PQ.enclosingRect.X + 16 * slot.Module.XSIZE / 2
-                            , slot.PQ.enclosingRect.Y + 16 * slot.Module.YSIZE / 2);
                         var origin = new Vector2(250f, 250f);
 
                         var toDraw = new Rectangle((int)center.X, (int)center.Y, 500, 500);
@@ -199,21 +206,19 @@ namespace Ship_Game
                     Weapon w = slot.Module.InstalledWeapon;
                     if (w == null)
                         continue;
-                    if      (w.Tag_Cannon && !w.Tag_Energy)   DrawArc(new Color(255, 255, 0, 255));                    
-                    else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(new Color(255, 0, 255, 255));                    
-                    else if (w.Tag_Cannon)                    DrawArc(new Color(0, 255, 0, 255));                    
-                    else if (!w.isBeam)                       DrawArc(new Color(255, 0, 0, 255));                    
-                    else                                      DrawArc(new Color(0, 0, 255, 255));                
+                    if (w.Tag_Cannon && !w.Tag_Energy) DrawArc(new Color(255, 255, 0, 255));
+                    else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(new Color(255, 0, 255, 255));
+                    else if (w.Tag_Cannon) DrawArc(new Color(0, 255, 0, 255));
+                    else if (!w.isBeam) DrawArc(new Color(255, 0, 0, 255));
+                    else DrawArc(new Color(0, 0, 255, 255));
                 }
-
                 foreach (SlotStruct ss in this.Slots)
                 {
                     if (ss.Module == null)
                     {
                         continue;
                     }
-                    Vector2 Center = new Vector2(ss.PQ.X + 16 * ss.Module.XSIZE / 2,
-                        ss.PQ.Y + 16 * ss.Module.YSIZE / 2);
+                    if (ss.Module == HighlightedModule && Input.LeftMouseHeld() && ss.Module.ModuleType == ShipModuleType.Turret) continue;
                     Vector2 lightOrigin = new Vector2(8f, 8f);
                     if (ss.Module.PowerDraw <= 0f || ss.Module.Powered ||
                         ss.Module.ModuleType == ShipModuleType.PowerConduit)
@@ -221,13 +226,13 @@ namespace Ship_Game
                         continue;
                     }
                     Rectangle? nullable8 = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/lightningBolt"],
-                        Center, nullable8, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
+                        ss.ModuleCenter(), nullable8, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
                 }
             }
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
-            
+
             Vector2 mousePos = Input.CursorPosition;
             if (this.ActiveModule != null &&// !this.ActiveModSubMenu.Menu.HitTest(mousePos) &&
                 !this.ModSel.HitTest(Input) )
