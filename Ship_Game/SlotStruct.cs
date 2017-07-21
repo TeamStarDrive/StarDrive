@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -33,6 +34,20 @@ namespace Ship_Game
             }
 
             return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
+        }
+
+        public Vector2 ModuleCenter()
+        {
+            if (Module?.UID.IsEmpty() ?? true) return Vector2.Zero;
+            return  new Vector2(PQ.enclosingRect.X + 16 * Module.XSIZE / 2
+                , PQ.enclosingRect.Y + 16 * Module.YSIZE / 2);
+        }
+
+        public Rectangle ModuleRectangle()
+        {
+            return new Rectangle(PQ.enclosingRect.X,
+                PQ.enclosingRect.Y
+                , 16 * Module.XSIZE, 16 * Module.YSIZE);
         }
 
         public void SetValidity(ShipModule module = null)
