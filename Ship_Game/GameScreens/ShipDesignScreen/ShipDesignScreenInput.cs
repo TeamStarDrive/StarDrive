@@ -374,7 +374,21 @@ namespace Ship_Game {
                 //}
 
                 if (input.ShipYardArcMove())
-                    HighlightedModule.Facing = spaceFromWorldSpace.AngleToTarget(mousePos);
+                {
+                    float arc = spaceFromWorldSpace.AngleToTarget(mousePos);
+                    if (!Input.IsAltKeyDown)
+                    {
+                        if (!Input.IsShiftKeyDown)
+                            arc = (float)Math.Round(arc);
+                        else
+                            arc = (float)Math.Round(arc / 15f) * 15;
+                    }
+                    else
+                        arc = (float)Math.Round(arc * 25) / 25;
+
+                    HighlightedModule.Facing = arc;
+                    
+                }
             }
         }
 
