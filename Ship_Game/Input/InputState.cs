@@ -208,6 +208,16 @@ namespace Ship_Game
         public bool Left  => KeyPressed(Keys.Left)  || KeyPressed(Keys.A) || GamepadClicked(Buttons.DPadLeft);
         public bool Right => KeyPressed(Keys.Right) || KeyPressed(Keys.D) || GamepadClicked(Buttons.DPadRight);
 
+        public bool WASDUp => KeyPressed(Keys.W);
+        public bool WASDDown => KeyPressed(Keys.S);
+        public bool WASDLeft => KeyPressed(Keys.A);
+        public bool WASDRight => KeyPressed(Keys.D);
+
+        public bool ArrowRight => KeyPressed(Keys.Right) || KeyPressed(Keys.NumPad6);
+        public bool ArrowUp => KeyPressed(Keys.Up) || KeyPressed(Keys.NumPad8);
+        public bool ArrowDown => KeyPressed(Keys.Down) || KeyPressed(Keys.NumPad2);
+        public bool ArrowLeft => KeyPressed(Keys.Left) || KeyPressed(Keys.NumPad4);
+
         public bool ScrollIn  => MouseCurr.ScrollWheelValue > ScrollWheelPrev;
         public bool ScrollOut => MouseCurr.ScrollWheelValue < ScrollWheelPrev;
 

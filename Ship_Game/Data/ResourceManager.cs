@@ -1387,6 +1387,15 @@ namespace Ship_Game
                 Weapon wep = pair.Entity;
                 wep.UID = string.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
+
+                if (wep.Tag_Missile)
+                {
+                    if (wep.WeaponType.IsEmpty()) wep.WeaponType = "Missile";
+                    else if (wep.WeaponType != "Missile")
+                    {
+                        Log.Warning("Weapon '{0}' has 'tag_missile' but Weapontype is '{1}' instead of missile. This Causes invisible projectiles.", wep.UID, wep.WeaponType);
+                    }
+                }
             }
         }
 
