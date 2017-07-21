@@ -32,11 +32,6 @@ namespace Ship_Game
         public ModuleSelection ModSel;
         private Submenu StatsSub;
         private Menu1 ShipStats;
-        //private Menu1 activeModWindow;
-        //private Submenu ActiveModSubMenu;
-        //private WeaponScrollList WeaponSl;
-        //private ScrollList ChooseFighterSL;
-        //private Rectangle Choosefighterrect;
         private bool LowRes;
         private float LowestX;
         private float HighestX;
@@ -51,10 +46,7 @@ namespace Ship_Game
         private Submenu HullSelectionSub;
         private Rectangle BlackBar;
         private Rectangle SideBar;
-        private SkinnableButton wpn;
-        private SkinnableButton pwr;
-        private SkinnableButton def;
-        private SkinnableButton spc;
+
         public ShipModule HighlightedModule;
         private Vector2 CameraVelocity = Vector2.Zero;
         private Vector2 StartDragPos = new Vector2();
@@ -712,7 +704,7 @@ namespace Ship_Game
                 slot.State                = ActiveModState;
                 slot.Module.hangarShipUID = ActiveModule.hangarShipUID;
                 slot.Module.Facing        = ActiveModule.Facing;
-                slot.Tex = ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath];
+                slot.Tex = ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath);
                 slot.Module.SetAttributesNoParent();
 
                 RecalculatePower();
