@@ -5,46 +5,59 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class Selector : UIElementV2
-	{
-		private Rectangle TR; // top-right corner
-		private Rectangle BL;
-		private Rectangle BR;
-		private Rectangle TL;
+    public sealed class Selector : UIElementV2
+    {
+        private Rectangle TR; // top-right corner
+        private Rectangle BL;
+        private Rectangle BR;
+        private Rectangle TL;
         
-	    private Rectangle HT; // horizontal top bar
-	    private Rectangle HB;
-	    private Rectangle VL; // vertical left bar
-	    private Rectangle VR;
+        private Rectangle HT; // horizontal top bar
+        private Rectangle HB;
+        private Rectangle VL; // vertical left bar
+        private Rectangle VR;
 
-		private readonly Color Fill;
+        private readonly Color Fill;
+        private readonly Color EdgeColor;
 
-		public Selector(Rectangle theMenu) : base(null, Vector2.Zero)
-		{
-			theMenu.X = theMenu.X - 15;
-			theMenu.Y = theMenu.Y - 5;
-			theMenu.Width = theMenu.Width + 12;
+        public Selector(Rectangle theMenu) : base(null, Vector2.Zero)
+        {
+            theMenu.X = theMenu.X - 15;
+            theMenu.Y = theMenu.Y - 5;
+            theMenu.Width = theMenu.Width + 12;
             Initialize(theMenu);
-		}
+            EdgeColor = Color.White;
+        }
 
-		public Selector(Rectangle theMenu, bool useRealRect) : base(null, Vector2.Zero)
-		{
-		    Initialize(theMenu);
-		}
+        public Selector(Rectangle theMenu, bool useRealRect) : base(null, Vector2.Zero)
+        {
+            Initialize(theMenu);
+            EdgeColor = Color.White;
+        }
 
-		public Selector(Rectangle theMenu, Color fillColor) : base(null, Vector2.Zero)
-		{
-			Fill = fillColor;
-		    Initialize(theMenu);
-		}
+        public Selector(Rectangle theMenu, Color fillColor) : base(null, Vector2.Zero)
+        {
+            Fill = fillColor;
+            Initialize(theMenu);
+            EdgeColor = Color.White;
+        }
 
-	    private class ElementTextures
-	    {
-	        public Texture2D CornerTL, CornerTR, CornerBL, CornerBR;
+        public Selector(Rectangle theMenu, Color fillColor, float textureAlpha) : base(null, Vector2.Zero)
+        {
+            Fill = fillColor;
+            EdgeColor = new Color(Color.White, (byte)textureAlpha);
+            Initialize(theMenu);
+            
+
+        }
+
+        private class ElementTextures
+        {
+            public Texture2D CornerTL, CornerTR, CornerBL, CornerBR;
             public Texture2D RoundTL, RoundTR, RoundBL, RoundBR;
             public Texture2D HoriVert;
-	    }
-	    private static ElementTextures Tex;
+        }
+        private static ElementTextures Tex;
 
         private void Initialize(Rectangle theMenu)
         {
@@ -78,49 +91,49 @@ namespace Ship_Game
             VR = new Rectangle(x + w - 2, y + TR.Height - 2, 2, h - BR.Height - 2);
         }
 
-	    public override void Draw(SpriteBatch spriteBatch)
-		{
+        public override void Draw(SpriteBatch spriteBatch)
+        {
             int x = (int)X,     y = (int)Y;
             int w = (int)Width, h = (int)Height;
-			var upperleft  = new Rectangle(x, y, 24, 24);
-		    var upperRight = new Rectangle(x + w - 24, y, 24, 24);
-		    var lowerLeft  = new Rectangle(x, y + h - 24, 24, 24);
-		    var lowerRight = new Rectangle(x + w - 24, y + h - 24, 24, 24);
-		    var top        = new Rectangle(x + 24, y, w - 48, 24);
-		    var bottom     = new Rectangle(x + 24, y + h - 24, w - 48, 24);
-		    var right      = new Rectangle(x + w - 24, y + 24, 24, h - 48);
-		    var left       = new Rectangle(x, y + 24, 24, h - 48);
-		    var middle     = new Rectangle(x + 24, y + 24, w - 48, h - 48);
+            var upperleft  = new Rectangle(x, y, 24, 24);
+            var upperRight = new Rectangle(x + w - 24, y, 24, 24);
+            var lowerLeft  = new Rectangle(x, y + h - 24, 24, 24);
+            var lowerRight = new Rectangle(x + w - 24, y + h - 24, 24, 24);
+            var top        = new Rectangle(x + 24, y, w - 48, 24);
+            var bottom     = new Rectangle(x + 24, y + h - 24, w - 48, 24);
+            var right      = new Rectangle(x + w - 24, y + 24, 24, h - 48);
+            var left       = new Rectangle(x, y + 24, 24, h - 48);
+            var middle     = new Rectangle(x + 24, y + 24, w - 48, h - 48);
 
-		    spriteBatch.Draw(Tex.RoundTL, upperleft,  Fill);
-		    spriteBatch.Draw(Tex.RoundTR, upperRight, Fill);
-		    spriteBatch.Draw(Tex.RoundBL, lowerLeft,  Fill);
-		    spriteBatch.Draw(Tex.RoundBR, lowerRight, Fill);
+            spriteBatch.Draw(Tex.RoundTL, upperleft,  Fill);
+            spriteBatch.Draw(Tex.RoundTR, upperRight, Fill);
+            spriteBatch.Draw(Tex.RoundBL, lowerLeft,  Fill);
+            spriteBatch.Draw(Tex.RoundBR, lowerRight, Fill);
             spriteBatch.FillRectangle(top,    Fill);
-		    spriteBatch.FillRectangle(bottom, Fill);
-		    spriteBatch.FillRectangle(right,  Fill);
-		    spriteBatch.FillRectangle(left,   Fill);
-		    spriteBatch.FillRectangle(middle, Fill);
+            spriteBatch.FillRectangle(bottom, Fill);
+            spriteBatch.FillRectangle(right,  Fill);
+            spriteBatch.FillRectangle(left,   Fill);
+            spriteBatch.FillRectangle(middle, Fill);
 
-		    spriteBatch.Draw(Tex.HoriVert, HT, Color.White);
-		    spriteBatch.Draw(Tex.HoriVert, HB, Color.White);
-		    spriteBatch.Draw(Tex.HoriVert, VR, Color.White);
-		    spriteBatch.Draw(Tex.HoriVert, VL, Color.White);
-		    spriteBatch.Draw(Tex.CornerTL, TL, Color.White);
-		    spriteBatch.Draw(Tex.CornerTR, TR, Color.White);
-		    spriteBatch.Draw(Tex.CornerBR, BR, Color.White);
-		    spriteBatch.Draw(Tex.CornerBL, BL, Color.White);
-		}
+            spriteBatch.Draw(Tex.HoriVert, HT, EdgeColor);
+            spriteBatch.Draw(Tex.HoriVert, HB, EdgeColor);
+            spriteBatch.Draw(Tex.HoriVert, VR, EdgeColor);
+            spriteBatch.Draw(Tex.HoriVert, VL, EdgeColor);
+            spriteBatch.Draw(Tex.CornerTL, TL, EdgeColor);
+            spriteBatch.Draw(Tex.CornerTR, TR, EdgeColor);
+            spriteBatch.Draw(Tex.CornerBR, BR, EdgeColor);
+            spriteBatch.Draw(Tex.CornerBL, BL, EdgeColor);
+        }
 
-	    public override bool HandleInput(InputState input)
-	    {
-	        return false;
-	    }
+        public override bool HandleInput(InputState input)
+        {
+            return false;
+        }
 
-	    public override void PerformLegacyLayout(Vector2 pos)
-	    {
+        public override void PerformLegacyLayout(Vector2 pos)
+        {
             Pos = pos;
             Initialize(Rect);
-	    }
-	}
+        }
+    }
 }
