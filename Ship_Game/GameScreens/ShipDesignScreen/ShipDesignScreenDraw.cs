@@ -158,18 +158,25 @@ namespace Ship_Game
                                 , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), null, Color.White, 0f, Vector2.Zero
                             , SpriteEffects.FlipHorizontally, 1f);
                     }
-                    if (slot.Module != HoveredModule)
+                    if (slot.Module != HoveredModule )
                     {
-                        continue;
+                        if(!Input.LeftMouseHeld() ||!Input.IsAltKeyDown || slot.Module.ModuleType != ShipModuleType.Turret
+                                || slot.Module.Facing != HighlightedModule.Facing)
+
+                        {
+                            continue;
+                            
+                        }
+                        
                     }
                     ScreenManager.SpriteBatch.DrawRectangle(new Rectangle(slot.PQ.enclosingRect.X,
                         slot.PQ.enclosingRect.Y
                         , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White, 2f);
                 }
-                foreach (SlotStruct slot in this.Slots)
+                foreach (SlotStruct slot in Slots)
                 {
                     if (slot.ModuleUID == null || slot.Tex == null ||
-                        slot.Module != this.HighlightedModule && !this.ShowAllArcs)
+                        slot.Module != HighlightedModule && !ShowAllArcs)
                     {
                         continue;
                     }
@@ -184,7 +191,7 @@ namespace Ship_Game
                     {
                         Vector2 arcString = center;
                         Color color = Color.Black;
-                        color.A = 100;
+                        color.A = 140;
                         DrawRectangle(slot.ModuleRectangle(), Color.White, color);
                         DrawString(arcString, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
 

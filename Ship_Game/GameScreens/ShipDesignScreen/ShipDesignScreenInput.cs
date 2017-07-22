@@ -376,18 +376,38 @@ namespace Ship_Game {
                 if (input.ShipYardArcMove())
                 {
                     float arc = spaceFromWorldSpace.AngleToTarget(mousePos);
+                    
+                    if(Input.IsShiftKeyDown)
+                    {
+                        HighlightedModule.Facing = (float)Math.Round(arc);
+                        return;
+                    }
+
                     if (!Input.IsAltKeyDown)
                     {
-                        if (!Input.IsShiftKeyDown)
-                            arc = (float)Math.Round(arc);
-                        else
-                            arc = (float)Math.Round(arc / 15f) * 15;
+                        HighlightedModule.Facing = (float)Math.Round(arc / 15f) * 15;
+                        return;
                     }
-                    else
-                        arc = (float)Math.Round(arc * 25) / 25;
+                    HashSet<float> arcs = new HashSet<float>();
+                    float minCompare = float.MinValue;
+                    float maxCompare = float.MaxValue;
+                    foreach(SlotStruct slot in Slots)
+                    {
+                        if (slot.ModuleUID == null || slot.Tex == null || slot.Module.ModuleType != ShipModuleType.Turret) continue;
+                        float facing = slot.Module.Facing;
+                        if (facing > minCompare && facing < arc)
+                        {                            
+                            minCompare = slot.Module.Facing;
+                        }
 
-                    HighlightedModule.Facing = arc;
-                    
+                        if(facing < maxCompare && facing > arc)
+                        {
+                            maxCompare = slot.Module.Facing;
+                         
+                        }
+                    }
+
+                    HighlightedModule.Facing = arc - minCompare < maxCompare - arc ? minCompare : maxCompare;
                 }
             }
         }
