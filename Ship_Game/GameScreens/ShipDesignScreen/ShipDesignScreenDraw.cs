@@ -195,6 +195,9 @@ namespace Ship_Game
                         DrawRectangle(slot.ModuleRectangle(), Color.White, color);
                         DrawString(arcString, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
 
+                        ToolTip.ShipYardArcTip();
+                        
+
 
                     }
                     // @todo Use this to fix the 'original' code below :)))
