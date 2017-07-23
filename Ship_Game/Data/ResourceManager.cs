@@ -1288,14 +1288,21 @@ namespace Ship_Game
                 {
                     foreach (Technology.UnlockedBonus bonus in tech.BonusUnlocked)
                     {
-                        if (bonus.Type == "SHIPMODULE" || bonus.Type == "HULL")
-                            tech.TechnologyType = TechnologyType.ShipGeneral;
-                        else if (bonus.Type == "TROOP")
-                            tech.TechnologyType = TechnologyType.GroundCombat;
-                        else if (bonus.Type == "BUILDING")
-                            tech.TechnologyType = TechnologyType.Colonization;
-                        else if (bonus.Type == "ADVANCE")
-                            tech.TechnologyType = TechnologyType.ShipGeneral;
+                        switch (bonus.Type) {
+                            case "SHIPMODULE":
+                            case "HULL":
+                                tech.TechnologyType = TechnologyType.ShipGeneral;
+                                break;
+                            case "TROOP":
+                                tech.TechnologyType = TechnologyType.GroundCombat;
+                                break;
+                            case "BUILDING":
+                                tech.TechnologyType = TechnologyType.Colonization;
+                                break;
+                            case "ADVANCE":
+                                tech.TechnologyType = TechnologyType.ShipGeneral;
+                                break;
+                        }
                     }
                 }
                 else if (tech.ModulesUnlocked.Count > 0)

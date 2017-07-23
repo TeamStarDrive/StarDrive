@@ -30,7 +30,7 @@ namespace Ship_Game
             return   FighterSubMenu.Menu.HitTest(input.CursorPosition) && ActiveModule != null;
         }
 
-        private void DestroySelectionBox()
+        public void Dispose()
         {
             SelectionBox?.RemoveFromParent();
             SelectionBox = null;
@@ -46,15 +46,8 @@ namespace Ship_Game
                 if (!ActiveModule.PermittedHangarRoles.Contains(ShipData.GetRole(fighter.DesignRole))) continue;
                 if (fighter.Size >= ActiveModule.MaximumHangarShipSize) continue;
 
-                AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
+                AddItem(ResourceManager.ShipsDict[shipname]);
             }         
-        }
-        private void UpdateHangarOptions(ShipModule mod)
-        {
-            if (ActiveHangarModule != mod && mod.ModuleType == ShipModuleType.Hangar)
-            {
-                Populate();
-            }
         }
 
         public bool HandleInput(InputState input, ShipModule activeModule, ShipModule highlightedModule)
@@ -74,21 +67,19 @@ namespace Ship_Game
                     ++index)
                 {
                     Entry entry = Copied[index];
+                    if (!(entry.item is Ship ship)) continue;
                     if (FighterSubMenu.Menu.HitTest(Screen.Input.CursorPosition))
                     {
-                        if (entry.clickRect.HitTest(input.CursorPosition))
-                        {
-                            entry.clickRectHover = 1;
-                            SelectionBox = new Selector(entry.clickRect);
-                            if (!input.InGameSelect) continue;
+                        if (!entry.clickRect.HitTest(input.CursorPosition)) continue;
+                        entry.clickRectHover = 1;
+                        SelectionBox = new Selector(entry.clickRect);
+                        if (!input.InGameSelect ) continue;
 
-                            ActiveModule.hangarShipUID = (entry.item as Ship).Name;
-                            HangarShipUIDLast = (entry.item as Ship).Name;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-
-                        }
+                        ActiveModule.hangarShipUID = ship.Name;
+                        HangarShipUIDLast = ship.Name;
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     }
-                    else if (ActiveModule.hangarShipUID == (entry.item as Ship).Name)
+                    else if (ActiveModule.hangarShipUID == ship.Name)
                     {
                         SelectionBox = new Selector(entry.clickRect);
 
@@ -97,27 +88,7 @@ namespace Ship_Game
 
                 return true;
             }
-            //else if (highlightedModule != null && highlightedModule.ModuleType == ShipModuleType.Hangar
-            //         && (!highlightedModule.IsTroopBay && !highlightedModule.IsSupplyBay))
-            //{               
-            //    for (int index = indexAtTop;
-            //        index < Copied.Count
-            //        && index < indexAtTop + entriesToDisplay;
-            //        ++index)
-            //    {
-            //        Entry entry = Copied[index];
-            //        if (!entry.clickRect.HitTest(input.CursorPosition)) continue;                    
-            //        entry.clickRectHover = 1;
-            //        SelectionBox = new Selector(entry.clickRect);
-            //        if (!input.InGameSelect) continue;
-            //        highlightedModule.hangarShipUID = (entry.item as Ship).Name;
-            //        HangarShipUIDLast = (entry.item as Ship).Name;
-            //        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    
-            //    }
-            //    return true;
-            //}
-
+   
             ActiveHangarModule = null;
             ActiveHangarModule = null;
             HangarShipUIDLast = "";
@@ -133,15 +104,11 @@ namespace Ship_Game
             ActiveHangarModule = activeModule;
             Populate();
 
-            Ship fighter = Ship_Game.ResourceManager.GetShipTemplate(HangarShipUIDLast, false);
+            Ship fighter = ResourceManager.GetShipTemplate(HangarShipUIDLast, false);
             if (HangarShipUIDLast != "" && activeModule.PermittedHangarRoles.Contains(fighter?.shipData.GetRole()) && activeModule.MaximumHangarShipSize >= fighter?.Size)
             {
                 activeModule.hangarShipUID = HangarShipUIDLast;
             }
-            //else if (Entries.Count > 0)
-            //{
-            //    activeModule.hangarShipUID = (Entries[0].item as Ship).Name;
-            //}
         }
 
         public override void Draw(SpriteBatch spriteBatch)
