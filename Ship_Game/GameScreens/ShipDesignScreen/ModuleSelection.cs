@@ -83,7 +83,6 @@ namespace Ship_Game
             WeaponSl.Draw(spriteBatch);
             if (ParentScreen.ActiveModule != null || ParentScreen.HighlightedModule != null)
             {
-                //activeModWindow.Draw();
                 ActiveModSubMenu.Draw();
                 DrawActiveModuleData();
             }
@@ -600,13 +599,18 @@ namespace Ship_Game
             
             if (mod.PermittedHangarRoles.Length != 0)
             {
-                modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + (float)Fonts.Arial12Bold.LineSpacing;
+                Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID);
+                modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + Fonts.Arial12Bold.LineSpacing;
                 Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", mod.hangarShipUID), Fonts.Arial20Bold);
-                
-                
-                
-           
+                string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
+                DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
+                shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+                shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
+                DrawStat(ref shipSelectionPos, $"Offense", ship.GetStrength(), -1);
+                DrawStat(ref shipSelectionPos, $"Mass", ship.Mass, -1);
+                DrawStat(ref shipSelectionPos, $"Weapons", ship.Weapons.Count, -1);
+                DrawStat(ref shipSelectionPos, $"Health", ship.HealthMax, -1);
+                DrawStat(ref shipSelectionPos, $"FTL", ship.maxFTLSpeed, -1);
             }
         }
 
