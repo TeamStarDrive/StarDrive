@@ -209,6 +209,19 @@ namespace Ship_Game
             Items = newArray;
         }
 
+        public void Resize(int newSize)
+        {
+            if (newSize > Count)
+            {
+                Grow(newSize);
+            }
+            else
+            {
+                Array.Clear(Items, newSize, Items.Length - newSize);
+            }
+            Count = newSize;
+        }
+
         public void Add(T item)
         {
             unchecked
