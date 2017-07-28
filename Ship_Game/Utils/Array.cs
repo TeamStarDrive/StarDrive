@@ -211,11 +211,17 @@ namespace Ship_Game
 
         public void Resize(int newSize)
         {
-            if (newSize > Count)
+            if (newSize > Items.Length) // grow requires realloc
             {
-                Grow(newSize);
+                int capacity = newSize;
+                int rem = capacity & 3; // align capacity to a multiple of 4
+                if (rem != 0) capacity += 4 - rem;
+
+                var newArray = new T[capacity];
+                Array.Copy(Items, 0, newArray, 0, Items.Length);
+                Items = newArray;
             }
-            else
+            else // shrink, clear the upper part of the array to avoid ref leaks
             {
                 Array.Clear(Items, newSize, Items.Length - newSize);
             }
