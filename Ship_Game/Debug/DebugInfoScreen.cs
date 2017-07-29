@@ -406,7 +406,8 @@ namespace Ship_Game.Debug
             {
                 if (e.isPlayer || e.isFaction)
                     continue;
-                foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values)
+              
+                foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values.ToArray())
                 {
                     if (pin.Position != Vector2.Zero)
                     {
@@ -414,7 +415,7 @@ namespace Ship_Game.Debug
 
                         if (pin.InBorders)
                         {
-                            Screen.DrawCircleProjectedZ(pin.Position, 50f, e.EmpireColor, 3);                            
+                            Screen.DrawCircleProjectedZ(pin.Position, 50f, e.EmpireColor, 3);
                         }
                     }
                 }
