@@ -203,7 +203,7 @@ namespace Ship_Game.AI.Tasks
                     {
                         Troop t = TargetPlanet.TroopsHere[index];
                         if (t.GetOwner() != Owner
-                            || TargetPlanet.system.CombatInSystem
+                            || TargetPlanet.ParentSystem.CombatInSystem
                             || t.AvailableAttackActions == 0
                             || t.MoveTimer > 0)
                             continue;

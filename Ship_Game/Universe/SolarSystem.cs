@@ -26,12 +26,13 @@ namespace Ship_Game
         public Array<Planet> PlanetList = new Array<Planet>();
         public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
+        public Array<Empire> FullyExplored = new Array<Empire>(); //Gretman
         public string SunPath;
         public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
         public Array<Ring> RingList = new Array<Ring>();
         private int NumberOfRings;
         public int StarRadius;
-        public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>(5);
+        public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>();
         public Array<string> ShipsToSpawn = new Array<string>();
         public Array<FleetAndPos> FleetsToSpawn = new Array<FleetAndPos>();
         public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
@@ -359,7 +360,6 @@ namespace Ship_Game
                         Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
                         OrbitalAngle = randomAngle,
                         ParentSystem = this,
-                        system       = this,
                         planetType   = 22
                     };
                     newOrbital.SetPlanetAttributes();
@@ -448,7 +448,6 @@ namespace Ship_Game
                         Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
                         OrbitalAngle = randomAngle,
                         ParentSystem = this,
-                        system       = this,
                         planetType   = RandomMath.IntBetween(1, 24)
                     };
                     if ((newOrbital.planetType == 22 || newOrbital.planetType == 13) && RandomMath.RandomBetween(0f, 100f) > 50f)
@@ -514,7 +513,6 @@ namespace Ship_Game
                         Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
                         OrbitalAngle = randomAngle,
                         ParentSystem = this,
-                        system       = this,
                         planetType   = RandomMath.IntBetween(1, 24)
                     };
                     float scale = RandomMath.RandomBetween(0.9f, 1.8f);
@@ -559,7 +557,6 @@ namespace Ship_Game
                         Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
                         OrbitalAngle = randomAngle,
                         ParentSystem = this,
-                        system       = this,
                         planetType   = RandomMath.IntBetween(0, 1) == 0 ? 27 : 29
                     };
                     newOrbital.Owner = owner;
@@ -568,7 +565,7 @@ namespace Ship_Game
                     owner.AddPlanet(newOrbital);
                     newOrbital.SetPlanetAttributes(26f);
                     newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
-                    newOrbital.Special = "None";
+                    //newOrbital.Special = "None";
                     newOrbital.Fertility = 2f + owner.data.Traits.HomeworldFertMod;
                     newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
                     newOrbital.Population = 14000f;
@@ -649,7 +646,6 @@ namespace Ship_Game
                         Name               = ringData.Planet,
                         OrbitalAngle       = randomAngle,
                         ParentSystem       = newSys,
-                        system             = newSys,
                         SpecialDescription = ringData.SpecialDescription,
                         planetType         = whichPlanet,
                         Center           = planetCenter,
@@ -688,7 +684,7 @@ namespace Ship_Game
                         newOrbital.InitializeSliders(owner);
                         owner.AddPlanet(newOrbital);
                         newOrbital.SetPlanetAttributes(26f);
-                        newOrbital.Special         = "None";
+                        //newOrbital.Special         = "None";
                         newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
                         newOrbital.Fertility       = 2f + owner.data.Traits.HomeworldFertMod;
 
@@ -823,6 +819,27 @@ namespace Ship_Game
                 Distance  = ringRadius,
                 Asteroids = true
             });
+        }
+
+        public bool CheckFullyExplored(Empire Emp)
+        {
+            for (int i = 0; i < FullyExplored.Count; i++)
+            {
+                if (FullyExplored[i] == Emp) return true;
+            }
+            return false;
+        }
+
+        public void UpdateFullyExplored(Empire Emp)
+        {
+            if (CheckFullyExplored(Emp)) return;
+
+            for (int i = 0; i < PlanetList.Count; i++)
+            {
+                if (!PlanetList[i].ExploredDict[Emp]) return;
+            }
+            FullyExplored.Add(Emp);
+            Log.Info("The " + Emp.Name + " have fully explored " + Name);
         }
 
         public struct FleetAndPos

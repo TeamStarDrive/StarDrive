@@ -25,7 +25,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public Guid guid = Guid.NewGuid();
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
-        public string Special = "None";
+        //public string Special = "None";   //This is never reassigned to any value other than "None", making it a waste of memory.  -Gretman
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public GoodState fs = GoodState.STORE;
         public GoodState ps = GoodState.STORE;
@@ -64,9 +64,9 @@ namespace Ship_Game
         public Vector2 Center;
         public string SpecialDescription;
         public bool HasShipyard;
-        public SolarSystem system;
+        public SolarSystem ParentSystem; //This was renamed to 'ParentSystem' as to unify this and the one I removed below -Gretman
         public Matrix cloudMatrix;
-        public SolarSystem ParentSystem;
+        //public SolarSystem ParentSystem;  //This served exactly the same purpose as the above SolarSystem object.
         public bool hasEarthLikeClouds;
         public string Name;
         public string Description;
@@ -195,7 +195,7 @@ namespace Ship_Game
                 }
                 Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
 
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && system.isVisible)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && ParentSystem.isVisible)
                 {
                     PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
 
@@ -331,7 +331,7 @@ namespace Ship_Game
                         bool removeowner = true;
                         if (Owner != null)
                         {
-                            foreach (Planet other in system.PlanetList)
+                            foreach (Planet other in ParentSystem.PlanetList)
                             {
                                 if (other.Owner != Owner || other == this)
                                 {
@@ -341,7 +341,7 @@ namespace Ship_Game
                             }
                             if (removeowner)
                             {
-                                system.OwnerList.Remove(Owner);
+                                ParentSystem.OwnerList.Remove(Owner);
                             }
                         }
                         ConstructionQueue.Clear();
@@ -1779,14 +1779,14 @@ namespace Ship_Game
                 {
                     if (Empire.Universe.PlayerEmpire.GetRelations(Owner).Treaty_NAPact)
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", system));
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", ParentSystem));
                         Empire.Universe.PlayerEmpire.GetGSAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                         Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
                         Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
                     }
                     else
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", system));
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", ParentSystem));
                         Empire.Universe.PlayerEmpire.GetGSAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                         Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
                         Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;
@@ -1820,13 +1820,13 @@ namespace Ship_Game
                     
                     if (Owner != null)
                     {
-                        foreach (Planet item_3 in system.PlanetList)
+                        foreach (Planet item_3 in ParentSystem.PlanetList)
                         {
                             if (item_3.Owner == Owner && item_3 != this)
                                 local_7 = false;
                         }
                         if (local_7)
-                            system.OwnerList.Remove(Owner);
+                            ParentSystem.OwnerList.Remove(Owner);
                     }
                     Owner = null;
                 }
@@ -1888,12 +1888,12 @@ namespace Ship_Game
             TurnsSinceTurnover = 0;
             Owner.AddPlanet(this);
             ConstructionQueue.Clear();
-            system.OwnerList.Clear();
+            ParentSystem.OwnerList.Clear();
             
-            foreach (Planet planet in system.PlanetList)
+            foreach (Planet planet in ParentSystem.PlanetList)
             {
-                if (planet.Owner != null && !system.OwnerList.Contains(planet.Owner))
-                    system.OwnerList.Add(planet.Owner);
+                if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
+                    ParentSystem.OwnerList.Add(planet.Owner);
             }
             colonyType = Owner.AssessColonyNeeds(this);
             GovernorOn = true;
@@ -2274,7 +2274,7 @@ namespace Ship_Game
                     if (building.isWeapon)
                     {
                         building.WeaponTimer -= elapsedTime;
-                        if (building.WeaponTimer < 0 && system.ShipList.Count > 0)
+                        if (building.WeaponTimer < 0 && ParentSystem.ShipList.Count > 0)
                         {
                             if (Owner != null)
                             {
@@ -2285,9 +2285,9 @@ namespace Ship_Game
                                 //float currentT = 0;
                                 float previousT = building.theWeapon.Range + 1000f;
                                 //this.system.ShipList.thisLock.EnterReadLock();
-                                for (int index2 = 0; index2 < system.ShipList.Count; ++index2)
+                                for (int index2 = 0; index2 < ParentSystem.ShipList.Count; ++index2)
                                 {
-                                    Ship ship = system.ShipList[index2];
+                                    Ship ship = ParentSystem.ShipList[index2];
                                     if (ship.loyalty == Owner || (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact) )
                                         continue;
                                     currentD = Vector2.Distance(Center, ship.Center);                                   
@@ -2351,9 +2351,9 @@ namespace Ship_Game
                 foreach(Ship ship in Shipyards.Values)
                     repairPool += ship.RepairRate;                    
             }
-            for (int i = 0; i < system.ShipList.Count; i++)
+            for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
-                Ship ship = system.ShipList[i];
+                Ship ship = ParentSystem.ShipList[i];
                 if(ship != null && ship.loyalty.isFaction)
                 {
                     ship.Ordinance = ship.OrdinanceMax;
@@ -2964,7 +2964,7 @@ namespace Ship_Game
                 return false;
 
             //determine defensive needs.
-            if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(system, out SC))
+            if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out SC))
             {
                 if (makingMoney)
                     needDefense = SC.RankImportance >= defenseratio *10; ;// / (defensiveBuildings + offensiveBuildings+1)) >defensiveNeeds;
@@ -4786,7 +4786,7 @@ namespace Ship_Game
                 }
             }
 
-            if (ConstructionQueue.Count < 5 && !system.CombatInSystem && developmentLevel > 2 && colonyType != ColonyType.Research) //  this.ProductionHere > this.MAX_STORAGE * .75f)
+            if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && developmentLevel > 2 && colonyType != ColonyType.Research) //  this.ProductionHere > this.MAX_STORAGE * .75f)
             #region Troops and platforms
             {
                 //Added by McShooterz: Colony build troops
@@ -4824,12 +4824,12 @@ namespace Ship_Game
                 #endregion
                 //Added by McShooterz: build defense platforms
 
-                if (HasShipyard && !system.CombatInSystem 
+                if (HasShipyard && !ParentSystem.CombatInSystem 
                      && (!Owner.isPlayer || colonyType == ColonyType.Military))
                 {
 
                     SystemCommander SCom;
-                    if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(system, out SCom))
+                    if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out SCom))
                     {
                         float DefBudget;
                         DefBudget = Owner.data.DefenseBudget * SCom.PercentageOfValue;
@@ -5274,7 +5274,7 @@ output = maxp * take10 = 5
                     if (queueItem.Building.Name == "Space Port")
                     {
                         Station.planet = this;
-                        Station.ParentSystem = system;
+                        Station.ParentSystem = ParentSystem;
                         Station.LoadContent(Empire.Universe.ScreenManager);
                         HasShipyard = true;
                     }
@@ -5751,12 +5751,12 @@ output = maxp * take10 = 5
                     OrbitalAngle -= 360f;
             }
             PosUpdateTimer -= elapsedTime;
-            if (PosUpdateTimer <= 0.0f || system.isVisible)
+            if (PosUpdateTimer <= 0.0f || ParentSystem.isVisible)
             {
                 PosUpdateTimer = 5f;
                 Center = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
             }
-            if (system.isVisible)
+            if (ParentSystem.isVisible)
             {
                 BoundingSphere boundingSphere = new BoundingSphere(new Vector3(Center, 0.0f), 300000f);
                 //System.Threading.Tasks.Parallel.Invoke(() =>

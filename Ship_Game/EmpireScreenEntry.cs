@@ -198,15 +198,15 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			Color TextColor = new Color(255, 239, 208);
-			if (Fonts.Pirulen16.MeasureString(this.p.system.Name).X <= (float)this.SysNameRect.Width)
+			if (Fonts.Pirulen16.MeasureString(this.p.ParentSystem.Name).X <= (float)this.SysNameRect.Width)
 			{
-				Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Pirulen16.MeasureString(this.p.system.Name).X / 2f, (float)(this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Pirulen16.LineSpacing / 2));
-				ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, this.p.system.Name, SysNameCursor, TextColor);
+				Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Pirulen16.MeasureString(this.p.ParentSystem.Name).X / 2f, (float)(this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Pirulen16.LineSpacing / 2));
+				ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, this.p.ParentSystem.Name, SysNameCursor, TextColor);
 			}
 			else
 			{
-				Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Pirulen12.MeasureString(this.p.system.Name).X / 2f, (float)(this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
-				ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.p.system.Name, SysNameCursor, TextColor);
+				Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Pirulen12.MeasureString(this.p.ParentSystem.Name).X / 2f, (float)(this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
+				ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.p.ParentSystem.Name, SysNameCursor, TextColor);
 			}
 			Rectangle planetIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 25, this.PlanetNameRect.Height - 50, this.PlanetNameRect.Height - 50);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], planetIconRect, Color.White);

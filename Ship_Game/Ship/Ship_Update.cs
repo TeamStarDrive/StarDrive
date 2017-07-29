@@ -53,7 +53,7 @@ namespace Ship_Game.Gameplay
                 Center   = TetheredTo.Center + TetherOffset;
                 velocityMaximum = 0;
             }
-            if (Mothership != null && !Mothership.Active)
+            if (Mothership != null && !Mothership.Active) //Problematic for drones... 
                 Mothership = null;
 
             if (dying) UpdateDying(elapsedTime);
@@ -62,13 +62,13 @@ namespace Ship_Game.Gameplay
 
         private void UpdateAlive(float elapsedTime)
         {
-            if (System != null && elapsedTime > 0f)
+            if (System != null && elapsedTime > 0f && !loyalty.isFaction && !System.CheckFullyExplored(loyalty))  //Added easy out for fully explorered systems
             {
                 foreach (Planet p in System.PlanetList)
                 {
-                    if (p.Center.OutsideRadius(Center, 3000f * 3000f))
-                        continue;
                     if (p.ExploredDict[loyalty]) // already explored
+                        continue;
+                    if (p.Center.OutsideRadius(Center, 9000000f)) //3000f * 3000f
                         continue;
 
                     if (loyalty == EmpireManager.Player)
@@ -81,6 +81,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                     p.ExploredDict[loyalty] = true;
+                    System.UpdateFullyExplored(loyalty);
                     for (int i = 0; i < p.BuildingList.Count; i++)
                     {
                         Building building = p.BuildingList[i];
@@ -105,7 +106,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (disabled)
+            if (EMPdisabled)
             {
                 float third = Radius / 3f;
                 for (int i = 5 - 1; i >= 0; --i)
@@ -114,31 +115,28 @@ namespace Ship_Game.Gameplay
                     Empire.Universe.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
                 }
             }
-            //Ship ship1 = this;
-            //float num1 = this.Rotation + this.RotationalVelocity * elapsedTime;
+
             Rotation += RotationalVelocity * elapsedTime;
-            if (Math.Abs(RotationalVelocity) > 0.0)
+            if (RotationalVelocity != 0.0)
                 isTurning = true;
 
             if (!isSpooling && Afterburner.IsPlaying)
                 Afterburner.Stop();
 
-            ClickTimer -= elapsedTime;
-            if (ClickTimer < 0f) ClickTimer = 10f;
+            //ClickTimer -= elapsedTime;    //This is the only place ClickTimer is ever used, and thus is a waste of memory and CPU -Gretman
+            //if (ClickTimer < 0f) ClickTimer = 10f;
 
             if (elapsedTime > 0f)
             {
                 UpdateProjectiles(elapsedTime);
                 UpdateBeams(elapsedTime);
+                if (!EMPdisabled) AI.Update(elapsedTime);
             }
 
             if (Active)
             {
                 InCombatTimer -= elapsedTime;
-                if (InCombatTimer > 0.0)
-                {
-                    InCombat = true;
-                }
+                if (InCombatTimer > 0.0) InCombat = true;
                 else
                 {
                     if (InCombat)
@@ -149,14 +147,10 @@ namespace Ship_Game.Gameplay
                         AI.OrderQueue.Clear();
                     }
                 }
+
                 Position += Velocity * elapsedTime;
                 Center   += Velocity * elapsedTime;
-                UpdateShipStatus(elapsedTime);
-
-                if (!Active)
-                    return;
-                if (!disabled && !Empire.Universe.Paused) //this.hasCommand &&
-                    AI.Update(elapsedTime);
+                UpdateShipStatus(elapsedTime); //Mer
 
                 if (InFrustum)
                 {
@@ -342,8 +336,7 @@ namespace Ship_Game.Gameplay
         {
             for (int i = projectiles.Count - 1; i >= 0; --i)
             {
-                Projectile projectile = projectiles[i];
-                if (projectile?.Active == true)
+                if (projectiles[i]?.Active == true)
                     projectiles[i].Update(elapsedTime);
                 else
                     projectiles.RemoveAtSwapLast(i);

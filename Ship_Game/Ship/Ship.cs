@@ -45,7 +45,7 @@ namespace Ship_Game.Gameplay
         public Array<Weapon> Weapons = new Array<Weapon>();
         private float JumpTimer = 3f;
         public AudioEmitter SoundEmitter = new AudioEmitter();
-        public float ClickTimer = 10f;
+        //public float ClickTimer = 10f;    //Never used
         public Vector2 ScreenPosition = new Vector2();
         public float ScuttleTimer = -1f;
         public Vector2 FleetOffset;
@@ -156,7 +156,7 @@ namespace Ship_Game.Gameplay
         public bool Inhibited;
         private float BonusEMP_Protection;
         public bool inSensorRange;
-        public bool disabled;
+        public bool EMPdisabled;
         private float updateTimer;
         public float WarpThrust;
         public float TurnThrust;
@@ -815,7 +815,7 @@ namespace Ship_Game.Gameplay
 
         public void ProcessInput(float elapsedTime)
         {
-            if (GlobalStats.TakingInput || disabled || !hasCommand)
+            if (GlobalStats.TakingInput || EMPdisabled || !hasCommand)
                 return;
             if (Empire.Universe.Input != null)
                 currentKeyBoardState = Empire.Universe.Input.KeysCurr;
@@ -1523,7 +1523,7 @@ namespace Ship_Game.Gameplay
                         recallFighters = false;
                         continue;
                     }
-                    if (hangarShip.disabled || !hangarShip.hasCommand || hangarShip.dying || hangarShip.EnginesKnockedOut)
+                    if (hangarShip.EMPdisabled || !hangarShip.hasCommand || hangarShip.dying || hangarShip.EnginesKnockedOut)
                     {
                         recallFighters = false;
                         if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f;
@@ -1807,36 +1807,34 @@ namespace Ship_Game.Gameplay
 
             MoveModulesTimer -= deltaTime;
             updateTimer -= deltaTime;
-            if (deltaTime > 0 && (EMPDamage > 0 || disabled))
+            if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
                 --EMPDamage;
                 if (EMPDamage < 0f) EMPDamage = 0f;
-                disabled = EMPDamage > Size + BonusEMP_Protection;
+                EMPdisabled = EMPDamage > Size + BonusEMP_Protection;
             }
-            if (Rotation > 2.0 * Math.PI)
+            if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
+            if (Rotation < 0f) Rotation += 6.28318548202515f;
+
+            if (InCombat && !EMPdisabled && hasCommand || PlayerShip)
             {
-                Rotation -= 6.28318548202515f;
+                for (int i = 0; i < Weapons.Count; i++)
+                {
+                    Weapons[i].Update(deltaTime);
+                }
             }
-            if (Rotation < 0f)
-            {
-                Rotation += 6.28318548202515f;
-            }
-            if (InCombat && !disabled && hasCommand || PlayerShip)
-            {
-                foreach (Weapon weapon in Weapons)
-                    weapon.Update(deltaTime);
-            }
-            TroopBoardingDefense = 0.0f;
-            for (int i = 0; i < TroopList.Count; i++)
-            {
-                Troop troop = TroopList[i];
-                troop.SetShip(this);
-                if (troop.GetOwner() == loyalty)
-                    TroopBoardingDefense += troop.Strength;
-            }
+
             if (updateTimer <= 0.0) //|| shipStatusChanged)
             {
-                if ((InCombat && !disabled && hasCommand || PlayerShip) && Weapons.Count > 0)
+                TroopBoardingDefense = 0.0f;
+                for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I mived it here so it would be every second, instead.   -Gretman
+                {
+                    TroopList[i].SetShip(this);
+                    if (TroopList[i].GetOwner() == loyalty)
+                        TroopBoardingDefense += TroopList[i].Strength;
+                }
+
+                if ((InCombat && !EMPdisabled && hasCommand || PlayerShip) && Weapons.Count > 0)
                 {
                     
                     AI.CombatAI.UpdateCombatAI(this);
@@ -2165,9 +2163,9 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-            else if (Active && AI.BadGuysNear 
-                || InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                || MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim) 
+            //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
+            if (MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim || AI.BadGuysNear 
+                || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
             {
                 if (deltaTime > 0.0f || UpdatedModulesOnce)
                 {
@@ -2176,15 +2174,14 @@ namespace Ship_Game.Gameplay
                     float cos = (float)Math.Cos(Rotation);
                     float sin = (float)Math.Sin(Rotation);
                     float tan = (float)Math.Tan(yRotation);
-                    var slots = ModuleSlotList;
-                    for (int i = 0; i < slots.Length; ++i)
+                    for (int i = 0; i < ModuleSlotList.Length; ++i)
                     {
-                        if (!Active) break;
-                        slots[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
+                        ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan); 
                         ++GlobalStats.ModuleUpdates;
                     }
                 }
             }
+
             SetmaxFTLSpeed();
             if (Ordinance > OrdinanceMax)
                 Ordinance = OrdinanceMax;
@@ -2204,8 +2201,6 @@ namespace Ship_Game.Gameplay
             }
             if (PowerCurrent > PowerStoreMax)
                 PowerCurrent = PowerStoreMax;
-            if (shield_percent < 0.0f)
-                shield_percent = 0.0f;
             shield_percent = 100.0 * shield_power / shield_max;
             if (shield_percent < 0.0f)
                 shield_percent = 0.0f;
