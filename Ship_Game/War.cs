@@ -168,11 +168,11 @@ namespace Ship_Game
 			Array<Guid> guids = this.ContestedSystemsGUIDs;
 			foreach (Planet p in ColoniesOffered)
 			{
-				if (guids.Contains(p.system.guid))
+				if (guids.Contains(p.ParentSystem.guid))
 				{
 					continue;
 				}
-				guids.Add(p.system.guid);
+				guids.Add(p.ParentSystem.guid);
 			}
 			int num = 0;
 			foreach (Guid guid in guids)

@@ -54,7 +54,7 @@ namespace Ship_Game.AI
             {
                 if (coreWorld == null || coreWorld.GetMaxProductionPotential() <= 5f || !coreWorld.HasShipyard) continue;
                 float aoSize = 0;
-                foreach (SolarSystem system in coreWorld.system.FiveClosestSystems)
+                foreach (SolarSystem system in coreWorld.ParentSystem.FiveClosestSystems)
                 {
                     if (aoSystems.Contains(system)) continue;                                       
                     if (aoSize < Vector2.Distance(coreWorld.Center, system.Position))

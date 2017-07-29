@@ -346,7 +346,7 @@ namespace Ship_Game.AI {
                 var remainder = new Array<Tasks.MilitaryTask>();
 
                 foreach (var task in this
-                    .TaskList.OrderByDescending(task =>
+                    .TaskList.OrderByDescending((Func<Tasks.MilitaryTask, float>)(task =>
                     {
                         if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)
                             return 0;
@@ -356,7 +356,7 @@ namespace Ship_Game.AI {
 
                         if (task.GetTargetPlanet() == null)                        
                             return weight * 2;
-                        
+
                         Empire emp = task.GetTargetPlanet().Owner;
                         if (emp == null)
                             return 0;
@@ -377,16 +377,16 @@ namespace Ship_Game.AI {
                         {
                             SystemCommander scom;
                             target.Owner.GetGSAI()
-                                .DefensiveCoordinator.DefenseDict.TryGetValue(target.system, out scom);
+                                .DefensiveCoordinator.DefenseDict.TryGetValue((SolarSystem)target.ParentSystem, out scom);
                             if (scom != null)
                                 weight += 11 - scom.RankImportance;
                         }
 
                         if (emp.isPlayer)
-                            weight *= ((int) Empire.Universe.GameDifficulty > 0
-                                ? (int) Empire.Universe.GameDifficulty: 1);
+                            weight *= ((int)Empire.Universe.GameDifficulty > 0
+                                ? (int)Empire.Universe.GameDifficulty: 1);
                         return weight;
-                    })
+                    }))
                 )
                 {
                     if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)                    
@@ -395,7 +395,7 @@ namespace Ship_Game.AI {
                     if (task.IsToughNut)                    
                         toughNuts.Add(task);
                     
-                    else if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().system))
+                    else if (!OwnerEmpire.GetOwnedSystems().Contains((SolarSystem)task.GetTargetPlanet().ParentSystem))
                     {
                         bool dobreak = false;
                         foreach (KeyValuePair<Guid, Planet> entry in Empire.Universe.PlanetsDict)
@@ -428,7 +428,7 @@ namespace Ship_Game.AI {
                 Toughnuts          = toughNuts.Count;
                 foreach (Tasks.MilitaryTask task in toughNuts)
                 {
-                    if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().system))
+                    if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().ParentSystem))
                     {
                         bool dobreak = false;
                         foreach (KeyValuePair<Guid, Planet> entry in Empire.Universe.PlanetsDict)

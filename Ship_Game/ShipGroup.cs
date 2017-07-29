@@ -305,7 +305,7 @@ namespace Ship_Game
                 for (int index = 0; index < Ships.Count; index++)
                 {
                     Ship ship = Ships[index];
-                    if (ship.disabled || !ship.hasCommand || !ship.Active)
+                    if (ship.EMPdisabled || !ship.hasCommand || !ship.Active)
                         continue;
                     if (ship.Center.OutsideRadius(position + ship.FleetOffset, radius))
                     {

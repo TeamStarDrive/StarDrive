@@ -411,7 +411,7 @@ namespace Ship_Game
                     numStatus++;
                 }
             }
-            if (this.ship.disabled)
+            if (this.ship.EMPdisabled)
             {
                 Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_disabled"], FoodRect, Color.White);

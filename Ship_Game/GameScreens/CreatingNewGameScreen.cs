@@ -155,23 +155,23 @@ namespace Ship_Game
                 foreach (Planet planet in empire.GetPlanets())
                 {
                     planet.MineralRichness += GlobalStats.StartingPlanetRichness;
-                    planet.system.ExploredDict[empire] = true;
+                    planet.ParentSystem.ExploredDict[empire] = true;
                     planet.ExploredDict[empire] = true;
 
-                    foreach (Planet p in planet.system.PlanetList)
+                    foreach (Planet p in planet.ParentSystem.PlanetList)
                         p.ExploredDict[empire] = true;
 
-                    if (planet.system.OwnerList.Count == 0)
+                    if (planet.ParentSystem.OwnerList.Count == 0)
                     {
-                        planet.system.OwnerList.Add(empire);
-                        foreach (Planet planet2 in planet.system.PlanetList)
+                        planet.ParentSystem.OwnerList.Add(empire);
+                        foreach (Planet planet2 in planet.ParentSystem.PlanetList)
                             planet2.ExploredDict[empire] = true;
                     }
                     if (planet.HasShipyard)
                     {
                         SpaceStation spaceStation = new SpaceStation { planet = planet };
                         planet.Station = spaceStation;
-                        spaceStation.ParentSystem = planet.system;
+                        spaceStation.ParentSystem = planet.ParentSystem;
                         spaceStation.LoadContent(ScreenManager);
                     }
 
@@ -292,7 +292,7 @@ namespace Ship_Game
                 wipSystem.ExploredDict.Add(key, false);
             foreach (Planet planet in wipSystem.PlanetList)
             {
-                planet.system = wipSystem;
+                planet.ParentSystem = wipSystem;
                 planet.Center += wipSystem.Position;
                 planet.InitializePlanetMesh(this);
                 foreach (Empire key in Data.EmpireList)
@@ -361,7 +361,7 @@ namespace Ship_Game
                     case UniverseData.GameDifficulty.Brutal:
                         empireFromEmpireData.data.FlatMoneyBonus += 50; // cheaty cheat
                         traits.ProductionMod += 1.0f;
-                        traits.ResearchMod    = 2.0f;
+                        traits.ResearchMod    = 1.33f;
                         traits.TaxMod        += 1.0f;
                         traits.ShipCostMod   -= 0.5f;
                         break;

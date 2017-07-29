@@ -165,7 +165,7 @@ namespace Ship_Game.Gameplay
             if (doOrbit)
                 ship.DoOrbit(p);
 
-            ship.SetSystem(p.system);
+            ship.SetSystem(p.ParentSystem);
             return ship;
         }
 

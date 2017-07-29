@@ -324,14 +324,14 @@ namespace Ship_Game.AI {
                     {
                         p.colonyType = Them.AssessColonyNeeds(p);
                     }
-                    p.system.OwnerList.Clear();
-                    foreach (Planet pl in p.system.PlanetList)
+                    p.ParentSystem.OwnerList.Clear();
+                    foreach (Planet pl in p.ParentSystem.PlanetList)
                     {
-                        if (pl.Owner == null || p.system.OwnerList.Contains(pl.Owner))
+                        if (pl.Owner == null || p.ParentSystem.OwnerList.Contains(pl.Owner))
                         {
                             continue;
                         }
-                        p.system.OwnerList.Add(pl.Owner);
+                        p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
                     float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
                                   p.MineralRichness + p.MaxPopulation / 10000f;
@@ -371,14 +371,14 @@ namespace Ship_Game.AI {
                     toRemove.Add(p);
                     p.Owner = us;
                     us.AddPlanet(p);
-                    p.system.OwnerList.Clear();
-                    foreach (Planet pl in p.system.PlanetList)
+                    p.ParentSystem.OwnerList.Clear();
+                    foreach (Planet pl in p.ParentSystem.PlanetList)
                     {
-                        if (pl.Owner == null || p.system.OwnerList.Contains(pl.Owner))
+                        if (pl.Owner == null || p.ParentSystem.OwnerList.Contains(pl.Owner))
                         {
                             continue;
                         }
-                        p.system.OwnerList.Add(pl.Owner);
+                        p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
                     float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
                                   p.MineralRichness + p.MaxPopulation / 10000f;
@@ -710,14 +710,14 @@ namespace Ship_Game.AI {
                     toRemove.Add(p);
                     p.Owner = Them;
                     Them.AddPlanet(p);
-                    p.system.OwnerList.Clear();
-                    foreach (Planet pl in p.system.PlanetList)
+                    p.ParentSystem.OwnerList.Clear();
+                    foreach (Planet pl in p.ParentSystem.PlanetList)
                     {
-                        if (pl.Owner == null || p.system.OwnerList.Contains(pl.Owner))
+                        if (pl.Owner == null || p.ParentSystem.OwnerList.Contains(pl.Owner))
                         {
                             continue;
                         }
-                        p.system.OwnerList.Add(pl.Owner);
+                        p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
                     float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
                                   p.MineralRichness + p.MaxPopulation / 10000f;
@@ -758,14 +758,14 @@ namespace Ship_Game.AI {
                     toRemove.Add(p);
                     p.Owner = us;
                     us.AddPlanet(p);
-                    p.system.OwnerList.Clear();
-                    foreach (Planet pl in p.system.PlanetList)
+                    p.ParentSystem.OwnerList.Clear();
+                    foreach (Planet pl in p.ParentSystem.PlanetList)
                     {
-                        if (pl.Owner == null || p.system.OwnerList.Contains(pl.Owner))
+                        if (pl.Owner == null || p.ParentSystem.OwnerList.Contains(pl.Owner))
                         {
                             continue;
                         }
-                        p.system.OwnerList.Add(pl.Owner);
+                        p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
                     float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
                                   p.MineralRichness + p.MaxPopulation / 10000f;
@@ -949,7 +949,7 @@ namespace Ship_Game.AI {
                         value = value + 100f;
                     }
                     float multiplier = 0f;
-                    foreach (Planet other in p.system.PlanetList)
+                    foreach (Planet other in p.ParentSystem.PlanetList)
                     {
                         if (other.Owner != p.Owner)
                         {
@@ -982,7 +982,7 @@ namespace Ship_Game.AI {
                         value = value + b.Cost / 50f;
                     }
                     int multiplier = 1;
-                    foreach (Planet other in p.system.PlanetList)
+                    foreach (Planet other in p.ParentSystem.PlanetList)
                     {
                         if (other.Owner != p.Owner)
                         {

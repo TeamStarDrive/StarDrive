@@ -263,7 +263,7 @@ namespace Ship_Game
                 {
                     IOrderedEnumerable<Planet> sortedList = 
                         from planet in this.planets
-                        orderby planet.system.Name descending
+                        orderby planet.ParentSystem.Name descending
                         select planet;
                     foreach (Planet p in sortedList)
                     {
@@ -279,7 +279,7 @@ namespace Ship_Game
                 {
                     IOrderedEnumerable<Planet> sortedList = 
                         from planet in this.planets
-                        orderby planet.system.Name
+                        orderby planet.ParentSystem.Name
                         select planet;
                     foreach (Planet p in sortedList)
                     {
@@ -562,7 +562,7 @@ namespace Ship_Game
                     {
                         IOrderedEnumerable<Planet> sortedList = 
                             from planet in this.planets
-                            orderby planet.system.Name descending
+                            orderby planet.ParentSystem.Name descending
                             select planet;
                         foreach (Planet p in sortedList)
                         {
@@ -578,7 +578,7 @@ namespace Ship_Game
                     {
                         IOrderedEnumerable<Planet> sortedList = 
                             from planet in this.planets
-                            orderby planet.system.Name
+                            orderby planet.ParentSystem.Name
                             select planet;
                         foreach (Planet p in sortedList)
                         {

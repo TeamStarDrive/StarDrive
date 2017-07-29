@@ -307,7 +307,7 @@ namespace Ship_Game.AI
             foreach (Planet planet2 in maxProductionPotential)
             {
                 float aoSize = 0;
-                foreach (SolarSystem system in planet2.system.FiveClosestSystems)
+                foreach (SolarSystem system in planet2.ParentSystem.FiveClosestSystems)
                 {
                     if (aoSize < Vector2.Distance(planet2.Center, system.Position))
                         aoSize = Vector2.Distance(planet2.Center, system.Position);
@@ -365,10 +365,10 @@ namespace Ship_Game.AI
                 bool matchFound = false;
                 foreach (Planet other in theirTargetPlanets)
                 {
-                    if (p == null || other == null || p.system != other.system)                    
+                    if (p == null || other == null || p.ParentSystem != other.ParentSystem)                    
                         continue;
                     
-                    sharedSystem = p.system;
+                    sharedSystem = p.ParentSystem;
                     matchFound = true;
                     break;
                 }

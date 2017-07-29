@@ -22,12 +22,12 @@ namespace Ship_Game.AI {
             if (!them.Value.Known)            
                 return;
             
-            if (them.Value.WarnedSystemsList.Contains(claimedPlanet.system.guid) 
+            if (them.Value.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid) 
                 && claimedPlanet.Owner == them.Key 
                 && !them.Value.AtWar)
             {
                 bool theyAreThereAlready = false;
-                foreach (Planet p in claimedPlanet.system.PlanetList)
+                foreach (Planet p in claimedPlanet.ParentSystem.PlanetList)
                 {
                     if (p.Owner == null || p.Owner != Empire.Universe.PlayerEmpire)                    
                         continue;
@@ -47,25 +47,25 @@ namespace Ship_Game.AI {
                         .StolenSystems.Contains(claimedPlanet.guid))
                 {
                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                        Empire.Universe.PlayerEmpire, "Stole Claim", claimedPlanet.system));
+                        Empire.Universe.PlayerEmpire, "Stole Claim", claimedPlanet.ParentSystem));
                 }
                 else if (OwnerEmpire.GetRelations(them.Key).NumberStolenClaims == 2 &&
                          !OwnerEmpire.GetRelations(them.Key).HaveWarnedTwice && !OwnerEmpire.GetRelations(them.Key)
-                             .StolenSystems.Contains(claimedPlanet.system.guid))
+                             .StolenSystems.Contains(claimedPlanet.ParentSystem.guid))
                 {
                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                        Empire.Universe.PlayerEmpire, "Stole Claim 2", claimedPlanet.system));
+                        Empire.Universe.PlayerEmpire, "Stole Claim 2", claimedPlanet.ParentSystem));
                     OwnerEmpire.GetRelations(them.Key).HaveWarnedTwice = true;
                 }
                 else if (OwnerEmpire.GetRelations(them.Key).NumberStolenClaims >= 3 &&
                          !OwnerEmpire.GetRelations(them.Key).HaveWarnedThrice && !OwnerEmpire.GetRelations(them.Key)
-                             .StolenSystems.Contains(claimedPlanet.system.guid))
+                             .StolenSystems.Contains(claimedPlanet.ParentSystem.guid))
                 {
                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                        Empire.Universe.PlayerEmpire, "Stole Claim 3", claimedPlanet.system));
+                        Empire.Universe.PlayerEmpire, "Stole Claim 3", claimedPlanet.ParentSystem));
                     OwnerEmpire.GetRelations(them.Key).HaveWarnedThrice = true;
                 }
-                OwnerEmpire.GetRelations(them.Key).StolenSystems.Add(claimedPlanet.system.guid);
+                OwnerEmpire.GetRelations(them.Key).StolenSystems.Add(claimedPlanet.ParentSystem.guid);
             }
         }
 
@@ -306,7 +306,7 @@ namespace Ship_Game.AI {
                             if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != pr.planet)
                             {
                                 if (!g.Held || g.GetMarkedPlanet() == null ||
-                                    g.GetMarkedPlanet().system != pr.planet.system)
+                                    g.GetMarkedPlanet().ParentSystem != pr.planet.ParentSystem)
                                     continue;
 
                                 ok = false;

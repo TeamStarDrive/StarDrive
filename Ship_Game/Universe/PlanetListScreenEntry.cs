@@ -87,7 +87,7 @@ namespace Ship_Game
         {
             string singular;
             Color TextColor = new Color(255, 239, 208);
-            string sysname = this.planet.system.Name;
+            string sysname = this.planet.ParentSystem.Name;
             if (Fonts.Arial20Bold.MeasureString(sysname).X <= (float)this.SysNameRect.Width)
             {
                 Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(sysname).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2));
@@ -101,7 +101,7 @@ namespace Ship_Game
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
-            if (this.planet.system.DangerTimer > 0f)
+            if (this.planet.ParentSystem.DangerTimer > 0f)
             {
                 TimeSpan totalGameTime = gameTime.TotalGameTime;
                 float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);

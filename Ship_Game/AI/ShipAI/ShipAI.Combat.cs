@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         public void FireOnTarget()
         {
             // base reasons not to fire. @TODO actions decided by loyalty like should be the same in all areas. 
-            if (!Owner.hasCommand || Owner.engineState == Ship.MoveState.Warp || Owner.disabled || Owner.Weapons.Count == 0)
+            if (!Owner.hasCommand || Owner.engineState == Ship.MoveState.Warp || Owner.EMPdisabled || Owner.Weapons.Count == 0)
                 return;
 
             if (BadGuysNear) // Determine if there is something to shoot at

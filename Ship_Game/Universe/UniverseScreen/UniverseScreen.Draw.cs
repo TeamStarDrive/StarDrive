@@ -112,7 +112,7 @@ namespace Ship_Game
                 basicEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
                 if (this.UseRealLights)
                 {
-                    Vector3 vector3 = new Vector3(p.Center - p.system.Position, 0.0f);
+                    Vector3 vector3 = new Vector3(p.Center - p.ParentSystem.Position, 0.0f);
                     vector3 = Vector3.Normalize(vector3);
                     basicEffect.DirectionalLight0.Direction = vector3;
                 }

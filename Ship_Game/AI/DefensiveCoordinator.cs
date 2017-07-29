@@ -51,7 +51,7 @@ namespace Ship_Game.AI
             for (int index = 0; index < planets.Length; index++)
             {
                 Planet planet = planets[index];	      
-                if (!DefenseDict.TryGetValue(planet.system, out SystemCommander scom)) continue;
+                if (!DefenseDict.TryGetValue(planet.ParentSystem, out SystemCommander scom)) continue;
                 count++;
                 str += scom.RankImportance;	                
             }
@@ -128,8 +128,8 @@ namespace Ship_Game.AI
                 }
                 else if (p.Owner == Us) //This should stay here.
                 {
-                    if (p.system == null || DefenseDict.ContainsKey(p.system)) continue;
-                    DefenseDict.Add(p.system, new SystemCommander(Us, p.system));
+                    if (p.ParentSystem == null || DefenseDict.ContainsKey(p.ParentSystem)) continue;
+                    DefenseDict.Add(p.ParentSystem, new SystemCommander(Us, p.ParentSystem));
                 }
             }
             TotalValue = 0;
@@ -294,7 +294,7 @@ namespace Ship_Game.AI
                     }
                     if (troopAI.State == AIState.Rebase
                         && troopAI.OrderQueue.NotEmpty
-                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.system))
+                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.ParentSystem))
                     {
                         currentTroops++;
                         kv.Value.TroopStrengthNeeded--;
