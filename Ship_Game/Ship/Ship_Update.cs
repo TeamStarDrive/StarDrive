@@ -68,7 +68,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (p.ExploredDict[loyalty]) // already explored
                         continue;
-                    if (p.Center.OutsideRadius(Center, 9000000f)) //3000f * 3000f
+                    if (p.Center.OutsideRadius(Center, 3000f))
                         continue;
 
                     if (loyalty == EmpireManager.Player)
