@@ -51,7 +51,7 @@ namespace Ship_Game.Gameplay
         private MuzzleFlash Flash;
         private PointLight MuzzleFlash;
         private float FlashTimer = 0.142f;
-        public float Scale = 1f;
+        //public float Scale = 1f; //Set to Weapon.Scale every frame. Removing...  -Gretman
         private int AnimationFrame;
         public bool DieNextFrame { get; private set; }
         public bool DieSound;
@@ -179,7 +179,7 @@ namespace Ship_Game.Gameplay
             else if (Planet != null)
             {
                 Loyalty = Planet.Owner;
-                SetSystem(Planet.system);
+                SetSystem(Planet.ParentSystem);
                 Planet.AddProjectile(this);
             }
 
@@ -247,7 +247,7 @@ namespace Ship_Game.Gameplay
             {
                 var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
                 var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
-                screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Scale);
+                screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Weapon.Scale);
             }
         }
 
@@ -491,7 +491,6 @@ namespace Ship_Game.Gameplay
             }
 
             Position += Velocity * elapsedTime;
-            Scale = Weapon.Scale;
             if (Weapon.Animated == 1)
             {
                 FrameTimer += elapsedTime;
@@ -543,7 +542,7 @@ namespace Ship_Game.Gameplay
                 else
                     ZStart = -25f;
 
-                WorldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -ZStart);
+                WorldMatrix = Matrix.CreateScale(Weapon.Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -ZStart);
 
                 if (UsesVisibleMesh) // lazy init rocket projectile meshes
                 {

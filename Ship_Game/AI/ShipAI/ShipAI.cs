@@ -65,7 +65,7 @@ namespace Ship_Game.AI
             }
             ColonizeTarget = TargetPlanet;
             ColonizeTarget.Owner = Owner.loyalty;
-            ColonizeTarget.system.OwnerList.Add(Owner.loyalty);
+            ColonizeTarget.ParentSystem.OwnerList.Add(Owner.loyalty);
             if (Owner.loyalty.isPlayer)
             {
                 if (!Owner.loyalty.AutoColonize)
@@ -95,8 +95,8 @@ namespace Ship_Game.AI
                 break;
             }
             Owner.loyalty.GetGSAI().Goals.ApplyPendingRemovals();
-            if (ColonizeTarget.system.OwnerList.Count > 1)
-                foreach (Planet p in ColonizeTarget.system.PlanetList)
+            if (ColonizeTarget.ParentSystem.OwnerList.Count > 1)
+                foreach (Planet p in ColonizeTarget.ParentSystem.PlanetList)
                 {
                     if (p.Owner == ColonizeTarget.Owner || p.Owner == null)
                         continue;

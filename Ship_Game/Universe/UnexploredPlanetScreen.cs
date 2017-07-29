@@ -121,7 +121,7 @@ namespace Ship_Game
 			PNameCursor.Y = (float)(this.PlanetIcon.Y + this.PlanetIcon.Height + 20);
 			string desc = this.parseText(this.p.Description, (float)(this.PlanetInfo.Menu.Width - 40));
 			spriteBatch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, new Color(255, 239, 208));
-			if (this.p.Special != "None")
+			/*if (this.p.Special != "None")     //This was removed, because the string "Special" was never assigned a valus other than "None" -Gretman
 			{
 				PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.MeasureString(desc).Y + 10f);
 				string special = this.p.Special;
@@ -159,7 +159,7 @@ namespace Ship_Game
 					d = this.parseText("The native creatures of this planet secrete an incredible spice-like element with brain-enhancing properties.  If colonized, this planet would produce +5 research per turn", (float)(this.PlanetInfo.Menu.Width - 40));
 					spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, new Color(255, 239, 208));
 				}
-			}
+			}*/
 		}
 
 	    public override bool HandleInput(InputState input)

@@ -322,11 +322,11 @@ namespace Ship_Game.Gameplay
 					{
 						foreach (Planet other in TheirTargetPlanets)
 						{
-							if (p == null || other == null || p.system != other.system)
+							if (p == null || other == null || p.ParentSystem != other.ParentSystem)
 							{
 								continue;
 							}
-							sharedSystem = p.system;
+							sharedSystem = p.ParentSystem;
 							MatchFound = true;
 							break;
 						}
@@ -361,8 +361,8 @@ namespace Ship_Game.Gameplay
 							}
 							this.turnsSinceLastContact = 0;
 							this.WarnedAboutColonizing = true;
-							this.contestedSystem = p.system;
-							this.contestedSystemGuid = p.system.guid;
+							this.contestedSystem = p.ParentSystem;
+							this.contestedSystemGuid = p.ParentSystem.guid;
 							return;
 						}
 					}

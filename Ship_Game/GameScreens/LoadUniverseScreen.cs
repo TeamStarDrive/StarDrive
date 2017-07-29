@@ -102,7 +102,6 @@ namespace Ship_Game
         {
             var p = new Planet
             {
-                system = forSystem,
                 ParentSystem = forSystem,
                 guid = psdata.guid,
                 Name = psdata.Name
@@ -244,7 +243,7 @@ namespace Ship_Game
                         {
                             planet       = p,
                             Position     = p.Center,
-                            ParentSystem = p.system
+                            ParentSystem = p.ParentSystem
                         };
                         p.Station.LoadContent(ScreenManager);
                         p.HasShipyard = true;
@@ -908,7 +907,7 @@ namespace Ship_Game
             percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
             foreach (Planet p in system.PlanetList)
             {
-                p.system = system;
+                p.ParentSystem = system;
                 p.InitializePlanetMesh(this);
             }
             foreach (Asteroid roid in system.AsteroidsList)  AddObject(roid.So);

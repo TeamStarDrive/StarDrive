@@ -108,7 +108,7 @@ namespace Ship_Game
 			{
 				if (!this.BombardButton.Toggled)
 				{
-					foreach (Ship ship in p.system.ShipList)
+					foreach (Ship ship in p.ParentSystem.ShipList)
 					{
 						if (ship.loyalty != EmpireManager.Player || ship.AI.State != AIState.Bombard)
 						{
@@ -120,7 +120,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					foreach (Ship ship in p.system.ShipList)
+					foreach (Ship ship in p.ParentSystem.ShipList)
 					{
 						if (ship.loyalty != EmpireManager.Player || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, this.p.Center) >= 15000f)
 						{

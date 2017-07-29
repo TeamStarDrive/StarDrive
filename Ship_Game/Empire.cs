@@ -453,9 +453,9 @@ namespace Ship_Game
         public void RemovePlanet(Planet planet)
         {
             OwnedPlanets.Remove(planet);
-            if (OwnedPlanets.All(p => p.system != planet.system)) // system no more in owned planets?
+            if (OwnedPlanets.All(p => p.ParentSystem != planet.ParentSystem)) // system no more in owned planets?
             {
-                OwnedSolarSystems.Remove(planet.system);
+                OwnedSolarSystems.Remove(planet.ParentSystem);
             }
         }
 
@@ -472,11 +472,11 @@ namespace Ship_Game
                 throw new ArgumentNullException(nameof(planet));
 
             OwnedPlanets.Add(planet);
-            if (planet.system == null)
-                throw new ArgumentNullException(nameof(planet.system));
+            if (planet.ParentSystem == null)
+                throw new ArgumentNullException(nameof(planet.ParentSystem));
 
-            if (!OwnedSolarSystems.Contains(planet.system))
-                OwnedSolarSystems.Add(planet.system);
+            if (!OwnedSolarSystems.Contains(planet.ParentSystem))
+                OwnedSolarSystems.Add(planet.ParentSystem);
         }
 
         public void AddTradeMoney(float howMuch)
@@ -1786,8 +1786,8 @@ namespace Ship_Game
                 }
                 else
                 {
-                    influenceNode1.SourceObject = planet.system;
-                    influenceNode1.Position     = planet.system.Position;
+                    influenceNode1.SourceObject = planet.ParentSystem;
+                    influenceNode1.Position     = planet.ParentSystem.Position;
                 }
                 influenceNode1.Radius = 1f;
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
@@ -2288,10 +2288,10 @@ namespace Ship_Game
             {
                 AddPlanet(planet);
                 planet.Owner = this;
-                if (!planet.system.OwnerList.Contains(this))
+                if (!planet.ParentSystem.OwnerList.Contains(this))
                 {
-                    planet.system.OwnerList.Add(this);
-                    planet.system.OwnerList.Remove(target);
+                    planet.ParentSystem.OwnerList.Add(this);
+                    planet.ParentSystem.OwnerList.Remove(target);
                 }
             }
             foreach (KeyValuePair<Guid, SolarSystem> keyValuePair in Universe.SolarSystemDict)

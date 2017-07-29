@@ -347,7 +347,7 @@ namespace Ship_Game.AI {
             var invasionTargets = new Array<Planet>();
             foreach (Planet p in OwnerEmpire.GetPlanets())
             {
-                foreach (Planet toCheck in p.system.PlanetList)
+                foreach (Planet toCheck in p.ParentSystem.PlanetList)
                 {
                     if (toCheck.Owner == null || toCheck.Owner == OwnerEmpire || !toCheck.Owner.isFaction &&
                         !OwnerEmpire.GetRelations(toCheck.Owner).AtWar)

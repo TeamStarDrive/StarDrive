@@ -118,7 +118,7 @@ namespace Ship_Game
             ShowShipNames = false;
             if (SelectedPlanet == null)
                 return;
-            if (!SelectedPlanet.system.ExploredDict[player])
+            if (!SelectedPlanet.ParentSystem.ExploredDict[player])
             {
                 PlayNegativeSound();
             }
@@ -185,7 +185,7 @@ namespace Ship_Game
             if (SelectedPlanet == null)
                 return;
             CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
-            if (!SelectedPlanet.system.ExploredDict[player])
+            if (!SelectedPlanet.ParentSystem.ExploredDict[player])
             {
                 PlayNegativeSound();
             }

@@ -2149,11 +2149,11 @@ namespace Ship_Game
                 if (empty)
                 {
                     int ringnum = 1;
-                    foreach (SolarSystem.Ring ring in this.p.system.RingList)
+                    foreach (SolarSystem.Ring ring in this.p.ParentSystem.RingList)
                     {
                         if (ring.planet == this.p)
                         {
-                            this.PlanetName.Text = string.Concat(this.p.system.Name, " ", NumberToRomanConvertor.NumberToRoman(ringnum));
+                            this.PlanetName.Text = string.Concat(this.p.ParentSystem.Name, " ", NumberToRomanConvertor.NumberToRoman(ringnum));
                         }
                         ringnum++;
                     }

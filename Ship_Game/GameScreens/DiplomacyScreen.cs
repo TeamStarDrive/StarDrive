@@ -268,7 +268,7 @@ namespace Ship_Game
 			float TheirOpinionOfUs;
 			e.GetRelations(us).turnsSinceLastContact = 0;
 			this.pToDiscuss = p;
-			this.sysToDiscuss = p.system;
+			this.sysToDiscuss = p.ParentSystem;
 			this.them = e;
 			this.playerEmpire = us;
 			this.whichDialogue = which;

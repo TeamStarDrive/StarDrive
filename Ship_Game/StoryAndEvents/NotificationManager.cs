@@ -93,7 +93,7 @@ namespace Ship_Game
             {
                 RelevantEmpire  = conquerer,
                 Message         = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
-                ReferencedItem1 = wasConquered.system,
+                ReferencedItem1 = wasConquered.ParentSystem,
                 IconPath        = "Planets/" + wasConquered.planetType,
                 Action          = "SnapToSystem"
             }, "sd_troop_march_01");
@@ -184,7 +184,7 @@ namespace Ship_Game
             {
                 Pause           = false,
                 Message         = Localizer.Token(1505) + p.Name + Localizer.Token(1506),
-                ReferencedItem1 = p.system,
+                ReferencedItem1 = p.ParentSystem,
                 ReferencedItem2 = p,
                 IconPath        = "Planets/" + p.planetType,
                 Action          = "SnapToExpandSystem"
@@ -273,7 +273,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Message         = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
-                ReferencedItem1 = died.system,
+                ReferencedItem1 = died.ParentSystem,
                 IconPath        = "Planets/" + died.planetType,
                 Action          = "SnapToSystem"
             }, "sd_ui_notification_warning");
@@ -295,7 +295,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Message         = "Rebellion on " + beingInvaded.Name + "!",
-                ReferencedItem1 = beingInvaded.system,
+                ReferencedItem1 = beingInvaded.ParentSystem,
                 IconPath        = "UI/icon_rebellion",
                 Action          = "SnapToSystem"
             }, "sd_troop_march_01", "sd_notify_alert");
