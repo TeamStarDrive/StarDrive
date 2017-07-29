@@ -318,14 +318,15 @@ namespace Ship_Game
 
         // assume we have a relative reference frame and weaponPos is stationary
         // use additional calculations to set up correct interceptSpeed and deltaVel
+        // https://stackoverflow.com/a/2249237
         public static float ProjectedImpactTime(this Vector2 weaponPos, Vector2 targetPos, 
                                                      Vector2 deltaV, float interceptSpeed)
         {
-            Vector2 deltaPos = targetPos - weaponPos;
+            Vector2 distance = targetPos - weaponPos;
 
             float a  = deltaV.Dot(deltaV) - (interceptSpeed*interceptSpeed);
-            float bm = -2 * deltaPos.Dot(deltaV);
-            float c  = deltaPos.Dot(deltaPos);
+            float bm = 2f*distance.Dot(deltaV);
+            float c  = distance.Dot(distance);
 
             // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
             if (Abs(a) < 0.0001f)
