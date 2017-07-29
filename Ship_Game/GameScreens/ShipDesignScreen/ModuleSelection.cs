@@ -606,11 +606,10 @@ namespace Ship_Game
                 DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
                 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
                 shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
-                DrawStat(ref shipSelectionPos, $"Offense", ship.GetStrength(), -1);
-                DrawStat(ref shipSelectionPos, $"Mass", ship.Mass, -1);
-                DrawStat(ref shipSelectionPos, $"Weapons", ship.Weapons.Count, -1);
-                DrawStat(ref shipSelectionPos, $"Health", ship.HealthMax, -1);
-                DrawStat(ref shipSelectionPos, $"FTL", ship.maxFTLSpeed, -1);
+                DrawStat(ref shipSelectionPos, "LaunchCost", ship.FighterLaunchCost, -1);                
+                DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
+                DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
+                DrawStat(ref shipSelectionPos, "FTL", ship.maxFTLSpeed, -1);
             }
         }
 
