@@ -8,6 +8,8 @@ using Ship_Game.Gameplay;
 namespace Ship_Game.AI {
     public sealed partial class ShipAI
     {
+
+        
         private void DeRotate()
         {
             if (Owner.yRotation > 0f)
@@ -927,10 +929,9 @@ namespace Ship_Game.AI {
                 if (Owner.Mothership.TroopCapacity > Owner.Mothership.TroopList.Count && Owner.TroopList.Count == 1)
                     Owner.Mothership.TroopList.Add(Owner.TroopList[0]);
                 if (Owner.shipData.Role == ShipData.RoleName.supply) //fbedard: Supply ship return with Ordinance
-                    Owner.Mothership.Ordinance += Owner.Ordinance;
-                Owner.Mothership.Ordinance += Owner.Mass / 5f; //fbedard: New spawning cost
-                if (Owner.Mothership.Ordinance > Owner.Mothership.OrdinanceMax)
-                    Owner.Mothership.Ordinance = Owner.Mothership.OrdinanceMax;
+                    Owner.Mothership.AlterOrdinance(Owner.Ordinance);
+                Owner.ApplyFighterLaunchCost(false); //fbedard: New spawning cost                
+             
                 Owner.QueueTotalRemoval();
                 foreach (ShipModule hangar in Owner.Mothership.GetHangars())
                 {
