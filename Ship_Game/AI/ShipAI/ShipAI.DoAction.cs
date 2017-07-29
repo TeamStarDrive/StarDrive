@@ -107,10 +107,7 @@ namespace Ship_Game.AI {
 
         private void DoAttackRun(float elapsedTime)
         {
-            Vector2 ownerCenter = Owner.Center;
-
-            Vector2 interceptPoint = ownerCenter.ProjectImpactPoint(Owner.Velocity, Owner.speed, Target.Center, Target.Velocity);
-            float distanceToTarget = ownerCenter.Distance(Target.Center);
+            float distanceToTarget = Owner.Center.Distance(Target.Center);
             float adjustedWeaponRange = Owner.maxWeaponsRange * .35f;
             float spacerdistance = Owner.Radius * 3 + Target.Radius;
             if (spacerdistance > adjustedWeaponRange)
@@ -120,6 +117,10 @@ namespace Ship_Game.AI {
             {
                 RunTimer = 0f;
                 AttackRunStarted = false;
+
+                Vector2 interceptPoint = Owner.Center.ProjectImpactPoint(
+                                            Vector2.Zero, Owner.speed, Target.Center, Target.Velocity);
+
                 ThrustTowardsPosition(interceptPoint, elapsedTime, Owner.speed);
                 return;
             }
@@ -141,7 +142,7 @@ namespace Ship_Game.AI {
                     ran = ran == 1 ? 1 : -1;
                     AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();                    
                 }
-                AttackVector = ownerCenter.PointFromAngle(AttackRunAngle, (Owner.Radius + Target.Radius) * 3f);
+                AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, (Owner.Radius + Target.Radius) * 3f);
                 MoveInDirection(AttackVector, elapsedTime);
                 if (RunTimer > 2)
                 {
