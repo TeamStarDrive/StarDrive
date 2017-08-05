@@ -257,6 +257,26 @@ namespace Ship_Game.Gameplay
             return size;
         }
 
+        private Vector2 JitterPosition()
+        {
+            Vector2 jitter = Position;
+            if (CombatDisabled)
+                return jitter;
+            
+            if (ECMValue >0)            
+                jitter += RandomMath2.Vector2D(ECMValue *80f);
+            
+            if(loyalty.data.Traits.DodgeMod >0 )            
+                jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 8f);
+            
+            return jitter;
+        }
+
+        public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;        
+
+        public override Vector2 PositionEst => JitterPosition();        
+
+
 
         public IReadOnlyList<Projectile> Projectiles => projectiles;
         public IReadOnlyList<Beam> Beams => beams;

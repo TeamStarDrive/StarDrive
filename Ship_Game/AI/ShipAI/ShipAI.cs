@@ -36,6 +36,8 @@ namespace Ship_Game.AI
         public BatchRemovalCollection<Ship> FriendliesNearby  = new BatchRemovalCollection<Ship>();        
         public object WayPointLocker;
 
+        
+
         public ShipAI(Ship owner)
         {
             Owner = owner;

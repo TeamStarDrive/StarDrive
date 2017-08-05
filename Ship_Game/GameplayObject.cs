@@ -50,12 +50,12 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
 
-        [XmlIgnore][JsonIgnore]
+        
         public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
-
+        
         protected GameplayObject(GameObjectType typeFlags)
         {
             Type = typeFlags;
@@ -82,6 +82,8 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";
+        [XmlIgnore][JsonIgnore]
+        public virtual Vector2 PositionEst => Position;        
 
         public void SetSystem(SolarSystem system)
         {
