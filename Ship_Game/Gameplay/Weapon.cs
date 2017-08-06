@@ -358,11 +358,11 @@ namespace Ship_Game.Gameplay
 
         private void FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
-            if (!CheckFireArc(targetPos, target) ||!PrepareToFire())
+            if (!PrepareToFire())
                 return;
 
             Vector2 pip = targetPos;
-            if (target != null && !ProjectedImpactPoint(target, out pip))
+            if (target != null && (!ProjectedImpactPoint(target, out pip) || !CheckFireArc(pip)))
                 return; // no projected impact point
 
             Vector2 direction = (pip - Module.Center).Normalized();
@@ -392,13 +392,19 @@ namespace Ship_Game.Gameplay
             // for shipmodules, make sure to use ship Velocity and Acceleration
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {
+                Vector2 jitter = Owner?.GetAdjustedTargetPosition(ship) ?? Vector2.Zero;
                 pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center, ship.Velocity, ship.Acceleration);
+                    target.Center + jitter, ship.Velocity, ship.Acceleration);
+            }
+            else if(target is Projectile proj)
+            {
+                pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed,
+                    proj.Center + proj.PositionModifier, proj.Velocity);
             }
             else
-            {
+            {                
                 pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center, target.Velocity);
+                    target.Center + target.PositionModifier, target.Velocity);
             }
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
@@ -452,7 +458,7 @@ namespace Ship_Game.Gameplay
         {
             if (enemyProjectiles.NotEmpty && Tag_PD)
             {
-                int maxTrackable = Owner.TrackingPower + Owner.Level;
+                int maxTrackable = (int)(Owner.TrackingPower + Owner.Level *.05f);
                 for (int i = 0; i < maxTrackable && i < enemyProjectiles.Count; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
@@ -479,7 +485,7 @@ namespace Ship_Game.Gameplay
             else if (Owner.TrackingPower > 0)
             {
                 // limit to one target per level.
-                int tracking = Owner.TrackingPower + Owner.Level;
+                int tracking = (int)(Owner.TrackingPower + Owner.Level * 0.05f);
                 for (int i = 0; i < potentialTargets.Count && i < tracking; i++) //
                 {
                     Ship potentialTarget = potentialTargets[i];

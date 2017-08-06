@@ -135,7 +135,7 @@ namespace Ship_Game.Gameplay
                 ship.Level += owner.data.BonusFighterLevels;
 
             // during new game creation, universeScreen can still be null
-            if (Empire.Universe != null && Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Normal)
+            if (Empire.Universe != null && Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Normal && owner != EmpireManager.Player)
                 ship.Level += (int)Empire.Universe.GameDifficulty;
 
             ship.InitializeShip(loadingFromSavegame: false);

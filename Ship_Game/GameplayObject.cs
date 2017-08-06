@@ -83,7 +83,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";
         [XmlIgnore][JsonIgnore]
-        public virtual Vector2 PositionEst => Position;        
+        public virtual Vector2 PositionModifier => Vector2.Zero;        
 
         public void SetSystem(SolarSystem system)
         {
