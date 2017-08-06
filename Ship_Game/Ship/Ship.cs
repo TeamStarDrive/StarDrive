@@ -257,9 +257,9 @@ namespace Ship_Game.Gameplay
             return size;
         }
 
-        private Vector2 JitterPosition()
+        public Vector2 JitterPosition()
         {
-            Vector2 jitter = Position;
+            Vector2 jitter = Vector2.Zero;
             if (CombatDisabled)
                 return jitter;
             
@@ -274,7 +274,24 @@ namespace Ship_Game.Gameplay
 
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;        
 
-        public override Vector2 PositionEst => JitterPosition();        
+        public Vector2 GetAdjustedTargetPosition(Ship target)
+        {
+            Vector2 jitter = Vector2.Zero;
+            int level = Level + 2;
+            float adjust = Math.Max(0, 125 - level * level * level );
+            jitter += RandomMath2.Vector2D(adjust);
+            jitter += target.JitterPosition();
+            return jitter;
+        }
+        public Vector2 GetAdjustedTargetPosition(Projectile target)
+        {
+            Vector2 jitter = Vector2.Zero;
+            float adjust = 25 - Level / 10f;
+            jitter += RandomMath2.Vector2D(adjust);
+            jitter += target.JitterPosition();
+            return jitter;
+        }
+        public override Vector2 PositionModifier => JitterPosition();        
 
 
 
@@ -2523,32 +2540,30 @@ namespace Ship_Game.Gameplay
                 return;
         
             //Added by McShooterz: change level cap, dynamic experience required per level
-            float Exp = 1;
-            float ExpLevel = 1;
-            bool ExpFound = false;
-            float ReqExp = 1;
-            if (ResourceManager.ShipRoles.ContainsKey(killed.shipData.Role))
+            float exp = 1;
+            float expLevel = 1;
+            bool expFound = false;
+            float reqExp = 1;
+            if (ResourceManager.ShipRoles.TryGetValue(killed.shipData.Role, out ShipRole role))
             {
-                for (int i = 0; i < ResourceManager.ShipRoles[killed.shipData.Role].RaceList.Count(); i++)
+                for (int i = 0; i < role.RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[killed.shipData.Role].RaceList[i].ShipType == killed.loyalty.data.Traits.ShipType)
-                    {
-                        Exp = ResourceManager.ShipRoles[killed.shipData.Role].RaceList[i].KillExp;
-                        ExpLevel = ResourceManager.ShipRoles[killed.shipData.Role].RaceList[i].KillExpPerLevel;
-                        ExpFound = true;
-                        break;
-                    }
+                    if (role.RaceList[i].ShipType != killed.loyalty.data.Traits.ShipType) continue;
+                    exp = role.RaceList[i].KillExp;
+                    expLevel = role.RaceList[i].KillExpPerLevel;
+                    expFound = true;
+                    break;
                 }
-                if(!ExpFound)
+                if(!expFound)
                 {
-                    Exp = ResourceManager.ShipRoles[killed.shipData.Role].KillExp;
-                    ExpLevel = ResourceManager.ShipRoles[killed.shipData.Role].KillExpPerLevel;
+                    exp = role.KillExp;
+                    expLevel = role.KillExpPerLevel;
                 }
             }
-            Exp = (Exp + (ExpLevel * killed.Level));
-            Exp += Exp * loyalty.data.ExperienceMod;
-            experience += Exp;
-            ExpFound = false;
+            exp = (exp + (expLevel * killed.Level));
+            exp += exp * loyalty.data.ExperienceMod;
+            experience += exp;
+            expFound = false;
             //Added by McShooterz: a way to prevent remnant story in mods
 
             Empire remnant = EmpireManager.Remnants;  //Changed by Gretman, because this was preventing any "RemnantKills" from getting counted, thus no remnant event.
@@ -2557,32 +2572,32 @@ namespace Ship_Game.Gameplay
                 //GlobalStats.IncrementRemnantKills((int)Exp);
                 GlobalStats.IncrementRemnantKills(1);   //I also changed this because the exp before was a lot, killing almost any remnant ship would unlock the remnant event immediately
 
-            if (ResourceManager.ShipRoles.ContainsKey(shipData.Role))
+            if (role != null)
             {
-                for (int i = 0; i < ResourceManager.ShipRoles[shipData.Role].RaceList.Count(); i++)
+                for (int i = 0; i < role.RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[shipData.Role].RaceList[i].ShipType == loyalty.data.Traits.ShipType)
+                    if (role.RaceList[i].ShipType == loyalty.data.Traits.ShipType)
                     {
-                        ReqExp = ResourceManager.ShipRoles[shipData.Role].RaceList[i].ExpPerLevel;
-                        ExpFound = true;
+                        reqExp = role.RaceList[i].ExpPerLevel;
+                        expFound = true;
                         break;
                     }
                 }
-                if (!ExpFound)
+                if (!expFound)
                 {
-                    ReqExp = ResourceManager.ShipRoles[shipData.Role].ExpPerLevel;
+                    reqExp = role.ExpPerLevel;
                 }
             }
-            while (experience > ReqExp * (1 + Level))
+            while (experience > reqExp * (1 + Level))
             {
-                experience -= ReqExp * (1 + Level);
+                experience -= reqExp * (1 + Level);
                 AddToShipLevel(1);
             }
             
             if (!loyalty.TryGetRelations(killed.loyalty, out Relationship rel) || !rel.AtWar)
                 return;
-            loyalty.GetRelations(killed.loyalty).ActiveWar.StrengthKilled += killed.BaseStrength;
-            killed.loyalty.GetRelations(loyalty).ActiveWar.StrengthLost += killed.BaseStrength;
+            rel.ActiveWar.StrengthKilled += killed.BaseStrength;
+            rel.ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
         public void AddToShipLevel(int amountToAdd)
