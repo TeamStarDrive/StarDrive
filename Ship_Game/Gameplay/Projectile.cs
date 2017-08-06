@@ -239,6 +239,15 @@ namespace Ship_Game.Gameplay
                     break;
             }
         }
+        public Vector2 JitterPosition()
+        {
+            Vector2 jitter = Vector2.Zero;
+            jitter += Owner?.JitterPosition() ?? Vector2.Zero;
+
+            return jitter;
+        }
+
+        public override Vector2 PositionModifier => JitterPosition();
 
         public void DrawProjectile(UniverseScreen screen)
         {

@@ -1835,42 +1835,25 @@ namespace Ship_Game
             }
             if (index.data.Traits.Assimilators)
             {
-                if (index.data.Traits.DiplomacyMod < (double)Owner.data.Traits.DiplomacyMod)
-                    index.data.Traits.DiplomacyMod = Owner.data.Traits.DiplomacyMod;
-                if (index.data.Traits.DodgeMod < (double)Owner.data.Traits.DodgeMod)
-                    index.data.Traits.DodgeMod = Owner.data.Traits.DodgeMod;
-                if (index.data.Traits.EnergyDamageMod < (double)Owner.data.Traits.EnergyDamageMod)
-                    index.data.Traits.EnergyDamageMod = Owner.data.Traits.EnergyDamageMod;
-                if (index.data.Traits.ConsumptionModifier > (double)Owner.data.Traits.ConsumptionModifier)
-                    index.data.Traits.ConsumptionModifier = Owner.data.Traits.ConsumptionModifier;
-                if (index.data.Traits.GroundCombatModifier < (double)Owner.data.Traits.GroundCombatModifier)
-                    index.data.Traits.GroundCombatModifier = Owner.data.Traits.GroundCombatModifier;
-                if (Owner.data.Traits.Mercantile > 0.0)
-                    index.data.Traits.Mercantile = Owner.data.Traits.Mercantile;
-                if (index.data.Traits.PassengerModifier < Owner.data.Traits.PassengerModifier)
-                    index.data.Traits.PassengerModifier = Owner.data.Traits.PassengerModifier;
-                if (index.data.Traits.ProductionMod < (double)Owner.data.Traits.ProductionMod)
-                    index.data.Traits.ProductionMod = Owner.data.Traits.ProductionMod;
-                if (index.data.Traits.RepairMod < (double)Owner.data.Traits.RepairMod)
-                    index.data.Traits.RepairMod = Owner.data.Traits.RepairMod;
-                if (index.data.Traits.ResearchMod < (double)Owner.data.Traits.ResearchMod)
-                    index.data.Traits.ResearchMod = Owner.data.Traits.ResearchMod;
-                if (index.data.Traits.ShipCostMod > (double)Owner.data.Traits.ShipCostMod)
-                    index.data.Traits.ShipCostMod = Owner.data.Traits.ShipCostMod;
-                if (index.data.Traits.PopGrowthMin < (double)Owner.data.Traits.PopGrowthMin)
-                    index.data.Traits.PopGrowthMin = Owner.data.Traits.PopGrowthMin;
-                if (index.data.Traits.PopGrowthMax > (double)Owner.data.Traits.PopGrowthMax)
-                    index.data.Traits.PopGrowthMax = Owner.data.Traits.PopGrowthMax;
-                if (index.data.Traits.ModHpModifier < (double)Owner.data.Traits.ModHpModifier)
-                    index.data.Traits.ModHpModifier = Owner.data.Traits.ModHpModifier;
-                if (index.data.Traits.TaxMod < (double)Owner.data.Traits.TaxMod)
-                    index.data.Traits.TaxMod = Owner.data.Traits.TaxMod;
-                if (index.data.Traits.MaintMod > (double)Owner.data.Traits.MaintMod)
-                    index.data.Traits.MaintMod = Owner.data.Traits.MaintMod;
-                if (index.data.SpyModifier < (double)Owner.data.SpyModifier)
-                    index.data.SpyModifier = Owner.data.SpyModifier;
-                if (index.data.Traits.Spiritual < (double)Owner.data.Traits.Spiritual)
-                    index.data.Traits.Spiritual = Owner.data.Traits.Spiritual;
+                TraitLess(ref index.data.Traits.DiplomacyMod, ref Owner.data.Traits.DiplomacyMod);
+                TraitLess(ref index.data.Traits.DodgeMod, ref Owner.data.Traits.DodgeMod);
+                TraitLess(ref index.data.Traits.EnergyDamageMod, ref Owner.data.Traits.EnergyDamageMod);
+                TraitMore(ref index.data.Traits.ConsumptionModifier, ref Owner.data.Traits.ConsumptionModifier);
+                TraitLess(ref index.data.Traits.GroundCombatModifier, ref Owner.data.Traits.GroundCombatModifier);
+                TraitLess(ref index.data.Traits.Mercantile, ref Owner.data.Traits.Mercantile);
+                TraitLess(ref index.data.Traits.PassengerModifier, ref Owner.data.Traits.PassengerModifier);
+                TraitLess(ref index.data.Traits.ProductionMod, ref Owner.data.Traits.ProductionMod);
+                TraitLess(ref index.data.Traits.RepairMod, ref Owner.data.Traits.RepairMod);
+                TraitLess(ref index.data.Traits.ResearchMod, ref Owner.data.Traits.ResearchMod);
+                TraitLess(ref index.data.Traits.ShipCostMod, ref Owner.data.Traits.ShipCostMod);
+                TraitLess(ref index.data.Traits.PopGrowthMin, ref Owner.data.Traits.PopGrowthMin);
+                TraitMore(ref index.data.Traits.PopGrowthMax, ref Owner.data.Traits.PopGrowthMax);
+                TraitLess(ref index.data.Traits.ModHpModifier, ref Owner.data.Traits.ModHpModifier);
+                TraitLess(ref index.data.Traits.TaxMod, ref Owner.data.Traits.TaxMod);
+                TraitMore(ref index.data.Traits.MaintMod, ref Owner.data.Traits.MaintMod);
+                TraitLess(ref index.data.SpyModifier, ref Owner.data.SpyModifier);
+                TraitLess(ref index.data.Traits.Spiritual, ref Owner.data.Traits.Spiritual);
+
             }
             if (index.isFaction)
                 return;
@@ -1898,6 +1881,10 @@ namespace Ship_Game
             colonyType = Owner.AssessColonyNeeds(this);
             GovernorOn = true;
         }
+
+        private void TraitLess(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Max(invaderValue, ownerValue);
+        private void TraitMore(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Min(invaderValue, ownerValue);
+
 
         public void DoTroopTimers(float elapsedTime)
         {
@@ -2175,8 +2162,9 @@ namespace Ship_Game
                     
                 else if (pgs.building != null && pgs.building.CombatStrength > 0 && (Owner != Empire.Universe.PlayerEmpire || !Empire.Universe.LookingAtPlanet || (!(Empire.Universe.workersPanel is CombatScreen) || (Empire.Universe.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat) && pgs.building.AvailableAttackActions > 0)
                 {
-                    foreach (PlanetGridSquare planetGridSquare in TilesList)
+                    for (int i = 0; i < TilesList.Count; i++)
                     {
+                        PlanetGridSquare planetGridSquare = TilesList[i];
                         if (CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, this))
                         {
                             --pgs.building.AvailableAttackActions;
