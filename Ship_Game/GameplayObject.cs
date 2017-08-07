@@ -50,8 +50,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
 
-        
-        public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
+        [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;

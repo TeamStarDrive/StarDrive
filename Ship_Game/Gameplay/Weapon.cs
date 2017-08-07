@@ -304,7 +304,7 @@ namespace Ship_Game.Gameplay
         private bool CanFireWeapon()
         {
             return Module.Active
-                && Owner.engineState != Ship.MoveState.Warp
+                && Owner.engineState  != Ship.MoveState.Warp
                 && Owner.PowerCurrent >= PowerRequiredToFire
                 && Owner.Ordinance    >= OrdinanceRequiredToFire;
         }
@@ -358,11 +358,8 @@ namespace Ship_Game.Gameplay
 
         private void FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
-            if (!PrepareToFire())
-                return;
-
             Vector2 pip = targetPos;
-            if (target != null && (!ProjectedImpactPoint(target, out pip) || !CheckFireArc(pip)))
+            if (target != null && (!ProjectedImpactPoint(target, out pip) || !CheckFireArc(pip) || !PrepareToFire()))
                 return; // no projected impact point
 
             Vector2 direction = (pip - Module.Center).Normalized();
@@ -384,27 +381,42 @@ namespace Ship_Game.Gameplay
             SalvoTarget = null;
         }
 
+        public Vector2 AdjustTargetting(int level = 0)
+        {
+            Vector2 jitter = Vector2.Zero;
+            level = (Owner?.Level ?? level) + 2;
+            float baseJitter = 178f + 16 * Module.XSIZE * Module.YSIZE; 
+            float adjust = Math.Max(0, baseJitter - level * level * level);
+            if (adjust < 8) return jitter;
+
+            if (isTurret)
+                adjust *= .75f;
+            if (Tag_PD || TruePD)
+                adjust *= .5f;
+            if (isBeam)
+                adjust *= .25f;
+
+            jitter += RandomMath2.Vector2D(adjust);            
+            return jitter;
+        }
+        
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
             Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
-
+            Vector2 jitter       = AdjustTargetting();
             // for shipmodules, make sure to use ship Velocity and Acceleration
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {
-                Vector2 jitter = Owner?.GetAdjustedTargetPosition(ship) ?? Vector2.Zero;
-                pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
+                
+                jitter += ship.JitterPosition();
+                pip     = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
                     target.Center + jitter, ship.Velocity, ship.Acceleration);
             }
-            else if(target is Projectile proj)
-            {
-                pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed,
-                    proj.Center + proj.PositionModifier, proj.Velocity);
-            }
             else
-            {                
+            {
                 pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center + target.PositionModifier, target.Velocity);
+                    target.Center + jitter, target.Velocity);
             }
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
@@ -415,11 +427,9 @@ namespace Ship_Game.Gameplay
             Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
-            if (CanTargetWeapon(prevTarget))
-            {
-                if (!PickProjectileTarget(enemyProjectiles))
-                    PickShipTarget(prevTarget, enemyShips);
-            }
+            if (!CanTargetWeapon(prevTarget)) return;
+            if (!PickProjectileTarget(enemyProjectiles))
+                PickShipTarget(prevTarget, enemyShips);
         }
 
         private bool CanTargetWeapon(GameplayObject prevTarget)
@@ -444,10 +454,10 @@ namespace Ship_Game.Gameplay
             )
             {
                 TargetChangeTimer = 0.1f * Module.XSIZE * Module.YSIZE;
-                FireTarget = null;
+                FireTarget        = null;
                 if (isTurret) TargetChangeTimer *= .5f;
-                if (Tag_PD) TargetChangeTimer *= .5f;
-                if (TruePD) TargetChangeTimer *= .25f;
+                if (Tag_PD) TargetChangeTimer   *= .5f;
+                if (TruePD) TargetChangeTimer   *= .25f;
             }
 
             // Reasons for this weapon not to fire                    
