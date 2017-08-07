@@ -239,13 +239,7 @@ namespace Ship_Game.Gameplay
                     break;
             }
         }
-        public Vector2 JitterPosition()
-        {
-            Vector2 jitter = Vector2.Zero;
-            jitter += Owner?.JitterPosition() ?? Vector2.Zero;
-
-            return jitter;
-        }
+        public Vector2 JitterPosition() => Owner?.JitterPosition() ?? Vector2.Zero;
 
         public override Vector2 PositionModifier => JitterPosition();
 

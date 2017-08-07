@@ -266,31 +266,14 @@ namespace Ship_Game.Gameplay
             if (ECMValue >0)            
                 jitter += RandomMath2.Vector2D(ECMValue *80f);
             
-            if(loyalty.data.Traits.DodgeMod >0 )            
-                jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 8f);
+            if (loyalty.data.Traits.DodgeMod >0)            
+                jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
             
             return jitter;
         }
 
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;        
 
-        public Vector2 GetAdjustedTargetPosition(Ship target)
-        {
-            Vector2 jitter = Vector2.Zero;
-            int level = Level + 2;
-            float adjust = Math.Max(0, 125 - level * level * level );
-            jitter += RandomMath2.Vector2D(adjust);
-            jitter += target.JitterPosition();
-            return jitter;
-        }
-        public Vector2 GetAdjustedTargetPosition(Projectile target)
-        {
-            Vector2 jitter = Vector2.Zero;
-            float adjust = 25 - Level / 10f;
-            jitter += RandomMath2.Vector2D(adjust);
-            jitter += target.JitterPosition();
-            return jitter;
-        }
         public override Vector2 PositionModifier => JitterPosition();        
 
 
