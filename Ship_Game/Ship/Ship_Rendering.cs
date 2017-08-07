@@ -134,8 +134,12 @@ namespace Ship_Game.Gameplay
             bool enableModuleDebug = us.Debug && true;
             if (enableModuleDebug)
             {
-                foreach (Projectile projectile in Projectiles)
+                for (int i = 0; i < Projectiles.Count; i++)
+                {
+                    Projectile projectile = Projectiles[i];
+                    if (projectile == null) continue;
                     us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
+                }
             }
 
             float shipDegrees = (float)Math.Round(Rotation.ToDegrees());
