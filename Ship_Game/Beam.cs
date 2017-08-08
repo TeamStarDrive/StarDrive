@@ -25,6 +25,7 @@ namespace Ship_Game
         private float Displacement = 1f;
         [XmlIgnore][JsonIgnore] public bool BeamCollidedThisFrame;
 
+        private Vector2 Jitter;
         private Vector2 WanderPath = Vector2.Zero;
         private AudioHandle DamageToggleSound = default(AudioHandle);
 
@@ -48,14 +49,14 @@ namespace Ship_Game
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
-            Vector2 jitter          = Weapon.AdjustTargetting();
+            Jitter                  = Weapon.AdjustTargetting();
             
-            WanderPath = Vector2.Normalize((Target?.Center ?? destination) - (destination + jitter)) *16f;
+            WanderPath = Vector2.Normalize((Target?.Center ?? destination) - (destination + Jitter)) *16f;
 
 
             Owner                   = weapon.Owner;
             Source                  = source;
-            SetDestination(destination + jitter);
+            SetDestination(destination + Jitter);
             ActualHitDestination    = Destination;            
             //moveTo = Destination.ProjectImpactPoint(Owner.Center, Range, Module.Center, Module.GetParent().Velocity);
             //moveTo.Normalize();
@@ -236,16 +237,24 @@ namespace Ship_Game
             }
             Duration -= elapsedTime;
             Source    = srcCenter;
-            if(Target != null && !DisableSpatialCollision)
-            WanderPath = Vector2.Normalize(Target.Center + Weapon.AdjustTargetting()  - Destination ) * 4f;
+            if (Target != null && !DisableSpatialCollision)
+            {
+                
+                float mark = (Target.Center + Jitter).Distance(Target.Center);
+                float sweep = mark * .025f;
+                if (Destination.OutsideRadius(Target.Center, mark) )
+                    WanderPath = Vector2.Normalize(Target.Center - Destination) * sweep;
+            
+                
+                
+                    
+            }
 
             // always update Destination to ensure beam stays in range
             SetDestination(FollowMouse
                         ? Empire.Universe.mouseWorldPos
                         : DisableSpatialCollision ? Target?.Center ?? Destination
                         : Destination + WanderPath );
-            //: BeamCollidedThisFrame ? Destination 
-            //: Destination + WanderPath);
 
             if (!BeamCollidedThisFrame) ActualHitDestination = Destination;           
             
