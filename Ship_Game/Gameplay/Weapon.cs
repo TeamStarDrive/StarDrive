@@ -383,6 +383,7 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = 0)
         {
+            if (Module == null) return Vector2.Zero;
             Vector2 jitter = Vector2.Zero;
             level = (Owner?.Level ?? level) + 2;
             float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE; 

@@ -835,8 +835,8 @@ namespace Ship_Game.Gameplay
                 return;
 
             string startingscout = Parent.loyalty.data.StartingShip;
-
-            Ship ship = null;
+           
+            Ship ship = ResourceManager.GetShipTemplate(hangarShipUID, false); 
             if (!Parent.loyalty.isFaction && (hangarShipUID == startingscout 
                                                    || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
             {
