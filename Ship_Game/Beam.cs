@@ -25,7 +25,7 @@ namespace Ship_Game
         private float Displacement = 1f;
         [XmlIgnore][JsonIgnore] public bool BeamCollidedThisFrame;
 
-
+        private Vector2 WanderPath = Vector2.Zero;
         private AudioHandle DamageToggleSound = default(AudioHandle);
 
         [XmlIgnore][JsonIgnore]
@@ -36,24 +36,30 @@ namespace Ship_Game
         {
             //there is an error here in beam creation where the weapon has no module. 
             // i am setting these values in the weapon CreateDroneBeam where possible. 
-            Weapon = weapon;
-            Target = target;
-            Module = weapon.Module;
-            DamageAmount = weapon.GetDamageWithBonuses(weapon.Owner);
-            PowerCost    = weapon.BeamPowerCostPerSecond;
-            Range        = weapon.Range;
-            Duration     = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
-            Thickness    = weapon.BeamThickness;
-            WeaponEffectType = weapon.WeaponEffectType;
-            WeaponType       = weapon.WeaponType;
+            Weapon                  = weapon;
+            Target                  = target;
+            Module                  = weapon.Module;
+            DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
+            PowerCost               = weapon.BeamPowerCostPerSecond;
+            Range                   = weapon.Range;
+            Duration                = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
+            Thickness               = weapon.BeamThickness;
+            WeaponEffectType        = weapon.WeaponEffectType;
+            WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
+            Vector2 jitter          = Weapon.AdjustTargetting();
+            
+            WanderPath = Vector2.Normalize((Target?.Center ?? destination) - (destination + jitter)) *16f;
 
-            Owner  = weapon.Owner;
-            Source = source;
-            SetDestination(destination);
-            ActualHitDestination = Destination;
 
+            Owner                   = weapon.Owner;
+            Source                  = source;
+            SetDestination(destination + jitter);
+            ActualHitDestination    = Destination;            
+            //moveTo = Destination.ProjectImpactPoint(Owner.Center, Range, Module.Center, Module.GetParent().Velocity);
+            //moveTo.Normalize();
+            //WanderPath = Vector2.Multiply(moveTo, 16);
             Initialize();
             weapon.ModifyProjectile(this);
 
@@ -229,14 +235,20 @@ namespace Ship_Game
                 return;
             }
             Duration -= elapsedTime;
-            Source = srcCenter;
+            Source    = srcCenter;
+            if(Target != null && !DisableSpatialCollision)
+            WanderPath = Vector2.Normalize(Target.Center + Weapon.AdjustTargetting()  - Destination ) * 4f;
 
             // always update Destination to ensure beam stays in range
             SetDestination(FollowMouse
                         ? Empire.Universe.mouseWorldPos
-                        : Target?.Center ?? Destination);
+                        : DisableSpatialCollision ? Target?.Center ?? Destination
+                        : Destination + WanderPath );
+            //: BeamCollidedThisFrame ? Destination 
+            //: Destination + WanderPath);
 
-            if (!BeamCollidedThisFrame) ActualHitDestination = Destination;
+            if (!BeamCollidedThisFrame) ActualHitDestination = Destination;           
+            
             BeamCollidedThisFrame = false;
 
             if (!Owner.PlayerShip)
