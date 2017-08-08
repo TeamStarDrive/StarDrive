@@ -385,7 +385,7 @@ namespace Ship_Game.Gameplay
         {
             Vector2 jitter = Vector2.Zero;
             level = (Owner?.Level ?? level) + 2;
-            float baseJitter = 178f + 16 * Module.XSIZE * Module.YSIZE; 
+            float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE; 
             float adjust = Math.Max(0, baseJitter - level * level * level);
             if (adjust < 8) return jitter;
 
@@ -393,8 +393,7 @@ namespace Ship_Game.Gameplay
                 adjust *= .75f;
             if (Tag_PD || TruePD)
                 adjust *= .5f;
-            if (isBeam)
-                adjust *= .25f;
+            
 
             jitter += RandomMath2.Vector2D(adjust);            
             return jitter;
