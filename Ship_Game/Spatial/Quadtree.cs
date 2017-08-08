@@ -743,6 +743,7 @@ namespace Ship_Game
             for (int i = 0; i < DebugFindNearby.Count; ++i)
             {
                 FindNearbyDebug debug = DebugFindNearby[i];
+                if (debug.Obj == null) continue;
                 screen.DrawCircleProjected(debug.Obj.Center, debug.Radius, 36, Golden);
                 for (int j = 0; j < debug.Nearby.Length; ++j)
                 {
