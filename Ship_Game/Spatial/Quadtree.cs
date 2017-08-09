@@ -517,7 +517,7 @@ namespace Ship_Game
             }
             if (node.NW == null) return;
             CollideBeamAtNode(node.NW, ref beam, ref result);
-            CollideBeamAtNode(node.NW, ref beam, ref result);
+            CollideBeamAtNode(node.NE, ref beam, ref result);
             CollideBeamAtNode(node.SE, ref beam, ref result);
             CollideBeamAtNode(node.SW, ref beam, ref result);
         }
