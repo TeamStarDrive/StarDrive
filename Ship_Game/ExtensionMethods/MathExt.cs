@@ -506,7 +506,17 @@ namespace Ship_Game
             }
             return center;
         }
+        public static Vector2 NearestPointOnFiniteLine(this Vector2 pnt,  Vector2 start, Vector2 end)
+        {
+            Vector2 line = (end - start);
+            float len = line.Length();
+            line.Normalize();
 
+            Vector2 v = pnt - start;
+            float d = Vector2.Dot(v, line);
+            d = Clamp(d, 0f, len);
+            return start + line * d;
+        }
         // does this wide RAY collide with our Circle?
         public static bool RayHitTestCircle(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd, float rayWidth)
         {

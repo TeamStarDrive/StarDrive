@@ -1195,9 +1195,9 @@ namespace Ship_Game.Gameplay
         }
 
         // Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, Vector2 pickedPos, float rotation)
+        public bool CheckIfInsideFireArc(Weapon w, Vector2 pickedPos, float rotation, bool skipRangeCheck = false)
         {
-            if (w.Module.Center.OutsideRadius(pickedPos, w.GetModifiedRange() + 50f))
+            if (!skipRangeCheck && w.Module.Center.OutsideRadius(pickedPos, w.GetModifiedRange() + 50f))
                 return false;
 
             float halfArc = w.Module.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
