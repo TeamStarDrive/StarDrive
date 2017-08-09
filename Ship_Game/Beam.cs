@@ -14,6 +14,7 @@ namespace Ship_Game
         public Vector2 Source;
         public Vector2 Destination;
         public Vector2 ActualHitDestination; // actual location where beam hits another ship
+        private Vector2 TargetPosistion;
         public int Thickness { get; private set; }
         public static Effect BeamEffect;
         public bool FollowMouse;
@@ -24,8 +25,8 @@ namespace Ship_Game
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;
         [XmlIgnore][JsonIgnore] public bool BeamCollidedThisFrame;
-
-        private Vector2 Jitter;
+        private float JitterRadius;
+        private readonly Vector2 Jitter;
         private Vector2 WanderPath = Vector2.Zero;
         private AudioHandle DamageToggleSound = default(AudioHandle);
 
@@ -39,6 +40,7 @@ namespace Ship_Game
             // i am setting these values in the weapon CreateDroneBeam where possible. 
             Weapon                  = weapon;
             Target                  = target;
+            TargetPosistion         = target.Center;
             Module                  = weapon.Module;
             DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost               = weapon.BeamPowerCostPerSecond;
@@ -50,7 +52,7 @@ namespace Ship_Game
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
             Jitter                  = Weapon.AdjustTargetting();
-            
+            JitterRadius            = ((Target?.Center ?? destination) + Jitter).Distance(Target?.Center ?? destination) / 4f;
             WanderPath = Vector2.Normalize((Target?.Center ?? destination) - (destination + Jitter)) *16f;
 
 
@@ -95,8 +97,10 @@ namespace Ship_Game
 
         private void SetDestination(Vector2 destination)
         {
-            Vector2 deltaVec = destination - Source;
-            Destination = Source + deltaVec.Normalized() * Math.Min(Range, deltaVec.Length());
+            //Vector2 toTarget = Owner.Center.DirectionToTarget(Target.Center).Normalized() * Target.Radius;
+            Vector2 deltaVec = (destination ) - Source;
+            TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
+            Destination = Source + deltaVec.Normalized() * Range;// Math.Min(Range, deltaVec.Length());
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -228,7 +232,8 @@ namespace Ship_Game
                 Duration = 0f;
                 return;
             }
-            var ship = Target as Ship;
+            var ship = (Target as Ship) ?? (Target as ShipModule)?.GetParent() ;
+            
             if (Owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp )
             {
                 Die(null, false);
@@ -237,17 +242,16 @@ namespace Ship_Game
             }
             Duration -= elapsedTime;
             Source    = srcCenter;
-            if (Target != null && !DisableSpatialCollision)
+            if (ship != null && Target.Active && !DisableSpatialCollision)
             {
                 
-                float mark = (Target.Center + Jitter).Distance(Target.Center);
-                float sweep = mark * .025f;
-                if (Destination.OutsideRadius(Target.Center, mark) )
-                    WanderPath = Vector2.Normalize(Target.Center - Destination) * sweep;
-            
-                
-                
+                float mark = (TargetPosistion).Distance(Target.Center)  ;
+                float sweep = mark * (Weapon.isTurret ? .05f : .025f);
+                if (TargetPosistion.OutsideRadius(Target.Center , JitterRadius) )
+                {
                     
+                    WanderPath = Vector2.Normalize(Target.Center  - TargetPosistion) * sweep;
+                }   
             }
 
             // always update Destination to ensure beam stays in range
@@ -262,13 +266,13 @@ namespace Ship_Game
 
             if (!Owner.PlayerShip)
             {
-                if (Destination.OutsideRadius(Source, Range + Owner.Radius)) // +Radius So beams at the back of a ship can hit too!
-                {
-                    Log.Info($"Beam killed because of distance: Dist = {Destination.Distance(Source)}  Beam Range = {Range}");
-                    Die(null, true);
-                    return;
-                }
-                if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation))
+                //if (Destination.OutsideRadius(Source, Range + Owner.Radius)) // +Radius So beams at the back of a ship can hit too!
+                //{
+                //    Log.Info($"Beam killed because of distance: Dist = {Destination.Distance(Source)}  Beam Range = {Range}");
+                //    Die(null, true);
+                //    return;
+                //}
+                if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
                 {
                     Log.Info("Beam killed because of angle");
                     Die(null, true);

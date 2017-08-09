@@ -394,7 +394,8 @@ namespace Ship_Game.Gameplay
                 adjust *= .75f;
             if (Tag_PD || TruePD)
                 adjust *= .5f;
-            
+            if (isBeam)
+                adjust *= 2;
 
             jitter += RandomMath2.Vector2D(adjust);            
             return jitter;
