@@ -105,6 +105,8 @@ namespace Ship_Game
                 hitModule = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
                 if (hitModule == null)
                     return 0f;
+                if (hitModule.shield_radius > 0)
+                    return hitModule.Center.RayCircleIntersect(hitModule.shield_radius +10, beamStart, beamEnd);
                 return hitModule.Center.FindClosestPointOnLine(beamStart, beamEnd).Distance(beamStart);
             }
             hitModule = null;

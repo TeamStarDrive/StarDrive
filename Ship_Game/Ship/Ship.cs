@@ -2000,7 +2000,7 @@ namespace Ship_Game.Gameplay
                         //Added by McShooterz: Priority repair
                         float repairTracker = InCombat ? RepairRate * 0.1f : RepairRate;
                         var damagedModules = ModuleSlotList
-                            .Where(slot => slot.Health < slot.HealthMax)
+                            .FilterBy(slot => slot.Health < slot.HealthMax)
                             .OrderBy(slot => slot.ModulePriority);
                         foreach (ShipModule moduleSlot in damagedModules)
                         {
