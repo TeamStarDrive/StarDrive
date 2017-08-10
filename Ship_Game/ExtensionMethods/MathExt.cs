@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SynapseGaming.LightingSystem.Rendering;
@@ -543,7 +544,7 @@ namespace Ship_Game
 
             float a = d.Dot(d);
             float b = 2 * f.Dot(d);
-            float c = f.Dot(f) - radius;
+            float c = f.Dot(f) - radius * radius;
 
             float discriminant = b*b - 4*a*c;
             if (discriminant < 0f)
@@ -562,7 +563,7 @@ namespace Ship_Game
             // no intersection: FallShort, Past, CompletelyInside
             return 0f;
         }
-
+      
         /// <summary>Attempt to intersect two line segments.</summary>
         /// <param name="a">Start of line AB.</param>
         /// <param name="b">End of line AB.</param>

@@ -199,13 +199,23 @@ namespace Ship_Game.Gameplay
         // Slightly more complicated ray-collision against shields
         private ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius)
         {
+            float minD = float.MaxValue;
+            ShipModule hit = null;
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (shield.ShieldPower > 0f && shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius))
-                    return shield;
+                if (shield.ShieldPower >= 1f && shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius))
+                {
+                    //should get sqr distance working to reduce this hit.
+                    //without checking all shields larger shields may not be checked. Or sort these all by shield radius maybe. 
+                    //this is more accurate.
+                    float dCheck = shield.Center.Distance(worldStartPos) - (shield.shield_radius + 10);
+                    if (dCheck >= minD) continue;
+                    minD = dCheck;
+                    hit = shield;                    
+                }
             }
-            return null;
+            return hit;
         }
 
 
@@ -490,7 +500,12 @@ namespace Ship_Game.Gameplay
                 }
 
                 if (module == null) return shield;
-                if (shield == null || module.SqDistanceTo(startPos) < shield.SqDistanceToShields(startPos))
+
+                float shieldD = shield?.Center.Distance(startPos)-shield?.shield_radius + 10f ?? float.MaxValue;
+                float modD    = module.Center.Distance(startPos);
+                //This sqrdistance isnt working correctly.
+                //if (shield  == null || module.SqDistanceTo(startPos) < shield.SqDistanceToShields(startPos))
+                if (shield == null || modD < shieldD)
                     return module; // module was closer, so should be hit first
 
                 //#if DEBUG
