@@ -1315,7 +1315,7 @@ namespace Ship_Game
                         if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
                             || module.ModuleType == ShipModuleType.Hangar)
                             tech.TechnologyType = TechnologyType.ShipWeapons;
-                        else if (module.ShieldPower > 0 
+                        else if (module.ShieldPower >= 1f 
                                  || module.ModuleType == ShipModuleType.Armor
                                  || module.ModuleType == ShipModuleType.Countermeasure
                                  || module.ModuleType == ShipModuleType.Shield)

@@ -190,31 +190,31 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (shield.ShieldPower > 0f && shield.HitTestShield(worldHitPos, hitRadius))
+                if (shield.ShieldPower >= 1f && shield.HitTestShield(worldHitPos, hitRadius))
                     return shield;
             }
             return null;
         }
 
         // Slightly more complicated ray-collision against shields
-        private ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius)
+        private ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius, out float sqDist)
         {
             float minD = float.MaxValue;
             ShipModule hit = null;
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (shield.ShieldPower >= 1f && shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius))
+                if (shield.ShieldPower >= 1f && 
+                    shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float sqd))
                 {
-                    //should get sqr distance working to reduce this hit.
-                    //without checking all shields larger shields may not be checked. Or sort these all by shield radius maybe. 
-                    //this is more accurate.
-                    float dCheck = shield.Center.Distance(worldStartPos) - (shield.shield_radius + 10);
-                    if (dCheck >= minD) continue;
-                    minD = dCheck;
-                    hit = shield;                    
+                    if (sqd < minD)
+                    {
+                        minD = sqd;
+                        hit = shield;
+                    }                 
                 }
             }
+            sqDist = minD;
             return hit;
         }
 
@@ -401,11 +401,10 @@ namespace Ship_Game.Gameplay
             float damageTracker = damageAmount;
             if (!ignoreShields)
             {
-                // @todo This may accidentally absorb all of the damage, 
                 for (int i = 0; i < Shields.Length; ++i)
                 {
                     ShipModule module = Shields[i];
-                    if (module.ShieldPower > 0f && module.HitTestShield(worldHitPos, hitRadius) &&
+                    if (module.ShieldPower >= 1f && module.HitTestShield(worldHitPos, hitRadius) &&
                         module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
                 }
@@ -476,7 +475,8 @@ namespace Ship_Game.Gameplay
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
         {
             // first we find the shield overlap, however, a module might be overlapping just before the shield border
-            ShipModule shield = ignoreShields ? null : RayHitTestShields(startPos, endPos, rayRadius);
+            float shieldDist = float.MaxValue;
+            ShipModule shield = ignoreShields ? null : RayHitTestShields(startPos, endPos, rayRadius, out shieldDist);
 
             ++GlobalStats.DistanceCheckTotal;
 
@@ -499,13 +499,11 @@ namespace Ship_Game.Gameplay
                     if (m != null && m.Active) { module = m; break; }
                 }
 
-                if (module == null) return shield;
+                if (module == null)
+                    return shield;
 
-                float shieldD = shield?.Center.Distance(startPos)-shield?.shield_radius + 10f ?? float.MaxValue;
-                float modD    = module.Center.Distance(startPos);
-                //This sqrdistance isnt working correctly.
-                //if (shield  == null || module.SqDistanceTo(startPos) < shield.SqDistanceToShields(startPos))
-                if (shield == null || modD < shieldD)
+                float moduleDist = module.SqDistanceTo(startPos);
+                if (shield == null || moduleDist < shieldDist)
                     return module; // module was closer, so should be hit first
 
                 //#if DEBUG

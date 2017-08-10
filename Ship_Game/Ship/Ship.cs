@@ -1797,7 +1797,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (shield.ShieldPower > 0f)
+                if (shield.ShieldPower >= 1f)
                     shield.Damage(damageSource, damageAmount);
             }
         }
