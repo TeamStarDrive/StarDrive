@@ -197,7 +197,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Slightly more complicated ray-collision against shields
-        private ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius, out float sqDist)
+        private ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius, out float hitDistance)
         {
             float minD = float.MaxValue;
             ShipModule hit = null;
@@ -205,16 +205,16 @@ namespace Ship_Game.Gameplay
             {
                 ShipModule shield = Shields[i];
                 if (shield.ShieldPower >= 1f && 
-                    shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float sqd))
+                    shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float distance))
                 {
-                    if (sqd < minD)
+                    if (distance < minD)
                     {
-                        minD = sqd;
+                        minD = distance;
                         hit = shield;
                     }                 
                 }
             }
-            sqDist = minD;
+            hitDistance = minD;
             return hit;
         }
 
@@ -475,8 +475,8 @@ namespace Ship_Game.Gameplay
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
         {
             // first we find the shield overlap, however, a module might be overlapping just before the shield border
-            float shieldSqd = float.MaxValue;
-            ShipModule shield = ignoreShields ? null : RayHitTestShields(startPos, endPos, rayRadius, out shieldSqd);
+            float shieldHitDist = float.MaxValue;
+            ShipModule shield = ignoreShields ? null : RayHitTestShields(startPos, endPos, rayRadius, out shieldHitDist);
 
             ++GlobalStats.DistanceCheckTotal;
 
@@ -502,9 +502,7 @@ namespace Ship_Game.Gameplay
                 if (module == null)
                     return shield;
 
-                float moduleDist = module.Center.Distance(startPos);
-                float shieldDist = (float)Math.Sqrt(shieldSqd);
-                if (shield == null || moduleDist < shieldDist)
+                if (shield == null || module.Center.Distance(startPos) < shieldHitDist)
                     return module; // module was closer, so should be hit first
 
                 //#if DEBUG
