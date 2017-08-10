@@ -176,6 +176,9 @@ namespace Ship_Game.Gameplay
         public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
 
+        // the actual hit radius is a bit bigger for some legacy reason
+        public float ShieldHitRadius => Flyweight.shield_radius + 10f;
+
         private ShipModule() : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
@@ -429,7 +432,7 @@ namespace Ship_Game.Gameplay
         public bool HitTestShield(Vector2 worldPos, float radius)
         {
             ++GlobalStats.DistanceCheckTotal;
-            float r2 = radius + shield_radius + 10f;
+            float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
             return dx*dx + dy*dy <= r2*r2;
@@ -439,7 +442,7 @@ namespace Ship_Game.Gameplay
         {
             ++GlobalStats.DistanceCheckTotal;
             Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
-            float r2 = rayRadius + shield_radius + 10f;
+            float r2 = rayRadius + ShieldHitRadius;
             float dx = Center.X - point.X;
             float dy = Center.Y - point.Y;
 
@@ -451,7 +454,7 @@ namespace Ship_Game.Gameplay
         public float SqDistanceToShields(Vector2 worldPos)
         {
             ++GlobalStats.DistanceCheckTotal;
-            float r2 = shield_radius + 10f;
+            float r2 = ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
             return dx*dx + dy*dy - r2*r2;
@@ -683,7 +686,7 @@ namespace Ship_Game.Gameplay
                         shield.pointLight.Radius = shield_radius * 2f;
                         shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
                         shield.displacement       = 0f;
-                        shield.Radius             = shield_radius + 10f;
+                        shield.Radius             = ShieldHitRadius;
                         shield.displacement       = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         shield.texscale           = 2.8f;
                         shield.texscale           = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
@@ -710,7 +713,7 @@ namespace Ship_Game.Gameplay
                     else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
                     {
                         GameAudio.PlaySfxAsync("sd_impact_shield_01", Parent.SoundEmitter);                        
-                        shield.Radius       = shield_radius + 10f;
+                        shield.Radius       = ShieldHitRadius;
                         shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         shield.texscale     = 2.8f;
                         shield.texscale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
