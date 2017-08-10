@@ -184,7 +184,7 @@ namespace Ship_Game
                     if (slot.Module.shield_power_max > 0f)
                     {
 
-                        DrawCircle(center, slot.Module.shield_radius, 50, Color.LightGreen);
+                        DrawCircle(center, slot.Module.ShieldHitRadius, 50, Color.LightGreen);
                     }
 
                     if (slot.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
@@ -300,7 +300,7 @@ namespace Ship_Game
                     Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y) +
                                      new Vector2(moduleTemplate.XSIZE * 16 / 2f,
                                          moduleTemplate.YSIZE * 16 / 2f);
-                    DrawCircle(center, this.ActiveModule.shield_radius * this.Camera.Zoom, 50, Color.LightGreen);
+                    DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, 50, Color.LightGreen);
                 }
             }
             this.DrawUI(gameTime);
