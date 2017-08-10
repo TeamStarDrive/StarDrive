@@ -60,7 +60,7 @@ namespace Ship_Game.Gameplay
 
         // Used to configure how good of a target this module is
         public int ModuleTargettingValue => TargetValue 
-                                          + (isExternal ? -5 : 0)         // external modules are less critical
+                                          //+ (isExternal ? -5 : 0)         // external modules are less critical
                                           + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules
 
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
@@ -448,7 +448,7 @@ namespace Ship_Game.Gameplay
         public float SqDistanceToShields(Vector2 worldPos)
         {
             ++GlobalStats.DistanceCheckTotal;
-            float r2 = shield_radius + 10f;
+            float r2 = shield_radius + Radius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
             return dx*dx + dy*dy - r2*r2;
@@ -509,22 +509,22 @@ namespace Ship_Game.Gameplay
             var proj = source as Projectile;
             var beam = source as Beam;
             
-            if (proj != null)
-            {
-                if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-                {
-                    damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-                }
-            }
-
-            if (source is Ship ship && ship.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-                damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
+            //if (proj != null)
+            //{
+            //    if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
+            //    {
+            //        damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
+            //    }
+            //}
+            //should not need this with targetting changes.
+            //if (source is Ship ship && ship.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
+            //    damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
 
             // Vulnerabilities and resistances for modules, XML-defined.
             if (proj != null)
                 damageAmount = ApplyResistances(proj.Weapon, damageAmount);
 
-            if (ShieldPower <= 0f || proj?.IgnoresShields == true)
+            if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= DamageThreshold)
@@ -590,7 +590,7 @@ namespace Ship_Game.Gameplay
                         Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
                     }
                 }
-                if (shield_power_max > 0f && (!isExternal || quadrant <= 0))
+                if (shield_power_max > 0f && ShieldPower >=1f) // && (!isExternal || quadrant <= 0))
                 {
                     return false;
                 }
@@ -664,7 +664,7 @@ namespace Ship_Game.Gameplay
                         if (beam.Weapon.SiphonDamage > 0f)
                         {
                             ShieldPower -= beam.Weapon.SiphonDamage;
-                            if (ShieldPower < 0f)
+                            if (ShieldPower < 1f)
                             {
                                 ShieldPower = 0f;
                             }
