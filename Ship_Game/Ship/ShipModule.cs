@@ -438,17 +438,11 @@ namespace Ship_Game.Gameplay
             return dx*dx + dy*dy <= r2*r2;
         }
 
-        public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float sqdist)
+        public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float dist)
         {
             ++GlobalStats.DistanceCheckTotal;
-            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
-            float r2 = rayRadius + ShieldHitRadius;
-            float dx = Center.X - point.X;
-            float dy = Center.Y - point.Y;
-
-            float sqd = (dx*dx + dy*dy) - r2*r2;
-            sqdist = sqd;
-            return sqd > 0.01f;
+            dist = Center.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos);
+            return dist > 0f;
         }
 
         public float SqDistanceToShields(Vector2 worldPos)
