@@ -184,6 +184,7 @@ namespace Ship_Game
                     slot.ShieldPower        = msd->ShieldPower;
                     slot.Facing             = msd->Facing;
                     slot.SlotOptions        = msd->SlotOptions.AsInterned;
+                    slot.Orientation        = msd->State.AsInterned;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
                     ship.ModuleSlots[i] = slot;
                 }
