@@ -56,7 +56,8 @@ namespace Ship_Game.Debug
         private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
         private static DebugModes Mode;
-
+        private HashSet<Circle> Circles = new HashSet<Circle>();
+        private int CircleTimer = 0;
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen)
         {
             this.IsOpen = true;
@@ -139,7 +140,7 @@ namespace Ship_Game.Debug
             DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
 
             DrawString("Ships not in Any Pool: "+Shipsnotinforcepool+" In Defenspool: "+ShipsinDefforcepool);
-
+            DrawCircles();
             TextFont = Fonts.Arial12Bold;
             switch (Mode)
             {
@@ -488,6 +489,8 @@ namespace Ship_Game.Debug
 
         public bool HandleInput(InputState input)
         {
+            if (input.WasKeyPressed(Keys.Left) || input.WasKeyPressed(Keys.Right))
+                CircleTimer = int.MinValue;
             if      (input.WasKeyPressed(Keys.Left))  --Mode;
             else if (input.WasKeyPressed(Keys.Right)) ++Mode;
             if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
@@ -532,6 +535,33 @@ namespace Ship_Game.Debug
             if (Mode != DebugModes.DefenseCo)
                 return;
             Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
+        }
+
+        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius) => DrawCircle(mode, screenPos, radius, Color.Red);
+
+        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color)
+        {
+            if (mode != Mode) return;
+            Circle circle = new Circle(screenPos, radius);
+            circle.C = color;
+            Circles.Add(circle);            
+        }
+        private void DrawCircles()
+        {
+            if (Circles.Count == 0) return;
+            foreach (Circle circle in Circles)
+            {
+                Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C);
+            }
+
+            if (CircleTimer > 15)
+            {
+                Circles.Remove(Circles.First());
+                CircleTimer = 0;
+            }
+            if (CircleTimer == int.MinValue)
+                Circles.Clear();
+            CircleTimer++;
         }
     }
 }

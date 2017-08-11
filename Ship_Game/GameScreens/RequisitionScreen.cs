@@ -34,7 +34,7 @@ namespace Ship_Game
 		public RequisitionScreen(FleetDesignScreen fds) : base(fds)
 		{
 			this.fds = fds;
-			this.f = fds.fleet;
+			this.f = fds.SelectedFleet;
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);

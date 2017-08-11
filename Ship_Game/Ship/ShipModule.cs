@@ -463,20 +463,25 @@ namespace Ship_Game.Gameplay
             return dx*dx + dy*dy - r2*r2;
         }
 
-        public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float minFalloff = 0.4f)
+        public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
         {
-            return Math.Min(1.0f, explosionCenter.Distance(affectedPoint) / damageRadius + minFalloff);
+            float splodeDis = explosionCenter.Distance(affectedPoint);
+            if (splodeDis < moduleRadius) splodeDis = 0;
+
+            return Math.Min(1.0f, (damageRadius - splodeDis) / (damageRadius + minFalloff));
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
+        public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius, ref float damageInOut, bool noDamageReduction = false)
         {
-            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, 0f);
+             float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, Radius, 0f);
             if (damage <= 0.001f)
                 return damageInOut <= 0f;
-
+            if (Empire.Universe.DebugWin != null)
+                Empire.Universe.DebugWin.DrawCircle(DebugModes.SpatialManager, Center, Radius);
             DamageWithDamageDone(damageSource, damage, out float damageDone);
-            damageInOut -= damageDone;
+            if (!noDamageReduction)
+                damageInOut -= damageDone;
             return damageInOut <= 0f;
         }
 
