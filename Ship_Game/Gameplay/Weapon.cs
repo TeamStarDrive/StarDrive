@@ -395,7 +395,11 @@ namespace Ship_Game.Gameplay
             if (Tag_PD || TruePD)
                 adjust *= .5f;
             if (isBeam)
-                adjust *= 2;
+                adjust *= 2f;
+            if (Owner?.loyalty.data.Traits.Blind > 0)
+            {
+                adjust *= 2f;
+            }
 
             jitter += RandomMath2.Vector2D(adjust);            
             return jitter;

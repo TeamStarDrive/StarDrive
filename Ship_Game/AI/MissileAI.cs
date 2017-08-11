@@ -79,8 +79,7 @@ namespace Ship_Game.AI
                     continue;
 
                 float sqDist = Missile.Center.SqDist(sourceTargetShip.Center);
-                if (sqDist > bestSqDist && 
-                    Missile.Loyalty.TryGetRelations(owner, out Relationship relTarget) && relTarget.Treaty_NAPact)
+                if (sqDist > bestSqDist && !Missile.Loyalty.IsEmpireAttackable(owner))
                     continue;
                 bestSqDist = sqDist;
                 bestTarget = sourceTargetShip;                    
@@ -94,7 +93,7 @@ namespace Ship_Game.AI
 
         private void MoveStraight(float elapsedTime)
         {
-            Missile.Velocity = Missile.Rotation.RadiansToDirection() * (elapsedTime * Missile.Speed);
+            Missile.Velocity = Missile.Rotation.RadiansToDirection() * Missile.Speed; 
             Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax;
         }
 
