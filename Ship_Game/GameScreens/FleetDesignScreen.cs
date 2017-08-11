@@ -13,19 +13,19 @@ namespace Ship_Game
     {
         public static bool Open = false;
 
-        private Matrix worldMatrix = Matrix.Identity;
+        //private Matrix worldMatrix = Matrix.Identity;
 
         private Matrix View;
 
         private Matrix Projection;
 
-        public Camera2D camera;
+        public Camera2D Camera;
 
         public ShipData ActiveHull;
 
-        private Background bg = new Background();
+        //private Background bg = new Background();
 
-        private Starfield starfield;
+        private Starfield Starfield;
 
         public EmpireUIOverlay EmpireUI;
 
@@ -41,13 +41,13 @@ namespace Ship_Game
 
         private Menu1 RightMenu;
 
-        public Fleet fleet;
+        public Fleet SelectedFleet;
 
         private ScrollList FleetSL;
 
         private ScrollList ShipSL;
 
-        private CloseButton close;
+        private CloseButton Close;
 
         private BlueButton RequisitionForces;
 
@@ -91,7 +91,7 @@ namespace Ship_Game
 
         private SizeSlider Slider_Size;
 
-        private Submenu sub_ships;
+        private Submenu SubShips;
 
         private BatchRemovalCollection<Ship> AvailableShips = new BatchRemovalCollection<Ship>();
 
@@ -99,7 +99,7 @@ namespace Ship_Game
 
         private Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
 
-        private float dragTimer;
+        private float DragTimer;
 
         private Array<FleetDesignScreen.ClickableSquad> ClickableSquads = new Array<FleetDesignScreen.ClickableSquad>();
 
@@ -111,21 +111,21 @@ namespace Ship_Game
 
         public int FleetToEdit = -1;
 
-        private Vector2 startDrag;
+        private Vector2 StartDrag;
 
-        private Vector2 endDrag;
+        private Vector2 EndDrag;
 
-        private MouseState current;
+        private MouseState Current;
 
-        private MouseState previous;
+        private MouseState Previous;
 
         private UITextEntry FleetNameEntry = new UITextEntry();
 
-        private Selector stuffSelector;
+        private Selector StuffSelector;
 
-        private Selector operationsSelector;
+        private Selector OperationsSelector;
 
-        private Selector priorityselector;
+        private Selector Priorityselector;
 
         private Array<FleetDesignScreen.ClickableNode> ClickableNodes = new Array<FleetDesignScreen.ClickableNode>();
 
@@ -137,26 +137,26 @@ namespace Ship_Game
 
         private Rectangle SelectionBox;
 
-        public static UniverseScreen screen;
+        public static UniverseScreen Screen;
 
         private Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
 
         private Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
 
 
-        public FleetDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI, Fleet f) : base(parent)
+        public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, Fleet f) : base(parent)
         {
-            this.fleet = f;
-            this.EmpireUI = EmpireUI;
+            SelectedFleet = f;
+            EmpireUI = empireUI;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
         }
 
-        public FleetDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI, string audioCue ="") : base(parent)
+        public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
             if (!string.IsNullOrEmpty(audioCue))
                 GameAudio.PlaySfxAsync(audioCue);
-            this.fleet = new Fleet();
-            this.EmpireUI = EmpireUI;
+            SelectedFleet = new Fleet();
+            EmpireUI = empireUI;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
             EmpireUI.empire.UpdateShipsWeCanBuild();
             Open = true;
@@ -164,12 +164,12 @@ namespace Ship_Game
 
         private void AdjustCamera()
         {
-            this.CamPos.Z = MathHelper.SmoothStep(this.CamPos.Z, this.DesiredCamHeight, 0.2f);
+            CamPos.Z = MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
         }
 
         public void ChangeFleet(int which)
         {
-            this.SelectedNodeList.Clear();
+            SelectedNodeList.Clear();
             if (FleetToEdit != -1)
             {
                 foreach (var kv in EmpireManager.Player.GetFleetsDict())
@@ -183,7 +183,7 @@ namespace Ship_Game
                     }
                 }
             }
-            this.FleetToEdit = which;
+            FleetToEdit = which;
             Fleet fleet = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
             Array<FleetDataNode> toRemove = new Array<FleetDataNode>();
             foreach (FleetDataNode node in fleet.DataNodes)
@@ -195,8 +195,8 @@ namespace Ship_Game
             var squadsToRemove = new Array<Fleet.Squad>();
             foreach (FleetDataNode node in toRemove)
             {
-                EmpireManager.Player.GetFleetsDict()[FleetToEdit].DataNodes.Remove(node);
-                foreach (Array<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
+                fleet.DataNodes.Remove(node);
+                foreach (Array<Fleet.Squad> flanks in fleet.AllFlanks)
                 {
                     foreach (Fleet.Squad Squad in flanks)
                     {
@@ -212,7 +212,7 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (Array<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
+            foreach (Array<Fleet.Squad> flanks in fleet.AllFlanks)
             {
                 foreach (Fleet.Squad squad in squadsToRemove)
                 {
@@ -220,10 +220,10 @@ namespace Ship_Game
                         flanks.Remove(squad);
                 }
             }
-            fleet = EmpireManager.Player.GetFleetsDict()[which];
-            using (fleet.Ships.AcquireReadLock())
+            SelectedFleet = EmpireManager.Player.GetFleetsDict()[which];
+            using (SelectedFleet.Ships.AcquireReadLock())
             {
-                foreach (Ship ship in this.fleet.Ships)
+                foreach (Ship ship in SelectedFleet.Ships)
                 {
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
                     ship.GetSO().Visibility = ObjectVisibility.Rendered;
@@ -235,8 +235,8 @@ namespace Ship_Game
         {
             lock (this)
             {
-                starfield?.Dispose(ref starfield);
-                fleet?.Dispose(ref fleet);
+                Starfield?.Dispose(ref Starfield);
+                SelectedFleet?.Dispose(ref SelectedFleet);
                 AvailableShips?.Dispose(ref AvailableShips);
                 ShipSL?.Dispose(ref ShipSL);
                 FleetSL?.Dispose(ref FleetSL);
@@ -251,35 +251,35 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
 
             base.ScreenManager.GraphicsDevice.Clear(Color.Black);
-            screen.bg.Draw(screen, screen.starfield);
+            Screen.bg.Draw(Screen, Screen.starfield);
             spriteBatch.Begin();
-            this.DrawGrid();
-            if (this.SelectedNodeList.Count == 1)
+            DrawGrid();
+            if (SelectedNodeList.Count == 1)
             {
                 viewport = base.Viewport;
-                Vector3 screenSpacePosition = viewport.Project(new Vector3(this.SelectedNodeList[0].FleetOffset.X, this.SelectedNodeList[0].FleetOffset.Y, 0f), this.Projection, this.View, Matrix.Identity);
+                Vector3 screenSpacePosition = viewport.Project(new Vector3(SelectedNodeList[0].FleetOffset.X, SelectedNodeList[0].FleetOffset.Y, 0f), Projection, View, Matrix.Identity);
                 Vector2 screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
-                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * this.OperationalRadius.RelativeValue);
+                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * OperationalRadius.RelativeValue);
                 viewport = base.Viewport;
-                Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                 Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                 float SSRadius = (float)Math.Abs(insetRadialSS.X - screenPos.X);
                 Rectangle nodeRect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)SSRadius * 2, (int)SSRadius * 2);
                 Vector2 Origin = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["UI/node"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["UI/node"].Height / 2));
                 spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/node1"], nodeRect, null, new Color(0, 255, 0, 75), 0f, Origin, SpriteEffects.None, 1f);
             }
-            this.ClickableNodes.Clear();
-            foreach (FleetDataNode node in this.fleet.DataNodes)
+            ClickableNodes.Clear();
+            foreach (FleetDataNode node in SelectedFleet.DataNodes)
             {
                 if (node.Ship== null)
                 {
                     float radius = 150f;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     ClickableNode cs = new ClickableNode
@@ -288,7 +288,7 @@ namespace Ship_Game
                         ScreenPos = pPos,
                         nodeToClick = node
                     };
-                    this.ClickableNodes.Add(cs);
+                    ClickableNodes.Add(cs);
                 }
                 else
                 {
@@ -296,11 +296,11 @@ namespace Ship_Game
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     FleetDesignScreen.ClickableNode cs = new FleetDesignScreen.ClickableNode()
@@ -309,10 +309,10 @@ namespace Ship_Game
                         ScreenPos = pPos,
                         nodeToClick = node
                     };
-                    this.ClickableNodes.Add(cs);
+                    ClickableNodes.Add(cs);
                 }
             }
-            foreach (FleetDataNode node in this.HoveredNodeList)
+            foreach (FleetDataNode node in HoveredNodeList)
             {
                 if (node.Ship== null)
                 {
@@ -322,14 +322,14 @@ namespace Ship_Game
                     }
                     float radius = 150f;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos);
-                    foreach (FleetDesignScreen.ClickableSquad squad in this.ClickableSquads)
+                    foreach (FleetDesignScreen.ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.squad.DataNodes.Contains(node))
                         {
@@ -344,14 +344,14 @@ namespace Ship_Game
                     Ship ship = node.Ship;
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos);
-                    foreach (FleetDesignScreen.ClickableSquad squad in this.ClickableSquads)
+                    foreach (FleetDesignScreen.ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.squad.DataNodes.Contains(node))
                         {
@@ -362,7 +362,7 @@ namespace Ship_Game
                     DrawCircle(pPos, Radius, 250, new Color(255, 255, 255, 70), 2f);
                 }
             }
-            foreach (FleetDataNode node in this.SelectedNodeList)
+            foreach (FleetDataNode node in SelectedNodeList)
             {
                 if (node.Ship== null)
                 {
@@ -372,14 +372,14 @@ namespace Ship_Game
                     }
                     float radius = 150f;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos);
-                    foreach (FleetDesignScreen.ClickableSquad squad in this.ClickableSquads)
+                    foreach (FleetDesignScreen.ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.squad.DataNodes.Contains(node))
                         {
@@ -394,14 +394,14 @@ namespace Ship_Game
                     Ship ship = node.Ship;
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos);
-                    foreach (FleetDesignScreen.ClickableSquad squad in this.ClickableSquads)
+                    foreach (FleetDesignScreen.ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.squad.DataNodes.Contains(node))
                         {
@@ -412,19 +412,19 @@ namespace Ship_Game
                     DrawCircle(pPos, Radius, 250, Color.White, 2f);
                 }
             }
-            this.DrawFleetManagementIndicators();
-            spriteBatch.DrawRectangle(this.SelectionBox, Color.Green, 1f);
+            DrawFleetManagementIndicators();
+            spriteBatch.DrawRectangle(SelectionBox, Color.Green, 1f);
             spriteBatch.End();
 
             ScreenManager.RenderSceneObjects();
 
             spriteBatch.Begin();
-            this.TitleBar.Draw();
-            spriteBatch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", this.TitlePos, new Color(255, 239, 208));
+            TitleBar.Draw();
+            spriteBatch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
             int numEntries = 9;
             int k = 9;
             int m = 0;
-            foreach (KeyValuePair<int, Rectangle> rect in this.FleetsRects)
+            foreach (KeyValuePair<int, Rectangle> rect in FleetsRects)
             {
                 if (m == 9)
                 {
@@ -446,7 +446,7 @@ namespace Ship_Game
                     }
                 }
                 Selector sel = new Selector(r, Color.TransparentBlack);
-                if (rect.Key != this.FleetToEdit)
+                if (rect.Key != FleetToEdit)
                 {
                     spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, Color.Black);
                 }
@@ -466,7 +466,7 @@ namespace Ship_Game
                 int key = rect.Key;
                 spriteBatch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
                 num.X = num.X + (float)(rect.Value.Width + 5);
-                if (rect.Key != this.FleetToEdit)
+                if (rect.Key != FleetToEdit)
                 {
                     spriteBatch.DrawString(Fonts.Pirulen12, f.Name, num, Color.Gray);
                 }
@@ -476,17 +476,17 @@ namespace Ship_Game
                 }
                 m++;
             }
-            if (this.FleetToEdit != -1)
+            if (FleetToEdit != -1)
             {
-                this.ShipDesigns.Draw();
-                spriteBatch.DrawString(Fonts.Laserian14, "Ship Designs", this.ShipDesignsTitlePos, new Color(255, 239, 208));
-                spriteBatch.FillRectangle(this.sub_ships.Menu, new Color(0, 0, 0, 130));
-                this.sub_ships.Draw();
-                this.ShipSL.Draw(spriteBatch);
-                Vector2 bCursor = new Vector2((float)(this.RightMenu.Menu.X + 5), (float)(this.RightMenu.Menu.Y + 25));
-                for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+                ShipDesigns.Draw();
+                spriteBatch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
+                spriteBatch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
+                SubShips.Draw();
+                ShipSL.Draw(spriteBatch);
+                Vector2 bCursor = new Vector2((float)(RightMenu.Menu.X + 5), (float)(RightMenu.Menu.Y + 25));
+                for (int i = ShipSL.indexAtTop; i < ShipSL.Copied.Count && i < ShipSL.indexAtTop + ShipSL.entriesToDisplay; i++)
                 {
-                    ScrollList.Entry e = this.ShipSL.Copied[i];
+                    ScrollList.Entry e = ShipSL.Copied[i];
                     bCursor.Y = (float)e.clickRect.Y;
                     if (e.item is ModuleHeader)
                     {
@@ -532,7 +532,7 @@ namespace Ship_Game
                         Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                         spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
                         tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        if (this.sub_ships.Tabs[0].Selected)
+                        if (SubShips.Tabs[0].Selected)
                         {
                             spriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
                         }
@@ -572,11 +572,11 @@ namespace Ship_Game
                     }
                 }
             }
-            this.EmpireUI.Draw(spriteBatch);
-            foreach (FleetDataNode node in this.fleet.DataNodes)
+            EmpireUI.Draw(spriteBatch);
+            foreach (FleetDataNode node in SelectedFleet.DataNodes)
             {
                 Vector2 vector2 = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
-                if (node.Ship== null || this.CamPos.Z <= 15000f)
+                if (node.Ship== null || CamPos.Z <= 15000f)
                 {
                     if (node.Ship!= null || node.ShipName == "Troop Shuttle")
                     {
@@ -585,24 +585,24 @@ namespace Ship_Game
                     Ship ship = Ship_Game.ResourceManager.ShipsDict[node.ShipName];
                     float radius = 150f;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos);
                     Rectangle r = new Rectangle((int)pPos.X - (int)Radius, (int)pPos.Y - (int)Radius, (int)Radius * 2, (int)Radius * 2);
                     Guid goalGUID = node.GoalGUID;
                     if (node.GoalGUID == Guid.Empty)
                     {
-                        spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Red));
+                        spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Red));
                     }
                     else
                     {
-                        spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Yellow));
+                        spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Yellow));
                         string buildingat = "";
-                        foreach (Goal g in this.fleet.Owner.GetGSAI().Goals)
+                        foreach (Goal g in SelectedFleet.Owner.GetGSAI().Goals)
                         {
                             if (!(g.guid == node.GoalGUID) || g.GetPlanetWhereBuilding() == null)
                             {
@@ -618,11 +618,11 @@ namespace Ship_Game
                     Ship ship = node.Ship;
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
                     viewport = base.Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     float Radius = Vector2.Distance(insetRadialSS, pPos);
                     if (Radius < 10f)
@@ -630,18 +630,18 @@ namespace Ship_Game
                         Radius = 10f;
                     }
                     Rectangle r = new Rectangle((int)pPos.X - (int)Radius, (int)pPos.Y - (int)Radius, (int)Radius * 2, (int)Radius * 2);
-                    spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Green));
+                    spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Green));
                 }
             }
-            if (this.ActiveShipDesign != null)
+            if (ActiveShipDesign != null)
             {
-                Ship ship = this.ActiveShipDesign;
+                Ship ship = ActiveShipDesign;
                 int x = Mouse.GetState().X;
                 MouseState state = Mouse.GetState();
                 Rectangle rectangle = new Rectangle(x, state.Y, ship.Size / 2, ship.Size / 2);
                 float scale = (float)((float)ship.Size) / (float)(30 + Ship_Game.ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width);
                 Vector2 IconOrigin = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
-                scale = scale * 4000f / this.CamPos.Z;
+                scale = scale * 4000f / CamPos.Z;
                 if (scale > 1f)
                 {
                     scale = 1f;
@@ -655,8 +655,8 @@ namespace Ship_Game
                 state = Mouse.GetState();
                 spriteBatch.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
-            this.DrawSelectedData(Game1.Instance.GameTime);
-            this.close.Draw(spriteBatch);
+            DrawSelectedData(Game1.Instance.GameTime);
+            Close.Draw(spriteBatch);
             ToolTip.Draw(spriteBatch);
             spriteBatch.End();
 
@@ -666,18 +666,18 @@ namespace Ship_Game
         private void DrawFleetManagementIndicators()
         {
             Viewport viewport = base.Viewport;
-            Vector3 pScreenSpace = viewport.Project(new Vector3(0f, 0f, 0f), this.Projection, this.View, Matrix.Identity);
+            Vector3 pScreenSpace = viewport.Project(new Vector3(0f, 0f, 0f), Projection, View, Matrix.Identity);
             Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
 
             var spriteBatch = ScreenManager.SpriteBatch;
             spriteBatch.FillRectangle(new Rectangle((int)pPos.X - 3, (int)pPos.Y - 3, 6, 6), new Color(255, 255, 255, 80));
             spriteBatch.DrawString(Fonts.Arial12Bold, "Fleet Center", new Vector2(pPos.X - Fonts.Arial12Bold.MeasureString("Fleet Center").X / 2f, pPos.Y + 5f), new Color(255, 255, 255, 70));
-            foreach (Array<Fleet.Squad> flank in this.fleet.AllFlanks)
+            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {
                 foreach (Fleet.Squad squad in flank)
                 {
                     Viewport viewport1 = base.Viewport;
-                    pScreenSpace = viewport1.Project(new Vector3(squad.Offset, 0f), this.Projection, this.View, Matrix.Identity);
+                    pScreenSpace = viewport1.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     spriteBatch.FillRectangle(new Rectangle((int)pPos.X - 2, (int)pPos.Y - 2, 4, 4), new Color(0, 255, 0, 110));
                     spriteBatch.DrawString(Fonts.Arial8Bold, "Squad", new Vector2(pPos.X - Fonts.Arial8Bold.MeasureString("Squad").X / 2f, pPos.Y + 5f), new Color(0, 255, 0, 70));
@@ -694,10 +694,10 @@ namespace Ship_Game
             {
                 Vector3 Origin = new Vector3((float)(x * size / 20 - size / 2), (float)(-(size / 2)), 0f);
                 Viewport viewport = base.Viewport;
-                Vector3 OriginScreenSpace = viewport.Project(Origin, this.Projection, this.View, Matrix.Identity);
+                Vector3 OriginScreenSpace = viewport.Project(Origin, Projection, View, Matrix.Identity);
                 Vector3 End = new Vector3((float)(x * size / 20 - size / 2), (float)(size - size / 2), 0f);
                 Viewport viewport1 = base.Viewport;
-                Vector3 EndScreenSpace = viewport1.Project(End, this.Projection, this.View, Matrix.Identity);
+                Vector3 EndScreenSpace = viewport1.Project(End, Projection, View, Matrix.Identity);
                 Vector2 origin = new Vector2(OriginScreenSpace.X, OriginScreenSpace.Y);
                 Vector2 end = new Vector2(EndScreenSpace.X, EndScreenSpace.Y);
                 spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
@@ -706,10 +706,10 @@ namespace Ship_Game
             {
                 Vector3 Origin = new Vector3((float)(-(size / 2)), (float)(y * size / 20 - size / 2), 0f);
                 Viewport viewport2 = base.Viewport;
-                Vector3 OriginScreenSpace = viewport2.Project(Origin, this.Projection, this.View, Matrix.Identity);
+                Vector3 OriginScreenSpace = viewport2.Project(Origin, Projection, View, Matrix.Identity);
                 Vector3 End = new Vector3((float)(size - size / 2), (float)(y * size / 20 - size / 2), 0f);
                 Viewport viewport3 = base.Viewport;
-                Vector3 EndScreenSpace = viewport3.Project(End, this.Projection, this.View, Matrix.Identity);
+                Vector3 EndScreenSpace = viewport3.Project(End, Projection, View, Matrix.Identity);
                 Vector2 origin = new Vector2(OriginScreenSpace.X, OriginScreenSpace.Y);
                 Vector2 end = new Vector2(EndScreenSpace.X, EndScreenSpace.Y);
                 spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
@@ -719,124 +719,124 @@ namespace Ship_Game
         private void DrawSelectedData(GameTime gameTime)
         {
             var spriteBatch = ScreenManager.SpriteBatch;
-            if (this.SelectedNodeList.Count == 1)
+            if (SelectedNodeList.Count == 1)
             {
-                this.stuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-                this.stuffSelector.Draw(spriteBatch);
-                Vector2 Cursor = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
-                if (this.SelectedNodeList[0].Ship== null)
+                StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
+                StuffSelector.Draw(spriteBatch);
+                Vector2 Cursor = new Vector2((float)(SelectedStuffRect.X + 20), (float)(SelectedStuffRect.Y + 10));
+                if (SelectedNodeList[0].Ship== null)
                 {
-                    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("(", this.SelectedNodeList[0].ShipName, ")"), Cursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("(", SelectedNodeList[0].ShipName, ")"), Cursor, new Color(255, 239, 208));
                 }
                 else
                 {
-                    spriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(this.SelectedNodeList[0].Ship.VanityName) ? this.SelectedNodeList[0].Ship.VanityName : string.Concat(this.SelectedNodeList[0].Ship.Name, " (", this.SelectedNodeList[0].Ship.shipData.Role, ")")), Cursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(SelectedNodeList[0].Ship.VanityName) ? SelectedNodeList[0].Ship.VanityName : string.Concat(SelectedNodeList[0].Ship.Name, " (", SelectedNodeList[0].Ship.shipData.Role, ")")), Cursor, new Color(255, 239, 208));
                 }
-                Cursor.Y = (float)(this.OperationsRect.Y + 10);
+                Cursor.Y = (float)(OperationsRect.Y + 10);
                 spriteBatch.DrawString(Fonts.Pirulen12, "Movement Orders", Cursor, new Color(255, 239, 208));
-                foreach (ToggleButton button in this.OrdersButtons)
+                foreach (ToggleButton button in OrdersButtons)
                 {
                     button.Draw(base.ScreenManager);
                 }
-                this.operationsSelector = new Selector(this.OperationsRect, new Color(0, 0, 0, 180));
-                this.operationsSelector.Draw(spriteBatch);
-                Cursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
+                OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
+                OperationsSelector.Draw(spriteBatch);
+                Cursor = new Vector2((float)(OperationsRect.X + 20), (float)(OperationsRect.Y + 10));
                 spriteBatch.DrawString(Fonts.Pirulen12, "Target Selection", Cursor, new Color(255, 239, 208));
-                this.Slider_Armor.Draw(base.ScreenManager);
-                this.Slider_Assist.Draw(base.ScreenManager);
-                this.Slider_Defend.Draw(base.ScreenManager);
-                this.Slider_DPS.Draw(base.ScreenManager);
-                this.Slider_Shield.Draw(base.ScreenManager);
-                this.Slider_Vulture.Draw(base.ScreenManager);
-                this.priorityselector = new Selector( this.PrioritiesRect, new Color(0, 0, 0, 180));
-                this.priorityselector.Draw(spriteBatch);
-                Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
+                Slider_Armor.Draw(base.ScreenManager);
+                Slider_Assist.Draw(base.ScreenManager);
+                Slider_Defend.Draw(base.ScreenManager);
+                Slider_DPS.Draw(base.ScreenManager);
+                Slider_Shield.Draw(base.ScreenManager);
+                Slider_Vulture.Draw(base.ScreenManager);
+                Priorityselector = new Selector( PrioritiesRect, new Color(0, 0, 0, 180));
+                Priorityselector.Draw(spriteBatch);
+                Cursor = new Vector2((float)(PrioritiesRect.X + 20), (float)(PrioritiesRect.Y + 10));
                 spriteBatch.DrawString(Fonts.Pirulen12, "Priorities", Cursor, new Color(255, 239, 208));
-                this.OperationalRadius.Draw(spriteBatch);
-                this.Slider_Size.Draw(base.ScreenManager);
+                OperationalRadius.Draw(spriteBatch);
+                Slider_Size.Draw(base.ScreenManager);
                 return;
             }
-            if (this.SelectedNodeList.Count > 1)
+            if (SelectedNodeList.Count > 1)
             {
-                this.stuffSelector = new Selector( this.SelectedStuffRect, new Color(0, 0, 0, 180));
-                this.stuffSelector.Draw(spriteBatch);
-                Vector2 Cursor = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
-                if (this.SelectedNodeList[0].Ship== null)
+                StuffSelector = new Selector( SelectedStuffRect, new Color(0, 0, 0, 180));
+                StuffSelector.Draw(spriteBatch);
+                Vector2 Cursor = new Vector2((float)(SelectedStuffRect.X + 20), (float)(SelectedStuffRect.Y + 10));
+                if (SelectedNodeList[0].Ship== null)
                 {
                     SpriteFont arial20Bold = Fonts.Arial20Bold;
-                    int count = this.SelectedNodeList.Count;
+                    int count = SelectedNodeList.Count;
                     spriteBatch.DrawString(arial20Bold, string.Concat("Group of ", count.ToString(), " ships selected"), Cursor, new Color(255, 239, 208));
                 }
                 else
                 {
                     SpriteFont spriteFont = Fonts.Arial20Bold;
-                    int num = this.SelectedNodeList.Count;
+                    int num = SelectedNodeList.Count;
                     spriteBatch.DrawString(spriteFont, string.Concat("Group of ", num.ToString(), " ships selected"), Cursor, new Color(255, 239, 208));
                 }
-                Cursor.Y = (float)(this.OperationsRect.Y + 10);
+                Cursor.Y = (float)(OperationsRect.Y + 10);
                 spriteBatch.DrawString(Fonts.Pirulen12, "Group Movement Orders", Cursor, new Color(255, 239, 208));
-                foreach (ToggleButton button in this.OrdersButtons)
+                foreach (ToggleButton button in OrdersButtons)
                 {
                     button.Draw(base.ScreenManager);
                 }
-                this.operationsSelector = new Selector(this.OperationsRect, new Color(0, 0, 0, 180));
-                this.operationsSelector.Draw(spriteBatch);
-                Cursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
+                OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
+                OperationsSelector.Draw(spriteBatch);
+                Cursor = new Vector2((float)(OperationsRect.X + 20), (float)(OperationsRect.Y + 10));
                 spriteBatch.DrawString(Fonts.Pirulen12, "Group Target Selection", Cursor, new Color(255, 239, 208));
-                this.Slider_Armor.Draw(base.ScreenManager);
-                this.Slider_Assist.Draw(base.ScreenManager);
-                this.Slider_Defend.Draw(base.ScreenManager);
-                this.Slider_DPS.Draw(base.ScreenManager);
-                this.Slider_Shield.Draw(base.ScreenManager);
-                this.Slider_Vulture.Draw(base.ScreenManager);
-                this.priorityselector = new Selector(this.PrioritiesRect, new Color(0, 0, 0, 180));
-                this.priorityselector.Draw(spriteBatch);
-                Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
+                Slider_Armor.Draw(base.ScreenManager);
+                Slider_Assist.Draw(base.ScreenManager);
+                Slider_Defend.Draw(base.ScreenManager);
+                Slider_DPS.Draw(base.ScreenManager);
+                Slider_Shield.Draw(base.ScreenManager);
+                Slider_Vulture.Draw(base.ScreenManager);
+                Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
+                Priorityselector.Draw(spriteBatch);
+                Cursor = new Vector2((float)(PrioritiesRect.X + 20), (float)(PrioritiesRect.Y + 10));
                 spriteBatch.DrawString(Fonts.Pirulen12, "Group Priorities", Cursor, new Color(255, 239, 208));
-                this.OperationalRadius.Draw(spriteBatch);
-                this.Slider_Size.Draw(base.ScreenManager);
+                OperationalRadius.Draw(spriteBatch);
+                Slider_Size.Draw(base.ScreenManager);
                 return;
             }
-            if (this.FleetToEdit == -1)
+            if (FleetToEdit == -1)
             {
                 float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);
-                Rectangle r = this.SelectedStuffRect;
+                Rectangle r = SelectedStuffRect;
                 if (base.ScreenState == Ship_Game.ScreenState.TransitionOn)
                 {
                     r.Y = r.Y + (int)(transitionOffset * 256f);
                 }
-                this.stuffSelector = new Selector(r, new Color(0, 0, 0, 180));
-                this.stuffSelector.Draw(spriteBatch);
+                StuffSelector = new Selector(r, new Color(0, 0, 0, 180));
+                StuffSelector.Draw(spriteBatch);
                 Vector2 Cursor = new Vector2((float)(r.X + 20), (float)(r.Y + 10));
                 spriteBatch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", Cursor, new Color(255, 239, 208));
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
                 string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
-                txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, (float)(this.SelectedStuffRect.Width - 40));
+                txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, (float)(SelectedStuffRect.Width - 40));
                 spriteBatch.DrawString(Fonts.Arial12Bold, txt, Cursor, new Color(255, 239, 208));
                 return;
             }
-            this.stuffSelector = new Selector(this.SelectedStuffRect, new Color(0, 0, 0, 180));
-            this.stuffSelector.Draw(spriteBatch);
-            Fleet f = EmpireManager.Player.GetFleetsDict()[this.FleetToEdit];
-            Vector2 Cursor1 = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
-            this.FleetNameEntry.Text = f.Name;
-            this.FleetNameEntry.ClickableArea = new Rectangle((int)Cursor1.X, (int)Cursor1.Y, (int)Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
-            this.FleetNameEntry.Draw(Fonts.Arial20Bold, spriteBatch, Cursor1, gameTime, (this.FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
+            StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
+            StuffSelector.Draw(spriteBatch);
+            Fleet f = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+            Vector2 Cursor1 = new Vector2((float)(SelectedStuffRect.X + 20), (float)(SelectedStuffRect.Y + 10));
+            FleetNameEntry.Text = f.Name;
+            FleetNameEntry.ClickableArea = new Rectangle((int)Cursor1.X, (int)Cursor1.Y, (int)Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
+            FleetNameEntry.Draw(Fonts.Arial20Bold, spriteBatch, Cursor1, gameTime, (FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
             Cursor1.Y = Cursor1.Y + (float)(Fonts.Arial20Bold.LineSpacing + 10);
             Cursor1 = Cursor1 + new Vector2(50f, 30f);
             spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Icon", Cursor1, new Color(255, 239, 208));
             Rectangle ficonrect = new Rectangle((int)Cursor1.X + 12, (int)Cursor1.Y + Fonts.Pirulen12.LineSpacing + 5, 64, 64);
             spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], ficonrect, f.Owner.EmpireColor);
-            this.RequisitionForces.Draw(base.ScreenManager);
-            this.SaveDesign.Draw(base.ScreenManager);
-            this.LoadDesign.Draw(base.ScreenManager);
-            this.priorityselector = new Selector(this.PrioritiesRect, new Color(0, 0, 0, 180));
-            this.priorityselector.Draw(spriteBatch);
-            Cursor1 = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
+            RequisitionForces.Draw(base.ScreenManager);
+            SaveDesign.Draw(base.ScreenManager);
+            LoadDesign.Draw(base.ScreenManager);
+            Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
+            Priorityselector.Draw(spriteBatch);
+            Cursor1 = new Vector2((float)(PrioritiesRect.X + 20), (float)(PrioritiesRect.Y + 10));
             spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", Cursor1, new Color(255, 239, 208));
             Cursor1.Y = Cursor1.Y + (float)(Fonts.Pirulen12.LineSpacing + 2);
             string txt0 = Localizer.Token(4043);
-            txt0 = HelperFunctions.ParseText(Fonts.Arial12Bold, txt0, (float)(this.PrioritiesRect.Width - 40));
+            txt0 = HelperFunctions.ParseText(Fonts.Arial12Bold, txt0, (float)(PrioritiesRect.Width - 40));
             spriteBatch.DrawString(Fonts.Arial12Bold, txt0, Cursor1, new Color(255, 239, 208));
         }
 
@@ -844,7 +844,7 @@ namespace Ship_Game
         {
             AssignLightRig("example/NewGamelight_rig");
             Empire.Universe.RecomputeFleetButtons(true);
-            this.starfield.UnloadContent();
+            Starfield.UnloadContent();
             base.ExitScreen();
         }
 
@@ -852,9 +852,9 @@ namespace Ship_Game
         private Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
         {
             Viewport viewport = base.Viewport;
-            Vector3 nearPoint = viewport.Unproject(new Vector3(screenSpace, 0f), this.Projection, this.View, Matrix.Identity);
+            Vector3 nearPoint = viewport.Unproject(new Vector3(screenSpace, 0f), Projection, View, Matrix.Identity);
             Viewport viewport1 = base.Viewport;
-            Vector3 farPoint = viewport1.Unproject(new Vector3(screenSpace, 1f), this.Projection, this.View, Matrix.Identity);
+            Vector3 farPoint = viewport1.Unproject(new Vector3(screenSpace, 1f), Projection, View, Matrix.Identity);
             Vector3 direction = farPoint - nearPoint;
             direction.Normalize();
             Ray pickRay = new Ray(nearPoint, direction);
@@ -865,161 +865,161 @@ namespace Ship_Game
 
         private void HandleEdgeDetection(InputState input)
         {
-            this.EmpireUI.HandleInput(input, this);
-            if (this.FleetNameEntry.HandlingInput)
+            EmpireUI.HandleInput(input, this);
+            if (FleetNameEntry.HandlingInput)
             {
                 return;
             }
             Vector2 MousePos = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
             PresentationParameters pp = base.ScreenManager.GraphicsDevice.PresentationParameters;
-            Vector2 upperLeftWorldSpace = this.GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
-            Vector2 lowerRightWorldSpace = this.GetWorldSpaceFromScreenSpace(new Vector2((float)pp.BackBufferWidth, (float)pp.BackBufferHeight));
+            Vector2 upperLeftWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
+            Vector2 lowerRightWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2((float)pp.BackBufferWidth, (float)pp.BackBufferHeight));
             float xDist = lowerRightWorldSpace.X - upperLeftWorldSpace.X;
             if (MousePos.X == 0f || input.KeysCurr.IsKeyDown(Keys.Left) || input.KeysCurr.IsKeyDown(Keys.A))
             {
-                this.CamPos.X = this.CamPos.X - 0.008f * xDist;
+                CamPos.X = CamPos.X - 0.008f * xDist;
             }
             if (MousePos.X == (float)(pp.BackBufferWidth - 1) || input.KeysCurr.IsKeyDown(Keys.Right) || input.KeysCurr.IsKeyDown(Keys.D))
             {
-                this.CamPos.X = this.CamPos.X + 0.008f * xDist;
+                CamPos.X = CamPos.X + 0.008f * xDist;
             }
             if (MousePos.Y == 0f || input.KeysCurr.IsKeyDown(Keys.Up) || input.KeysCurr.IsKeyDown(Keys.W))
             {
-                this.CamPos.Y = this.CamPos.Y - 0.008f * xDist;
+                CamPos.Y = CamPos.Y - 0.008f * xDist;
             }
             if (MousePos.Y == (float)(pp.BackBufferHeight - 1) || input.KeysCurr.IsKeyDown(Keys.Down) || input.KeysCurr.IsKeyDown(Keys.S))
             {
-                this.CamPos.Y = this.CamPos.Y + 0.008f * xDist;
+                CamPos.Y = CamPos.Y + 0.008f * xDist;
             }
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (this.close.HandleInput(input))
+            if (Close.HandleInput(input))
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
             if (input.KeysCurr.IsKeyDown(Keys.J) && !input.KeysPrev.IsKeyDown(Keys.J) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
-            this.current = Mouse.GetState();
+            Current = Mouse.GetState();
             Vector2 MousePos = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
-            if (this.SelectedNodeList.Count != 1 && this.FleetToEdit != -1)
+            if (SelectedNodeList.Count != 1 && FleetToEdit != -1)
             {
-                if (!this.FleetNameEntry.ClickableArea.HitTest(MousePos))
+                if (!FleetNameEntry.ClickableArea.HitTest(MousePos))
                 {
-                    this.FleetNameEntry.Hover = false;
+                    FleetNameEntry.Hover = false;
                 }
                 else
                 {
-                    this.FleetNameEntry.Hover = true;
+                    FleetNameEntry.Hover = true;
                     if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                     {
-                        this.FleetNameEntry.HandlingInput = true;
+                        FleetNameEntry.HandlingInput = true;
                         return true;
                     }
                 }
             }
-            if (!this.FleetNameEntry.HandlingInput)
+            if (!FleetNameEntry.HandlingInput)
             {
                 GlobalStats.TakingInput = false;
             }
             else
             {
                 GlobalStats.TakingInput = true;
-                this.FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].Name);
+                FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name);
             }
             if (input.KeysCurr.IsKeyDown(Keys.D1) && input.KeysPrev.IsKeyUp(Keys.D1))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(1);
+                ChangeFleet(1);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D2) && input.KeysPrev.IsKeyUp(Keys.D2))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(2);
+                ChangeFleet(2);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D3) && input.KeysPrev.IsKeyUp(Keys.D3))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(3);
+                ChangeFleet(3);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D4) && input.KeysPrev.IsKeyUp(Keys.D4))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(4);
+                ChangeFleet(4);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D5) && input.KeysPrev.IsKeyUp(Keys.D5))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(5);
+                ChangeFleet(5);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D6) && input.KeysPrev.IsKeyUp(Keys.D6))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(6);
+                ChangeFleet(6);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D7) && input.KeysPrev.IsKeyUp(Keys.D7))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(7);
+                ChangeFleet(7);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D8) && input.KeysPrev.IsKeyUp(Keys.D8))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(8);
+                ChangeFleet(8);
             }
             else if (input.KeysCurr.IsKeyDown(Keys.D9) && input.KeysPrev.IsKeyUp(Keys.D9))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.ChangeFleet(9);
+                ChangeFleet(9);
             }
-            foreach (KeyValuePair<int, Rectangle> rect in this.FleetsRects)
+            foreach (KeyValuePair<int, Rectangle> rect in FleetsRects)
             {
                 if (!rect.Value.HitTest(MousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
                 {
                     continue;
                 }
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.FleetToEdit = rect.Key;
-                this.ChangeFleet(this.FleetToEdit);
+                FleetToEdit = rect.Key;
+                ChangeFleet(FleetToEdit);
             }
-            if (this.FleetToEdit != -1)
+            if (FleetToEdit != -1)
             {
-                this.sub_ships.HandleInput(this);
-                if (this.ShipSL.HandleInput(input))
+                SubShips.HandleInput(this);
+                if (ShipSL.HandleInput(input))
                 {
                     return true;
                 }
             }
-            if (this.SelectedNodeList.Count == 1)
+            if (SelectedNodeList.Count == 1)
             {
-                this.SelectedNodeList[0].AttackShieldedWeight = this.Slider_Shield.HandleInput(input);
-                this.SelectedNodeList[0].DPSWeight = this.Slider_DPS.HandleInput(input);
-                this.SelectedNodeList[0].VultureWeight = this.Slider_Vulture.HandleInput(input);
-                this.SelectedNodeList[0].ArmoredWeight = this.Slider_Armor.HandleInput(input);
-                this.SelectedNodeList[0].DefenderWeight = this.Slider_Defend.HandleInput(input);
-                this.SelectedNodeList[0].AssistWeight = this.Slider_Assist.HandleInput(input);
-                this.SelectedNodeList[0].SizeWeight = this.Slider_Size.HandleInput(input);
-                if (this.OperationsRect.HitTest(MousePos))
+                SelectedNodeList[0].AttackShieldedWeight = Slider_Shield.HandleInput(input);
+                SelectedNodeList[0].DPSWeight = Slider_DPS.HandleInput(input);
+                SelectedNodeList[0].VultureWeight = Slider_Vulture.HandleInput(input);
+                SelectedNodeList[0].ArmoredWeight = Slider_Armor.HandleInput(input);
+                SelectedNodeList[0].DefenderWeight = Slider_Defend.HandleInput(input);
+                SelectedNodeList[0].AssistWeight = Slider_Assist.HandleInput(input);
+                SelectedNodeList[0].SizeWeight = Slider_Size.HandleInput(input);
+                if (OperationsRect.HitTest(MousePos))
                 {
-                    this.dragTimer = 0f;
+                    DragTimer = 0f;
                     return true;
                 }
-                if (this.PrioritiesRect.HitTest(MousePos))
+                if (PrioritiesRect.HitTest(MousePos))
                 {
-                    dragTimer = 0f;
+                    DragTimer = 0f;
                     OperationalRadius.HandleInput(input);
                     SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
                     return true;
                 }
-                if (this.SelectedStuffRect.HitTest(MousePos))
+                if (SelectedStuffRect.HitTest(MousePos))
                 {
-                    foreach (ToggleButton button in this.OrdersButtons)
+                    foreach (ToggleButton button in OrdersButtons)
                     {
                         if (!button.Rect.HitTest(MousePos))
                         {
@@ -1032,7 +1032,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            foreach (ToggleButton b in this.OrdersButtons)
+                            foreach (ToggleButton b in OrdersButtons)
                             {
                                 b.Active = false;
                             }
@@ -1042,46 +1042,46 @@ namespace Ship_Game
                             {
                                 if (str == "attack")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.AttackRuns;
+                                    SelectedNodeList[0].CombatState = CombatState.AttackRuns;
                                 }
                                 else if (str == "arty")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.Artillery;
+                                    SelectedNodeList[0].CombatState = CombatState.Artillery;
                                 }
                                 else if (str == "hold")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.HoldPosition;
+                                    SelectedNodeList[0].CombatState = CombatState.HoldPosition;
                                 }
                                 else if (str == "orbit_left")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.OrbitLeft;
+                                    SelectedNodeList[0].CombatState = CombatState.OrbitLeft;
                                 }
                                 else if (str == "broadside_left")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.BroadsideLeft;
+                                    SelectedNodeList[0].CombatState = CombatState.BroadsideLeft;
                                 }
                                 else if (str == "orbit_right")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.OrbitRight;
+                                    SelectedNodeList[0].CombatState = CombatState.OrbitRight;
                                 }
                                 else if (str == "broadside_right")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.BroadsideRight;
+                                    SelectedNodeList[0].CombatState = CombatState.BroadsideRight;
                                 }
                                 else if (str == "evade")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.Evade;
+                                    SelectedNodeList[0].CombatState = CombatState.Evade;
                                 }
                                 else if (str == "short")
                                 {
-                                    this.SelectedNodeList[0].CombatState = CombatState.ShortRange;
+                                    SelectedNodeList[0].CombatState = CombatState.ShortRange;
                                 }
                             }
-                            if (this.SelectedNodeList[0].Ship== null)
+                            if (SelectedNodeList[0].Ship== null)
                             {
                                 continue;
                             }
-                            this.SelectedNodeList[0].Ship.AI.CombatState = this.SelectedNodeList[0].CombatState;
+                            SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
                             button.Active = true;
                             GameAudio.PlaySfxAsync("echo_affirm");
                             break;
@@ -1090,39 +1090,39 @@ namespace Ship_Game
                 }
                 return false;
             }
-            else if (this.SelectedNodeList.Count > 1)
+            else if (SelectedNodeList.Count > 1)
             {
                 FleetDataNode fleetDataNode = new FleetDataNode();
-                this.Slider_DPS.HandleInput(input);
-                this.Slider_Vulture.HandleInput(input);
-                this.Slider_Armor.HandleInput(input);
-                this.Slider_Defend.HandleInput(input);
-                this.Slider_Assist.HandleInput(input);
-                this.Slider_Size.HandleInput(input);
-                foreach (FleetDataNode node in this.SelectedNodeList)
+                Slider_DPS.HandleInput(input);
+                Slider_Vulture.HandleInput(input);
+                Slider_Armor.HandleInput(input);
+                Slider_Defend.HandleInput(input);
+                Slider_Assist.HandleInput(input);
+                Slider_Size.HandleInput(input);
+                foreach (FleetDataNode node in SelectedNodeList)
                 {
-                    node.DPSWeight = this.Slider_DPS.amount;
-                    node.VultureWeight = this.Slider_Vulture.amount;
-                    node.ArmoredWeight = this.Slider_Armor.amount;
-                    node.DefenderWeight = this.Slider_Defend.amount;
-                    node.AssistWeight = this.Slider_Assist.amount;
-                    node.SizeWeight = this.Slider_Size.amount;
+                    node.DPSWeight = Slider_DPS.amount;
+                    node.VultureWeight = Slider_Vulture.amount;
+                    node.ArmoredWeight = Slider_Armor.amount;
+                    node.DefenderWeight = Slider_Defend.amount;
+                    node.AssistWeight = Slider_Assist.amount;
+                    node.SizeWeight = Slider_Size.amount;
                 }
-                if (this.OperationsRect.HitTest(MousePos))
+                if (OperationsRect.HitTest(MousePos))
                 {
-                    this.dragTimer = 0f;
+                    DragTimer = 0f;
                     return true;
                 }
-                if (this.PrioritiesRect.HitTest(MousePos))
+                if (PrioritiesRect.HitTest(MousePos))
                 {
-                    dragTimer = 0f;
+                    DragTimer = 0f;
                     OperationalRadius.HandleInput(input);
                     SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
                     return true;
                 }
-                if (this.SelectedStuffRect.HitTest(MousePos))
+                if (SelectedStuffRect.HitTest(MousePos))
                 {
-                    foreach (ToggleButton button in this.OrdersButtons)
+                    foreach (ToggleButton button in OrdersButtons)
                     {
                         if (!button.Rect.HitTest(MousePos))
                         {
@@ -1135,13 +1135,13 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            foreach (ToggleButton b in this.OrdersButtons)
+                            foreach (ToggleButton b in OrdersButtons)
                             {
                                 b.Active = false;
                             }
                             GameAudio.PlaySfxAsync("echo_affirm");
                             button.Active = true;
-                            foreach (FleetDataNode node in this.SelectedNodeList)
+                            foreach (FleetDataNode node in SelectedNodeList)
                             {
                                 string action1 = button.Action;
                                 string str1 = action1;
@@ -1195,29 +1195,29 @@ namespace Ship_Game
                 }
                 return false;
             }
-            else if (this.FleetToEdit != -1 && this.SelectedNodeList.Count == 0 && this.SelectedStuffRect.HitTest(MousePos))
+            else if (FleetToEdit != -1 && SelectedNodeList.Count == 0 && SelectedStuffRect.HitTest(MousePos))
             {
-                if (this.RequisitionForces.HandleInput(input))
+                if (RequisitionForces.HandleInput(input))
                 {
                     base.ScreenManager.AddScreen(new RequisitionScreen(this));
                 }
-                if (this.SaveDesign.HandleInput(input))
+                if (SaveDesign.HandleInput(input))
                 {
-                    base.ScreenManager.AddScreen(new SaveFleetDesignScreen(this, fleet));
+                    base.ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
                 }
-                if (this.LoadDesign.HandleInput(input))
+                if (LoadDesign.HandleInput(input))
                 {
                     base.ScreenManager.AddScreen(new LoadSavedFleetDesignScreen(this));
                 }
             }
-            if (this.ActiveShipDesign != null)
+            if (ActiveShipDesign != null)
             {
                 if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                 {
                     Viewport viewport = base.Viewport;
-                    Vector3 nearPoint = viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 nearPoint = viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 0f), Projection, View, Matrix.Identity);
                     Viewport viewport1 = base.Viewport;
-                    Vector3 farPoint = viewport1.Unproject(new Vector3(MousePos.X, MousePos.Y, 1f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 farPoint = viewport1.Unproject(new Vector3(MousePos.X, MousePos.Y, 1f), Projection, View, Matrix.Identity);
                     Vector3 direction = farPoint - nearPoint;
                     direction.Normalize();
                     Ray pickRay = new Ray(nearPoint, direction);
@@ -1226,27 +1226,27 @@ namespace Ship_Game
                     FleetDataNode node = new FleetDataNode()
                     {
                         FleetOffset = new Vector2(pickedPosition.X, pickedPosition.Y),
-                        ShipName = this.ActiveShipDesign.Name
+                        ShipName = ActiveShipDesign.Name
                     };
-                    this.fleet.DataNodes.Add(node);
-                    if (this.AvailableShips.Contains(this.ActiveShipDesign))
+                    SelectedFleet.DataNodes.Add(node);
+                    if (AvailableShips.Contains(ActiveShipDesign))
                     {
-                        if (this.fleet.Ships.Count == 0)
+                        if (SelectedFleet.Ships.Count == 0)
                         {
-                            this.fleet.Position = this.ActiveShipDesign.Position;
+                            SelectedFleet.Position = ActiveShipDesign.Position;
                         }
-                        node.Ship = this.ActiveShipDesign;
+                        node.Ship = ActiveShipDesign;
                         node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.FleetOffset, 0f));
                         node.Ship.RelativeFleetOffset = node.FleetOffset;
-                        this.AvailableShips.Remove(this.ActiveShipDesign);
-                        node.Ship.fleet = this.fleet;
-                        this.fleet.AddShip(node.Ship);
-                        if (this.sub_ships.Tabs[1].Selected)
+                        AvailableShips.Remove(ActiveShipDesign);
+                        node.Ship.fleet = SelectedFleet;
+                        SelectedFleet.AddShip(node.Ship);
+                        if (SubShips.Tabs[1].Selected)
                         {
                             ScrollList.Entry toremove = null;
-                            foreach (ScrollList.Entry e in this.ShipSL.Copied)
+                            foreach (ScrollList.Entry e in ShipSL.Copied)
                             {
-                                if (!(e.item is Ship) || e.item as Ship != this.ActiveShipDesign)
+                                if (!(e.item is Ship) || e.item as Ship != ActiveShipDesign)
                                 {
                                     continue;
                                 }
@@ -1255,30 +1255,30 @@ namespace Ship_Game
                             }
                             if (toremove != null)
                             {
-                                foreach (ScrollList.Entry e in this.ShipSL.Copied)
+                                foreach (ScrollList.Entry e in ShipSL.Copied)
                                 {
                                     e.SubEntries.Remove(toremove);
                                 }
-                                this.ShipSL.Entries.Remove(toremove);
-                                this.ShipSL.Copied.Remove(toremove);
-                                this.ShipSL.Update();
+                                ShipSL.Entries.Remove(toremove);
+                                ShipSL.Copied.Remove(toremove);
+                                ShipSL.Update();
                             }
                         }
-                        this.ActiveShipDesign = null;
+                        ActiveShipDesign = null;
                     }
                     if (!input.KeysCurr.IsKeyDown(Keys.LeftShift))
                     {
-                        this.ActiveShipDesign = null;
+                        ActiveShipDesign = null;
                     }
                 }
                 if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
                 {
-                    this.ActiveShipDesign = null;
+                    ActiveShipDesign = null;
                 }
             }
-            if (this.FleetToEdit != -1)
+            if (FleetToEdit != -1)
             {
-                foreach (ScrollList.Entry e in this.ShipSL.Copied)
+                foreach (ScrollList.Entry e in ShipSL.Copied)
                 {
                     if (!(e.item is ModuleHeader))
                     {
@@ -1286,9 +1286,9 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        this.ActiveShipDesign = e.item as Ship;
-                        this.SelectedNodeList.Clear();
-                        this.SelectedSquad = null;
+                        ActiveShipDesign = e.item as Ship;
+                        SelectedNodeList.Clear();
+                        SelectedSquad = null;
                     }
                     else
                     {
@@ -1296,8 +1296,8 @@ namespace Ship_Game
                     }
                 }
             }
-            this.HandleEdgeDetection(input);
-            this.HandleSelectionBox(input);
+            HandleEdgeDetection(input);
+            HandleSelectionBox(input);
             if (input.ScrollIn)
             {
                 FleetDesignScreen desiredCamHeight = this;
@@ -1308,61 +1308,61 @@ namespace Ship_Game
                 FleetDesignScreen fleetDesignScreen = this;
                 fleetDesignScreen.DesiredCamHeight = fleetDesignScreen.DesiredCamHeight + 1500f;
             }
-            if (this.DesiredCamHeight < 3000f)
+            if (DesiredCamHeight < 3000f)
             {
-                this.DesiredCamHeight = 3000f;
+                DesiredCamHeight = 3000f;
             }
-            else if (this.DesiredCamHeight > 100000f)
+            else if (DesiredCamHeight > 100000f)
             {
-                this.DesiredCamHeight = 100000f;
+                DesiredCamHeight = 100000f;
             }
             bool dragging = false;
             if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
             {
                 dragging = true;
-                this.startDrag = MousePos;
+                StartDrag = MousePos;
             }
             if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Pressed)
             {
                 dragging = true;
-                this.endDrag = MousePos;
-                if (this.startDrag.OutsideRadius(endDrag, 10f))
+                EndDrag = MousePos;
+                if (StartDrag.OutsideRadius(EndDrag, 10f))
                 {
-                    this.CamVelocity = this.endDrag.DirectionToTarget(this.startDrag);
-                    this.CamVelocity = Vector2.Normalize(this.CamVelocity) * Vector2.Distance(this.startDrag, this.endDrag);
+                    CamVelocity = EndDrag.DirectionToTarget(StartDrag);
+                    CamVelocity = Vector2.Normalize(CamVelocity) * Vector2.Distance(StartDrag, EndDrag);
                 }
             }
             if (!dragging)
             {
-                this.CamVelocity = Vector2.Zero;
+                CamVelocity = Vector2.Zero;
             }
-            if (this.CamVelocity.Length() > 150f)
+            if (CamVelocity.Length() > 150f)
             {
-                this.CamVelocity = Vector2.Normalize(this.CamVelocity) * 150f;
+                CamVelocity = Vector2.Normalize(CamVelocity) * 150f;
             }
-            if (float.IsNaN(this.CamVelocity.X) || float.IsNaN(this.CamVelocity.Y))
+            if (float.IsNaN(CamVelocity.X) || float.IsNaN(CamVelocity.Y))
             {
-                this.CamVelocity = Vector2.Zero;
+                CamVelocity = Vector2.Zero;
             }
             if (input.KeysCurr.IsKeyDown(Keys.Back) || input.KeysCurr.IsKeyDown(Keys.Delete))
             {
-                if (this.SelectedSquad != null)
+                if (SelectedSquad != null)
                 {
-                    this.fleet.CenterFlank.Remove(this.SelectedSquad);
-                    this.fleet.LeftFlank.Remove(this.SelectedSquad);
-                    this.fleet.RearFlank.Remove(this.SelectedSquad);
-                    this.fleet.RightFlank.Remove(this.SelectedSquad);
-                    this.fleet.ScreenFlank.Remove(this.SelectedSquad);
-                    this.SelectedSquad = null;
-                    this.SelectedNodeList.Clear();
+                    SelectedFleet.CenterFlank.Remove(SelectedSquad);
+                    SelectedFleet.LeftFlank.Remove(SelectedSquad);
+                    SelectedFleet.RearFlank.Remove(SelectedSquad);
+                    SelectedFleet.RightFlank.Remove(SelectedSquad);
+                    SelectedFleet.ScreenFlank.Remove(SelectedSquad);
+                    SelectedSquad = null;
+                    SelectedNodeList.Clear();
                 }
-                if (this.SelectedNodeList.Count > 0)
+                if (SelectedNodeList.Count > 0)
                 {
-                    foreach (Array<Fleet.Squad> flanks in this.fleet.AllFlanks)
+                    foreach (Array<Fleet.Squad> flanks in SelectedFleet.AllFlanks)
                     {
                         foreach (Fleet.Squad squad in flanks)
                         {
-                            foreach (FleetDataNode node in this.SelectedNodeList)
+                            foreach (FleetDataNode node in SelectedNodeList)
                             {
                                 if (!squad.DataNodes.Contains(node))
                                 {
@@ -1379,49 +1379,49 @@ namespace Ship_Game
                             squad.Ships.ApplyPendingRemovals();
                         }
                     }
-                    foreach (FleetDataNode node in this.SelectedNodeList)
+                    foreach (FleetDataNode node in SelectedNodeList)
                     {
-                        this.fleet.DataNodes.Remove(node);
+                        SelectedFleet.DataNodes.Remove(node);
                         if (node.Ship== null)
                         {
                             continue;
                         }
                         node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
-                        this.fleet.Ships.Remove(node.Ship);
+                        SelectedFleet.Ships.Remove(node.Ship);
                         node.Ship.fleet?.RemoveShip(node.Ship); ;
                     }
-                    this.SelectedNodeList.Clear();
-                    this.ResetLists();
+                    SelectedNodeList.Clear();
+                    ResetLists();
                 }
             }
             if (input.Escaped)
             {
                 FleetDesignScreen.Open = false;
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
-            this.previous = this.current;
+            Previous = Current;
             return false;
         }
 
         private void HandleSelectionBox(InputState input)
         {
-            if (this.LeftMenu.Menu.HitTest(input.CursorPosition) || this.RightMenu.Menu.HitTest(input.CursorPosition))
+            if (LeftMenu.Menu.HitTest(input.CursorPosition) || RightMenu.Menu.HitTest(input.CursorPosition))
             {
-                this.SelectionBox = new Rectangle(0, 0, -1, -1);
-                this.StartSelectionBox = false;
+                SelectionBox = new Rectangle(0, 0, -1, -1);
+                StartSelectionBox = false;
                 return;
             }
             Vector2 MousePosition = new Vector2((float)input.MouseCurr.X, (float)input.MouseCurr.Y);
-            this.HoveredNodeList.Clear();
+            HoveredNodeList.Clear();
             bool hovering = false;
-            foreach (FleetDesignScreen.ClickableSquad squad in this.ClickableSquads)
+            foreach (FleetDesignScreen.ClickableSquad squad in ClickableSquads)
             {
                 if (Vector2.Distance(input.CursorPosition, squad.screenPos) > 8f)
                 {
                     continue;
                 }
-                this.HoveredSquad = squad.squad;
+                HoveredSquad = squad.squad;
                 hovering = true;
                 foreach (FleetDataNode node in HoveredSquad.DataNodes)
                 {
@@ -1431,41 +1431,41 @@ namespace Ship_Game
             }
             if (!hovering)
             {
-                foreach (FleetDesignScreen.ClickableNode node in this.ClickableNodes)
+                foreach (FleetDesignScreen.ClickableNode node in ClickableNodes)
                 {
                     if (Vector2.Distance(input.CursorPosition, node.ScreenPos) > node.Radius)
                     {
                         continue;
                     }
-                    this.HoveredNodeList.Add(node.nodeToClick);
+                    HoveredNodeList.Add(node.nodeToClick);
                     hovering = true;
                 }
             }
             if (!hovering)
             {
-                this.HoveredNodeList.Clear();
+                HoveredNodeList.Clear();
             }
             bool hitsomething = false;
             if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
             {
-                this.SelectedSquad = null;
-                foreach (FleetDesignScreen.ClickableNode node in this.ClickableNodes)
+                SelectedSquad = null;
+                foreach (FleetDesignScreen.ClickableNode node in ClickableNodes)
                 {
                     if (Vector2.Distance(input.CursorPosition, node.ScreenPos) > node.Radius)
                     {
                         continue;
                     }
-                    if (this.SelectedNodeList.Count > 0 && !input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                    if (SelectedNodeList.Count > 0 && !input.KeysCurr.IsKeyDown(Keys.LeftShift))
                     {
-                        this.SelectedNodeList.Clear();
+                        SelectedNodeList.Clear();
                     }
                     GameAudio.PlaySfxAsync("techy_affirm1");
                     hitsomething = true;
-                    if (!this.SelectedNodeList.Contains(node.nodeToClick))
+                    if (!SelectedNodeList.Contains(node.nodeToClick))
                     {
-                        this.SelectedNodeList.Add(node.nodeToClick);
+                        SelectedNodeList.Add(node.nodeToClick);
                     }
-                    foreach (ToggleButton button in this.OrdersButtons)
+                    foreach (ToggleButton button in OrdersButtons)
                     {
                         button.Active = false;
                         CombatState toset = CombatState.Artillery;
@@ -1516,70 +1516,70 @@ namespace Ship_Game
                         }
                         button.Active = true;
                     }
-                    this.Slider_Armor.SetAmount(node.nodeToClick.ArmoredWeight);
-                    this.Slider_Assist.SetAmount(node.nodeToClick.AssistWeight);
-                    this.Slider_Defend.SetAmount(node.nodeToClick.DefenderWeight);
-                    this.Slider_DPS.SetAmount(node.nodeToClick.DPSWeight);
-                    this.Slider_Shield.SetAmount(node.nodeToClick.AttackShieldedWeight);
-                    this.Slider_Vulture.SetAmount(node.nodeToClick.VultureWeight);
-                    this.OperationalRadius.RelativeValue = node.nodeToClick.OrdersRadius;
-                    this.Slider_Size.SetAmount(node.nodeToClick.SizeWeight);
+                    Slider_Armor.SetAmount(node.nodeToClick.ArmoredWeight);
+                    Slider_Assist.SetAmount(node.nodeToClick.AssistWeight);
+                    Slider_Defend.SetAmount(node.nodeToClick.DefenderWeight);
+                    Slider_DPS.SetAmount(node.nodeToClick.DPSWeight);
+                    Slider_Shield.SetAmount(node.nodeToClick.AttackShieldedWeight);
+                    Slider_Vulture.SetAmount(node.nodeToClick.VultureWeight);
+                    OperationalRadius.RelativeValue = node.nodeToClick.OrdersRadius;
+                    Slider_Size.SetAmount(node.nodeToClick.SizeWeight);
                     break;
                 }
-                foreach (FleetDesignScreen.ClickableSquad squad in this.ClickableSquads)
+                foreach (FleetDesignScreen.ClickableSquad squad in ClickableSquads)
                 {
                     if (Vector2.Distance(input.CursorPosition, squad.screenPos) > 4f)
                     {
                         continue;
                     }
-                    this.SelectedSquad = squad.squad;
-                    if (this.SelectedNodeList.Count > 0 && !input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                    SelectedSquad = squad.squad;
+                    if (SelectedNodeList.Count > 0 && !input.KeysCurr.IsKeyDown(Keys.LeftShift))
                     {
-                        this.SelectedNodeList.Clear();
+                        SelectedNodeList.Clear();
                     }
                     hitsomething = true;
                     GameAudio.PlaySfxAsync("techy_affirm1");
-                    this.SelectedNodeList.Clear();
-                    foreach (FleetDataNode node in this.SelectedSquad.DataNodes)
+                    SelectedNodeList.Clear();
+                    foreach (FleetDataNode node in SelectedSquad.DataNodes)
                     {
-                        this.SelectedNodeList.Add(node);
+                        SelectedNodeList.Add(node);
                     }
-                    this.Slider_Armor.SetAmount(this.SelectedSquad.MasterDataNode.ArmoredWeight);
-                    this.Slider_Assist.SetAmount(this.SelectedSquad.MasterDataNode.AssistWeight);
-                    this.Slider_Defend.SetAmount(this.SelectedSquad.MasterDataNode.DefenderWeight);
-                    this.Slider_DPS.SetAmount(this.SelectedSquad.MasterDataNode.DPSWeight);
-                    this.Slider_Shield.SetAmount(this.SelectedSquad.MasterDataNode.AttackShieldedWeight);
-                    this.Slider_Vulture.SetAmount(this.SelectedSquad.MasterDataNode.VultureWeight);
-                    this.OperationalRadius.RelativeValue = SelectedSquad.MasterDataNode.OrdersRadius;
-                    this.Slider_Size.SetAmount(this.SelectedSquad.MasterDataNode.SizeWeight);
+                    Slider_Armor.SetAmount(SelectedSquad.MasterDataNode.ArmoredWeight);
+                    Slider_Assist.SetAmount(SelectedSquad.MasterDataNode.AssistWeight);
+                    Slider_Defend.SetAmount(SelectedSquad.MasterDataNode.DefenderWeight);
+                    Slider_DPS.SetAmount(SelectedSquad.MasterDataNode.DPSWeight);
+                    Slider_Shield.SetAmount(SelectedSquad.MasterDataNode.AttackShieldedWeight);
+                    Slider_Vulture.SetAmount(SelectedSquad.MasterDataNode.VultureWeight);
+                    OperationalRadius.RelativeValue = SelectedSquad.MasterDataNode.OrdersRadius;
+                    Slider_Size.SetAmount(SelectedSquad.MasterDataNode.SizeWeight);
                     break;
                 }
                 if (!hitsomething)
                 {
-                    this.SelectedSquad = null;
-                    this.SelectedNodeList.Clear();
+                    SelectedSquad = null;
+                    SelectedNodeList.Clear();
                 }
             }
-            if (this.SelectedSquad != null)
+            if (SelectedSquad != null)
             {
-                if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && this.dragTimer > 0.1f)
+                if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && DragTimer > 0.1f)
                 {
                     Viewport viewport = base.Viewport;
-                    Vector3 nearPoint = viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 nearPoint = viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 0f), Projection, View, Matrix.Identity);
                     Viewport viewport1 = base.Viewport;
-                    Vector3 farPoint = viewport1.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 farPoint = viewport1.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f), Projection, View, Matrix.Identity);
                     Vector3 direction = farPoint - nearPoint;
                     direction.Normalize();
                     Ray pickRay = new Ray(nearPoint, direction);
                     float k = -pickRay.Position.Z / pickRay.Direction.Z;
                     Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
                     Vector2 newspot = new Vector2((float)((int)pickedPosition.X), (float)((int)pickedPosition.Y));
-                    Vector2 difference = newspot - this.SelectedSquad.Offset;
+                    Vector2 difference = newspot - SelectedSquad.Offset;
                     if (difference.Length() > 30f)
                     {
-                        Fleet.Squad selectedSquad = this.SelectedSquad;
+                        Fleet.Squad selectedSquad = SelectedSquad;
                         selectedSquad.Offset = selectedSquad.Offset + difference;
-                        foreach (FleetDataNode node in this.SelectedSquad.DataNodes)
+                        foreach (FleetDataNode node in SelectedSquad.DataNodes)
                         {
                             FleetDataNode fleetOffset = node;
                             fleetOffset.FleetOffset = fleetOffset.FleetOffset + difference;
@@ -1593,156 +1593,156 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (this.SelectedNodeList.Count != 1)
+            else if (SelectedNodeList.Count != 1)
             {
                 if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                 {
-                    this.SelectionBox = new Rectangle(input.MouseCurr.X, input.MouseCurr.Y, 0, 0);
-                    this.StartSelectionBox = true;
+                    SelectionBox = new Rectangle(input.MouseCurr.X, input.MouseCurr.Y, 0, 0);
+                    StartSelectionBox = true;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Pressed && this.StartSelectionBox)
+                if (input.MouseCurr.LeftButton == ButtonState.Pressed && StartSelectionBox)
                 {
-                    this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y, input.MouseCurr.X - this.SelectionBox.X, input.MouseCurr.Y - this.SelectionBox.Y);
+                    SelectionBox = new Rectangle(SelectionBox.X, SelectionBox.Y, input.MouseCurr.X - SelectionBox.X, input.MouseCurr.Y - SelectionBox.Y);
                     return;
                 }
-                if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed && this.StartSelectionBox)
+                if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed && StartSelectionBox)
                 {
-                    if (input.MouseCurr.X < this.SelectionBox.X)
+                    if (input.MouseCurr.X < SelectionBox.X)
                     {
-                        this.SelectionBox.X = input.MouseCurr.X;
+                        SelectionBox.X = input.MouseCurr.X;
                     }
-                    if (input.MouseCurr.Y < this.SelectionBox.Y)
+                    if (input.MouseCurr.Y < SelectionBox.Y)
                     {
-                        this.SelectionBox.Y = input.MouseCurr.Y;
+                        SelectionBox.Y = input.MouseCurr.Y;
                     }
-                    this.SelectionBox.Width = Math.Abs(this.SelectionBox.Width);
-                    this.SelectionBox.Height = Math.Abs(this.SelectionBox.Height);
-                    foreach (FleetDesignScreen.ClickableNode node in this.ClickableNodes)
+                    SelectionBox.Width = Math.Abs(SelectionBox.Width);
+                    SelectionBox.Height = Math.Abs(SelectionBox.Height);
+                    foreach (FleetDesignScreen.ClickableNode node in ClickableNodes)
                     {
-                        if (!this.SelectionBox.Contains(new Point((int)node.ScreenPos.X, (int)node.ScreenPos.Y)))
+                        if (!SelectionBox.Contains(new Point((int)node.ScreenPos.X, (int)node.ScreenPos.Y)))
                         {
                             continue;
                         }
-                        this.SelectedNodeList.Add(node.nodeToClick);
+                        SelectedNodeList.Add(node.nodeToClick);
                     }
-                    this.SelectionBox = new Rectangle(0, 0, -1, -1);
+                    SelectionBox = new Rectangle(0, 0, -1, -1);
                     return;
                 }
                 if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed)
                 {
-                    if (input.MouseCurr.X < this.SelectionBox.X)
+                    if (input.MouseCurr.X < SelectionBox.X)
                     {
-                        this.SelectionBox.X = input.MouseCurr.X;
+                        SelectionBox.X = input.MouseCurr.X;
                     }
-                    if (input.MouseCurr.Y < this.SelectionBox.Y)
+                    if (input.MouseCurr.Y < SelectionBox.Y)
                     {
-                        this.SelectionBox.Y = input.MouseCurr.Y;
+                        SelectionBox.Y = input.MouseCurr.Y;
                     }
-                    this.SelectionBox.Width = Math.Abs(this.SelectionBox.Width);
-                    this.SelectionBox.Height = Math.Abs(this.SelectionBox.Height);
-                    foreach (FleetDesignScreen.ClickableNode node in this.ClickableNodes)
+                    SelectionBox.Width = Math.Abs(SelectionBox.Width);
+                    SelectionBox.Height = Math.Abs(SelectionBox.Height);
+                    foreach (FleetDesignScreen.ClickableNode node in ClickableNodes)
                     {
-                        if (!this.SelectionBox.Contains(new Point((int)node.ScreenPos.X, (int)node.ScreenPos.Y)))
+                        if (!SelectionBox.Contains(new Point((int)node.ScreenPos.X, (int)node.ScreenPos.Y)))
                         {
                             continue;
                         }
-                        this.SelectedNodeList.Add(node.nodeToClick);
+                        SelectedNodeList.Add(node.nodeToClick);
                     }
-                    this.SelectionBox = new Rectangle(0, 0, -1, -1);
+                    SelectionBox = new Rectangle(0, 0, -1, -1);
                 }
             }
-            else if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && this.dragTimer > 0.1f)
+            else if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && DragTimer > 0.1f)
             {
                 Viewport viewport2 = base.Viewport;
-                Vector3 nearPoint = viewport2.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 0f), this.Projection, this.View, Matrix.Identity);
+                Vector3 nearPoint = viewport2.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 0f), Projection, View, Matrix.Identity);
                 Viewport viewport3 = base.Viewport;
-                Vector3 farPoint = viewport3.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f), this.Projection, this.View, Matrix.Identity);
+                Vector3 farPoint = viewport3.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f), Projection, View, Matrix.Identity);
                 Vector3 direction = farPoint - nearPoint;
                 direction.Normalize();
                 Ray pickRay = new Ray(nearPoint, direction);
                 float k = -pickRay.Position.Z / pickRay.Direction.Z;
                 Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
                 Vector2 newspot = new Vector2((float)((int)pickedPosition.X), (float)((int)pickedPosition.Y));
-                if (Vector2.Distance(newspot, this.SelectedNodeList[0].FleetOffset) > 1000f)
+                if (Vector2.Distance(newspot, SelectedNodeList[0].FleetOffset) > 1000f)
                 {
                     return;
                 }
-                Vector2 difference = newspot - this.SelectedNodeList[0].FleetOffset;
+                Vector2 difference = newspot - SelectedNodeList[0].FleetOffset;
                 if (difference.Length() > 30f)
                 {
-                    FleetDataNode item = this.SelectedNodeList[0];
+                    FleetDataNode item = SelectedNodeList[0];
                     item.FleetOffset = item.FleetOffset + difference;
-                    if (this.SelectedNodeList[0].Ship!= null)
+                    if (SelectedNodeList[0].Ship!= null)
                     {
-                        this.SelectedNodeList[0].Ship.RelativeFleetOffset = this.SelectedNodeList[0].FleetOffset;
+                        SelectedNodeList[0].Ship.RelativeFleetOffset = SelectedNodeList[0].FleetOffset;
                     }
                 }
-                foreach (FleetDesignScreen.ClickableSquad cs in this.ClickableSquads)
+                foreach (FleetDesignScreen.ClickableSquad cs in ClickableSquads)
                 {
-                    if (Vector2.Distance(cs.screenPos, MousePosition) >= 5f || cs.squad.DataNodes.Contains(this.SelectedNodeList[0]))
+                    if (Vector2.Distance(cs.screenPos, MousePosition) >= 5f || cs.squad.DataNodes.Contains(SelectedNodeList[0]))
                     {
                         continue;
                     }
-                    foreach (Array<Fleet.Squad> flank in this.fleet.AllFlanks)
+                    foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
                     {
                         foreach (Fleet.Squad squad in flank)
                         {
-                            squad.DataNodes.Remove(this.SelectedNodeList[0]);
-                            if (this.SelectedNodeList[0].Ship== null)
+                            squad.DataNodes.Remove(SelectedNodeList[0]);
+                            if (SelectedNodeList[0].Ship== null)
                             {
                                 continue;
                             }
-                            squad.Ships.Remove(this.SelectedNodeList[0].Ship);
+                            squad.Ships.Remove(SelectedNodeList[0].Ship);
                         }
                     }
-                    cs.squad.DataNodes.Add(this.SelectedNodeList[0]);
-                    if (this.SelectedNodeList[0].Ship== null)
+                    cs.squad.DataNodes.Add(SelectedNodeList[0]);
+                    if (SelectedNodeList[0].Ship== null)
                     {
                         continue;
                     }
-                    cs.squad.Ships.Add(this.SelectedNodeList[0].Ship);
+                    cs.squad.Ships.Add(SelectedNodeList[0].Ship);
                 }
             }
         }
 
         public override void LoadContent()
         {
-            this.close = new CloseButton(this, new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
+            Close = new CloseButton(this, new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
             AssignLightRig("example/ShipyardLightrig");
-            this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
-            this.starfield.LoadContent();
+            Starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
+            Starfield.LoadContent();
             Rectangle titleRect = new Rectangle(2, 44, 250, 80);
-            this.TitleBar = new Menu2(titleRect);
-            this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            TitleBar = new Menu2(titleRect);
+            TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, 500);
-            this.LeftMenu = new Menu1(base.ScreenManager, leftRect, true);
-            this.FleetSL = new ScrollList(this.LeftMenu.subMenu, 40);
+            LeftMenu = new Menu1(base.ScreenManager, leftRect, true);
+            FleetSL = new ScrollList(LeftMenu.subMenu, 40);
             int i = 0;
             foreach (KeyValuePair<int, Fleet> Fleet in EmpireManager.Player.GetFleetsDict())
             {
-                this.FleetsRects.Add(Fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
+                FleetsRects.Add(Fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
                 i++;
             }
             Rectangle shipRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 140, 280, 80);
-            this.ShipDesigns = new Menu2(shipRect);
-            this.ShipDesignsTitlePos = new Vector2((float)(shipRect.X + shipRect.Width / 2) - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, (float)(shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            ShipDesigns = new Menu2(shipRect);
+            ShipDesignsTitlePos = new Vector2((float)(shipRect.X + shipRect.Width / 2) - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, (float)(shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             Rectangle shipDesignsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
-            this.RightMenu = new Menu1(shipDesignsRect);
-            this.sub_ships = new Submenu(shipDesignsRect);
-            this.ShipSL = new ScrollList(this.sub_ships, 40);
-            this.sub_ships.AddTab("Designs");
-            this.sub_ships.AddTab("Owned");
+            RightMenu = new Menu1(shipDesignsRect);
+            SubShips = new Submenu(shipDesignsRect);
+            ShipSL = new ScrollList(SubShips, 40);
+            SubShips.AddTab("Designs");
+            SubShips.AddTab("Owned");
             foreach (Ship ship in EmpireManager.Player.GetShips())
             {
                 if (ship.fleet != null || !ship.Active)
                 {
                     continue;
                 }
-                this.AvailableShips.Add(ship);
+                AvailableShips.Add(ship);
             }
-            this.ResetLists();
-            this.SelectedStuffRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 220, -13 + base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 200, 440, 210);
-            Vector2 OrdersBarPos = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 65));
+            ResetLists();
+            SelectedStuffRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 220, -13 + base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 200, 440, 210);
+            Vector2 OrdersBarPos = new Vector2((float)(SelectedStuffRect.X + 20), (float)(SelectedStuffRect.Y + 65));
             ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_headon")
             {
                 Action = "attack",
@@ -1800,69 +1800,69 @@ namespace Ship_Game
                 HasToolTip = true,
                 WhichToolTip = 6
             };
-            this.OrdersButtons.Add(Artillery);
-            this.OrdersButtons.Add(HoldPos);
-            this.OrdersButtons.Add(OrbitLeft);
-            this.OrdersButtons.Add(BroadsideLeft);
-            this.OrdersButtons.Add(OrbitRight);
-            this.OrdersButtons.Add(BroadsideRight);
-            this.OrdersButtons.Add(Evade);
-            this.OrdersButtons.Add(AttackRuns);
-            this.RequisitionForces = new BlueButton(new Vector2((float)(this.SelectedStuffRect.X + 240), (float)(this.SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20)), "Requisition...");
-            this.SaveDesign = new BlueButton(new Vector2((float)(this.SelectedStuffRect.X + 240), (float)(this.SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 50)), "Save Design...");
-            this.LoadDesign = new BlueButton(new Vector2((float)(this.SelectedStuffRect.X + 240), (float)(this.SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 100)), "Load Design...");
-            this.RequisitionForces.ToggleOn = true;
-            this.SaveDesign.ToggleOn = true;
-            this.LoadDesign.ToggleOn = true;
-            this.OperationsRect = new Rectangle(this.SelectedStuffRect.X + this.SelectedStuffRect.Width + 2, this.SelectedStuffRect.Y + 30, 360, this.SelectedStuffRect.Height - 30);
-            Rectangle AssistRect = new Rectangle(this.OperationsRect.X + 15, this.OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
-            this.Slider_Assist = new WeightSlider(AssistRect, "Assist Nearby Weight")
+            OrdersButtons.Add(Artillery);
+            OrdersButtons.Add(HoldPos);
+            OrdersButtons.Add(OrbitLeft);
+            OrdersButtons.Add(BroadsideLeft);
+            OrdersButtons.Add(OrbitRight);
+            OrdersButtons.Add(BroadsideRight);
+            OrdersButtons.Add(Evade);
+            OrdersButtons.Add(AttackRuns);
+            RequisitionForces = new BlueButton(new Vector2((float)(SelectedStuffRect.X + 240), (float)(SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20)), "Requisition...");
+            SaveDesign = new BlueButton(new Vector2((float)(SelectedStuffRect.X + 240), (float)(SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 50)), "Save Design...");
+            LoadDesign = new BlueButton(new Vector2((float)(SelectedStuffRect.X + 240), (float)(SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 100)), "Load Design...");
+            RequisitionForces.ToggleOn = true;
+            SaveDesign.ToggleOn = true;
+            LoadDesign.ToggleOn = true;
+            OperationsRect = new Rectangle(SelectedStuffRect.X + SelectedStuffRect.Width + 2, SelectedStuffRect.Y + 30, 360, SelectedStuffRect.Height - 30);
+            Rectangle AssistRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
+            Slider_Assist = new WeightSlider(AssistRect, "Assist Nearby Weight")
             {
                 Tip_ID = 7
             };
-            Rectangle DefenderRect = new Rectangle(this.OperationsRect.X + 15, this.OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
-            this.Slider_Defend = new WeightSlider(DefenderRect, "Defend Nearby Weight")
+            Rectangle DefenderRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
+            Slider_Defend = new WeightSlider(DefenderRect, "Defend Nearby Weight")
             {
                 Tip_ID = 8
             };
-            Rectangle VultureRect = new Rectangle(this.OperationsRect.X + 15, this.OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
-            this.Slider_Vulture = new WeightSlider(VultureRect, "Target Damaged Weight")
+            Rectangle VultureRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
+            Slider_Vulture = new WeightSlider(VultureRect, "Target Damaged Weight")
             {
                 Tip_ID = 9
             };
-            Rectangle ArmoredRect = new Rectangle(this.OperationsRect.X + 15 + 180, this.OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
-            this.Slider_Armor = new WeightSlider(ArmoredRect, "Target Armored Weight")
+            Rectangle ArmoredRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
+            Slider_Armor = new WeightSlider(ArmoredRect, "Target Armored Weight")
             {
                 Tip_ID = 10
             };
-            Rectangle ShieldedRect = new Rectangle(this.OperationsRect.X + 15 + 180, this.OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
-            this.Slider_Shield = new WeightSlider(ShieldedRect, "Target Shielded Weight")
+            Rectangle ShieldedRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
+            Slider_Shield = new WeightSlider(ShieldedRect, "Target Shielded Weight")
             {
                 Tip_ID = 11
             };
-            Rectangle DPSRect = new Rectangle(this.OperationsRect.X + 15 + 180, this.OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
-            this.Slider_DPS = new WeightSlider(DPSRect, "Target DPS Weight")
+            Rectangle DPSRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
+            Slider_DPS = new WeightSlider(DPSRect, "Target DPS Weight")
             {
                 Tip_ID = 12
             };
-            this.PrioritiesRect = new Rectangle(this.SelectedStuffRect.X - this.OperationsRect.Width - 2, this.OperationsRect.Y, this.OperationsRect.Width, this.OperationsRect.Height);
-            Rectangle oprect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
-            this.OperationalRadius = new FloatSlider(this, oprect, "Operational Radius");
-            this.OperationalRadius.RelativeValue = 0.2f;
-            this.OperationalRadius.TooltipId = 13;
-            Rectangle sizerect = new Rectangle(this.PrioritiesRect.X + 15, this.PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
-            this.Slider_Size = new SizeSlider(sizerect, "Target UniverseRadius Preference");
-            this.Slider_Size.SetAmount(0.5f);
-            this.Slider_Size.Tip_ID = 14;
-            this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
-            this.starfield.LoadContent();
-            this.bg = new Background();
+            PrioritiesRect = new Rectangle(SelectedStuffRect.X - OperationsRect.Width - 2, OperationsRect.Y, OperationsRect.Width, OperationsRect.Height);
+            Rectangle oprect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
+            OperationalRadius = new FloatSlider(this, oprect, "Operational Radius");
+            OperationalRadius.RelativeValue = 0.2f;
+            OperationalRadius.TooltipId = 13;
+            Rectangle sizerect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
+            Slider_Size = new SizeSlider(sizerect, "Target UniverseRadius Preference");
+            Slider_Size.SetAmount(0.5f);
+            Slider_Size.Tip_ID = 14;
+            Starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
+            Starfield.LoadContent();
+            //bg = new Background();
             float width = (float)base.Viewport.Width;
             Viewport viewport = base.Viewport;
             float aspectRatio = width / (float)viewport.Height;
-            this.Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 100f, 15000f);
-            using (fleet.Ships.AcquireReadLock())
-            foreach (Ship ship in this.fleet.Ships)
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 100f, 15000f);
+            using (SelectedFleet.Ships.AcquireReadLock())
+            foreach (Ship ship in SelectedFleet.Ships)
             {
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
             }
@@ -1871,40 +1871,40 @@ namespace Ship_Game
 
         public void LoadData(FleetDesign data)
         {
-            foreach (Ship ship in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].Ships)
+            foreach (Ship ship in EmpireManager.Player.GetFleetsDict()[FleetToEdit].Ships)
             {
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
                 ship.fleet?.RemoveShip(ship);
                 EmpireManager.Player.GetFleetsDict()[FleetToEdit].RemoveShip(ship);
             }
-            this.fleet.DataNodes.Clear();
-            this.fleet.Ships.Clear();
-            foreach (Array<Fleet.Squad> Flank in this.fleet.AllFlanks)
+            SelectedFleet.DataNodes.Clear();
+            SelectedFleet.Ships.Clear();
+            foreach (Array<Fleet.Squad> Flank in SelectedFleet.AllFlanks)
             {
                 Flank.Clear();
             }
-            this.fleet.Name = data.Name;
+            SelectedFleet.Name = data.Name;
             foreach (FleetDataNode node in data.Data)
             {
-                this.fleet.DataNodes.Add(node);
+                SelectedFleet.DataNodes.Add(node);
             }
-            this.fleet.FleetIconIndex = data.FleetIconIndex;
+            SelectedFleet.FleetIconIndex = data.FleetIconIndex;
         }
 
         public void ResetLists()
         {
-            this.AvailableShips.Clear();
+            AvailableShips.Clear();
             foreach (Ship ship in EmpireManager.Player.GetShips())
             {
                 if (ship.fleet != null)
                 {
                     continue;
                 }
-                this.AvailableShips.Add(ship);
+                AvailableShips.Add(ship);
             }
-            this.ShipSL.Entries.Clear();
-            this.ShipSL.indexAtTop = 0;
-            if (this.sub_ships.Tabs[0].Selected)
+            ShipSL.Entries.Clear();
+            ShipSL.indexAtTop = 0;
+            if (SubShips.Tabs[0].Selected)
             {
                 Array<string> Roles = new Array<string>();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
@@ -1915,9 +1915,9 @@ namespace Ship_Game
                     }
                     Roles.Add(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole());
                     ModuleHeader mh = new ModuleHeader(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole(), 295f);
-                    this.ShipSL.AddItem(mh);
+                    ShipSL.AddItem(mh);
                 }
-                foreach (ScrollList.Entry e in this.ShipSL.Entries)
+                foreach (ScrollList.Entry e in ShipSL.Entries)
                 {
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
@@ -1930,10 +1930,10 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (this.sub_ships.Tabs[1].Selected)
+            else if (SubShips.Tabs[1].Selected)
             {
                 Array<string> Roles = new Array<string>();
-                foreach (Ship ship in this.AvailableShips)
+                foreach (Ship ship in AvailableShips)
                 {
                     if (Roles.Contains(ship.shipData.GetRole()) || ship.shipData.Role == ShipData.RoleName.troop)
                     {
@@ -1941,11 +1941,11 @@ namespace Ship_Game
                     }
                     Roles.Add(ship.shipData.GetRole());
                     ModuleHeader mh = new ModuleHeader(ship.shipData.GetRole(), 295f);
-                    this.ShipSL.AddItem(mh);
+                    ShipSL.AddItem(mh);
                 }
-                foreach (ScrollList.Entry e in this.ShipSL.Entries)
+                foreach (ScrollList.Entry e in ShipSL.Entries)
                 {
-                    foreach (Ship ship in this.AvailableShips)
+                    foreach (Ship ship in AvailableShips)
                     {
                         if (ship.shipData.Role == ShipData.RoleName.troop || !(ship.shipData.GetRole() == (e.item as ModuleHeader).Text))
                         {
@@ -1960,43 +1960,43 @@ namespace Ship_Game
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (this.current.LeftButton == ButtonState.Pressed && this.previous.LeftButton == ButtonState.Released)
+            if (Current.LeftButton == ButtonState.Pressed && Previous.LeftButton == ButtonState.Released)
             {
                 FleetDesignScreen fleetDesignScreen = this;
-                fleetDesignScreen.dragTimer = fleetDesignScreen.dragTimer + elapsedTime;
+                fleetDesignScreen.DragTimer = fleetDesignScreen.DragTimer + elapsedTime;
             }
-            else if (this.current.LeftButton != ButtonState.Pressed || this.previous.LeftButton != ButtonState.Pressed)
+            else if (Current.LeftButton != ButtonState.Pressed || Previous.LeftButton != ButtonState.Pressed)
             {
-                this.dragTimer = 0f;
+                DragTimer = 0f;
             }
             else
             {
                 FleetDesignScreen fleetDesignScreen1 = this;
-                fleetDesignScreen1.dragTimer = fleetDesignScreen1.dragTimer + elapsedTime;
+                fleetDesignScreen1.DragTimer = fleetDesignScreen1.DragTimer + elapsedTime;
             }
-            this.AdjustCamera();
-            this.CamPos.X = this.CamPos.X + this.CamVelocity.X;
-            this.CamPos.Y = this.CamPos.Y + this.CamVelocity.Y;
-            this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(new Vector3(-this.CamPos.X, this.CamPos.Y, this.CamPos.Z), new Vector3(-this.CamPos.X, this.CamPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            this.ClickableSquads.Clear();
-            foreach (Array<Fleet.Squad> flank in this.fleet.AllFlanks)
+            AdjustCamera();
+            CamPos.X = CamPos.X + CamVelocity.X;
+            CamPos.Y = CamPos.Y + CamVelocity.Y;
+            View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            ClickableSquads.Clear();
+            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {
                 foreach (Fleet.Squad squad in flank)
                 {
                     Viewport viewport = base.Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(squad.Offset, 0f), this.Projection, this.View, Matrix.Identity);
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     FleetDesignScreen.ClickableSquad cs = new FleetDesignScreen.ClickableSquad()
                     {
                         screenPos = pPos,
                         squad = squad
                     };
-                    this.ClickableSquads.Add(cs);
+                    ClickableSquads.Add(cs);
                 }
             }
-            Vector2 p = this.fleet.Position.PointFromRadians(this.fleet.Facing, 1f);
-            Vector2 fvec = fleet.Position.DirectionToTarget(p);
-            this.fleet.AssembleFleet(this.fleet.Facing, fvec);
+            Vector2 p = SelectedFleet.Position.PointFromRadians(SelectedFleet.Facing, 1f);
+            Vector2 fvec = SelectedFleet.Position.DirectionToTarget(p);
+            SelectedFleet.AssembleFleet(SelectedFleet.Facing, fvec);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
