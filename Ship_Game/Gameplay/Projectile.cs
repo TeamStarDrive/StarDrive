@@ -161,11 +161,11 @@ namespace Ship_Game.Gameplay
         
             if (Weapon.IsRepairDrone)   DroneAI   = new DroneAI(this);
             else if (Weapon.Tag_Guided) MissileAI = new MissileAI(this, target);
-            else // unguided projectile
-            {
-                if (Owner?.loyalty.data.Traits.Blind > 0 && UniverseRandom.IntBetween(0, 10) <= 1)
-                    Miss = true;
-            }
+            //else // unguided projectile
+            //{
+            //    if (Owner?.loyalty.data.Traits.Blind > 0 && UniverseRandom.IntBetween(0, 10) <= 1)
+            //        Miss = true;
+            //}
             
             LoadContent();
             Initialize();
@@ -327,6 +327,7 @@ namespace Ship_Game.Gameplay
 
         public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos)
         {
+            
             Vector2 currentForward = Rotation.RadiansToDirection();
             Vector2 desiredForward = Center.DirectionToTarget(targetPos);
 
@@ -345,9 +346,9 @@ namespace Ship_Game.Gameplay
                 Rotation += Math.Min(angleDiff, rotationDir * elapsedTime * rotationRadsPerSec);
             }
 
-            Velocity = Rotation.RadiansToDirection() * (elapsedTime * Speed);
+            Velocity = Rotation.RadiansToDirection() * (Speed); //elapsedTime * 
             if (Velocity.Length() > VelocityMax)
-                Velocity = Velocity.Normalized() * VelocityMax;
+                Velocity = Velocity.Normalized() * VelocityMax;            
         }
 
         public override bool Touch(GameplayObject target)
