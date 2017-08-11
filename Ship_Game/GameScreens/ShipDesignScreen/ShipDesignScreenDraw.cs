@@ -602,9 +602,8 @@ namespace Ship_Game
             }
 
             this.DrawStat(ref Cursor, "Upkeep Cost:", -Upkeep, 175);
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing +
-                                           2); //Gretman (so we can see how many total slots are on the ships)
-            this.DrawStat(ref Cursor, "Ship UniverseRadius:", (float) ActiveHull.ModuleSlots.Length, 230);
+            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+            this.DrawStat(ref Cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
 
             this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(110), ":"), PowerCapacity, 100,

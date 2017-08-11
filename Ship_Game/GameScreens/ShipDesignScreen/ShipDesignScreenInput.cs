@@ -54,7 +54,8 @@ namespace Ship_Game {
                     Position = hullSlot.Position,
                     Restrictions = hullSlot.Restrictions,
                     Facing = hullSlot.Facing,
-                    InstalledModuleUID = hullSlot.InstalledModuleUID
+                    InstalledModuleUID = hullSlot.InstalledModuleUID,
+                    Orientation = hullSlot.Orientation
                 };
                 ActiveHull.ModuleSlots[i] = data;
 #if SHIPYARD
@@ -65,7 +66,7 @@ namespace Ship_Game {
                 if (data.Restrictions == Restrictions.IE) TotalIE++;
                 if (data.Restrictions == Restrictions.OE) TotalOE++;
                 if (data.Restrictions == Restrictions.IOE) TotalIOE++;
-            #endif
+#endif
             }
             CombatState = hull.CombatState;
 
@@ -1046,7 +1047,8 @@ namespace Ship_Game {
                 {
                     InstalledModuleUID = slot.ModuleUID,
                     Position           = slot.SlotReference.Position,
-                    Restrictions       = slot.Restrictions
+                    Restrictions       = slot.Restrictions,
+                    Orientation        = slot.State.ToString()
                 };
                 if (slot.Module != null)
                 {
@@ -1109,7 +1111,8 @@ namespace Ship_Game {
                 {
                     InstalledModuleUID = slot.ModuleUID,
                     Position           = slot.SlotReference.Position,
-                    Restrictions       = slot.Restrictions
+                    Restrictions       = slot.Restrictions,
+                    Orientation        = slot.State.ToString()
                 };
                 if (slot.Module?.ModuleType == ShipModuleType.Hangar)
                     data.SlotOptions = slot.Module.hangarShipUID;
@@ -1141,6 +1144,7 @@ namespace Ship_Game {
             {
                 PrimitiveQuad pq = new PrimitiveQuad(slot.Position.X + Offset.X - 8f,
                     slot.Position.Y + Offset.Y - 8f, 16f, 16f);
+                Enum.TryParse(slot.Orientation, out ActiveModuleState slotState);
                 SlotStruct ss = new SlotStruct
                 {
                     PQ            = pq,
@@ -1148,6 +1152,7 @@ namespace Ship_Game {
                     Facing        = slot.Facing,
                     ModuleUID     = slot.InstalledModuleUID,
                     SlotReference = slot,
+                    State         = slotState,
                     SlotOptions   = slot.SlotOptions
                 };
                 Slots.Add(ss);

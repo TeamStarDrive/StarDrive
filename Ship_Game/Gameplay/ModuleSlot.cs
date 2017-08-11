@@ -16,6 +16,8 @@ namespace Ship_Game.Gameplay
         public float Facing;
         public Restrictions Restrictions;
         public string SlotOptions;
+        [XmlElement(ElementName = "state")]
+        public string Orientation;
 
         public override string ToString() => $"{InstalledModuleUID} {Position} {Facing} {Restrictions}";
     }
