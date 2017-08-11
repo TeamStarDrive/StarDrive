@@ -557,7 +557,7 @@ namespace Ship_Game
             ResourceManager.UniverseScreen        = this;
             Empire.Universe                   = this;
             ShipAI.UniverseScreen = this;
-            FleetDesignScreen.screen              = this;
+            FleetDesignScreen.Screen              = this;
 
             CreateProjectionMatrix();
             Frustum            = new BoundingFrustum(view * projection);
@@ -808,7 +808,7 @@ namespace Ship_Game
             Empire.Universe                       = null;
             ShipAI.UniverseScreen                 = null;
             MuzzleFlashManager.universeScreen     = null;
-            FleetDesignScreen.screen              = null;
+            FleetDesignScreen.Screen              = null;
             ExplosionManager.Universe             = null;
             DroneAI.UniverseScreen                = null;
             StatTracker.SnapshotsDict.Clear();

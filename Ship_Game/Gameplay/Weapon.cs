@@ -383,7 +383,7 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = 0)
         {
-            if (Module == null) return Vector2.Zero;
+            if (Module == null || Tag_PD) return Vector2.Zero;
             Vector2 jitter = Vector2.Zero;
             level = (Owner?.Level ?? level) + 2;
             float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE; 
@@ -392,14 +392,16 @@ namespace Ship_Game.Gameplay
 
             if (isTurret)
                 adjust *= .75f;
-            if (Tag_PD || TruePD)
-                adjust *= .5f;
+            if (Tag_PD)
+                adjust *= .25f;
+            if (TruePD)
+                adjust *= .1f;
             if (isBeam)
                 adjust *= 2f;
             if (Owner?.loyalty.data.Traits.Blind > 0)
             {
                 adjust *= 2f;
-            }
+            }            
 
             jitter += RandomMath2.Vector2D(adjust);            
             return jitter;

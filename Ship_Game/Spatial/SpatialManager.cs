@@ -106,8 +106,8 @@ namespace Ship_Game.Gameplay
         {
             if (damageRadius <= 0f)
                 return;
-
-            GameplayObject[] ships = FindNearby(source, damageRadius, GameObjectType.Ship);
+            //min search radius of 512. problem was that at very small serach radius neighbors would not be found. I tried to make the min to a the smallest cell size. 
+            GameplayObject[] ships = FindNearby(source, Math.Max(damageRadius, 512), GameObjectType.Ship);
             ships.SortByDistance(source.Center);
 
             foreach (GameplayObject go in ships)
@@ -169,7 +169,7 @@ namespace Ship_Game.Gameplay
                     if (reducedDamageRadius <= 0.0f)
                         continue;
 
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Center, damageRadius);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Center, damageRadius, nearest.Radius);
                     ExplodeAtModule(thisShip, nearest, false, damageAmount * damageFalloff, reducedDamageRadius);
 
                     if (!otherShip.dying)
@@ -188,7 +188,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherObj.Center, damageRadius, 0.25f);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherObj.Center, damageRadius, otherObj.Radius, 0.25f);
                     otherObj.Damage(thisShip, damageAmount * damageFalloff);
                 }
             }
