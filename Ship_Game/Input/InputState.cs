@@ -53,7 +53,8 @@ namespace Ship_Game
         public bool RightMouseUp       => MouseCurr.RightButton != ButtonState.Pressed;
         public bool LeftMouseHeldDown  => MouseCurr.LeftButton   == ButtonState.Pressed && MousePrev.LeftButton  == ButtonState.Pressed;
         public bool RightMouseHeldDown  => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
-        public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed;
+        public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed && !LeftMouseWasHeld;
+        public bool LeftMouseHeldUp    => MouseCurr.LeftButton != ButtonState.Pressed && MousePrev.LeftButton != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
         public bool LeftMouseHeld(float seconds = 0.25f)
@@ -143,6 +144,10 @@ namespace Ship_Game
         //input.KeysCurr.IsKeyDown(Keys.LeftAlt)
         //IngameWiki
         public bool ExitWiki => KeyPressed(Keys.P) && !GlobalStats.TakingInput;
+
+        //FleetDesignScreen
+        public bool FleetRemoveSquad => KeyPressed(Keys.Back) || KeyPressed(Keys.Delete);
+        public bool FleetExitScreen => KeyPressed(Keys.J);
 
         //debug
         public bool DebugMode            => LeftCtrlShift && (KeyPressed(Keys.OemTilde) || KeyPressed(Keys.Tab));
