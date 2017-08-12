@@ -469,8 +469,8 @@ namespace Ship_Game
         {
             Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel, targetAccel);
             Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel, targetAccel);
-            Log.Info("PIP quad: {0}", quad);
-            Log.Info("PIP iter: {0}", iter);
+            //Log.Info("PIP quad: {0}", quad);
+            //Log.Info("PIP iter: {0}", iter);
 
             Vector2 error = quad-iter;
             if (error.Length() > 100000)
@@ -483,8 +483,8 @@ namespace Ship_Game
         {
             Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel);
             Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel);
-            Log.Info("PIP quad: {0}", quad);
-            Log.Info("PIP iter: {0}", iter);
+            //Log.Info("PIP quad: {0}", quad);
+            //Log.Info("PIP iter: {0}", iter);
             Vector2 error = quad-iter;
             if (error.Length() > 100000)
                 return quad;

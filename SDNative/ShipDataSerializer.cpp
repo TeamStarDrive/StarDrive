@@ -83,8 +83,8 @@ namespace SDNative
                         slotData.parse("Health"            , sd.Health);
                         slotData.parse("Shield_Power"      , sd.ShieldPower);
                         slotData.parse("facing"            , sd.Facing);
-                        slotData.parse("state"             , sd.State);
                         slotData.parse("Restrictions"      , sd.Restrictions);
+						slotData.parse("state"			   , sd.State);
                         slotData.parse("SlotOptions"       , sd.SlotOptions);
                     }
                 });
