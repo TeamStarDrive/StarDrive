@@ -812,7 +812,7 @@ namespace Ship_Game.AI {
             if (Owner.fleet != null)
             {
                 Goal refitgoal = new FleetRequisition(goal, this);
-                Node.GoalGUID = refitgoal.guid;
+                FleetNode.GoalGUID = refitgoal.guid;
                 Owner.loyalty.GetGSAI().Goals.Add(refitgoal);
                 qi.Goal = refitgoal;
             }
