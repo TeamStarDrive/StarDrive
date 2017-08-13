@@ -52,21 +52,19 @@ namespace Ship_Game
         public bool LeftMouseUp        => MouseCurr.LeftButton  != ButtonState.Pressed;
         public bool RightMouseUp       => MouseCurr.RightButton != ButtonState.Pressed;
         public bool LeftMouseHeldDown  => MouseCurr.LeftButton   == ButtonState.Pressed && MousePrev.LeftButton  == ButtonState.Pressed;
-        public bool RightMouseHeldDown  => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
+        public bool RightMouseHeldDown => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
         public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed && !LeftMouseWasHeld;
         public bool LeftMouseHeldUp    => MouseCurr.LeftButton != ButtonState.Pressed && MousePrev.LeftButton != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
         public bool LeftMouseHeld(float seconds = 0.25f)
         {
-            LeftHeld = MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);
-            StartLeftHold = LeftHeld ? CursorPosition : StartLeftHold;
+            LeftHeld = MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);            
             return LeftHeld;
         }
         public bool RightMouseHeld(float seconds = 0.25f)
         {
-            RightHeld = MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);
-            StartRighthold = RightHeld ? CursorPosition : StartRighthold;
+            RightHeld = MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);            
             return RightHeld;
         }
         private static bool MouseButtonHeld(ButtonState current, ButtonState prev, float seconds, float timer)
