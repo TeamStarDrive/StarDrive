@@ -665,6 +665,7 @@ namespace Ship_Game
         public struct ThrusterZone
         {
             public Vector2 Position;
+            [XmlElement(ElementName = "scale")]
             public float Scale;
         }
     }
