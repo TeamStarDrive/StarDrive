@@ -7,7 +7,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI : IDisposable
     {
-        private Vector2 AINewDir;        
+        private Vector2 AINewDir;
         private Goal ColonizeGoal;
         private Planet AwaitClosest;
         private Planet PatrolTarget;
@@ -17,8 +17,8 @@ namespace Ship_Game.AI
         private float UtilityModuleCheckTimer;
         private SolarSystem SystemToPatrol;
         private readonly Array<Planet> PatrolRoute = new Array<Planet>();
-        private int StopNumber;        
-        private FleetDataNode Node;        
+        private int StopNumber;
+        public FleetDataNode FleetNode { get; private set; }         
         private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
 
         public static UniverseScreen UniverseScreen;

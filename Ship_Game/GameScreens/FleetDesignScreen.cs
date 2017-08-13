@@ -876,49 +876,59 @@ namespace Ship_Game
                 else
                 {
                     button.Hover = true;
-                    if (Input.LeftMouseHeldUp)
+                    if (!Input.LeftMouseClick)
                     {
                         continue;
                     }
+                    button.Active = false;
                     foreach (ToggleButton b in OrdersButtons)
                     {
                         b.Active = false;
                     }
-                    string action = button.Action;
-                    string str = action;
-                    if (action != null)
+                    button.Active = true;
+                    foreach (FleetDataNode node in SelectedNodeList)
                     {
-                        switch (str)
+                        string action1 = button.Action;
+                        string str1 = action1;
+                        if (action1 != null)
                         {
-                            case "attack":
-                                SelectedNodeList[0].CombatState = CombatState.AttackRuns;
-                                break;
-                            case "arty":
-                                SelectedNodeList[0].CombatState = CombatState.Artillery;
-                                break;
-                            case "hold":
-                                SelectedNodeList[0].CombatState = CombatState.HoldPosition;
-                                break;
-                            case "orbit_left":
-                                SelectedNodeList[0].CombatState = CombatState.OrbitLeft;
-                                break;
-                            case "broadside_left":
-                                SelectedNodeList[0].CombatState = CombatState.BroadsideLeft;
-                                break;
-                            case "orbit_right":
-                                SelectedNodeList[0].CombatState = CombatState.OrbitRight;
-                                break;
-                            case "broadside_right":
-                                SelectedNodeList[0].CombatState = CombatState.BroadsideRight;
-                                break;
-                            case "evade":
-                                SelectedNodeList[0].CombatState = CombatState.Evade;
-                                break;
-                            case "short":
-                                SelectedNodeList[0].CombatState = CombatState.ShortRange;
-                                break;
+                            switch (str1)
+                            {
+                                case "attack":
+                                    node.CombatState = CombatState.AttackRuns;
+                                    break;
+                                case "arty":
+                                    node.CombatState = CombatState.Artillery;
+                                    break;
+                                case "hold":
+                                    node.CombatState = CombatState.HoldPosition;
+                                    break;
+                                case "orbit_left":
+                                    node.CombatState = CombatState.OrbitLeft;
+                                    break;
+                                case "broadside_left":
+                                    node.CombatState = CombatState.BroadsideLeft;
+                                    break;
+                                case "orbit_right":
+                                    node.CombatState = CombatState.OrbitRight;
+                                    break;
+                                case "broadside_right":
+                                    node.CombatState = CombatState.BroadsideRight;
+                                    break;
+                                case "evade":
+                                    node.CombatState = CombatState.Evade;
+                                    break;
+                                case "short":
+                                    node.CombatState = CombatState.ShortRange;
+                                    break;
+                            }
                         }
-                    }
+                        if (node.Ship == null)
+                        {
+                            continue;
+                        }
+                        node.Ship.AI.CombatState = node.CombatState;
+                    }                    
                     if (SelectedNodeList[0].Ship == null)
                     {
                         continue;
@@ -980,14 +990,12 @@ namespace Ship_Game
             
             foreach (KeyValuePair<int, Rectangle> rect in FleetsRects)
             {
-                if (!rect.Value.HitTest(mousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
+                if (!rect.Value.HitTest(mousePos) || !input.LeftMouseClick)
                 {
                     continue;
                 }
                 FleetToEdit = rect.Key;
-                InputSelectFleet(FleetToEdit, true);                
-                
-                
+                InputSelectFleet(FleetToEdit, true);                                                
             }
             if (FleetToEdit != -1)
             {
@@ -996,6 +1004,10 @@ namespace Ship_Game
                 {
                     return true;
                 }
+            }
+            if(SelectedNodeList.Count >0 && Input.RightMouseClick)
+            {
+                SelectedNodeList.Clear();
             }
             if (SelectedNodeList.Count == 1)
             {
@@ -1008,79 +1020,19 @@ namespace Ship_Game
                 SelectedNodeList[0].SizeWeight           = SliderSize.HandleInput(input);
                 if (OperationsRect.HitTest(mousePos))
                 {
-                    // DragTimer = 0f;
                     return true;
                 }
                 if (PrioritiesRect.HitTest(mousePos))
                 {
-                    // DragTimer = 0f;
                     OperationalRadius.HandleInput(input);
                     SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
                     return true;
                 }
-                if (!SelectedStuffRect.HitTest(mousePos)) return false;
-                foreach (ToggleButton button in OrdersButtons)
+                if (SelectedStuffRect.HitTest(mousePos)) 
                 {
-                    if (!button.Rect.HitTest(mousePos))
-                    {
-                        button.Hover = false;
-                    }
-                    else
-                    {
-                        button.Hover = true;
-                        if (Input.LeftMouseHeldUp)
-                        {
-                            continue;
-                        }
-                        foreach (ToggleButton b in OrdersButtons)
-                        {
-                            b.Active = false;
-                        }
-                        string action = button.Action;
-                        string str = action;
-                        if (action != null)
-                        {
-                            switch (str) {
-                                case "attack":
-                                    SelectedNodeList[0].CombatState = CombatState.AttackRuns;
-                                    break;
-                                case "arty":
-                                    SelectedNodeList[0].CombatState = CombatState.Artillery;
-                                    break;
-                                case "hold":
-                                    SelectedNodeList[0].CombatState = CombatState.HoldPosition;
-                                    break;
-                                case "orbit_left":
-                                    SelectedNodeList[0].CombatState = CombatState.OrbitLeft;
-                                    break;
-                                case "broadside_left":
-                                    SelectedNodeList[0].CombatState = CombatState.BroadsideLeft;
-                                    break;
-                                case "orbit_right":
-                                    SelectedNodeList[0].CombatState = CombatState.OrbitRight;
-                                    break;
-                                case "broadside_right":
-                                    SelectedNodeList[0].CombatState = CombatState.BroadsideRight;
-                                    break;
-                                case "evade":
-                                    SelectedNodeList[0].CombatState = CombatState.Evade;
-                                    break;
-                                case "short":
-                                    SelectedNodeList[0].CombatState = CombatState.ShortRange;
-                                    break;
-                            }
-                        }
-                        if (SelectedNodeList[0].Ship == null)
-                        {
-                            continue;
-                        }
-                        SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
-                        button.Active = true;
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        break;
-                    }
+                    InputCombatStateButtons();                    
+                    return false;
                 }
-                return false;
             }
             if (SelectedNodeList.Count > 1)
             {
@@ -1112,7 +1064,7 @@ namespace Ship_Game
                     return true;
                 }
                 if (SelectedStuffRect.HitTest(mousePos))
-                {
+                {                    
                     foreach (ToggleButton button in OrdersButtons)
                     {
                         if (!button.Rect.HitTest(mousePos))
@@ -1138,41 +1090,34 @@ namespace Ship_Game
                                 string str1 = action1;
                                 if (action1 != null)
                                 {
-                                    if (str1 == "attack")
-                                    {
-                                        node.CombatState = CombatState.AttackRuns;
-                                    }
-                                    else if (str1 == "arty")
-                                    {
-                                        node.CombatState = CombatState.Artillery;
-                                    }
-                                    else if (str1 == "hold")
-                                    {
-                                        node.CombatState = CombatState.HoldPosition;
-                                    }
-                                    else if (str1 == "orbit_left")
-                                    {
-                                        node.CombatState = CombatState.OrbitLeft;
-                                    }
-                                    else if (str1 == "broadside_left")
-                                    {
-                                        node.CombatState = CombatState.BroadsideLeft;
-                                    }
-                                    else if (str1 == "orbit_right")
-                                    {
-                                        node.CombatState = CombatState.OrbitRight;
-                                    }
-                                    else if (str1 == "broadside_right")
-                                    {
-                                        node.CombatState = CombatState.BroadsideRight;
-                                    }
-                                    else if (str1 == "evade")
-                                    {
-                                        node.CombatState = CombatState.Evade;
-                                    }
-                                    else if (str1 == "short")
-                                    {
-                                        node.CombatState = CombatState.ShortRange;
+                                    switch (str1) {
+                                        case "attack":
+                                            node.CombatState = CombatState.AttackRuns;
+                                            break;
+                                        case "arty":
+                                            node.CombatState = CombatState.Artillery;
+                                            break;
+                                        case "hold":
+                                            node.CombatState = CombatState.HoldPosition;
+                                            break;
+                                        case "orbit_left":
+                                            node.CombatState = CombatState.OrbitLeft;
+                                            break;
+                                        case "broadside_left":
+                                            node.CombatState = CombatState.BroadsideLeft;
+                                            break;
+                                        case "orbit_right":
+                                            node.CombatState = CombatState.OrbitRight;
+                                            break;
+                                        case "broadside_right":
+                                            node.CombatState = CombatState.BroadsideRight;
+                                            break;
+                                        case "evade":
+                                            node.CombatState = CombatState.Evade;
+                                            break;
+                                        case "short":
+                                            node.CombatState = CombatState.ShortRange;
+                                            break;
                                     }
                                 }
                                 if (node.Ship == null)
@@ -1183,8 +1128,9 @@ namespace Ship_Game
                             }
                         }
                     }
+                    return false;
                 }
-                return false;
+                
             }
             else if (FleetToEdit != -1 && SelectedNodeList.Count == 0 && SelectedStuffRect.HitTest(mousePos))
             {
@@ -1309,13 +1255,17 @@ namespace Ship_Game
             }
 
             if (Input.RightMouseHeld())
-                if (Input.StartRighthold.OutsideRadius(Input.EndRightHold, 10f))
+                if (Input.StartRighthold.OutsideRadius(Input.CursorPosition, 10f))
                 {
-                    CamVelocity = Input.EndRightHold.DirectionToTarget(Input.StartRighthold);
+                    CamVelocity = Input.CursorPosition.DirectionToTarget(Input.StartRighthold);
                     CamVelocity = Vector2.Normalize(CamVelocity) *
-                                  Vector2.Distance(Input.StartRighthold, Input.EndRightHold);
+                              Vector2.Distance(Input.StartRighthold, Input.CursorPosition);
                 }
-            if (Input.RightMouseHeld() || !Input.LeftMouseHeld())
+                else
+                {
+                    CamVelocity = Vector2.Zero;
+                }
+            if (!Input.RightMouseHeld() && !Input.LeftMouseHeld())
             {
                 CamVelocity = Vector2.Zero;
             }
@@ -1398,7 +1348,7 @@ namespace Ship_Game
             bool hovering = false;
             foreach (ClickableSquad squad in ClickableSquads)
             {
-                if (Vector2.Distance(input.CursorPosition, squad.ScreenPos) > 8f)
+                if (input.CursorPosition.OutsideRadius(squad.ScreenPos, 8f))
                 {
                     continue;
                 }
@@ -1427,16 +1377,16 @@ namespace Ship_Game
                 HoveredNodeList.Clear();
             }
             bool hitsomething = false;
-            if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+            if (Input.LeftMouseClick)
             {
                 SelectedSquad = null;
                 foreach (ClickableNode node in ClickableNodes)
                 {
-                    if (Vector2.Distance(input.CursorPosition, node.ScreenPos) > node.Radius)
+                    if (input.CursorPosition.OutsideRadius(node.ScreenPos, node.Radius))
                     {
                         continue;
                     }
-                    if (SelectedNodeList.Count > 0 && !input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                    if (SelectedNodeList.Count > 0 && !Input.IsShiftKeyDown)
                     {
                         SelectedNodeList.Clear();
                     }
@@ -1543,34 +1493,35 @@ namespace Ship_Game
             }
             if (SelectedSquad != null)
             {
-                if (Input.LeftMouseHeld())
+                if (!Input.LeftMouseHeld()) return;
+                Viewport viewport = Viewport;
+                Vector3 nearPoint = viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f),
+                    Projection, View, Matrix.Identity);
+                Viewport viewport1 = Viewport;
+                Vector3 farPoint = viewport1.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f),
+                    Projection, View, Matrix.Identity);
+                Vector3 direction = farPoint - nearPoint;
+                direction.Normalize();
+                Ray pickRay = new Ray(nearPoint, direction);
+                float k = -pickRay.Position.Z / pickRay.Direction.Z;
+                Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
+                    pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
+                Vector2 newspot = new Vector2(pickedPosition.X, pickedPosition.Y);
+                Vector2 difference = newspot - SelectedSquad.Offset;
+                if (difference.Length() > 30f)
                 {
-                    Viewport viewport = Viewport;
-                    Vector3 nearPoint = viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f), Projection, View, Matrix.Identity);
-                    Viewport viewport1 = Viewport;
-                    Vector3 farPoint = viewport1.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f), Projection, View, Matrix.Identity);
-                    Vector3 direction = farPoint - nearPoint;
-                    direction.Normalize();
-                    Ray pickRay = new Ray(nearPoint, direction);
-                    float k = -pickRay.Position.Z / pickRay.Direction.Z;
-                    Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-                    Vector2 newspot = new Vector2(pickedPosition.X, pickedPosition.Y);
-                    Vector2 difference = newspot - SelectedSquad.Offset;
-                    if (difference.Length() > 30f)
+                    Fleet.Squad selectedSquad = SelectedSquad;
+                    selectedSquad.Offset = selectedSquad.Offset + difference;
+                    foreach (FleetDataNode node in SelectedSquad.DataNodes)
                     {
-                        Fleet.Squad selectedSquad = SelectedSquad;
-                        selectedSquad.Offset = selectedSquad.Offset + difference;
-                        foreach (FleetDataNode node in SelectedSquad.DataNodes)
+                        FleetDataNode fleetOffset = node;
+                        fleetOffset.FleetOffset = fleetOffset.FleetOffset + difference;
+                        if (node.Ship == null)
                         {
-                            FleetDataNode fleetOffset = node;
-                            fleetOffset.FleetOffset = fleetOffset.FleetOffset + difference;
-                            if (node.Ship== null)
-                            {
-                                continue;
-                            }
-                            Ship ship = node.Ship;
-                            ship.RelativeFleetOffset = ship.RelativeFleetOffset + difference;
+                            continue;
                         }
+                        Ship ship = node.Ship;
+                        ship.RelativeFleetOffset = ship.RelativeFleetOffset + difference;
                     }
                 }
             }
