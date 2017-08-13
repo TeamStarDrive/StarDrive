@@ -30,20 +30,20 @@ namespace Ship_Game
     }
 
     public sealed class FleetDesign
-	{
+    {
         [Serialize(0)] public Array<FleetDataNode> Data = new Array<FleetDataNode>();
         [Serialize(1)] public int FleetIconIndex;
         [Serialize(2)] public string Name;
 
-		public void Rotate(float facing)
-		{
-			foreach (FleetDataNode node in this.Data)
-			{
-				float angle = Math.Abs(Vector2.Zero.AngleToTarget(node.FleetOffset)) + MathHelper.ToDegrees(facing);
-				angle = angle.ToRadians();
-				float distance = node.FleetOffset.Length();
-				node.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
-			}
-		}
-	}
+        public void Rotate(float facing)
+        {
+            foreach (FleetDataNode node in this.Data)
+            {
+                float angle = Math.Abs(Vector2.Zero.AngleToTarget(node.FleetOffset)) + MathHelper.ToDegrees(facing);
+                angle = angle.ToRadians();
+                float distance = node.FleetOffset.Length();
+                node.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+            }
+        }
+    }
 }
