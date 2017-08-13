@@ -1094,7 +1094,7 @@ namespace Ship_Game
                 {
                     this.StatementsSL.Entries.Clear();
                     this.StatementsSL.indexAtTop = 0;
-                    this.dState = DiplomacyScreen.DialogState.Discuss;
+                    this.dState = DialogState.Discuss;
                     foreach (StatementSet statementSet in ResourceManager.DDDict["SharedDiplomacy"].StatementSets)
                     {
                         if (statementSet.Name == "Ordinary Discussion")
@@ -1103,11 +1103,11 @@ namespace Ship_Game
                             Vector2 Cursor = this.TextCursor;
                             foreach (DialogOption dialogOption1 in statementSet.DialogOptions)
                             {
-                                string str = dialogOption1.Words;
+                                string str = dialogOption1.words;
                                 if (!string.IsNullOrEmpty(dialogOption1.SpecialInquiry))
                                     str = this.GetDialogueByName(dialogOption1.SpecialInquiry);
                                 DialogOption dialogOption2 = new DialogOption(n, str, Cursor, Fonts.Consolas18);
-                                dialogOption2.Words = this.parseText(str, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
+                                dialogOption2.words = this.parseText(str, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
                                 this.StatementsSL.AddItem((object)dialogOption2);
                                 dialogOption2.Response = dialogOption1.Response;
                                 Cursor.Y += (float)(Fonts.Consolas18.LineSpacing + 5);
@@ -1776,8 +1776,8 @@ namespace Ship_Game
                             Vector2 Cursor = this.TextCursor;
                             foreach (DialogOption dialogOption1 in set.DialogOptions)
                             {
-                                DialogOption dialogOption2 = new DialogOption(n, dialogOption1.Words, Cursor, Fonts.Consolas18);
-                                dialogOption2.Words = this.parseText(dialogOption1.Words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
+                                DialogOption dialogOption2 = new DialogOption(n, dialogOption1.words, Cursor, Fonts.Consolas18);
+                                dialogOption2.words = this.parseText(dialogOption1.words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
                                 this.StatementsSL.AddItem((object)dialogOption2);
                                 dialogOption2.Response = dialogOption1.Response;
                                 dialogOption2.Target = (object)this.empToDiscuss;
@@ -1797,7 +1797,7 @@ namespace Ship_Game
                         {
                             DialogOption dialogOption = new DialogOption(n1, Localizer.Token(2220) + " " + keyValuePair.Key.data.Traits.Name, Cursor1, Fonts.Consolas18);
                             dialogOption.Target = (object)keyValuePair.Key;
-                            dialogOption.Words = this.parseText(dialogOption.Words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
+                            dialogOption.words = this.parseText(dialogOption.words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
                             dialogOption.Response = "EmpireDiscuss";
                             Cursor1.Y += (float)(Fonts.Consolas18.LineSpacing + 5);
                             this.StatementsSL.AddItem((object)dialogOption);
