@@ -544,7 +544,7 @@ namespace Ship_Game
             float Speed = 0f;
             float WarpSpeed = WarpThrust / (Mass + 0.1f);
             //Added by McShooterz: hull bonus speed
-            WarpSpeed *= EmpireManager.Player.data.FTLModifier * (1f + bonus?.SpeedBonus ?? 0);
+            WarpSpeed *= EmpireManager.Player.data.FTLModifier * (1f + (bonus?.SpeedBonus ?? 0));
             float single = WarpSpeed / 1000f;
             string WarpString = string.Concat(single.ToString("#.0"), "k");
             float Turn = 0f;
@@ -589,7 +589,7 @@ namespace Ship_Game
             Cursor = EndLayout();
             //Added by McShooterz: hull bonus starting cost
             DrawStat(ref Cursor, Localizer.Token(109) + ":",
-                ((int) Cost + (bonus?.StartingCost ?? 0)) * (1f - bonus?.CostBonus ?? 0), 99);
+                ((int) Cost + (bonus?.StartingCost ?? 0)) * (1f - (bonus?.CostBonus ?? 0)), 99);
             Cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
          
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -601,7 +601,7 @@ namespace Ship_Game
                 Upkeep = GetMaintCostShipyard(this.ActiveHull, Size, EmpireManager.Player);
             }
 
-            this.DrawStat(ref Cursor, "Upkeep Cost:", -Upkeep, 175);
+            this.DrawStat(ref Cursor, "Upkeep Cost:", Upkeep, 175);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
             this.DrawStat(ref Cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
@@ -902,9 +902,11 @@ namespace Ship_Game
         {
             SpriteFont font = Fonts.Arial12Bold;
             float amount = Spacing(spacing);
-            Vector2 statCursor = FontSpace(Cursor, -40, words, font);
+            //Vector2 statCursor = FontSpace(Cursor, -40, words, font);
+            Vector2 statCursor = new Vector2(Cursor.X + amount, Cursor.Y);
+            Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
             Color color = nameColor;
-            DrawString(Cursor, color, words, font);
+            DrawString(statNameCursor, color, words, font);
             //Cursor = FontSpace(Cursor, amount, words, font);
             color = statColor;
             DrawString(statCursor, color, stat, font);
