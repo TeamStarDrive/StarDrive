@@ -498,8 +498,8 @@ namespace Ship_Game
                     WarpThrust = WarpThrust + slot.Module.WarpThrust;
                     TurnThrust = TurnThrust + slot.Module.TurnThrust;
 
-                    RepairRate += ((slot.Module.BonusRepairRate + slot.Module.BonusRepairRate *
-                                    EmpireManager.Player.data.Traits.RepairMod) * (1f + bonus?.RepairBonus ?? 0));
+                    RepairRate += (slot.Module.BonusRepairRate + slot.Module.BonusRepairRate *
+                                    EmpireManager.Player.data.Traits.RepairMod) * (1f + (bonus?.RepairBonus ?? 0));
                     OrdnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
                     if (slot.Module.SensorRange > sensorRange)
                     {
@@ -535,11 +535,11 @@ namespace Ship_Game
 
             targets += fixedtargets;
 
-            Mass = Mass + (float) (ActiveHull.ModuleSlots.Length / 2);
+            Mass = Mass + (float) (ActiveHull.ModuleSlots.Length / 2f);
             Mass = Mass * EmpireManager.Player.data.MassModifier;
-            if (Mass < (float) (ActiveHull.ModuleSlots.Length / 2))
+            if (Mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
             {
-                Mass = (float) (ActiveHull.ModuleSlots.Length / 2);
+                Mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
             }
             float Speed = 0f;
             float WarpSpeed = WarpThrust / (Mass + 0.1f);
