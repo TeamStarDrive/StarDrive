@@ -381,14 +381,18 @@ namespace Ship_Game.Gameplay
             SalvoTarget = null;
         }
 
-        public Vector2 AdjustTargetting(int level = 0)
+        public Vector2 AdjustTargetting(int level = -1)
         {
             if (Module == null || Tag_PD) return Vector2.Zero;
             Vector2 jitter = Vector2.Zero;
-            level = (Owner?.Level ?? level) + 2;
+            if(level == -1)
+                level = (Owner?.Level ?? level) + 2;
             float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE; 
             float adjust = Math.Max(0, baseJitter - level * level * level);
             if (adjust < 8) return jitter;
+
+            if (Tag_Missile)
+                adjust *= 10;
 
             if (isTurret)
                 adjust *= .75f;

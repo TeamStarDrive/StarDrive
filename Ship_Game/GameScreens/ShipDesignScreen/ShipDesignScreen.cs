@@ -359,7 +359,7 @@ namespace Ship_Game
                         }
                     default:
                         {
-                            maint *= (int)Size / 50;
+                            maint *= (int)Size / 50f;
                             break;
                         }
                 }
@@ -654,7 +654,7 @@ namespace Ship_Game
 
                 slot.ModuleUID            = ActiveModule.UID;
                 slot.Module               = ShipModule.CreateNoParent(ActiveModule.UID);
-                 slot.Module.XSIZE         = ActiveModule.XSIZE;
+                slot.Module.XSIZE         = ActiveModule.XSIZE;
                 slot.Module.YSIZE         = ActiveModule.YSIZE;
                 slot.Module.XMLPosition   = ActiveModule.XMLPosition;
                 slot.State                = ActiveModState;
