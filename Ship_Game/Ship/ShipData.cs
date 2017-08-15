@@ -182,13 +182,13 @@ namespace Ship_Game
                     slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health             = msd->Health;
                     slot.ShieldPower        = msd->ShieldPower;
-                    slot.Facing             = msd->Facing;
-                    slot.SlotOptions        = msd->SlotOptions.AsInterned;
+                    slot.Facing             = msd->Facing;                    
                     slot.Orientation        = msd->State.AsInterned;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
+                    slot.SlotOptions        = msd->SlotOptions.AsInterned;                    
                     ship.ModuleSlots[i] = slot;
                 }
-
+                ship.ModuleSlots = ship.ModuleSlots.FilterBy(slot => slot.Position != Vector2.Zero);
                 // @todo Remove conversion to List
                 ship.ThrusterList = new Array<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
                 for (int i = 0; i < s->ThrustersLen; ++i)

@@ -64,17 +64,17 @@ namespace Ship_Game
         }
 
         public Vector2 GetScreenSpaceFromWorldSpace(Vector2 worldCoordinate)
-		{
-		    if (Changed)
-		        UpdateTransform();
-			Vector2.Transform(ref worldCoordinate, ref WorldMatrix, out Vector2 screenSpace);
+        {
+            if (Changed)
+                UpdateTransform();
+            Vector2.Transform(ref worldCoordinate, ref WorldMatrix, out Vector2 screenSpace);
             return screenSpace;
-		}
+        }
 
-		public void Move(Vector2 amount)
-		{
-			CamPos += amount;
-		}
+        public void Move(Vector2 amount)
+        {
+            CamPos += amount;
+        }
         
         public void Move(float dx, float dy)
         {
@@ -88,14 +88,14 @@ namespace Ship_Game
             float maxX = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth;
             float maxY = screenRes.GraphicsDevice.PresentationParameters.BackBufferHeight;
             input.Repeat = true;
-            if (input.CursorPosition.X <= 1 || input.WASDLeft) adjustCam.X -= 8 * (5 - this.Zoom);
-            if (input.CursorPosition.X >= (maxX - 1) || input.WASDRight) adjustCam.X += 8 * (5 - this.Zoom);
-            if (input.CursorPosition.Y <= 1 || input.WASDUp) adjustCam.Y -= 8 * (5 - this.Zoom);
-            if (input.CursorPosition.Y >= (maxY - 1) || input.WASDDown) adjustCam.Y += 8 * (5 - this.Zoom);
+            if (input.CursorPosition.X <= 1 || input.WASDLeft) adjustCam.X -= GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.CursorPosition.X >= (maxX - 1) || input.WASDRight) adjustCam.X += GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.CursorPosition.Y <= 1 || input.WASDUp) adjustCam.Y -= GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.CursorPosition.Y >= (maxY - 1) || input.WASDDown) adjustCam.Y += GlobalStats.CameraPanSpeed * (5 - Zoom);
             input.Repeat = false;
 
-            this.Move(adjustCam);
+            Move(adjustCam);
             return adjustCam;
         }
-	}
+    }
 }
