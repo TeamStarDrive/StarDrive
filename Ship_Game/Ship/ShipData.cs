@@ -188,6 +188,12 @@ namespace Ship_Game
                     slot.SlotOptions        = msd->SlotOptions.AsInterned;                    
                     ship.ModuleSlots[i] = slot;
                 }
+
+                /* 
+                 HACK!
+                 it appears that modules are getting doubled by a ghost module set to vector2.zero.
+                 this is very poor here but i am filtering out all 0,0 modules. 
+                 */
                 ship.ModuleSlots = ship.ModuleSlots.FilterBy(slot => slot.Position != Vector2.Zero);
                 // @todo Remove conversion to List
                 ship.ThrusterList = new Array<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
