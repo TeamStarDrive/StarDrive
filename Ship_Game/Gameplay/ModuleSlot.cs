@@ -14,10 +14,11 @@ namespace Ship_Game.Gameplay
         public float ShieldPower;
         [XmlElement(ElementName = "facing")]
         public float Facing;
-        public Restrictions Restrictions;
-        public string SlotOptions;
         [XmlElement(ElementName = "state")]
         public string Orientation;
+        public Restrictions Restrictions;
+        public string SlotOptions;
+        
 
         public override string ToString() => $"{InstalledModuleUID} {Position} {Facing} {Restrictions}";
     }

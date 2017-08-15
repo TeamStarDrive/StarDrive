@@ -213,7 +213,6 @@ namespace Ship_Game {
             HoveredModule = null;
             var mousePos = input.CursorPosition;            
             EmpireUI.HandleInput(input, this);
-            //ActiveModSubMenu.HandleInputNoReset(this);
             HullSL.HandleInput(input);
             for (int index = HullSL.indexAtTop;
                 index < HullSL.Copied.Count && index < HullSL.indexAtTop + HullSL.entriesToDisplay;
@@ -275,7 +274,12 @@ namespace Ship_Game {
             Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager);
             CameraPosition.X += tempPos.X;
             CameraPosition.Y += tempPos.Y;
-
+            //i cant get this to work right. 
+            //if (Input.MiddleMouseClick)
+            //{
+            //    Vector2 test = Camera.GetScreenSpaceFromWorldSpace(shipSO.WorldBoundingSphere.Center.ToVec2());          
+            //    CameraPosition = test.ToVec3(TransitionZoom);
+            //}
             if (input.RightMouseHeld())
             {
                 float num1 = input.CursorPosition.X - StartDragPos.X;
@@ -290,6 +294,7 @@ namespace Ship_Game {
                 CameraVelocity.X = 0.0f;
                 CameraVelocity.Y = 0.0f;
             }
+
             CameraVelocity.X = MathHelper.Clamp(CameraVelocity.X, -10f, 10f);
             CameraVelocity.Y = MathHelper.Clamp(CameraVelocity.Y, -10f, 10f);
             if (input.Escaped)

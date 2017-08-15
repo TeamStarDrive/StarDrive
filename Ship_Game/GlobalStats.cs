@@ -116,6 +116,8 @@ namespace Ship_Game
         public static bool CornersGame = false;     //Also added by Gretman
         public static int ExtraRemnantGS;
 
+        public static int CameraPanSpeed = 2;
+
         ////////////////////////////////
         // From old Config
         public static int XRES;
@@ -183,6 +185,7 @@ namespace Ship_Game
             GetSetting("EffectDetail",           ref EffectDetail);
             GetSetting("AutoErrorReport",        ref AutoErrorReport);
             GetSetting("ActiveMod",              ref ModName);
+            GetSetting("CameraPanSpeed",         ref CameraPanSpeed);
             Statreset();
 
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
@@ -249,7 +252,7 @@ namespace Ship_Game
             GetSetting("TurnTimer",            ref TurnTimer);
             GetSetting("AltArcControl",        ref AltArcControl);
             GetSetting("FreighterLimit",       ref FreighterLimit);
-            GetSetting("LimitSpeed",           ref LimitSpeed);
+            GetSetting("LimitSpeed",           ref LimitSpeed);            
         }
 
         public static void SaveSettings()
@@ -295,6 +298,7 @@ namespace Ship_Game
             WriteSetting(config, "Language", Language);
             WriteSetting(config, "XRES", XRES);
             WriteSetting(config, "YRES", YRES);
+            WriteSetting(config, "CameraPanSpeed", CameraPanSpeed);
 
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");
