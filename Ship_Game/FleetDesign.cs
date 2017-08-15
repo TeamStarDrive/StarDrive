@@ -23,10 +23,33 @@ namespace Ship_Game
         [Serialize(8)] public float DPSWeight = 0.5f;
         [Serialize(9)] public float SizeWeight = 0.5f;
         [Serialize(10)] public float ArmoredWeight = 0.5f;
-        [Serialize(11)] public Orders orders;
+        [XmlElement(ElementName = "orders")]
+        [Serialize(11)] public Orders Order;
         [Serialize(12)] public CombatState CombatState;
         [Serialize(13)] public Vector2 OrdersOffset;
         [Serialize(14)] public float OrdersRadius = 0.5f;
+        public float ApplyWeight(float shipStat, float statAvg, float fleetWeight)
+        {
+            if (fleetWeight > .49f && fleetWeight < .51f) return 0;
+
+            return shipStat > statAvg
+                ? 2 * (-.5f + fleetWeight)
+                : 4 * (.50f - fleetWeight);
+        }
+        public float ApplyFleetWeight(Fleet fleet, Ship potential)
+        {
+            float weight = 0;
+            if ((DefenderWeight > .49f && DefenderWeight < .51f) || (AssistWeight > .49f && AssistWeight < .51f))
+                return weight;
+            foreach (Ship ship in fleet.GetShips)
+            {
+                if (potential.AI.Target == ship)
+                    weight += -.5f + DefenderWeight;
+                if (ship.AI.Target == potential)
+                    weight += -5f + AssistWeight;
+            }
+            return weight;
+        }
     }
 
     public sealed class FleetDesign
@@ -45,5 +68,7 @@ namespace Ship_Game
                 node.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
             }
         }
+
+
     }
 }

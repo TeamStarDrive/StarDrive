@@ -12,6 +12,8 @@ namespace Ship_Game.AI
         private float ThinkTimer = 0.15f;
         private bool Jammed;
         private bool EcmRun;
+        private Vector2 LaunchJitter;
+        private readonly int Level;
 
         public MissileAI(Projectile missile, GameplayObject target)
         {
@@ -23,19 +25,22 @@ namespace Ship_Game.AI
             if (Missile.Owner != null)
             {
                 TargetList = Missile.Owner.AI.PotentialTargets;
+                Level = Missile.Owner.Level;
             }
             else if (Missile.Planet != null)
             {
+                Level = missile.Planet.developmentLevel;
                 TargetList = new Array<Ship>();
                 GameplayObject[] nearbyShips = UniverseScreen.SpaceManager.FindNearby(
                             Missile, Missile.Planet.GravityWellRadius, GameObjectType.Ship);
                 foreach(GameplayObject go in nearbyShips)
                 {
                     var nearbyShip = (Ship) go;
-                    if (nearbyShip.loyalty != missile.Loyalty && missile.Weapon.TargetValid(nearbyShip.shipData.Role))
+                    if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty) && missile.Weapon.TargetValid(nearbyShip.shipData.Role))
                         TargetList.Add(nearbyShip);
                 }
             }
+            LaunchJitter = missile.Weapon.AdjustTargetting(Level);
         }
 
         //added by gremlin deveks ChooseTarget
@@ -46,9 +51,7 @@ namespace Ship_Game.AI
             {
                 if (owningShip.AI.Target is Ship targetShip)
                 {
-                    if (targetShip.Active && targetShip.loyalty != Missile.Loyalty && 
-                        (!Missile.Loyalty.TryGetRelations(targetShip.loyalty, out Relationship targetRelations) 
-                         || !targetRelations.Known || !targetRelations.Treaty_NAPact))
+                    if (targetShip.Active && Missile.Loyalty.IsEmpireAttackable(targetShip.loyalty))
                     {
                         Target = targetShip.GetRandomInternalModule(Missile);
                         return;
@@ -79,7 +82,7 @@ namespace Ship_Game.AI
                     continue;
 
                 float sqDist = Missile.Center.SqDist(sourceTargetShip.Center);
-                if (sqDist > bestSqDist && !Missile.Loyalty.IsEmpireAttackable(owner))
+                if (sqDist > bestSqDist || !Missile.Loyalty.IsEmpireAttackable(owner))
                     continue;
                 bestSqDist = sqDist;
                 bestTarget = sourceTargetShip;                    
@@ -134,8 +137,8 @@ namespace Ship_Game.AI
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-            if (Target != null && GlobalStats.HasMod 
-                && (GlobalStats.ActiveModInfo.enableECM || Missile.Weapon.TerminalPhaseAttack))
+            
+            if (Target != null)
             {
                 float distancetoTarget = Missile.Center.Distance(Target.Center);
                 if (Jammed)
@@ -143,7 +146,7 @@ namespace Ship_Game.AI
                     MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
-                if (GlobalStats.ActiveModInfo.enableECM && Target is ShipModule targetModule && !EcmRun && distancetoTarget <= 4000)
+                if (Target is ShipModule targetModule && !EcmRun && distancetoTarget <= 4000)
                 {
                     EcmRun = true;
                     float targetEcm = targetModule.GetParent().ECMValue;
@@ -164,16 +167,19 @@ namespace Ship_Game.AI
             ThinkTimer -= elapsedTime;
             if (ThinkTimer <= 0f)
             {
-                ThinkTimer = 1f;
+                LaunchJitter /= (Level + 10);
+                ThinkTimer = (1f / (Level +1));
                 if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().dying)
                 {
                     Target = null;
                     ChooseTarget();
                 }
+
             }
             if (Target != null)
             {
-                Missile.GuidedMoveTowards(elapsedTime, Target.Center);
+
+                Missile.GuidedMoveTowards(elapsedTime, Target.Center + LaunchJitter);
                 return;
             }
             MoveStraight(elapsedTime);
