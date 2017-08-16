@@ -739,7 +739,7 @@ namespace Ship_Game.Gameplay
             if (shield_power_max > 0f)
                 Health = 0f;
 
-            Parent.UpdateExternalSlots(this, becameActive: false);
+            
             Health = 0f;
             var center = new Vector3(Center.X, Center.Y, -100f);
 
@@ -754,7 +754,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             base.Die(source, cleanupOnly);
-
+            Parent.UpdateExternalSlots(this, becameActive: false);
             int size = XSIZE * YSIZE;
             if (!cleanupOnly)
             {
