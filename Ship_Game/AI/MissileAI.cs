@@ -40,7 +40,7 @@ namespace Ship_Game.AI
                         TargetList.Add(nearbyShip);
                 }
             }
-            LaunchJitter = missile.Weapon.AdjustTargetting(Level);
+            LaunchJitter = missile.Weapon.AdjustTargetting(Level) * 10;
         }
 
         //added by gremlin deveks ChooseTarget

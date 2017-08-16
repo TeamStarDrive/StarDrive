@@ -213,7 +213,7 @@ namespace Ship_Game
             lock (this)
             {
                 Starfield?.Dispose(ref Starfield);
-                SelectedFleet?.Dispose(ref SelectedFleet);
+                SelectedFleet = null;
                 AvailableShips?.Dispose(ref AvailableShips);
                 ShipSL?.Dispose(ref ShipSL);
                 FleetSL?.Dispose(ref FleetSL);

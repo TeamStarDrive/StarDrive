@@ -33,7 +33,7 @@ namespace Ship_Game.AI
         {
             if (ship.Size <= 0) return;
             FleetDataNode node = Owner?.AI.FleetNode;
-            if (Owner?.fleet != null)
+            if (Owner?.fleet != null && node != null)
             {                
                 VultureWeight               = node.VultureWeight;
                 PreferredEngagementDistance = node.OrdersRadius;
