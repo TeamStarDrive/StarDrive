@@ -716,7 +716,7 @@ namespace Ship_Game
             processTurnsThread.Join(250);
             EmpireUI.empire = null;
             EmpireUI = null;
-            SpaceManager.Destroy();
+            //SpaceManager.Destroy();
             ScreenManager.Music.Stop();
             NebulousShit.Clear();
             bloomComponent = null;

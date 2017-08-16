@@ -391,9 +391,6 @@ namespace Ship_Game.Gameplay
             float adjust = Math.Max(0, baseJitter - level * level * level);
             if (adjust < 8) return jitter;
 
-            if (Tag_Missile)
-                adjust *= 10;
-
             if (isTurret)
                 adjust *= .75f;
             if (Tag_PD)
