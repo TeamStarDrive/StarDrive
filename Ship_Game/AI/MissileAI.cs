@@ -13,7 +13,9 @@ namespace Ship_Game.AI
         private bool Jammed;
         private bool EcmRun;
         private Vector2 LaunchJitter;
+        private Vector2 TargetJitter;
         private readonly int Level;
+        private float TargettingTimer;
 
         public MissileAI(Projectile missile, GameplayObject target)
         {
@@ -40,7 +42,10 @@ namespace Ship_Game.AI
                         TargetList.Add(nearbyShip);
                 }
             }
-            LaunchJitter = missile.Weapon.AdjustTargetting(Level) * 10;
+
+            TargetJitter = missile.Weapon.AdjustTargetting(Level) + (target as Ship)?.JitterPosition() ?? Vector2.Zero;
+            LaunchJitter = TargetJitter * 10f;
+            TargettingTimer = Math.Max(Level * .02f, .17f);
         }
 
         //added by gremlin deveks ChooseTarget
@@ -165,10 +170,15 @@ namespace Ship_Game.AI
                 }
             }
             ThinkTimer -= elapsedTime;
-            if (ThinkTimer <= 0f)
+            
+            if ((TargettingTimer += elapsedTime) > .5f)
             {
-                LaunchJitter /= (Level + 10);
-                ThinkTimer = (1f / (Level +1));
+                LaunchJitter /= 2f;                
+                TargettingTimer = Math.Max(Level * .1f, .49f);
+            }
+
+            if (ThinkTimer <= 0f)
+            {                               
                 if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().dying)
                 {
                     Target = null;
@@ -179,7 +189,7 @@ namespace Ship_Game.AI
             if (Target != null)
             {
 
-                Missile.GuidedMoveTowards(elapsedTime, Target.Center + LaunchJitter);
+                Missile.GuidedMoveTowards(elapsedTime, Target.Center + LaunchJitter + TargetJitter);
                 return;
             }
             MoveStraight(elapsedTime);
