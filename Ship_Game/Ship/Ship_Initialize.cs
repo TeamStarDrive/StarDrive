@@ -44,13 +44,25 @@ namespace Ship_Game.Gameplay
                 string uid = slotData.InstalledModuleUID;
                 if (uid == "Dummy" || uid == null)
                     continue;
-                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager);
+                //check for an postiion rotated modules
+                //check for normal before converting for perf. Rotated modules are rare enough.
+                var orientation = ShipDesignScreen.ActiveModuleState.Normal;
+                if (slotData.Orientation.NotEmpty()
+                    && slotData.Orientation != ShipDesignScreen.ActiveModuleState.Normal.ToString())
+                {
+                    orientation =
+                        (ShipDesignScreen.ActiveModuleState)Enum.Parse(typeof(ShipDesignScreen.ActiveModuleState), slotData.Orientation);
+                }
+                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager, orientation);
                 if (fromSave)
                 {
                     module.Active      = slotData.Health > 0.01f;
                     module.Health      = slotData.Health;
                     module.ShieldPower = slotData.ShieldPower;
                 }
+                
+
+
                 module.HangarShipGuid = slotData.HangarshipGuid;
                 module.hangarShipUID  = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;

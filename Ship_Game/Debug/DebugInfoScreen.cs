@@ -551,7 +551,7 @@ namespace Ship_Game.Debug
             if (Circles.Count == 0) return;
             foreach (Circle circle in Circles)
             {
-                Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C);
+                Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C, 3);
             }
 
             if (CircleTimer > 15)
