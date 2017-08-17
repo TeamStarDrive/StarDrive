@@ -170,7 +170,12 @@ namespace Ship_Game.Gameplay
                 else
                 {
                     Texture2D moduleTex = ResourceManager.Texture(slot.IconTexturePath);
-                    us.DrawTextureSized(moduleTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColorWhite());
+                    //@HACK the dimensions are already rotated so that rotating again puts it in the wrong orientation. 
+                    //so to fix that i am switching the height and width if the module is facing left or right. 
+                    if (slot.Facing == 270f || slot.Facing == 90)                    
+                        us.DrawTextureSized(moduleTex, posOnScreen, slotRotation, heightOnScreen, widthOnScreen, slot.GetHealthStatusColorWhite());                    
+                    else
+                        us.DrawTextureSized(moduleTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColorWhite());
 
                     //if (enableModuleDebug)
                     //{
