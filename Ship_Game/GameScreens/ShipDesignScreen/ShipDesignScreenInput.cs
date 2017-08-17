@@ -1170,9 +1170,9 @@ namespace Ship_Game {
                     continue;
                 }
                 ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);
-                if (ActiveModule.XSIZE * ActiveModule.YSIZE > 1)
-                    ClearDestinationSlotsNoStack(slot);
                 ChangeModuleState(slot.State);
+                if (ActiveModule.XSIZE * ActiveModule.YSIZE > 1)
+                    ClearDestinationSlotsNoStack(slot);                
                 InstallModuleFromLoad(slot);
                 if (slot.Module == null)
                     continue;

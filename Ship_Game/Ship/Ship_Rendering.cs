@@ -130,15 +130,15 @@ namespace Ship_Game.Gameplay
             Texture2D symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
             Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             Texture2D lightningBolt = ResourceManager.Texture("UI/lightningBolt");
-
-            bool enableModuleDebug = us.Debug && true;
-            if (enableModuleDebug)
+                        
+            if (us.DebugWin != null)
             {
                 for (int i = 0; i < Projectiles.Count; i++)
                 {
                     Projectile projectile = Projectiles[i];
                     if (projectile == null) continue;
-                    us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
+                    us.DebugWin.DrawCircle(Debug.DebugModes.Targeting, projectile.Center, projectile.Radius);
+                    //us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
                 }
             }
 
@@ -158,7 +158,7 @@ namespace Ship_Game.Gameplay
                 posOnScreen.X = (float)Math.Round(posOnScreen.X);
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
 
-                float slotFacing   = (int)((slot.Facing + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
+                float slotFacing = (int)((slot.Facing + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
                 us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, Color.White);
@@ -184,7 +184,7 @@ namespace Ship_Game.Gameplay
                             us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, Color.White);
                         }
                     }
-                    else if (!slot.Powered && slot.PowerDraw > 0.0f)
+                    else if (slot.Active && !slot.Powered && slot.PowerDraw > 0.0f)
                     {
                         float smallerSize = Math.Min(widthOnScreen, heightOnScreen);
                         us.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
@@ -194,7 +194,7 @@ namespace Ship_Game.Gameplay
                         float smallerSize = Math.Min(widthOnScreen, heightOnScreen);
                         us.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
                     }
-                    if (enableModuleDebug)
+                    if (us.Debug)
                     {
                         ModulePosToGridPoint(slot.Position, out int x, out int y);
                         us.DrawString(posOnScreen, shipRotation, 350f / us.CamHeight, Color.Magenta, $"X {x}, Y {y}");
@@ -206,7 +206,7 @@ namespace Ship_Game.Gameplay
                     us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 
-            if (enableModuleDebug)
+            if (us.Debug)
             {
                 DrawSparseModuleGrid(us);
             }

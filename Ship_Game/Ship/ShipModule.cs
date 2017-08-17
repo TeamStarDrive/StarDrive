@@ -218,12 +218,14 @@ namespace Ship_Game.Gameplay
             return new ShipModule(template);
         }
 
-        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, bool addToShieldManager = true)
+        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, bool addToShieldManager = true
+            , ShipDesignScreen.ActiveModuleState orientation = ShipDesignScreen.ActiveModuleState.Normal)
         {
             ShipModule module = CreateNoParent(uid);
             module.SetParent(parent);
             module.Facing = facing;
-            module.Initialize(xmlPos, addToShieldManager);
+            module.ApplyModuleOrientation(orientation);
+            module.Initialize(xmlPos, addToShieldManager);            
             return module;
         }
 
@@ -326,7 +328,7 @@ namespace Ship_Game.Gameplay
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
 
-            // center of this module
+            // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
 
@@ -1197,6 +1199,41 @@ namespace Ship_Game.Gameplay
             }
             return off;
         }
+
+        private void ApplyModuleOrientation(ShipDesignScreen.ActiveModuleState state)
+        {
+            ShipModule activeModule = this;
+          
+            int x = activeModule.XSIZE;
+            int y = activeModule.YSIZE;
+            switch (state)
+            {
+
+                case ShipDesignScreen.ActiveModuleState.Right:
+                    activeModule.XSIZE = y; // @todo Why are these swapped? Please comment.
+                    activeModule.YSIZE = x;
+                    return;
+                case ShipDesignScreen.ActiveModuleState.Left:
+                {
+                    activeModule.XSIZE = y; // @todo Why are these swapped? Please comment.
+                    activeModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa                                            
+                    return;
+                }
+
+                case ShipDesignScreen.ActiveModuleState.Normal:
+                    break;
+                case ShipDesignScreen.ActiveModuleState.Rear:                    
+                    break;
+                default:
+                {
+                    return;
+                }
+            }
+        }
+
+
+
+
 
         public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}  Ship={Parent?.Name}";
     }
