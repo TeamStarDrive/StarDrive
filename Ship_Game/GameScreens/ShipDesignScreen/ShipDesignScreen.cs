@@ -651,7 +651,7 @@ namespace Ship_Game
                 DesignStack.Push(designAction);
                 ClearSlot(slot);
                 ClearDestinationSlots(slot);
-
+                ChangeModuleState(ActiveModState);
                 slot.ModuleUID            = ActiveModule.UID;
                 slot.Module               = ShipModule.CreateNoParent(ActiveModule.UID);
                 slot.Module.XSIZE         = ActiveModule.XSIZE;
@@ -669,7 +669,7 @@ namespace Ship_Game
                 {
                     ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
                 }
-                ChangeModuleState(ActiveModState);
+                
             }
             else PlayNegativeSound();
         }
