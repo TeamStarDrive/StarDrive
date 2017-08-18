@@ -182,19 +182,35 @@ namespace Ship_Game
                     slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health             = msd->Health;
                     slot.ShieldPower        = msd->ShieldPower;
-                    slot.Facing             = msd->Facing;                    
-                    slot.Orientation        = msd->State.AsInterned;
+                    slot.Facing             = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    slot.SlotOptions        = msd->SlotOptions.AsInterned;                    
+                    slot.Orientation        = msd->State.AsInterned;                    
+                    slot.SlotOptions        = msd->SlotOptions.AsInterned;   
+                    
                     ship.ModuleSlots[i] = slot;
                 }
+                /* order of slot values comes from sdnative and must be in order. 
+                 *      slotData.parse("InstalledModuleUID", sd.InstalledModuleUID);
+                        slotData.parse("HangarshipGuid"    , sd.HangarshipGuid);
+                        slotData.parse("Health"            , sd.Health);
+                        slotData.parse("Shield_Power"      , sd.ShieldPower);
+                        slotData.parse("facing"            , sd.Facing);
+                        slotData.parse("Restrictions"      , sd.Restrictions);
+                        slotData.parse("state"			   , sd.State);
+                        slotData.parse("SlotOptions"       , sd.SlotOptions);
+                            
+                 */
 
+
+                int slotCount = ship.ModuleSlots.Length;
                 /* 
-                 HACK!
+                 HACK! --Need to fix sdnative so that it returns good slots. 
                  it appears that modules are getting doubled by a ghost module set to vector2.zero.
                  this is very poor here but i am filtering out all 0,0 modules. 
                  */
                 ship.ModuleSlots = ship.ModuleSlots.FilterBy(slot => slot.Position != Vector2.Zero);
+                if (ship.ModuleSlots.Length != slotCount)
+                    Log.Warning($"Ship {ship.Name} loaded with errors ");
                 // @todo Remove conversion to List
                 ship.ThrusterList = new Array<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
                 for (int i = 0; i < s->ThrustersLen; ++i)
