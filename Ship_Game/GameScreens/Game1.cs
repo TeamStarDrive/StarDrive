@@ -58,7 +58,7 @@ namespace Ship_Game
             Directory.CreateDirectory(appData + "/StarDrive/Saved Setups"); // for saving new game setups
             Directory.CreateDirectory(appData + "/StarDrive/Fleet Designs");
             Directory.CreateDirectory(appData + "/StarDrive/Saved Designs");
-            Directory.CreateDirectory(appData + "/StarDrive/WIP"); // huh????? @todo What's this for?
+            Directory.CreateDirectory(appData + "/StarDrive/WIP"); // huh????? @todo What's this for? CG:unfinished designs
             Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
             Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
 

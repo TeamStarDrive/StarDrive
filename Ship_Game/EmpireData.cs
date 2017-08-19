@@ -47,71 +47,84 @@ namespace Ship_Game
     }
 
     public sealed class EmpireData : IDisposable
-	{
+    {
+        public WeaponTagModifier GetWeaponTag(string weaponTag)
+        {
+            WeaponTags.TryGetValue(weaponTag, out WeaponTagModifier tag);
+            if (tag != null) return tag;
+
+            //@HACK issue. if a module has not weapon type defined it will not have a tag. 
+            //this appears to crash here with no tags. So its not absolutely a fatal error i dont think.
+            //its just a baddly defined weapon. BUT! from here we cant give a good error message.
+            //We dont know the weapon and neither does the caller. So how do we make this give a good error message?
+            tag = new WeaponTagModifier();
+            Log.Warning("Selected Module Weapon had no weapon type defined.");
+            return tag;
+        }
         [Serialize(0)] public SerializableDictionary<string, WeaponTagModifier> WeaponTags = new SerializableDictionary<string, WeaponTagModifier>();
         [Serialize(1)] public string WarpStart;
-		[Serialize(2)] public string WarpEnd;
-		[Serialize(3)] public Difficulty difficulty;
-		[Serialize(4)] public bool ModRace;
-		[Serialize(5)] public string CurrentAutoFreighter = "";
-		[Serialize(6)] public string CurrentAutoColony    = "";
-		[Serialize(7)] public string CurrentAutoScout     = "";
+        [Serialize(2)] public string WarpEnd;
+        [Serialize(3)] public Difficulty difficulty;
+        [Serialize(4)] public bool ModRace;
+        [Serialize(5)] public string CurrentAutoFreighter = "";
+        [Serialize(6)] public string CurrentAutoColony    = "";
+        [Serialize(7)] public string CurrentAutoScout     = "";
         [Serialize(8)] public string CurrentConstructor   = "";
-		[Serialize(9)] public string DiplomacyDialogPath;
-		[Serialize(10)] public DTrait DiplomaticPersonality;
-		[Serialize(11)] public ETrait EconomicPersonality;
-		[Serialize(12)] public float TaxRate = 0.25f;
-		[Serialize(13)] public Array<string> ExcludedDTraits = new Array<string>();
-		[Serialize(14)] public Array<string> ExcludedETraits = new Array<string>();
-		[Serialize(15)] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
-		[Serialize(16)] public string AbsorbedBy;
-		[Serialize(17)] public string StartingShip;
-		[Serialize(18)] public string StartingScout;
-		[Serialize(19)] public string PrototypeShip;
-		[Serialize(20)] public string DefaultColonyShip;
-		[Serialize(21)] public string DefaultSmallTransport;
+        [Serialize(9)] public string DiplomacyDialogPath;
+        [Serialize(10)] public DTrait DiplomaticPersonality;
+        [Serialize(11)] public ETrait EconomicPersonality;
+        [Serialize(12)] public float TaxRate = 0.25f;
+        [Serialize(13)] public Array<string> ExcludedDTraits = new Array<string>();
+        [Serialize(14)] public Array<string> ExcludedETraits = new Array<string>();
+        [Serialize(15)] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
+        [Serialize(16)] public string AbsorbedBy;
+        [Serialize(17)] public string StartingShip;
+        [Serialize(18)] public string StartingScout;
+        [Serialize(19)] public string PrototypeShip;
+        [Serialize(20)] public string DefaultColonyShip;
+        [Serialize(21)] public string DefaultSmallTransport;
         [Serialize(22)] public string DefaultTroopShip;
         [Serialize(23)] public string DefaultConstructor;
         [Serialize(24)] public string DefaultShipyard = "Shipyard";
-		[Serialize(25)] public bool Defeated;
-		[Serialize(26)] public bool HasSecretTech;
-		[Serialize(27)] public bool RebellionLaunched;
-		[Serialize(28)] public float MilitaryScoreTotal;
-		[Serialize(29)] public int ScoreAverage;
-		[Serialize(30)] public string MusicCue;
-		[Serialize(31)] public Array<string> ResearchQueue = new Array<string>();
-		[Serialize(32)] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
-		[Serialize(33)] public float CounterIntelligenceBudget;
-		[Serialize(34)] public string PortraitName;
-		[Serialize(35)] public string RebelSing;
-		[Serialize(36)] public string RebelPlur;
-		[Serialize(37)] public int TroopNameIndex;
-		[Serialize(38)] public int TroopDescriptionIndex;
-		[Serialize(39)] public string RebelName;
-		[Serialize(40)] public bool IsRebelFaction;
-		[Serialize(41)] public RacialTrait Traits;
-		[Serialize(42)] public byte Faction;
+        [Serialize(25)] public bool Defeated;
+        [Serialize(26)] public bool HasSecretTech;
+        [Serialize(27)] public bool RebellionLaunched;
+        [Serialize(28)] public float MilitaryScoreTotal;
+        [Serialize(29)] public int ScoreAverage;
+        [Serialize(30)] public string MusicCue;
+        [Serialize(31)] public Array<string> ResearchQueue = new Array<string>();
+        [Serialize(32)] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
+        [Serialize(33)] public float CounterIntelligenceBudget;
+        [Serialize(34)] public string PortraitName;
+        [Serialize(35)] public string RebelSing;
+        [Serialize(36)] public string RebelPlur;
+        [Serialize(37)] public int TroopNameIndex;
+        [Serialize(38)] public int TroopDescriptionIndex;
+        [Serialize(39)] public string RebelName;
+        [Serialize(40)] public bool IsRebelFaction;
+        [Serialize(41)] public RacialTrait Traits;
+        [Serialize(42)] public byte Faction;
         [Serialize(43)] public bool MinorRace;
-		[Serialize(44)] public short TurnsBelowZero;
-		[Serialize(45)] public bool Privatization;
+        [Serialize(44)] public short TurnsBelowZero;
+        [Serialize(45)] public bool Privatization;
         [Serialize(46)] public float CivMaintMod = 1f;
-		[Serialize(47)] public float FuelCellModifier;
-		[Serialize(48)] public float FlatMoneyBonus;
-		[Serialize(49)] public float EmpireWideProductionPercentageModifier = 1f;
-		[Serialize(50)] public float FTLModifier = 35f;
-		[Serialize(51)] public float MassModifier = 1f;
+        [Serialize(47)] public float FuelCellModifier;
+        [Serialize(48)] public float FlatMoneyBonus;
+        [Serialize(49)] public float EmpireWideProductionPercentageModifier = 1f;
+        [Serialize(50)] public float FTLModifier = 35f;
+        [Serialize(51)] public float MassModifier = 1f;
         [Serialize(52)] public float ArmourMassModifier = 1f;
-		[Serialize(53)] public float SubLightModifier = 1f;
-		[Serialize(54)] public float EmpireFertilityBonus;
-		[Serialize(55)] public float SensorModifier = 1f;
-		[Serialize(56)] public float OrdnanceEffectivenessBonus;
-		[Serialize(57)] public int ArmorPiercingBonus;
+        [Serialize(53)] public float SubLightModifier = 1f;
+        [Serialize(54)] public float EmpireFertilityBonus;
+        [Serialize(55)] public float SensorModifier = 1f;
+        [Serialize(56)] public float OrdnanceEffectivenessBonus;
+        [Serialize(57)] public int ArmorPiercingBonus;
         [Serialize(58)] public float SpoolTimeModifier = 1.0f;
-		[Serialize(59)] public float ExplosiveRadiusReduction = 0f;
-		[Serialize(60)] public float ShieldPenBonusChance;
-		[Serialize(61)] public float SpyModifier;
-		[Serialize(62)] public float DefensiveSpyBonus;
-		[Serialize(63)] public float OffensiveSpyBonus;
+        [Serialize(59)] public float ExplosiveRadiusReduction = 0f;
+        [Serialize(60)] public float ShieldPenBonusChance;
+        [Serialize(61)] public float SpyModifier;
+        [Serialize(62)] public float DefensiveSpyBonus;
+        [Serialize(63)] public float OffensiveSpyBonus;
         [Serialize(64)] public float FTLPowerDrainModifier = 2f;
         [Serialize(65)] public Array<Artifact> OwnedArtifacts = new Array<Artifact>();
         [Serialize(66)] public int BonusFighterLevels;
@@ -149,25 +162,25 @@ namespace Ship_Game
         [Serialize(87)] public float treasuryGoal = .20f;
         [Serialize(88)] public bool AutoTaxes = false;
 
-		public EmpireData()
-		{
+        public EmpireData()
+        {
             // @todo Mapping these by string is a bad idea. Consider using an Enum
-			WeaponTags.Add("Kinetic", new WeaponTagModifier());
-			WeaponTags.Add("Energy", new WeaponTagModifier());
-			WeaponTags.Add("Beam", new WeaponTagModifier());
-			WeaponTags.Add("Hybrid", new WeaponTagModifier());
-			WeaponTags.Add("Railgun", new WeaponTagModifier());
-			WeaponTags.Add("Missile", new WeaponTagModifier());
-			WeaponTags.Add("Explosive", new WeaponTagModifier());
-			WeaponTags.Add("Guided", new WeaponTagModifier());
-			WeaponTags.Add("Intercept", new WeaponTagModifier());
-			WeaponTags.Add("PD", new WeaponTagModifier());
-			WeaponTags.Add("Spacebomb", new WeaponTagModifier());
-			WeaponTags.Add("BioWeapon", new WeaponTagModifier());
-			WeaponTags.Add("Drone", new WeaponTagModifier());
-			WeaponTags.Add("Torpedo", new WeaponTagModifier());
-			WeaponTags.Add("Subspace", new WeaponTagModifier());
-			WeaponTags.Add("Warp", new WeaponTagModifier());
+            WeaponTags.Add("Kinetic", new WeaponTagModifier());
+            WeaponTags.Add("Energy", new WeaponTagModifier());
+            WeaponTags.Add("Beam", new WeaponTagModifier());
+            WeaponTags.Add("Hybrid", new WeaponTagModifier());
+            WeaponTags.Add("Railgun", new WeaponTagModifier());
+            WeaponTags.Add("Missile", new WeaponTagModifier());
+            WeaponTags.Add("Explosive", new WeaponTagModifier());
+            WeaponTags.Add("Guided", new WeaponTagModifier());
+            WeaponTags.Add("Intercept", new WeaponTagModifier());
+            WeaponTags.Add("PD", new WeaponTagModifier());
+            WeaponTags.Add("Spacebomb", new WeaponTagModifier());
+            WeaponTags.Add("BioWeapon", new WeaponTagModifier());
+            WeaponTags.Add("Drone", new WeaponTagModifier());
+            WeaponTags.Add("Torpedo", new WeaponTagModifier());
+            WeaponTags.Add("Subspace", new WeaponTagModifier());
+            WeaponTags.Add("Warp", new WeaponTagModifier());
             //added by McShooterz: added missing tags
             WeaponTags.Add("Cannon", new WeaponTagModifier());
             WeaponTags.Add("Bomb", new WeaponTagModifier());
@@ -176,12 +189,12 @@ namespace Ship_Game
             WeaponTags.Add("Flak", new WeaponTagModifier());
             WeaponTags.Add("Tractor", new WeaponTagModifier());
 
-		}
+        }
 
-		public EmpireData GetClone()
-		{
-			return (EmpireData)MemberwiseClone();
-		}
+        public EmpireData GetClone()
+        {
+            return (EmpireData)MemberwiseClone();
+        }
 
         public void Dispose()
         {
@@ -195,5 +208,5 @@ namespace Ship_Game
         {
 
         }
-	}
+    }
 } 
