@@ -766,7 +766,7 @@ namespace Ship_Game
 
         private static float GetStatBonusForWeaponTag(WeaponStat stat, string tagType)
         {
-            WeaponTagModifier tagModifier = EmpireManager.Player.data.WeaponTags[tagType];
+            WeaponTagModifier tagModifier = EmpireManager.Player.data.GetWeaponTag(tagType);
             switch (stat)
             {
                 case WeaponStat.Damage:    return tagModifier.Damage;
