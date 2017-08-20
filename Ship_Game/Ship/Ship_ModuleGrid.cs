@@ -395,8 +395,9 @@ namespace Ship_Game.Gameplay
         // Code gods, I pray for thy forgiveness for this copy-paste -T_T-
         // This was done solely for performance reasons. This method gets called
         // every time an exploding projectile hits a ship. So it gets called for every missile impact
-        public void DamageModulesInRange(GameplayObject damageSource, float damageAmount, 
-                                         Vector2 worldHitPos, float hitRadius, bool ignoreShields, bool noInternal = false, bool noAblation = false)
+        public unsafe void DamageModulesInRange(GameplayObject damageSource, float damageAmount, 
+                                         Vector2 worldHitPos, float hitRadius, bool ignoreShields, 
+                                         bool noInternal = false, bool noAblation = false)
         {
             float damageTracker = damageAmount ;
             if (!ignoreShields)
@@ -442,7 +443,10 @@ namespace Ship_Game.Gameplay
                 )  m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, noAblation);
             
             damageTracker = damageAmount;
-            float[] damageBurst = { damageTracker, damageTracker, damageTracker, damageTracker };
+
+            // spread out the damage in 4 directions
+            float* damageBurst = stackalloc float[4];
+            damageBurst[0] = damageBurst[1] = damageBurst[2] = damageBurst[3] = damageTracker * 0.25f;
             for (;;)
             {
                 bool didExpand = false;
