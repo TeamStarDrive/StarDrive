@@ -72,11 +72,11 @@ namespace SDNative
                 elem.parse("BaseCanWarp"   , BaseCanWarp);
                 elem.parseList("ModuleSlotList", [this](NodeParser slotData)
                 {
+                    ModuleSlotList.emplace_back();
+                    auto& sd = ModuleSlotList.back();
+
                     for (; slotData.node; slotData.next())
                     {
-                        ModuleSlotList.emplace_back();
-                        auto& sd = ModuleSlotList.back();
-
                         ParsePosition(slotData, sd.PositionX, sd.PositionY);
                         slotData.parse("InstalledModuleUID", sd.InstalledModuleUID);
                         slotData.parse("HangarshipGuid"    , sd.HangarshipGuid);
@@ -84,7 +84,7 @@ namespace SDNative
                         slotData.parse("Shield_Power"      , sd.ShieldPower);
                         slotData.parse("facing"            , sd.Facing);
                         slotData.parse("state"             , sd.State);
-                        slotData.parse("Restrictions"      , sd.Restrictions);						
+                        slotData.parse("Restrictions"      , sd.Restrictions);
                         slotData.parse("SlotOptions"       , sd.SlotOptions);
                     }
                 });
