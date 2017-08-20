@@ -1050,7 +1050,7 @@ namespace Ship_Game {
                 SlotStruct slot = Slots[i];
                 ModuleSlotData savedSlot = new ModuleSlotData
                 {
-                    InstalledModuleUID = slot.ModuleUID,
+                    InstalledModuleUID = slot.ModuleUID ?? "Dummy",
                     Position           = slot.SlotReference.Position,
                     Restrictions       = slot.Restrictions,
                     Orientation        = slot.State.ToString()

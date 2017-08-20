@@ -16,15 +16,15 @@ namespace Ship_Game
 
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
-        private Array<ShipInfoUIElement.TippedItem> ToolTipItems = new Array<ShipInfoUIElement.TippedItem>();
+        private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
-        private Rectangle SliderRect;
+        private readonly Rectangle SliderRect;
 
-        private UniverseScreen screen;
+        private UniverseScreen Screen;
 
-        public Ship ship;
+        public Ship Ship;
 
-        private Selector sel;
+        private readonly Selector Sel;
 
         public Rectangle LeftRect;
 
@@ -34,7 +34,7 @@ namespace Ship_Game
 
         public Rectangle ShipInfoRect;
 
-        public ToggleButton gridbutton;
+        public ToggleButton Gridbutton;
 
         public Rectangle Power;
 
@@ -42,15 +42,15 @@ namespace Ship_Game
 
         public Rectangle Ordnance;
 
-        private ProgressBar pBar;
+        private readonly ProgressBar PBar;
 
-        private ProgressBar sBar;
+        private readonly ProgressBar SBar;
 
-        private ProgressBar oBar;
+        private readonly ProgressBar OBar;
 
         public UITextEntry ShipNameArea;
 
-        private SlidingElement sliding_element;
+        private readonly SlidingElement SlidingElement;
 
         private Rectangle DefenseRect;
 
@@ -62,143 +62,143 @@ namespace Ship_Game
 
         private bool ShowModules = true;
 
-        private string fmt = "0";
+        private const string Fmt = "0";
         private float DoubleClickTimer = .25f;
 
-        public ShipInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
+        public ShipInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
-            this.screen = screen;
-            this.ScreenManager = sm;
-            this.ElementRect = r;
-            this.FlagRect = new Rectangle(r.X + 150, r.Y + 50, 40, 40);
-            this.sel = new Selector(r, Color.Black);
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            this.SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
-            this.sliding_element = new SlidingElement(this.SliderRect);
-            this.Housing = r;
-            this.LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
-            this.RightRect = new Rectangle(this.LeftRect.X + this.LeftRect.Width, this.LeftRect.Y, 220, this.LeftRect.Height);
-            this.ShipNameArea = new UITextEntry()
+            Screen            = screen;
+            ScreenManager     = sm;
+            ElementRect       = r;
+            FlagRect          = new Rectangle(r.X + 150, r.Y + 50, 40, 40);
+            Sel               = new Selector(r, Color.Black);
+            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            SliderRect        = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
+            SlidingElement    = new SlidingElement(SliderRect);
+            Housing           = r;
+            LeftRect          = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
+            RightRect         = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
+            ShipNameArea      = new UITextEntry()
             {
-                ClickableArea = new Rectangle(this.Housing.X + 41, this.Housing.Y + 65, 200, Fonts.Arial20Bold.LineSpacing)
+                ClickableArea = new Rectangle(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial20Bold.LineSpacing)
             };
-            int spacing = 2;
-            this.Power = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110, 20, 20);
-            Rectangle pbarrect = new Rectangle(this.Power.X + this.Power.Width + 15, this.Power.Y, 150, 18);
-            this.pBar = new ProgressBar(pbarrect)
+            int spacing        = 2;
+            Power              = new Rectangle(Housing.X + 187, Housing.Y + 110, 20, 20);
+            Rectangle pbarrect = new Rectangle(Power.X + Power.Width + 15, Power.Y, 150, 18);
+            PBar               = new ProgressBar(pbarrect)
             {
                 color = "green"
             };
-            ShipInfoUIElement.TippedItem ti = new ShipInfoUIElement.TippedItem()
+            var ti = new TippedItem()
             {
-                r = this.Power,
+                r = Power,
                 TIP_ID = 27
             };
-            this.ToolTipItems.Add(ti);
-            this.Shields = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110 + 20 + spacing, 20, 20);
-            Rectangle pshieldsrect = new Rectangle(this.Shields.X + this.Shields.Width + 15, this.Shields.Y, 150, 18);
-            this.sBar = new ProgressBar(pshieldsrect)
+            ToolTipItems.Add(ti);
+            Shields = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing, 20, 20);
+            var pshieldsrect = new Rectangle(Shields.X + Shields.Width + 15, Shields.Y, 150, 18);
+            SBar = new ProgressBar(pshieldsrect)
             {
                 color = "blue"
             };
-            ti = new ShipInfoUIElement.TippedItem()
+            ti = new TippedItem()
             {
-                r = this.Shields,
+                r = Shields,
                 TIP_ID = 28
             };
-            this.ToolTipItems.Add(ti);
-            this.Ordnance = new Rectangle(this.Housing.X + 187, this.Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
-            Rectangle pordrect = new Rectangle(this.Ordnance.X + this.Ordnance.Width + 15, this.Ordnance.Y, 150, 18);
-            this.oBar = new ProgressBar(pordrect);
-            ti = new ShipInfoUIElement.TippedItem()
+            ToolTipItems.Add(ti);
+            Ordnance           = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
+            Rectangle pordrect = new Rectangle(Ordnance.X + Ordnance.Width + 15, Ordnance.Y, 150, 18);
+            OBar               = new ProgressBar(pordrect);
+            ti                 = new TippedItem()
             {
-                r = this.Ordnance,
+                r = Ordnance,
                 TIP_ID = 29
             };
-            this.ToolTipItems.Add(ti);
-            this.DefenseRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 112, 22, 22);
-            ti = new ShipInfoUIElement.TippedItem()
+            ToolTipItems.Add(ti);
+            DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
+            ti = new TippedItem()
             {
-                r = this.DefenseRect,
+                r = DefenseRect,
                 TIP_ID = 30
             };
-            this.ToolTipItems.Add(ti);
-            this.TroopRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 137, 22, 22);
-            ti = new ShipInfoUIElement.TippedItem()
+            ToolTipItems.Add(ti);
+            TroopRect = new Rectangle(Housing.X + 13, Housing.Y + 137, 22, 22);
+            ti = new TippedItem()
             {
-                r = this.TroopRect,
+                r = TroopRect,
                 TIP_ID = 37
             };
-            this.ToolTipItems.Add(ti);
-            this.ShipInfoRect = new Rectangle(this.Housing.X + 60, this.Housing.Y + 110, 115, 115);
-            Rectangle gridRect = new Rectangle(this.Housing.X + 16, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45, 34, 24);
-            this.gridbutton = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
+            ToolTipItems.Add(ti);
+            ShipInfoRect       = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
+            var gridRect = new Rectangle(Housing.X + 16, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45, 34, 24);
+            Gridbutton         = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
             {
                 Active = true
             };
-            Vector2 OrdersBarPos = new Vector2((float)(this.Power.X + 15), (float)(this.Ordnance.Y + this.Ordnance.Height + spacing + 3));
+            var ordersBarPos = new Vector2((float)(Power.X + 15), (float)(Ordnance.Y + Ordnance.Height + spacing + 3));
             
-            OrdersBarPos.X = pordrect.X - 15;
-            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_headon");
-            this.CombatStatusButtons.Add(AttackRuns);
+            ordersBarPos.X = pordrect.X - 15;
+            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_headon");
+            CombatStatusButtons.Add(AttackRuns);
             AttackRuns.Action = "attack";
             AttackRuns.HasToolTip = true;
             AttackRuns.WhichToolTip = 1;
             
-            OrdersBarPos.X = OrdersBarPos.X + 25f;
-            ToggleButton ShortRange = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_grid");
-            this.CombatStatusButtons.Add(ShortRange);
+            ordersBarPos.X = ordersBarPos.X + 25f;
+            ToggleButton ShortRange = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_grid");
+            CombatStatusButtons.Add(ShortRange);
             ShortRange.Action = "short";
             ShortRange.HasToolTip = true;
             ShortRange.WhichToolTip = 228;
             
-            OrdersBarPos.X = OrdersBarPos.X + 25f;
-            ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_aft");
-            this.CombatStatusButtons.Add(Artillery);
+            ordersBarPos.X = ordersBarPos.X + 25f;
+            ToggleButton Artillery = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_aft");
+            CombatStatusButtons.Add(Artillery);
             Artillery.Action = "arty";
             Artillery.HasToolTip = true;
             Artillery.WhichToolTip = 2;
             
-            OrdersBarPos.X = OrdersBarPos.X + 25f;
-            ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_x");
-            this.CombatStatusButtons.Add(HoldPos);
+            ordersBarPos.X = ordersBarPos.X + 25f;
+            ToggleButton HoldPos = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_x");
+            CombatStatusButtons.Add(HoldPos);
             HoldPos.Action = "hold";
             HoldPos.HasToolTip = true;
             HoldPos.WhichToolTip = 65;
-            OrdersBarPos.X = OrdersBarPos.X + 25f;
-            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_left");
-            this.CombatStatusButtons.Add(OrbitLeft);
+            ordersBarPos.X = ordersBarPos.X + 25f;
+            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_left");
+            CombatStatusButtons.Add(OrbitLeft);
             OrbitLeft.Action = "orbit_left";
             OrbitLeft.HasToolTip = true;
             OrbitLeft.WhichToolTip = 3;
-            OrdersBarPos.Y = OrdersBarPos.Y + 25f;
+            ordersBarPos.Y = ordersBarPos.Y + 25f;
 
-            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bleft");
-            this.CombatStatusButtons.Add(BroadsideLeft);
+            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bleft");
+            CombatStatusButtons.Add(BroadsideLeft);
             BroadsideLeft.Action = "broadside_left";
             BroadsideLeft.HasToolTip = true;
             BroadsideLeft.WhichToolTip = 159;
-            OrdersBarPos.Y = OrdersBarPos.Y - 25f;
-            OrdersBarPos.X = OrdersBarPos.X + 25f;
+            ordersBarPos.Y = ordersBarPos.Y - 25f;
+            ordersBarPos.X = ordersBarPos.X + 25f;
 
-            ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_right");
-            this.CombatStatusButtons.Add(OrbitRight);
+            ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_right");
+            CombatStatusButtons.Add(OrbitRight);
             OrbitRight.Action = "orbit_right";
             OrbitRight.HasToolTip = true;
             OrbitRight.WhichToolTip = 4;
-            OrdersBarPos.Y = OrdersBarPos.Y + 25f;
+            ordersBarPos.Y = ordersBarPos.Y + 25f;
 
-            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bright");
-            this.CombatStatusButtons.Add(BroadsideRight);
+            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bright");
+            CombatStatusButtons.Add(BroadsideRight);
             BroadsideRight.Action = "broadside_right";
             BroadsideRight.HasToolTip = true;
             BroadsideRight.WhichToolTip = 160;
-            OrdersBarPos.Y = OrdersBarPos.Y - 25f;
-            OrdersBarPos.X = OrdersBarPos.X + 25f;
+            ordersBarPos.Y = ordersBarPos.Y - 25f;
+            ordersBarPos.X = ordersBarPos.X + 25f;
 
-            ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_stop");
-            this.CombatStatusButtons.Add(Evade);
+            ToggleButton Evade = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_stop");
+            CombatStatusButtons.Add(Evade);
             Evade.Action = "evade";
             Evade.HasToolTip = true;
             Evade.WhichToolTip = 6;
@@ -206,126 +206,125 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime)
         {
-            if (this.screen.SelectedShip == null) return;  //fbedard
+            if (Screen.SelectedShip == null) return;  //fbedard
 
-            string longName;
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-            int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
-            this.sliding_element.Draw(this.ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (this.sliding_element.Open ? 20 - columns : 0));
-            foreach (OrdersButton ob in this.Orders)
+            int columns = Orders.Count / 2 + Orders.Count % 2;
+            SlidingElement.Draw(ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
+            foreach (OrdersButton ob in Orders)
             {
                 Rectangle r = ob.clickRect;
                 r.X = r.X - (int)(transitionOffset * 300f);
-                ob.Draw(this.ScreenManager, r);
+                ob.Draw(ScreenManager, r);
             }
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
-            this.gridbutton.Draw(this.ScreenManager);
-            Vector2 NamePos = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 63));
-            string name = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
-            SpriteFont TitleFont = Fonts.Arial14Bold;
-            Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 79));
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], Housing, Color.White);
+            Gridbutton.Draw(ScreenManager);
+            var namePos           = new Vector2(Housing.X + 30, Housing.Y + 63);
+            string name           = (!string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name);
+            SpriteFont TitleFont  = Fonts.Arial14Bold;
+            Vector2 ShipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
             if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
             {
                 TitleFont = Fonts.Arial12Bold;
-                NamePos.X = NamePos.X - 8;
-                NamePos.Y = NamePos.Y + 1;
+                namePos.X = namePos.X - 8;
+                namePos.Y = namePos.Y + 1;
             }
-            this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
+            ShipNameArea.Draw(TitleFont, ScreenManager.SpriteBatch, namePos, gameTime, tColor);
             //Added by McShooterz:
-            //longName = string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty));
-            longName = string.Concat(this.ship.Name, " - ", this.ship.shipData.GetRole());
-            if (this.ship.shipData.ShipCategory != ShipData.Category.Unclassified)
-                longName += string.Concat(" - ", this.ship.shipData.GetCategory());
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
+            //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
+            string longName = string.Concat(Ship.Name, " - ", Ship.shipData.GetRole());
+            if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
+                longName += string.Concat(" - ", Ship.shipData.GetCategory());
+            ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
-            string text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
-            Vector2 ShipStatus = new Vector2((float)(this.sel.Rect.X + this.sel.Rect.Width - 170), this.Housing.Y + 68);
-            text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
-            HelperFunctions.ClampVectorToInt(ref ShipStatus);
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
-            ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
-            this.ship.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/NuclearReactorMedium"], this.Power, Color.White);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Shield_1KW"], this.Shields, Color.White);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Ordnance"], this.Ordnance, Color.White);
-            this.pBar.Max = this.ship.PowerStoreMax;
-            this.pBar.Progress = this.ship.PowerCurrent;
-            this.pBar.Draw(this.ScreenManager.SpriteBatch);
-            this.sBar.Max = this.ship.shield_max;
-            this.sBar.Progress = this.ship.shield_power;
-            this.sBar.Draw(this.ScreenManager.SpriteBatch);
-            this.oBar.Max = this.ship.OrdinanceMax;
-            this.oBar.Progress = this.ship.Ordinance;
-            this.oBar.Draw(this.ScreenManager.SpriteBatch);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
-            Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
-            SpriteFont arial12Bold = Fonts.Arial12Bold;
-            float mechanicalBoardingDefense = this.ship.MechanicalBoardingDefense + this.ship.TroopBoardingDefense;
-            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop_shipUI"], this.TroopRect, Color.White);
-            Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.ship.TroopList.Count, "/", this.ship.TroopCapacity), troopPos, Color.White);
-            if (this.ship.loyalty == EmpireManager.Player)
+            string text;
+            Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 170, Housing.Y + 68);
+            text                            = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(Ship), 155f);
+            HelperFunctions.ClampVectorToInt(ref shipStatus);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, shipStatus, tColor);
+            shipStatus.Y                    = shipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
+            Ship.RenderOverlay(ScreenManager.SpriteBatch, ShipInfoRect, ShowModules);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/NuclearReactorMedium"], Power, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Shield_1KW"], Shields, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Ordnance"], Ordnance, Color.White);
+            PBar.Max                        = Ship.PowerStoreMax;
+            PBar.Progress                   = Ship.PowerCurrent;
+            PBar.Draw(ScreenManager.SpriteBatch);
+            SBar.Max                        = Ship.shield_max;
+            SBar.Progress                   = Ship.shield_power;
+            SBar.Draw(ScreenManager.SpriteBatch);
+            OBar.Max                        = Ship.OrdinanceMax;
+            OBar.Progress                   = Ship.Ordinance;
+            OBar.Draw(ScreenManager.SpriteBatch);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], DefenseRect, Color.White);
+            Vector2 defPos                  = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            SpriteBatch spriteBatch         = ScreenManager.SpriteBatch;
+            SpriteFont arial12Bold          = Fonts.Arial12Bold;
+            float mechanicalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
+            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(Fmt), defPos, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop_shipUI"], TroopRect, Color.White);
+            Vector2 troopPos                = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Ship.TroopList.Count, "/", Ship.TroopCapacity), troopPos, Color.White);
+            if (Ship.loyalty == EmpireManager.Player)
             {
-                foreach (ToggleButton button in this.CombatStatusButtons)
+                foreach (ToggleButton button in CombatStatusButtons)
                 {
-                    button.Draw(this.ScreenManager);
+                    button.Draw(ScreenManager);
                 }
             }
             else  //fbedard: Display race icon of enemy ship in Ship UI
             {
-                Rectangle FlagShip = new Rectangle(this.FlagRect.X + 190, this.FlagRect.Y + 130, 40, 40);
-                SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
-                KeyValuePair<string, Texture2D> keyValuePair = ResourceManager.FlagTextures[this.ship.loyalty.data.Traits.FlagIndex];
-                spriteBatch1.Draw(keyValuePair.Value, FlagShip, this.ship.loyalty.EmpireColor);
+                var flagShip = new Rectangle(FlagRect.X + 190, FlagRect.Y + 130, 40, 40);
+                SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
+                KeyValuePair<string, Texture2D> keyValuePair = ResourceManager.FlagTextures[Ship.loyalty.data.Traits.FlagIndex];
+                spriteBatch1.Draw(keyValuePair.Value, flagShip, Ship.loyalty.EmpireColor);
             }
 
-            float x = (float)Mouse.GetState().X;
+            float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            Vector2 mousePos = new Vector2(x, (float)state.Y);
             //Added by McShooterz: new experience level display
-            Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + 23, 22, 22);
-            Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_experience_shipUI"], star, Color.White);
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
-            if (star.HitTest(MousePos))
+            Rectangle star = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
+            Vector2 levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_experience_shipUI"], star, Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
+            if (star.HitTest(mousePos))
             {
                 ToolTip.CreateTooltip(161);
             }
             //Added by McShooterz: kills display
             star = new Rectangle(star.X, star.Y + 19, 22, 22);
-            levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_kills_shipUI"], star, Color.White);
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.kills.ToString(), levelPos, Color.White);
-            Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
+            levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_kills_shipUI"], star, Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
+            Vector2 statusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
-            if (this.ship.loyalty.data.Traits.Pack)
+            if (Ship.loyalty.data.Traits.Pack)
             {
-                Rectangle PackRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_pack"], PackRect, Color.White);
-                Vector2 TextPos = new Vector2((float)(PackRect.X + 26), (float)(PackRect.Y + 15));
-                float damageModifier = this.ship.DamageModifier * 100f;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), TextPos, Color.White);
+                var packRect         = new Rectangle((int)statusArea.X, (int)statusArea.Y, 48, 32);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_pack"], packRect, Color.White);
+                var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
+                float damageModifier = Ship.DamageModifier * 100f;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
                 numStatus++;
-                if (PackRect.HitTest(MousePos))
+                if (packRect.HitTest(mousePos))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2245));
                 }
             }
 
-            if (ship.CargoSpaceUsed > 0f)
+            if (Ship.CargoSpaceUsed > 0f)
             {
-                foreach (Cargo cargo in ship.EnumLoadedCargo())
+                foreach (Cargo cargo in Ship.EnumLoadedCargo())
                 {
                     Texture2D texture = ResourceManager.TextureDict["Goods/" + cargo.CargoId];
-                    var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
+                    var goodRect      = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 32, 32);
                     ScreenManager.SpriteBatch.Draw(texture, goodRect, Color.White);
 
                     var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
 
-                    if (goodRect.HitTest(MousePos))
+                    if (goodRect.HitTest(mousePos))
                     {
                         Good good = ResourceManager.GoodsDict[cargo.CargoId];
                         ToolTip.CreateTooltip($"{good.Name}\n\n{good.Description}");
@@ -334,56 +333,53 @@ namespace Ship_Game
                 }
             }
 
-            if(this.ship.FTLModifier <1 && !this.ship.Inhibited)
+            if(Ship.FTLModifier <1 && !Ship.Inhibited)
             {
-                //if (this.ship.GetSystem() != null)
+                //if (ship.GetSystem() != null)
                 //{
-                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], FoodRect, Color.PaleVioletRed);
-                    if (FoodRect.HitTest(MousePos))
+                    Rectangle foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], foodRect, Color.PaleVioletRed);
+                    if (foodRect.HitTest(mousePos))
                     {
-                        string EState = this.ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), $"{1f - ship.FTLModifier:P0}", "\n\nEngine State: ", EState));
+                        string eState = Ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), $"{1f - Ship.FTLModifier:P0}", "\n\nEngine State: ", eState));
                     }
                     numStatus++;
                 //}
 
             }
-            if (this.ship.FTLModifier > 1 && !this.ship.Inhibited && this.ship.engineState == Ship.MoveState.Warp)
+            if (Ship.FTLModifier > 1 && !Ship.Inhibited && Ship.engineState == Ship.MoveState.Warp)
             {
-                //if (this.ship.inborders)
-                //{
-                    var rect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], rect, Color.LightGreen);
-                    if (rect.HitTest(MousePos))
+
+                    var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], rect, Color.LightGreen);
+                    if (rect.HitTest(mousePos))
                     {
 
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), $"{ship.FTLModifier - 1f:P0}", "\n\nEngine State: FTL"));
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), $"{Ship.FTLModifier - 1f:P0}", "\n\nEngine State: FTL"));
                     }
                     numStatus++;
-                //}
-
             }
 
-            if (this.ship.Inhibited )
+            if (Ship.Inhibited )
             {
-                bool Planet = false;
-                if (this.screen.GravityWells && this.ship.System!= null)
+                bool planet = false;
+                if (Screen.GravityWells && Ship.System!= null)
                 {
-                    foreach (Ship_Game.Planet p in this.ship.System.PlanetList)
+                    foreach (Planet p in Ship.System.PlanetList)
                     {
-                        if (p.Center.OutsideRadius(ship.Position, p.GravityWellRadius))
+                        if (p.Center.OutsideRadius(Ship.Position, p.GravityWellRadius))
                         {
                             continue;
                         }
-                        Planet = true;
+                        planet = true;
                     }
                 }
-                if (Planet)
+                if (planet)
                 {
-                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_gravwell"], FoodRect, Color.White);
-                    if (FoodRect.HitTest(MousePos))
+                    var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_gravwell"], foodRect, Color.White);
+                    if (foodRect.HitTest(mousePos))
                     {
                         ToolTip.CreateTooltip(Localizer.Token(2287));
                     }
@@ -392,9 +388,9 @@ namespace Ship_Game
 
                 else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
                 {
-                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
-                    if (FoodRect.HitTest(MousePos))
+                    var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], foodRect, Color.White);
+                    if (foodRect.HitTest(mousePos))
                     {
                         ToolTip.CreateTooltip(117);
                     }
@@ -402,20 +398,20 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_flux"], FoodRect, Color.White);
-                    if (FoodRect.HitTest(MousePos))
+                    var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_flux"], foodRect, Color.White);
+                    if (foodRect.HitTest(mousePos))
                     {
                         ToolTip.CreateTooltip(Localizer.Token(2285));
                     }
                     numStatus++;
                 }
             }
-            if (this.ship.EMPdisabled)
+            if (!Ship.EMPdisabled) return;
             {
-                Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_disabled"], FoodRect, Color.White);
-                if (FoodRect.HitTest(MousePos))
+                var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_disabled"], foodRect, Color.White);
+                if (foodRect.HitTest(mousePos))
                 {
                     ToolTip.CreateTooltip(116);
                 }
@@ -425,195 +421,185 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (this.screen.SelectedShip == null) return false;  //fbedard
+            if (Screen.SelectedShip == null) return false;  //fbedard
             
-            if (this.sliding_element.HandleInput(input))
+            if (SlidingElement.HandleInput(input))
             {
-                if (this.sliding_element.Open)
-                    this.State = UIElement.ElementState.TransitionOn;
+                if (SlidingElement.Open)
+                    State = ElementState.TransitionOn;
                 else
-                    this.State = UIElement.ElementState.TransitionOff;
+                    State = ElementState.TransitionOff;
                 return true;
             }
-           
+
+            if (ShipNameArea.ClickableArea.HitTest(input.CursorPosition))
+            {
+                ShipNameArea.Hover = true;
+                if (input.InGameSelect && CanRename)
+                    ShipNameArea.HandlingInput = true;
+            }
+            else
+                ShipNameArea.Hover = false;
+            if (ShipNameArea.HandlingInput)
+            {
+                GlobalStats.TakingInput = true;
+                ShipNameArea.HandleTextInput(ref Ship.VanityName, input);
+                ShipNameArea.Text = Ship.VanityName;
+            }
+            else
+                GlobalStats.TakingInput = false;
+            if (Gridbutton.Rect.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(Localizer.Token(2204));
+            if (Gridbutton.HandleInput(input))
+            {
+                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                ShowModules = !ShowModules;
+                Gridbutton.Active = ShowModules;
+                return true;
+            }
             else
             {
-                if (this.ShipNameArea.ClickableArea.HitTest(input.CursorPosition))
+                if (Ship == null)
+                    return false;
+                if (DoubleClickTimer > 0)
+                    DoubleClickTimer -= 0.01666f;
+                if (ShipInfoRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released && DoubleClickTimer > 0)
                 {
-                    this.ShipNameArea.Hover = true;
-                    if (input.InGameSelect && this.CanRename)
-                        this.ShipNameArea.HandlingInput = true;
+                    Empire.Universe.ViewingShip = false;
+                    Empire.Universe.AdjustCamTimer = 0.5f;
+                    Empire.Universe.CamDestination.X = Ship.Center.X;
+                    Empire.Universe.CamDestination.Y = Ship.Center.Y;
+                    if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
+                        Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                 }
-                else
-                    this.ShipNameArea.Hover = false;
-                if (this.ShipNameArea.HandlingInput)
+                else if (ElementRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                    DoubleClickTimer = 0.25f;    
+                if (Ship.loyalty == EmpireManager.Player && !Ship.isConstructor)
                 {
-                    GlobalStats.TakingInput = true;
-                    this.ShipNameArea.HandleTextInput(ref this.ship.VanityName, input);
-                    this.ShipNameArea.Text = this.ship.VanityName;
-                }
-                else
-                    GlobalStats.TakingInput = false;
-                if (this.gridbutton.Rect.HitTest(input.CursorPosition))
-                    ToolTip.CreateTooltip(Localizer.Token(2204));
-                if (this.gridbutton.HandleInput(input))
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    this.ShowModules = !this.ShowModules;
-                    this.gridbutton.Active = this.ShowModules;
-                    return true;
-                }
-                else
-                {
-                    if (this.ship == null)
-                        return false;
-                    if (this.DoubleClickTimer > 0)
-                        this.DoubleClickTimer -= 0.01666f;
-                    if (this.ShipInfoRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
+                    foreach (ToggleButton toggleButton in CombatStatusButtons)
                     {
-                        Empire.Universe.ViewingShip = false;
-                        Empire.Universe.AdjustCamTimer = 0.5f;
-                        Empire.Universe.CamDestination.X = this.ship.Center.X;
-                        Empire.Universe.CamDestination.Y = this.ship.Center.Y;
-                        if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
-                            Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
-                    }
-                    else if (this.ElementRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
-                        this.DoubleClickTimer = 0.25f;    
-                    if (this.ship.loyalty == EmpireManager.Player && !this.ship.isConstructor)
-                    {
-                        foreach (ToggleButton toggleButton in this.CombatStatusButtons)
+                        if (toggleButton.Rect.HitTest(input.CursorPosition))
                         {
-                            if (toggleButton.Rect.HitTest(input.CursorPosition))
+                            toggleButton.Hover = true;
+                            if (toggleButton.HasToolTip)
+                                ToolTip.CreateTooltip(toggleButton.WhichToolTip);
+                            if (input.InGameSelect)
                             {
-                                toggleButton.Hover = true;
-                                if (toggleButton.HasToolTip)
-                                    ToolTip.CreateTooltip(toggleButton.WhichToolTip);
-                                if (input.InGameSelect)
+                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                                switch (toggleButton.Action)
                                 {
-                                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                                    switch (toggleButton.Action)
-                                    {
-                                        case "attack":
-                                            this.ship.AI.CombatState = CombatState.AttackRuns;
-                                            break;
-                                        case "arty":
-                                            this.ship.AI.CombatState = CombatState.Artillery;
-                                            break;
-                                        case "hold":
-                                            this.ship.AI.CombatState = CombatState.HoldPosition;
-                                            this.ship.AI.OrderAllStop();
-                                            break;
-                                        case "orbit_left":
-                                            this.ship.AI.CombatState = CombatState.OrbitLeft;
-                                            break;
-                                        case "broadside_left":
-                                            this.ship.AI.CombatState = CombatState.BroadsideLeft;
-                                            break;
-                                        case "orbit_right":
-                                            this.ship.AI.CombatState = CombatState.OrbitRight;
-                                            break;
-                                        case "broadside_right":
-                                            this.ship.AI.CombatState = CombatState.BroadsideRight;
-                                            break;
-                                        case "evade":
-                                            this.ship.AI.CombatState = CombatState.Evade;
-                                            break;
-                                        case "short":
-                                            this.ship.AI.CombatState = CombatState.ShortRange;
-                                            break;
-                                    }
-                                    if (toggleButton.Action != "hold" && this.ship.AI.State == AIState.HoldPosition)
-                                        this.ship.AI.State = AIState.AwaitingOrders;
+                                    case "attack":
+                                        Ship.AI.CombatState = CombatState.AttackRuns;
+                                        break;
+                                    case "arty":
+                                        Ship.AI.CombatState = CombatState.Artillery;
+                                        break;
+                                    case "hold":
+                                        Ship.AI.CombatState = CombatState.HoldPosition;
+                                        Ship.AI.OrderAllStop();
+                                        break;
+                                    case "orbit_left":
+                                        Ship.AI.CombatState = CombatState.OrbitLeft;
+                                        break;
+                                    case "broadside_left":
+                                        Ship.AI.CombatState = CombatState.BroadsideLeft;
+                                        break;
+                                    case "orbit_right":
+                                        Ship.AI.CombatState = CombatState.OrbitRight;
+                                        break;
+                                    case "broadside_right":
+                                        Ship.AI.CombatState = CombatState.BroadsideRight;
+                                        break;
+                                    case "evade":
+                                        Ship.AI.CombatState = CombatState.Evade;
+                                        break;
+                                    case "short":
+                                        Ship.AI.CombatState = CombatState.ShortRange;
+                                        break;
                                 }
-                            }
-                            else
-                                toggleButton.Hover = false;
-                            switch (toggleButton.Action)
-                            {
-                                case "attack":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.AttackRuns;
-                                    continue;
-                                case "arty":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.Artillery;
-                                    continue;
-                                case "hold":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.HoldPosition;
-                                    continue;
-                                case "orbit_left":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.OrbitLeft;
-                                    continue;
-                                case "broadside_left":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.BroadsideLeft;
-                                    continue;
-                                case "orbit_right":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.OrbitRight;
-                                    continue;
-                                case "broadside_right":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.BroadsideRight;
-                                    continue;
-                                case "evade":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.Evade;
-                                    continue;
-                                case "short":
-                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.ShortRange;
-                                    continue;
-                                default:
-                                    continue;
+                                if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
+                                    Ship.AI.State = AIState.AwaitingOrders;
                             }
                         }
-                    }
-                    foreach (ShipInfoUIElement.TippedItem tippedItem in this.ToolTipItems)
-                    {
-                        if (tippedItem.r.HitTest(input.CursorPosition))
-                            ToolTip.CreateTooltip(tippedItem.TIP_ID);
-                    }
-                    if (this.ElementRect.HitTest(input.CursorPosition))
-                        return true;
-                    if (this.State == UIElement.ElementState.Open)
-                    {
-                        bool flag = false;
-                        foreach (OrdersButton ordersButton in this.Orders)
+                        else
+                            toggleButton.Hover = false;
+                        switch (toggleButton.Action)
                         {
-                            if (ordersButton.HandleInput(input, this.ScreenManager))
-                            {
-                                flag = true;
-                                return true;
-                            }
+                            case "attack":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.AttackRuns;
+                                continue;
+                            case "arty":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.Artillery;
+                                continue;
+                            case "hold":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.HoldPosition;
+                                continue;
+                            case "orbit_left":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitLeft;
+                                continue;
+                            case "broadside_left":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideLeft;
+                                continue;
+                            case "orbit_right":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitRight;
+                                continue;
+                            case "broadside_right":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideRight;
+                                continue;
+                            case "evade":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.Evade;
+                                continue;
+                            case "short":
+                                toggleButton.Active = Ship.AI.CombatState == CombatState.ShortRange;
+                                continue;
+                            default:
+                                continue;
                         }
-                        if (flag)
-                            return true;
                     }
+                }
+                foreach (ShipInfoUIElement.TippedItem tippedItem in ToolTipItems)
+                {
+                    if (tippedItem.r.HitTest(input.CursorPosition))
+                        ToolTip.CreateTooltip(tippedItem.TIP_ID);
+                }
+                if (ElementRect.HitTest(input.CursorPosition))
+                    return true;
+                if (State == UIElement.ElementState.Open)
+                {
+                    bool flag = false;
+                    foreach (OrdersButton ordersButton in Orders)
+                    {
+                        if (ordersButton.HandleInput(input, ScreenManager))
+                        {
+                            flag = true;
+                            return true;
+                        }
+                    }
+                    if (flag)
+                        return true;
+                }
                 
                     
-                    return false;
-                }
+                return false;
             }
         }
 
         public void SetShip(Ship s)
         {
-            if (s.loyalty == EmpireManager.Player)
-            {
-                this.CanRename = true;
-            }
-            else
-            {
-                this.CanRename = false;
-            }
-            this.ShipNameArea.HandlingInput = false;
-            this.ShipNameArea.Text = s.VanityName;
-            this.Orders.Clear();
-            this.ship = s;
-            if (this.ship.loyalty != EmpireManager.Player)
+            CanRename = s.loyalty == EmpireManager.Player;
+            ShipNameArea.HandlingInput = false;
+            ShipNameArea.Text = s.VanityName;
+            Orders.Clear();
+            Ship = s;
+            if (Ship.loyalty != EmpireManager.Player)
             {
                 return;
             }
-            if (ship.AI.OrderQueue.NotEmpty)
+            if (Ship.AI.OrderQueue.NotEmpty)
             {
                 try
                 {
-                    if (ship.AI.OrderQueue.PeekLast.Plan == ShipAI.Plan.DeployStructure)
+                    if (Ship.AI.OrderQueue.PeekLast.Plan == ShipAI.Plan.DeployStructure)
                     {
                         return;
                     }
@@ -623,58 +609,58 @@ namespace Ship_Game
                     return;
                 }
             }
-            if (this.ship.shipData.Role > ShipData.RoleName.station)
+            if (Ship.shipData.Role > ShipData.RoleName.station)
             {
-                OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
+                OrdersButton resupply = new OrdersButton(Ship, Vector2.Zero, OrderType.OrderResupply, 149)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.DoingResupply, (bool x) => this.ship.DoingResupply = x)
+                    ValueToModify = new Ref<bool>(() => Ship.DoingResupply, (bool x) => Ship.DoingResupply = x)
                 };
-                this.Orders.Add(resupply);
+                Orders.Add(resupply);
             }
-            if (this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
+            if (Ship.shipData.Role != ShipData.RoleName.troop && Ship.AI.State != AIState.Colonize && Ship.shipData.Role != ShipData.RoleName.station && Ship.Mothership == null)
             {
-                OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
+                OrdersButton ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
                 {
-                    ValueToModify = new Ref<bool>(() => this.screen.DefiningAO, (bool x) => {
-                        this.screen.DefiningAO = x;
-                        this.screen.AORect = new Rectangle(0, 0, 0, 0);
+                    ValueToModify = new Ref<bool>(() => Screen.DefiningAO, (bool x) => {
+                        Screen.DefiningAO = x;
+                        Screen.AORect = new Rectangle(0, 0, 0, 0);
                     })
                 };
-                this.Orders.Add(ao);
+                Orders.Add(ao);
             }
-            if (this.ship.CargoSpaceMax > 0f && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
+            if (Ship.CargoSpaceMax > 0f && Ship.shipData.Role != ShipData.RoleName.troop && Ship.AI.State != AIState.Colonize && Ship.shipData.Role != ShipData.RoleName.station && Ship.Mothership == null)
             {
-                OrdersButton tf = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeFood, 16)
+                OrdersButton tf = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
-                    RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingFood, (bool x) => this.ship.TransportingFood = x)
+                    ValueToModify = new Ref<bool>(() => Ship.DoingTransport, (bool x) => Ship.DoingTransport = x),
+                    RightClickValueToModify = new Ref<bool>(() => Ship.TransportingFood, (bool x) => Ship.TransportingFood = x)
                 };
-                this.Orders.Add(tf);
-                OrdersButton tp = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeProduction, 17)
+                Orders.Add(tf);
+                OrdersButton tp = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
-                    RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingProduction, (bool x) => this.ship.TransportingProduction = x)
+                    ValueToModify = new Ref<bool>(() => Ship.DoingTransport, (bool x) => Ship.DoingTransport = x),
+                    RightClickValueToModify = new Ref<bool>(() => Ship.TransportingProduction, (bool x) => Ship.TransportingProduction = x)
                 };
-                this.Orders.Add(tp);
-                OrdersButton tpass = new OrdersButton(this.ship, Vector2.Zero, OrderType.PassTran, 137)
+                Orders.Add(tp);
+                OrdersButton tpass = new OrdersButton(Ship, Vector2.Zero, OrderType.PassTran, 137)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.DoingPassTransport, (bool x) => this.ship.DoingPassTransport = x)
+                    ValueToModify = new Ref<bool>(() => Ship.DoingPassTransport, (bool x) => Ship.DoingPassTransport = x)
                 };
-                this.Orders.Add(tpass);
+                Orders.Add(tpass);
             }
-            if (this.ship.shield_max > 0f)
+            if (Ship.shield_max > 0f)
             {
-                OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.ShieldToggle, 18)
+                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.ShieldToggle, 18)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.ShieldsUp, (bool x) => this.ship.ShieldsUp = x)
+                    ValueToModify = new Ref<bool>(() => Ship.ShieldsUp, (bool x) => Ship.ShieldsUp = x)
                 };
-                this.Orders.Add(ob);
+                Orders.Add(ob);
             }
-            if (this.ship.GetHangars().Count > 0 && ship.Mothership == null)
+            if (Ship.GetHangars().Count > 0 && Ship.Mothership == null)
             {
                 bool hasTroops = false;
                 bool hasFighters = false;
-                foreach (ShipModule hangar in this.ship.GetHangars())
+                foreach (ShipModule hangar in Ship.GetHangars())
                 {
                     if (hangar.TroopCapacity != 0 || hangar.IsSupplyBay)
                     {
@@ -691,84 +677,84 @@ namespace Ship_Game
                 }
                 if (hasFighters)
                 {
-                    OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterToggle, 19)
+                    OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
                     {
-                        ValueToModify = new Ref<bool>(() => this.ship.FightersOut, (bool x) =>
+                        ValueToModify = new Ref<bool>(() => Ship.FightersOut, (bool x) =>
                         {
-                            this.ship.FightersOut = x;
+                            Ship.FightersOut = x;
                         })
                     };
-                    this.Orders.Add(ob);
+                    Orders.Add(ob);
                
                 }
                 if (hasTroops)
                 {
-                    OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.TroopToggle, 225)
+                    OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
                     {
-                        ValueToModify = new Ref<bool>(() => this.ship.TroopsOut, (bool x) => {
-                            this.ship.TroopsOut = x;
-                            //this.ship.ManualHangarOverride = true;
+                        ValueToModify = new Ref<bool>(() => Ship.TroopsOut, (bool x) => {
+                            Ship.TroopsOut = x;
+                            //ship.ManualHangarOverride = true;
                         })
                     };
-                    this.Orders.Add(ob);
+                    Orders.Add(ob);
                 }
-                //if (this.ship.shipData.Role != ShipData.RoleName.station)
+                //if (ship.shipData.Role != ShipData.RoleName.station)
                 {
-                    OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
+                    OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                     {
-                        ValueToModify = new Ref<bool>(() => this.ship.RecallFightersBeforeFTL, (bool x) =>
+                        ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, (bool x) =>
                         {
-                            this.ship.RecallFightersBeforeFTL = x;
-                            this.ship.ManualHangarOverride = !x;
+                            Ship.RecallFightersBeforeFTL = x;
+                            Ship.ManualHangarOverride = !x;
                         }
                             )
                     };
-                    this.Orders.Add(ob2);
+                    Orders.Add(ob2);
                 }
             }
-            if (this.ship.shipData.Role >= ShipData.RoleName.fighter && ship.Mothership == null && this.ship.AI.State != AIState.Colonize && ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (Ship.shipData.Role >= ShipData.RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
-                OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
+                var exp = new OrdersButton(Ship, Vector2.Zero, OrderType.Explore, 136)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.DoingExplore, (bool x) => this.ship.DoingExplore = x)
+                    ValueToModify = new Ref<bool>(() => Ship.DoingExplore, (bool x) => Ship.DoingExplore = x)
                 };
-                this.Orders.Add(exp);
-                OrdersButton SystemDefense = new OrdersButton(this.ship, Vector2.Zero, OrderType.EmpireDefense, 150)
+                Orders.Add(exp);
+                var systemDefense = new OrdersButton(Ship, Vector2.Zero, OrderType.EmpireDefense, 150)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.DoingSystemDefense, (bool x) => this.ship.DoingSystemDefense = x),
+                    ValueToModify = new Ref<bool>(() => Ship.DoingSystemDefense, (bool x) => Ship.DoingSystemDefense = x),
                     Active = false
                 };
-                this.Orders.Add(SystemDefense);
+                Orders.Add(systemDefense);
             }
-            if (ship.Mothership == null)
+            if (Ship.Mothership == null)
             {
-                OrdersButton rf = new OrdersButton(this.ship, Vector2.Zero, OrderType.Refit, 158)
+                var rf = new OrdersButton(Ship, Vector2.Zero, OrderType.Refit, 158)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.doingRefit, (bool x) => this.ship.doingRefit = x),
+                    ValueToModify = new Ref<bool>(() => Ship.doingRefit, (bool x) => Ship.doingRefit = x),
                     Active = false
                 };
-                this.Orders.Add(rf);
+                Orders.Add(rf);
                 //Added by McShooterz: scrap order
-                OrdersButton sc = new OrdersButton(this.ship, Vector2.Zero, OrderType.Scrap, 157)
+                var sc = new OrdersButton(Ship, Vector2.Zero, OrderType.Scrap, 157)
                 {
-                    ValueToModify = new Ref<bool>(() => this.ship.doingScrap, (bool x) => this.ship.doingScrap = x),
+                    ValueToModify = new Ref<bool>(() => Ship.doingScrap, (bool x) => Ship.doingScrap = x),
                     Active = false
                 };
-                this.Orders.Add(sc);
+                Orders.Add(sc);
             }
 
             int ex = 0;
             int y = 0;
-            for (int i = 0; i < this.Orders.Count; i++)
+            for (int i = 0; i < Orders.Count; i++)
             {
-                OrdersButton ob = this.Orders[i];
+                OrdersButton ob = Orders[i];
                 if (i % 2 == 0 && i > 0)
                 {
                     ex++;
                     y = 0;
                 }
-                ob.clickRect.X = this.ElementRect.X + this.ElementRect.Width + 2 + 52 * ex;
-                ob.clickRect.Y = this.sliding_element.Housing.Y + 15 + y * 52;
+                ob.clickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
+                ob.clickRect.Y = SlidingElement.Housing.Y + 15 + y * 52;
                 y++;
             }
         }

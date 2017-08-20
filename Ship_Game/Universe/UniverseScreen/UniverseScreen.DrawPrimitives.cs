@@ -69,9 +69,12 @@ namespace Ship_Game
 
         // projects the line from World positions into Screen positions, then draws the line
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, float zAxis = 0f)
+        public Vector2 DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, float zAxis = 0f, float zAxisStart = -1f)
         {
-            DrawLine(ProjectToScreenPosition(startInWorld, zAxis), ProjectToScreenPosition(endInWorld, zAxis), color);
+            zAxisStart = zAxisStart < 0f ? zAxis : zAxisStart;
+            Vector2 projPos = ProjectToScreenPosition(startInWorld, zAxisStart);
+            DrawLine(projPos, ProjectToScreenPosition(endInWorld, zAxis), color);
+            return projPos;
         }
 
         // non-projected draw to screen

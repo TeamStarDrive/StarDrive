@@ -99,9 +99,9 @@ namespace Ship_Game
             void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list)
             {
                 using (list.AcquireReadLock())
-                    for (int i = 0; i < empire.BorderNodes.Count; i++)
+                    for (int i = 0; i < list.Count; i++)
                     {
-                        Empire.InfluenceNode node = empire.BorderNodes[i];
+                        Empire.InfluenceNode node = list[i];
                         if (!Empire.Universe.Debug)
                             if (!node.Known)
                                 continue;
