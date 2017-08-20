@@ -676,7 +676,7 @@ namespace Ship_Game
             }
 
             GameAudio.AffirmativeClick();
-            if (ship.loyalty == player)
+            if (target.loyalty == player)
             {
                 if (ship.shipData.Role == ShipData.RoleName.troop)
                 {
@@ -690,7 +690,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (ship.loyalty != player)
+            //if (ship.loyalty == player)
             {
                 if (ship.shipData.Role == ShipData.RoleName.troop)
                     ship.AI.OrderTroopToBoardShip(target);
@@ -869,12 +869,12 @@ namespace Ship_Game
                     }
                     else if (SelectedShip != null && SelectedShip.loyalty.isPlayer)
                     {
-                        player.GetGSAI().DefensiveCoordinator.Remove(SelectedShip);
+                         player.GetGSAI().DefensiveCoordinator.Remove(SelectedShip);
                         SelectedSomethingTimer = 3f;
 
                         if (shipClicked != null && shipClicked != SelectedShip)
                         {
-                            if (!UnselectableShip())
+                            if (UnselectableShip())
                                 return;
 
                             GameAudio.AffirmativeClick();
@@ -1046,33 +1046,36 @@ namespace Ship_Game
                 ProjectingPosition = false;
         }
 
-        private void HandleShipListInput(InputState input)
+        private bool SelectShipClicks(InputState input)
         {
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
                 if (!input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius)) continue;
-                if (input.IsCtrlKeyDown &&
-                    SelectedShipList.Count > 1 &&
-                    SelectedShipList.Contains(clickableShip.shipToClick))
-                {
-                    SelectedShipList.Remove(clickableShip.shipToClick);
-                    pickedSomethingThisFrame = true;
-                    GameAudio.ShipClicked();
-                    break;
-                }
 
-                if (SelectedShipList.Count > 0 &&
-                    !input.IsShiftKeyDown &&
-                    !pickedSomethingThisFrame)
-                    SelectedShipList.Clear();
+                if (clickableShip.shipToClick?.inSensorRange != true || pickedSomethingThisFrame) continue;
+
                 pickedSomethingThisFrame = true;
-                GameAudio.ShipClicked();                
+                GameAudio.ShipClicked();
                 SelectedSomethingTimer = 3f;
-                if (clickableShip.shipToClick?.inSensorRange == true)                
+
+                if (SelectedShipList.Count > 0 && input.IsShiftKeyDown)
+                {
+                    if (SelectedShipList.Contains(clickableShip.shipToClick))
+                    {
+                        SelectedShipList.Remove(clickableShip.shipToClick);
+                        return true;
+                    }                        
+                    
                     SelectedShipList.AddUnique(clickableShip.shipToClick);
+                    return false;
+                }
                 
-                break;
+                SelectedShipList.Clear();
+                SelectedShipList.AddUnique(clickableShip.shipToClick);
+                SelectedShip = clickableShip.shipToClick;
+                return true;
             }
+            return false;
         }
 
         private void LeftClickOnClickableItem(InputState input)
@@ -1119,9 +1122,9 @@ namespace Ship_Game
                 return;
             }                
 
-            HandleShipListInput(input);
+            SelectShipClicks(input);
 
-            if (SelectedShip != null && SelectedShipList.Count == 1)
+            if (SelectedShip != null && SelectedShipList.Count >0)
                 ShipInfoUIElement.SetShip(SelectedShip);
             else if (SelectedShipList.Count > 1)
                 shipListInfoUI.SetShipList(SelectedShipList, false);

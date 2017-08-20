@@ -547,7 +547,7 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && !LookingAtPlanet)
             {
-                ShipInfoUIElement.ship = SelectedShip;
+                ShipInfoUIElement.Ship = SelectedShip;
                 ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
                 ShipInfoUIElement.Update(gameTime);
                 ShipInfoUIElement.Draw(gameTime);
@@ -1061,16 +1061,14 @@ namespace Ship_Game
 
                 if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
                 {
-                    Vector2 screenPos = ProjectToScreenPosition(ship.Center);
-                    Vector2 screenPosTarget = ProjectToScreenPosition(ship.AI.ColonizeTarget.Center, 2500f);
-                    DrawLine(screenPos, screenPosTarget, color);
+                    Vector2 screenPos = DrawLineProjected(start, ship.AI.OrbitTarget.Center, color, 2500f, 0);
                     string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
                     DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
                     return;
                 }
                 if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
                 {
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, color, 2500f);
+                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, color, 2500f , 0);
                     return;
                 }
                 if (ship.AI.State == AIState.Rebase)
