@@ -83,23 +83,24 @@ namespace Ship_Game
 
                 Action<string> addCategoryItem = (category) =>
                 {
-                    if (weaponCategories.Contains(category)) return;
-                    weaponCategories.Add(category);
+                    if (weaponCategories.Contains(category)) return;                    
+                    weaponCategories.Add(category);                    
                     AddItem(new ModuleHeader(category, 240f));
                 };
 
-
+                Array<ShipModule> modules = new Array<ShipModule>();
                 foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                 {
                     if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
                         continue;
 
                     ShipModule tmp = ShipModule.CreateNoParent(module.Key);
-                    tmp.SetAttributesNoParent();
-
+                    tmp.SetAttributesNoParent();                    
+       
                     if (RestrictedModCheck(Screen.ActiveHull.Role, tmp))
                         continue;
-
+                   if (CheckBadModuleSize(tmp)) continue;
+                    modules.Add(module.Value);
                     if (tmp.isWeapon)
                     {
                         if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats)
@@ -122,13 +123,12 @@ namespace Ship_Game
                         addCategoryItem("Bomb");
                     }
                 }
+
                 foreach (Entry e in Entries)
                 {
-                    foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                    {
-                        if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                            continue;
-                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                    foreach (ShipModule module in modules)
+                    {            
+                        ShipModule tmp = module;
                         tmp.SetAttributesNoParent();
                         bool restricted =
                             tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule ||
@@ -141,6 +141,7 @@ namespace Ship_Game
                                  Screen.ActiveHull.Role != ShipData.RoleName.corvette &&
                                  Screen.ActiveHull.Role != ShipData.RoleName.gunboat)
                             continue;
+                        
                         if (tmp.isWeapon)
                         {
                             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats)
@@ -150,36 +151,36 @@ namespace Ship_Game
                                     (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided))
                                 {
                                     if ((e.item as ModuleHeader).Text == "Flak Cannon" && tmp.InstalledWeapon.Tag_Flak)
-                                        e.AddItem(module.Value);
+                                        e.AddItem(module);
                                     if ((e.item as ModuleHeader).Text == "Magnetic Cannon" &&
                                         tmp.InstalledWeapon.Tag_Railgun)
-                                        e.AddItem(module.Value);
+                                        e.AddItem(module);
                                     if ((e.item as ModuleHeader).Text == "Beam Array" &&
                                         tmp.InstalledWeapon.Tag_Array)
-                                        e.AddItem(module.Value);
+                                        e.AddItem(module);
                                     if ((e.item as ModuleHeader).Text == "Tractor Beam" &&
                                         tmp.InstalledWeapon.Tag_Tractor)
-                                        e.AddItem(module.Value);
+                                        e.AddItem(module);
                                     if ((e.item as ModuleHeader).Text == "Unguided Rocket" &&
                                         tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided)
-                                        e.AddItem(module.Value);
+                                        e.AddItem(module);
                                 }
                                 else if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
                                 {
-                                    e.AddItem(module.Value);
+                                    e.AddItem(module);
                                 }
                             }
                             else
                             {
                                 if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
                                 {
-                                    e.AddItem(module.Value);
+                                    e.AddItem(module);
                                 }
                             }
                         }
                         else if (tmp.ModuleType == ShipModuleType.Bomb && (e.item as ModuleHeader).Text == "Bomb")
                         {
-                            e.AddItem(module.Value);
+                            e.AddItem(module);
                         }
                     }
                 }
@@ -187,15 +188,53 @@ namespace Ship_Game
             }
             DrawList();
         }
+        HashSet<Tuple<int, int>> GoodModuleSizes;
+        private bool CheckBadModuleSize(ShipModule tmp)
+        {
+            if (Input.IsShiftKeyDown || Screen.ActiveHull == null || Screen.ActiveHull.Role >= ShipData.RoleName.cruiser 
+                || Screen.ActiveHull.Role == ShipData.RoleName.station ) return false;
+
+            bool doesntFit = false;
+            ShipModule tmpRotated = tmp;
+            tmpRotated.XSIZE = tmp.YSIZE;
+            tmpRotated.YSIZE = tmp.XSIZE;
+            foreach (SlotStruct s in Screen.Slots)
+                s.SetValidity(tmp);
+            foreach (SlotStruct slot in Screen.Slots)
+            {
+                if (Screen.SlotStructFits(slot, tmp))
+                {
+                    doesntFit = false;
+                    break;
+                }
+              
+                if (tmp.YSIZE != tmp.XSIZE)
+                    if (Screen.SlotStructFits(slot, tmpRotated))
+                    {
+                        doesntFit = false;                        
+                        break;
+                    }
+                doesntFit = true;            
+            }
+
+            foreach (SlotStruct s in Screen.Slots)
+                s.SetValidity();
+
+
+
+            return doesntFit;
+        }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
             SelectionBox?.Draw(spriteBatch);
+
             if (Screen.ModSel.Tabs[0].Selected)
             {
                 DrawTab1();
 
             }
+            Array<ShipModule> modules = new Array<ShipModule>();
             if (Screen.ModSel.Tabs[2].Selected)
             {
                 if (ResetOnNextDraw)
@@ -213,7 +252,8 @@ namespace Ship_Game
                         tmp.SetAttributesNoParent();
 
                         if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
-
+                        if (CheckBadModuleSize(tmp)) continue;
+                        modules.Add(tmp);
                         if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield ||
                              tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead &&
                             !tmp.isPowerArmour && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
@@ -243,13 +283,11 @@ namespace Ship_Game
                     }
                     foreach (Entry e in Entries)
                     {
-                        foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+                        foreach (var module in modules)
                         {
-                            if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                            {
-                                continue;
-                            }
-                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                            ShipModule tmp = module; 
+     
+     
                             tmp.SetAttributesNoParent();
 
                             if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
@@ -258,15 +296,15 @@ namespace Ship_Game
                                  tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead &&
                                 !tmp.isPowerArmour && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
                             {
-                                e.AddItem(module.Value);
+                                e.AddItem(module);
                             }
                             if (tmp.isPowerArmour && (e.item as ModuleHeader).Text == Localizer.Token(6172))
                             {
-                                e.AddItem(module.Value);
+                                e.AddItem(module);
                             }
                             if (tmp.isBulkhead && (e.item as ModuleHeader).Text == Localizer.Token(6173))
                             {
-                                e.AddItem(module.Value);
+                                e.AddItem(module);
                             }
                             tmp = null;
                         }
@@ -289,10 +327,10 @@ namespace Ship_Game
                         }
                         module.Value.ModuleType.ToString();
                         ShipModule tmp = ShipModule.CreateNoParent(module.Key);
-                        tmp.SetAttributesNoParent();
-
+                        tmp.SetAttributesNoParent();                        
                         if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
-
+                        if (CheckBadModuleSize(tmp)) continue;
+                        modules.Add(tmp);
                         if ((tmp.ModuleType == ShipModuleType.Engine || tmp.ModuleType == ShipModuleType.FuelCell ||
                              tmp.ModuleType == ShipModuleType.PowerPlant ||
                              tmp.ModuleType == ShipModuleType.PowerConduit) &&
@@ -306,13 +344,10 @@ namespace Ship_Game
                     }
                     foreach (Entry e in Entries)
                     {
-                        foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+                        foreach (ShipModule module in modules)
                         {
-                            if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                            {
-                                continue;
-                            }
-                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+
+                            ShipModule tmp = module;
                             tmp.SetAttributesNoParent();
 
                             if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
@@ -322,7 +357,7 @@ namespace Ship_Game
                                  tmp.ModuleType == ShipModuleType.PowerConduit) &&
                                 (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
                             {
-                                e.AddItem(module.Value);
+                                e.AddItem(module);
                             }
                             tmp = null;
                         }
@@ -345,10 +380,10 @@ namespace Ship_Game
                         }
                         module.Value.ModuleType.ToString();
                         ShipModule tmp = ShipModule.CreateNoParent(module.Key);
-                        tmp.SetAttributesNoParent();
-
+                        tmp.SetAttributesNoParent();                        
                         if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
-
+                        if (CheckBadModuleSize(tmp)) continue;
+                        modules.Add(tmp);
                         if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
                              tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
                              tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
@@ -365,13 +400,9 @@ namespace Ship_Game
                     }
                     foreach (ScrollList.Entry e in Entries)
                     {
-                        foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                        {
-                            if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                            {
-                                continue;
-                            }
-                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                        foreach (ShipModule module in modules)
+                        {                            
+                            ShipModule tmp = module;
                             tmp.SetAttributesNoParent();
 
                             if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
@@ -385,7 +416,7 @@ namespace Ship_Game
                                  tmp.ModuleType == ShipModuleType.Construction) &&
                                 (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
                             {
-                                e.AddItem(module.Value);
+                                e.AddItem(module);
                             }
                             tmp = null;
                         }

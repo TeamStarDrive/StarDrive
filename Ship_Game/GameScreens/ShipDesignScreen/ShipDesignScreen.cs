@@ -608,13 +608,14 @@ namespace Ship_Game
         }
 
 
-        private bool SlotStructFits(SlotStruct slot)
+        public bool SlotStructFits(SlotStruct slot, ShipModule activeModule = null)
         {
+            activeModule = activeModule ?? ActiveModule;
             int numFreeSlots = 0;
             int sx = slot.PQ.X, sy = slot.PQ.Y;
-            for (int x = 0; x < ActiveModule.XSIZE; ++x) 
+            for (int x = 0; x < activeModule.XSIZE; ++x) 
             {
-                for (int y = 0; y < ActiveModule.YSIZE; ++y)
+                for (int y = 0; y < activeModule.YSIZE; ++y)
                 {
                     for (int i = 0; i < Slots.Count; ++i)
                     {
@@ -626,7 +627,7 @@ namespace Ship_Game
                     }
                 }
             }
-            return numFreeSlots == (ActiveModule.XSIZE * ActiveModule.YSIZE);
+            return numFreeSlots == (activeModule.XSIZE * activeModule.YSIZE);
         }
         
         private void InstallModule(SlotStruct slot)

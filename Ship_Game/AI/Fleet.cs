@@ -197,7 +197,7 @@ namespace Ship_Game.AI
         {
             IOrderedEnumerable<Ship> orderedShips;      //If true, sort by size instead of speed
             if (sizeOverSpeed) { orderedShips = allShips.OrderByDescending(ship => ship.Size);  }
-            else               { orderedShips = allShips.OrderByDescending(ship => ship.speed); }
+            else               { orderedShips = allShips.OrderByDescending(ship => ship.Speed); }
 
             Squad squad = new Squad();
             squad.Fleet = this;
@@ -1594,7 +1594,7 @@ namespace Ship_Game.AI
 
                             if (!flag1)
                             {
-                                if (ship.InDeepSpace && ship.engineState != Ship.MoveState.Warp && ship.speed ==0 && ship.InCombatTimer <15)
+                                if (ship.InDeepSpace && ship.engineState != Ship.MoveState.Warp && ship.Speed ==0 && ship.InCombatTimer <15)
                                     this.FleetTask.EndTask();
                                 break;
                             }

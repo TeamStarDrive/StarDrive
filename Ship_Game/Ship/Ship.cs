@@ -103,7 +103,7 @@ namespace Ship_Game.Gameplay
         public float OrdinanceMax;
         //public float scale;    //Not referenced in code, removing to save memory
         public ShipAI AI { get; private set; }
-        public float speed;
+        public float Speed;
         public float Thrust;
         public float velocityMaximum;
         //public double armor_percent;    //Not referenced in code, removing to save memory
@@ -249,11 +249,14 @@ namespace Ship_Game.Gameplay
         private int Calculatesize()
         {
             int size = 0;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            
+            for (int x = 0; x < SparseModuleGrid.Length; x++)
             {
-                ShipModule module = ModuleSlotList[i];
-                size += module.XSIZE * module.YSIZE;
+                var gridPoint = SparseModuleGrid[x];
+                if (gridPoint == null) continue;
+                size++;
             }
+
             return size;
         }
 
@@ -766,7 +769,7 @@ namespace Ship_Game.Gameplay
         {
             //Added by McShooterz: hull bonus speed
             float speed = Thrust / Mass + Thrust / Mass * loyalty.data.SubLightModifier;
-            return speed > 2500f ? 2500 : speed;
+            return  Math.Min(speed, 2500);
         }
 
         public void TetherToPlanet(Planet p)
@@ -881,7 +884,7 @@ namespace Ship_Game.Gameplay
                         isThrusting = true;
                         Vector2.Normalize(vector2_1);
                         Ship ship1 = this;
-                        Vector2 vector2_3 = ship1.Velocity + vector2_1 * (elapsedTime * speed);
+                        Vector2 vector2_3 = ship1.Velocity + vector2_1 * (elapsedTime * Speed);
                         ship1.Velocity = vector2_3;
                         if (Velocity.Length() > velocityMaximum)
                             Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
@@ -950,7 +953,7 @@ namespace Ship_Game.Gameplay
                     {
                         isThrusting = true;
                         Ship ship = this;
-                        Vector2 vector2_3 = ship.Velocity + vector2_1 * (elapsedTime * speed);
+                        Vector2 vector2_3 = ship.Velocity + vector2_1 * (elapsedTime * Speed);
                         ship.Velocity = vector2_3;
                         if (Velocity.Length() > velocityMaximum)
                             Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
@@ -959,7 +962,7 @@ namespace Ship_Game.Gameplay
                     {
                         isThrusting = true;
                         Ship ship = this;
-                        Vector2 vector2_3 = ship.Velocity - vector2_1 * (elapsedTime * speed);
+                        Vector2 vector2_3 = ship.Velocity - vector2_1 * (elapsedTime * Speed);
                         ship.Velocity = vector2_3;
                         if (Velocity.Length() > velocityMaximum)
                             Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
@@ -1003,7 +1006,7 @@ namespace Ship_Game.Gameplay
             float attackRunRange = 50f;
             if (w.FireTarget != null && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
-                attackRunRange = speed;
+                attackRunRange = Speed;
                 if (attackRunRange < 50f)
                     attackRunRange = 50f;
             }
@@ -1107,7 +1110,7 @@ namespace Ship_Game.Gameplay
             Vector2 pos = new Vector2(PickedPos.X, PickedPos.Y);
             if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
-                modifyRangeAR = speed;
+                modifyRangeAR = Speed;
                 if (modifyRangeAR < 50)
                     modifyRangeAR = 50;
             }
@@ -1162,9 +1165,9 @@ namespace Ship_Game.Gameplay
                     return false;
             }
 
-            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.speed) //&& this.maxWeaponsRange < 2000
+            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.Speed) //&& this.maxWeaponsRange < 2000
             {
-                modifyRangeAr = Math.Max(speed * w.SalvoTimer, 50f);
+                modifyRangeAr = Math.Max(Speed * w.SalvoTimer, 50f);
             }
             if (distance > w.GetModifiedRange() + modifyRangeAr + radius)
                 return false;
@@ -1522,7 +1525,7 @@ namespace Ship_Game.Gameplay
                 return false;
             bool recallFighters = false;
             float jumpDistance = Center.Distance(AI.MovePosition);
-            float slowestFighter = speed * 2;
+            float slowestFighter = Speed * 2;
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
@@ -1535,7 +1538,7 @@ namespace Ship_Game.Gameplay
                         recallFighters = false;
                         continue;
                     }
-                    if (hangarShip.speed < slowestFighter) slowestFighter = hangarShip.speed;
+                    if (hangarShip.Speed < slowestFighter) slowestFighter = hangarShip.Speed;
 
                     float rangeTocarrier = hangarShip.Center.Distance(Center);
                     if (rangeTocarrier > SensorRange)
@@ -1559,8 +1562,8 @@ namespace Ship_Game.Gameplay
             RecoverFighters();
             if (DoneRecovering())
                 return false;
-            if (speed * 2 > slowestFighter)
-                speed = slowestFighter * .25f;
+            if (Speed * 2 > slowestFighter)
+                Speed = slowestFighter * .25f;
             return true;
         }
 
@@ -1601,7 +1604,7 @@ namespace Ship_Game.Gameplay
             velocityMaximum = GetSTLSpeed();
             if (Velocity != Vector2.Zero)
                 Velocity = Velocity.Normalized() * velocityMaximum;
-            speed = velocityMaximum;
+            Speed = velocityMaximum;
         }
 
 
@@ -2236,7 +2239,7 @@ namespace Ship_Game.Gameplay
                     break;
             }
 
-            speed = velocityMaximum;
+            Speed = velocityMaximum;
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             rotationRadiansPerSecond += (float)(rotationRadiansPerSecond * Level * 0.0500000007450581);
             yBankAmount = rotationRadiansPerSecond * deltaTime;// 50f;
@@ -2270,7 +2273,7 @@ namespace Ship_Game.Gameplay
             Hangars.Clear();
             Transporters.Clear();
             Thrust                      = 0f;
-            Mass                        = Size / 2f;
+            Mass                        = Size;
             shield_max                  = 0f;
             ActiveInternalSlotCount     = 0;
             BonusEMP_Protection         = 0f;

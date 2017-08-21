@@ -295,9 +295,9 @@ namespace Ship_Game.AI
                             shuttle.VanityName = "Supply Shuttle";
                             //shuttle.shipData.Role = ShipData.RoleName.supply;
                             //shuttle.GetAI().DefaultAIState = AIState.Flee;
-                            shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.speed + Owner.Velocity;
+                            shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
                             if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
-                                shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.speed;
+                                shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
                             Owner.Ordinance -= shuttle.Mass / 5f;
 
                             if (Owner.Ordinance >= 100f)

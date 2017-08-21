@@ -269,7 +269,7 @@ namespace Ship_Game.AI {
                     {
                         var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
                         {
-                            SpeedLimit = Owner.speed
+                            SpeedLimit = Owner.Speed
                         };
                         OrderQueue.Enqueue(to1k);
                     }
@@ -278,7 +278,7 @@ namespace Ship_Game.AI {
                         AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
                         var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
                         {
-                            SpeedLimit = Owner.speed
+                            SpeedLimit = Owner.Speed
                         };
                         OrderQueue.Enqueue(to1k);
                     }
@@ -286,12 +286,12 @@ namespace Ship_Game.AI {
                     {
                         var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
                         {
-                            SpeedLimit = Owner.speed
+                            SpeedLimit = Owner.Speed
                         };
                         OrderQueue.Enqueue(finalApproach);
                         var slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
                         {
-                            SpeedLimit = Owner.speed
+                            SpeedLimit = Owner.Speed
                         };
                         OrderQueue.Enqueue(slow);
                         AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
@@ -373,7 +373,7 @@ namespace Ship_Game.AI {
         public void OrderMoveToFleetPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders,
             float SpeedLimit, Fleet fleet)
         {
-            SpeedLimit = Owner.speed;
+            SpeedLimit = Owner.Speed;
             if (ClearOrders)
             {
                 OrderQueue.Clear();
@@ -403,7 +403,7 @@ namespace Ship_Game.AI {
             AddShipGoal(Plan.RotateInlineWithVelocity, Vector2.Zero, 0f);
             var slow = new ShipGoal(Plan.StopWithBackThrust, position, 0f)
             {
-                SpeedLimit = Owner.speed
+                SpeedLimit = Owner.Speed
             };
             OrderQueue.Enqueue(slow);
             AddShipGoal(Plan.RotateToDesiredFacing, MovePosition, desiredFacing);
@@ -450,17 +450,17 @@ namespace Ship_Game.AI {
 
                 if (i != 0)
                 {
-                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.speed);
+                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.Speed);
                 }
                 else
                 {
                     AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
-                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.speed);
+                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.Speed);
                 }
                 if (isLast)
                 {
-                    AddShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing, p, Owner.speed);
-                    AddShipGoal(Plan.StopWithBackThrust, waypoint, 0f, targetPlanet, Owner.speed);
+                    AddShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing, p, Owner.Speed);
+                    AddShipGoal(Plan.StopWithBackThrust, waypoint, 0f, targetPlanet, Owner.Speed);
                     AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
                 }
             }
@@ -953,7 +953,7 @@ namespace Ship_Game.AI {
                         AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
                         var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
                         {
-                            SpeedLimit = Owner.speed
+                            SpeedLimit = Owner.Speed
                         };
                         OrderQueue.Enqueue(to1k);
                     }

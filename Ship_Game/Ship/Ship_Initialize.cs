@@ -363,7 +363,7 @@ namespace Ship_Game.Gameplay
             shield_power              = 0f;
             armor_max                 = 0f;
             velocityMaximum           = 0f;
-            speed                     = 0f;
+            Speed                     = 0f;
             SensorRange               = 0f;
             OrdinanceMax              = 0f;
             OrdAddedPerSecond         = 0f;
@@ -388,8 +388,8 @@ namespace Ship_Game.Gameplay
             HealthMax                = Health;
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
-            speed                    = velocityMaximum;
-            rotationRadiansPerSecond = speed / Size;
+            Speed                    = velocityMaximum;
+            rotationRadiansPerSecond = Speed / Size;
             ShipMass                 = Mass;
             if (FTLSpoolTime <= 0f)
                 FTLSpoolTime = 3f;

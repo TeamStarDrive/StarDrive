@@ -137,44 +137,66 @@ namespace Ship_Game
             {
                 Active = true
             };
-            var ordersBarPos = new Vector2((float)(Power.X + 15), (float)(Ordnance.Y + Ordnance.Height + spacing + 3));
-            
+            OrderButtons(spacing, pordrect);
+        }
+
+        public void OrderButtons(int spacing, Rectangle pordrect)
+        {
+            var ordersBarPos = new Vector2((float) (Power.X + 15), (float) (Ordnance.Y + Ordnance.Height + spacing + 3));
+
             ordersBarPos.X = pordrect.X - 15;
-            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_headon");
+            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_headon");
             CombatStatusButtons.Add(AttackRuns);
             AttackRuns.Action = "attack";
             AttackRuns.HasToolTip = true;
             AttackRuns.WhichToolTip = 1;
-            
+
             ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton ShortRange = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_grid");
+            ToggleButton ShortRange = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_grid");
             CombatStatusButtons.Add(ShortRange);
             ShortRange.Action = "short";
             ShortRange.HasToolTip = true;
             ShortRange.WhichToolTip = 228;
-            
+
             ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton Artillery = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_aft");
+            ToggleButton Artillery = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_aft");
             CombatStatusButtons.Add(Artillery);
             Artillery.Action = "arty";
             Artillery.HasToolTip = true;
             Artillery.WhichToolTip = 2;
-            
+
             ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton HoldPos = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_x");
+            ToggleButton HoldPos = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_x");
             CombatStatusButtons.Add(HoldPos);
             HoldPos.Action = "hold";
             HoldPos.HasToolTip = true;
             HoldPos.WhichToolTip = 65;
             ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_left");
+            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_left");
             CombatStatusButtons.Add(OrbitLeft);
             OrbitLeft.Action = "orbit_left";
             OrbitLeft.HasToolTip = true;
             OrbitLeft.WhichToolTip = 3;
             ordersBarPos.Y = ordersBarPos.Y + 25f;
 
-            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bleft");
+            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_bleft");
             CombatStatusButtons.Add(BroadsideLeft);
             BroadsideLeft.Action = "broadside_left";
             BroadsideLeft.HasToolTip = true;
@@ -182,14 +204,20 @@ namespace Ship_Game
             ordersBarPos.Y = ordersBarPos.Y - 25f;
             ordersBarPos.X = ordersBarPos.X + 25f;
 
-            ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_right");
+            ToggleButton OrbitRight = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_right");
             CombatStatusButtons.Add(OrbitRight);
             OrbitRight.Action = "orbit_right";
             OrbitRight.HasToolTip = true;
             OrbitRight.WhichToolTip = 4;
             ordersBarPos.Y = ordersBarPos.Y + 25f;
 
-            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bright");
+            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_bright");
             CombatStatusButtons.Add(BroadsideRight);
             BroadsideRight.Action = "broadside_right";
             BroadsideRight.HasToolTip = true;
@@ -197,12 +225,109 @@ namespace Ship_Game
             ordersBarPos.Y = ordersBarPos.Y - 25f;
             ordersBarPos.X = ordersBarPos.X + 25f;
 
-            ToggleButton Evade = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_stop");
+            ToggleButton Evade = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
+                "SelectionBox/icon_formation_stop");
             CombatStatusButtons.Add(Evade);
             Evade.Action = "evade";
             Evade.HasToolTip = true;
             Evade.WhichToolTip = 6;
         }
+        private void DrawOrderButtons(float transitionOffset)
+        {
+            foreach (OrdersButton ob in Orders)
+            {
+                Rectangle r = ob.clickRect;
+                r.X = r.X - (int)(transitionOffset * 300f);
+                ob.Draw(ScreenManager, r);
+            }
+        }
+        private void OrderButtonInput(InputState input)
+        {
+            if (Ship.loyalty != EmpireManager.Player || Ship.isConstructor) return;
+            foreach (ToggleButton toggleButton in CombatStatusButtons)
+            {
+                if (toggleButton.Rect.HitTest(input.CursorPosition))
+                {
+                    toggleButton.Hover = true;
+                    if (toggleButton.HasToolTip)
+                        ToolTip.CreateTooltip(toggleButton.WhichToolTip);
+                    if (input.InGameSelect)
+                    {
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        switch (toggleButton.Action)
+                        {
+                            case "attack":
+                                Ship.AI.CombatState = CombatState.AttackRuns;
+                                break;
+                            case "arty":
+                                Ship.AI.CombatState = CombatState.Artillery;
+                                break;
+                            case "hold":
+                                Ship.AI.CombatState = CombatState.HoldPosition;
+                                Ship.AI.OrderAllStop();
+                                break;
+                            case "orbit_left":
+                                Ship.AI.CombatState = CombatState.OrbitLeft;
+                                break;
+                            case "broadside_left":
+                                Ship.AI.CombatState = CombatState.BroadsideLeft;
+                                break;
+                            case "orbit_right":
+                                Ship.AI.CombatState = CombatState.OrbitRight;
+                                break;
+                            case "broadside_right":
+                                Ship.AI.CombatState = CombatState.BroadsideRight;
+                                break;
+                            case "evade":
+                                Ship.AI.CombatState = CombatState.Evade;
+                                break;
+                            case "short":
+                                Ship.AI.CombatState = CombatState.ShortRange;
+                                break;
+                        }
+                        if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
+                            Ship.AI.State = AIState.AwaitingOrders;
+                    }
+                }
+                else
+                    toggleButton.Hover = false;
+                switch (toggleButton.Action)
+                {
+                    case "attack":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.AttackRuns;
+                        continue;
+                    case "arty":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.Artillery;
+                        continue;
+                    case "hold":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.HoldPosition;
+                        continue;
+                    case "orbit_left":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitLeft;
+                        continue;
+                    case "broadside_left":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideLeft;
+                        continue;
+                    case "orbit_right":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitRight;
+                        continue;
+                    case "broadside_right":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideRight;
+                        continue;
+                    case "evade":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.Evade;
+                        continue;
+                    case "short":
+                        toggleButton.Active = Ship.AI.CombatState == CombatState.ShortRange;
+                        continue;
+                    default:
+                        continue;
+                }
+            }
+        }
+
 
         public override void Draw(GameTime gameTime)
         {
@@ -211,12 +336,7 @@ namespace Ship_Game
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
             SlidingElement.Draw(ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
-            foreach (OrdersButton ob in Orders)
-            {
-                Rectangle r = ob.clickRect;
-                r.X = r.X - (int)(transitionOffset * 300f);
-                ob.Draw(ScreenManager, r);
-            }
+            DrawOrderButtons(transitionOffset);
             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], Housing, Color.White);
             Gridbutton.Draw(ScreenManager);
             var namePos           = new Vector2(Housing.X + 30, Housing.Y + 63);
@@ -419,6 +539,7 @@ namespace Ship_Game
             }
         }
 
+   
         public override bool HandleInput(InputState input)
         {
             if (Screen.SelectedShip == null) return false;  //fbedard
@@ -474,89 +595,7 @@ namespace Ship_Game
                 }
                 else if (ElementRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                     DoubleClickTimer = 0.25f;    
-                if (Ship.loyalty == EmpireManager.Player && !Ship.isConstructor)
-                {
-                    foreach (ToggleButton toggleButton in CombatStatusButtons)
-                    {
-                        if (toggleButton.Rect.HitTest(input.CursorPosition))
-                        {
-                            toggleButton.Hover = true;
-                            if (toggleButton.HasToolTip)
-                                ToolTip.CreateTooltip(toggleButton.WhichToolTip);
-                            if (input.InGameSelect)
-                            {
-                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                                switch (toggleButton.Action)
-                                {
-                                    case "attack":
-                                        Ship.AI.CombatState = CombatState.AttackRuns;
-                                        break;
-                                    case "arty":
-                                        Ship.AI.CombatState = CombatState.Artillery;
-                                        break;
-                                    case "hold":
-                                        Ship.AI.CombatState = CombatState.HoldPosition;
-                                        Ship.AI.OrderAllStop();
-                                        break;
-                                    case "orbit_left":
-                                        Ship.AI.CombatState = CombatState.OrbitLeft;
-                                        break;
-                                    case "broadside_left":
-                                        Ship.AI.CombatState = CombatState.BroadsideLeft;
-                                        break;
-                                    case "orbit_right":
-                                        Ship.AI.CombatState = CombatState.OrbitRight;
-                                        break;
-                                    case "broadside_right":
-                                        Ship.AI.CombatState = CombatState.BroadsideRight;
-                                        break;
-                                    case "evade":
-                                        Ship.AI.CombatState = CombatState.Evade;
-                                        break;
-                                    case "short":
-                                        Ship.AI.CombatState = CombatState.ShortRange;
-                                        break;
-                                }
-                                if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
-                                    Ship.AI.State = AIState.AwaitingOrders;
-                            }
-                        }
-                        else
-                            toggleButton.Hover = false;
-                        switch (toggleButton.Action)
-                        {
-                            case "attack":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.AttackRuns;
-                                continue;
-                            case "arty":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.Artillery;
-                                continue;
-                            case "hold":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.HoldPosition;
-                                continue;
-                            case "orbit_left":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitLeft;
-                                continue;
-                            case "broadside_left":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideLeft;
-                                continue;
-                            case "orbit_right":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitRight;
-                                continue;
-                            case "broadside_right":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideRight;
-                                continue;
-                            case "evade":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.Evade;
-                                continue;
-                            case "short":
-                                toggleButton.Active = Ship.AI.CombatState == CombatState.ShortRange;
-                                continue;
-                            default:
-                                continue;
-                        }
-                    }
-                }
+                OrderButtonInput(input);
                 foreach (ShipInfoUIElement.TippedItem tippedItem in ToolTipItems)
                 {
                     if (tippedItem.r.HitTest(input.CursorPosition))
@@ -583,6 +622,8 @@ namespace Ship_Game
                 return false;
             }
         }
+
+        
 
         public void SetShip(Ship s)
         {
