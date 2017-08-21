@@ -338,13 +338,13 @@ namespace Ship_Game
             {
                 if (Ships.Count == 0)
                     return;
-                float slowestSpeed = Ships[0].speed;
+                float slowestSpeed = Ships[0].Speed;
                 for (int i = 0; i < Ships.Count; i++)     //Modified this so speed of a fleet is only set in one place -Gretman
                 {
                     Ship ship = Ships[i];
                     if (ship.Inhibited || ship.EnginesKnockedOut || !ship.Active)
                         continue;
-                    if (ship.speed < slowestSpeed) slowestSpeed = ship.speed;
+                    if (ship.Speed < slowestSpeed) slowestSpeed = ship.Speed;
                 }
                 if (slowestSpeed < 200) slowestSpeed = 200;
                 Speed = slowestSpeed;

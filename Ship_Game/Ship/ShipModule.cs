@@ -589,8 +589,8 @@ namespace Ship_Game.Gameplay
                     {
                         Parent.Mass += beam.Weapon.MassDamage;
                         Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
-                        Parent.speed = Parent.velocityMaximum;
-                        Parent.rotationRadiansPerSecond = Parent.speed / 700f;
+                        Parent.Speed = Parent.velocityMaximum;
+                        Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
                     }
                     if (beam.Weapon.RepulsionDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
                     {
@@ -809,10 +809,10 @@ namespace Ship_Game.Gameplay
                     hangarShip.VanityName = "Assault Shuttle";
                     hangarShip.Mothership = Parent;
                     hangarShip.DoEscort(Parent);
-                    hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.speed + Parent.Velocity;
+                    hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
                     if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
                     {
-                        hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.speed;
+                        hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
                     }
                     HangarShipGuid = hangarShip.guid;
                     hangarTimer = hangarTimerConstant;
@@ -868,10 +868,10 @@ namespace Ship_Game.Gameplay
             SetHangarShip(Ship.CreateShipFromHangar(ship.Name, Parent.loyalty, Center, Parent));
 
             hangarShip.DoEscort(Parent);
-            hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().speed + Parent.Velocity;
+            hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
             if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
             {
-                hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.speed;
+                hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
             }
             hangarShip.Mothership = Parent;
             HangarShipGuid = GetHangarShip().guid;

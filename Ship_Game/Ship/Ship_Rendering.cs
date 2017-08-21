@@ -291,7 +291,7 @@ namespace Ship_Game.Gameplay
                     spriteBatch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
                 }
             }
-            if (!showModules || hullData.SelectionGraphic.IsEmpty() || ModuleSlotList.Length == 0)
+            if (!showModules && hullData.SelectionGraphic.IsEmpty() || ModuleSlotList.Length == 0)
                 return; //ship has no icon, module display is disabled, or there are no modules
 
             int maxSpan = Math.Max(GridWidth, GridHeight);
