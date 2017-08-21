@@ -145,7 +145,7 @@ namespace Ship_Game.AI
                 system.ExploredDict[Owner.loyalty] = true;
                 return true;
             }
-            ThrustTowardsPosition(MovePosition, elapsedTime, Owner.speed);
+            ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
             return false;
         }
 

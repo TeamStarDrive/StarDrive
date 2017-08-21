@@ -118,7 +118,7 @@ namespace Ship_Game.AI {
                         Owner.yRotation = 0f;
                 }
                 Ship velocity = Owner;
-                velocity.Velocity = velocity.Velocity + Vector2.Normalize(forward) * (elapsedTime * Owner.speed);
+                velocity.Velocity = velocity.Velocity + Vector2.Normalize(forward) * (elapsedTime * Owner.Speed);
                 if (Owner.Velocity.Length() > Owner.velocityMaximum)
                     Owner.Velocity = Vector2.Normalize(Owner.Velocity) * Owner.velocityMaximum;
             }
@@ -160,7 +160,7 @@ namespace Ship_Game.AI {
                     Ship rotation = Owner;
                     rotation.Rotation = rotation.Rotation + RotAmount;
                 }
-                float speedLimit = Owner.speed;
+                float speedLimit = Owner.Speed;
                 if (Owner.isSpooling)
                     speedLimit = speedLimit * Owner.loyalty.data.FTLModifier;
                 else if (distance < speedLimit)
@@ -230,10 +230,10 @@ namespace Ship_Game.AI {
                     ActiveWayPoints.Last().Equals(goal.TargetPlanet.Center);
                     goal.MovePosition = goal.TargetPlanet.Center;
                 }
-            float speedLimit = (int) Owner.speed;
+            float speedLimit = (int) Owner.Speed;
             float distance = Owner.Center.Distance(goal.MovePosition);
             if (ActiveWayPoints.Count <= 1)
-                if (distance < Owner.speed)
+                if (distance < Owner.Speed)
                     speedLimit = distance;
             ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedLimit);
             if (ActiveWayPoints.Count <= 1)
@@ -302,7 +302,7 @@ namespace Ship_Game.AI {
                 }
                 OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
             }
-            ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.speed);
+            ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
         }
 
         private void OrbitShipLeft(Ship ship, float elapsedTime)
@@ -319,7 +319,7 @@ namespace Ship_Game.AI {
                 }
                 OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
             }
-            ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.speed);
+            ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
         }
 
         private bool PathCacheLookup(Point startp, Point endp, Vector2 startv, Vector2 endv)
@@ -658,7 +658,7 @@ namespace Ship_Game.AI {
         
         private void ThrustTowardsPosition(Vector2 Position, float elapsedTime, float speedLimit) //Gretman's Version
         {
-            if (speedLimit == 0f) speedLimit = Owner.speed;
+            if (speedLimit == 0f) speedLimit = Owner.Speed;
             float Distance = Vector2.Distance(Position, Owner.Center);
             if (Owner.engineState != Ship.MoveState.Warp) Position = Position - Owner.Velocity;
             if (Owner.EnginesKnockedOut) return;
@@ -801,7 +801,7 @@ namespace Ship_Game.AI {
 
                         if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
                     }
-                    else if (Distance > distanceFleetCenterToDistance && Distance > Owner.speed)
+                    else if (Distance > distanceFleetCenterToDistance && Distance > Owner.Speed)
                     {
                         float speedIncrease = Distance - distanceFleetCenterToDistance;
                         speedLimit = Owner.fleet.Speed + speedIncrease;

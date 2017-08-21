@@ -59,7 +59,7 @@ namespace Ship_Game
         }
         public bool HandleInput(InputState input, ShipModule activeModule = null, ShipModule highlightedModule = null)
         {
-            if (WeaponSl.HandleInput(input))
+            if (HitTest(input) && WeaponSl.HandleInput(input))
                 return true;            
             ChooseFighterSL.HandleInput(input, activeModule, highlightedModule);
             ActiveModSubMenu.HandleInputNoReset();

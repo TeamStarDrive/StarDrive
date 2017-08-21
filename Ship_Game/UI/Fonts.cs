@@ -68,7 +68,7 @@ namespace Ship_Game
             Arial12Bold   = LoadFont(c, "Arial12Bold", -2);
 
             // hack fix for french font error. 
-            Arial11Bold = GlobalStats.IsFrench ? Arial12Bold : LoadFont(c, "Arial11Bold");
+            Arial11Bold = GlobalStats.IsFrench || GlobalStats.IsPolish ? Arial12Bold : LoadFont(c, "Arial11Bold");
             Arial10       = LoadFont(c, "Arial10", -2);
             Arial8Bold    = LoadFont(c, "Arial8Bold");
             Arial12       = LoadFont(c, "Arial12", -2);
