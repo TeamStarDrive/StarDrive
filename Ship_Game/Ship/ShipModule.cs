@@ -61,8 +61,7 @@ namespace Ship_Game.Gameplay
         // Used to configure how good of a target this module is
         public int ModuleTargettingValue => TargetValue 
                                           //+ (isExternal ? -5 : 0)         // external modules are less critical
-                                          + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules
-
+                                          + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules        
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
         //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
         //lives in "Module.Flyweight.IsCommandModule" now.    -Gretman

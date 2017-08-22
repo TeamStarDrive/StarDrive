@@ -1124,17 +1124,22 @@ namespace Ship_Game
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
                     data.WeaponType = string.Intern(data.WeaponType);
-
+           
+                if (GlobalStats.VerboseLogging)
+                {
+                    if (ShipModulesDict.ContainsKey(data.UID))
+                        Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
+                    if (!Localizer.Contains(data.NameIndex))
+                        Log.Warning($"{data.UID} Nameindex missing. Index: {data.NameIndex}");                    
+                }
                 if (data.IsCommandModule && data.TargetTracking == 0 && data.FixedTracking == 0)
                 {
-                    data.TargetTracking = (sbyte)((data.XSIZE*data.YSIZE) / 3);
+                    data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
                 }
 
-            #if DEBUG
-                if (ShipModulesDict.ContainsKey(data.UID))
-                    Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
-            #endif
+
                 ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
+                
             }
 
             Log.Info("Num ShipModule_Advanced: {0}", ShipModuleFlyweight.TotalNumModules);
