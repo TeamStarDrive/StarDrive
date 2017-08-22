@@ -608,14 +608,16 @@ namespace Ship_Game
         }
 
 
-        public bool SlotStructFits(SlotStruct slot, ShipModule activeModule = null)
+        public bool SlotStructFits(SlotStruct slot, ShipModule activeModule = null, bool rotated = false)
         {
             activeModule = activeModule ?? ActiveModule;
             int numFreeSlots = 0;
             int sx = slot.PQ.X, sy = slot.PQ.Y;
-            for (int x = 0; x < activeModule.XSIZE; ++x) 
+            int xSize = rotated ? activeModule.YSIZE : activeModule.XSIZE;
+            int ySize = rotated ? activeModule.XSIZE : activeModule.YSIZE;
+            for (int x = 0; x < xSize; ++x) 
             {
-                for (int y = 0; y < activeModule.YSIZE; ++y)
+                for (int y = 0; y < ySize; ++y)
                 {
                     for (int i = 0; i < Slots.Count; ++i)
                     {
