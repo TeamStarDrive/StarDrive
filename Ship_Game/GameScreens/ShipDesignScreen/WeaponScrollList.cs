@@ -191,10 +191,9 @@ namespace Ship_Game
             }
             DrawList();
         }
-        HashSet<Tuple<int, int>> GoodModuleSizes;
         private bool CheckBadModuleSize(ShipModule module)
         {
-            if (!Input.IsShiftKeyDown || Screen.ActiveHull == null) return false;
+            if (!Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2) return false;
 
             bool doesntFit = false;          
             foreach (SlotStruct s in Screen.Slots)

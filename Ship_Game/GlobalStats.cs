@@ -152,7 +152,9 @@ namespace Ship_Game
         public static bool NotGerman              => Language != Language.German;
         public static bool NotEnglishOrSpanish    => IsGerman || IsPolish || IsRussian || IsFrench;
         ////////////////////////////////
-
+        /// debug log info
+        /// 
+        public static bool VerboseLogging;
         public static void LoadConfig()
         {
             try
@@ -186,7 +188,12 @@ namespace Ship_Game
             GetSetting("AutoErrorReport",        ref AutoErrorReport);
             GetSetting("ActiveMod",              ref ModName);
             GetSetting("CameraPanSpeed",         ref CameraPanSpeed);
+            GetSetting("VerboseLogging",         ref VerboseLogging);
             Statreset();
+
+#if DEBUG
+            VerboseLogging = true;
+#endif
 
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
             if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
@@ -299,6 +306,7 @@ namespace Ship_Game
             WriteSetting(config, "XRES", XRES);
             WriteSetting(config, "YRES", YRES);
             WriteSetting(config, "CameraPanSpeed", CameraPanSpeed);
+            WriteSetting(config, "VerboseLogging", VerboseLogging);
 
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");
