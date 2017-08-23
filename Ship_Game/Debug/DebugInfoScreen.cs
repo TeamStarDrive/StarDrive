@@ -89,6 +89,17 @@ namespace Ship_Game.Debug
             }
         }
 
+        public void DebugLogText(string text, DebugModes mode)
+        {
+            if (!IsOpen || Mode != mode || !GlobalStats.VerboseLogging) return;
+            Log.Info(text);
+        }
+
+        public void DebugWarningText(string text, DebugModes mode)
+        {
+            if (!IsOpen || Mode != mode || !GlobalStats.VerboseLogging) return;
+            Log.Warning(text);
+        }
 
         private Vector2 TextCursor  = Vector2.Zero;
         private Color   TextColor   = Color.White;

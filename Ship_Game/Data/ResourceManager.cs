@@ -1130,14 +1130,15 @@ namespace Ship_Game
                     if (ShipModulesDict.ContainsKey(data.UID))
                         Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
                     if (!Localizer.Contains(data.NameIndex))
-                        Log.Warning($"{data.UID} Nameindex missing. Index: {data.NameIndex}");                    
+                        Log.Warning($"{data.UID} Nameindex missing. Index: {data.NameIndex}");
+            
                 }
                 if (data.IsCommandModule && data.TargetTracking == 0 && data.FixedTracking == 0)
                 {
                     data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
                 }
 
-
+    
                 ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
                 
             }
@@ -1167,25 +1168,29 @@ namespace Ship_Game
                         continue;
 
                     try
-                    {
+                    {                
                         ShipData shipData = ShipData.Parse(info);
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
-
                         /* @TODO Investigate module and ship initialization in the shipsDictionary
                          * addToShieldManager is a hack to prevent shields from being created and added to the shieldmanager. 
                          * Need to investigate this process to see if we really need to intialize modules in the ships dictionary
                          * or to what degree they need to be initialized. 
                          */
+
+                        if (info.NameNoExt() != shipData.Name)
+                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'.\n This can prevent loading of ships that have the same ship name in the XML :\n path '{info.PathNoExt()}'");
+
                         Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
-                        if (shipTemplate == null) // happens if module creation failed
+                        if (shipTemplate == null) // happens if module creation failed                                                    
                             continue;
+                        
                         shipTemplate.InitializeStatus(fromSave: false);
                         shipTemplate.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
                         shipTemplate.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
 
                         lock (ShipsDict)
-                        {
+                        {                            
                             ShipsDict[shipData.Name] = shipTemplate;
                         }
                     }
@@ -1266,7 +1271,10 @@ namespace Ship_Game
                     foreach (Technology.UnlockedBuilding buildingU in tech.BuildingsUnlocked)
                     {
                         if (!BuildingsDict.TryGetValue(buildingU.Name, out Building building))
+                        {
+                            Log.Warning($"Tech {tech.UID} unlock unavailable : {buildingU.Name}");
                             continue;
+                        }
                         if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 
                                  || building.CombatStrength > 0 || building.isWeapon 
                                  || building.Strength > 0  || building.IsSensor)
@@ -1315,7 +1323,10 @@ namespace Ship_Game
                     foreach (Technology.UnlockedMod moduleU in tech.ModulesUnlocked)
                     {
                         if (!ShipModulesDict.TryGetValue(moduleU.ModuleUID, out ShipModule module))
+                        {
+                            Log.Warning($"Tech {tech.UID} unlock unavailable : {moduleU.ModuleUID}");
                             continue;
+                        }
 
                         if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
                             || module.ModuleType == ShipModuleType.Hangar)
@@ -1512,7 +1523,7 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsto in tech.LeadsTo)
                 {
                     //if if it finds a tech that leads to the target tech then find the tech that leads to it. 
-                    if (leadsto.UID == target.UID)
+                    if (leadsto.UID == target.UID )
                     {
                         alreadyFound.Add(target.UID);
                         return FindPreviousTechs(tech, alreadyFound);
