@@ -1437,7 +1437,7 @@ namespace Ship_Game
                 {
                     if (ship.shipData.Role <= ShipData.RoleName.station && !ship.shipData.IsShipyard)
                         structuresWeCanBuild.Add(ship.Name);
-                    if (!ResourceManager.ShipRoles[ship.shipData.Role].Protected)
+                    //if (!ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                         ShipsWeCanBuild.Add(ship.Name);
                 }
                 catch (Exception e)
@@ -1471,27 +1471,35 @@ namespace Ship_Game
             ShipData shipData = ship1.shipData;
             if (shipData == null)
             {
-                #if TRACE
-                    //Log.Info("{0} : shipData is null : {1}", data.PortraitName, ship);
-                #endif
+                Universe?.DebugWin?.DebugLogText($"{data.PortraitName} : shipData is null : '{ship}'", Debug.DebugModes.Normal);
                 return false;
             }
 
             // If the ship role is not defined don't try to use it
-            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)            
+            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
+            {
+                //Universe?.DebugWin?.DebugLogText($"{data.PortraitName} : Hull is Not Unlocked : '{shipData.Hull}'", Debug.DebugModes.Normal);
                 return false;
+            }
             
 
-            if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))            
+            if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))
+            {
+                Log.Warning($"Invalid Role! : '{shipData.HullRole}' in '{shipData.Name}'");
                 return false;
+            }
             
             if (shipData.techsNeeded.Count > 0)
             { foreach (string shipTech in shipData.techsNeeded)
-                {
-                    if (!ShipTechs.Contains(shipTech))
-                        return false;
+                {                    
+                    if (ShipTechs.Contains(shipTech)) continue;
+                    Technology onlyShipTech = ResourceManager.TechTree[shipTech];
+                    if (onlyShipTech.ModulesUnlocked.Count == 0 && onlyShipTech.HullsUnlocked.Count == 0) continue;
+                    Universe?.DebugWin?.DebugLogText($"'{ship}' : Missing Tech : '{shipTech}'", Debug.DebugModes.Normal);
+                    return false;
                 }
-                Log.Info($"New Ship WeCanBuild {shipData.Name} Hull: {shipData.Hull} DesignRole: {ship1.DesignRole}" );
+                Universe?.DebugWin?.DebugLogText($"New Ship WeCanBuild {shipData.Name} Hull: '{shipData.Hull}' DesignRole: '{ship1.DesignRole}'"
+                    , Debug.DebugModes.Last);
             }
 
             else
@@ -1502,6 +1510,8 @@ namespace Ship_Game
                         moduleSlotData.InstalledModuleUID == "Dummy" ||
                         UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
                         continue;
+                    Universe?.DebugWin?.DebugLogText($"Module '{moduleSlotData.InstalledModuleUID}' is still locked in design '{ship}'"
+                        , Debug.DebugModes.Normal);
                     return false; // can't build this ship because it contains a locked Module
                 }
 
