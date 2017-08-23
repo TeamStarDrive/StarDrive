@@ -71,6 +71,8 @@ namespace Ship_Game
         }
         [Conditional("DEBUG")] public static void Info(string text)
         {
+            if (GlobalStats.VerboseLogging)
+                LogFile.WriteLine(text);
             if (!HasDebugger) return;
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(text);
@@ -87,6 +89,7 @@ namespace Ship_Game
             Console.ForegroundColor = color;
             Console.WriteLine(text);
         }
+        
 
 
         // write a warning to logfile and debug console
