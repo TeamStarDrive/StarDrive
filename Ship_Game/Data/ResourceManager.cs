@@ -126,7 +126,7 @@ namespace Ship_Game
                 if (shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
 
-                if (shipData.HullData != null && shipData.HullData.unLockable)
+                if (shipData.HullData?.unLockable ?? false)
                 {
                     foreach (string str in shipData.HullData.techsNeeded)
                         shipData.techsNeeded.Add(str);
@@ -136,6 +136,7 @@ namespace Ship_Game
                 {
                     shipData.allModulesUnlocakable = false;
                     shipData.hullUnlockable = false;
+                    Log.Info($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                     purge.Add(kv.Key);
                 }
 
@@ -151,35 +152,34 @@ namespace Ship_Game
                         {
                             foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
                             {
-                                if (mods.ModuleUID == module.InstalledModuleUID)
-                                {
-                                    modUnlockable = true;
-                                    shipData.techsNeeded.Add(technology.UID);
-                                    foreach (string tree in shipTechs[technology])
-                                        shipData.techsNeeded.Add(tree);
-                                    break;
-                                }
+                                if (mods.ModuleUID != module.InstalledModuleUID) continue;
+                                modUnlockable = true;
+                                shipData.techsNeeded.Add(technology.UID);
+                                foreach (string tree in shipTechs[technology])
+                                    shipData.techsNeeded.Add(tree);
+                                break;
                             }
                             if (modUnlockable)
                                 break;
                         }
-                        if (!modUnlockable)
-                        {
-                            shipData.allModulesUnlocakable = false;
-                            break;
-                        }
+                        if (modUnlockable) continue;
 
+                        shipData.allModulesUnlocakable = false;
+                        Log.Info($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
+                        break;
                     }
                 }
 
                 if (shipData.allModulesUnlocakable)
+                {
+                    shipData.unLockable = true;
                     foreach (string techname in shipData.techsNeeded)
                     {
                         shipData.TechScore += (int) TechTree[techname].Cost;
                         x++;
                         if (shipData.BaseStrength <= 0f)
                             kv.Value.CalculateBaseStrength();
-                    }
+                    }}
                 else
                 {
                     shipData.unLockable = false;
@@ -268,7 +268,7 @@ namespace Ship_Game
         }
 
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
-        public static FileInfo[] GatherFilesUnified(string dir, string ext)
+        public static FileInfo[] GatherFilesUnified(string dir, string ext, bool uniqueFileNames = false)
         {
             if (!GlobalStats.HasMod)
                 return Dir.GetFiles("Content/" + dir, ext);
@@ -278,14 +278,17 @@ namespace Ship_Game
             string contentPath = Path.GetFullPath("Content/");
             foreach (FileInfo file in Dir.GetFiles("Content/" + dir, ext))
             {
-                infos[file.FullName.Substring(contentPath.Length)] = file;
+                string fileName = uniqueFileNames ? file.Name : file.FullName.Substring(contentPath.Length);
+                infos[fileName] = file; 
             }
 
             // now pull everything from the modfolder and replace all matches
             contentPath = Path.GetFullPath(GlobalStats.ModPath);
             foreach (var file in Dir.GetFiles(GlobalStats.ModPath + dir, ext))
             {
-                infos[file.FullName.Substring(contentPath.Length)] = file;
+
+                string fileName = uniqueFileNames ? file.Name : file.FullName.Substring(contentPath.Length);
+                infos[fileName] = file;
             }
 
             return infos.Values.ToArray();
@@ -347,7 +350,7 @@ namespace Ship_Game
             return list;
         }
 
-        private static Array<T> LoadEntities<T>(string dir, string id) where T : class
+        private static Array<T> LoadEntities<T>(string dir, string id, bool  uniqueFileNames = false) where T : class
         {
             return LoadEntities<T>(GatherFilesUnified(dir, "xml"), id);
         }
@@ -369,9 +372,9 @@ namespace Ship_Game
             public InfoPair(FileInfo info, T entity) { Info = info; Entity = entity; }
         }
 
-        private static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
+        private static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false, bool uniqueFileNames = false) where T : class
         {
-            var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml");
+            var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml", uniqueFileNames);
             var list = new Array<InfoPair<T>>(files.Length);
             var s = new XmlSerializer(typeof(T));
             foreach (FileInfo info in files)
@@ -840,7 +843,7 @@ namespace Ship_Game
 
         private static void LoadBuildings() // Refactored by RedFox
         {
-            foreach (Building newB in LoadEntities<Building>("Buildings", "LoadBuildings"))
+            foreach (Building newB in LoadEntities<Building>("Buildings", "LoadBuildings", uniqueFileNames: true))
             {
                 BuildingsDict[string.Intern(newB.Name)] = newB;
             }
@@ -892,7 +895,7 @@ namespace Ship_Game
 
         private static void LoadGoods() // Refactored by RedFox
         {
-            foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
+            foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods", uniqueFileNames: true))
             {
                 Good good = pair.Entity;
                 good.UID = string.Intern(pair.Info.NameNoExt());
@@ -1113,7 +1116,7 @@ namespace Ship_Game
 
         private static void LoadShipModules()
         {
-            foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
+            foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules", uniqueFileNames: true))
             {
                 // Added by gremlin support techlevel disabled folder.
                 if (pair.Info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
@@ -1230,8 +1233,8 @@ namespace Ship_Game
 
             var designs = new Map<string, ShipDesignInfo>();
             CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: true);
-            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml", uniqueFileNames: true), readOnly: true, playerDesign: true);
+            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml", uniqueFileNames: true), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
 
@@ -1251,15 +1254,66 @@ namespace Ship_Game
             }
         }
 
+
+        private static void TechValidator(Array<InfoPair<Technology>> techList)
+        {
+            Array<Technology> rootTechs = new Array<Technology>();
+            foreach (var rootTech in techList)
+            {
+                rootTech.Entity.UID = string.Intern(rootTech.Info.NameNoExt());
+                if (rootTech.Entity.RootNode == 0) continue;
+                if (rootTechs.Contains(rootTech.Entity))
+                    Log.Warning($"Duplicate root tech : '{rootTech.Entity}'");
+                rootTechs.Add(rootTech.Entity);
+            }
+
+            void WalkTechTree(Technology technology)
+            {                                
+                technology.Unlockable = true;
+
+                foreach (Technology.LeadsToTech leadsTo in technology.LeadsTo)
+                {
+                    Technology tech = techList.Find(lead => lead.Entity.UID == leadsTo.UID)?.Entity;
+                    
+                    if (tech == null)
+                    {
+                        Log.Warning($"Technology : '{technology.UID}' can not locate lead to tech : '{leadsTo.UID}'");
+                        continue;
+                    }
+                    
+                    tech.ComesFrom.Add(new Technology.LeadsToTech(technology.UID));
+                    WalkTechTree(tech);
+                }                
+
+            }
+
+            foreach (var rootTech in rootTechs)
+            {                
+                WalkTechTree(rootTech);
+            }
+
+            foreach (var techEntity in techList)
+            {
+                Technology tech = techEntity.Entity;
+                if (tech.Unlockable) continue;
+                Log.Info($"Technology Marked unlockable  : '{techEntity.Info.PathNoExt()}'");                
+            }
+
+        }
+
         private static void LoadTechTree()
         {
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
-            var techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
+            var techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly, uniqueFileNames: true);
+
+            TechValidator(techs);
 
             foreach (var pair in techs)
             {
                 Technology tech = pair.Entity;
-                tech.UID = string.Intern(pair.Info.NameNoExt());
+                if (!tech.Unlockable)
+                    continue;
+                
                 TechTree[tech.UID] = tech;
 
                 // categorize uncategorized techs
@@ -1390,7 +1444,7 @@ namespace Ship_Game
 
         private static void LoadTroops()
         {
-            foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops"))
+            foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops", uniqueFileNames: true))
             {
                 Troop troop = pair.Entity;
                 troop.Name = string.Intern(pair.Info.NameNoExt());
@@ -1405,7 +1459,7 @@ namespace Ship_Game
         
         private static void LoadWeapons() // Refactored by RedFox
         {
-            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons"))
+            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", uniqueFileNames: true))
             {
                 Weapon wep = pair.Entity;
                 wep.UID = string.Intern(pair.Info.NameNoExt());
