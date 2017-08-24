@@ -55,7 +55,8 @@ namespace Ship_Game {
                     Restrictions = hullSlot.Restrictions,
                     Facing = hullSlot.Facing,
                     InstalledModuleUID = hullSlot.InstalledModuleUID,
-                    Orientation = hullSlot.Orientation
+                    Orientation = hullSlot.Orientation,
+                    SlotOptions = hullSlot.SlotOptions
                 };
                 ActiveHull.ModuleSlots[i] = data;
 #if SHIPYARD
@@ -1174,11 +1175,9 @@ namespace Ship_Game {
                 if (ActiveModule.XSIZE * ActiveModule.YSIZE > 1)
                     ClearDestinationSlotsNoStack(slot);                
                 InstallModuleFromLoad(slot);
-                if (slot.Module == null)
-                    continue;
                 //if (slot.Module.XSIZE * slot.Module.YSIZE > 1)
                 //    ClearDestinationSlotsNoStack(slot);
-                if(slot.Module.ModuleType != ShipModuleType.Hangar)
+                if(slot.Module?.ModuleType != ShipModuleType.Hangar)
                 {
                     continue;
                 }
