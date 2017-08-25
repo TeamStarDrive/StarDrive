@@ -566,8 +566,8 @@ namespace Ship_Game.Gameplay
 
             if (FiretrailEmitter != null)
             {
-                float durationLimit = InitialDuration * (WeaponEffectType == "Plasma" ? 0.7f : 0.97f);
-                if (ParticleDelay <= 0.0f && Duration > durationLimit)
+                //float durationLimit = InitialDuration * (WeaponEffectType == "Plasma" ? 0.7f : 0.97f);
+                if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
                     FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Velocity.Normalized() * Speed * 1.75f);
                 }
@@ -576,8 +576,10 @@ namespace Ship_Game.Gameplay
             }
             if (TrailEmitter != null)
             {
-                if (ParticleDelay <= 0.0f && Duration > InitialDuration * 0.96f)
+                if (ParticleDelay <= 0.0f && Duration > 0.5)
+                {
                     TrailEmitter.Update(elapsedTime, newPosition);
+                }
             }
 
             if (System != null && System.isVisible && Light == null && Weapon.Light != null && 
