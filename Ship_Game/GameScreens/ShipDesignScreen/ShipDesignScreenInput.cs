@@ -332,7 +332,10 @@ namespace Ship_Game {
                             }
                             if(ActiveModule == null)
                             {
-                                SetActiveModule(slotStruct.Parent?.Module ?? slotStruct.Module);
+                                SlotStruct slot = slotStruct.Parent ?? slotStruct;
+                                SetActiveModule(ShipModule.CreateNoParent(slot.Module.UID));
+                                ChangeModuleState(slot.State);
+                                ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
                                 return true;
                             }                            
                             
@@ -573,52 +576,55 @@ namespace Ship_Game {
 
         private bool HandleInputUndo(InputState input)
         {
-            if (input.Undo)
+            if (!input.Undo) return false;
+            if (DesignStack.Count <= 0)
+                return true;
+            LastActiveUID = "";
+            ShipModule shipModule = ActiveModule;
+            DesignAction designAction = DesignStack.Pop();
+            SlotStruct slot1 = new SlotStruct();
+            foreach (SlotStruct slot2 in Slots)
             {
-                if (DesignStack.Count <= 0)
-                    return true;
-                LastActiveUID = "";
-                ShipModule shipModule = ActiveModule;
-                DesignAction designAction = DesignStack.Pop();
-                SlotStruct slot1 = new SlotStruct();
-                foreach (SlotStruct slot2 in Slots)
+                if (slot2.PQ == designAction.clickedSS.PQ)
                 {
-                    if (slot2.PQ == designAction.clickedSS.PQ)
-                    {
-                        ClearSlotNoStack(slot2);
-                        slot1 = slot2;
-                        slot1.Facing = designAction.clickedSS.Facing;
-                    }
-                    foreach (SlotStruct slotStruct in designAction.AlteredSlots)
-                    {
-                        if (slot2.PQ != slotStruct.PQ) continue;
-                        ClearSlotNoStack(slot2);
-                        break;
-                    }
-                }
-                if (designAction.clickedSS.ModuleUID != null)
-                {
-                    ActiveModule = ShipModule.CreateNoParent(designAction.clickedSS.ModuleUID);
-                    ResetModuleState();
-                    InstallModuleNoStack(slot1);
+                    ClearSlotNoStack(slot2);
+                    slot1 = slot2;
+                    slot1.Facing = designAction.clickedSS.Facing;                      
                 }
                 foreach (SlotStruct slotStruct in designAction.AlteredSlots)
                 {
-                    foreach (SlotStruct slot2 in Slots)
-                    {
-                        if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null) continue;
-                        ActiveModule = ShipModule.CreateNoParent(slotStruct.ModuleUID);
-                        ResetModuleState();
-                        InstallModuleNoStack(slot2);
-                        slot2.Facing = slotStruct.Facing;
-                        slot2.ModuleUID = slotStruct.ModuleUID;
-                    }
+                    if (slot2.PQ != slotStruct.PQ) continue;
+                    slot2.State = slotStruct.State;
+                    ClearSlotNoStack(slot2);                    
+                    break;
                 }
-                ActiveModule = shipModule;
-                ResetModuleState();
-                return true;
             }
-            return false;
+            if (designAction.clickedSS.ModuleUID != null)
+            {
+                ActiveModule = ShipModule.CreateNoParent(designAction.clickedSS.ModuleUID);
+                ActiveModule.Facing = slot1.Facing;
+                ActiveModState = slot1.State;
+                ChangeModuleState(slot1.State);
+                InstallModuleNoStack(slot1);
+            }
+            foreach (SlotStruct slotStruct in designAction.AlteredSlots)
+            {
+                foreach (SlotStruct slot2 in Slots)
+                {
+                    if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null) continue;
+                    ActiveModule = ShipModule.CreateNoParent(slotStruct.ModuleUID);
+                    ActiveModState = slotStruct.State;                    
+                    slot2.Facing = slotStruct.Facing;
+                    slot2.ModuleUID = slotStruct.ModuleUID;
+                    ChangeModuleState(ActiveModState);
+                    InstallModuleNoStack(slot2);
+                    
+
+                }
+            }
+            ActiveModule = shipModule;
+            ResetModuleState();
+            return true;
         }
         
         private void CheckToggleButton(InputState input)
