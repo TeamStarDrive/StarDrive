@@ -212,7 +212,7 @@ namespace Ship_Game {
             HandleInputDebug(input);
 
             HoveredModule = null;
-            var mousePos = input.CursorPosition;            
+            var mousePos = input.CursorPosition;
             EmpireUI.HandleInput(input, this);
             HullSL.HandleInput(input);
             for (int index = HullSL.indexAtTop;
@@ -244,11 +244,11 @@ namespace Ship_Game {
                 else
                     e.clickRectHover = 0;
             }
-            if (ModSel.HandleInput(input,ActiveModule,HighlightedModule))
+            if (ModSel.HandleInput(input, ActiveModule, HighlightedModule))
             {
                 return true;
             }
-           
+
             if (HullSelectionRect.HitTest(input.CursorPosition)
                 && input.LeftMouseDown || ModSel.HitTest(input)
                 && input.LeftMouseDown)
@@ -271,10 +271,15 @@ namespace Ship_Game {
                 StartDragPos = input.CursorPosition;
                 CameraVelocity.X = 0.0f;
             }
-
-            Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager);
-            CameraPosition.X += tempPos.X;
-            CameraPosition.Y += tempPos.Y;
+            int SlotFactor = 150;
+            if (Slots.Count / 2 > SlotFactor) SlotFactor = Slots.Count / 2;
+            float CamLimit = SlotFactor + ((3 - Camera.Zoom) * SlotFactor);
+            Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager, CamLimit); //This moves the grid
+            CameraPosition.X = tempPos.X; //This moves the model
+            CameraPosition.Y = tempPos.Y;
+            //Log.Info("CamPosX: {0}  CamPosY: {1}  Camera.PosX: {2}  Camera.PosY: {3}  Zoom: {4}  Limit: {5}",
+            //      CameraPosition.X, CameraPosition.Y, Camera.Pos.X, Camera.Pos.Y, Camera.Zoom, CamLimit);
+            
             //i cant get this to work right. 
             //if (Input.MiddleMouseClick)
             //{
