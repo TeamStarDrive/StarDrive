@@ -136,7 +136,7 @@ namespace Ship_Game
                 {
                     shipData.allModulesUnlocakable = false;
                     shipData.hullUnlockable = false;
-                    Log.Info($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
+                    Log.Warning($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                     purge.Add(kv.Key);
                 }
 
@@ -165,7 +165,7 @@ namespace Ship_Game
                         if (modUnlockable) continue;
 
                         shipData.allModulesUnlocakable = false;
-                        Log.Info($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
+                        Log.Warning($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
@@ -284,7 +284,7 @@ namespace Ship_Game
 
             // now pull everything from the modfolder and replace all matches
             contentPath = Path.GetFullPath(GlobalStats.ModPath);
-            foreach (var file in Dir.GetFiles(GlobalStats.ModPath + dir, ext))
+            foreach (FileInfo file in Dir.GetFiles(GlobalStats.ModPath + dir, ext))
             {
 
                 string fileName = uniqueFileNames ? file.Name : file.FullName.Substring(contentPath.Length);
@@ -298,13 +298,9 @@ namespace Ship_Game
         // No union/mix is made
         public static FileInfo[] GatherFilesModOrVanilla(string dir, string ext)
         {
-            if (GlobalStats.HasMod)
-            {
-                var files = Dir.GetFiles(GlobalStats.ModPath + dir, ext);
-                if (files.Length != 0)
-                    return files;
-            }
-            return Dir.GetFiles("Content/" + dir, ext);
+            if (!GlobalStats.HasMod) return Dir.GetFiles("Content/" + dir, ext);
+            FileInfo[] files = Dir.GetFiles(GlobalStats.ModPath + dir, ext);
+            return files.Length != 0 ? files : Dir.GetFiles("Content/" + dir, ext);
         }
 
         // Loads a list of entities in a folder
@@ -1182,7 +1178,9 @@ namespace Ship_Game
                          */
 
                         if (info.NameNoExt() != shipData.Name)
-                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'.\n This can prevent loading of ships that have the same ship name in the XML :\n path '{info.PathNoExt()}'");
+                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'." +
+                                        $"\n This can prevent loading of ships that have this filename in the XML :" +
+                                        $"\n path '{info.PathNoExt()}'");
 
                         Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
                         if (shipTemplate == null) // happens if module creation failed                                                    
@@ -1214,7 +1212,7 @@ namespace Ship_Game
             {
                 string commonIdentifier = info.NameNoExt();
                 if (designs.TryGetValue(commonIdentifier, out ShipDesignInfo design))
-                    Log.Info($"DesignOverride: {design.File.CleanResPath(),-34} -> {info.CleanResPath()}");
+                    Log.Info($"DesignOverride: {design.File.CleanResPath(),-34} with -> {info.CleanResPath()}");
 
                 designs[commonIdentifier] = new ShipDesignInfo
                 {
@@ -1233,8 +1231,8 @@ namespace Ship_Game
 
             var designs = new Map<string, ShipDesignInfo>();
             CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml", uniqueFileNames: true), readOnly: true, playerDesign: true);
-            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml", uniqueFileNames: true), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
 
@@ -1258,7 +1256,7 @@ namespace Ship_Game
         private static void TechValidator(Array<InfoPair<Technology>> techList)
         {
             Array<Technology> rootTechs = new Array<Technology>();
-            foreach (var rootTech in techList)
+            foreach (InfoPair<Technology> rootTech in techList)
             {
                 rootTech.Entity.UID = string.Intern(rootTech.Info.NameNoExt());
                 if (rootTech.Entity.RootNode == 0) continue;
@@ -1296,7 +1294,7 @@ namespace Ship_Game
             {
                 Technology tech = techEntity.Entity;
                 if (tech.Unlockable) continue;
-                Log.Info($"Technology Marked unlockable  : '{techEntity.Info.PathNoExt()}'");                
+                Log.Warning($"Technology Cannot be researched. This may be intentional  : '{techEntity.Info.PathNoExt()}'");                
             }
 
         }
@@ -1310,10 +1308,7 @@ namespace Ship_Game
 
             foreach (var pair in techs)
             {
-                Technology tech = pair.Entity;
-                if (!tech.Unlockable)
-                    continue;
-                
+                Technology tech = pair.Entity;                               
                 TechTree[tech.UID] = tech;
 
                 // categorize uncategorized techs
