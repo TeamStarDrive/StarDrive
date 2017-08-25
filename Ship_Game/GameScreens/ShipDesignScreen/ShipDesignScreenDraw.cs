@@ -604,6 +604,10 @@ namespace Ship_Game
             this.DrawStat(ref Cursor, "Upkeep Cost:", Upkeep, 175);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
             this.DrawStat(ref Cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
+            
+
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
 
             this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(110), ":"), PowerCapacity, 100,
@@ -712,11 +716,7 @@ namespace Ship_Game
             }
 
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
-
-
-            // The Doctor: removed the mass display. It's a meaningless value to the player, and it takes up a valuable line in the limited space.
-            //this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
-            //Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            
 
             #region HardcoreRule info
 
@@ -879,7 +879,7 @@ namespace Ship_Game
             DrawString(statNameCursor, color, words, font);
             string numbers = "0.0";
             numbers = isPercent ? stat.ToString("P1") : GetNumberString(stat);
-            if (stat < .01f) numbers = "0.0";
+            //if (stat < .01f) numbers = "0.0";
             
             //Cursor = FontSpace(Cursor, amount, numbers, font);
 
