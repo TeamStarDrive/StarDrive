@@ -668,10 +668,14 @@ namespace Ship_Game
 
                 RecalculatePower();
                 ShipSaved = false;
-                if (ActiveModule.ModuleType != ShipModuleType.Hangar)
-                {
-                    ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
-                }
+                ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
+                ChangeModuleState(ActiveModState);
+
+                //if (ActiveModule.ModuleType != ShipModuleType.Hangar)
+                //{
+                //    ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
+                //    ChangeModuleState(ActiveModState);
+                //}
                 
             }
             else PlayNegativeSound();
@@ -814,13 +818,13 @@ namespace Ship_Game
             GameAudio.PlaySfxAsync("smallservo");
             mod.SetAttributesNoParent();
             this.ActiveModule = mod;
-            this.ResetModuleState();
+            //this.ResetModuleState();
             foreach (SlotStruct s in this.Slots)                                    
                 s.SetValidity(ActiveModule);
             
             this.HighlightedModule = null;
             this.HoveredModule = null;
-            this.ResetModuleState();
+            //this.ResetModuleState();
         }        
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
@@ -836,9 +840,11 @@ namespace Ship_Game
                 this.Camera.Zoom = 2.65f;
             }
 
-                this.CameraPosition.Z = this.OriginalZ / this.Camera.Zoom;
-            Vector3 camPos = this.CameraPosition * new Vector3(-1f, 1f, 1f);
-            this.View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            this.CameraPosition.Z = this.OriginalZ / this.Camera.Zoom;
+            Vector3 camPos        = this.CameraPosition * new Vector3(-1f, 1f, 1f);
+            this.View             = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) 
+                * Matrix.CreateRotationX(0f.ToRadians())) 
+                * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
