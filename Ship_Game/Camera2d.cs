@@ -82,20 +82,21 @@ namespace Ship_Game
             CamPos.Y += dy;
         }
 
-        public Vector2 WASDCamMovement(InputState input, ScreenManager screenRes)
+        public Vector2 WASDCamMovement(InputState input, ScreenManager screenRes, float limit)
         {
             Vector2 adjustCam = Vector2.Zero;
-            float maxX = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            float maxY = screenRes.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            int ScreensizeX = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth / 2;
+            int ScreensizeY = screenRes.GraphicsDevice.PresentationParameters.BackBufferHeight / 2;
             input.Repeat = true;
-            if (input.CursorPosition.X <= 1 || input.WASDLeft) adjustCam.X -= GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.CursorPosition.X >= (maxX - 1) || input.WASDRight) adjustCam.X += GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.CursorPosition.Y <= 1 || input.WASDUp) adjustCam.Y -= GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.CursorPosition.Y >= (maxY - 1) || input.WASDDown) adjustCam.Y += GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.WASDLeft && CamPos.X - ScreensizeX > -limit)  adjustCam.X -= GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.WASDRight && CamPos.X - ScreensizeX < limit)  adjustCam.X += GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.WASDUp && CamPos.Y - ScreensizeY > -limit)    adjustCam.Y -= GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.WASDDown && CamPos.Y - ScreensizeY < limit)   adjustCam.Y += GlobalStats.CameraPanSpeed * (5 - Zoom);
             input.Repeat = false;
+            
 
             Move(adjustCam);
-            return adjustCam;
+            return new Vector2(CamPos.X - ScreensizeX, CamPos.Y - ScreensizeY);
         }
     }
 }
