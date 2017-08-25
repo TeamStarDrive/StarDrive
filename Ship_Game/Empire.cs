@@ -120,6 +120,8 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public Array<string> CarrierTech;
         [XmlIgnore] [JsonIgnore] public Array<string> SupportShipTech;
 
+        [XmlIgnore] [JsonIgnore] public Ship BoardingShuttle => ResourceManager.ShipsDict["Assault Shuttle"];
+
         [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
         public void TriggerAllShipStatusUpdate()
         {
@@ -1474,8 +1476,7 @@ namespace Ship_Game
                 Universe?.DebugWin?.DebugLogText($"{data.PortraitName} : shipData is null : '{ship}'", Debug.DebugModes.Normal);
                 return false;
             }
-            if (!shipData.unLockable) return false;
-
+            
             // If the ship role is not defined don't try to use it
             if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
             {
@@ -1485,7 +1486,10 @@ namespace Ship_Game
             
            
             if (shipData.techsNeeded.Count > 0)
-            { foreach (string shipTech in shipData.techsNeeded)
+            {
+                if (!shipData.unLockable) return false;
+
+                foreach (string shipTech in shipData.techsNeeded)
                 {                    
                     if (ShipTechs.Contains(shipTech)) continue;
                     TechEntry onlyShipTech = TechnologyDict[shipTech];

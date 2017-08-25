@@ -280,14 +280,7 @@ namespace Ship_Game
             {
                 GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 this.ShowAllDesigns = !this.ShowAllDesigns;
-                if (this.ShowAllDesigns)
-                {
-                    this.playerDesignsToggle.Active = true;
-                }
-                else
-                {
-                    this.playerDesignsToggle.Active = false;
-                }
+                this.playerDesignsToggle.Active = this.ShowAllDesigns;
                 this.ResetSL();
             }
             if (this.playerDesignsToggle.Rect.HitTest(input.CursorPosition))
@@ -434,14 +427,17 @@ namespace Ship_Game
             Array<string> ShipRoles = new Array<string>();
             if (this.screen != null)
             {
-                foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
+                foreach (var kv in ResourceManager.ShipsDict)
                 {
-                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.Player.WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player)) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[kv.Key].IsPlayerDesign 
+                        || !EmpireManager.Player.WeCanBuildThis(kv.Key) 
+                        || ShipRoles.Contains(Localizer.GetRole(kv.Value.shipData.Role, EmpireManager.Player)) 
+                        || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected)
                     {
                         continue;
                     }
-                    ShipRoles.Add(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
-                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
+                    ShipRoles.Add(Localizer.GetRole(kv.Value.shipData.Role, EmpireManager.Player));
+                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(kv.Value.shipData.Role, EmpireManager.Player));
                     this.ShipDesigns.AddItem(mh);
                 }
                 if (WIPs.Count > 0)

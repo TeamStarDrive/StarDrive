@@ -800,11 +800,11 @@ namespace Ship_Game.Gameplay
                     hangarShip.DoEscort(Parent);
                     return;
                 }
-                if (ResourceManager.ShipsDict["Assault_Shuttle"].Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
+                if (Parent.loyalty.BoardingShuttle.Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
                     return;
                 if (hangarTimer <= 0f && hangarShip == null)
-                {
-                    hangarShip = Ship.CreateTroopShipAtPoint("Assault_Shuttle", Parent.loyalty, Center, troop);
+                {                    
+                    hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.BoardingShuttle.Name, Parent.loyalty, Center, troop);
                     hangarShip.VanityName = "Assault Shuttle";
                     hangarShip.Mothership = Parent;
                     hangarShip.DoEscort(Parent);
