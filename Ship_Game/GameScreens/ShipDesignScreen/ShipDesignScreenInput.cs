@@ -335,15 +335,12 @@ namespace Ship_Game {
                                 DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
                                 return true;
                             }
-                            if(ActiveModule == null)
-                            {
-                                SlotStruct slot = slotStruct.Parent ?? slotStruct;
-                                SetActiveModule(ShipModule.CreateNoParent(slot.Module.UID));
-                                ChangeModuleState(slot.State);
-                                ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
-                                return true;
-                            }                            
-                            
+                            SlotStruct slot = slotStruct.Parent ?? slotStruct;
+                            if (ActiveModule != null || slot.Module == null) continue;
+                            SetActiveModule(ShipModule.CreateNoParent(slot.Module.UID));
+                            ChangeModuleState(slot.State);
+                            ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                            return true;
                         }
                         else if (ActiveModule == null && !input.LeftMouseHeld())
                         {

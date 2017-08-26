@@ -385,25 +385,26 @@ namespace Ship_Game.Gameplay
         {
             if (Module == null || Tag_PD || TruePD) return Vector2.Zero;
             Vector2 jitter = Vector2.Zero;
+
+            //calaculate level. 
             if(level == -1)
-                level = (Owner?.Level ?? level) 
+                level = (Owner?.Level ?? level) + 1
                     + (Owner?.TrackingPower  ?? 0)
                     + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
             
+            //reduce jitter by level cubed. if jitter is less than a module radius stop.
             float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE; 
-            float adjust = Math.Max(0, baseJitter - level * level * level);
+            float adjust     = Math.Max(0, baseJitter - level * level * level);
             if (adjust < 8) return jitter;
 
-            if (isTurret)
-                adjust *= .75f;
-            if (Tag_PD)
-                adjust *= .25f;
-            if (TruePD)
-                adjust *= .1f;
-            if (isBeam) adjust *= 1.7f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0);
-            
-            if (Tag_Kinetic) adjust *= 1 - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0);
-            
+
+            //reduce or increase jitter based on weapon and trait characteristics. 
+            if (isTurret)    adjust *= .75f;
+            if (Tag_PD)      adjust *= .25f;
+            if (TruePD)      adjust *= .1f;
+            if (isBeam)      adjust *= 1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0);            
+            if (Tag_Kinetic) adjust *= 1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0);
+
             if (Owner?.loyalty.data.Traits.Blind > 0) adjust *= 2f;
             
             
@@ -720,7 +721,7 @@ namespace Ship_Game.Gameplay
         private float CachedModifiedRange;
         public float GetModifiedRange()
         {
-            if (Owner == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
+            if (Owner?.loyalty == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
                 return Range;
 
             if (CachedModifiedRange > 0f)

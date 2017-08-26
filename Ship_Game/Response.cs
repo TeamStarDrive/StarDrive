@@ -22,6 +22,8 @@ namespace Ship_Game
 
 		public string SetResearchTo;
 
+        public string UnlockTech;
+
 		public Response()
 		{
 		}
