@@ -193,7 +193,7 @@ namespace Ship_Game
         }
         private bool CheckBadModuleSize(ShipModule module)
         {
-            if (!Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2) return false;
+            if (Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2) return false;
 
             bool doesntFit = false;          
             foreach (SlotStruct s in Screen.Slots)

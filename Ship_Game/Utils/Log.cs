@@ -97,6 +97,11 @@ namespace Ship_Game
         {
             Warning(string.Format(format, args));
         }
+        public static void VerboseWarning(string format, params object[] args)
+        {
+            if (GlobalStats.VerboseLogging)
+                Warning(string.Format(format, args));
+        }
         public static void Warning(string warning)
         {
             string text = "Warning: " + warning;

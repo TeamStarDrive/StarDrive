@@ -88,6 +88,7 @@ namespace Ship_Game
                 Technology tech = techTreeItem.Value;
                 if (tech.ModulesUnlocked.Count <= 0 && tech.HullsUnlocked.Count <= 0)
                     continue;
+                if (!tech.Unlockable) continue;
                 shipTechs.Add(tech, FindPreviousTechs(tech, new Array<string>()));
             }
 
@@ -136,7 +137,7 @@ namespace Ship_Game
                 {
                     shipData.allModulesUnlocakable = false;
                     shipData.hullUnlockable = false;
-                    Log.Warning($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
+                    Log.VerboseWarning($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                     purge.Add(kv.Key);
                 }
 
@@ -165,7 +166,7 @@ namespace Ship_Game
                         if (modUnlockable) continue;
 
                         shipData.allModulesUnlocakable = false;
-                        Log.Warning($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
+                        Log.VerboseWarning($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
@@ -872,12 +873,39 @@ namespace Ship_Game
         public static void LoadEncounters() // Refactored by RedFox
         {
             Encounters = LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters");
+
+            foreach (var encounter in Encounters)
+            {
+                foreach (var message in encounter.MessageList)
+                    foreach (var response in message.ResponseOptions)
+                        if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
+                        {
+                            if (tech.Unlockable) continue;
+                            tech.Unlockable = true;
+                            if (GlobalStats.VerboseLogging)
+                                Log.VerboseWarning($"Technology was marked unlockable by encounter '{encounter.Name}' : '{tech.UID}'");
+                        }
+            }
         }
 
         private static void LoadExpEvents() // Refactored by RedFox
-        {
+        {            
             foreach (var pair in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
+            {
                 EventsDict[pair.Info.NameNoExt()] = pair.Entity;
+                foreach (var outcome in pair.Entity.PotentialOutcomes)
+                {
+                    if (TechTree.TryGetValue(outcome.UnlockTech ?? "", out Technology tech))
+                    {
+                        if (tech.Unlockable) continue;
+                        tech.Unlockable = true;
+                        if (GlobalStats.VerboseLogging)
+                            Log.VerboseWarning($"Technology was marked unlockable by event '{pair.Entity.Name}' : '{tech.UID}'");
+                    }                    
+                }
+
+            }
+            
         }
 
         private static void LoadFlagTextures() // Refactored by RedFox
@@ -1290,11 +1318,20 @@ namespace Ship_Game
                 WalkTechTree(rootTech);
             }
 
+            Array<string> unLockableShipItems = new Array<string>();
+
             foreach (var techEntity in techList)
             {
                 Technology tech = techEntity.Entity;
-                if (tech.Unlockable) continue;
-                Log.Warning($"Technology Cannot be researched. This may be intentional  : '{techEntity.Info.PathNoExt()}'");                
+                if (tech.Unlockable)
+                {
+                    foreach (var module in tech.ModulesUnlocked)
+                        unLockableShipItems.Add(module.ModuleUID);
+                    foreach (var module in tech.HullsUnlocked)
+                        unLockableShipItems.Add(module.Name);
+                    continue;
+                }
+                Log.VerboseWarning($"Technology Cannot be researched. This may be intentional  : '{techEntity.Info.PathNoExt()}'");                
             }
 
         }
