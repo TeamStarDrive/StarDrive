@@ -51,18 +51,19 @@ namespace Ship_Game
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
-            Jitter                  = Weapon.AdjustTargetting();
-            JitterRadius            = ((Target?.Center ?? destination) + Jitter).Distance(Target?.Center ?? destination) / 4f;
-            WanderPath = Vector2.Normalize((Target?.Center ?? destination) - (destination + Jitter)) *16f;
+            Jitter                  = Weapon.AdjustTargetting() * Duration;
+            var targetVector = Target?.Center ?? destination;
+            JitterRadius            = (targetVector + Jitter).Distance(targetVector) / 4f;
+            WanderPath = Vector2.Normalize(targetVector - (destination + Jitter)) *16f;
 
 
             Owner                   = weapon.Owner;
             Source                  = source;
-            SetDestination(destination + Jitter);
-            ActualHitDestination    = Destination;            
-            //moveTo = Destination.ProjectImpactPoint(Owner.Center, Range, Module.Center, Module.GetParent().Velocity);
-            //moveTo.Normalize();
-            //WanderPath = Vector2.Multiply(moveTo, 16);
+            SetDestination(destination, 5000f);
+            Destination += Jitter;
+            SetDestination(Destination);
+
+            ActualHitDestination    = Destination;                        
             Initialize();
             weapon.ModifyProjectile(this);
 
@@ -95,12 +96,12 @@ namespace Ship_Game
             QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
         }
 
-        private void SetDestination(Vector2 destination)
+        private void SetDestination(Vector2 destination, float range =-1)
         {
-            //Vector2 toTarget = Owner.Center.DirectionToTarget(Target.Center).Normalized() * Target.Radius;
-            Vector2 deltaVec = (destination ) - Source;
+            range = range < 0 ? Range : range;
+            Vector2 deltaVec = destination - Source;
             TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
-            Destination = Source + deltaVec.Normalized() * Range;// Math.Min(Range, deltaVec.Length());
+            Destination = Source + deltaVec.Normalized() * range;
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
