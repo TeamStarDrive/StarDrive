@@ -43,7 +43,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            TargetJitter = missile.Weapon.AdjustTargetting(Level) + (target as Ship)?.JitterPosition() ?? Vector2.Zero;
+            TargetJitter = missile.Weapon.AdjustTargetting(Level) + target.JitterPosition();
             LaunchJitter = TargetJitter * 10f;
             TargettingTimer = Math.Max(Level * .02f, .17f);
         }

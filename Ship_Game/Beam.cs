@@ -51,18 +51,16 @@ namespace Ship_Game
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
-            Jitter                  = Weapon.AdjustTargetting() * Duration;
+            Jitter                  = Weapon.AdjustTargetting();
             var targetVector = Target?.Center ?? destination;
-            JitterRadius            = (targetVector + Jitter).Distance(targetVector) / 4f;
-            WanderPath = Vector2.Normalize(targetVector - (destination + Jitter)) *16f;
-
+            JitterRadius            = (targetVector + Jitter).Distance(targetVector) / 4f;            
 
             Owner                   = weapon.Owner;
             Source                  = source;
-            SetDestination(destination, 5000f);
+            SetDestination(destination, 1000f);
             Destination += Jitter;
             SetDestination(Destination);
-
+            WanderPath = Vector2.Normalize(targetVector - TargetPosistion) * 16f;
             ActualHitDestination    = Destination;                        
             Initialize();
             weapon.ModifyProjectile(this);
@@ -154,7 +152,7 @@ namespace Ship_Game
                 rs.DestinationBlend       = Blend.InverseSourceAlpha;
                 rs.AlphaTestEnable        = true;
                 rs.AlphaFunction          = CompareFunction.Less;
-                rs.ReferenceAlpha         = 200;
+                rs.ReferenceAlpha         = 200;                
                 foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
                 {
                     pass.Begin();
@@ -246,7 +244,7 @@ namespace Ship_Game
             if (ship != null && Target.Active && !DisableSpatialCollision)
             {
                 
-                float mark = (TargetPosistion).Distance(Target.Center)  ;
+                float mark = TargetPosistion.Distance(Target.Center)  ;
                 float sweep = mark * (Weapon.isTurret ? .05f : .025f);
                 if (TargetPosistion.OutsideRadius(Target.Center , JitterRadius) )
                 {

@@ -473,15 +473,17 @@ namespace Ship_Game.Gameplay
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius, ref float damageInOut, bool noDamageReduction = false)
+        public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius
+            , ref float damageInOut, bool damageReduction = true)
         {
-             float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, Radius, 0f);
+            if (damageInOut <= 0f) return true;
+            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, Radius, 0f);
             if (damage <= 0.001f)
                 return damageInOut <= 0f;
             if (Empire.Universe.DebugWin != null)
                 Empire.Universe.DebugWin.DrawCircle(DebugModes.SpatialManager, Center, Radius);
             DamageWithDamageDone(damageSource, damage, out float damageDone);
-            if (!noDamageReduction)
+            if (damageReduction)
                 damageInOut -= damageDone;
             return damageInOut <= 0f;
         }
@@ -1230,10 +1232,8 @@ namespace Ship_Game.Gameplay
             }
         }
 
-
-
-
-
+        public override Vector2 JitterPosition() => Parent?.JitterPosition() ?? base.JitterPosition(); 
+        
         public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}  Ship={Parent?.Name}";
     }
 }
