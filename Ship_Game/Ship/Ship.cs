@@ -260,7 +260,7 @@ namespace Ship_Game.Gameplay
             return size;
         }
 
-        public Vector2 JitterPosition()
+        public override Vector2 JitterPosition()
         {
             Vector2 jitter = Vector2.Zero;
             if (CombatDisabled)
@@ -276,8 +276,7 @@ namespace Ship_Game.Gameplay
         }
 
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;        
-
-        public override Vector2 PositionModifier => JitterPosition();        
+      
 
 
 

@@ -239,9 +239,21 @@ namespace Ship_Game.Gameplay
                     break;
             }
         }
-        public Vector2 JitterPosition() => Owner?.JitterPosition() ?? Vector2.Zero;
+        public override Vector2 JitterPosition()
+        {
+            Vector2 jitter = Vector2.Zero;
+            if (!Weapon.Tag_Intercept) return jitter;
 
-        public override Vector2 PositionModifier => JitterPosition();
+            if (MissileAI != null &&  Loyalty?.data.MissileDodgeChance >0 )
+            {
+                jitter += RandomMath2.Vector2D(Loyalty.data.MissileDodgeChance * 80f);
+                
+            }
+            
+            return jitter;
+            
+        }
+        
 
         public void DrawProjectile(UniverseScreen screen)
         {

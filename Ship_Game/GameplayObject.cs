@@ -80,9 +80,7 @@ namespace Ship_Game
         }
 
         [XmlIgnore][JsonIgnore] 
-        public string SystemName => System?.Name ?? "Deep Space";
-        [XmlIgnore][JsonIgnore]
-        public virtual Vector2 PositionModifier => Vector2.Zero;        
+        public string SystemName => System?.Name ?? "Deep Space";              
 
         public void SetSystem(SolarSystem system)
         {
@@ -116,6 +114,11 @@ namespace Ship_Game
 
         public virtual void Update(float elapsedTime)
         {
+        }
+
+        public virtual Vector2 JitterPosition()
+        {
+            return Vector2.Zero;            
         }
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
