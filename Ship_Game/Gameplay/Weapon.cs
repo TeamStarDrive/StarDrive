@@ -383,13 +383,15 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = -1)
         {
-            if (Module == null || Tag_PD || TruePD) return Vector2.Zero;
+            if (Module == null ) return Vector2.Zero; //|| Tag_PD || TruePD
             Vector2 jitter = Vector2.Zero;
 
             //calaculate level. 
+            int sensorPower = (int)(Owner?.SensorRange ?? 1);            
+            sensorPower /= 40000;
             if(level == -1)
-                level = (Owner?.Level ?? level) + 1
-                    + (Owner?.TrackingPower  ?? 0)
+                level = (Owner?.Level ?? level) 
+                    + sensorPower //(Owner?.TrackingPower  ?? 0)
                     + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
             
             //reduce jitter by level cubed. if jitter is less than a module radius stop.
@@ -405,30 +407,40 @@ namespace Ship_Game.Gameplay
             if (isBeam)      adjust *= 1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0);            
             if (Tag_Kinetic) adjust *= 1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0);
 
-            if (Owner?.loyalty.data.Traits.Blind > 0) adjust *= 2f;
+            if (Owner?.loyalty?.data.Traits.Blind > 0) adjust *= 2f;
             
             
             jitter += RandomMath2.Vector2D(adjust);            
             return jitter;
         }
-        
+
+        public Vector2 SetDestination(Vector2 target, Vector2 source, float range )
+        {            
+            Vector2 deltaVec = target - source;            
+            return source + deltaVec.Normalized() * range;
+        }
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
             Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
-            Vector2 jitter       = AdjustTargetting();
+            Vector2 jitter = target.JitterPosition();
             // for shipmodules, make sure to use ship Velocity and Acceleration
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
-            {
-                
-                jitter += ship.JitterPosition();
+            {                                
                 pip     = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center + jitter, ship.Velocity, ship.Acceleration);
+                    target.Center, ship.Velocity, ship.Acceleration);
+                 jitter += AdjustTargetting();
+                Vector2 jitteredtarget =SetDestination(pip, Owner.Center, 1000) + jitter;                
+                pip = SetDestination(jitteredtarget, Owner.Center, Owner.Center.Distance(pip));
+
             }
             else
             {
                 pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center + jitter, target.Velocity);
+                    target.Center, target.Velocity);
+                jitter += AdjustTargetting();
+                jitter += SetDestination(pip, Owner.Center, 1000);                                
+                pip = SetDestination(jitter, Owner.Center, Owner.Center.Distance(pip));
             }
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
