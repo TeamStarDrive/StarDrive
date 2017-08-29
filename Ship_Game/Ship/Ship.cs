@@ -259,6 +259,16 @@ namespace Ship_Game.Gameplay
 
             return size;
         }
+        public override bool IsAttackable(Empire attacker, Relationship relationToThis)
+        {            
+            if (AI.Target?.GetLoyalty() == attacker) return true;
+            if (!relationToThis.Treaty_OpenBorders && !relationToThis.Treaty_Trade
+                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
+
+            if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
+            
+            return false;
+        }
 
         public override Vector2 JitterPosition()
         {

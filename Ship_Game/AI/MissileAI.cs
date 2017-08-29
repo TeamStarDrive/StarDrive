@@ -8,6 +8,7 @@ namespace Ship_Game.AI
     {
         private readonly Projectile Missile;
         private GameplayObject Target;
+        public GameplayObject GetTarget => Target;
         private readonly Array<Ship> TargetList;
         private float ThinkTimer = 0.15f;
         private bool Jammed;

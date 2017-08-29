@@ -99,7 +99,7 @@ namespace Ship_Game.Gameplay
         public int Animated;
         public int Frames;
         public string AnimationPath;
-        public string ExpColor;
+        public string ExpColor = null;
         public string dieCue;
         public string ToggleSoundName = "";
         [XmlIgnore][JsonIgnore]
@@ -170,7 +170,9 @@ namespace Ship_Game.Gameplay
         private float SalvoDirection;
         private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
         private GameplayObject SalvoTarget;
-
+        public string ExplosionPath = "";
+        public string ExplosionAnimation = "";
+        
 
         // When ships are off-screen, we do cheap and dirty invisible damage calculation
         [XmlIgnore][JsonIgnore]
