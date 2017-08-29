@@ -178,6 +178,20 @@ namespace Ship_Game.Gameplay
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;
 
+        
+        public float AccuracyPrecent = -1;
+        //private float SwivelSpeed;
+        private float WeaponRotation = 0;
+        public float WeaponRotationSpeed
+        {
+            get { return
+                WeaponRotation == 0 ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation; }
+            set { WeaponRotation = value; }
+        }
+        public float WeaponECM = 0;
+        public float WeaponECCM = 0;
+
+
         private ShipModule() : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
