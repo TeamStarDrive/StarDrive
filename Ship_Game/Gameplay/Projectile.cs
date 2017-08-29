@@ -63,6 +63,7 @@ namespace Ship_Game.Gameplay
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
+   
 
         public Ship Owner { get; protected set; }
         public Planet Planet { get; private set; }
@@ -253,7 +254,15 @@ namespace Ship_Game.Gameplay
             return jitter;
             
         }
-        
+
+        public override bool IsAttackable(Empire attacker, Relationship relationToThis)
+        {
+            if (MissileAI?.GetTarget.GetLoyalty() == attacker) return true;            
+            if (!relationToThis.Treaty_OpenBorders && !relationToThis.Treaty_Trade
+                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(Owner)) return true;
+           
+            return false;
+        }
 
         public void DrawProjectile(UniverseScreen screen)
         {
@@ -284,36 +293,7 @@ namespace Ship_Game.Gameplay
                 if (InFlightSfx.IsPlaying)
                     InFlightSfx.Stop();
 
-                if (Explodes)
-                {
-                    if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
-                    {                        
-                        DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
-                    }
-
-                    if (!cleanupOnly && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                    {
-                        GameAudio.PlaySfxAsync(DieCueName, Emitter);
-
-                        if (WeaponType == "Photon")
-                            ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f, 0.2f, Weapon.ExpColor);
-                        else
-                            ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, 0.2f);
-
-                        if (FlashExplode)
-                            Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
-                    }
-
-                    UniverseScreen.SpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
-                }
-                else if (Weapon.FakeExplode && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                {
-                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, 0.2f);
-                    if (FlashExplode)
-                    {
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
-                    }
-                }
+                ExplodeProjectile(cleanupOnly);
                 if (ProjSO != null)
                 {
                     Empire.Universe.RemoveObject(ProjSO);
@@ -335,6 +315,44 @@ namespace Ship_Game.Gameplay
             SetSystem(null);
             base.Die(source, cleanupOnly);
             Owner = null;
+        }
+
+        private void ExplodeProjectile(bool cleanupOnly)
+        {
+            if (Explodes)
+            {
+                if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
+                {
+                    DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
+                }
+
+                if (!cleanupOnly && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                {
+                    GameAudio.PlaySfxAsync(DieCueName, Emitter);
+
+                    if (Weapon.ExpColor != null)
+                        ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f,
+                            0.2f,
+                            Weapon.ExpColor);
+                    else
+                        ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod,
+                            2.5f,
+                            0.2f, Weapon.ExplosionPath, Weapon.ExplosionAnimation);
+
+                    if (FlashExplode)
+                        Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                }
+
+                UniverseScreen.SpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
+            }
+            else if (Weapon.FakeExplode && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, 0.2f);
+                if (FlashExplode)
+                {
+                    Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                }
+            }
         }
 
         public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos)

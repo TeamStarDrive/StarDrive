@@ -74,7 +74,8 @@ namespace Ship_Game
 			}
         }
 
-        public static void AddExplosion(Vector3 position, float radius, float intensity, float duration)
+        public static void AddExplosion(Vector3 position, float radius, float intensity, float duration
+            , string explosionPath = "", string explosionAnimation = "")
 		{
 			Explosion newExp = new Explosion()
 			{
@@ -82,7 +83,13 @@ namespace Ship_Game
 				pos = position.ToVec2()
 			};
             AddLight(newExp, position, radius, intensity);
-            PickRandomExplosion(newExp);
+            if (explosionAnimation == "" || explosionPath == "")
+                PickRandomExplosion(newExp);
+            else
+            {
+                newExp.AnimationBasePath = explosionPath;
+                newExp.AnimationTexture = explosionAnimation;
+            }
 			newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
 
             ExplosionList.Add(newExp);
