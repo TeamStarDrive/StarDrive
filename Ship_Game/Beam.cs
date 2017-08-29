@@ -245,7 +245,7 @@ namespace Ship_Game
             {
                 
                 float mark = TargetPosistion.Distance(Target.Center)  ;
-                float sweep = mark * (Weapon.isTurret ? .05f : .025f);
+                float sweep = mark * ((Module?.WeaponRotationSpeed ?? 1f) * .025f);
                 if (TargetPosistion.OutsideRadius(Target.Center , JitterRadius) )
                 {
                     
