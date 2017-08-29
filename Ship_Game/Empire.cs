@@ -2890,14 +2890,9 @@ namespace Ship_Game
             if (rel.Treaty_NAPact) return false;
             if (isFaction || empire.isFaction ) return true;
             if (target == null) return true;
-            if (target is Ship ship)
-            {                
-                if (!rel.Treaty_OpenBorders && !rel.Treaty_Trade
-                &&  EmpireAI.ThreatMatrix.ShipInOurBorders(ship)) return true;
+            if (rel.TotalAnger > 50) return true;            
+            return target.IsAttackable(this, rel);
 
-                if (ship.isColonyShip && ship.System != null && rel.WarnedSystemsList.Contains(ship.System.guid)) return true;
-            }
-            return false;
         }
 
         public class InfluenceNode

@@ -107,9 +107,21 @@ namespace Ship_Game
             return 0;
         }
 
+        public Empire GetLoyalty()
+        {
+            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty;
+            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty;
+            return null;
+        }
+
         public virtual bool Touch(GameplayObject target)
         {
             return false; // by default, objects can't be touched
+        }
+
+        public virtual bool IsAttackable(Empire attacker, Relationship relationToThis)
+        {
+            return false;
         }
 
         public virtual void Update(float elapsedTime)
