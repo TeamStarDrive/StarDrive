@@ -401,9 +401,9 @@ namespace Ship_Game.Gameplay
 
 
             //reduce or increase jitter based on weapon and trait characteristics. 
-            if (isTurret)    adjust *= .75f;
+            if (isTurret)    adjust *= .5f;
             if (Tag_PD)      adjust *= .25f;
-            if (TruePD)      adjust *= .1f;
+            if (TruePD)      adjust *= .25f;
             if (isBeam)      adjust *= 1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0);            
             if (Tag_Kinetic) adjust *= 1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0);
 
