@@ -139,7 +139,7 @@ namespace Ship_Game.Gameplay
             if (shipToDamage.dying || !shipToDamage.Active)
                 return;
 
-            shipToDamage.DamageModulesInRange(damageSource, damageAmount, hitModule.Center, damageRadius, ignoreShields);
+            shipToDamage.DamageModulesInRange(damageSource, damageAmount, hitModule.Center, damageRadius, ignoreShields, InternalExplosion:true);
         }
 
         // @note This is called quite rarely, so optimization is not a priority

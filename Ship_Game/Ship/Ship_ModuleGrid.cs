@@ -261,6 +261,18 @@ namespace Ship_Game.Gameplay
             return 0 <= point.X && point.X < GridWidth
                 && 0 <= point.Y && point.Y < GridHeight;
         }
+        
+        //an out of bounds clipped point would be in any of the extreme corners. 
+        private bool ClippedLocalPointInBounds(Point point)
+        {
+            return 0 <= point.X && point.X < GridWidth
+                   && 0 <= point.Y && point.Y < GridHeight
+                   && point != Point.Zero
+                   && (point.X < GridWidth - 1 || point.Y < GridHeight - 1)
+                   && (point.X > 0 || point.Y < GridHeight - 1)
+                   && (point.Y > 0 || point.X < GridWidth - 1)
+                ;
+        }
 
         public Vector2 GridLocalToWorld(Vector2 localPoint)
         {
@@ -397,7 +409,7 @@ namespace Ship_Game.Gameplay
         // every time an exploding projectile hits a ship. So it gets called for every missile impact
         public unsafe void DamageModulesInRange(GameplayObject damageSource, float damageAmount, 
                                          Vector2 worldHitPos, float hitRadius, bool ignoreShields, 
-                                         bool noInternal = false, bool ablation = true)
+                                         bool InternalExplosion = false, bool ablation = true)
         {
             float damageTracker = damageAmount ;
             if (!ignoreShields)
@@ -411,27 +423,25 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            Point a = WorldToGridLocalPoint(worldHitPos - new Vector2(hitRadius));
-            Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.SpatialManager, worldHitPos - new Vector2(hitRadius), 16);
-            Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.SpatialManager, worldHitPos + new Vector2(hitRadius), 16);
-            Point b = WorldToGridLocalPoint(worldHitPos + new Vector2(hitRadius));
-            bool inA = LocalPointInBounds(a);
-            bool inB = LocalPointInBounds(b);
+            Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));            
+            Point b = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
+            bool inA = ClippedLocalPointInBounds(a);
+            bool inB = ClippedLocalPointInBounds(b);             
             if (!inA && !inB)
             {
-                Vector2 linePoint = Center.FindClosestPointOnLine(worldHitPos - new Vector2(hitRadius), worldHitPos + new Vector2(hitRadius));
-                if (!LocalPointInBounds(WorldToGridLocalPoint(linePoint)))
-                     return;
+                if (!LocalPointInBounds(WorldToGridLocalPoint(worldHitPos)))
+                    return;
             }
-            if (!inA) a = ClipLocalPoint(a);
-            if (!inB) b = ClipLocalPoint(b);
+            
+            //if (!inA) a = ClipLocalPoint(a);
+            //if (!inB) b = ClipLocalPoint(b);
 
             ShipModule[] grid = SparseModuleGrid;
             int width = GridWidth;
             ShipModule m;
             if (a == b)
             {
-                if ((m = grid[a.X + a.Y*width]) != null && m.Active && (m.isExternal || !noInternal)
+                if ((m = grid[a.X + a.Y*width]) != null && m.Active 
                     && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, ablation))
                     return;
                 return;
@@ -460,9 +470,9 @@ namespace Ship_Game.Gameplay
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[minX + y * width]) != null && m.Active)
 
-                            if (m.isExternal)
+                            if (m.isExternal && !InternalExplosion)
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageAmount, ablation);
+                                    , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
                                     , ref damageTracker, ablation);
@@ -473,9 +483,9 @@ namespace Ship_Game.Gameplay
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[maxX + y * width]) != null && m.Active)
-                            if (m.isExternal)
+                            if (m.isExternal && !InternalExplosion)
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageAmount, ablation);
+                                    , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
                                                 , ref damageTracker, ablation);
@@ -485,9 +495,9 @@ namespace Ship_Game.Gameplay
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[x + minY * width]) != null && m.Active )
-                            if (m.isExternal)
+                            if (m.isExternal && !InternalExplosion)
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageAmount, ablation);
+                                    , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
                                     , ref damageTracker, ablation);
@@ -496,9 +506,9 @@ namespace Ship_Game.Gameplay
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[x + maxY * width]) != null && m.Active )
-                            if (m.isExternal)
+                            if (m.isExternal && !InternalExplosion)
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageAmount, ablation);
+                                    , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
                                     , ref damageTracker, ablation);
