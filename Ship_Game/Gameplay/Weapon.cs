@@ -172,8 +172,7 @@ namespace Ship_Game.Gameplay
         private GameplayObject SalvoTarget;
         public string ExplosionPath = "";
         public string ExplosionAnimation = "";
-        
-
+        public float ECM = 0;
         // When ships are off-screen, we do cheap and dirty invisible damage calculation
         [XmlIgnore][JsonIgnore]
         public float InvisibleDamageAmount
@@ -226,6 +225,7 @@ namespace Ship_Game.Gameplay
             return damageAmount;            
         }
 
+ 
         public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
             if (ToggleCue.IsPlaying)
@@ -385,7 +385,7 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = -1)
         {
-            if (Module == null ) return Vector2.Zero; //|| Tag_PD || TruePD
+            if (Module == null || (Module?.AccuracyPrecent ?? 0) > .9999f) return Vector2.Zero; //|| Tag_PD || TruePD
             Vector2 jitter = Vector2.Zero;
 
             //calaculate level. 
@@ -403,19 +403,31 @@ namespace Ship_Game.Gameplay
 
 
             //reduce or increase jitter based on weapon and trait characteristics. 
-            if (isTurret)    adjust *= .5f;
-            if (Tag_PD)      adjust *= .25f;
-            if (TruePD)      adjust *= .25f;
-            if (isBeam)      adjust *= 1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0);            
-            if (Tag_Kinetic) adjust *= 1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0);
+            
+            if (isBeam)      adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));    
+            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
 
             if (Owner?.loyalty?.data.Traits.Blind > 0) adjust *= 2f;
-            
+            adjust *= CalculateBaseAccuracy();
             
             jitter += RandomMath2.Vector2D(adjust);            
             return jitter;
         }
 
+        private float CalculateBaseAccuracy()
+        {
+            float adjust =(Module?.AccuracyPrecent ?? 0);
+            if (adjust == -1)
+            {
+                adjust = 1;
+                if (isTurret) adjust *= .25f;
+                if (Tag_PD) adjust *= .25f;
+                if (TruePD) adjust *= .25f;
+            }
+            else
+                adjust = 1 - adjust;
+            return adjust;
+        }
         public Vector2 SetDestination(Vector2 target, Vector2 source, float range )
         {            
             Vector2 deltaVec = target - source;            

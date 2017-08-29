@@ -262,9 +262,13 @@ namespace Ship_Game.Gameplay
         public override bool IsAttackable(Empire attacker, Relationship relationToThis)
         {            
             if (AI.Target?.GetLoyalty() == attacker) return true;
-            if (!relationToThis.Treaty_OpenBorders && !relationToThis.Treaty_Trade
-                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
 
+
+            if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
+            if (!relationToThis.Treaty_NAPact && relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+                return true;
+            
             if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
             
             return false;
