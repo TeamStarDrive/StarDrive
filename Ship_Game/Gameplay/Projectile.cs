@@ -362,7 +362,7 @@ namespace Ship_Game.Gameplay
             if (Velocity.Length() > VelocityMax)
                 Velocity = Velocity.Normalized() * VelocityMax;            
         }
-
+        
         public override bool Touch(GameplayObject target)
         {
             if (Miss || target == Owner)
@@ -370,15 +370,26 @@ namespace Ship_Game.Gameplay
 
             if (target is Projectile projectile)
             {
-                if (Owner != null && projectile.Loyalty == Owner.loyalty)
+                if (Owner != null && !Owner.loyalty.IsEmpireAttackable(projectile.Loyalty))
                     return false;
 
-                if (projectile.WeaponType == "Missile")
+                if (projectile.WeaponType == "Missile" )
                 {
                     if (projectile.Loyalty != null && 
                         projectile.Loyalty.data.MissileDodgeChance <= UniverseRandom.RandomBetween(0f, 1f))
                     {
                         projectile.DamageMissile(this, DamageAmount);
+                        DieNextFrame = true;
+                        return true;
+                    }
+                }
+                else if (WeaponType == "Missile")
+                {
+                    if (Loyalty != null &&
+                        Loyalty.data.MissileDodgeChance <= UniverseRandom.RandomBetween(0f, 1f))
+                    {
+                        DamageMissile(this, projectile.DamageAmount);
+                        projectile.DieNextFrame = true;
                         return true;
                     }
                 }
