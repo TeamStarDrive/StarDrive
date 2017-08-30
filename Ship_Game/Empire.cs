@@ -2407,6 +2407,7 @@ namespace Ship_Game
                 agent.Mission = AgentMission.Defending;
                 agent.TargetEmpire = (string)null;
             }
+            EmpireAI.DefensiveCoordinator.ManageForcePool();
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = this.data.Traits.Name;
             this.CalculateScore();
