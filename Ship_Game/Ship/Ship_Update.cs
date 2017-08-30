@@ -130,7 +130,7 @@ namespace Ship_Game.Gameplay
             {
                 UpdateProjectiles(elapsedTime);
                 UpdateBeams(elapsedTime);
-                if (!EMPdisabled) AI.Update(elapsedTime);
+                if (!EMPdisabled && Active) AI.Update(elapsedTime);
             }
 
             if (Active)
