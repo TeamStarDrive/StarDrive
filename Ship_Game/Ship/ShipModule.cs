@@ -179,7 +179,7 @@ namespace Ship_Game.Gameplay
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;
 
         
-        public float AccuracyPrecent = -1;
+        public float AccuracyPercent = -1;
         //private float SwivelSpeed;
         private float WeaponRotation = 0;
         public float WeaponRotationSpeed
@@ -983,12 +983,14 @@ namespace Ship_Game.Gameplay
             if (Health > 0f && !Active)
             {
                 Active = true;
+                Parent.shipStatusChanged = true;
                 Parent.UpdateExternalSlots(this, becameActive: true);
                 Parent.RecalculatePower();
             }
             if (Health <= 0f && Active)
             {
                 Die(LastDamagedBy, false);
+                Parent.shipStatusChanged = true;
             }
             if (Health >= HealthMax)
             {

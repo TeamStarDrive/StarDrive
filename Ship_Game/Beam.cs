@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
 
@@ -37,7 +38,7 @@ namespace Ship_Game
         public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null) : base(GameObjectType.Beam)
         {
             //there is an error here in beam creation where the weapon has no module. 
-            // i am setting these values in the weapon CreateDroneBeam where possible. 
+            // i am setting these values in the weapon CreateDroneBeam where possible.             
             Weapon                  = weapon;
             Target                  = target;
             TargetPosistion         = target.Center;
@@ -55,7 +56,7 @@ namespace Ship_Game
             var targetVector = Target?.Center ?? destination;
             JitterRadius            = (targetVector + Jitter).Distance(targetVector) / 4f;            
 
-            Owner                   = weapon.Owner;
+            Owner                   = weapon.Owner ;
             Source                  = source;
             SetDestination(destination, 1000f);
             Destination += Jitter;
@@ -65,7 +66,7 @@ namespace Ship_Game
             Initialize();
             weapon.ModifyProjectile(this);
 
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
+            if (Owner != null && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
             {
                 weapon.PlayToggleAndFireSfx(Emitter);
             }
@@ -85,9 +86,12 @@ namespace Ship_Game
         public override void Initialize()
         {
             base.Initialize();
+            if (Owner != null)
+            {
+                Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty; // set loyalty before adding to spatial manager
 
-            Loyalty = Owner.loyalty; // set loyalty before adding to spatial manager
-            SetSystem(Owner.System);
+                SetSystem(Owner?.System ?? DroneAI?.Drone?.System);
+            }
             InitBeamMeshIndices();
             UpdateBeamMesh();
 
