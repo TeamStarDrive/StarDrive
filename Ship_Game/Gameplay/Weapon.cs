@@ -385,7 +385,7 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = -1)
         {
-            if (Module == null || (Module?.AccuracyPrecent ?? 0) > .9999f) return Vector2.Zero; //|| Tag_PD || TruePD
+            if (Module == null || (Module?.AccuracyPercent ?? 0) > .9999f) return Vector2.Zero; //|| Tag_PD || TruePD
             Vector2 jitter = Vector2.Zero;
 
             //calaculate level. 
@@ -416,13 +416,13 @@ namespace Ship_Game.Gameplay
 
         private float CalculateBaseAccuracy()
         {
-            float adjust =(Module?.AccuracyPrecent ?? 0);
+            float adjust =(Module?.AccuracyPercent ?? 0);
             if (adjust == -1)
             {
                 adjust = 1;
                 if (isTurret) adjust *= .25f;
-                if (Tag_PD) adjust *= .25f;
-                if (TruePD) adjust *= .25f;
+                if (Tag_PD) adjust   *= .25f;
+                if (TruePD) adjust   *= .25f;
             }
             else
                 adjust = 1 - adjust;
@@ -437,6 +437,7 @@ namespace Ship_Game.Gameplay
         {
             Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
+            Vector2 ownerCenter  = Owner?.Center ?? Vector2.Zero;
             Vector2 jitter = target.JitterPosition();
             // for shipmodules, make sure to use ship Velocity and Acceleration
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
@@ -444,8 +445,8 @@ namespace Ship_Game.Gameplay
                 pip     = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
                     target.Center, ship.Velocity, ship.Acceleration);
                  jitter += AdjustTargetting();
-                Vector2 jitteredtarget =SetDestination(pip, Owner.Center, 1000) + jitter;                
-                pip = SetDestination(jitteredtarget, Owner.Center, Owner.Center.Distance(pip));
+                Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 1000) + jitter;                
+                pip = SetDestination(jitteredtarget, ownerCenter, ownerCenter.Distance(pip));
 
             }
             else
@@ -453,8 +454,8 @@ namespace Ship_Game.Gameplay
                 pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
                     target.Center, target.Velocity);
                 jitter += AdjustTargetting();
-                jitter += SetDestination(pip, Owner.Center, 1000);                                
-                pip = SetDestination(jitter, Owner.Center, Owner.Center.Distance(pip));
+                jitter += SetDestination(pip, ownerCenter, 1000);                                
+                pip     = SetDestination(jitter, ownerCenter, ownerCenter.Distance(pip));
             }
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
@@ -576,7 +577,8 @@ namespace Ship_Game.Gameplay
         public void FireDroneBeam(GameplayObject target, DroneAI droneAI)
         {
             drowner = droneAI.Drone;
-            FireBeam(drowner.Center, target.Center, target);
+            var beam = new Beam(this, drowner.Center, target.Center, target);
+            droneAI.Beams.Add(beam);
         }
 
         public void FireTargetedBeam(GameplayObject target)

@@ -260,15 +260,16 @@ namespace Ship_Game.Gameplay
             return size;
         }
         public override bool IsAttackable(Empire attacker, Relationship relationToThis)
-        {            
+        {
             if (AI.Target?.GetLoyalty() == attacker) return true;
 
-
-            if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
-                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
-            if (!relationToThis.Treaty_NAPact && relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
-                return true;
-            
+            if (attacker.data.DiplomaticPersonality != null)
+            {
+                if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+                    && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
+                if (!relationToThis.Treaty_NAPact && relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+                    return true;
+            }
             if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
             
             return false;
@@ -1967,7 +1968,9 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                if (shipStatusChanged || InCombat)
+                foreach (ShipModule slot in ModuleSlotList)
+                    slot.Update(1f);
+                if (shipStatusChanged) //|| InCombat
                     ShipStatusChange();
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
@@ -1981,8 +1984,7 @@ namespace Ship_Game.Gameplay
 
                 //This is what updates all of the modules of a ship
                 if (loyalty.RecalculateMaxHP) HealthMax = 0;
-                foreach (ShipModule slot in ModuleSlotList)
-                    slot.Update(1f);
+                
 
                 //Check Current Shields
                 if (engineState == MoveState.Warp || !ShieldsUp)
@@ -2281,6 +2283,7 @@ namespace Ship_Game.Gameplay
 
         public void ShipStatusChange()
         {
+            shipStatusChanged = false;
             Health = 0f;
             float sensorBonus = 0f;
             Hangars.Clear();
