@@ -684,12 +684,12 @@ namespace Ship_Game.Gameplay
             float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * .1f) + Anger_TerritorialConflict;
             if (Treaty_Trade) borderAnger *= .2f;
                     
-            return borderAnger + 30 < personality.Territorialism;                        
+            return borderAnger + 30 < (personality?.Territorialism  ?? 100);
         }
         
         public bool AttackForTransgressions(DTrait personality)
         {            
-            return !Treaty_NAPact && TotalAnger + 30 < personality.Territorialism;
+            return !Treaty_NAPact && TotalAnger + 30 < (personality?.Territorialism ?? 100);
         }
 
         public void Dispose()

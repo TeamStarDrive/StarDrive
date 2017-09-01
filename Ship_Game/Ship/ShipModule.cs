@@ -985,7 +985,7 @@ namespace Ship_Game.Gameplay
                 Active = true;
                 Parent.shipStatusChanged = true;
                 Parent.UpdateExternalSlots(this, becameActive: true);
-                Parent.RecalculatePower();
+                Parent.NeedRecalculate = true;
             }
             if (Health <= 0f && Active)
             {
@@ -1001,7 +1001,7 @@ namespace Ship_Game.Gameplay
             BombTimer -= elapsedTime;
             UpdateModuleRadius();
 
-            if (ModuleType == ShipModuleType.Hangar && Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
+            if (Active && ModuleType == ShipModuleType.Hangar ) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;
             //Shield Recharge
             float shieldMax = GetShieldsMax();
