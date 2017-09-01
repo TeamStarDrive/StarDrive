@@ -263,15 +263,13 @@ namespace Ship_Game.Gameplay
         {
             if (AI.Target?.GetLoyalty() == attacker) return true;
 
-            if (attacker.data.DiplomaticPersonality != null)
-            {
-                if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
-                    && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
-                if (!relationToThis.Treaty_NAPact && relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
-                    return true;
-            }
+            if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
+            if (!relationToThis.Treaty_NAPact &&
+                relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+                return true;
             if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
-            
+
             return false;
         }
 
@@ -1847,7 +1845,8 @@ namespace Ship_Game.Gameplay
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
                 --EMPDamage;
-                if (EMPDamage < 0f) EMPDamage = 0f;
+                EMPDamage = Math.Max(0, EMPDamage);
+
                 EMPdisabled = EMPDamage > Size + BonusEMP_Protection;
             }
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
@@ -2012,7 +2011,7 @@ namespace Ship_Game.Gameplay
                 //Repair
                 if (Health < HealthMax)
                 {
-                    shipStatusChanged = true;
+                    //shipStatusChanged = true;
                     if (!InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
                     {
                         //Added by McShooterz: Priority repair
@@ -2040,158 +2039,9 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    shipStatusChanged = false;
+                    //shipStatusChanged = false;
                 }
-                Array<Troop> OwnTroops = new Array<Troop>();
-                Array<Troop> EnemyTroops = new Array<Troop>();
-                foreach (Troop troop in TroopList)
-                {
-                    if (troop.GetOwner() == loyalty)
-                        OwnTroops.Add(troop);
-                    else
-                        EnemyTroops.Add(troop);
-                }
-                if (HealPerTurn > 0)
-                {
-                    foreach (Troop troop in OwnTroops)
-                    {
-                        if (troop.Strength < troop.GetStrengthMax())
-                        {
-                            troop.Strength += HealPerTurn;
-                        }
-                        else
-                            troop.Strength = troop.GetStrengthMax();
-                    }
-                }
-                if (EnemyTroops.Count > 0)
-                {
-                    float num1 = 0;
-                    for (int index = 0; index < MechanicalBoardingDefense; ++index)
-                    {
-                        if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
-                            ++num1;
-                    }
-                    foreach (Troop troop in EnemyTroops)
-                    {
-                        float num2 = num1;
-                        if (num1 > 0)
-                        {
-                            if (num1 > troop.Strength)
-                            {
-                                float num3 = troop.Strength;
-                                troop.Strength = 0;
-                                num1 -= num3;
-                            }
-                            else
-                            {
-                                troop.Strength -= num1;
-                                num1 -= num2;
-                            }
-                            if (troop.Strength <= 0)
-                                TroopList.Remove(troop);
-                        }
-                        else
-                            break;
-                    }
-                    EnemyTroops.Clear();
-                    foreach (Troop troop in TroopList)
-                        EnemyTroops.Add(troop);
-                    if (OwnTroops.Count > 0 && EnemyTroops.Count > 0)
-                    {
-                        foreach (Troop troop in OwnTroops)
-                        {
-                            for (int index = 0; index < troop.Strength; ++index)
-                            {
-                                if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
-                                    ++num1;
-                            }
-                        }
-                        foreach (Troop troop in EnemyTroops)
-                        {
-                            float num2 = num1;
-                            if (num1 > 0)
-                            {
-                                if (num1 > troop.Strength)
-                                {
-                                    float num3 = troop.Strength;
-                                    troop.Strength = 0;
-                                    num1 -= num3;
-                                }
-                                else
-                                {
-                                    troop.Strength -= num1;
-                                    num1 -= num2;
-                                }
-                                if (troop.Strength <= 0)
-                                    TroopList.Remove(troop);
-                                if (num1 <= 0)
-                                    break;
-                            }
-                            else
-                                break;
-                        }
-                    }
-                    EnemyTroops.Clear();
-                    foreach (Troop troop in TroopList)
-                        EnemyTroops.Add(troop);
-                    if (EnemyTroops.Count > 0)
-                    {
-                        float num2 = 0;
-                        foreach (Troop troop in EnemyTroops)
-                        {
-                            for (int index = 0; index < troop.Strength; ++index)
-                            {
-                                if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
-                                    ++num2;
-                            }
-                        }
-                        foreach (Troop troop in OwnTroops)
-                        {
-                            float num3 = num2;
-                            if (num2 > 0)
-                            {
-                                if (num2 > troop.Strength)
-                                {
-                                    float num4 = troop.Strength;
-                                    troop.Strength = 0;
-                                    num2 -= num4;
-                                }
-                                else
-                                {
-                                    troop.Strength -= num2;
-                                    num2 -= num3;
-                                }
-                                if (troop.Strength <= 0)
-                                    TroopList.Remove(troop);
-                            }
-                            else
-                                break;
-                        }
-                        if (num2 > 0)
-                        {
-                            MechanicalBoardingDefense -= (float)num2;
-                            if (MechanicalBoardingDefense < 0.0)
-                                MechanicalBoardingDefense = 0.0f;
-                        }
-                    }
-                    OwnTroops.Clear();
-                    foreach (Troop troop in TroopList)
-                    {
-                        if (troop.GetOwner() == loyalty)
-                            OwnTroops.Add(troop);
-                    }
-                    if (OwnTroops.Count == 0 && MechanicalBoardingDefense <= 0.0)
-                    {
-                        loyalty.GetShips().QueuePendingRemoval(this);
-                        loyalty = EnemyTroops[0].GetOwner();
-                        loyalty.AddShipNextFrame(this);
-                        if (fleet != null)                                                   
-                            ClearFleet();                            
-                        
-                        AI.ClearOrdersNext = true;
-                        AI.State = AIState.AwaitingOrders;
-                    }
-                }
+                UpdateTroops();
                 //this.UpdateSystem(elapsedTime);
                 updateTimer = 1f;
                 if (NeedRecalculate)
@@ -2221,13 +2071,13 @@ namespace Ship_Game.Gameplay
             }
 
             SetmaxFTLSpeed();
-            if (Ordinance > OrdinanceMax)
-                Ordinance = OrdinanceMax;
-            InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < 0.35f)
+            Ordinance = Math.Min(Ordinance, OrdinanceMax);
+
+            if ((InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount) <.35f)            
                 Die(LastDamagedBy, false);
-            if (Mass < (Size / 2))
-                Mass = (Size / 2);
+
+            Mass = Math.Max((Size / 2), Mass);
+            Mass = Math.Max(Mass, 1);
             PowerCurrent -= PowerDraw * deltaTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * deltaTime;
@@ -2237,13 +2087,11 @@ namespace Ship_Game.Gameplay
                 PowerCurrent = 0.0f;
                 HyperspaceReturn();
             }
-            if (PowerCurrent > PowerStoreMax)
-                PowerCurrent = PowerStoreMax;
-            shield_percent = 100.0 * shield_power / shield_max;
-            if (shield_percent < 0.0f)
-                shield_percent = 0.0f;
-            if (Mass <= 0.0f)
-                Mass = 1f;
+            PowerCurrent = Math.Min(PowerCurrent, PowerStoreMax);
+            
+            shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
+            
+            
             switch (engineState)
             {
                 case MoveState.Sublight:
@@ -2279,6 +2127,160 @@ namespace Ship_Game.Gameplay
                 Velocity = Velocity.Normalized() * velocityMaximum;
 
             Acceleration = oldVelocity.Acceleration(Velocity, deltaTime);
+        }
+
+        private void UpdateTroops()
+        {
+            Array<Troop> OwnTroops = new Array<Troop>();
+            Array<Troop> EnemyTroops = new Array<Troop>();
+            foreach (Troop troop in TroopList)
+            {
+                if (troop.GetOwner() == loyalty)
+                    OwnTroops.Add(troop);
+                else
+                    EnemyTroops.Add(troop);
+            }
+            if (HealPerTurn > 0)
+            {
+                foreach (Troop troop in OwnTroops)
+                {
+                    if (troop.Strength < troop.GetStrengthMax())
+                    {
+                        troop.Strength += HealPerTurn;
+                    }
+                    else
+                        troop.Strength = troop.GetStrengthMax();
+                }
+            }
+            if (EnemyTroops.Count > 0)
+            {
+                float num1 = 0;
+                for (int index = 0; index < MechanicalBoardingDefense; ++index)
+                {
+                    if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
+                        ++num1;
+                }
+                foreach (Troop troop in EnemyTroops)
+                {
+                    float num2 = num1;
+                    if (num1 > 0)
+                    {
+                        if (num1 > troop.Strength)
+                        {
+                            float num3 = troop.Strength;
+                            troop.Strength = 0;
+                            num1 -= num3;
+                        }
+                        else
+                        {
+                            troop.Strength -= num1;
+                            num1 -= num2;
+                        }
+                        if (troop.Strength <= 0)
+                            TroopList.Remove(troop);
+                    }
+                    else
+                        break;
+                }
+                EnemyTroops.Clear();
+                foreach (Troop troop in TroopList)
+                    EnemyTroops.Add(troop);
+                if (OwnTroops.Count > 0 && EnemyTroops.Count > 0)
+                {
+                    foreach (Troop troop in OwnTroops)
+                    {
+                        for (int index = 0; index < troop.Strength; ++index)
+                        {
+                            if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
+                                ++num1;
+                        }
+                    }
+                    foreach (Troop troop in EnemyTroops)
+                    {
+                        float num2 = num1;
+                        if (num1 > 0)
+                        {
+                            if (num1 > troop.Strength)
+                            {
+                                float num3 = troop.Strength;
+                                troop.Strength = 0;
+                                num1 -= num3;
+                            }
+                            else
+                            {
+                                troop.Strength -= num1;
+                                num1 -= num2;
+                            }
+                            if (troop.Strength <= 0)
+                                TroopList.Remove(troop);
+                            if (num1 <= 0)
+                                break;
+                        }
+                        else
+                            break;
+                    }
+                }
+                EnemyTroops.Clear();
+                foreach (Troop troop in TroopList)
+                    EnemyTroops.Add(troop);
+                if (EnemyTroops.Count > 0)
+                {
+                    float num2 = 0;
+                    foreach (Troop troop in EnemyTroops)
+                    {
+                        for (int index = 0; index < troop.Strength; ++index)
+                        {
+                            if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
+                                ++num2;
+                        }
+                    }
+                    foreach (Troop troop in OwnTroops)
+                    {
+                        float num3 = num2;
+                        if (num2 > 0)
+                        {
+                            if (num2 > troop.Strength)
+                            {
+                                float num4 = troop.Strength;
+                                troop.Strength = 0;
+                                num2 -= num4;
+                            }
+                            else
+                            {
+                                troop.Strength -= num2;
+                                num2 -= num3;
+                            }
+                            if (troop.Strength <= 0)
+                                TroopList.Remove(troop);
+                        }
+                        else
+                            break;
+                    }
+                    if (num2 > 0)
+                    {
+                        MechanicalBoardingDefense -= (float) num2;
+                        if (MechanicalBoardingDefense < 0.0)
+                            MechanicalBoardingDefense = 0.0f;
+                    }
+                }
+                OwnTroops.Clear();
+                foreach (Troop troop in TroopList)
+                {
+                    if (troop.GetOwner() == loyalty)
+                        OwnTroops.Add(troop);
+                }
+                if (OwnTroops.Count == 0 && MechanicalBoardingDefense <= 0.0)
+                {
+                    loyalty.GetShips().QueuePendingRemoval(this);
+                    loyalty = EnemyTroops[0].GetOwner();
+                    loyalty.AddShipNextFrame(this);
+                    if (fleet != null)
+                        ClearFleet();
+
+                    AI.ClearOrdersNext = true;
+                    AI.State = AIState.AwaitingOrders;
+                }
+            }
         }
 
         public void ShipStatusChange()
@@ -2439,7 +2441,7 @@ namespace Ship_Game.Gameplay
                     Thrust         += Thrust * mod.SpeedBonus;
                 }
             }
-            
+
         }
         public bool IsTethered()
         {
@@ -2691,17 +2693,17 @@ namespace Ship_Game.Gameplay
             if (Active)
             {
                 Active = false;
-                switch (shipData.Role)
+                switch (shipData.HullData.Role)
                 {
-                    case ShipData.RoleName.freighter:   ExplodeShip(500f, cleanupOnly); break;
-                    case ShipData.RoleName.platform:    ExplodeShip(500f, cleanupOnly); break;
-                    case ShipData.RoleName.fighter:     ExplodeShip(600f, cleanupOnly); break;
-                    case ShipData.RoleName.frigate:     ExplodeShip(1000f,cleanupOnly); break;
-                    case ShipData.RoleName.capital:     ExplodeShip(1200f, true);       break;
-                    case ShipData.RoleName.carrier:     ExplodeShip(900f, true);        break;
-                    case ShipData.RoleName.cruiser:     ExplodeShip(850f, true);        break;
-                    case ShipData.RoleName.station:     ExplodeShip(1200f, true);       break;
-                    default:                            ExplodeShip(600f, cleanupOnly); break;
+                    case ShipData.RoleName.freighter:   ExplodeShip(Math.Max(GridHeight,GridWidth) * 8, cleanupOnly); break;
+                    case ShipData.RoleName.platform:    ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
+                    case ShipData.RoleName.fighter:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
+                    case ShipData.RoleName.frigate:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
+                    case ShipData.RoleName.capital:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);       break;
+                    case ShipData.RoleName.carrier:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);        break;
+                    case ShipData.RoleName.cruiser:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);        break;
+                    case ShipData.RoleName.station:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);       break;
+                    default:                            ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
                 }
 
                 UniverseScreen.SpaceManager.ShipExplode(this, Size * 50, Center, Radius);
