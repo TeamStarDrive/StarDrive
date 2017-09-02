@@ -759,12 +759,14 @@ namespace Ship_Game.AI {
             if (distance < 7500f)
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
-                    Owner.HyperspaceReturn();
+                    Owner.HyperspaceReturn();             
+            }
+            if (distance < 1500f + orbitTarget.ObjectRadius)
+            {
+                ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed > 300f ? 300f : Owner.Speed);
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;
             }
-            if (distance < 1500f + orbitTarget.ObjectRadius)
-                ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed > 300f ? 300f : Owner.Speed);
             else
                 ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
         }

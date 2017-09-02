@@ -1333,6 +1333,7 @@ namespace Ship_Game
             }
             else
             {
+                 ship.AI.HasPriorityOrder = true;
                 if (audio)
                     GameAudio.PlaySfxAsync("echo_affirm1");
                 if (ship.isColonyShip)
@@ -1347,7 +1348,7 @@ namespace Ship_Game
                     if (planet.Owner != null && planet.Owner == player && (!ship.HasTroopBay && !ship.hasTransporter))
                     {
                         if (Input.IsShiftKeyDown)
-                            ship.AI.OrderToOrbit(planet, false);
+                            ship.AI.OrderToOrbit(planet, true);
                         else
                             ship.AI.OrderRebase(planet, true);
                     }
@@ -1355,7 +1356,7 @@ namespace Ship_Game
                     {
                         //add new right click troop and troop ship options on planets
                         if (Input.IsShiftKeyDown)
-                            ship.AI.OrderToOrbit(planet, false);
+                            ship.AI.OrderToOrbit(planet, true);
                         else
                         {
                             ship.AI.State = AIState.AssaultPlanet;
@@ -1379,10 +1380,10 @@ namespace Ship_Game
                             else if (enemies > friendlies || planet.Population > 0f)
                                 ship.AI.OrderBombardPlanet(planet);
                             else                            
-                                ship.AI.OrderToOrbit(planet, false);                            
+                                ship.AI.OrderToOrbit(planet, true);                            
                         }
                         else                        
-                            ship.AI.OrderToOrbit(planet, false);
+                            ship.AI.OrderToOrbit(planet, true);
                         
                     }
                     else if (enemies > friendlies && Input.IsShiftKeyDown)                    
@@ -1392,7 +1393,7 @@ namespace Ship_Game
                         ship.AI.OrderToOrbit(planet, true);
                 }
                 else if (Input.IsShiftKeyDown)
-                    ship.AI.OrderToOrbit(planet, false);
+                    ship.AI.OrderToOrbit(planet, true);
                 else
                     ship.AI.OrderToOrbit(planet, true);
             }                           

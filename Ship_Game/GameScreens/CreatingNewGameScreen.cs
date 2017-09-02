@@ -359,7 +359,7 @@ namespace Ship_Game
                         traits.ShipCostMod   -= 0.2f;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
-                        empireFromEmpireData.data.FlatMoneyBonus += 50; // cheaty cheat
+                        empireFromEmpireData.data.FlatMoneyBonus += 20; // cheaty cheat
                         traits.ProductionMod += 1.0f;
                         traits.ResearchMod    = 1.33f;
                         traits.TaxMod        += 1.0f;
