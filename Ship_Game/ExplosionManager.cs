@@ -30,10 +30,10 @@ namespace Ship_Game
     }
 
     public sealed class ExplosionManager
-	{
-		public static UniverseScreen Universe;
-		public static BatchRemovalCollection<Explosion> ExplosionList = new BatchRemovalCollection<Explosion>();
-		private static readonly Random Random = new Random();
+    {
+        public static UniverseScreen Universe;
+        public static BatchRemovalCollection<Explosion> ExplosionList = new BatchRemovalCollection<Explosion>();
+        private static readonly Random Random = new Random();
 
         private static void AddLight(Explosion newExp, Vector3 position, float radius, float intensity)
         {
@@ -58,30 +58,30 @@ namespace Ship_Game
         private static void PickRandomExplosion(Explosion newExp)
         {
             switch (RandomMath2.IntBetween(0, 2))
-			{
+            {
                 default://0:
-					newExp.AnimationTexture  = "sd_explosion_12a_cc/sd_explosion_12a_cc_00000";
-					newExp.AnimationBasePath = "sd_explosion_12a_cc/sd_explosion_12a_cc_";
-					break;
-				case 1:
-					newExp.AnimationTexture  = "sd_explosion_14a_cc/sd_explosion_14a_cc_00000";
-					newExp.AnimationBasePath = "sd_explosion_14a_cc/sd_explosion_14a_cc_";
-					break;
-				case 2:
-					newExp.AnimationTexture  = "sd_explosion_07a_cc/sd_explosion_07a_cc_00000";
-					newExp.AnimationBasePath = "sd_explosion_07a_cc/sd_explosion_07a_cc_";
-					break;
-			}
+                    newExp.AnimationTexture  = "sd_explosion_12a_cc/sd_explosion_12a_cc_00000";
+                    newExp.AnimationBasePath = "sd_explosion_12a_cc/sd_explosion_12a_cc_";
+                    break;
+                case 1:
+                    newExp.AnimationTexture  = "sd_explosion_14a_cc/sd_explosion_14a_cc_00000";
+                    newExp.AnimationBasePath = "sd_explosion_14a_cc/sd_explosion_14a_cc_";
+                    break;
+                case 2:
+                    newExp.AnimationTexture  = "sd_explosion_07a_cc/sd_explosion_07a_cc_00000";
+                    newExp.AnimationBasePath = "sd_explosion_07a_cc/sd_explosion_07a_cc_";
+                    break;
+            }
         }
 
         public static void AddExplosion(Vector3 position, float radius, float intensity, float duration
             , string explosionPath = "", string explosionAnimation = "")
-		{
-			Explosion newExp = new Explosion()
-			{
-				duration = 2.25f,
-				pos = position.ToVec2()
-			};
+        {
+            Explosion newExp = new Explosion()
+            {
+                duration = 2.25f,
+                pos = position.ToVec2()
+            };
             AddLight(newExp, position, radius, intensity);
             if (explosionAnimation == "" || explosionPath == "")
                 PickRandomExplosion(newExp);
@@ -90,44 +90,44 @@ namespace Ship_Game
                 newExp.AnimationBasePath = explosionPath;
                 newExp.AnimationTexture = explosionAnimation;
             }
-			newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
+            newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
 
             ExplosionList.Add(newExp);
         }
 
-		public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, int nosparks)
-		{
-			Explosion newExp = new Explosion()
-			{
-				sparks = false,
-				duration = 2.25f,
-                pos = position.ToVec2()
-            };
-			AddLight(newExp, position, radius, intensity);
-            PickRandomExplosion(newExp);
-			newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
-
-            ExplosionList.Add(newExp);
-        }
-
-	    public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, ShipModule mod)
-		{
-			Explosion newExp = new Explosion()
-			{
-				duration = 2.25f,
+        public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, int nosparks)
+        {
+            Explosion newExp = new Explosion()
+            {
+                sparks = false,
+                duration = 2.25f,
                 pos = position.ToVec2()
             };
             AddLight(newExp, position, radius, intensity);
             PickRandomExplosion(newExp);
+            newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
 
             ExplosionList.Add(newExp);
         }
 
-		public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, bool Shockwave)
-		{
-			Explosion newExp = new Explosion
-			{
-				duration = duration,
+        public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, ShipModule mod)
+        {
+            Explosion newExp = new Explosion()
+            {
+                duration = 2.25f,
+                pos = position.ToVec2()
+            };
+            AddLight(newExp, position, radius, intensity);
+            PickRandomExplosion(newExp);
+
+            ExplosionList.Add(newExp);
+        }
+
+        public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, bool Shockwave)
+        {
+            Explosion newExp = new Explosion
+            {
+                duration = duration,
                 pos = position.ToVec2()
             };
             AddLight(newExp, position, radius, intensity);
@@ -135,23 +135,23 @@ namespace Ship_Game
             ExplosionList.Add(newExp);
         }
 
-		public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity, float duration)
-		{
-			Explosion newExp = new Explosion()
-			{
-				duration = 2.25f,
+        public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity, float duration)
+        {
+            Explosion newExp = new Explosion()
+            {
+                duration = 2.25f,
                 pos = position.ToVec2()
             };
             AddLight(newExp, position, radius, intensity);
-			newExp.Animated = false;
-			newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
+            newExp.Animated = false;
+            newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
 
             ExplosionList.Add(newExp);
         }
 
-		public static void AddProjectileExplosion(Vector3 position, float radius, float intensity, float duration, string which)
-		{
-			Explosion newExp = new Explosion()
+        public static void AddProjectileExplosion(Vector3 position, float radius, float intensity, float duration, string which)
+        {
+            Explosion newExp = new Explosion()
             {
                 ExpColor = which,
                 duration = 2.25f,
@@ -159,54 +159,54 @@ namespace Ship_Game
             };
             AddLight(newExp, position, radius, intensity);
             PickRandomExplosion(newExp);
-			newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
+            newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
 
-			ExplosionList.Add(newExp);
-		}
+            ExplosionList.Add(newExp);
+        }
 
-		public static void AddWarpExplosion(Vector3 position, float radius, float intensity, float duration)
-		{
-			Explosion newExp = new Explosion()
-			{
-				duration = 2.25f,
+        public static void AddWarpExplosion(Vector3 position, float radius, float intensity, float duration)
+        {
+            Explosion newExp = new Explosion()
+            {
+                duration = 2.25f,
                 pos = position.ToVec2()
             };
 
             AddLight(newExp, position, radius, intensity);
-			newExp.AnimationFrames   = 59;
-			newExp.AnimationTexture  = "sd_shockwave_01/sd_shockwave_01_00000";
-			newExp.AnimationBasePath = "sd_shockwave_01/sd_shockwave_01_";
-			newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
+            newExp.AnimationFrames   = 59;
+            newExp.AnimationTexture  = "sd_shockwave_01/sd_shockwave_01_00000";
+            newExp.AnimationBasePath = "sd_shockwave_01/sd_shockwave_01_";
+            newExp.Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
 
             ExplosionList.Add(newExp);
-		}
+        }
 
-		private static Vector3 RandomPointOnCircle(float radius, Vector3 center)
-		{
-			double angle = Random.NextDouble() * 3.14159265358979 * 2;
-			float x = (float)Math.Cos(angle);
-			float y = (float)Math.Sin(angle);
-			return new Vector3(center.X + x * radius, center.Y, y * radius);
-		}
+        private static Vector3 RandomPointOnCircle(float radius, Vector3 center)
+        {
+            double angle = Random.NextDouble() * 3.14159265358979 * 2;
+            float x = (float)Math.Cos(angle);
+            float y = (float)Math.Sin(angle);
+            return new Vector3(center.X + x * radius, center.Y, y * radius);
+        }
 
-		private static Vector3 RandomSpherePoint(float radius, Vector3 Center)
-		{
-			Vector3 v = Vector3.Zero;
-			do
-			{
-				v.X = 2f * (float)Random.NextDouble() - 1f;
-				v.Y = 2f * (float)Random.NextDouble() - 1f;
-				v.Z = 2f * (float)Random.NextDouble() - 1f;
-			}
-			while (v.LengthSquared() == 0f || v.LengthSquared() > 1f);
-			v.Normalize();
-			v = v * radius;
-			v = v + Center;
-			return v;
-		}
+        private static Vector3 RandomSpherePoint(float radius, Vector3 Center)
+        {
+            Vector3 v = Vector3.Zero;
+            do
+            {
+                v.X = 2f * (float)Random.NextDouble() - 1f;
+                v.Y = 2f * (float)Random.NextDouble() - 1f;
+                v.Z = 2f * (float)Random.NextDouble() - 1f;
+            }
+            while (v.LengthSquared() == 0f || v.LengthSquared() > 1f);
+            v.Normalize();
+            v = v * radius;
+            v = v + Center;
+            return v;
+        }
 
-		public static void Update(float elapsedTime)
-		{
+        public static void Update(float elapsedTime)
+        {
             using (ExplosionList.AcquireReadLock())
             foreach (Explosion explosion in ExplosionList)
             {
@@ -240,8 +240,8 @@ namespace Ship_Game
                     Universe.RemoveLight(explosion.light);
                 }
             }
-			ExplosionList.ApplyPendingRemovals();
-		}
+            ExplosionList.ApplyPendingRemovals();
+        }
 
         public static void DrawExplosions(ScreenManager screen, Matrix view, Matrix projection)
         {
@@ -269,5 +269,5 @@ namespace Ship_Game
                 }
             }
         }
-	}
+    }
 }

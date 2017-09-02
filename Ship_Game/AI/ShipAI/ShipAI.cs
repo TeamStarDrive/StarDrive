@@ -685,14 +685,14 @@ namespace Ship_Game.AI
                     break;
                 }	        
             TriggerDelay -= elapsedTime;
-            if (BadGuysNear)
+            if (BadGuysNear && !IgnoreCombat )
             {
                 using (OrderQueue.AcquireWriteLock())
                 {
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
                     if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0 || Owner.Transporters.Count > 0)
                     {
-                        if (Target != null && !HasPriorityOrder && !IgnoreCombat && State != AIState.Resupply &&
+                        if (Target != null && !HasPriorityOrder  && State != AIState.Resupply &&
                             (OrderQueue.IsEmpty ||
                             firstgoal != null && firstgoal.Plan != Plan.DoCombat && firstgoal.Plan != Plan.Bombard &&
                             firstgoal.Plan != Plan.BoardShip))

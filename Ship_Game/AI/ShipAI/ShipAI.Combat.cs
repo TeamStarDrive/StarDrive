@@ -65,7 +65,7 @@ namespace Ship_Game.AI
                 foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj))
                 {
                     var missile = (Projectile) go;
-                    if (missile.Loyalty != Owner.loyalty && missile.Weapon.Tag_Intercept)
+                    if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
                         TrackProjectiles.Add(missile);
                 }
                 TrackProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));

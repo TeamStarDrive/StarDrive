@@ -32,6 +32,7 @@ namespace Ship_Game.AI {
             if (Owner.isSpooling || Owner.engineState == Ship.MoveState.Warp)
                 Owner.HyperspaceReturn();
             State = AIState.HoldPosition;
+            CombatState = CombatState.HoldPosition;
             Owner.isThrusting = false;
         }
 

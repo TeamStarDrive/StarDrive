@@ -531,13 +531,14 @@ namespace Ship_Game.AI {
         {
             if (Owner.Velocity.Length() > 0f)
             {
+                Stop(elapsedTime);
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
-                var angleDiff = Owner.AngleDiffTo(Owner.Velocity, out Vector2 right, out Vector2 forward);
-                var facing = Owner.Velocity.Facing(right);
+                var angleDiff = Owner.AngleDiffTo(Target.Center.Normalized(), out Vector2 right, out Vector2 forward);
+                var facing = Owner.Velocity.Facing(right);                
                 if (angleDiff <= 0.2f)
                 {
-                    Stop(elapsedTime);
+                    
                     return;
                 }
                 RotateToFacing(elapsedTime, angleDiff, facing);
