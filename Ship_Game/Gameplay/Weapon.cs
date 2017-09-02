@@ -420,7 +420,7 @@ namespace Ship_Game.Gameplay
             if (adjust == -1)
             {
                 adjust = 1;
-                if (isTurret) adjust *= .75f;
+                if (isTurret) adjust *= .5f;
                 if (Tag_PD) adjust   *= .5f;
                 if (TruePD) adjust   *= .5f;
             }

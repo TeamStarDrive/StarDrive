@@ -162,6 +162,7 @@ namespace Ship_Game
         [Serialize(87)] public float treasuryGoal    = .20f;
         [Serialize(88)] public bool AutoTaxes        = false;
         [Serialize(89)] public float BorderTolerance = 0;
+        [Serialize(90)] public int BaseShipLevel = 0;
 
         public EmpireData()
         {
