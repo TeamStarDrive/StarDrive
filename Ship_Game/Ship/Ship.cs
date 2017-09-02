@@ -2604,13 +2604,7 @@ namespace Ship_Game.Gameplay
             rel.ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
-        public void AddToShipLevel(int amountToAdd)
-        {
-            Level += amountToAdd;
-            if (Level > 255)
-                Level = 255;
-
-        }
+        public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);        
 
         private void ExplodeShip(float explodeRadius, bool useWarpExplodeEffect)
         {
@@ -2693,16 +2687,16 @@ namespace Ship_Game.Gameplay
             if (Active)
             {
                 Active = false;
-                switch (shipData.HullData.Role)
+                switch (shipData.HullRole)
                 {
                     case ShipData.RoleName.freighter:   ExplodeShip(Math.Max(GridHeight,GridWidth) * 8, cleanupOnly); break;
                     case ShipData.RoleName.platform:    ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
                     case ShipData.RoleName.fighter:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
                     case ShipData.RoleName.frigate:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
-                    case ShipData.RoleName.capital:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);       break;
-                    case ShipData.RoleName.carrier:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);        break;
-                    case ShipData.RoleName.cruiser:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);        break;
-                    case ShipData.RoleName.station:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, true);       break;
+                    case ShipData.RoleName.capital:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 16, true);       break;
+                    case ShipData.RoleName.carrier:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 16, true);        break;
+                    case ShipData.RoleName.cruiser:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 10, true);        break;
+                    case ShipData.RoleName.station:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 16, true);       break;
                     default:                            ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
                 }
 

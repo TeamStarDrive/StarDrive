@@ -446,12 +446,12 @@ namespace Ship_Game.Gameplay
                     return;
                 return;
             }
-
+            float damageBurstExternal = damageAmount;
             int firstX = Math.Min(a.X, b.X); // this is the max bounding box range of the scan
             int firstY = Math.Min(a.Y, b.Y);
             int lastX  = Math.Max(a.X, b.X);
             int lastY  = Math.Max(a.Y, b.Y);
-            damageTracker = damageAmount;
+            //damageTracker = damageAmount;
             Point cx = WorldToGridLocalPointClipped(worldHitPos); // clip the start, because it's often near an edge
             int minX = cx.X, minY = cx.Y;
             int maxX = cx.X, maxY = cx.Y;
@@ -460,7 +460,7 @@ namespace Ship_Game.Gameplay
 
             // spread out the damage in 4 directions but apply a new set of full damage to external modules.
 
-            float damageBurstExternal = damageAmount;
+            
 
             for (;;)
             {
