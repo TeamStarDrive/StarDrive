@@ -480,7 +480,7 @@ namespace Ship_Game.Gameplay
 
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
         {
-            float splodeDis = explosionCenter.Distance(affectedPoint);
+            float splodeDis = explosionCenter.Distance(affectedPoint) - moduleRadius;
             if (splodeDis < moduleRadius) splodeDis = 0;
 
             return Math.Min(1.0f, (damageRadius - splodeDis) / (damageRadius + minFalloff));
@@ -491,7 +491,7 @@ namespace Ship_Game.Gameplay
             , ref float damageInOut, bool damageReduction = true)
         {
             if (damageInOut <= 0f) return true;
-            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, Radius, 0f);
+            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, ShieldPower >0 ? ShieldHitRadius : Radius, 0f);
             if (damage <= 0.001f)
                 return damageInOut <= 0f;
             if (Empire.Universe.DebugWin != null)
