@@ -222,7 +222,7 @@ namespace Ship_Game.AI
             Array<Ship> potentialSatellites = new Array<Ship>();
             foreach (string platform in OwnerEmpire.structuresWeCanBuild)
             {
-                Ship orbitalDefense = ResourceManager.ShipsDict[platform];
+                Ship orbitalDefense = ResourceManager.GetShipTemplate(platform);
                 if (orbitalDefense.shipData.Role == ShipData.RoleName.station 
                     && (orbitalDefense.shipData.IsOrbitalDefense || !orbitalDefense.shipData.IsShipyard))                
                     potentialSatellites.Add(orbitalDefense);                
