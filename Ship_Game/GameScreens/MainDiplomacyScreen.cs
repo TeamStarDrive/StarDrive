@@ -53,6 +53,13 @@ namespace Ship_Game
         public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
         {			
             screen = screen;
+            if (!Empire.Universe.Paused)
+            {
+                Empire.Universe.Paused = Pauses = true;
+
+            }
+            
+
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);

@@ -182,9 +182,7 @@ namespace Ship_Game {
             CategoryList.HandleInput(input);
             CarrierOnlyBox.HandleInput(input);
 
-            if (ActiveModule != null && (ActiveModule.InstalledWeapon != null
-                                              && ActiveModule.ModuleType != ShipModuleType.Turret ||
-                                              ActiveModule.XSIZE != ActiveModule.YSIZE))
+            if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
                 if (input.ArrowLeft)
                     ChangeModuleState(ActiveModuleState.Left);

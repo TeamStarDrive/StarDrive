@@ -479,8 +479,7 @@ namespace Ship_Game
                     Screen.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, moduleTemplate.Restrictions.ToString(),
                         tCursor, Color.Orange);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(moduleTemplate.Restrictions.ToString()).X;
-                    if (moduleTemplate.InstalledWeapon != null && moduleTemplate.ModuleType != ShipModuleType.Turret ||
-                        moduleTemplate.XSIZE != moduleTemplate.YSIZE)
+                    if (moduleTemplate.IsRotatable)
                     {
                         Rectangle rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
                         Screen.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_can_rotate"],
