@@ -162,33 +162,38 @@ namespace Ship_Game
                 modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 4);
             }
             string rest = "";
-            if (moduleTemplate.Restrictions == Restrictions.IO)
+            switch (moduleTemplate.Restrictions)
             {
-                rest = "Any Slot except E";
-            }
-            else if (moduleTemplate.Restrictions == Restrictions.I)
-            {
-                rest = "I, IO, IE or IOE";
-            }
-            else if (moduleTemplate.Restrictions == Restrictions.O)
-            {
-                rest = "O, IO, OE, or IOE";
-            }
-            else if (moduleTemplate.Restrictions == Restrictions.E)
-            {
-                rest = "E, IE, OE, or IOE";
-            }
-            else if (moduleTemplate.Restrictions == Restrictions.IOE)
-            {
-                rest = "Any Slot";
-            }
-            else if (moduleTemplate.Restrictions == Restrictions.IE)
-            {
-                rest = "Any Slot except O";
-            }
-            else if (moduleTemplate.Restrictions == Restrictions.OE)
-            {
-                rest = "Any Slot except I";
+                case Restrictions.IO:
+                    rest = "Any Slot except E";
+                    break;
+                case Restrictions.I:
+                    rest = "I, IO, IE or IOE";
+                    break;
+                case Restrictions.O:
+                    rest = "O, IO, OE, or IOE";
+                    break;
+                case Restrictions.E:
+                    rest = "E, IE, OE, or IOE";
+                    break;
+                case Restrictions.IOE:
+                    rest = "Any Slot";
+                    break;
+                case Restrictions.IE:
+                    rest = "Any Slot except O";
+                    break;
+                case Restrictions.OE:
+                    rest = "Any Slot except I";
+                    break;
+                case Restrictions.xI:
+                    rest = "Only I";
+                    break;
+                case Restrictions.xIO:
+                    rest = "Only IO";
+                    break;
+                case Restrictions.xO:
+                    rest = "Only O";
+                    break;
             }
 
             // Concat ship class restrictions
