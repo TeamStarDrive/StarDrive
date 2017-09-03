@@ -887,11 +887,11 @@ namespace Ship_Game
                             MoveShipToLocation(targetVector, facingToTargetR);
                         
                     }
-                    else if (SelectedShipList.Count > 0)
+                    else if (SelectedShipList.Count > 0 )
                     {
                         SelectedSomethingTimer = 3f;
                         foreach (Ship ship in SelectedShipList)                        
-                            if (UnselectableShip(ship)) return;
+                            if (UnselectableShip(ship) || !ship.loyalty.isPlayer) return;
 
                         GameAudio.AffirmativeClick();
 

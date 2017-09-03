@@ -448,6 +448,7 @@ namespace Ship_Game.Gameplay
 
         public bool HitTestShield(Vector2 worldPos, float radius)
         {
+            if (ShieldPower < 1f) return false;
             ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;

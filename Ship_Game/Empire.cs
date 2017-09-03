@@ -2886,7 +2886,7 @@ namespace Ship_Game
         {
             if (empire == this) return false;
             if (empire == null) return true;            
-            if (!TryGetRelations(empire, out Relationship rel) || rel == null || !rel.Known) return true;            
+            if (!TryGetRelations(empire, out Relationship rel) || rel == null || !rel.Known) return false;            
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
             if (isFaction || empire.isFaction ) return true;
