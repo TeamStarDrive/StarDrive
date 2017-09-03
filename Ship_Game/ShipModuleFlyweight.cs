@@ -118,6 +118,7 @@ namespace Ship_Game.Gameplay
         public readonly bool isBulkhead;
         public readonly int TargetTracking;
         public readonly int FixedTracking;
+        public readonly bool IsRotable;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
         public readonly string UID = string.Empty;
@@ -231,7 +232,8 @@ namespace Ship_Game.Gameplay
             isBulkhead                  = s.isBulkhead;
             TargetTracking              = s.TargetTracking;
             FixedTracking               = s.FixedTracking;
-            UID                         = s.UID;
+            IsRotable                   = (bool)s.IsRotable;
+            UID                         = s.UID;    
         }
     }
 
@@ -377,5 +379,6 @@ namespace Ship_Game.Gameplay
         public int quadrant = -1;
         public int TargetTracking;
         public int FixedTracking;
+        public bool? IsRotable = null;
     }
 }

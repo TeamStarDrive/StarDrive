@@ -36,7 +36,8 @@ namespace Ship_Game
         public int ScreenHeight     => Game1.Instance.ScreenHeight;
         public Vector2 ScreenArea   => Game1.Instance.ScreenArea;
         public Vector2 ScreenCenter => Game1.Instance.ScreenArea * 0.5f;
-        public GameTime GameTime    => Game1.Instance.GameTime;        
+        public GameTime GameTime    => Game1.Instance.GameTime;
+        protected bool Pauses = false;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -73,12 +74,15 @@ namespace Ship_Game
         public virtual void ExitScreen()
         {
             ScreenManager.exitScreenTimer =.024f;
+            if (Pauses)
+                Empire.Universe.Paused = Pauses = false;
             if (TransitionOffTime != TimeSpan.Zero)
             {
                 IsExiting = true;
                 return;
             }
             ScreenManager.RemoveScreen(this);
+   
         }
 
         public virtual void LoadContent()

@@ -161,7 +161,7 @@ namespace Ship_Game
         [Serialize(86)] public bool SpyMissionRepeat = false;
         [Serialize(87)] public float treasuryGoal    = .20f;
         [Serialize(88)] public bool AutoTaxes        = false;
-        [Serialize(89)] public float BorderTolerance = 0;
+        [Serialize(89)] public float BorderTolerance = 40f;
         [Serialize(90)] public int BaseShipLevel = 0;
 
         public EmpireData()
