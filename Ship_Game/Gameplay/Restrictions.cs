@@ -3,11 +3,15 @@ namespace Ship_Game.Gameplay
 	public enum Restrictions
 	{
 		I,
-		IO,
-		IOE,
+		IO,		
 		O,
-		E,
+		E,	    
         IE,
-        OE
-	}
+        OE,
+	    IOE,
+        xI,
+        xIO,
+        xO
+
+    }
 }

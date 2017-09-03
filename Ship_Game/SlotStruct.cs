@@ -27,13 +27,20 @@ namespace Ship_Game
                 return true;
             string moduleFitsToSlots = module.Restrictions.ToString();
 
-            // just check if this slot's capabilities match any in the module placement restrictions
-            foreach(char c in Restrictions.ToString())
+            if (module.Restrictions <= Restrictions.IOE )
+                return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
+            switch (module.Restrictions)
             {
-                
+                case Restrictions.xI:
+                    return Restrictions == Restrictions.I;
+                case Restrictions.xIO:
+                    return Restrictions == Restrictions.IO;
+                case Restrictions.xO:
+                    return Restrictions == Restrictions.O;
+                default:
+                    return false;
             }
 
-            return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
         }
 
         public Vector2 ModuleCenter()
