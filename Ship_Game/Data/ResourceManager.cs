@@ -439,9 +439,7 @@ namespace Ship_Game
                 // @note ship.Name is always the same as fileNameNoExt 
                 //       part of "shipName.xml", so we can skip parsing the XML's
                 if (info.NameNoExt() != shipName)
-                    continue;
-
-                ShipsDict.Remove(shipName);
+                    continue;                
                 info.Delete();
                 return;
             }
@@ -456,9 +454,12 @@ namespace Ship_Game
             string appData = Dir.ApplicationData;
             DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
-
+            GetShipTemplate(shipName).Deleted = true;
             foreach (Empire e in EmpireManager.Empires)
-                e.UpdateShipsWeCanBuild();
+            {
+                if (e.ShipsWeCanBuild.Remove(shipName))
+                    e.UpdateShipsWeCanBuild();
+            }
         }
 
         public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];

@@ -261,14 +261,26 @@ namespace Ship_Game.Gameplay
         }
         public override bool IsAttackable(Empire attacker, Relationship relationToThis)
         {
-            if (AI.Target?.GetLoyalty() == attacker) return true;
-
-            if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
-                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this)) return true;
-            if (!relationToThis.Treaty_NAPact &&
-                relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+            if (relationToThis.Treaty_NAPact) return false;
+            if (AI.Target?.GetLoyalty() == attacker)
+            {
+                if (!InCombat) Log.Info($"{attacker.Name} : Is being attacked by : {loyalty.Name}");
                 return true;
+            }
+
+            if (relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+            {
+                if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
+                return true;
+            }
             if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
+
+            if (!relationToThis.Treaty_OpenBorders &&  relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this))
+            {
+                if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
+                return true;
+            }
 
             return false;
         }
@@ -1918,7 +1930,7 @@ namespace Ship_Game.Gameplay
                                 if (weapon.Tag_Array)     weapon.fireDelay -= weaponTemplate.fireDelay * tags["Array"].Rate;
                                 if (weapon.Tag_Flak)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Flak"].Rate;
                                 if (weapon.Tag_Tractor)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Tractor"].Rate;
-                            }
+                            }                            
                             //Added by McShooterz: Hull bonus Fire Rate
                             if (GlobalStats.ActiveModInfo.useHullBonuses)
                             {

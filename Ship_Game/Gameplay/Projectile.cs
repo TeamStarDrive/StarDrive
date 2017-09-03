@@ -440,13 +440,13 @@ namespace Ship_Game.Gameplay
                     DieNextFrame = true;
                     return true;
                 }
-                if (parent.shipData.Role == ShipData.RoleName.fighter && 
-                    parent.loyalty.data.Traits.DodgeMod > 0f &&
-                    parent.loyalty.data.Traits.DodgeMod > UniverseRandom.RandomBetween(0f, 1f))
-                {
-                    Miss = true;
-                    return false;       
-                }
+                //if (parent.shipData.Role == ShipData.RoleName.fighter && 
+                //    parent.loyalty.data.Traits.DodgeMod > 0f &&
+                //    parent.loyalty.data.Traits.DodgeMod > UniverseRandom.RandomBetween(0f, 1f))
+                //{
+                //    Miss = true;
+                //    return false;       
+                //}
 
                 // Non exploding projectiles should go through multiple modules if it has enough damage
                 if (!Explodes && module.Active)

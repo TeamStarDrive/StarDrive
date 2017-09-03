@@ -417,7 +417,7 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < Shields.Length; ++i)
                 {
                     ShipModule module = Shields[i];
-                    if (module.ShieldPower >= 1f && module.HitTestShield(worldHitPos, hitRadius) &&
+                    if (module.HitTestShield(worldHitPos, hitRadius) &&
                         module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
                 }
