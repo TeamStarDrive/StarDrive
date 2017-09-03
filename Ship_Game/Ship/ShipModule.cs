@@ -165,12 +165,14 @@ namespace Ship_Game.Gameplay
         public bool isBulkhead                  => Flyweight.isBulkhead;
         public int TargetTracking               => Flyweight.TargetTracking;
         public int FixedTracking                => Flyweight.FixedTracking;
+        public bool IsRotatable                 => Flyweight.IsRotable;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb 
                                 || ModuleType == ShipModuleType.Turret 
                                 || ModuleType == ShipModuleType.MainGun 
                                 || ModuleType == ShipModuleType.MissileLauncher 
                                 || ModuleType == ShipModuleType.Drone 
                                 || ModuleType == ShipModuleType.Bomb;
+        
 
         public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
@@ -228,7 +230,7 @@ namespace Ship_Game.Gameplay
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
         {
-            return new ShipModule(template);
+            return new ShipModule(template);            
         }
 
         public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, bool addToShieldManager = true

@@ -681,15 +681,16 @@ namespace Ship_Game.Gameplay
         public bool AttackForBorderViolation(DTrait personality)
         {
             if (Treaty_OpenBorders) return false;
-            float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * .1f) + Anger_TerritorialConflict;
+             float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * .1f) + Anger_TerritorialConflict;
             if (Treaty_Trade) borderAnger *= .2f;
                     
-            return borderAnger + 30 < (personality?.Territorialism  ?? 100);
+            return borderAnger + 10 > (personality?.Territorialism  ?? EmpireManager.Player.data.BorderTolerance);
         }
         
         public bool AttackForTransgressions(DTrait personality)
         {            
-            return !Treaty_NAPact && TotalAnger + 30 < (personality?.Territorialism ?? 100);
+            return !Treaty_NAPact && TotalAnger  > (personality?.Territorialism 
+                ?? EmpireManager.Player.data.BorderTolerance);
         }
 
         public void Dispose()
