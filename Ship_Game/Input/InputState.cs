@@ -6,6 +6,7 @@ namespace Ship_Game
 {
     public sealed class InputState
     {
+        public bool CancelInput = false;
         public KeyboardState KeysCurr;
         public KeyboardState KeysPrev;
         public GamePadState GamepadCurr;
@@ -270,6 +271,11 @@ namespace Ship_Game
         }
         public void Update(GameTime gameTime)
         {
+            if (CancelInput)
+            {
+                CancelInput = false;
+                return;
+            }
             KeysPrev        = KeysCurr;
             GamepadPrev     = GamepadCurr;
             MousePrev       = MouseCurr;
