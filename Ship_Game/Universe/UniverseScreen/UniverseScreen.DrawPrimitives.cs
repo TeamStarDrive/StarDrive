@@ -20,9 +20,9 @@ namespace Ship_Game
             sizeOnScreen = ProjectToScreenPosition(new Vector2(posInWorld.X + sizeInWorld, posInWorld.Y),zAxis).Distance(ref posOnScreen);
         }
 
-        public void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
+        public void ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen, float zAxis = 0)
         {
-            ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out posOnScreen, out sizeOnScreen);
+            ProjectToScreenCoords(posInWorld, zAxis, sizeInWorld, out posOnScreen, out sizeOnScreen);
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float widthInWorld, float heightInWorld, 
@@ -98,6 +98,13 @@ namespace Ship_Game
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawCircleOnPlanet(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
+        {
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius, 2500f);
+            DrawCircle(screenPos, screenRadius, sides, color, thickness);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, int sides = 16, float zAxis = 0f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
@@ -105,14 +112,16 @@ namespace Ship_Game
         }
 
         // draws a projected circle, with an additional overlay texture
-        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor)
+        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor, float z = 0)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
-            float scale = screenRadius / overlay.Width;
+            float scale = screenRadius / (overlay.Width * .5f);
             DrawTexture(overlay, screenPos, scale, 0f, overlayColor);
             DrawCircle(screenPos, screenRadius, sides, color, thickness);
-        }
+        } 
 
+        public void DarwCircleOnPlanetTextured(Vector2 posInWorld, float radiusInWorld, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor)
+            => DrawCircleProjected(posInWorld, radiusInWorld, color, sides, thickness, overlay, overlayColor, 2500f);
 
 
         public void DrawRectangleProjected(Rectangle rectangle, Color edge)
