@@ -87,8 +87,6 @@ namespace Ship_Game
             screen.DrawRectangle(inflateMap, Color.Black, Color.Black);
             screenManager.SpriteBatch.Draw(MiniMapHousing, Housing, Color.White);
             
-            Texture2D uiNode      = Node;
-            Texture2D uiNode1     = Node1;
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
                 Vector2 miniSystemPos = WorldToMiniPos(system.Position);
@@ -96,54 +94,7 @@ namespace Ship_Game
                 screenManager.SpriteBatch.FillRectangle(star, Color.Gray);
             }
 
-            void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list)
-            {
-                using (list.AcquireReadLock())
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        Empire.InfluenceNode node = list[i];
-                        if (!Empire.Universe.Debug)
-                            if (!node.Known)
-                                continue;
-
-                        float radius = WorldToMiniRadius(node.Radius) * 1.2f;
-                        Vector2 nodePos = WorldToMiniPos(node.Position);
-                        var ec = new Color(empire.EmpireColor.R, empire.EmpireColor.G, empire.EmpireColor.B, 80);
-
-                        screenManager.SpriteBatch.Draw(uiNode1, nodePos, null, ec, 0f, uiNode.Center(), radius,
-                            SpriteEffects.None, 1f);
-                    }
-            }
-
-            foreach (Empire e in EmpireManager.Empires)
-            {
-                Relationship rel = EmpireManager.Player.GetRelations(e);
-                if (!Screen.Debug && e != EmpireManager.Player && !rel.Known)
-                    continue;
-                DrawNode(e, e.BorderNodes);
-                DrawNode(e, e.SensorNodes);
-                //using (e.BorderNodes.AcquireReadLock())
-                //    for (int i = 0; i < e.BorderNodes.Count; i++)
-                //    {
-                //        Empire.InfluenceNode node = e.BorderNodes[i];
-                        
-                //        if (!Empire.Universe.Debug)
-                //            if (!node.Known)
-                //                continue;
-                //        DrawNode(node, e);
-
-
-                //    }
-                //using (e.SensorNodes.AcquireReadLock())
-                //    for (int x = 0; x < e.SensorNodes.Count; x++)
-                //    {
-                //        Empire.InfluenceNode senseNode = e.SensorNodes[x];
-                //        if (!Empire.Universe.Debug)
-                //            if (!senseNode.Known)
-                //                continue;
-                //        DrawNode(senseNode, e);
-                //    }
-            }
+            DrawInfluenceNodes(screenManager);
 
             Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
             upperLeftView         = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 20000), HelperFunctions.RoundTo(upperLeftView.Y, 20000));
@@ -191,6 +142,40 @@ namespace Ship_Game
             base.Draw(screenManager.SpriteBatch);
         }
 
+        private void DrawInfluenceNodes(ScreenManager screenManager)
+        {
+            Texture2D uiNode = Node;
+            Texture2D uiNode1 = Node1;
+
+            void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list)
+            {
+                using (list.AcquireReadLock())
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        Empire.InfluenceNode node = list[i];
+                        if (!Empire.Universe.Debug)
+                            if (!node.Known)
+                                continue;
+
+                        float radius = WorldToMiniRadius(node.Radius) * 1.2f;
+                        Vector2 nodePos = WorldToMiniPos(node.Position);
+                        var ec = new Color(empire.EmpireColor.R, empire.EmpireColor.G, empire.EmpireColor.B, 80);
+
+                        screenManager.SpriteBatch.Draw(uiNode1, nodePos, null, ec, 0f, uiNode.Center(), radius,
+                            SpriteEffects.None, 1f);
+                    }
+            }
+
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                Relationship rel = EmpireManager.Player.GetRelations(e);
+                if (!Screen.Debug && e != EmpireManager.Player && !rel.Known)
+                    continue;
+                DrawNode(e, e.BorderNodes);
+                DrawNode(e, e.SensorNodes);
+            }
+        }
+
         private void ZoomToShip_OnClick(ToggleButton toggleButton)
         {
             Empire.Universe.InputZoomToShip();
@@ -236,11 +221,8 @@ namespace Ship_Game
             GameAudio.MiniMapButton();
             Screen.showingRangeOverlay = !Screen.showingRangeOverlay;            
         }
-        public void AIScreen_OnClick(ToggleButton toggleButton)
-        {
-            Screen.aw.ToggleVisibility();
-
-        }
+        public void AIScreen_OnClick(ToggleButton toggleButton) => Screen.aw.ToggleVisibility();
+        
         public bool HandleInput(InputState input, UniverseScreen screen)
         {
             if (!Housing.HitTest(input.CursorPosition)) return false;
