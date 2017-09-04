@@ -135,9 +135,12 @@ namespace Ship_Game
             CShipDataParser* s = null;
             try
             {
-                s = CreateShipDataParser(info.FullName); // @note This will never throw
+                s = CreateShipDataParser(info.FullName); // @note This will never throw                
                 if (!s->ErrorMessage.Empty)
+                {
+                    Log.Error($"Ship Load error in {info.FullName} : {s->ErrorMessage.AsString}");
                     throw new InvalidDataException(s->ErrorMessage.AsString);
+                }
 
                 var ship = new ShipData
                 {

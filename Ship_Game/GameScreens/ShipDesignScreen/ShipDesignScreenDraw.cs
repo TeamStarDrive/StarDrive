@@ -251,7 +251,7 @@ namespace Ship_Game
                 //                                        this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
             {
                 ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-
+                var iconTexturePath = ResourceManager.Texture(moduleTemplate.IconTexturePath);
                 Rectangle r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
                     (int) ((float) (16 * this.ActiveModule.XSIZE) * this.Camera.Zoom),
                     (int) ((float) (16 * this.ActiveModule.YSIZE) * this.Camera.Zoom));
@@ -260,7 +260,7 @@ namespace Ship_Game
                     case ActiveModuleState.Normal:
                     {
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict[moduleTemplate.IconTexturePath], r, Color.White);
+                            iconTexturePath, r, Color.White);
                         break;
                     }
                     case ActiveModuleState.Left:
@@ -271,7 +271,7 @@ namespace Ship_Game
                         r.Width = h;
                         r.Height = w;
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict[moduleTemplate.IconTexturePath], r, null, Color.White,
+                            iconTexturePath, r, null, Color.White,
                             -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
                     }
@@ -283,14 +283,14 @@ namespace Ship_Game
                         r.Width = h;
                         r.Height = w;
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict[moduleTemplate.IconTexturePath], r, null, Color.White,
+                            iconTexturePath, r, null, Color.White,
                             1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
                     }
                     case ActiveModuleState.Rear:
                     {
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict[moduleTemplate.IconTexturePath], r, null, Color.White,
+                            iconTexturePath, r, null, Color.White,
                             0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
                         break;
                     }

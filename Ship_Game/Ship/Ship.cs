@@ -275,7 +275,8 @@ namespace Ship_Game.Gameplay
             }
             if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
 
-            if (!relationToThis.Treaty_OpenBorders &&  relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+            //the below does a search for being inborders so its expensive. 
+            if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
                 && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this))
             {
                 if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");

@@ -192,7 +192,7 @@ namespace Ship_Game.Gameplay
         }
         public float WeaponECM = 0;
         public float WeaponECCM = 0;
-
+        public Texture2D ModuleTexture => ResourceManager.Texture(IconTexturePath);
 
         private ShipModule() : base(GameObjectType.ShipModule)
         {
@@ -290,7 +290,7 @@ namespace Ship_Game.Gameplay
             module.TargetValue += module.isWeapon ? 1 : 0;
             return module;
         }
-
+        
         // @todo Why isn't this used? A bug?
         // Nah, this was added by The Doctor a few centries ago, and to my knowledge was never completed.
         private float ApplyShieldResistances(Weapon weapon, float damage)
