@@ -837,7 +837,7 @@ namespace Ship_Game
 
         private void HandleRightMouseNew()
         {
-            if (Input.RightMouseHeldUp) return;
+            if (Input.RightMouseHeldUp || NotificationManager.HitTest) return;
             if (Input.RightMouseClick)
             {
                 SelectedSomethingTimer = 3f;

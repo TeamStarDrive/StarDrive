@@ -74,6 +74,7 @@ namespace Ship_Game
         public virtual void ExitScreen()
         {
             ScreenManager.exitScreenTimer =.024f;
+            Input.CancelInput = true;            
             if (Pauses)
                 Empire.Universe.Paused = Pauses = false;
             if (TransitionOffTime != TimeSpan.Zero)
@@ -81,6 +82,7 @@ namespace Ship_Game
                 IsExiting = true;
                 return;
             }
+            Empire.Universe?.ResetLighting();
             ScreenManager.RemoveScreen(this);
    
         }
@@ -120,7 +122,7 @@ namespace Ship_Game
                 IsExiting = false;
             }
         }
-
+        
 
         private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
         {

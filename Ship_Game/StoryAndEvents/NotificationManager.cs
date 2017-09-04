@@ -19,7 +19,7 @@ namespace Ship_Game
         private BatchRemovalCollection<Notification> NotificationList = 
             new BatchRemovalCollection<Notification>();
         private float Timer;
-
+        public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
         public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
         {
             Screen        = screen;

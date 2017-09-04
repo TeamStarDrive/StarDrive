@@ -752,7 +752,7 @@ namespace Ship_Game.Gameplay
             }
             return true;
         }
-
+        
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             ++DebugInfoScreen.ModulesDied;

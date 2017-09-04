@@ -1016,7 +1016,6 @@ namespace Ship_Game {
 
         private void ReallyExit()
         {
-            Empire.Universe.ResetLighting();
             RemoveObject(shipSO);
 
             if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
