@@ -2865,14 +2865,16 @@ namespace Ship_Game.Gameplay
 
         private ShipData.RoleName GetDesignRole()
         {
-            ShipData.RoleName str = shipData.HullRole;
+             ShipData.RoleName str = shipData.HullRole;
 
             if (isConstructor)
                 return ShipData.RoleName.construction;
-            if (isConstructor)
+            if (isColonyShip)
                 return ShipData.RoleName.colony;
             if (this.IsSupplyShip)
                 return ShipData.RoleName.supply;
+            if (shipData.Role == ShipData.RoleName.troop)
+                return ShipData.RoleName.troop;
                 
             int ModuleSize(ShipModule module)
             {
@@ -2885,9 +2887,9 @@ namespace Ship_Game.Gameplay
                     return ShipData.RoleName.carrier;
             }
             //troops ship
-            if (this.TroopCapacity >0 && (HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
+            if ((this.TroopCapacity >0 || TroopList.Count >1) && (HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
             {
-                if (Hangars.FilterBy(troopbay => troopbay.IsTroopBay)
+                if (TroopCapacity ==0 || Hangars.FilterBy(troopbay => troopbay.IsTroopBay)
                     .Sum(ModuleSize)
                     + Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding >0)
                     .Sum(ModuleSize) > Size * .10f)

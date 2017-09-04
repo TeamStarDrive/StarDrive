@@ -307,7 +307,7 @@ namespace Ship_Game.Gameplay
         private void InitDefendingTroopStrength()
         {
             TroopBoardingDefense      = 0f;
-            MechanicalBoardingDefense = 0f;
+            
             foreach (Troop troopList in TroopList)
             {
                 troopList.SetOwner(loyalty);
