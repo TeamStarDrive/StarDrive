@@ -431,13 +431,12 @@ namespace Ship_Game
             DrawTacticalPlanetIcons();
             if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
             {
-                var inhibit = ResourceManager.TextureDict["UI/node_inhibit"];
+                var inhibit = ResourceManager.Texture("UI/node_inhibit");
                 lock (GlobalStats.ClickableSystemsLock)
                 {
                     foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
-                        float radius = GlobalStats.GravityWellRange *
-                                       (1 + (((float) Math.Log(cplanet.planetToClick.scale)) / 1.5f));
+                        float radius = cplanet.planetToClick.GravityWellRadius;
                         DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 50, 0, 150), 50, 1f,
                             inhibit, new Color(200, 0, 0, 50));
                     }
@@ -471,8 +470,7 @@ namespace Ship_Game
                         Color color = (ship.shipToClick.loyalty == EmpireManager.Player)
                             ? new Color(0, 200, 0, 30)
                             : new Color(200, 0, 0, 30);
-                        float radius = ship.shipToClick.RangeForOverlay;
-                        //DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 50, 2f, nodeShipRange, color);
+                        float radius = ship.shipToClick.RangeForOverlay;                        
                         DrawTextureProjected(shipRangeTex, ship.shipToClick.Position, radius, color);
                     }
                 }
@@ -480,7 +478,7 @@ namespace Ship_Game
 
             if (showingDSBW && !LookingAtPlanet)
             {
-                var nodeTex = ResourceManager.TextureDict["UI/node1"];
+                var nodeTex = ResourceManager.Texture("UI/node1");
                 lock (GlobalStats.ClickableSystemsLock)
                 {
                     foreach (ClickablePlanets cplanet in ClickPlanetList)
@@ -495,7 +493,7 @@ namespace Ship_Game
             DrawFleetIcons(gameTime);
 
             //fbedard: display values in new buttons
-            ShipsInCombat.Text = "Ships: " + this.player.empireShipCombat;
+            ShipsInCombat.Text = "Ships: " + player.empireShipCombat;
             if (player.empireShipCombat > 0)
             {
                 ShipsInCombat.Style = ButtonStyle.Medium;
@@ -775,12 +773,12 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.planetType].Width /
+                            (float) (ResourceManager.Texture("Planets/" + (object) planet.planetType).Width /
                                      2),
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.planetType].Height /
+                            (float) (ResourceManager.Texture("Planets/" + (object) planet.planetType).Height /
                                      2f));
                         this.ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict["Planets/" + (object) planet.planetType], position,
+                            ResourceManager.Texture("Planets/" + (object) planet.planetType), position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                     }
                 }
@@ -790,8 +788,8 @@ namespace Ship_Game
         private void DrawItemInfoForUI()
         {
             var goal = SelectedItem?.AssociatedGoal;
-            if (goal != null)
-                DrawCircleProjected(goal.BuildPosition, 50f, 50, goal.empire.EmpireColor);
+            if (goal == null) return;
+            DrawCircleProjected(goal.BuildPosition, 50f, 50, goal.empire.EmpireColor);            
         }
 
         private void DrawShipUI(GameTime gameTime)
@@ -940,7 +938,7 @@ namespace Ship_Game
             {
                 Vector2 center = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
                 float screenRadius = ProjectToScreenSize(Empire.ProjectorRadius);
-                DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, 0.01f), 50, Color.Orange, 2f);
+                DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), 50, Color.Orange, 2f); //
             }
         }
 
