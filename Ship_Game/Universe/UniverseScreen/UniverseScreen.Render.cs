@@ -73,11 +73,11 @@ namespace Ship_Game
                 ClickPlanetList.Clear();
                 ClickableSystems.Clear();
             }
-            Texture2D Glow_Terran = ResourceManager.TextureDict["PlanetGlows/Glow_Terran"];
-            Texture2D Glow_Red    = ResourceManager.TextureDict["PlanetGlows/Glow_Red"];
-            Texture2D Glow_White  = ResourceManager.TextureDict["PlanetGlows/Glow_White"];
-            Texture2D Glow_Aqua   = ResourceManager.TextureDict["PlanetGlows/Glow_Aqua"];
-            Texture2D Glow_Orange = ResourceManager.TextureDict["PlanetGlows/Glow_Orange"];
+            Texture2D Glow_Terran = ResourceManager.Texture("PlanetGlows/Glow_Terran");
+            Texture2D Glow_Red    = ResourceManager.Texture("PlanetGlows/Glow_Red");
+            Texture2D Glow_White  = ResourceManager.Texture("PlanetGlows/Glow_White");
+            Texture2D Glow_Aqua   = ResourceManager.Texture("PlanetGlows/Glow_Aqua");
+            Texture2D Glow_Orange = ResourceManager.Texture("PlanetGlows/Glow_Orange");
             Texture2D sunTexture  = null;
             string sunPath = string.Empty;
             for (int index = 0; index < SolarSystemList.Count; index++)
@@ -103,7 +103,7 @@ namespace Ship_Game
                             Planet planet = solarSystem.PlanetList[i];
                             if (solarSystem.Explored(EmpireManager.Player))
                             {
-                                this.ProjectToScreenCoords(planet.Center, 2500f, planet.SO.WorldBoundingSphere.Radius,
+                                ProjectToScreenCoords(planet.Center, 2500f, planet.SO.WorldBoundingSphere.Radius,
                                     out Vector2 planetScreenPos, out float planetScreenRadius);
                                 float scale = planetScreenRadius / 115f;
 
