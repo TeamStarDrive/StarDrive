@@ -79,6 +79,7 @@ namespace Ship_Game
 
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager ContentManager => Game1.Instance.Content;
+        private static string LastFailedTexture = "";
 
         public static void MarkShipDesignsUnlockable()
         {
@@ -683,16 +684,22 @@ namespace Ship_Game
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-
+        
         // Gets a loaded texture using the given abstract texture path
-        public static Texture2D Texture(string texturePath, bool errorOnFail = true)
+        public static Texture2D Texture(string texturePath, string defaultTex = "NewUI/x_red")
         {
             if (texturePath.NotEmpty() && TextureDict.TryGetValue(texturePath, out Texture2D texture))
                 return texture;
-            if (errorOnFail)
-                Log.Error($"texture path not found: {texturePath}");
-            return null;
+            if (defaultTex == "")
+                return null;
+            if (LastFailedTexture != texturePath)
+            {
+                LastFailedTexture = texturePath;
+                Log.Warning($"texture path not found: {texturePath} replaces with NewUI / x_red");
+            }            
+            return TextureDict[defaultTex];
         }
+        
         public static Texture2D ProjTexture(string texturePath)
         {
             return ProjTextDict[texturePath];
@@ -1243,7 +1250,10 @@ namespace Ship_Game
             {
                 string commonIdentifier = info.NameNoExt();
                 if (designs.TryGetValue(commonIdentifier, out ShipDesignInfo design))
+                {
+
                     Log.Info($"DesignOverride: {design.File.CleanResPath(),-34} with -> {info.CleanResPath()}");
+                }
 
                 designs[commonIdentifier] = new ShipDesignInfo
                 {
@@ -1262,8 +1272,8 @@ namespace Ship_Game
 
             var designs = new Map<string, ShipDesignInfo>();
             CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);            
             CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
 

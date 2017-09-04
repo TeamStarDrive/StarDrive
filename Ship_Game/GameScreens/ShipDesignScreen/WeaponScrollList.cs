@@ -441,26 +441,20 @@ namespace Ship_Game
                 {
                     bCursor.X += 5f;
                     ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
-                    Rectangle modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y,
-                        ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width,
-                        ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height);
+                    var modTexture = moduleTemplate.ModuleTexture;
+                    Rectangle modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, modTexture.Width, modTexture.Height);
                     Vector2 vector2 = new Vector2(bCursor.X + 15f, bCursor.Y + 15f);
                     Vector2 vector21 =
-                        new Vector2(
-                            (float)(ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width / 2),
-                            (float)(ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height / 2));
-                    float aspectRatio =
-                        (float)ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width /
-                        (float)ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height;
-                    float w = (float)modRect.Width;
-                    for (h = (float)modRect.Height; w > 30f || h > 30f; h = h - 1.6f)
+                        new Vector2((modTexture.Width / 2f), (modTexture.Height / 2f));
+                    float aspectRatio = (float)modTexture.Width / modTexture.Height;
+                    float w = modRect.Width;
+                    for (h = modRect.Height; w > 30f || h > 30f; h = h - 1.6f)
                     {
                         w = w - aspectRatio * 1.6f;
                     }
                     modRect.Width = (int)w;
                     modRect.Height = (int)h;
-                    Screen.ScreenManager.SpriteBatch.Draw(
-                        ResourceManager.TextureDict[moduleTemplate.IconTexturePath], modRect, Color.White);
+                    Screen.ScreenManager.SpriteBatch.Draw(modTexture, modRect, Color.White);
                     //Added by McShooterz: allow longer modules names
                     Vector2 tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
                     if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 <

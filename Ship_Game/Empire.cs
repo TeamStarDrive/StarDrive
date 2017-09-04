@@ -258,6 +258,7 @@ namespace Ship_Game
             data.MoleList.Clear();
             data.OwnedArtifacts.Clear();
             data.AgentList.Clear();
+            data.ResearchQueue.Clear();
         }
 
         public void SetAsDefeated()
