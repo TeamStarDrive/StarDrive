@@ -709,8 +709,8 @@ namespace Ship_Game
 
         private void DrawTacticalPlanetIcons()
         {
-            if (this.LookingAtPlanet || this.viewState <= UniverseScreen.UnivScreenState.SystemView ||
-                this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
+            if (this.LookingAtPlanet || this.viewState <= UniverseScreen.UnivScreenState.SystemView 
+                ||this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
                 return;
 
             foreach (SolarSystem solarSystem in SolarSystemList)
@@ -1176,9 +1176,9 @@ namespace Ship_Game
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
                     Planet planet = solarSystem.PlanetList[j];
-                    if (!planet.IsExploredBy(player))
+                    if (!planet.IsExploredBy(player) && !wellKnown)
                         continue;
-                    if (planet.Owner != null && !wellKnown)
+                    if (planet.Owner != null && wellKnown)
                     {
                         Empire e = planet.Owner;
                         if (EmpireManager.Player.TryGetRelations(e, out Relationship ssRel) && ssRel.Known)

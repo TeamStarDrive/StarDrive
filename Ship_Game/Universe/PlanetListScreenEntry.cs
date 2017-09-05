@@ -9,71 +9,71 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-	public sealed class PlanetListScreenEntry
-	{
-		public Planet planet;
+    public sealed class PlanetListScreenEntry
+    {
+        public Planet planet;
 
-		public Rectangle TotalEntrySize;
+        public Rectangle TotalEntrySize;
 
-		public Rectangle SysNameRect;
+        public Rectangle SysNameRect;
 
-		public Rectangle PlanetNameRect;
+        public Rectangle PlanetNameRect;
 
-		public Rectangle FertRect;
+        public Rectangle FertRect;
 
-		public Rectangle RichRect;
+        public Rectangle RichRect;
 
-		public Rectangle PopRect;
+        public Rectangle PopRect;
 
-		public Rectangle OwnerRect;
+        public Rectangle OwnerRect;
 
-		public Rectangle OrdersRect;
+        public Rectangle OrdersRect;
 
-		private Rectangle ShipIconRect;
+        private Rectangle ShipIconRect;
 
-		private UITextEntry ShipNameEntry = new UITextEntry();
+        private UITextEntry ShipNameEntry = new UITextEntry();
 
-		private UIButton Colonize;
+        private UIButton Colonize;
         private UIButton SendTroops;
 
-		public PlanetListScreen screen;
+        public PlanetListScreen screen;
 
-		private bool marked;
+        private bool marked;
 
-		//private string Status_Text;
+        //private string Status_Text;
 
-		public PlanetListScreenEntry(Planet p, int x, int y, int width1, int height, PlanetListScreen caller)
-		{
-			this.screen = caller;
-			this.planet = p;
-			this.TotalEntrySize = new Rectangle(x, y, width1 - 60, height);
-			this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.12f), height);
-			this.PlanetNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.25f), height);
-			this.FertRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width, y, 100, height);
-			this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 120, height);
-			this.PopRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width, y, 200, height);
-			this.OwnerRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width, y, 100, height);
-			this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width + this.OwnerRect.Width, y, 100, height);
-			//this.Status_Text = "";
-			this.ShipIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 5, 50, 50);
-			string shipName = this.planet.Name;
-			this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-			this.ShipNameEntry.Text = shipName;
-			float width = (float)((int)((float)this.FertRect.Width * 0.8f));
-			while (width % 10f != 0f)
-			{
-				width = width + 1f;
-			}
+        public PlanetListScreenEntry(Planet p, int x, int y, int width1, int height, PlanetListScreen caller)
+        {
+            this.screen = caller;
+            this.planet = p;
+            this.TotalEntrySize = new Rectangle(x, y, width1 - 60, height);
+            this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.12f), height);
+            this.PlanetNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.25f), height);
+            this.FertRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width, y, 100, height);
+            this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 120, height);
+            this.PopRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width, y, 200, height);
+            this.OwnerRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width, y, 100, height);
+            this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width + this.OwnerRect.Width, y, 100, height);
+            //this.Status_Text = "";
+            this.ShipIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 5, 50, 50);
+            string shipName = this.planet.Name;
+            this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
+            this.ShipNameEntry.Text = shipName;
+            float width = (float)((int)((float)this.FertRect.Width * 0.8f));
+            while (width % 10f != 0f)
+            {
+                width = width + 1f;
+            }
 
-			Goal goal = new Goal();
-			foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
-			{
-				if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
-				{
-					continue;
-				}
-				this.marked = true;
-			}
+            Goal goal = new Goal();
+            foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
+            {
+                if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
+                {
+                    continue;
+                }
+                this.marked = true;
+            }
 
             Colonize = new UIButton(null, marked ? ButtonStyle.Default : ButtonStyle.BigDip);
             Colonize.SetAbsPos(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height - Colonize.Size.Y);
@@ -81,7 +81,7 @@ namespace Ship_Game
             Colonize.Launches = Localizer.Token(1425);
 
             SendTroops = new UIButton(null, ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10);
-		}
+        }
 
         public void Draw(Ship_Game.ScreenManager ScreenManager, GameTime gameTime)
         {
@@ -298,8 +298,8 @@ namespace Ship_Game
             }
         }
 
-		public void HandleInput(InputState input)
-		{
+        public void HandleInput(InputState input)
+        {
             if (!this.SendTroops.Rect.HitTest(input.CursorPosition))
             {
                 this.SendTroops.State = UIButton.PressState.Default;              
@@ -347,68 +347,68 @@ namespace Ship_Game
                 }
             }
             if (!this.Colonize.Rect.HitTest(input.CursorPosition))
-			{
-				this.Colonize.State = UIButton.PressState.Default;
-			}
-			else
-			{
-				this.Colonize.State = UIButton.PressState.Hover;
-				if (input.InGameSelect)
-				{
-					if (!this.marked)
-					{
-						GameAudio.PlaySfxAsync("echo_affirm");
-						Goal g = new Goal(this.planet, Empire.Universe.player);
-						Empire.Universe.player.GetGSAI().Goals.Add(g);
-						Colonize.Text = "Cancel Colonize";
+            {
+                this.Colonize.State = UIButton.PressState.Default;
+            }
+            else
+            {
+                this.Colonize.State = UIButton.PressState.Hover;
+                if (input.InGameSelect)
+                {
+                    if (!this.marked)
+                    {
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        Goal g = new Goal(this.planet, Empire.Universe.player);
+                        Empire.Universe.player.GetGSAI().Goals.Add(g);
+                        Colonize.Text = "Cancel Colonize";
                         Colonize.Style = ButtonStyle.Default;
-						marked = true;
-						return;
-					}
-					foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
-					{
-						if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.planet)
-						{
-							continue;
-						}
-						GameAudio.PlaySfxAsync("echo_affirm");
-						if (g.GetColonyShip() != null)
-						{
-							g.GetColonyShip().AI.OrderOrbitNearest(true);
-						}
-						Empire.Universe.player.GetGSAI().Goals.QueuePendingRemoval(g);
-						marked = false;
-						Colonize.Text = "Colonize";
-					    Colonize.Style = ButtonStyle.BigDip;
-						break;
-					}
-					Empire.Universe.player.GetGSAI().Goals.ApplyPendingRemovals();
-					return;
-				}
+                        marked = true;
+                        return;
+                    }
+                    foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
+                    {
+                        if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.planet)
+                        {
+                            continue;
+                        }
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        if (g.GetColonyShip() != null)
+                        {
+                            g.GetColonyShip().AI.OrderOrbitNearest(true);
+                        }
+                        Empire.Universe.player.GetGSAI().Goals.QueuePendingRemoval(g);
+                        marked = false;
+                        Colonize.Text = "Colonize";
+                        Colonize.Style = ButtonStyle.BigDip;
+                        break;
+                    }
+                    Empire.Universe.player.GetGSAI().Goals.ApplyPendingRemovals();
+                    return;
+                }
 
-			}
-		}
+            }
+        }
 
-		public void SetNewPos(int x, int y)
-		{
-			this.TotalEntrySize = new Rectangle(x, y, this.TotalEntrySize.Width, this.TotalEntrySize.Height);
-			this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.12f), this.TotalEntrySize.Height);
-			this.PlanetNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.25f), this.TotalEntrySize.Height);
-			this.FertRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width, y, 100, this.TotalEntrySize.Height);
-			this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 120, this.TotalEntrySize.Height);
-			this.PopRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width, y, 200, this.TotalEntrySize.Height);
-			this.OwnerRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width, y, 100, this.TotalEntrySize.Height);
-			this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width + this.OwnerRect.Width, y, 100, this.TotalEntrySize.Height);
-			this.ShipIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 5, 50, 50);
-			string shipName = this.planet.Name;
-			this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-			this.Colonize.Rect = new Rectangle(this.OrdersRect.X + 10, this.OrdersRect.Y + this.OrdersRect.Height / 2 - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height / 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+        public void SetNewPos(int x, int y)
+        {
+            this.TotalEntrySize = new Rectangle(x, y, this.TotalEntrySize.Width, this.TotalEntrySize.Height);
+            this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.12f), this.TotalEntrySize.Height);
+            this.PlanetNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.25f), this.TotalEntrySize.Height);
+            this.FertRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width, y, 100, this.TotalEntrySize.Height);
+            this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 120, this.TotalEntrySize.Height);
+            this.PopRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width, y, 200, this.TotalEntrySize.Height);
+            this.OwnerRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width, y, 100, this.TotalEntrySize.Height);
+            this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width + this.OwnerRect.Width, y, 100, this.TotalEntrySize.Height);
+            this.ShipIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 5, 50, 50);
+            string shipName = this.planet.Name;
+            this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
+            this.Colonize.Rect = new Rectangle(this.OrdersRect.X + 10, this.OrdersRect.Y + this.OrdersRect.Height / 2 - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height / 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
             this.SendTroops.Rect = new Rectangle(this.OrdersRect.X  + this.Colonize.Rect.Width + 10, this.Colonize.Rect.Y, this.Colonize.Rect.Width, this.Colonize.Rect.Height);
-			float width = (float)((int)((float)this.FertRect.Width * 0.8f));
-			while (width % 10f != 0f)
-			{
-				width = width + 1f;
-			}
-		}
-	}
+            float width = (float)((int)((float)this.FertRect.Width * 0.8f));
+            while (width % 10f != 0f)
+            {
+                width = width + 1f;
+            }
+        }
+    }
 }

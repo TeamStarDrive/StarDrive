@@ -190,6 +190,7 @@ namespace Ship_Game
                 for (int i = this.PlanetSL.indexAtTop; i < this.PlanetSL.Entries.Count && i < this.PlanetSL.indexAtTop + this.PlanetSL.entriesToDisplay; i++)
                 {
                     PlanetListScreenEntry entry2 = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;
+
                     if (i % 2 == 0)
                     {
                         base.ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, smallHighlight);

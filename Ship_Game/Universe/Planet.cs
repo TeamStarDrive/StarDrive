@@ -681,29 +681,48 @@ namespace Ship_Game
             }
             if (!habitable)
                 MineralRichness = 0.0f;
+                       
 
-            void populateTiles(int habChance)
+            switch (Type)
             {
-                if (UniqueHab)
-                {
-                    habChance = uniqueHabPercent;
-
-                }
-                bool habitable = false;
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        if (habChance >0)                        
-                            habitable = RandomMath.RandomBetween(0, 100) < habChance;
-                            
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitable));
-                    }
-                }
-                
+                case "Terran":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.TerranHab ?? 25);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TerranChance, item.TerranInstanceMax);
+                    break;
+                case "Steppe":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SteppeChance, item.SteppeInstanceMax);
+                    break;
+                case "Ice":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.IceHab ?? 15);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.IceChance, item.IceInstanceMax);
+                    break;
+                case "Barren":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.BarrenHab ?? 0);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.BarrenChance, item.BarrenInstanceMax);
+                    break;
+                case "Tundra":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TundraChance, item.TundraInstanceMax);
+                    break;
+                case "Desert":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.DesertChance, item.DesertInstanceMax);
+                    break;
+                case "Oceanic":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.OceanicChance, item.OceanicInstanceMax);
+                    break;
+                case "Swamp":
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SwampChance, item.SwampInstanceMax);
+                    break;
             }
-            
+            AddTileEvents();
+        }
 
+        private void AddTileEvents()
+        {
             if (RandomMath.RandomBetween(0.0f, 100f) <= 15 && habitable)
             {
                 Array<string> list = new Array<string>();
@@ -712,58 +731,48 @@ namespace Ship_Game
                     if (!string.IsNullOrEmpty(kv.Value.EventTriggerUID) && !kv.Value.NoRandomSpawn)
                         list.Add(kv.Key);
                 }
-                int index = (int)RandomMath.RandomBetween(0f, list.Count + 0.85f);
+                int index = (int) RandomMath.RandomBetween(0f, list.Count + 0.85f);
                 if (index >= list.Count)
                     index = list.Count - 1;
-                AssignBuildingToRandomTile(ResourceManager.CreateBuilding(list[index]));
+                var b = AssignBuildingToRandomTile(ResourceManager.CreateBuilding(list[index]));
+                b.building.SetPlanet(this);
+                Log.Info($"Event building : {b.building.Name} : created on {Name}");
             }
+        }
 
-            switch (Type)
+        private void SetTileHabitability(int habChance)
+        {            
             {
-                case "Terran":
-                    populateTiles(GlobalStats.ActiveModInfo?.TerranHab ?? 25);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TerranChance, item.TerranInstanceMax);
-                    break;
-                case "Steppe":
-                    populateTiles(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SteppeChance, item.SteppeInstanceMax);
-                    break;
-                case "Ice":
-                    populateTiles(GlobalStats.ActiveModInfo?.IceHab ?? 15);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.IceChance, item.IceInstanceMax);
-                    break;
-                case "Barren":
-                    populateTiles(GlobalStats.ActiveModInfo?.BarrenHab ?? 0);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.BarrenChance, item.BarrenInstanceMax);
-                    break;
-                case "Tundra":
-                    populateTiles(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TundraChance, item.TundraInstanceMax);
-                    break;
-                case "Desert":
-                    populateTiles(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.DesertChance, item.DesertInstanceMax);
-                    break;
-                case "Oceanic":
-                    populateTiles(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.OceanicChance, item.OceanicInstanceMax);
-                    break;
-                case "Swamp":
-                    populateTiles(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SwampChance, item.SwampInstanceMax);
-                    break;
+                if (UniqueHab)
+                {
+                    habChance = uniqueHabPercent;
+                }
+                bool habitable = false;
+                for (int x = 0; x < 7; ++x)
+                {
+                    for (int y = 0; y < 5; ++y)
+                    {
+                        if (habChance > 0)
+                            habitable = RandomMath.RandomBetween(0, 100) < habChance;
+
+                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitable));
+                    }
+                }
             }
         }
 
         public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
         {
-            if ((GlobalStats.HardcoreRuleset || !randItem.HardCoreOnly) && RandomMath.RandomBetween(0.0f, 100f) < randItem.SwampChance)
+            if ((GlobalStats.HardcoreRuleset || !randItem.HardCoreOnly) && RandomMath.RandomBetween(0.0f, 100f) < chance)
             {
-                int spawnCount = (int)RandomMath.RandomBetween(1f, randItem.SwampInstanceMax + 0.95f);
-                for (int i = 0; i < spawnCount; ++i)
+                int itemCount = (int)RandomMath.RandomBetween(1f, instanceMax + 0.95f);
+                for (int i = 0; i < itemCount; ++i)
                 {
-                    if (ResourceManager.BuildingsDict.ContainsKey(randItem.BuildingID))
-                        AssignBuildingToRandomTile(ResourceManager.CreateBuilding(randItem.BuildingID)).Habitable = true;
+                    if (!ResourceManager.BuildingsDict.ContainsKey(randItem.BuildingID)) continue;
+                    var pgs = AssignBuildingToRandomTile(ResourceManager.CreateBuilding(randItem.BuildingID));
+                    pgs.Habitable = true;
+                    Log.Info($"Resouce Created : '{pgs.building.Name}' : on '{Name}' ");
+                    BuildingList.Add(pgs.building);
                 }
             }
         }
