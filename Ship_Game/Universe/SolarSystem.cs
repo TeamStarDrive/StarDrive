@@ -402,91 +402,67 @@ namespace Ship_Game
             SetSunPath(RandomMath.IntBetween(0, 100) < 3 ? (6) : RandomMath.IntBetween(1, 5));
 
             Name = name;
+            StarRadius = (int) (RandomMath.IntBetween(250, 500) * systemScale);
+            float ringMax = StarRadius * 300;
+            float ringbase = ringMax * .1f;
+            //ringmax *= systemScale;
+            //if (GlobalStats.ExtraPlanets > 0) // ADDED BY SHAHMATT (more planets in system)
+            //{   
+            //    //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
+            //    if      (GlobalStats.ExtraPlanets <= 2) NumberOfRings = RandomMath.IntBetween(1, 6 + GlobalStats.ExtraPlanets);
+            //    else if (GlobalStats.ExtraPlanets <= 4) NumberOfRings = RandomMath.IntBetween(2, 6 + GlobalStats.ExtraPlanets);
+            //    else if (GlobalStats.ExtraPlanets <= 6) NumberOfRings = RandomMath.IntBetween(3, 6 + GlobalStats.ExtraPlanets);
+            //    else                                    NumberOfRings = RandomMath.IntBetween((int)(GlobalStats.ExtraPlanets * 0.5f), 6 + GlobalStats.ExtraPlanets);
 
-            if (GlobalStats.ExtraPlanets > 0) // ADDED BY SHAHMATT (more planets in system)
-            {   
-                //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
-                if      (GlobalStats.ExtraPlanets <= 2) NumberOfRings = RandomMath.IntBetween(1, 6 + GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets <= 4) NumberOfRings = RandomMath.IntBetween(2, 6 + GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets <= 6) NumberOfRings = RandomMath.IntBetween(3, 6 + GlobalStats.ExtraPlanets);
-                else                                    NumberOfRings = RandomMath.IntBetween((int)(GlobalStats.ExtraPlanets * 0.5f), 6 + GlobalStats.ExtraPlanets);
-
-                if (NumberOfRings == 0) NumberOfRings = 1; // If "Extra Planets" was selected at all, there will always be at least 1 in each system. - Gretman
-            }
-            else
-            {
-                NumberOfRings = RandomMath.IntBetween(1, 6);
-            }
+            //    if (NumberOfRings == 0) NumberOfRings = 1; // If "Extra Planets" was selected at all, there will always be at least 1 in each system. - Gretman
+            //}
+            //else
+            int bonusP = GlobalStats.ExtraPlanets > 0 ? (int)Math.Ceiling(GlobalStats.ExtraPlanets  / 2f) : 0;
+            int minR = RandomMath.IntBetween(0 + bonusP > 0 ? 1 : 0, 3 + GlobalStats.ExtraPlanets);
+            int maxR = RandomMath.IntBetween(minR, 6 + minR);
+            NumberOfRings = RandomMath.IntBetween(minR,maxR);
 
             this.RingList.Capacity = NumberOfRings;
-            StarRadius = RandomMath.IntBetween(250, 500);
-            float ringbase = 10500f;
-            float ringmax = NumberOfRings > 0 ? (95000f - StarRadius) / NumberOfRings : 0f;
+
+            float ringSpace = ringMax / NumberOfRings;
+            //float ringbase = StarRadius * 20; // 10500f;
+            //float ringmax = NumberOfRings > 0 ? (95000f + StarRadius * 20f) / NumberOfRings : 0f;
 
             for (int i = 1; i < NumberOfRings + 1; i++)
             {
-                if (RingList.Count > 1)
-                {
-                    ringbase = RingList[RingList.Count - 1].Distance + 5000;
-                    Planet p = RingList[RingList.Count - 1].planet;
-                    if (p != null)
-                        ringbase += p.ObjectRadius;
-                }
-                
-                float ringRadius = ringbase + RandomMath.RandomBetween(0, ringmax);
-                ringRadius *= systemScale;
+                ringbase += 5000;
+                float ringRadius = ringbase + RandomMath.RandomBetween(0, ringSpace / (1 + NumberOfRings - i));
+                //ringRadius *= systemScale;
                 if (RandomMath.IntBetween(1, 100) > 80)
                 {
-                    GenerateAsteroidRing(ringRadius, spread:3500f*systemScale);
+                    float spread = ringRadius - ringbase;
+
+                    GenerateAsteroidRing(ringRadius, spread: spread);
+                    ringRadius += spread / 2;
                 }
                 else
                 {
                     float randomAngle = RandomMath.RandomBetween(0f, 360f);
-                    Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
-                    Planet newOrbital = new Planet
-                    {
-                        Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
-                        OrbitalAngle = randomAngle,
-                        ParentSystem = this,
-                        planetType   = RandomMath.IntBetween(1, 24)
-                    };
-                    if ((newOrbital.planetType == 22 || newOrbital.planetType == 13) && RandomMath.RandomBetween(0f, 100f) > 50f)
-                    {
-                        newOrbital.planetType = RandomMath.IntBetween(1, 24);
-                    }
-
-                    float scale = RandomMath.RandomBetween(0.9f, 1.8f);
-                    if (newOrbital.planetType == 2  || newOrbital.planetType == 6  || newOrbital.planetType == 10 || 
-                        newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
-                        scale += 2.5f;
-
-                    float planetRadius = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
-                    newOrbital.SetPlanetAttributes();
-                    newOrbital.Center = planetCenter;
-                    newOrbital.scale = scale;
-                    newOrbital.ObjectRadius = planetRadius;
-                    newOrbital.OrbitalRadius = ringRadius;
-                    newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
-                    if (RandomMath.RandomBetween(1f, 100f) < 15f)
-                    {
-                        newOrbital.hasRings = true;
-                        newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
-                    }
+                    Planet newOrbital = new Planet(this, randomAngle, ringRadius, i, ringMax);
 
                     GenerateRemnantPresence(newOrbital, data);
 
                     PlanetList.Add(newOrbital);
                     RandomMath.RandomBetween(0f, 3f);
+                    ringRadius += newOrbital.ObjectRadius;
                     Ring ring = new Ring
                     {
                         Distance = ringRadius,
                         Asteroids = false,
                         planet = newOrbital
                     };
+                     // newOrbital.ObjectRadius;
                     RingList.Add(ring);
                 }
+                ringbase = ringRadius;
             }
         }
+
 
         public void GenerateStartingSystem(string name, Empire owner, float systemScale)
         {
