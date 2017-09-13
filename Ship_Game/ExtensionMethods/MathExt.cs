@@ -467,27 +467,27 @@ namespace Ship_Game
         public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
             Vector2 targetPos, Vector2 targetVel, Vector2 targetAccel)
         {
-            Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel, targetAccel);
+            //Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel, targetAccel);
             Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel, targetAccel);
             //Log.Info("PIP quad: {0}", quad);
             //Log.Info("PIP iter: {0}", iter);
 
-            Vector2 error = quad-iter;
-            if (error.Length() > 100000)
-                return iter;
+            //Vector2 error = quad-iter;
+            //if (error.Length() > 100000)
+            //    return iter;
             return iter;
         }
 
         public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
             Vector2 targetPos, Vector2 targetVel)
         {
-            Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel);
+            //Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel);
             Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel);
             //Log.Info("PIP quad: {0}", quad);
             //Log.Info("PIP iter: {0}", iter);
-            Vector2 error = quad-iter;
-            if (error.Length() > 100000)
-                return quad;
+            //Vector2 error = quad-iter;
+            //if (error.Length() > 100000)
+            //    return quad;
             return iter;
         }
 

@@ -6,6 +6,7 @@ namespace Ship_Game.Gameplay
     public sealed class SpatialManager : IDisposable
     {
         private readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
+        private readonly Array<GameplayObject> Pending    = new Array<GameplayObject>();
         private Quadtree QuadTree;
 
         public void Setup(float universeRadius)
@@ -41,9 +42,26 @@ namespace Ship_Game.Gameplay
             if (obj is Projectile proj && proj.DieNextFrame)
                 return;
 
-            obj.SpatialIndex = AllObjects.Count;
-            AllObjects.Add(obj);
-            QuadTree.Insert(obj);
+            // this can be called from UI Thread, so we'll insert it later during Update()
+            lock (Pending)
+            {
+                Pending.Add(obj);
+            }
+        }
+
+        private void InsertPending()
+        {
+            lock (Pending)
+            {
+                for (int i = 0; i < Pending.Count; ++i)
+                {
+                    GameplayObject obj = Pending[i];
+                    obj.SpatialIndex = AllObjects.Count;
+                    AllObjects.Add(obj);
+                    QuadTree.Insert(obj);
+                }
+                Pending.Clear();
+            }
         }
 
         public void Remove(GameplayObject obj)
@@ -91,6 +109,8 @@ namespace Ship_Game.Gameplay
                 if (obj != null) obj.SpatialIndex = i;
                 else AllObjects.RemoveAtSwapLast(i--);
             }
+
+            InsertPending();
 
             QuadTree.UpdateAll();
             QuadTree.CollideAll();
