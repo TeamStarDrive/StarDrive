@@ -222,11 +222,13 @@ namespace Ship_Game
                         sysSave.RingList.Add(rsave);
                     }
                     sysSave.EmpiresThatKnowThisSystem = new Array<string>();
-                    foreach (var explored in system.ExploredDict)
-                    {
-                        if (explored.Value)
-                            sysSave.EmpiresThatKnowThisSystem.Add(explored.Key.data.Traits.Name); // @todo This is a duplicate??
-                    }
+                    if (system.ExploredDict != null)
+                        foreach (var explored in system.ExploredDict)
+                        {
+                            if (explored.Value)
+                                sysSave.EmpiresThatKnowThisSystem.Add(explored.Key.data.Traits.Name); // @todo This is a duplicate?? 
+                                                                                                      //No? not a duplicate. there is planet exploration and system exploration. although one may infer the other. 
+                        }
                 }
                 SaveData.SolarSystemDataList.Add(sysSave);
             }
