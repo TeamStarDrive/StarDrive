@@ -3,9 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class MinimapButtons : UIElementContainer
+    public sealed class MinimapButtons : UIElementContainer
     {
-		
+        
         private readonly ToggleButton ZoomOut;
 
         private readonly ToggleButton ZoomToShip;
@@ -31,21 +31,16 @@ namespace Ship_Game
         private const string BHover  = "Minimap/button_B_hover";
 
         public MinimapButtons(Vector2 top) : base(null, top)
-		{		    
+        {		    
             BeginVLayout(top, 22);
             ToggleButton(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl");
-		    ToggleButton(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
-		    ToggleButton(25, 22, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
-		    ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
-		    ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
-		    ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_dsbw");
-		    ToggleButton(25, 26, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
-		        , "Minimap/button_down_inactive", "AI");
-
-		    EndLayout();
-
-            
-		}
-
-	}
+            ToggleButton(25, 22, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout");
+            ToggleButton(25, 22, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist");
+            ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_ftloverlay");
+            ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay");
+            ToggleButton(25, 22, Active, Normal, Hover, Normal, "UI/icon_dsbw");
+            ToggleButton(25, 26, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
+            EndLayout();
+        }
+    }
 }

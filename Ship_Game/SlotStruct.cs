@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System.Linq;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -43,19 +45,25 @@ namespace Ship_Game
 
         }
 
-        public Vector2 ModuleCenter()
+        public void Draw(SpriteBatch sb, Texture2D texture, Color tint)
         {
-            if (Module?.UID.IsEmpty() ?? true) return Vector2.Zero;
-            return  new Vector2(PQ.enclosingRect.X + 16 * Module.XSIZE / 2
-                , PQ.enclosingRect.Y + 16 * Module.YSIZE / 2);
+            Rectangle rect = Module == null ? PQ.Rect : ModuleRect;
+            sb.Draw(texture, rect, tint);
         }
 
-        public Rectangle ModuleRectangle()
+        [XmlIgnore][JsonIgnore] public Vector2 Position     => new Vector2(PQ.X, PQ.Y);
+        [XmlIgnore][JsonIgnore] public Vector2 ModuleCenter => new Vector2(PQ.X + PQ.W/2, PQ.Y + PQ.H/2);
+
+        public Vector2 Center()
         {
-            return new Rectangle(PQ.enclosingRect.X,
-                PQ.enclosingRect.Y
-                , 16 * Module.XSIZE, 16 * Module.YSIZE);
+            if (Module?.UID.IsEmpty() ?? true)
+                return Vector2.Zero;
+            return new Vector2(PQ.X + Module.XSIZE*8, PQ.Y + Module.YSIZE*8);
         }
+
+        public Rectangle ModuleRect => new Rectangle(PQ.X, PQ.Y, Module.XSIZE * 16, Module.YSIZE * 16);
+
+        public bool Intersects(Rectangle r) => PQ.Rect.Intersects(r);
 
         public void SetValidity(ShipModule module = null)
         {
