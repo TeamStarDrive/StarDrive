@@ -18,18 +18,16 @@ namespace Ship_Game
             Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
             ScreenManager.RenderSceneObjects();
 
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
+            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.None, Camera.Transform);
             if (ToggleOverlay)
             {
-                foreach (SlotStruct slot in this.Slots)
+                Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
+                foreach (SlotStruct slot in Slots)
                 {
                     if (slot.Module != null)
                     {
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Modules/tile_concreteglass_1x1")
-                            , new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y
-                                , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.Gray);
+                        slot.Draw(spriteBatch, concreteGlass, Color.Gray);
                     }
                     else if (slot.Parent != null)
                     {
@@ -37,49 +35,21 @@ namespace Ship_Game
                     }
                     else
                     {
-                        if (this.ActiveModule != null)
+                        Color activeColor = slot.ShowValid ? Color.LightGreen : Color.Red;
+                        slot.Draw(spriteBatch, concreteGlass, activeColor);
+                        if (slot.Powered)
                         {
-                            Texture2D item = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
-                            Color activeColor = slot.ShowValid ? Color.LightGreen : Color.Red;
-
-                            spriteBatch.Draw(item, slot.PQ.enclosingRect, activeColor);
-                            if (slot.Powered)
-                            {
-                                ScreenManager.SpriteBatch.Draw(
-                                    ResourceManager.Texture("Modules/tile_concreteglass_1x1")
-                                    , slot.PQ.enclosingRect, new Color(255, 255, 0, 150));
-                            }
-                        }
-                        else if (slot.Powered)
-                        {
-                            ScreenManager.SpriteBatch.Draw(
-                                ResourceManager.Texture("Modules/tile_concreteglass_1x1")
-                                , slot.PQ.enclosingRect, Color.Yellow);
-                        }
-                        else
-                        {
-                            SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
-                            Texture2D texture2D = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
-                            Rectangle rectangle1 = slot.PQ.enclosingRect;
-                            Color unpoweredColored;
-                            if (slot.ShowValid)
-                            {
-                                unpoweredColored = Color.LightGreen;
-                            }
-                            else
-                            {
-                                unpoweredColored = (slot.ShowValid ? Color.White : Color.Red);
-                            }
-                            spriteBatch1.Draw(texture2D, rectangle1, unpoweredColored);
+                            var yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
+                            slot.Draw(spriteBatch, concreteGlass, yellow);
                         }
                     }
                     if (slot.Module != null || slot.Parent != null)
                         continue;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions)
-                        , new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y)
-                        , Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                    spriteBatch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
+                        slot.Position, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
-                foreach (SlotStruct slot in this.Slots)
+
+                foreach (SlotStruct slot in Slots)
                 {
                     if (slot.ModuleUID == null || slot.Tex == null)
                     {
@@ -87,76 +57,63 @@ namespace Ship_Game
                     }
                     if (slot.State != ActiveModuleState.Normal)
                     {
-                        Rectangle r = new Rectangle(
-                            slot.PQ.enclosingRect.X,
-                            slot.PQ.enclosingRect.Y,
-                            16 * slot.Module.XSIZE,
-                            16 * slot.Module.YSIZE);
+                        var r = slot.ModuleRect;
 
                         // @todo Simplify this
                         switch (slot.State)
                         {
                             case ActiveModuleState.Left:
-                                {
-                                    int h = slot.Module.YSIZE * 16;
-                                    int w = slot.Module.XSIZE * 16;
-                                    r.Width = h; // swap width & height
-                                    r.Height = w;
-                                    r.Y += h;
-                                    ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f,
-                                        Vector2.Zero
-                                        , SpriteEffects.None, 1f);
-                                    break;
-                                }
+                            {
+                                int h = slot.Module.YSIZE * 16;
+                                int w = slot.Module.XSIZE * 16;
+                                r.Width  = h; // swap width & height
+                                r.Height = w;
+                                r.Y += h;
+                                spriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                break;
+                            }
                             case ActiveModuleState.Right:
-                                {
-                                    int w = slot.Module.YSIZE * 16;
-                                    int h = slot.Module.XSIZE * 16;
-                                    r.Width = w;
-                                    r.Height = h;
-                                    r.X += h;
-                                    ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero
-                                        , SpriteEffects.None, 1f);
-                                    break;
-                                }
+                            {
+                                int w = slot.Module.YSIZE * 16;
+                                int h = slot.Module.XSIZE * 16;
+                                r.Width = w;
+                                r.Height = h;
+                                r.X += h;
+                                spriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                break;
+                            }
                             case ActiveModuleState.Rear:
-                                {
-                                    ScreenManager.SpriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero
-                                        , SpriteEffects.FlipVertically, 1f);
-                                    break;
-                                }
+                            {
+                                spriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
+                                break;
+                            }
                         }
                     }
                     else if (slot.Module.XSIZE <= 1 && slot.Module.YSIZE <= 1)
                     {
                         if (slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         {
-                            ScreenManager.SpriteBatch.Draw(slot.Tex, slot.PQ.enclosingRect, Color.White);
+                            slot.Draw(spriteBatch, slot.Tex, Color.White);
                         }
                         else
                         {
                             string graphic = GetConduitGraphic(slot);
                             var conduitTex = ResourceManager.Texture("Conduits/" + graphic);
-                            ScreenManager.SpriteBatch.Draw(conduitTex, slot.PQ.enclosingRect, Color.White);
+                            slot.Draw(spriteBatch, conduitTex, Color.White);
                             if (slot.Module.Powered)
                             {
                                 var poweredTex = ResourceManager.Texture("Conduits/" + graphic + "_power");
-                                ScreenManager.SpriteBatch.Draw(poweredTex, slot.PQ.enclosingRect, Color.White);
+                                slot.Draw(spriteBatch, poweredTex, Color.White);
                             }
                         }
                     }
                     else if (slot.SlotReference.Position.X <= 256f)
                     {
-                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X,
-                            slot.PQ.enclosingRect.Y
-                            , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
+                        spriteBatch.Draw(slot.Tex, slot.ModuleRect, Color.White);
                     }
                     else
                     {
-                        ScreenManager.SpriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X,
-                                slot.PQ.enclosingRect.Y
-                                , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), null, Color.White, 0f, Vector2.Zero
-                            , SpriteEffects.FlipHorizontally, 1f);
+                        spriteBatch.Draw(slot.Tex, slot.ModuleRect, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
                     }
                     if (slot.Module != HoveredModule )
                     {
@@ -169,9 +126,7 @@ namespace Ship_Game
                         }
                         
                     }
-                    ScreenManager.SpriteBatch.DrawRectangle(new Rectangle(slot.PQ.enclosingRect.X,
-                        slot.PQ.enclosingRect.Y
-                        , 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White, 2f);
+                    spriteBatch.DrawRectangle(slot.ModuleRect, Color.White, 2f);
                 }
                 foreach (SlotStruct slot in Slots)
                 {
@@ -180,10 +135,9 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    Vector2 center = slot.ModuleCenter();
+                    Vector2 center = slot.Center();
                     if (slot.Module.shield_power_max > 0f)
                     {
-
                         DrawCircle(center, slot.Module.ShieldHitRadius, 50, Color.LightGreen);
                     }
 
@@ -192,13 +146,10 @@ namespace Ship_Game
                         Vector2 arcString = center;
                         Color color = Color.Black;
                         color.A = 140;
-                        DrawRectangle(slot.ModuleRectangle(), Color.White, color);
+                        DrawRectangle(slot.ModuleRect, Color.White, color);
                         DrawString(arcString, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
 
                         ToolTip.ShipYardArcTip();
-                        
-
-
                     }
                     // @todo Use this to fix the 'original' code below :)))
                     var arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
@@ -208,7 +159,7 @@ namespace Ship_Game
                         var origin = new Vector2(250f, 250f);
 
                         var toDraw = new Rectangle((int)center.X, (int)center.Y, 500, 500);
-                        ScreenManager.SpriteBatch.Draw(arcTexture, toDraw, null, drawcolor
+                        spriteBatch.Draw(arcTexture, toDraw, null, drawcolor
                             , slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
 
                     }
@@ -216,11 +167,11 @@ namespace Ship_Game
                     Weapon w = slot.Module.InstalledWeapon;
                     if (w == null)
                         continue;
-                    if (w.Tag_Cannon && !w.Tag_Energy) DrawArc(new Color(255, 255, 0, 255));
+                    if      (w.Tag_Cannon && !w.Tag_Energy)   DrawArc(new Color(255, 255, 0, 255));
                     else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(new Color(255, 0, 255, 255));
-                    else if (w.Tag_Cannon) DrawArc(new Color(0, 255, 0, 255));
-                    else if (!w.isBeam) DrawArc(new Color(255, 0, 0, 255));
-                    else DrawArc(new Color(0, 0, 255, 255));
+                    else if (w.Tag_Cannon)                    DrawArc(new Color(0, 255, 0, 255));
+                    else if (!w.isBeam)                       DrawArc(new Color(255, 0, 0, 255));
+                    else                                      DrawArc(new Color(0, 0, 255, 255));
                 }
                 foreach (SlotStruct ss in this.Slots)
                 {
@@ -236,14 +187,14 @@ namespace Ship_Game
                         continue;
                     }
                     Rectangle? nullable8 = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
-                        ss.ModuleCenter(), nullable8, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
+                    spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
+                        ss.Center(), nullable8, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
                 }
             }
-            ScreenManager.SpriteBatch.End();
-            ScreenManager.SpriteBatch.Begin();
+            spriteBatch.End();
+            spriteBatch.Begin();
 
-            Vector2 mousePos = Input.CursorPosition;
+            //Vector2 mousePos = Input.CursorPosition;
             if (this.ActiveModule != null &&// !this.ActiveModSubMenu.Menu.HitTest(mousePos) &&
                 !this.ModSel.HitTest(Input) )
                 
@@ -259,7 +210,7 @@ namespace Ship_Game
                 {
                     case ActiveModuleState.Normal:
                     {
-                        ScreenManager.SpriteBatch.Draw(
+                        spriteBatch.Draw(
                             iconTexturePath, r, Color.White);
                         break;
                     }
@@ -270,7 +221,7 @@ namespace Ship_Game
                         int w = r.Width;
                         r.Width = h;
                         r.Height = w;
-                        ScreenManager.SpriteBatch.Draw(
+                        spriteBatch.Draw(
                             iconTexturePath, r, null, Color.White,
                             -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
@@ -282,14 +233,14 @@ namespace Ship_Game
                         int w = r.Width;
                         r.Width = h;
                         r.Height = w;
-                        ScreenManager.SpriteBatch.Draw(
+                        spriteBatch.Draw(
                             iconTexturePath, r, null, Color.White,
                             1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
                     }
                     case ActiveModuleState.Rear:
                     {
-                        ScreenManager.SpriteBatch.Draw(
+                        spriteBatch.Draw(
                             iconTexturePath, r, null, Color.White,
                             0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
                         break;
@@ -304,12 +255,11 @@ namespace Ship_Game
                 }
             }
             this.DrawUI(gameTime);
-            selector?.Draw(ScreenManager.SpriteBatch);
+            selector?.Draw(spriteBatch);
             ArcsButton.DrawWithShadowCaps(ScreenManager);
             if (Debug)
             {
-                float width2 = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2f;
-
+                float width2 = ScreenWidth / 2f;
                 var pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
                 HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
                 pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
@@ -321,8 +271,8 @@ namespace Ship_Game
                 HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, pos, Fonts.Arial20Bold);
 #endif
             }
-            Close.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.End();
+            Close.Draw(spriteBatch);
+            spriteBatch.End();
             ScreenManager.EndFrameRendering();
         }
 

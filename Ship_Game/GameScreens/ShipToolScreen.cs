@@ -113,12 +113,6 @@ namespace Ship_Game
             }
         }
 
-        protected override void Destroy()
-        {
-            border?.Dispose(ref border);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
@@ -154,10 +148,10 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.DrawRectangle(this.what, Color.White);
             foreach (SlotStruct slot in this.SlotList)
             {
-                if (!this.applyThruster && slot.PQ.isFilled)
+                if (!this.applyThruster && slot.PQ.Filled)
                 {
-                    spriteBatch.Draw(this.moduleSlot, slot.PQ.enclosingRect, Color.White);
-                    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), new Vector2((float)slot.PQ.enclosingRect.X, (float)slot.PQ.enclosingRect.Y), Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                    slot.Draw(spriteBatch, moduleSlot, Color.White);
+                    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), slot.Position, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
                 if (this.applyThruster || slot.ModuleUID == null)
                 {
@@ -165,11 +159,11 @@ namespace Ship_Game
                 }
                 if (slot.Module.XSIZE > 1 || slot.Module.YSIZE > 1)
                 {
-                    spriteBatch.Draw(slot.Tex, new Rectangle(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y, 16 * slot.Module.XSIZE, 16 * slot.Module.YSIZE), Color.White);
+                    spriteBatch.Draw(slot.Tex, slot.ModuleRect, Color.White);
                 }
                 else
                 {
-                    spriteBatch.Draw(slot.Tex, slot.PQ.enclosingRect, Color.White);
+                    slot.Draw(spriteBatch, slot.Tex, Color.White);
                 }
             }
             this.DrawHorizontalLine(spriteBatch, this.SelectionBox.Y);
@@ -457,11 +451,11 @@ namespace Ship_Game
             {
                 foreach (SlotStruct slot in this.SlotList)
                 {
-                    if (!slot.PQ.enclosingRect.Intersects(this.SelectionBox) || this.ActiveModule != null)
+                    if (!slot.Intersects(SelectionBox) || this.ActiveModule != null)
                     {
                         continue;
                     }
-                    slot.PQ.isFilled = !slot.PQ.isFilled;
+                    slot.PQ.Filled = !slot.PQ.Filled;
                     slot.Restrictions = this.DesignState;
                 }
             }
@@ -495,20 +489,26 @@ namespace Ship_Game
         public override void LoadContent()
         {
             ScreenManager.RemoveAllObjects();
-            PrimitiveQuad.graphicsDevice = base.ScreenManager.GraphicsDevice;
+            PrimitiveQuad.Device = base.ScreenManager.GraphicsDevice;
             this.aspect = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
             this.border = new PrimitiveQuad(this.aspect.X / 2f - 512f, this.aspect.Y / 2f - 512f, 1024f, 1024f);
-            this.what = this.border.enclosingRect;
-            ToggleButton Internal = new ToggleButton(new Rectangle(this.what.X - 32, this.what.Y + 5, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "I");
+            this.what = this.border.Rect;
+
+            Rectangle ToggleBtnRect(int offset)
+            {
+                return new Rectangle(this.what.X - 32, this.what.Y + 5 + offset, 24, 24);
+            }
+
+            var Internal = new ToggleButton(ToggleBtnRect(0), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "I");
             this.DesignStateButtons.Add(Internal);
             Internal.Action = "I";
-            ToggleButton InternalO = new ToggleButton(new Rectangle(this.what.X - 32, this.what.Y + 5 + 29, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "IO");
+            var InternalO = new ToggleButton(ToggleBtnRect(29), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "IO");
             this.DesignStateButtons.Add(InternalO);
             InternalO.Action = "IO";
-            ToggleButton External = new ToggleButton(new Rectangle(this.what.X - 32, this.what.Y + 5 + 58, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "O");
+            var External = new ToggleButton(ToggleBtnRect(58), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "O");
             this.DesignStateButtons.Add(External);
             External.Action = "O";
-            ToggleButton Engines = new ToggleButton(new Rectangle(this.what.X - 32, this.what.Y + 5 + 87, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "E");
+            var Engines = new ToggleButton(ToggleBtnRect(87), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "E");
             this.DesignStateButtons.Add(Engines);
             Engines.Action = "E";
             this.LoadModelButton = new DanButton(new Vector2(20f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 50)), "Load Model");
@@ -615,10 +615,10 @@ namespace Ship_Game
             for (int i = 0; i < SlotList.Count; ++i)
             {
                 SlotStruct slot = SlotList[i];
-                if (!slot.PQ.isFilled)
+                if (!slot.PQ.Filled)
                     continue;
 
-                var pos = new Vector2(slot.PQ.X + slot.PQ.W / 2 - border.X, slot.PQ.Y + slot.PQ.H / 2 - border.Y);
+                var pos = slot.ModuleCenter - border.Position;
                 filledModules.Add(new ModuleSlotData
                 {
                     Position           = pos,

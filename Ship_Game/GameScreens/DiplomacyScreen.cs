@@ -234,7 +234,7 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
         }
 
-        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer OurOffer, Offer TheirOffer) : base(parent)
+        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer ourOffer, Offer theirOffer) : base(parent)
         {
             e.GetRelations(us).turnsSinceLastContact = 0;
             them = e;
@@ -243,12 +243,12 @@ namespace Ship_Game
             base.IsPopup = true;
             dState = DiplomacyScreen.DialogState.TheirOffer;
             TheirText = GetDialogueByName(which);
-            OurOffer = OurOffer;
-            TheirOffer = TheirOffer;
+            OurOffer = ourOffer;
+            TheirOffer = theirOffer;
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
         }
 
-        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer OurOffer, Offer TheirOffer, Empire taremp) : base(parent)
+        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer ourOffer, Offer theirOffer, Empire taremp) : base(parent)
         {
             e.GetRelations(us).turnsSinceLastContact = 0;
             them = e;
@@ -258,8 +258,8 @@ namespace Ship_Game
             base.IsPopup = true;
             dState = DiplomacyScreen.DialogState.TheirOffer;
             TheirText = GetDialogueByName(which);
-            OurOffer = OurOffer;
-            TheirOffer = TheirOffer;
+            OurOffer = ourOffer;
+            TheirOffer = theirOffer;
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
         }
 
