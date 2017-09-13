@@ -308,8 +308,7 @@ namespace Ship_Game {
                 foreach (SlotStruct slotStruct in Slots)
                 {
                     Vector2 spaceFromWorldSpace =
-                        Camera.GetScreenSpaceFromWorldSpace(new Vector2(slotStruct.PQ.enclosingRect.X,
-                            slotStruct.PQ.enclosingRect.Y));
+                        Camera.GetScreenSpaceFromWorldSpace(slotStruct.Position);
                     if (new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y,
                             (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom))
                         .HitTest(mousePos))
@@ -365,9 +364,7 @@ namespace Ship_Game {
                     (slotStruct.Module != HighlightedModule || !(slotStruct.Module.FieldOfFire > 0f)) ||
                     slotStruct.Module.ModuleType != ShipModuleType.Turret) continue;
                 Vector2 spaceFromWorldSpace =
-                    Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                        slotStruct.PQ.enclosingRect.X + 16 * slotStruct.Module.XSIZE / 2,
-                        slotStruct.PQ.enclosingRect.Y + 16 * slotStruct.Module.YSIZE / 2));
+                    Camera.GetScreenSpaceFromWorldSpace(slotStruct.Center());
                 //I am not sure what the below was trying to do. It wasnt doing anything...
                 //Ok i remember what this does. it restricts the arc change 
                 //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
@@ -428,9 +425,7 @@ namespace Ship_Game {
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null) return;
             foreach (SlotStruct slot in Slots)
             {
-                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(new Vector2(
-                    slot.PQ.enclosingRect.X,
-                    slot.PQ.enclosingRect.Y));
+                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slot.Position);
                 if (!new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
                         , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
                     .HitTest(mousePos)) continue;
@@ -456,8 +451,7 @@ namespace Ship_Game {
             foreach (SlotStruct slot in Slots)
             {
                 slot.SetValidity();
-                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(
-                    new Vector2(slot.PQ.enclosingRect.X, slot.PQ.enclosingRect.Y));
+                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slot.Position);
                 var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
                     , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
                 if (!rect.HitTest(mousePos)) continue;
@@ -792,7 +786,7 @@ namespace Ship_Game {
                 }
                 AvailableHulls.Add(ResourceManager.HullsDict[hull.Key]);
             }
-            PrimitiveQuad.graphicsDevice = ScreenManager.GraphicsDevice;
+            PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             float width                  = Viewport.Width;
             Viewport viewport            = Viewport;
             float aspectRatio            = width / viewport.Height;
@@ -1153,10 +1147,10 @@ namespace Ship_Game {
             Slots.Clear();
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
-                PrimitiveQuad pq = new PrimitiveQuad(slot.Position.X + Offset.X - 8f,
-                    slot.Position.Y + Offset.Y - 8f, 16f, 16f);
+                var pos = slot.Position;
+                var pq = new PrimitiveQuad(pos.X + Offset.X - 8f, pos.Y + Offset.Y - 8f, 16f, 16f);
                 Enum.TryParse(slot.Orientation, out ActiveModuleState slotState);
-                SlotStruct ss = new SlotStruct
+                var ss = new SlotStruct
                 {
                     PQ            = pq,
                     Restrictions  = slot.Restrictions,
