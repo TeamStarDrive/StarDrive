@@ -1140,6 +1140,12 @@ namespace Ship_Game
             }
         }
 
+        //public static void ReadAllTextFromFile(string relativePath)
+        //{
+        //    var textFile = LoadEntities<>
+        //    File.ReadAllText("Content/NameGenerators/names.txt")
+        //}
+
 
         private static void LoadRandomItems()
         {
