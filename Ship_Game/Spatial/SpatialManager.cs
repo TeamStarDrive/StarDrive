@@ -46,6 +46,7 @@ namespace Ship_Game.Gameplay
             lock (Pending)
             {
                 Pending.Add(obj);
+                obj.SpatialIndex = -2;
             }
         }
 
@@ -66,10 +67,21 @@ namespace Ship_Game.Gameplay
 
         public void Remove(GameplayObject obj)
         {
-            QuadTree?.Remove(obj);
-            if (AllObjects.NotEmpty)
-                AllObjects[obj.SpatialIndex] = null;
-            obj.SpatialIndex = -1;
+            if (obj.SpatialPending)
+            {
+                lock (Pending)
+                {
+                    Pending.RemoveSwapLast(obj);
+                    obj.SpatialIndex = -1;
+                }
+            }
+            else if (obj.InSpatial)
+            {
+                QuadTree?.Remove(obj);
+                if (AllObjects.NotEmpty)
+                    AllObjects[obj.SpatialIndex] = null;
+                obj.SpatialIndex = -1;
+            }
         }
 
         // this should only be called from Quadtree

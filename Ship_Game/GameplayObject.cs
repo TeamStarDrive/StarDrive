@@ -47,9 +47,13 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 
+        // -2: pending, -1: not in spatial, >= 0: in spatial
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
-        [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
+        [XmlIgnore][JsonIgnore] public bool NotInSpatial   => SpatialIndex == -1;
+        [XmlIgnore][JsonIgnore] public bool InSpatial      => SpatialIndex != -1;
+        [XmlIgnore][JsonIgnore] public bool SpatialPending => SpatialIndex == -2;
 
+        [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
         private static int GameObjIds;
@@ -75,18 +79,18 @@ namespace Ship_Game
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
-            if (SpatialIndex != -1)
+            if (InSpatial)
                 UniverseScreen.SpaceManager.Remove(this);
         }
 
         [XmlIgnore][JsonIgnore] 
-        public string SystemName => System?.Name ?? "Deep Space";              
+        public string SystemName => System?.Name ?? "Deep Space";
 
         public void SetSystem(SolarSystem system)
         {
             // SetSystem means this GameplayObject is used somewhere in the universe
             // Regardless whether the system itself is null, we insert self to SpaceManager
-            if (!DisableSpatialCollision && SpatialIndex == -1 && Active)
+            if (!DisableSpatialCollision && Active && NotInSpatial)
                 UniverseScreen.SpaceManager.Add(this);
 
             if (System == system)
