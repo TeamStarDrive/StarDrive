@@ -425,7 +425,7 @@ namespace Ship_Game
                 Data.SolarSystemsList.Add(solarSystem);
                 systemCount++;
             }
-            var markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
+            var markovNameGenerator = new MarkovNameGenerator( File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
             var solarSystem1 = new SolarSystem();
             solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
             solarSystem1.DontStartNearPlayer = true;
