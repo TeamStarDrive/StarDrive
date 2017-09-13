@@ -179,8 +179,6 @@ namespace Ship_Game
             {
                 X = x; Y = y;
                 LastX = lastX; LastY = lastY;
-                NW = null; NE = null; SE = null; SW = null;
-                Count = 0;
                 Items = NoObjects;
             }
             public void Add(ref SpatialObj obj)
