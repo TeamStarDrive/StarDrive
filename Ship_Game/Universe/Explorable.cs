@@ -56,7 +56,7 @@ namespace Ship_Game
 
                 // single alloc
                 var empires = new Empire[count];
-                for (int i = 0, n = 0; i < count; ++i)
+                for (int i = 0, n = 0; i < ExploredBy.Length; ++i)
                 {
                     Empire empire = ExploredBy[i];
                     if (empire != null)
