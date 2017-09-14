@@ -101,7 +101,7 @@ namespace Ship_Game
                         for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                         {
                             Planet planet = solarSystem.PlanetList[i];
-                            if (solarSystem.Explored(EmpireManager.Player))
+                            if (solarSystem.IsExploredBy(EmpireManager.Player))
                             {
                                 ProjectToScreenCoords(planet.Center, 2500f, planet.SO.WorldBoundingSphere.Radius,
                                     out Vector2 planetScreenPos, out float planetScreenRadius);
@@ -150,7 +150,7 @@ namespace Ship_Game
                         DrawTransparentModel(SunModel,
                             Matrix.CreateRotationZ((float) (-Zrotate / 2.0)) *
                             Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
-                        if (solarSystem.Explored(EmpireManager.Player))
+                        if (solarSystem.IsExploredBy(EmpireManager.Player))
                         {
                             for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                             {
@@ -257,13 +257,13 @@ namespace Ship_Game
                                 view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
                         Vector2 vector2 = new Vector2(position.X, position.Y);
-                        if ((solarSystem.Explored(player) || Debug) && SelectedSystem != solarSystem)
+                        if ((solarSystem.IsExploredBy(player) || Debug) && SelectedSystem != solarSystem)
                         {
                             if (Debug)
                             {
-                                solarSystem.ExploredDict[player] = true;
+                                solarSystem.SetExploredBy(player);
                                 foreach (Planet planet in solarSystem.PlanetList)
-                                    planet.ExploredDict[player] = true;
+                                    planet.SetExploredBy(player);
                             }
                             Vector3 vector3_6 =
                                 Viewport.Project(
@@ -311,7 +311,7 @@ namespace Ship_Game
                                 bool flag = false;
                                 foreach (Planet planet in solarSystem.PlanetList)
                                 {
-                                    if (planet.ExploredDict[player])
+                                    if (planet.IsExploredBy(player))
                                     {
                                         for (int index = 0; index < planet.BuildingList.Count; ++index)
                                         {
@@ -411,7 +411,7 @@ namespace Ship_Game
                                 bool flag = false;
                                 foreach (Planet planet in solarSystem.PlanetList)
                                 {
-                                    if (planet.ExploredDict[player])
+                                    if (planet.IsExploredBy(player))
                                     {
                                         for (int index = 0; index < planet.BuildingList.Count; ++index)
                                         {
@@ -615,7 +615,7 @@ namespace Ship_Game
                 for (int i = 0; i < SolarSystemList.Count; i++)
                 {
                     SolarSystem solarSystem = SolarSystemList[i];
-                    if (!solarSystem.Explored(player)) continue;
+                    if (!solarSystem.IsExploredBy(player)) continue;
 
                     for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                     {

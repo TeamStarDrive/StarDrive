@@ -478,7 +478,7 @@ namespace Ship_Game.AI {
             else
             {
                 PatrolTarget = PatrolRoute[StopNumber];
-                if (PatrolTarget.ExploredDict[Owner.loyalty])
+                if (PatrolTarget.IsExploredBy(Owner.loyalty))
                 {
                     StopNumber += 1;
                     if (StopNumber == PatrolRoute.Count)
@@ -492,7 +492,7 @@ namespace Ship_Game.AI {
                 {
                     MovePosition = PatrolTarget.Center;
                     float Distance = Owner.Center.Distance(MovePosition);
-                    if (Distance < 75000f) PatrolTarget.ParentSystem.ExploredDict[Owner.loyalty] = true;
+                    if (Distance < 75000f) PatrolTarget.ParentSystem.SetExploredBy(Owner.loyalty);
                     if (Distance > 15000f)
                     {
 //@todo this should take longer to explore any planet. the explore speed should be based on sensors and such. 
@@ -512,7 +512,7 @@ namespace Ship_Game.AI {
                         ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
                         if (Distance < 500f)
                         {
-                            PatrolTarget.ExploredDict[Owner.loyalty] = true;
+                            PatrolTarget.SetExploredBy(Owner.loyalty);
                             StopNumber += 1;
                             if (StopNumber == PatrolRoute.Count)
                             {

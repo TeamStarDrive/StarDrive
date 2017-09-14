@@ -215,14 +215,7 @@ namespace Ship_Game
                 moon.Initialize();
                 system.MoonList.Add(moon);
             }
-            foreach (Empire e in EmpireManager.Empires)
-            {
-                system.ExploredDict.Add(e, false);
-            }
-            foreach (string empireName in ssdata.EmpiresThatKnowThisSystem)
-            {
-                system.ExploredDict[EmpireManager.GetEmpireByName(empireName)] = true;
-            }
+            system.SetExploredBy(ssdata.EmpiresThatKnowThisSystem);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssdata.RingList)
             {
@@ -247,7 +240,6 @@ namespace Ship_Game
                         };
                         p.Station.LoadContent(ScreenManager);
                         p.HasShipyard = true;
-                        
                     }
                     
                     if (p.Owner != null && !system.OwnerList.Contains(p.Owner))
@@ -255,14 +247,8 @@ namespace Ship_Game
                         system.OwnerList.Add(p.Owner);
                     }
                     system.PlanetList.Add(p);
-                    foreach (Empire e in EmpireManager.Empires)
-                    {
-                        p.ExploredDict.Add(e, false);
-                    }
-                    foreach (string empireName in ssdata.EmpiresThatKnowThisSystem)
-                    {
-                        p.ExploredDict[EmpireManager.GetEmpireByName(empireName)] = true;
-                    }
+                    p.SetExploredBy(ssdata.EmpiresThatKnowThisSystem);
+
                     system.RingList.Add(new SolarSystem.Ring
                     {
                         planet    = p,

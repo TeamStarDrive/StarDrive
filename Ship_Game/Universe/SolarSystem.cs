@@ -7,7 +7,7 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-    public  sealed class SolarSystem : IDisposable
+    public sealed class SolarSystem : Explorable, IDisposable
     {
         public string Name = "Random System";
         public bool CombatInSystem;
@@ -26,9 +26,10 @@ namespace Ship_Game
         public Array<Planet> PlanetList = new Array<Planet>();
         public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
-        public Array<Empire> FullyExplored = new Array<Empire>(); //Gretman
+
+        private Empire[] FullyExplored = Empty<Empire>.Array;
         public string SunPath;
-        public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
+
         public Array<Ring> RingList = new Array<Ring>();
         private int NumberOfRings;
         public int StarRadius;
@@ -59,11 +60,22 @@ namespace Ship_Game
         public SolarSystem()
         {
         }
-        public bool Explored(Empire empire)
+
+        public bool IsFullyExploredBy(Empire empire) => FullyExplored.IsSet(empire);
+        public void UpdateFullyExploredBy(Empire empire)
         {
-            ExploredDict.TryGetValue(empire, out bool explored);
-            return explored;
+            if (IsFullyExploredBy(empire))
+                return;
+
+            for (int i = 0; i < PlanetList.Count; ++i)
+                if (!PlanetList[i].IsExploredBy(empire))
+                    return;
+
+            FullyExplored.Set(ref FullyExplored, empire);
+            //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
+
+
         private static void AddMajorRemnantPresence(Planet newOrbital)
         {
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
@@ -583,10 +595,10 @@ namespace Ship_Game
 
         public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire owner)
         {
-            SolarSystem newSys = new SolarSystem()
+            var newSys = new SolarSystem()
             {
                 SunPath = data.SunPath,
-                Name = data.Name
+                Name    = data.Name
             };
             newSys.RingList.Capacity = data.RingList.Count;
             int numberOfRings = data.RingList.Count;
@@ -617,14 +629,14 @@ namespace Ship_Game
                     float randomAngle = RandomMath.RandomBetween(0f, 360f);
                     Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
                     
-                    Planet newOrbital = new Planet
+                    var newOrbital = new Planet
                     {
                         Name               = ringData.Planet,
                         OrbitalAngle       = randomAngle,
                         ParentSystem       = newSys,
                         SpecialDescription = ringData.SpecialDescription,
                         planetType         = whichPlanet,
-                        Center           = planetCenter,
+                        Center             = planetCenter,
                         scale              = scale,
                         ObjectRadius       = planetRadius,
                         OrbitalRadius      = ringRadius,
@@ -795,27 +807,6 @@ namespace Ship_Game
                 Distance  = ringRadius,
                 Asteroids = true
             });
-        }
-
-        public bool CheckFullyExplored(Empire Emp)
-        {
-            for (int i = 0; i < FullyExplored.Count; i++)
-            {
-                if (FullyExplored[i] == Emp) return true;
-            }
-            return false;
-        }
-
-        public void UpdateFullyExplored(Empire Emp)
-        {
-            if (CheckFullyExplored(Emp)) return;
-
-            for (int i = 0; i < PlanetList.Count; i++)
-            {
-                if (!PlanetList[i].ExploredDict[Emp]) return;
-            }
-            FullyExplored.Add(Emp);
-            Log.Info("The " + Emp.Name + " have fully explored " + Name);
         }
 
         public struct FleetAndPos

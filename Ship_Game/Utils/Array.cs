@@ -58,6 +58,13 @@ namespace Ship_Game
             if ((Count = collection.Count) > 0)
                 collection.CopyTo(Items = new T[Count], 0);
         }
+        /// <summary>Array capacity is reserved exactly, CopyTo is used</summary>
+        public Array(T[] collection)
+        {
+            Items = Empty<T>.Array;
+            if ((Count = collection.Length) > 0)
+                collection.CopyTo(Items = new T[Count], 0);
+        }
         /// <summary>Array capacity is reserved exactly, CopyTo is used if list is ICollection and indexing operator is used for element access (kinda slow, but ok)</summary>
         public Array(IReadOnlyList<T> list)
         {

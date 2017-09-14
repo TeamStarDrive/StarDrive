@@ -46,6 +46,18 @@ namespace Ship_Game.AI
             
         }
 
+        public bool HasGoal(GoalType type)
+        {
+            for (int i = 0; i < Goals.Count; ++i)
+                if (Goals[i].type == type) return true;
+            return false;
+        }
+
+        public void AddGoal(Goal goal)
+        {
+            Goals.Add(goal);
+        }
+
         private void RunManagers()
         {
             if (OwnerEmpire.data.IsRebelFaction || OwnerEmpire.data.Defeated)            
@@ -96,21 +108,19 @@ namespace Ship_Game.AI
             var knownPlanets = new Array<Planet>();
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
-                if (!s.ExploredDict[OwnerEmpire]) continue;
-                knownPlanets.AddRange(s.PlanetList);
+                if (s.IsExploredBy(OwnerEmpire))
+                    knownPlanets.AddRange(s.PlanetList);
             }
             return knownPlanets;
         }
         
         public SolarSystem AssignExplorationTarget(Ship queryingShip)
         {
-            Array<SolarSystem> potentials = new Array<SolarSystem>();
+            var potentials = new Array<SolarSystem>();
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
-                if (s.ExploredDict[OwnerEmpire])                
-                    continue;
-                
-                potentials.Add(s);
+                if (s.IsExploredBy(OwnerEmpire))                
+                    potentials.Add(s);
             }
             
             using (MarkedForExploration.AcquireReadLock())

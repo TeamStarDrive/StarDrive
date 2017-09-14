@@ -27,7 +27,7 @@ namespace Ship_Game
         Any
     }
 
-    public sealed class Planet : IDisposable
+    public sealed class Planet : Explorable, IDisposable
     {
         public bool GovBuildings = true;
         public bool GovSliders = true;
@@ -38,7 +38,7 @@ namespace Ship_Game
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public GoodState fs = GoodState.STORE;
         public GoodState ps = GoodState.STORE;
-        public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
+
         public Array<Building> BuildingList = new Array<Building>();
         public SpaceStation Station = new SpaceStation();
         public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
@@ -164,7 +164,7 @@ namespace Ship_Game
             HasShipyard = false;            
         }
 
-      public Planet(SolarSystem system, float randomAngle, float ringRadius, int i, float ringMax)
+        public Planet(SolarSystem system, float randomAngle, float ringRadius, int i, float ringMax)
         {                        
             var newOrbital = this;
 
@@ -219,13 +219,6 @@ namespace Ship_Game
                 newOrbital.hasRings = true;
                 newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
             }
-        }
-
-
-        public bool IsExploredBy(Empire empire)
-        {
-            ExploredDict.TryGetValue(empire, out bool explored);
-            return explored;
         }
 
         private void PlayPlanetSfx(string sfx, Vector3 position)
@@ -392,7 +385,7 @@ namespace Ship_Game
                     if (Owner != null)
                     {
                         Owner.RemovePlanet(this);
-                        if (ExploredDict[Empire.Universe.PlayerEmpire])
+                        if (IsExploredBy(Empire.Universe.PlayerEmpire))
                         {
                             Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
                         }
@@ -1934,30 +1927,35 @@ namespace Ship_Game
             Owner.RemovePlanet(this);
             if (index == Empire.Universe.PlayerEmpire && Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
-            if (ExploredDict[Empire.Universe.PlayerEmpire] && !flag)
-                Empire.Universe.NotificationManager.AddConqueredNotification(this, index, Owner);
-            else if (ExploredDict[Empire.Universe.PlayerEmpire])
+
+            if (IsExploredBy(Empire.Universe.PlayerEmpire))
             {
-                lock (GlobalStats.OwnedPlanetsLock)
+                if (!flag)
+                    Empire.Universe.NotificationManager.AddConqueredNotification(this, index, Owner);
+                else
                 {
-                    Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
-                    bool local_7 = true;
-                    
-                    if (Owner != null)
+                    lock (GlobalStats.OwnedPlanetsLock)
                     {
-                        foreach (Planet item_3 in ParentSystem.PlanetList)
+                        Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+                        bool local_7 = true;
+                    
+                        if (Owner != null)
                         {
-                            if (item_3.Owner == Owner && item_3 != this)
-                                local_7 = false;
+                            foreach (Planet item_3 in ParentSystem.PlanetList)
+                            {
+                                if (item_3.Owner == Owner && item_3 != this)
+                                    local_7 = false;
+                            }
+                            if (local_7)
+                                ParentSystem.OwnerList.Remove(Owner);
                         }
-                        if (local_7)
-                            ParentSystem.OwnerList.Remove(Owner);
+                        Owner = null;
                     }
-                    Owner = null;
+                    ConstructionQueue.Clear();
+                    return;
                 }
-                ConstructionQueue.Clear();
-                return;
             }
+
             if (index.data.Traits.Assimilators)
             {
                 TraitLess(ref index.data.Traits.DiplomacyMod, ref Owner.data.Traits.DiplomacyMod);

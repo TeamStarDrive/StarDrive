@@ -155,17 +155,17 @@ namespace Ship_Game
                 foreach (Planet planet in empire.GetPlanets())
                 {
                     planet.MineralRichness += GlobalStats.StartingPlanetRichness;
-                    planet.ParentSystem.ExploredDict[empire] = true;
-                    planet.ExploredDict[empire] = true;
+                    planet.ParentSystem.SetExploredBy(empire);
+                    planet.SetExploredBy(empire);
 
                     foreach (Planet p in planet.ParentSystem.PlanetList)
-                        p.ExploredDict[empire] = true;
+                        p.SetExploredBy(empire);
 
                     if (planet.ParentSystem.OwnerList.Count == 0)
                     {
                         planet.ParentSystem.OwnerList.Add(empire);
                         foreach (Planet planet2 in planet.ParentSystem.PlanetList)
-                            planet2.ExploredDict[empire] = true;
+                            planet2.SetExploredBy(empire);
                     }
                     if (planet.HasShipyard)
                     {
@@ -231,9 +231,9 @@ namespace Ship_Game
                 for (int i = 0; i < numSystemsExplored; ++i)
                 {
                     var system = orderedEnumerable.ElementAt(i);
-                    system.ExploredDict[empire] = true;
+                    system.SetExploredBy(empire);
                     foreach (Planet planet in system.PlanetList)
-                        planet.ExploredDict[empire] = true;
+                        planet.SetExploredBy(empire);
                 }
             }
         }
@@ -288,15 +288,12 @@ namespace Ship_Game
             SolarSystem wipSystem = Data.SolarSystemsList[systemToMake];
 
             PercentLoaded = (counter + systemToMake) / (float)(Data.SolarSystemsList.Count * 2);
-            foreach (Empire key in Data.EmpireList)
-                wipSystem.ExploredDict.Add(key, false);
+
             foreach (Planet planet in wipSystem.PlanetList)
             {
                 planet.ParentSystem = wipSystem;
                 planet.Center += wipSystem.Position;
                 planet.InitializePlanetMesh(this);
-                foreach (Empire key in Data.EmpireList)
-                    planet.ExploredDict.Add(key, false);
             }
             foreach (Asteroid asteroid in wipSystem.AsteroidsList)
             {

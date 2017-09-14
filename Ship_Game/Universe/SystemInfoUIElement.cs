@@ -98,7 +98,7 @@ namespace Ship_Game
             this.ClickList.Clear();
             float TransitionPosition = 1f - this.SelectionTimer / 0.4f;
             float transitionOffset = (float)Math.Pow((double)TransitionPosition, 2);
-            if (this.s.ExploredDict[EmpireManager.Player])
+            if (this.s.IsExploredBy(EmpireManager.Player))
             {
                 for (int i = 0; i < this.s.PlanetList.Count; i++)
                 {
@@ -140,7 +140,7 @@ namespace Ship_Game
                     //bool hasEnemyTroop = false;          //Not referenced in code, removing to save memory
                     int playerTroops = 0;
                     int sideSpacing = 0;
-                    if (p.ExploredDict[EmpireManager.Player])
+                    if (p.IsExploredBy(EmpireManager.Player))
                     {
                         int j = 0;
                         #region replaced

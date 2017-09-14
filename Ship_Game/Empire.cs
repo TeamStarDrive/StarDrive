@@ -309,12 +309,6 @@ namespace Ship_Game
                 rebels.AddRelation(key);                
                 
             }
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
-            {
-                solarSystem.ExploredDict.Add(rebels, false);
-                foreach (Planet planet in solarSystem.PlanetList)
-                    planet.ExploredDict.Add(rebels, false);
-            }
             EmpireManager.Add(rebels);
             data.RebellionLaunched = true;
             StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.Empires.IndexOf(rebels), new Snapshot(Universe.StarDate));
@@ -1248,7 +1242,7 @@ namespace Ship_Game
                     {
                         foreach (Planet p in system.PlanetList)
                         {
-                            if (!p.ExploredDict[Universe.PlayerEmpire] || !p.RecentCombat)
+                            if (!p.IsExploredBy(Universe.PlayerEmpire) || !p.RecentCombat)
                                 continue;
 
                             if (p.Owner != Universe.PlayerEmpire)
@@ -1813,20 +1807,20 @@ namespace Ship_Game
                 {
                     influenceNode1.Radius = isFaction ? 20000f : ProjectorRadius + (10000f * planet.Population / 1000f);
                 }
-                influenceNode1.Known = known || planet.ParentSystem.Explored(EmpireManager.Player);
+                influenceNode1.Known = known || planet.ParentSystem.IsExploredBy(EmpireManager.Player);
                 BorderNodes.Add(influenceNode1);
                 InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
 
                 influenceNode2.SourceObject  = planet;
                 influenceNode2.Position      = planet.Center;
                 influenceNode2.Radius        = 1f; //this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
-                influenceNode2.Known         = known || planet.ParentSystem.Explored(EmpireManager.Player);
+                influenceNode2.Known         = known || planet.ParentSystem.IsExploredBy(EmpireManager.Player);
                 SensorNodes.Add(influenceNode2);
                 InfluenceNode influenceNode3 = SensorNodes.RecycleObject() ?? new InfluenceNode();
                 influenceNode3.SourceObject  = planet;
                 influenceNode3.Position      = planet.Center;
                 influenceNode3.Radius        = isFaction ? 1f : data.SensorModifier;
-                influenceNode3.Known         = known || planet.ParentSystem.Explored(EmpireManager.Player); 
+                influenceNode3.Known         = known || planet.ParentSystem.IsExploredBy(EmpireManager.Player); 
                 foreach (Building t in planet.BuildingList)
                 {
                     if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
@@ -2086,13 +2080,6 @@ namespace Ship_Game
                             {
                                 key.AddRelation(rebelsFromEmpireData);
                                 rebelsFromEmpireData.AddRelation(key);
-                            }
-                            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
-                            {
-                                solarSystem.ExploredDict.Add(rebelsFromEmpireData, false);
-                                foreach (Planet planet in solarSystem.PlanetList)
-                                    planet.ExploredDict.Add(rebelsFromEmpireData, false);
-
                             }
                             EmpireManager.Add(rebelsFromEmpireData);
                             this.data.RebellionLaunched = true;
@@ -2676,88 +2663,77 @@ namespace Ship_Game
 
         private void AssignExplorationTasks()
         {
-            bool flag1 = false;
+            bool haveUnexploredSystems = false;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
-                if (!solarSystem.ExploredDict[this])
+                if (!solarSystem.IsExploredBy(this))
                 {
-                    flag1 = true;
+                    haveUnexploredSystems = true;
                     break;
                 }
             }
-            int num = 0;
-            if (flag1)
+            int numScouts = 0;
+            if (!haveUnexploredSystems)
             {
-                foreach (Ship ship in this.OwnedShips)
+                foreach (Ship ship in OwnedShips)
                 {
-                    if (num < 2)
+                    if (ship.AI.State == AIState.Explore)
+                        ship.AI.OrderRebaseToNearest();
+                }
+                return;
+            }
+
+            // already building a scout? then just quit
+            foreach (Goal goal in EmpireAI.Goals)
+                if (goal.type == GoalType.BuildScout)
+                    return;
+
+            foreach (Ship ship in OwnedShips)
+            {
+                if (ship.shipData.Role != ShipData.RoleName.scout || ship.PlayerShip)
+                    continue;
+                ship.DoExplore();
+                if (++numScouts == 2)
+                    break;
+            }
+            if (numScouts == 0)
+            {
+
+
+                var buildScout = new Goal(GoalType.BuildScout, "Build Scout", this);
+
+                // get at least 2 scouts by default
+                EmpireAI.Goals.Add(buildScout);
+                EmpireAI.Goals.Add(buildScout);
+            }
+            else
+            {
+                if (numScouts >= 2 || data.DiplomaticPersonality == null)
+                    return;
+                bool notBuilding = true;
+                foreach (Goal goal in EmpireAI.Goals)
+                {
+                    if (goal.type == GoalType.BuildScout)
                     {
-                        if (ship.shipData.Role == ShipData.RoleName.scout && !ship.PlayerShip)
-                        {
-                            ship.DoExplore();
-                            ++num;
-                        }
-                    }
-                    else
+                        notBuilding = false;
                         break;
-                }
-                if (num == 0)
-                {
-                    bool flag2 = true;
-                    foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
-                    {
-                        if (goal.type == GoalType.BuildScout)
-                        {
-                            flag2 = false;
-                            break;
-                        }
                     }
-                    if (!flag2)
-                        return;
-                    Goal goal1 = new Goal();
-                    goal1.type = GoalType.BuildScout;
-                    goal1.empire = this;
-                    goal1.GoalName = "Build Scout";
-                    this.EmpireAI.Goals.Add(goal1);
-                    this.EmpireAI.Goals.Add(goal1);
                 }
-                else
-                {
-                    if (num >= 2 || this.data.DiplomaticPersonality == null)
-                        return;
-                    bool flag2 = true;
-                    foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
-                    {
-                        if (goal.type == GoalType.BuildScout)
-                        {
-                            flag2 = false;
-                            break;
-                        }
-                    }
-                    if (flag2)
-                        this.EmpireAI.Goals.Add(new Goal()
-                        {
-                            type = GoalType.BuildScout,
-                            empire = this,
-                            GoalName = "Build Scout"
-                        });
-                    if (!(this.data.DiplomaticPersonality.Name == "Expansionist") || !flag2)
-                        return;
-                    this.EmpireAI.Goals.Add(new Goal()
+                if (notBuilding)
+                    EmpireAI.Goals.Add(new Goal()
                     {
                         type = GoalType.BuildScout,
                         empire = this,
                         GoalName = "Build Scout"
                     });
-                }
-            }
-            else
-            {
-                foreach (Ship ship in (Array<Ship>)this.OwnedShips)
+                if (data.DiplomaticPersonality.Name != "Expansionist" || !notBuilding)
+                    return;
+                EmpireAI.Goals.Add(new Goal()
                 {
-                    if (ship.AI.State == AIState.Explore)
-                        ship.AI.OrderRebaseToNearest();
-                }
+                    type = GoalType.BuildScout,
+                    empire = this,
+                    GoalName = "Build Scout"
+                });
             }
         }
 

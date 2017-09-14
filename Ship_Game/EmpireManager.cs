@@ -17,6 +17,7 @@ namespace Ship_Game
         private static Empire CorsairsFaction;
 
         public static IReadOnlyList<Empire> Empires => EmpireList;
+        public static int NumEmpires => EmpireList.Count;
 
         /// @todo These should be initialized ONCE during loading, leaving like this for future refactor
         public static Empire Player     => PlayerEmpire     ?? (PlayerEmpire     = FindPlayerEmpire());

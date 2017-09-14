@@ -367,9 +367,9 @@ namespace Ship_Game
                 Debug = !Debug;
                 foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                 {
-                    solarSystem.ExploredDict[player] = true;
+                    solarSystem.SetExploredBy(player);
                     foreach (var planet in solarSystem.PlanetList)
-                        planet.ExploredDict[player] = true;
+                        planet.SetExploredBy(player);
                 }
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
             }
@@ -1531,7 +1531,7 @@ namespace Ship_Game
                     ClickableSystem system = ClickableSystems[i];
                     if (input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
                     {
-                        if (system.systemToClick.ExploredDict[player])
+                        if (system.systemToClick.IsExploredBy(player))
                         {
                             GameAudio.OpenSolarSystemPopUp();
                             HeightOnSnap = CamHeight;
