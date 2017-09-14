@@ -53,7 +53,7 @@ namespace Ship_Game
 
         private bool HideUninhab = true;
 
-        private Array<Planet> planets = new Array<Planet>();
+        private readonly Array<Planet> ExploredPlanets = new Array<Planet>();
 
         private Rectangle eRect;
 
@@ -100,15 +100,12 @@ namespace Ship_Game
             PlanetSL = new ScrollList(ShipSubMenu, 40);
            // LastSorted = empUI.empire.data.PLSort;
 
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.Player.GetWeightedCenter())))
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.GetWeightedCenter())))
             {
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (!p.ExploredDict[EmpireManager.Player])
-                    {
-                        continue;
-                    }
-                    planets.Add(p);
+                    if (p.IsExploredBy(EmpireManager.Player))
+                        ExploredPlanets.Add(p);
                 }
             }
 
@@ -263,7 +260,7 @@ namespace Ship_Game
                 if (!this.sb_Sys.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.ParentSystem.Name descending
                         select planet;
                     foreach (Planet p in sortedList)
@@ -279,7 +276,7 @@ namespace Ship_Game
                 else
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.ParentSystem.Name
                         select planet;
                     foreach (Planet p in sortedList)
@@ -303,7 +300,7 @@ namespace Ship_Game
                 if (!this.sb_Name.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.Name descending
                         select planet;
                     foreach (Planet p in sortedList)
@@ -319,7 +316,7 @@ namespace Ship_Game
                 else
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.Name
                         select planet;
                     foreach (Planet p in sortedList)
@@ -343,7 +340,7 @@ namespace Ship_Game
                 if (!this.sb_Fert.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.Fertility descending
                         select planet;
                     foreach (Planet p in sortedList)
@@ -359,7 +356,7 @@ namespace Ship_Game
                 else
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.Fertility
                         select planet;
                     foreach (Planet p in sortedList)
@@ -383,7 +380,7 @@ namespace Ship_Game
                 if (!this.sb_Rich.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.MineralRichness descending
                         select planet;
                     foreach (Planet p in sortedList)
@@ -399,7 +396,7 @@ namespace Ship_Game
                 else
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.MineralRichness
                         select planet;
                     foreach (Planet p in sortedList)
@@ -423,7 +420,7 @@ namespace Ship_Game
                 if (!this.sb_Pop.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.MaxPopulation descending
                         select planet;
                     foreach (Planet p in sortedList)
@@ -439,7 +436,7 @@ namespace Ship_Game
                 else
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.MaxPopulation
                         select planet;
                     foreach (Planet p in sortedList)
@@ -463,7 +460,7 @@ namespace Ship_Game
                 if (!this.sb_Owned.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.GetOwnerName() descending
                         select planet;
                     foreach (Planet p in sortedList)
@@ -479,7 +476,7 @@ namespace Ship_Game
                 else
                 {
                     IOrderedEnumerable<Planet> sortedList = 
-                        from planet in this.planets
+                        from planet in this.ExploredPlanets
                         orderby planet.GetOwnerName()
                         select planet;
                     foreach (Planet p in sortedList)
@@ -545,7 +542,7 @@ namespace Ship_Game
             this.PlanetSL.indexAtTop = 0;
             if (this.LastSorted == null)
             {
-                foreach (Planet p in this.planets)
+                foreach (Planet p in this.ExploredPlanets)
                 {
                     if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
                     {
@@ -562,7 +559,7 @@ namespace Ship_Game
                     if (!this.sb_Sys.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.ParentSystem.Name descending
                             select planet;
                         foreach (Planet p in sortedList)
@@ -578,7 +575,7 @@ namespace Ship_Game
                     else
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.ParentSystem.Name
                             select planet;
                         foreach (Planet p in sortedList)
@@ -597,7 +594,7 @@ namespace Ship_Game
                     if (!this.sb_Name.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.Name descending
                             select planet;
                         foreach (Planet p in sortedList)
@@ -613,7 +610,7 @@ namespace Ship_Game
                     else
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.Name
                             select planet;
                         foreach (Planet p in sortedList)
@@ -636,7 +633,7 @@ namespace Ship_Game
                     if (!this.sb_Fert.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.Fertility descending
                             select planet;
                         foreach (Planet p in sortedList)
@@ -652,7 +649,7 @@ namespace Ship_Game
                     else
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.Fertility
                             select planet;
                         foreach (Planet p in sortedList)
@@ -676,7 +673,7 @@ namespace Ship_Game
                     if (!this.sb_Rich.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.MineralRichness descending
                             select planet;
                         foreach (Planet p in sortedList)
@@ -692,7 +689,7 @@ namespace Ship_Game
                     else
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.MineralRichness
                             select planet;
                         foreach (Planet p in sortedList)
@@ -716,7 +713,7 @@ namespace Ship_Game
                     if (!this.sb_Pop.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.MaxPopulation descending
                             select planet;
                         foreach (Planet p in sortedList)
@@ -732,7 +729,7 @@ namespace Ship_Game
                     else
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.MaxPopulation
                             select planet;
                         foreach (Planet p in sortedList)
@@ -756,7 +753,7 @@ namespace Ship_Game
                     if (!this.sb_Owned.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.GetOwnerName() descending
                             select planet;
                         foreach (Planet p in sortedList)
@@ -772,7 +769,7 @@ namespace Ship_Game
                     else
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.planets
+                            from planet in this.ExploredPlanets
                             orderby planet.GetOwnerName()
                             select planet;
                         foreach (Planet p in sortedList)

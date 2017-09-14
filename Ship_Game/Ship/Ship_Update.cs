@@ -62,11 +62,11 @@ namespace Ship_Game.Gameplay
 
         private void UpdateAlive(float elapsedTime)
         {
-            if (System != null && elapsedTime > 0f && !loyalty.isFaction && !System.CheckFullyExplored(loyalty))  //Added easy out for fully explorered systems
+            if (System != null && elapsedTime > 0f && !loyalty.isFaction && !System.IsFullyExploredBy(loyalty))  //Added easy out for fully explorered systems
             {
                 foreach (Planet p in System.PlanetList)
                 {
-                    if (p.ExploredDict[loyalty]) // already explored
+                    if (p.IsExploredBy(loyalty)) // already explored
                         continue;
                     if (p.Center.OutsideRadius(Center, 3000f))
                         continue;
@@ -80,8 +80,8 @@ namespace Ship_Game.Gameplay
                                 Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
                         }
                     }
-                    p.ExploredDict[loyalty] = true;
-                    System.UpdateFullyExplored(loyalty);
+                    p.SetExploredBy(loyalty);
+                    System.UpdateFullyExploredBy(loyalty);
                     for (int i = 0; i < p.BuildingList.Count; i++)
                     {
                         Building building = p.BuildingList[i];

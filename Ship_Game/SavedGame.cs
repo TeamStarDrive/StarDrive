@@ -87,13 +87,13 @@ namespace Ship_Game
 
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                SolarSystemSaveData sysSave = new SolarSystemSaveData
+                var sysSave = new SolarSystemSaveData
                 {
-                    Name = system.Name,
-                    Position = system.Position,
-                    SunPath = system.SunPath,
+                    Name          = system.Name,
+                    Position      = system.Position,
+                    SunPath       = system.SunPath,
                     AsteroidsList = new Array<Asteroid>(),
-                    Moons = new Array<Moon>(),
+                    Moons         = new Array<Moon>(),
                 };
                 foreach (Asteroid roid in system.AsteroidsList)
                 {
@@ -105,7 +105,7 @@ namespace Ship_Game
                 sysSave.RingList = new Array<RingSave>();
                 foreach (SolarSystem.Ring ring in system.RingList)
                 {
-                    RingSave rsave = new RingSave
+                    var rsave = new RingSave
                     {
                         Asteroids = ring.Asteroids,
                         OrbitalDistance = ring.Distance
@@ -116,7 +116,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        PlanetSaveData pdata = new PlanetSaveData
+                        var pdata = new PlanetSaveData
                         {
                             Crippled_Turns       = ring.planet.Crippled_Turns,
                             guid                 = ring.planet.guid,
@@ -153,7 +153,7 @@ namespace Ship_Game
                         {
                             if (station.Value.Active) pdata.StationsList.Add(station.Key);
                         }
-                        pdata.QISaveList = new Array<SavedGame.QueueItemSave>();
+                        pdata.QISaveList = new Array<QueueItemSave>();
                         if (ring.planet.Owner != null)
                         {
                             foreach (QueueItem item in ring.planet.ConstructionQueue)
@@ -171,7 +171,7 @@ namespace Ship_Game
                                 {
                                     qi.UID = item.Building.Name;
                                 }
-                                qi.isShip = item.isShip;
+                                qi.isShip      = item.isShip;
                                 qi.DisplayName = item.DisplayName;
                                 if (qi.isShip)
                                 {
@@ -195,10 +195,10 @@ namespace Ship_Game
                                 pdata.QISaveList.Add(qi);
                             }
                         }
-                        pdata.PGSList = new Array<SavedGame.PGSData>();
+                        pdata.PGSList = new Array<PGSData>();
                         foreach (PlanetGridSquare tile in ring.planet.TilesList)
                         {
-                            PGSData pgs = new PGSData
+                            var pgs = new PGSData
                             {
                                 x          = tile.x,
                                 y          = tile.y,
@@ -213,22 +213,21 @@ namespace Ship_Game
                             pdata.PGSList.Add(pgs);
                         }
                         pdata.EmpiresThatKnowThisPlanet = new Array<string>();
-                        foreach (var explored in system.ExploredDict)
+                        foreach (Empire exploredBy in system.ExploredByEmpires)
                         {
-                            if (explored.Value)
-                                pdata.EmpiresThatKnowThisPlanet.Add(explored.Key.data.Traits.Name);
+                            pdata.EmpiresThatKnowThisPlanet.Add(exploredBy.data.Traits.Name);
                         }
                         rsave.Planet = pdata;
                         sysSave.RingList.Add(rsave);
                     }
                     sysSave.EmpiresThatKnowThisSystem = new Array<string>();
-                    if (system.ExploredDict != null)
-                        foreach (var explored in system.ExploredDict)
-                        {
-                            if (explored.Value)
-                                sysSave.EmpiresThatKnowThisSystem.Add(explored.Key.data.Traits.Name); // @todo This is a duplicate?? 
-                                                                                                      //No? not a duplicate. there is planet exploration and system exploration. although one may infer the other. 
-                        }
+                    foreach (Empire exploredBy in system.ExploredByEmpires)
+                    {
+                        // RedFox: @todo This is a duplicate?? 
+                        // Crunchy: No? not a duplicate. there is planet exploration and system exploration. although one may infer the other. 
+                        // RedFox: If it can infer, then we could get rid of it?
+                        sysSave.EmpiresThatKnowThisSystem.Add(exploredBy.data.Traits.Name);
+                    }
                 }
                 SaveData.SolarSystemDataList.Add(sysSave);
             }

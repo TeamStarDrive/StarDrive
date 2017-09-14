@@ -81,7 +81,7 @@ namespace Ship_Game.AI
             else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);                
             Owner.loyalty.AddPlanet(ColonizeTarget);
             ColonizeTarget.InitializeSliders(Owner.loyalty);
-            ColonizeTarget.ExploredDict[Owner.loyalty] = true;
+            ColonizeTarget.SetExploredBy(Owner.loyalty);
 
             Owner.CreateColonizationBuildingFor(ColonizeTarget);
 
@@ -137,12 +137,12 @@ namespace Ship_Game.AI
 
         private bool ExploreEmptySystem(float elapsedTime, SolarSystem system)
         {
-            if (system.ExploredDict[Owner.loyalty])
+            if (system.IsExploredBy(Owner.loyalty))
                 return true;
             MovePosition = system.Position;
             if (Owner.Center.InRadius(MovePosition, 75000f))
             {
-                system.ExploredDict[Owner.loyalty] = true;
+                system.SetExploredBy(Owner.loyalty);;
                 return true;
             }
             ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);

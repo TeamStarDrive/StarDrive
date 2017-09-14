@@ -118,7 +118,7 @@ namespace Ship_Game
             ShowShipNames = false;
             if (SelectedPlanet == null)
                 return;
-            if (!SelectedPlanet.ParentSystem.ExploredDict[player])
+            if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
             {
                 PlayNegativeSound();
             }
@@ -185,7 +185,7 @@ namespace Ship_Game
             if (SelectedPlanet == null)
                 return;
             CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
-            if (!SelectedPlanet.ParentSystem.ExploredDict[player])
+            if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
             {
                 PlayNegativeSound();
             }
@@ -207,7 +207,7 @@ namespace Ship_Game
                     CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
                         95000f);
                 }
-                SelectedPlanet.ExploredDict[player] = true;
+                SelectedPlanet.SetExploredBy(player);
                 LookingAtPlanet = true;
                 transitionStartPosition = CamPos;
                 AdjustCamTimer = 2f;

@@ -69,6 +69,13 @@ namespace Ship_Game.AI
             Evaluate();
         }
 
+        public Goal(GoalType goalType, string goalName, Empire empire)
+        {
+            type = goalType;
+            GoalName = goalName;
+            this.empire = empire;
+        }
+
         public Goal()
         {
         }
