@@ -349,7 +349,7 @@ namespace Ship_Game
                     {
                         if (ship.Position.InRadius(system.Position, 100000.0f))
                         {
-                            system.ExploredDict[ship.loyalty] = true;
+                            system.SetExploredBy(ship.loyalty);
                             ship.SetSystem(system);
                             break; // No need to keep looping through all other systems if one is found -Gretman
                         }
@@ -610,7 +610,7 @@ namespace Ship_Game
                     if (rect.HitTest(pos))
                         viewing = true;
                 }
-                if (system.Explored(player) && viewing)
+                if (system.IsExploredBy(player) && viewing)
                 {
                     system.isVisible = viewState <= UnivScreenState.SectorView;
                 }
@@ -756,7 +756,7 @@ namespace Ship_Game
                     if (rect.HitTest(pos))
                         inFrustrum = true;
                 }
-                if (system.Explored(this.player) && inFrustrum)
+                if (system.IsExploredBy(this.player) && inFrustrum)
                 {
                     system.isVisible = CamHeight < GetZfromScreenState(UnivScreenState.GalaxyView);
                 }

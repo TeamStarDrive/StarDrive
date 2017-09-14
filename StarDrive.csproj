@@ -273,6 +273,7 @@
     <Compile Include="Ship_Game\UI\UIInterfaces.cs" />
     <Compile Include="Ship_Game\UI\UILabel.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperSandbox.cs" />
+    <Compile Include="Ship_Game\Universe\Explorable.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Camera.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Draw.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.HandleInput.cs" />
@@ -1241,10 +1242,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\StoryAndEvents\Notification.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SimpleDelegate.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

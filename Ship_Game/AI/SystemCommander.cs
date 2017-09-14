@@ -53,7 +53,8 @@ namespace Ship_Game.AI
             foreach (SolarSystem fiveClosestSystem in System.FiveClosestSystems)
             {
                 bool noEnemies = false;
-                if (!fiveClosestSystem.ExploredDict[Us]) continue;
+                if (!fiveClosestSystem.IsExploredBy(Us))
+                    continue;
                 foreach (Empire e in fiveClosestSystem.OwnerList)
                 {
                     if (e == Us) continue;

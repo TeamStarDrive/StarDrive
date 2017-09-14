@@ -127,7 +127,7 @@ namespace Ship_Game.AI {
                     }
                     if (!systemOK)
                         continue;
-                    if (!s.ExploredDict[OwnerEmpire])
+                    if (!s.IsExploredBy(OwnerEmpire))
                         continue;
 
                     float str = ThreatMatrix.PingRadarStr(s.Position, 300000f, OwnerEmpire, true);
@@ -169,7 +169,7 @@ namespace Ship_Game.AI {
                         }
 
                         float distanceInJumps;
-                        if (planetList.ExploredDict[OwnerEmpire]
+                        if (planetList.IsExploredBy(OwnerEmpire)
                             && planetList.habitable
                             && planetList.Owner == null)
                         {
@@ -238,7 +238,7 @@ namespace Ship_Game.AI {
                                 }
                             }
                         }
-                        if (!planetList.ExploredDict[OwnerEmpire]
+                        if (!planetList.IsExploredBy(OwnerEmpire)
                             || !planetList.habitable
                             || planetList.Owner == OwnerEmpire
                             || OwnerEmpire == EmpireManager.Player

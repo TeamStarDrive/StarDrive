@@ -52,7 +52,7 @@ namespace Ship_Game
 
         public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
         {			
-            screen = screen;
+            this.screen = screen;
             if (!Empire.Universe.Paused)
             {
                 Empire.Universe.Paused = Pauses = true;
@@ -841,30 +841,24 @@ namespace Ship_Game
             }
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                if (!system.ExploredDict[PlayerEmpire])
+                if (!system.IsExploredBy(PlayerEmpire))
                     continue;
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (!p.ExploredDict[PlayerEmpire])
-                        continue;
-                    if (p.Owner != e)
-                        continue;
-                    planets.Add(p);
+                    if (p.Owner == e && p.IsExploredBy(PlayerEmpire))
+                        planets.Add(p);
                 }
             }
             foreach (Empire ally in Traders)
             {
                 foreach (SolarSystem system in UniverseScreen.SolarSystemList)
                 {
-                    if (!system.ExploredDict[ally])
+                    if (!system.IsExploredBy(ally))
                         continue;
                     foreach (Planet p in system.PlanetList)
                     {
-                        if (!p.ExploredDict[ally])
-                            continue;
-                        if (p.Owner != e)
-                            continue;
-                        planets.Add(p);
+                        if (p.Owner == e && p.IsExploredBy(ally))
+                            planets.Add(p);
                     }
                 }
             }

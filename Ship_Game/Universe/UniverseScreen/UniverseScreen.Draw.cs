@@ -724,7 +724,8 @@ namespace Ship_Game
                     if (wellKnown) break;
 
                 }
-                if (!solarSystem.ExploredDict[this.player]) continue;
+                if (!solarSystem.IsExploredBy(player))
+                    continue;
 
                 foreach (Planet planet in solarSystem.PlanetList)
                 {

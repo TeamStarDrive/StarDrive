@@ -7,260 +7,202 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class PieMenu
-	{
-		private bool visible;
+    public delegate void SimpleDelegate(object sender);
 
-		private PieMenuNode rootNode;
+    public sealed class PieMenu
+    {
+        private Transition t;
 
-		private float radius = 100f;
+        private int selectionIndex = -1;
 
-		private Transition t;
+        private Action hideDelegate;
 
-		private int selectionIndex = -1;
+        private Action newMenuDelegate;
 
-		private Vector2 drawPosition;
+        private PieMenuNode newMenuNode;
 
-		private SimpleDelegate hideDelegate;
+        public Vector2 Position { get; set; }
 
-		private SimpleDelegate newMenuDelegate;
+        public float Radius { get; set; } = 100f;
 
-		private PieMenuNode newMenuNode;
+        public PieMenuNode RootNode { get; set; }
 
-		private float scaleFactor;
+        public float ScaleFactor { get; set; }
 
-		public Vector2 Position
-		{
-			get
-			{
-				return this.drawPosition;
-			}
-			set
-			{
-				this.drawPosition = value;
-			}
-		}
+        public bool Visible { get; set; }
 
-		public float Radius
-		{
-			get
-			{
-				return this.radius;
-			}
-			set
-			{
-				this.radius = value;
-			}
-		}
+        public PieMenu()
+        {
+            this.t = new Transition(Direction.Ascending, TransitionCurve.Linear, 0.15f);
+            this.hideDelegate = this.OnHide;
+            this.newMenuDelegate = this.NewMenu;
+        }
 
-		public PieMenuNode RootNode
-		{
-			get
-			{
-				return this.rootNode;
-			}
-			set
-			{
-				this.rootNode = value;
-			}
-		}
-
-		public float ScaleFactor
-		{
-			get
-			{
-				return this.scaleFactor;
-			}
-			set
-			{
-				this.scaleFactor = value;
-			}
-		}
-
-		public bool Visible
-		{
-			get
-			{
-				return this.visible;
-			}
-			set
-			{
-				this.visible = value;
-			}
-		}
-
-		public PieMenu()
-		{
-			this.t = new Transition(Direction.Ascending, TransitionCurve.Linear, 0.15f);
-			this.hideDelegate = new SimpleDelegate(this.OnHide);
-			this.newMenuDelegate = new SimpleDelegate(this.NewMenu);
-		}
-
-		public void ChangeTo(PieMenuNode newNode)
-		{
-			if (newNode == null)
-			{
-				this.t.OnTransitionEnd = this.hideDelegate;
-				this.t.Reset(Direction.Descending);
-				return;
-			}
-			this.t.OnTransitionEnd = this.newMenuDelegate;
-			this.newMenuNode = newNode;
-			this.t.Reset(Direction.Descending);
-		}
+        public void ChangeTo(PieMenuNode newNode)
+        {
+            if (newNode == null)
+            {
+                this.t.OnTransitionEnd = this.hideDelegate;
+                this.t.Reset(Direction.Descending);
+                return;
+            }
+            this.t.OnTransitionEnd = this.newMenuDelegate;
+            this.newMenuNode = newNode;
+            this.t.Reset(Direction.Descending);
+        }
 
         private void ComputeSelected(Vector2 selectionVector)
-		{
-			this.selectionIndex = -1;
-			if (selectionVector.Length() > 3f)
-			{
-				this.selectionIndex = -2;
-				return;
-			}
-			if (selectionVector.Length() > 1.5f)
-			{
-				return;
-			}
-			if (selectionVector.Length() > 0.3f)
-			{
-				float angleDivision = 1f / (float)this.rootNode.Children.Count;
-				float angle = (float)Math.Atan2((double)selectionVector.Y, (double)selectionVector.X);
-				if (angle < 0f)
-				{
-					angle = angle + 6.28318548f;
-				}
-				angle = angle / 6.28318548f;
-				angle = 1f - angle;
-				float rotationBegins = 0.75f - angleDivision / 2f;
-				if (angle <= rotationBegins)
-				{
-					angle = angle + 1f;
-				}
-				angle = angle - rotationBegins;
-				this.selectionIndex = 0;
-				while ((float)this.selectionIndex * angleDivision < angle)
-				{
-					PieMenu pieMenu = this;
-					pieMenu.selectionIndex = pieMenu.selectionIndex + 1;
-				}
-				PieMenu pieMenu1 = this;
-				pieMenu1.selectionIndex = pieMenu1.selectionIndex - 1;
-			}
-		}
-
-		public void Draw(SpriteBatch spriteBatch, SpriteFont font)
-		{
-			if (!this.visible)
-			{
-				return;
-			}
-			Vector2 center = this.drawPosition;
-			float scale = this.t.CurrentPosition * this.scaleFactor;
-			float currentAngle = 1.57079637f;
-			float angleIncrement = 6.28318548f / (float)this.rootNode.Children.Count;
-			for (int i = 0; i < this.rootNode.Children.Count; i++)
-			{
-				Vector2 imagePos = center + (scale * this.radius * new Vector2((float)Math.Cos((double)currentAngle), -(float)Math.Sin((double)currentAngle)));
-				int imageSize = (int)(scale * 30f);
-				Rectangle rectangle = new Rectangle((int)imagePos.X - imageSize, (int)imagePos.Y - imageSize, 2 * imageSize, 2 * imageSize);
-				Color drawColor = Color.White;
-				if (currentAngle <= 0f)
-				{
-					currentAngle = currentAngle + 6.28318548f;
-				}
-				if (i == this.selectionIndex)
-				{
-					drawColor = Color.Red;
-				}
-				Rectangle? nullable = null;
-				spriteBatch.Draw(this.rootNode.Children[i].Icon, new Vector2(imagePos.X, imagePos.Y), nullable, drawColor, 0f, new Vector2((float)(this.rootNode.Children[i].Icon.Width / 2), (float)(this.rootNode.Children[i].Icon.Height / 2)), scale, SpriteEffects.None, 1f);
-				if (i == this.selectionIndex)
-				{
-					spriteBatch.DrawString(font, this.rootNode.Children[i].Text, imagePos + new Vector2(-font.MeasureString(this.rootNode.Children[i].Text).X / 2f, (float)imageSize), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-				}
-				currentAngle = currentAngle - angleIncrement;
-			}
-		}
-
-		public bool HandleInput(InputState input, Vector2 selectionVector)
-		{
-			if (!visible)
-			{
-				return false;
-			}
-			ComputeSelected(selectionVector);
-			if (input.InGameSelect)
-			{
-				if (selectionIndex >= 0)
-				{
-					if (!rootNode.Children[selectionIndex].IsLeaf)
-					{
-						ChangeTo(rootNode.Children[selectionIndex]);
-						GameAudio.PlaySfxAsync("sub_bass_whoosh");
-					}
-					else
-					{
-						rootNode.Children[selectionIndex].Select();
-						ChangeTo(null);
-					    GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                    }
-				}
-				else if (this.selectionIndex != -2)
-				{
-					ChangeTo(rootNode.parent);
-				    GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                }
-				else
-				{
-					ChangeTo(null);
-				    GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                }
-			}
-			if (input.MenuCancel)
-			{
-				ChangeTo(null);
-			    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+        {
+            this.selectionIndex = -1;
+            if (selectionVector.Length() > 3f)
+            {
+                this.selectionIndex = -2;
+                return;
             }
-			return true;
-		}
+            if (selectionVector.Length() > 1.5f)
+            {
+                return;
+            }
+            if (selectionVector.Length() > 0.3f)
+            {
+                float angleDivision = 1f / (float)this.RootNode.Children.Count;
+                float angle = (float)Math.Atan2((double)selectionVector.Y, (double)selectionVector.X);
+                if (angle < 0f)
+                {
+                    angle = angle + 6.28318548f;
+                }
+                angle = angle / 6.28318548f;
+                angle = 1f - angle;
+                float rotationBegins = 0.75f - angleDivision / 2f;
+                if (angle <= rotationBegins)
+                {
+                    angle = angle + 1f;
+                }
+                angle = angle - rotationBegins;
+                this.selectionIndex = 0;
+                while ((float)this.selectionIndex * angleDivision < angle)
+                {
+                    PieMenu pieMenu = this;
+                    pieMenu.selectionIndex = pieMenu.selectionIndex + 1;
+                }
+                PieMenu pieMenu1 = this;
+                pieMenu1.selectionIndex = pieMenu1.selectionIndex - 1;
+            }
+        }
 
-		public bool HandleInput(InputState input)
-		{
-			return this.HandleInput(input, input.GamepadCurr.ThumbSticks.Left);
-		}
+        public void Draw(SpriteBatch spriteBatch, SpriteFont font)
+        {
+            if (!this.Visible)
+            {
+                return;
+            }
+            Vector2 center = this.Position;
+            float scale = this.t.CurrentPosition * this.ScaleFactor;
+            float currentAngle = 1.57079637f;
+            float angleIncrement = 6.28318548f / (float)this.RootNode.Children.Count;
+            for (int i = 0; i < this.RootNode.Children.Count; i++)
+            {
+                Vector2 imagePos = center + (scale * this.Radius * new Vector2((float)Math.Cos((double)currentAngle), -(float)Math.Sin((double)currentAngle)));
+                int imageSize = (int)(scale * 30f);
+                Rectangle rectangle = new Rectangle((int)imagePos.X - imageSize, (int)imagePos.Y - imageSize, 2 * imageSize, 2 * imageSize);
+                Color drawColor = Color.White;
+                if (currentAngle <= 0f)
+                {
+                    currentAngle = currentAngle + 6.28318548f;
+                }
+                if (i == this.selectionIndex)
+                {
+                    drawColor = Color.Red;
+                }
+                Rectangle? nullable = null;
+                spriteBatch.Draw(this.RootNode.Children[i].Icon, new Vector2(imagePos.X, imagePos.Y), nullable, drawColor, 0f, new Vector2((float)(this.RootNode.Children[i].Icon.Width / 2), (float)(this.RootNode.Children[i].Icon.Height / 2)), scale, SpriteEffects.None, 1f);
+                if (i == this.selectionIndex)
+                {
+                    spriteBatch.DrawString(font, this.RootNode.Children[i].Text, imagePos + new Vector2(-font.MeasureString(this.RootNode.Children[i].Text).X / 2f, (float)imageSize), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                }
+                currentAngle = currentAngle - angleIncrement;
+            }
+        }
 
-		private void NewMenu(object sender)
-		{
-			this.rootNode = this.newMenuNode;
-			this.t.Reset(Direction.Ascending);
-			this.t.OnTransitionEnd = null;
-		}
+        public bool HandleInput(InputState input, Vector2 selectionVector)
+        {
+            if (!Visible)
+            {
+                return false;
+            }
+            ComputeSelected(selectionVector);
+            if (input.InGameSelect)
+            {
+                if (selectionIndex >= 0)
+                {
+                    if (!RootNode.Children[selectionIndex].IsLeaf)
+                    {
+                        ChangeTo(RootNode.Children[selectionIndex]);
+                        GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                    }
+                    else
+                    {
+                        RootNode.Children[selectionIndex].Select();
+                        ChangeTo(null);
+                        GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                    }
+                }
+                else if (this.selectionIndex != -2)
+                {
+                    ChangeTo(RootNode.parent);
+                    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                }
+                else
+                {
+                    ChangeTo(null);
+                    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                }
+            }
+            if (input.MenuCancel)
+            {
+                ChangeTo(null);
+                GameAudio.PlaySfxAsync("sub_bass_whoosh");
+            }
+            return true;
+        }
 
-		private void OnHide(object sender)
-		{
-			this.visible = false;
-			this.t.OnTransitionEnd = null;
-		}
+        public bool HandleInput(InputState input)
+        {
+            return this.HandleInput(input, input.GamepadCurr.ThumbSticks.Left);
+        }
 
-		public void Show(Vector2 position)
-		{
-			this.t.Reset(Direction.Ascending);
-			this.t.OnTransitionEnd = null;
-			this.visible = true;
-			this.drawPosition = position;
-		}
+        private void NewMenu()
+        {
+            this.RootNode = this.newMenuNode;
+            this.t.Reset(Direction.Ascending);
+            this.t.OnTransitionEnd = null;
+        }
 
-		public void Show(PieMenuNode rootNode, Vector2 position)
-		{
-			this.rootNode = rootNode;
-			this.Show(position);
-		}
+        private void OnHide()
+        {
+            this.Visible = false;
+            this.t.OnTransitionEnd = null;
+        }
 
-		public void Update(GameTime gameTime)
-		{
-			if (!visible)
-				return;
-			t.Update(gameTime.ElapsedGameTime.TotalSeconds);
-		}
-	}
+        public void Show(Vector2 position)
+        {
+            this.t.Reset(Direction.Ascending);
+            this.t.OnTransitionEnd = null;
+            this.Visible = true;
+            this.Position = position;
+        }
+
+        public void Show(PieMenuNode rootNode, Vector2 position)
+        {
+            this.RootNode = rootNode;
+            this.Show(position);
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if (!Visible)
+                return;
+            t.Update(gameTime.ElapsedGameTime.TotalSeconds);
+        }
+    }
 }
