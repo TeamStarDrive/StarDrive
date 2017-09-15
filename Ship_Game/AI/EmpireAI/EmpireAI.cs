@@ -119,7 +119,7 @@ namespace Ship_Game.AI
             var potentials = new Array<SolarSystem>();
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
-                if (s.IsExploredBy(OwnerEmpire))                
+                if (!s.IsExploredBy(OwnerEmpire))                
                     potentials.Add(s);
             }
             
