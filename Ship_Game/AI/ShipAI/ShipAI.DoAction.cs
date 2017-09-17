@@ -175,7 +175,7 @@ namespace Ship_Game.AI {
                 }
             }
             else if (Distance > 10000f
-                     && Owner.Mothership.AI.CombatState == CombatState.AssaultShip) OrderReturnToHangar();
+                     && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip) OrderReturnToHangar();
         }
 
         private void DoCombat(float elapsedTime)
