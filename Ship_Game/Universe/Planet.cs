@@ -164,11 +164,11 @@ namespace Ship_Game
             HasShipyard = false;            
         }
 
-        public Planet(SolarSystem system, float randomAngle, float ringRadius, int i, float ringMax)
+        public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax)
         {                        
             var newOrbital = this;
 
-            Name = system.Name + " " + NumberToRomanConvertor.NumberToRoman(i);
+            Name = name;
             OrbitalAngle = randomAngle;
             ParentSystem = system;
                 
@@ -185,7 +185,6 @@ namespace Ship_Game
                 sunZone = SunZone.VeryFar;
 
             for (int x = 0; x < 5; x++)
-            //while (PlanetType @!)
             {
                 planetType = RandomMath.IntBetween(1, 24);
                 Type = "";
@@ -207,13 +206,14 @@ namespace Ship_Game
                 newOrbital.planetType == 26)
                 scale += 2.5f;
 
-            float planetRadius = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
-            newOrbital.ObjectRadius = planetRadius;
+            float planetRadius       = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
+            newOrbital.ObjectRadius  = planetRadius;
             newOrbital.OrbitalRadius = ringRadius + planetRadius;
-            Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
+            Vector2 planetCenter     = MathExt.PointOnCircle(randomAngle, ringRadius);
             newOrbital.Center        = planetCenter;
             newOrbital.scale         = scale;            
             newOrbital.planetTilt    = RandomMath.RandomBetween(45f, 135f);
+
             if (RandomMath.RandomBetween(1f, 100f) < 15f)
             {
                 newOrbital.hasRings = true;

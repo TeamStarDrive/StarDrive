@@ -12,14 +12,14 @@ namespace Ship_Game
     {
         private void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)
         {
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU          = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV          = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable       = true;
+            ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation    = BlendFunction.Add;
+            ScreenManager.GraphicsDevice.RenderState.SourceBlend            = Blend.SourceAlpha;
+            ScreenManager.GraphicsDevice.RenderState.DestinationBlend       = Blend.InverseSourceAlpha;
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            ScreenManager.GraphicsDevice.RenderState.CullMode               = CullMode.None;
             foreach (BasicEffect basicEffect in xnaPlanetModel.Meshes[1].Effects)
             {
                 basicEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
