@@ -504,6 +504,7 @@ namespace Ship_Game
         {
             if (viewState > UnivScreenState.ShipView)
                 return;
+            using (player.KnownShips.AcquireReadLock())
             for (int i = 0; i < player.KnownShips.Count; ++i)
             {
                 Ship ship = player.KnownShips[i];
