@@ -58,12 +58,12 @@ namespace Ship_Game
         public bool LeftMouseHeldUp    => MouseCurr.LeftButton != ButtonState.Pressed && MousePrev.LeftButton != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
-        public bool LeftMouseHeld(float seconds = 0.25f)
+        public bool LeftMouseHeld(float seconds = 0.15f)
         {
             LeftHeld = MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);            
             return LeftHeld;
         }
-        public bool RightMouseHeld(float seconds = 0.25f)
+        public bool RightMouseHeld(float seconds = 0.15f)
         {
             RightHeld = MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);            
             return RightHeld;
