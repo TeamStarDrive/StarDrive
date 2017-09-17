@@ -802,7 +802,6 @@ namespace Ship_Game
             SolarSystemDict.Clear();
             Fleet.Screen                          = null;
             Bomb.Screen                           = null;
-            //MinimapButtons.screen                 = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                       = null;
@@ -835,7 +834,6 @@ namespace Ship_Game
             flash.UnloadContent();
             star_particles.UnloadContent();
             neb_particles.UnloadContent();
-           // GC.Collect(1, GCCollectionMode.Optimized);
         }
 
         private MultiShipData ComputeMultiShipCircle()

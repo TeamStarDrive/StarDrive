@@ -417,18 +417,6 @@ namespace Ship_Game
             StarRadius = (int) (RandomMath.IntBetween(250, 500) * systemScale);
             float ringMax = StarRadius * 300;
             float ringbase = ringMax * .1f;
-            //ringmax *= systemScale;
-            //if (GlobalStats.ExtraPlanets > 0) // ADDED BY SHAHMATT (more planets in system)
-            //{   
-            //    //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
-            //    if      (GlobalStats.ExtraPlanets <= 2) NumberOfRings = RandomMath.IntBetween(1, 6 + GlobalStats.ExtraPlanets);
-            //    else if (GlobalStats.ExtraPlanets <= 4) NumberOfRings = RandomMath.IntBetween(2, 6 + GlobalStats.ExtraPlanets);
-            //    else if (GlobalStats.ExtraPlanets <= 6) NumberOfRings = RandomMath.IntBetween(3, 6 + GlobalStats.ExtraPlanets);
-            //    else                                    NumberOfRings = RandomMath.IntBetween((int)(GlobalStats.ExtraPlanets * 0.5f), 6 + GlobalStats.ExtraPlanets);
-
-            //    if (NumberOfRings == 0) NumberOfRings = 1; // If "Extra Planets" was selected at all, there will always be at least 1 in each system. - Gretman
-            //}
-            //else
             int bonusP = GlobalStats.ExtraPlanets > 0 ? (int)Math.Ceiling(GlobalStats.ExtraPlanets  / 2f) : 0;
             int minR = RandomMath.IntBetween(0 + bonusP > 0 ? 1 : 0, 3 + GlobalStats.ExtraPlanets);
             int maxR = RandomMath.IntBetween(minR, 6 + minR);
@@ -437,25 +425,22 @@ namespace Ship_Game
             this.RingList.Capacity = NumberOfRings;
 
             float ringSpace = ringMax / NumberOfRings;
-            //float ringbase = StarRadius * 20; // 10500f;
-            //float ringmax = NumberOfRings > 0 ? (95000f + StarRadius * 20f) / NumberOfRings : 0f;
 
             for (int i = 1; i < NumberOfRings + 1; i++)
             {
                 ringbase += 5000;
                 float ringRadius = ringbase + RandomMath.RandomBetween(0, ringSpace / (1 + NumberOfRings - i));
-                //ringRadius *= systemScale;
                 if (RandomMath.IntBetween(1, 100) > 80)
                 {
                     float spread = ringRadius - ringbase;
 
-                    GenerateAsteroidRing(ringRadius, spread: spread);
+                    GenerateAsteroidRing(ringRadius + spread *.25f, spread: spread *.5f);
                     ringRadius += spread / 2;
                 }
                 else
                 {
                     float randomAngle = RandomMath.RandomBetween(0f, 360f);
-                    Planet newOrbital = new Planet(this, randomAngle, ringRadius, i, ringMax);
+                    Planet newOrbital = new Planet(this, randomAngle, ringRadius, Name + " " + NumberToRomanConvertor.NumberToRoman(i), ringMax);
 
                     GenerateRemnantPresence(newOrbital, data);
 
@@ -468,7 +453,6 @@ namespace Ship_Game
                         Asteroids = false,
                         planet = newOrbital
                     };
-                     // newOrbital.ObjectRadius;
                     RingList.Add(ring);
                 }
                 ringbase = ringRadius;
@@ -547,19 +531,18 @@ namespace Ship_Game
                         ParentSystem = this,
                         planetType   = RandomMath.IntBetween(0, 1) == 0 ? 27 : 29
                     };
-                    newOrbital.Owner = owner;
-                    owner.Capital = newOrbital;
+                    newOrbital.Owner           = owner;
+                    owner.Capital              = newOrbital;
                     newOrbital.InitializeSliders(owner);
                     owner.AddPlanet(newOrbital);
                     newOrbital.SetPlanetAttributes(26f);
                     newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
-                    //newOrbital.Special = "None";
-                    newOrbital.Fertility = 2f + owner.data.Traits.HomeworldFertMod;
-                    newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
-                    newOrbital.Population = 14000f;
-                    newOrbital.FoodHere = 100f;
-                    newOrbital.ProductionHere = 100f;
-                    newOrbital.HasShipyard = true;
+                    newOrbital.Fertility       = 2f + owner.data.Traits.HomeworldFertMod;
+                    newOrbital.MaxPopulation   = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
+                    newOrbital.Population      = 14000f;
+                    newOrbital.FoodHere        = 100f;
+                    newOrbital.ProductionHere  = 100f;
+                    newOrbital.HasShipyard     = true;
                     newOrbital.AddGood("ReactorFuel", 1000);
                     ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
                     ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
@@ -570,18 +553,17 @@ namespace Ship_Game
                         ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
                         ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
                     }
-                    newOrbital.Center = planetCenter;
-                    newOrbital.scale = scale;
-                    newOrbital.ObjectRadius = planetRadius;
+                    newOrbital.Center        = planetCenter;
+                    newOrbital.scale         = scale;
+                    newOrbital.ObjectRadius  = planetRadius;
                     newOrbital.OrbitalRadius = ringRadius;
-                    newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
+                    newOrbital.planetTilt    = RandomMath.RandomBetween(45f, 135f);
                     if (RandomMath.RandomBetween(1f, 100f) < 15f)
                     {
                         newOrbital.hasRings = true;
                         newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
                     }
                     PlanetList.Add(newOrbital);
-                    RandomMath.RandomBetween(0f, 3f);
                     Ring ring = new Ring
                     {
                         Distance  = ringRadius,
