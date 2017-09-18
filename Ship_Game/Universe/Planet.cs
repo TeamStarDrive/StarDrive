@@ -867,7 +867,7 @@ namespace Ship_Game
                 if (index >= list.Count)
                     index = list.Count - 1;
                 var b = AssignBuildingToRandomTile(ResourceManager.CreateBuilding(list[index]));
-                b.building.SetPlanet(this);
+                BuildingList.Add(b.building);
                 Log.Info($"Event building : {b.building.Name} : created on {Name}");
             }
         }
