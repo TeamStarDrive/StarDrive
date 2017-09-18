@@ -711,7 +711,7 @@ namespace Ship_Game
                                 scale        = ringData.Moons[j].MoonScale,
                                 OrbitRadius  = radius,
                                 OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                                Position     = GenerateRandomPointOnCircle(radius, newOrbital.Center)
+                                Position     = newOrbital.Center.GenerateRandomPointOnCircle(radius)
                             };
                             newSys.MoonList.Add(moon);
                         }
@@ -765,7 +765,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < 100; ++i) // while (true) would be unsafe, so give up after 100 turns
             {
-                Vector2 pos = GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-spread, spread), Vector2.Zero);
+                Vector2 pos = Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-spread, spread));
                 if (NoAsteroidProximity(pos))
                     return new Vector3(pos.X, pos.Y, -500f);
             }
