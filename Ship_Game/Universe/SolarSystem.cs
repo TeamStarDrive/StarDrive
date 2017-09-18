@@ -402,12 +402,6 @@ namespace Ship_Game
             }
         }
 
-        private static Vector2 GenerateRandomPointOnCircle(float radius, Vector2 center)
-        {
-            float randomAngle = RandomMath.RandomBetween(0f, 360f);
-            return center.PointFromAngle(randomAngle, radius);
-        }
-
         public void GenerateRandomSystem(string name, UniverseData data, float systemScale)
         {
             // Changed by RedFox: 3% chance to get a tri-sun star
