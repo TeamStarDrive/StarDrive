@@ -43,7 +43,10 @@ namespace Ship_Game
 
         public Vector2 ProjectToScreenSize(float widthInWorld, float heightInWorld)
         {
-            return ProjectToScreenPosition(new Vector2(widthInWorld, heightInWorld));
+            float width = ProjectToScreenSize(widthInWorld);
+            float height = ProjectToScreenSize(heightInWorld);
+
+            return new Vector2(width, height);
         }
 
         public float ProjectToScreenSize(float sizeInWorld)
