@@ -5,23 +5,6 @@ namespace Ship_Game
 {
     public sealed class MinimapButtons : UIElementContainer
     {
-        
-        private readonly ToggleButton ZoomOut;
-
-        private readonly ToggleButton ZoomToShip;
-
-        private readonly ToggleButton PlanetScreen;
-
-        private readonly ToggleButton ShipScreen;
-
-        private readonly ToggleButton AIScreen;
-
-        private readonly ToggleButton DeepSpaceBuild;
-
-        private readonly ToggleButton Fleets;
-
-        private int ButtonOffset;
-
         private const string CNormal = "Minimap/button_C_normal";
         private const string BNormal = "Minimap/button_B_normal";
         private const string Normal  = "Minimap/button_normal";

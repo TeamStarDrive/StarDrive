@@ -57,7 +57,6 @@ namespace Ship_Game
         private float TransitionZoom = 1f;
         private SlotModOperation Operation;
         public ShipModule ActiveModule;
-        private ShipModule ActiveHangarModule;
         private ActiveModuleState ActiveModState;
         private Selector selector;
         public bool ToggleOverlay = true;
