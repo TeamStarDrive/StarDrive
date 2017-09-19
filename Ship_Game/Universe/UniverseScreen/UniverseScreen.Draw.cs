@@ -33,7 +33,7 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
         }
 
-        private void DrawAtmo(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
+        private void DrawAtmo(Model model, Matrix world, Matrix view, Matrix projection, Planet planet)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;

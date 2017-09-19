@@ -25,7 +25,7 @@ namespace Ship_Game.Gameplay
 
         public override void Initialize()
         {
-            So = ResourceManager.GetSceneMesh("Model/SpaceObjects/planet_" + moonType);
+            So = ResourceManager.GetPlanetarySceneMesh("Model/SpaceObjects/planet_" + moonType);
             So.ObjectType = ObjectType.Static;
             So.Visibility = ObjectVisibility.Rendered;
             So.World = Matrix.CreateScale(scale)*Matrix.CreateTranslation(new Vector3(Position, 2500f));
