@@ -221,11 +221,7 @@ namespace Ship_Game.Gameplay
         private void DrawTactical(UniverseScreen us, Vector2 screenPos, float screenRadius, float minSize, float maxSize = 0f)
         {
             // try to scale the icon so its size remains consistent when zooming in/out
-            float size = screenRadius * 2;
-            if (size < minSize)
-                size = minSize;
-            else if (maxSize > 0f && size > maxSize)
-                size = maxSize;
+            float size = KeepConstantSize(screenRadius, minSize, maxSize);
 
             if (StrategicIconPath.IsEmpty())
                 StrategicIconPath = "TacticalIcons/symbol_" + (isConstructor ? "construction" : shipData.GetRole());
@@ -238,6 +234,16 @@ namespace Ship_Game.Gameplay
                 us.DrawTexture(ResourceManager.Texture("UI/flagicon"), 
                     screenPos + new Vector2(-7f, -17f), loyalty.EmpireColor);
             }
+        }
+
+        private float KeepConstantSize(float screenRadius, float minSize, float maxSize = 0)
+        {
+            float size = screenRadius * 2;
+            if (size < minSize)
+                size = minSize;
+            else if (maxSize > 0f && size > maxSize)
+                size = maxSize;
+            return size;
         }
 
         public void DrawTacticalIcon(UniverseScreen us, UniverseScreen.UnivScreenState viewState)
@@ -265,9 +271,9 @@ namespace Ship_Game.Gameplay
                 {
                     Texture2D ammoIcon = ResourceManager.Texture("NewUI/icon_ammo");
                     Color   color    = (Ordinance <= 0.2f * OrdinanceMax) ? Color.Red : Color.Yellow;
-                    Vector2 ammoSize = us.ProjectToScreenSize(ammoIcon.Width, ammoIcon.Height);
-
-                    us.DrawTextureSized(ammoIcon, screenPos + new Vector2(15f, 15f), 0f, ammoSize.X, ammoSize.Y, color);
+                    float size = KeepConstantSize(screenRadius, ammoIcon.Width ) / 3;
+                    Vector2 iconPos = screenPos + new Vector2(15) + new Vector2(size);
+                    us.DrawTextureSized(ammoIcon, iconPos, 0f, size, size, color);
                 }
             }
         }
