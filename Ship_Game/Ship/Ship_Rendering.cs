@@ -221,29 +221,35 @@ namespace Ship_Game.Gameplay
         private void DrawTactical(UniverseScreen us, Vector2 screenPos, float screenRadius, float minSize, float maxSize = 0f)
         {
             // try to scale the icon so its size remains consistent when zooming in/out
-            float size = KeepConstantSize(screenRadius, minSize, maxSize);
+            float size = ScaleIconSize(screenRadius, minSize, maxSize);
 
             if (StrategicIconPath.IsEmpty())
                 StrategicIconPath = "TacticalIcons/symbol_" + (isConstructor ? "construction" : shipData.GetRole());
             Texture2D icon = ResourceManager.Texture(StrategicIconPath) 
                           ?? ResourceManager.Texture("TacticalIcons/symbol_fighter"); // default symbol
             us.DrawTextureSized(icon, screenPos, Rotation, size, size, loyalty.EmpireColor);
+            
+        }
 
+        private void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
+        {            
             if (isColonyShip)
             {
-                us.DrawTexture(ResourceManager.Texture("UI/flagicon"), 
-                    screenPos + new Vector2(-7f, -17f), loyalty.EmpireColor);
+                float size = ScaleIconSize(screenRadius, 16f, 16f);
+                Vector2 offSet = new Vector2(-screenRadius *.75f, -screenRadius * .75f);
+                us.DrawTextureSized(ResourceManager.Texture("UI/flagicon"),
+                    screenPos +  offSet, 0, size, size, loyalty.EmpireColor);
             }
         }
 
-        private float KeepConstantSize(float screenRadius, float minSize, float maxSize = 0)
-        {
-            float size = screenRadius * 2;
-            if (size < minSize)
+        private float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
+        {            
+            float size = screenRadius * 2 ;
+            if (size < minSize && minSize != 0)
                 size = minSize;
             else if (maxSize > 0f && size > maxSize)
-                size = maxSize;
-            return size;
+                size = maxSize ;
+            return size + GlobalStats.IconSize;
         }
 
         public void DrawTacticalIcon(UniverseScreen us, UniverseScreen.UnivScreenState viewState)
@@ -251,30 +257,39 @@ namespace Ship_Game.Gameplay
             float shipWorldRadius = ShipSO.WorldBoundingSphere.Radius;
             us.ProjectToScreenCoords(Position, shipWorldRadius, out Vector2 screenPos, out float screenRadius);
 
+            DrawFlagIcons(us, screenPos, screenRadius);
+
             if (viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
                 if (!us.IsShipUnderFleetIcon(this, screenPos, 20f))
-                    DrawTactical(us, screenPos, screenRadius, 16f, 32f);
+                    DrawTactical(us, screenPos, screenRadius, 16f, 8f);
             }
             // ShowTacticalCloseup => when you hold down LALT key
             else if (us.ShowTacticalCloseup || viewState > UniverseScreen.UnivScreenState.ShipView)
             {
                 if (!us.IsShipUnderFleetIcon(this, screenPos, screenRadius + 3.0f))
-                    DrawTactical(us, screenPos, screenRadius, 16f, 32f);
+                    DrawTactical(us, screenPos, screenRadius, 16f, 8f);
             }
             else if (viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
-                DrawTactical(us, screenPos, screenRadius, 16f, 32f);
+                DrawTactical(us, screenPos, screenRadius, 16f, 8f);
+                DrawStatusIcons(us, screenRadius, screenPos);
+            }
+        }
 
-                // display low ammo
-                if (OrdinanceMax > 0.0f && Ordinance < 0.5f * OrdinanceMax)
-                {
-                    Texture2D ammoIcon = ResourceManager.Texture("NewUI/icon_ammo");
-                    Color   color    = (Ordinance <= 0.2f * OrdinanceMax) ? Color.Red : Color.Yellow;
-                    float size = KeepConstantSize(screenRadius, ammoIcon.Width ) / 3;
-                    Vector2 iconPos = screenPos + new Vector2(15) + new Vector2(size);
-                    us.DrawTextureSized(ammoIcon, iconPos, 0f, size, size, color);
-                }
+        private void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
+        {
+            Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);
+
+            // display low ammo
+            if (OrdinanceMax > 0.0f && Ordinance < 0.5f * OrdinanceMax)
+            {
+                Texture2D ammoIcon = ResourceManager.Texture("NewUI/icon_ammo");
+                Color color = (Ordinance <= 0.2f * OrdinanceMax) ? Color.Red : Color.Yellow;
+                float size = ScaleIconSize(screenRadius, 16f , 16f);                
+                us.DrawTextureSized(ammoIcon, screenPos + offSet, 0f, size, size, color);
+                //for future status icons.
+                //offSet.X += size * 1.2f; 
             }
         }
 
