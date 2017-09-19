@@ -609,8 +609,11 @@ namespace Ship_Game
             renderState.DepthBufferWriteEnable = true;
             renderState.SourceBlend = Blend.SourceAlpha;
             renderState.DestinationBlend = Blend.One;
-            foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
+            for (int x = 0; x < anomalyManager.AnomaliesList.Count; x++)
+            {
+                Anomaly anomaly = anomalyManager.AnomaliesList[x];
                 anomaly.Draw();
+            }
             if (viewState < UnivScreenState.SectorView)
             {
                 for (int i = 0; i < SolarSystemList.Count; i++)
