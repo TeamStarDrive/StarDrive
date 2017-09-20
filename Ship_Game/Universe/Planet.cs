@@ -164,7 +164,7 @@ namespace Ship_Game
             HasShipyard = false;            
         }
 
-        public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax)
+        public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
         {                        
             var newOrbital = this;
 
@@ -183,10 +183,18 @@ namespace Ship_Game
                 sunZone = SunZone.Far;
             else
                 sunZone = SunZone.VeryFar;
-
-            GenerateType(sunZone);
-            newOrbital.SetPlanetAttributes(true);
-
+            if (owner != null && owner.Capital == null && sunZone >= SunZone.Habital)
+            {
+                planetType = RandomMath.IntBetween(0, 1) == 0 ? 27 : 29;
+                owner.SpawnHomePlanet(newOrbital);
+                Name = ParentSystem.Name + " " + NumberToRomanConvertor.NumberToRoman(1);
+            }
+            else            
+            {
+                GenerateType(sunZone);
+                newOrbital.SetPlanetAttributes(true);
+            }
+            
             float zoneBonus = ((int)sunZone +1) * .2f * ((int)sunZone +1);
             float scale = RandomMath.RandomBetween(0f, zoneBonus) + .9f;
             if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 ||
@@ -203,22 +211,7 @@ namespace Ship_Game
             newOrbital.planetTilt    = RandomMath.RandomBetween(45f, 135f);
 
 
-            int moonCount = (int)Math.Ceiling(ObjectRadius * .002f);
-            moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount *.5f , moonCount));
-            for (int j = 0; j < moonCount; j++)
-            {
-                float radius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
-                Moon moon = new Moon
-                {
-                    orbitTarget = newOrbital.guid,
-                    moonType = RandomMath.IntBetween(1,29),
-                    scale = 1,
-                    OrbitRadius = radius,
-                    OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                    Position = newOrbital.Center.GenerateRandomPointOnCircle(radius)
-                };
-                ParentSystem.MoonList.Add(moon);
-            }
+            GenerateMoons(newOrbital);
 
             if (RandomMath.RandomBetween(1f, 100f) < 15f)
             {
@@ -227,17 +220,37 @@ namespace Ship_Game
             }
         }
 
+        private void GenerateMoons(Planet newOrbital)
+        {
+            int moonCount = (int) Math.Ceiling(ObjectRadius * .004f);
+            moonCount = (int) Math.Round(RandomMath.AvgRandomBetween(-moonCount * .75f, moonCount));
+            for (int j = 0; j < moonCount; j++)
+            {
+                float radius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
+                Moon moon = new Moon
+                {
+                    orbitTarget = newOrbital.guid,
+                    moonType = RandomMath.IntBetween(1, 29),
+                    scale = 1,
+                    OrbitRadius = radius,
+                    OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
+                    Position = newOrbital.Center.GenerateRandomPointOnCircle(radius)
+                };
+                ParentSystem.MoonList.Add(moon);
+            }
+        }
+
         private void GenerateType(SunZone sunZone)
         {            
             for (int x = 0; x < 5; x++)
-            {
-                planetType = RandomMath.IntBetween(1, 24);
+            {                
                 Type = "";
                 planetComposition = "";
                 hasEarthLikeClouds = false;
                 habitable = false;
                 MaxPopulation = 0;
                 Fertility = 0;
+                planetType = RandomMath.IntBetween(1, 24);
                 ApplyPlanetType();
                 if (Zone == sunZone || (Zone == SunZone.Any && sunZone == SunZone.Near)) break;
                 if (x > 2 && Zone == SunZone.Any) break;

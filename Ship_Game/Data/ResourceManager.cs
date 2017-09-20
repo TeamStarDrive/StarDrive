@@ -403,6 +403,18 @@ namespace Ship_Game
             return troop;
         }
 
+        public static MarkovNameGenerator GetRandomNames(Empire empire)
+        {            
+            string nameFileName = $"NameGenerators/spynames_{empire?.PortraitName}.txt";
+            return GetNameGenerator(nameFileName, 3, 5);
+        }
+
+        public static MarkovNameGenerator GetNameGenerator(string relativePath, int order, int minLength)
+        {            
+            var nameFile = GetModOrVanillaFile(relativePath);
+            if (nameFile == null) return null;
+            return new MarkovNameGenerator(nameFile.OpenText().ReadToEnd(), order, minLength);
+        }
 
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
         {                       
