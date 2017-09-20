@@ -404,7 +404,7 @@ namespace Ship_Game
                 if (systemData == null)
                 {
                     solarSystem = new SolarSystem();
-                    solarSystem.GenerateStartingSystem(empire.data.Traits.HomeSystemName, empire, Scale);
+                    solarSystem.GenerateStartingSystem(empire.data.Traits.HomeSystemName, Data, Scale, empire);
                 }
                 else solarSystem = SolarSystem.GenerateSystemFromData(systemData, empire);
                 solarSystem.isStartingSystem = true;
