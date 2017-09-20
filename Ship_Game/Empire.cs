@@ -168,6 +168,34 @@ namespace Ship_Game
             }
         }
 
+        public void SpawnHomePlanet(Planet newOrbital)
+        {
+            ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
+            ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
+            newOrbital.Owner           = this;
+            Capital                    = newOrbital;
+            newOrbital.InitializeSliders(this);
+            AddPlanet(newOrbital);
+            newOrbital.SetPlanetAttributes(26f);
+            newOrbital.MineralRichness = 1f + data.Traits.HomeworldRichMod;
+            newOrbital.Fertility       = 2f + data.Traits.HomeworldFertMod;
+            newOrbital.MaxPopulation   = 14000f + 14000f * data.Traits.HomeworldSizeMod;
+            newOrbital.Population      = 14000f;
+            newOrbital.FoodHere        = 100f;
+            newOrbital.ProductionHere  = 100f;
+            newOrbital.HasShipyard     = true;
+            newOrbital.AddGood("ReactorFuel", 1000);
+            ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
+            ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
+            if (GlobalStats.HardcoreRuleset)
+            {
+                ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
+            }
+        }
+
         public void SetRallyPoints()
         {
             Array<Planet> rallyPlanets = new Array<Planet>();
