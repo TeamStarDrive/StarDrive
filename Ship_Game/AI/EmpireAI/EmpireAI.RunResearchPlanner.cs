@@ -13,474 +13,324 @@ namespace Ship_Game.AI {
         Ship BestCombatShip;
         private void RunResearchPlanner()
         {
-            if (string.IsNullOrEmpty(this.OwnerEmpire.ResearchTopic))
+            if (!string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
+                return;
+            bool cybernetic = OwnerEmpire.data.Traits.Cybernetic > 0;
+            bool atWar = false;
+            bool highTaxes = false;
+            bool lowResearch = false;
+            bool lowincome = false;
+            float researchDebt = 0;
+            float wars = OwnerEmpire.AllRelations
+                .Where(war => !war.Key.isFaction && (war.Value.AtWar || war.Value.PreparingForWar))
+                .Sum(str => str.Key.currentMilitaryStrength / OwnerEmpire.currentMilitaryStrength);
+
+            if (OwnerEmpire.data.TaxRate >= .50f)
+                highTaxes = true;
+            if (!string.IsNullOrEmpty(postResearchTopic))
+                researchDebt = .1f + (OwnerEmpire.TechnologyDict[postResearchTopic].TechCost /
+                                      (.1f + (100 * UniverseScreen.GamePaceStatic) *
+                                       OwnerEmpire.GetPlanets().Sum(research => research.NetResearchPerTurn)));
+            if (researchDebt > 4)
+                lowResearch = true;
+            float economics = (OwnerEmpire.data.TaxRate * 10); 
+            float needsFood = 0;
+            foreach (Planet hunger in OwnerEmpire.GetPlanets())
             {
-                //Added by McShooterz: random tech is less random, selects techs based on priority
-                //Check for needs of empire
-                // Ship ship;
-                // int researchneeded = 0;
-
-                //if( ResourceManager.ShipsDict.TryGetValue(this.BestCombatShip, out ship))
-                //{
-                //    ship.shipData.TechScore / this.empire.Research
-                //}
-                bool cybernetic = this.OwnerEmpire.data.Traits.Cybernetic > 0;
-                bool atWar = false;
-                bool highTaxes = false;
-                bool lowResearch = false;
-                bool lowincome = false;
-                float researchDebt = 0;
-                float wars = this.OwnerEmpire.AllRelations
-                    .Where(war => !war.Key.isFaction && (war.Value.AtWar || war.Value.PreparingForWar))
-                    .Sum(str => str.Key.currentMilitaryStrength / this.OwnerEmpire.currentMilitaryStrength);
-
-                if (this.OwnerEmpire.data.TaxRate >= .50f)
-                    highTaxes = true;
-                if (!string.IsNullOrEmpty(this.postResearchTopic))
-                    researchDebt = .1f + (this.OwnerEmpire.TechnologyDict[this.postResearchTopic].TechCost /
-                                          (.1f + (100 * UniverseScreen.GamePaceStatic) *
-                                           this.OwnerEmpire.GetPlanets().Sum(research => research.NetResearchPerTurn)));
-                if (researchDebt > 4)
-                    lowResearch = true;
-                //if (this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count / 3)
-                //    lowResearch = true;
-                float economics =
-                    (this.OwnerEmpire.data.TaxRate * 10); // 10 - (int)(this.empire.Money / (this.empire.GrossTaxes + 1));
-                //(int)(this.empire.data.TaxRate * 10 + this.empire.Money < this.empire.GrossTaxes?5:0);
-                float needsFood = 0;
-                foreach (Planet hunger in this.OwnerEmpire.GetPlanets())
+                if ((cybernetic ? hunger.ProductionHere : hunger.FoodHere) / hunger.MAX_STORAGE < .20f)                
+                    needsFood++;
+                
+                if (!OwnerEmpire.GetTDict()["Biospheres"].Unlocked)
                 {
-                    if ((cybernetic ? hunger.ProductionHere : hunger.FoodHere) / hunger.MAX_STORAGE <
-                        .20f) //: hunger.MAX_STORAGE / (hunger.FoodHere+1) > 25)
-                    {
-                        needsFood++;
-                    }
-                    if (!this.OwnerEmpire.GetTDict()["Biospheres"].Unlocked)
-                    {
-                        if (hunger.Fertility == 0)
-                            needsFood += 2;
-                    }
+                    if (hunger.Fertility == 0)
+                        needsFood += 2;
                 }
-                float shipBuildBonus = 0f;
-                if (this.OwnerEmpire.data.TechDelayTime > 0)
-                    this.OwnerEmpire.data.TechDelayTime--;
-                if (this.OwnerEmpire.data.TechDelayTime > 0)
+            }
+            float shipBuildBonus = 0f;
+            if (OwnerEmpire.data.TechDelayTime > 0)
+                OwnerEmpire.data.TechDelayTime--;
+            if (OwnerEmpire.data.TechDelayTime > 0)
+            {
+                shipBuildBonus = -5 - OwnerEmpire.data.TechDelayTime;
+            }
+            else
+                shipBuildBonus = 0;
+
+            needsFood = needsFood > 0 ? needsFood / OwnerEmpire.GetPlanets().Count : 0;
+            needsFood *= 10;
+
+            switch (res_strat)
+            {
+                case EmpireAI.ResearchStrategy.Random:
+                    {
+                        ChooseRandomTech(wars, shipBuildBonus, researchDebt, cybernetic, needsFood, economics);
+                        return;
+                    }
+                case EmpireAI.ResearchStrategy.Scripted:
+                    {
+                        if (ProcessScript(atWar, highTaxes, lowResearch, lowincome)) return;
+                        break;
+                    }
+                default:
+                    {
+                        return;
+                    }
+            }
+            if (!string.IsNullOrEmpty(OwnerEmpire.ResearchTopic) &&
+                OwnerEmpire.ResearchTopic != postResearchTopic)
+            {
+                postResearchTopic = OwnerEmpire.ResearchTopic;
+                return;
+            }
+            res_strat = ResearchStrategy.Random;
+        }
+
+        private void ChooseRandomTech(float wars, float shipBuildBonus, float researchDebt, bool cybernetic, float needsFood,
+            float economics)
+        {
+            Map<string, float> priority = new Map<string, float>();
+            var resStrat = OwnerEmpire.getResStrat();
+
+            priority.Add("SHIPTECH", randomizer(resStrat.MilitaryPriority, wars + shipBuildBonus));
+
+            priority.Add("Research", randomizer(resStrat.ResearchPriority, (researchDebt)));
+            priority.Add("Colonization",
+                randomizer(resStrat.ExpansionPriority, (!cybernetic ? needsFood : -1)));
+            priority.Add("Economic", randomizer(resStrat.ExpansionPriority, (economics)));
+            priority.Add("Industry",
+                randomizer(resStrat.IndustryPriority, (cybernetic ? needsFood : 0)));
+            priority.Add("General", randomizer(resStrat.ResearchPriority, 0));
+            priority.Add("GroundCombat",
+                randomizer(resStrat.MilitaryPriority, (wars + shipBuildBonus) * .5f));
+
+            string sendToScript = string.Empty;
+            int max = 0;
+            foreach (var pWeighted in priority.OrderByDescending(pri => pri.Value))
+            {
+                if (max > priority.Count)
+                    break;
+                if (pWeighted.Value < 0)
+                    continue;
+                priority[pWeighted.Key] = -1;
+                sendToScript += ":";
+                if (pWeighted.Key == "SHIPTECH")
                 {
-                    shipBuildBonus = -5 - this.OwnerEmpire.data.TechDelayTime;
+                    sendToScript += "ShipWeapons:ShipDefense:ShipGeneral:ShipHull";
+                    max += 4;
                 }
                 else
-                    shipBuildBonus = 0;
-
-                needsFood = needsFood > 0 ? needsFood / this.OwnerEmpire.GetPlanets().Count : 0;
-                needsFood *= 10;
-
-                switch (this.res_strat)
                 {
-                    case EmpireAI.ResearchStrategy.Random:
-                    case EmpireAI.ResearchStrategy.Scripted:
-                    {
-                        if (true)
-                        {
-                            Map<string, float> priority = new Map<string, float>();
-                            var resStrat = OwnerEmpire.getResStrat();
-
-                            priority.Add("SHIPTECH", randomizer(resStrat.MilitaryPriority, wars + shipBuildBonus));
-
-                            priority.Add("Research", randomizer(resStrat.ResearchPriority, (researchDebt)));
-                            priority.Add("Colonization",
-                                randomizer(resStrat.ExpansionPriority, (!cybernetic ? needsFood : -1)));
-                            priority.Add("Economic", randomizer(resStrat.ExpansionPriority, (economics)));
-                            priority.Add("Industry",
-                                randomizer(resStrat.IndustryPriority, (cybernetic ? needsFood : 0)));
-                            priority.Add("General", randomizer(resStrat.ResearchPriority, 0));
-                            priority.Add("GroundCombat",
-                                this.randomizer(resStrat.MilitaryPriority, (wars + shipBuildBonus) * .5f));
-
-                            string sendToScript = string.Empty;
-                            int max = 0;
-                            foreach (var pWeighted in priority.OrderByDescending(pri => pri.Value))
-                            {
-                                if (max > priority.Count)
-                                    break;
-                                if (pWeighted.Value < 0) //&& !string.IsNullOrEmpty(sendToScript))
-                                    continue;
-                                priority[pWeighted.Key] = -1;
-                                sendToScript += ":";
-                                if (pWeighted.Key == "SHIPTECH")
-                                {
-                                    sendToScript += "ShipWeapons:ShipDefense:ShipGeneral:ShipHull";
-                                    max += 4;
-                                }
-                                else
-                                {
-                                    sendToScript += pWeighted.Key;
-                                    max++;
-                                }
-                            }
-                            if (ScriptedResearch("CHEAPEST", "TECH", "TECH" + sendToScript))
-                                return;
-                        }
-
-                        return;
-
-#if false // All of this was disabled by Crunchy gremlin:
-//changed by gremlin exclude module tech that we dont have any ships that use it.
-                        ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
-                        //foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
-
-                        //System.Threading.Tasks.Parallel.ForEach(ResourceManager.TechTree, Technology =>
-                        foreach(var Technology in ResourceManager.TechTree)
-                        {
-                            TechEntry tech = null;// new TechEntry();
-                            bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
-                            if (!techexists || tech == null)
-                                //continue;
-                                return;
-                            Technology technology = tech.Tech;
-                            if (tech.Unlocked
-                                || !this.empire.HavePreReq(Technology.Key)
-                                || (Technology.Value.Secret && !tech.Discovered)
-                                || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
-                                || !tech.shipDesignsCanuseThis
-                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count == 0
-                                && !this.empire.WeCanUseThisNow(tech.Tech)))
-                            {
-                                //continue;
-                                return;
-                            }
-                            AvailableTechs.Add(Technology.Value);
-                        }//);
-                        if (AvailableTechs.Count == 0)
-                            break;
-                        foreach(Technology tech in AvailableTechs.OrderBy(tech => tech.Cost))
-                        {
-                            switch (tech.TechnologyType)
-                            {
-                                //case TechnologyType.ShipHull:
-                                //    {
-                                //        //Always research when able
-                                //        this.empire.ResearchTopic = tech.UID;
-                                //        break;
-                                //    }
-                                //case TechnologyType.ShipGeneral:
-                                //    {
-                                //        if (RandomMath.InRange(4) == 3)
-                                //            this.empire.ResearchTopic = tech.UID;
-                                //        break;
-                                //    }
-                                //case TechnologyType.ShipWeapons:
-                                //    {
-                                //        if(atWar || RandomMath.InRange(this.empire.getResStrat().MilitaryPriority + 4) > 2)
-                                //            this.empire.ResearchTopic = tech.UID;
-                                //        break;
-                                //    }
-                                //case TechnologyType.ShipDefense:
-                                //    {
-                                //        if (atWar || RandomMath.InRange(this.empire.getResStrat().MilitaryPriority + 4) > 2)
-                                //            this.empire.ResearchTopic = tech.UID;
-                                //        break;
-                                //    }
-                                case TechnologyType.GroundCombat:
-                                    {
-                                        if (atWar || RandomMath.InRange(this.empire.getResStrat().MilitaryPriority + 4) > 2)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                case TechnologyType.Economic:
-                                    {
-                                        if (highTaxes || RandomMath.InRange(this.empire.getResStrat().ExpansionPriority + 4) > 2)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                case TechnologyType.Research:
-                                    {
-                                        if (lowResearch || RandomMath.InRange(this.empire.getResStrat().ResearchPriority + 4) > 2)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                case TechnologyType.Industry:
-                                    {
-                                        if (RandomMath.InRange(this.empire.getResStrat().IndustryPriority + 4) > 2)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                case TechnologyType.Colonization:
-                                    {
-                                        if (RandomMath.InRange(this.empire.getResStrat().ExpansionPriority + 4) > 2)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        break;
-                                    }
-                            }
-                            if (!string.IsNullOrEmpty(this.empire.ResearchTopic))
-                                break;
-                        }
-                        if (string.IsNullOrEmpty(this.empire.ResearchTopic))
-                            this.empire.ResearchTopic = AvailableTechs.OrderBy(tech => tech.Cost).First().UID;
-                        break;
-#endif
-                    }
-                    //case GSAI.ResearchStrategy.Scripted:
-                    default:
-                    {
-                        int loopcount = 0;
-                        Start:
-                        if (this.OwnerEmpire.getResStrat() != null &&
-                            ScriptIndex < this.OwnerEmpire.getResStrat().TechPath.Count &&
-                            loopcount < this.OwnerEmpire.getResStrat().TechPath.Count)
-                        {
-                            string scriptentry = this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id;
-                            string scriptCommand = this.OwnerEmpire.GetTDict().ContainsKey(scriptentry)
-                                ? scriptentry
-                                : scriptentry.Split(':')[0];
-                            switch (scriptCommand)
-                            {
-                                case "SCRIPT":
-                                {
-                                    string modifier = "";
-                                    string[] script = scriptentry.Split(':');
-
-                                    if (script.Count() > 2)
-                                    {
-                                        modifier = script[2];
-                                    }
-                                    ScriptIndex++;
-                                    if (ScriptedResearch("CHEAPEST", script[1], modifier))
-                                        return;
-                                    loopcount++;
-                                    goto Start;
-                                }
-                                case "LOOP":
-                                {
-                                    ScriptIndex =
-                                        int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                    loopcount++;
-                                    goto Start;
-                                }
-                                case "CHEAPEST":
-                                {
-                                    string modifier = "";
-                                    string[] script = scriptentry.Split(':');
-
-                                    if (script.Count() == 1)
-                                    {
-                                        this.res_strat = EmpireAI.ResearchStrategy.Random;
-                                        this.RunResearchPlanner();
-                                        this.res_strat = EmpireAI.ResearchStrategy.Scripted;
-                                        ScriptIndex++;
-                                        return;
-                                    }
-                                    string[] modifiers = new string[script.Count() - 1];
-                                    for (int i = 1; i < script.Count(); i++)
-                                    {
-                                        modifiers[i - 1] = script[i];
-                                    }
-                                    modifier = String.Join(":", modifiers);
-                                    ScriptIndex++;
-                                    if (ScriptedResearch(scriptCommand, script[1], modifier))
-                                        return;
-                                    loopcount++;
-                                    goto Start;
-                                }
-                                case "EXPENSIVE":
-                                {
-                                    string modifier = "";
-                                    string[] script = scriptentry.Split(':');
-
-                                    if (script.Count() == 1)
-                                    {
-                                        this.res_strat = EmpireAI.ResearchStrategy.Random;
-                                        this.RunResearchPlanner();
-                                        this.res_strat = EmpireAI.ResearchStrategy.Scripted;
-                                        ScriptIndex++;
-                                        return;
-                                    }
-                                    string[] modifiers = new string[script.Count() - 1];
-                                    for (int i = 1; i < script.Count(); i++)
-                                    {
-                                        modifiers[i - 1] = script[i];
-                                    }
-                                    modifier = String.Join(":", modifiers);
-                                    ScriptIndex++;
-                                    if (ScriptedResearch(scriptCommand, script[1], modifier))
-                                        return;
-                                    loopcount++;
-                                    goto Start;
-                                }
-                                case "IFWAR":
-                                {
-                                    if (atWar)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-
-                                    goto Start;
-                                }
-                                case "IFHIGHTAX":
-                                {
-                                    if (highTaxes)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-
-                                    goto Start;
-                                }
-                                case "IFPEACE":
-                                {
-                                    if (!atWar)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-
-                                    goto Start;
-                                }
-                                case "IFCYBERNETIC":
-                                {
-                                    if (this.OwnerEmpire.data.Traits.Cybernetic > 0
-                                    ) //&& !this.empire.GetBDict()["Biospheres"])//==true)//this.empire.GetTDict().Where(biosphereTech=> biosphereTech.Value.GetTech().BuildingsUnlocked.Where(biosphere=> ResourceManager.BuildingsDict[biosphere.Name].Name=="Biospheres").Count() >0).Count() >0)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-                                    goto Start;
-                                }
-                                case "IFLOWRESEARCH":
-                                {
-                                    if (lowResearch)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-                                    goto Start;
-                                }
-                                case "IFNOTLOWRESEARCH":
-                                {
-                                    if (!lowResearch)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-                                    goto Start;
-                                }
-                                case "IFLOWINCOME":
-                                {
-                                    if (lowincome)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-                                    goto Start;
-                                }
-                                case "IFNOTLOWINCOME":
-                                {
-                                    if (!lowincome)
-                                    {
-                                        ScriptIndex =
-                                            int.Parse(this.OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
-                                        loopcount++;
-                                        goto Start;
-                                    }
-                                    ScriptIndex++;
-                                    goto Start;
-                                }
-                                case "RANDOM":
-                                {
-                                    this.res_strat = EmpireAI.ResearchStrategy.Random;
-                                    this.RunResearchPlanner();
-                                    this.res_strat = EmpireAI.ResearchStrategy.Scripted;
-                                    ScriptIndex++;
-                                    return;
-                                }
-                                default:
-                                {
-                                    TechEntry defaulttech;
-                                    if (this.OwnerEmpire.GetTDict().TryGetValue(scriptentry, out defaulttech))
-                                    {
-                                        if (defaulttech.Unlocked)
-
-                                        {
-                                            ScriptIndex++;
-                                            goto Start;
-                                        }
-                                        if (!defaulttech.Unlocked && this.OwnerEmpire.HavePreReq(defaulttech.UID))
-                                        {
-                                            this.OwnerEmpire.ResearchTopic = defaulttech.UID;
-                                            ScriptIndex++;
-                                            if (!string.IsNullOrEmpty(scriptentry))
-                                                return;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Log.Info("TechNotFound : " + scriptentry);
-                                        ScriptIndex++;
-                                        //Log.Info(scriptentry);
-                                    }
-
-
-                                    foreach (EconomicResearchStrategy.Tech tech in this.OwnerEmpire.getResStrat().TechPath)
-                                    {
-                                        if (!this.OwnerEmpire.GetTDict().ContainsKey(tech.id) ||
-                                            this.OwnerEmpire.GetTDict()[tech.id].Unlocked ||
-                                            !this.OwnerEmpire.HavePreReq(tech.id))
-                                        {
-                                            continue;
-                                        }
-
-                                        OwnerEmpire.ResearchTopic = tech.id;
-                                        ScriptIndex++;
-                                        if (!string.IsNullOrEmpty(tech.id))
-                                            return;
-                                    }
-                                    this.res_strat = EmpireAI.ResearchStrategy.Random;
-                                    ScriptIndex++;
-                                    return;
-                                }
-                            }
-                        }
-                        if (string.IsNullOrEmpty(this.OwnerEmpire.ResearchTopic))
-                        {
-                            this.res_strat = EmpireAI.ResearchStrategy.Random;
-                        }
-                        return;
-                    }
-                    //default:
-                    //{
-                    //    return;
-                    //}
+                    sendToScript += pWeighted.Key;
+                    max++;
                 }
             }
-            if (!string.IsNullOrEmpty(this.OwnerEmpire.ResearchTopic) && this.OwnerEmpire.ResearchTopic != this.postResearchTopic)
+            if (ScriptedResearch("CHEAPEST", "TECH", "TECH" + sendToScript))
+                return;
+
+            return;
+        }
+
+        private bool ProcessScript(bool atWar, bool highTaxes, bool lowResearch, bool lowincome)
+        {
+            int loopcount = 0;
+            Start:
+            if (OwnerEmpire.getResStrat() != null &&
+                ScriptIndex < OwnerEmpire.getResStrat().TechPath.Count &&
+                loopcount < OwnerEmpire.getResStrat().TechPath.Count)
             {
-                this.postResearchTopic = this.OwnerEmpire.ResearchTopic;
+                string scriptentry = OwnerEmpire.getResStrat().TechPath[ScriptIndex].id;
+                string scriptCommand = OwnerEmpire.GetTDict().ContainsKey(scriptentry)
+                    ? scriptentry
+                    : scriptentry.Split(':')[0];
+                Log.Info($"{OwnerEmpire.PortraitName} : Script Command : {scriptCommand} ");
+                switch (scriptCommand)
+                {
+                    case "SCRIPT":
+                    {
+                        string modifier = "";
+                        string[] script = scriptentry.Split(':');
+
+                        if (script.Count() > 2)
+                        {
+                            modifier = script[2];
+                        }
+                        ScriptIndex++;
+                        if (ScriptedResearch("CHEAPEST", script[1], modifier))
+                            return true;
+                        loopcount++;
+                        goto Start;
+                    }
+                    case "LOOP":
+                    {
+                        ScriptIndex =
+                            int.Parse(OwnerEmpire.getResStrat().TechPath[ScriptIndex].id
+                                .Split(':')[1]);
+                        loopcount++;
+                        goto Start;
+                    }
+                    case "CHEAPEST":
+                    {
+                        string modifier = "";
+                        string[] script = scriptentry.Split(':');
+
+                        if (script.Count() == 1)
+                        {
+                            res_strat = EmpireAI.ResearchStrategy.Random;
+                            RunResearchPlanner();
+                            res_strat = EmpireAI.ResearchStrategy.Scripted;
+                            ScriptIndex++;
+                            return true;
+                        }
+                        string[] modifiers = new string[script.Count() - 1];
+                        for (int i = 1; i < script.Count(); i++)
+                        {
+                            modifiers[i - 1] = script[i];
+                        }
+                        modifier = String.Join(":", modifiers);
+                        ScriptIndex++;
+                        if (ScriptedResearch(scriptCommand, script[1], modifier))
+                            return true;
+                        loopcount++;
+                        goto Start;
+                    }
+                    case "EXPENSIVE":
+                    {
+                        string modifier = "";
+                        string[] script = scriptentry.Split(':');
+
+                        if (script.Count() == 1)
+                        {
+                            res_strat = EmpireAI.ResearchStrategy.Random;
+                            RunResearchPlanner();
+                            res_strat = EmpireAI.ResearchStrategy.Scripted;
+                            ScriptIndex++;
+                            return true;
+                        }
+                        string[] modifiers = new string[script.Count() - 1];
+                        for (int i = 1; i < script.Count(); i++)
+                        {
+                            modifiers[i - 1] = script[i];
+                        }
+                        modifier = String.Join(":", modifiers);
+                        ScriptIndex++;
+                        if (ScriptedResearch(scriptCommand, script[1], modifier))
+                            return true;
+                        loopcount++;
+                        goto Start;
+                    }
+                    case "IFWAR":
+                    {
+                        loopcount += ScriptBump(atWar);
+                        goto Start;
+                    }
+                    case "IFHIGHTAX":
+                    {
+                        loopcount += ScriptBump(highTaxes);
+                        goto Start;
+                    }
+                    case "IFPEACE":
+                    {
+                        loopcount += ScriptBump(!atWar);
+                        goto Start;
+                    }
+                    case "IFCYBERNETIC":
+                    {
+                        loopcount += ScriptBump(OwnerEmpire.data.Traits.Cybernetic > 0);
+                        goto Start;
+                    }
+                    case "IFLOWRESEARCH":
+                    {
+                        loopcount += ScriptBump(lowResearch);
+                        goto Start;
+                    }
+                    case "IFNOTLOWRESEARCH":
+                    {
+                        loopcount += ScriptBump(!lowResearch);
+                        goto Start;
+                    }
+                    case "IFLOWINCOME":
+                    {
+                        loopcount += ScriptBump(lowincome);
+                        goto Start;
+                    }
+                    case "IFNOTLOWINCOME":
+                    {
+                        loopcount += ScriptBump(!lowincome);
+                        goto Start;
+                    }
+                    case "RANDOM":
+                    {
+                        res_strat = EmpireAI.ResearchStrategy.Random;
+                        RunResearchPlanner();
+                        res_strat = EmpireAI.ResearchStrategy.Scripted;
+                        ScriptIndex++;
+                        return true;
+                    }
+                    default:
+                    {
+                        TechEntry defaulttech;
+                        if (OwnerEmpire.GetTDict().TryGetValue(scriptentry, out defaulttech))
+                        {
+                            if (defaulttech.Unlocked)
+
+                            {
+                                ScriptIndex++;
+                                goto Start;
+                            }
+                            if (!defaulttech.Unlocked && OwnerEmpire.HavePreReq(defaulttech.UID))
+                            {
+                                OwnerEmpire.ResearchTopic = defaulttech.UID;
+                                ScriptIndex++;
+                                if (!string.IsNullOrEmpty(scriptentry))
+                                    return true;
+                            }
+                        }
+                        else
+                        {
+                            Log.Info($"TechNotFound : {scriptentry}");
+                            ScriptIndex++;
+                        }
+
+
+                        foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.getResStrat()
+                            .TechPath)
+                        {
+                            if (!OwnerEmpire.GetTDict().ContainsKey(tech.id) ||
+                                OwnerEmpire.GetTDict()[tech.id].Unlocked ||
+                                !OwnerEmpire.HavePreReq(tech.id))
+                            {
+                                continue;
+                            }
+
+                            OwnerEmpire.ResearchTopic = tech.id;
+                            ScriptIndex++;
+                            if (!string.IsNullOrEmpty(tech.id))
+                                return true;
+                        }
+                        res_strat = EmpireAI.ResearchStrategy.Random;
+                        ScriptIndex++;
+                        return true;
+                    }
+                }
             }
+            if (string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
+            {
+                res_strat = EmpireAI.ResearchStrategy.Random;
+            }
+            return false;
+        }
+
+        private int ScriptBump(bool check, int index = 1)
+        {            
+            if (check)
+            {
+                ScriptIndex =
+                    int.Parse(
+                        OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);                
+                return 1;
+            }
+            ScriptIndex++;
+            return 0;
         }
 
         private bool ScriptedResearch(string command1, string command2, string modifier)
@@ -514,28 +364,28 @@ namespace Ship_Game.AI {
 
             #region hull checking.
 
-            this.OwnerEmpire.UpdateShipsWeCanBuild();
+            OwnerEmpire.UpdateShipsWeCanBuild();
 
 
-            //Ship BestShip = null;// ""; //this.BestCombatShip;          //Not referenced in code, removing to save memory
+            //Ship BestShip = null;// ""; //BestCombatShip;          //Not referenced in code, removing to save memory
             //float bestShipStrength = 0f;          //Not referenced in code, removing to save memory
             float techcost = -1;
             float str = 0;
-            float moneyNeeded = this.OwnerEmpire.data.ShipBudget * .2f;
+            float moneyNeeded = OwnerEmpire.data.ShipBudget * .2f;
             //float curentBestshipStr = 0;          //Not referenced in code, removing to save memory
 
-            if (this.BestCombatShip != null)
+            if (BestCombatShip != null)
             {
-                //this.empire.UpdateShipsWeCanBuild();
-                if (this.OwnerEmpire.ShipsWeCanBuild.Contains(this.BestCombatShip.Name))
-                    this.BestCombatShip = null;
+                //empire.UpdateShipsWeCanBuild();
+                if (OwnerEmpire.ShipsWeCanBuild.Contains(BestCombatShip.Name))
+                    BestCombatShip = null;
             }
-            if (this.BestCombatShip == null && (modifier.Contains("ShipWeapons") || modifier.Contains("ShipDefense") ||
+            if (BestCombatShip == null && (modifier.Contains("ShipWeapons") || modifier.Contains("ShipDefense") ||
                                                 modifier.Contains("ShipGeneral")
                                                 || modifier.Contains("ShipHull")))
             {
                 //List<string> globalShipTech = new List<string>();
-                //foreach (string purgeRoots in this.OwnerEmpire.ShipTechs)
+                //foreach (string purgeRoots in OwnerEmpire.ShipTechs)
                 //{
                 //    Technology bestshiptech = null;
                 //    if (!ResourceManager.TechTree.TryGetValue(purgeRoots, out bestshiptech))
@@ -690,8 +540,8 @@ namespace Ship_Game.AI {
                         }
                     }
 
-                    if (this.BestCombatShip != null && this.OwnerEmpire.GetHDict()
-                            .TryGetValue(this.BestCombatShip.shipData.Hull, out hullKnown))
+                    if (BestCombatShip != null && OwnerEmpire.GetHDict()
+                            .TryGetValue(BestCombatShip.shipData.Hull, out hullKnown))
                     {
                         if (hullKnown)
                             hullScaler++;
@@ -700,7 +550,7 @@ namespace Ship_Game.AI {
                         hullScaler++;
 
                     //End of line focusing. 
-                } ///while (this.BestCombatShip == null && hullScaler < 10 );
+                } ///while (BestCombatShip == null && hullScaler < 10 );
                 if (!hullKnown)
                     hullScaler = 1;
             }
@@ -712,10 +562,10 @@ namespace Ship_Game.AI {
                  modifier.Contains("ShipGeneral")
                  || modifier.Contains("ShipHull")))
             {
-                if (this.BestCombatShip != null)
+                if (BestCombatShip != null)
                 {
                     //command2 = "SHIPTECH"; //use the shiptech choosers which just chooses tech in the list. 
-                    foreach (string shiptech in this.BestCombatShip.shipData.techsNeeded)
+                    foreach (string shiptech in BestCombatShip.shipData.techsNeeded)
                     {
                         Technology test = null;
                         if (ResourceManager.TechTree.TryGetValue(shiptech, out test))
@@ -724,7 +574,7 @@ namespace Ship_Game.AI {
                             //repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
                             if (test.MaxLevel > 0)
                             {
-                                foreach (TechEntry repeater in this.OwnerEmpire.TechnologyDict.Values)
+                                foreach (TechEntry repeater in OwnerEmpire.TechnologyDict.Values)
                                 {
                                     if (test.UID == repeater.UID && (repeater.Level > 0))
                                     {
@@ -742,7 +592,7 @@ namespace Ship_Game.AI {
                     bestShiptechs = availableTechs.Intersect(bestShiptechs).ToArrayList();
                 }
                 else
-                    Log.Info(this.OwnerEmpire.data.PortraitName + " : NoShipFound :" + hullScaler + " : ");
+                    Log.Info(OwnerEmpire.data.PortraitName + " : NoShipFound :" + hullScaler + " : ");
             }
             HashSet<Technology> remove = new HashSet<Technology>();
             foreach (Technology test in availableTechs)
@@ -750,7 +600,7 @@ namespace Ship_Game.AI {
                 if (test.MaxLevel > 1)
                 {
                     bool skiprepeater = false;
-                    foreach (TechEntry repeater in this.OwnerEmpire.TechnologyDict.Values)
+                    foreach (TechEntry repeater in OwnerEmpire.TechnologyDict.Values)
                     {
                         if (test.UID == repeater.UID && repeater.Level > 0)
                         {
@@ -787,9 +637,9 @@ namespace Ship_Game.AI {
                             //techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
                             return false;
                         }
-                        if (this.OwnerEmpire.data.Traits.Cybernetic > 0 && techtype ==
+                        if (OwnerEmpire.data.Traits.Cybernetic > 0 && techtype ==
                             (TechnologyType) Enum.Parse(typeof(TechnologyType),
-                                "Colonization")) //this.empire.GetBDict()["Biospheres"] &&
+                                "Colonization")) //empire.GetBDict()["Biospheres"] &&
                         {
                             //techtype = TechnologyType.Industry;
                             continue;
@@ -814,7 +664,7 @@ namespace Ship_Game.AI {
                         //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                         if (ResearchTech == null)
                             continue;
-                        if (this.OwnerEmpire.Research > 30 && ResearchTech.Cost > this.OwnerEmpire.Research * 1000 &&
+                        if (OwnerEmpire.Research > 30 && ResearchTech.Cost > OwnerEmpire.Research * 1000 &&
                             availableTechs.Count > 1)
                             continue;
 
@@ -822,7 +672,7 @@ namespace Ship_Game.AI {
                         {
                             if (ResearchTech.HullsUnlocked.Count > 0)
                             {
-                                //money = this.empire.EstimateIncomeAtTaxRate(.25f);
+                                //money = empire.EstimateIncomeAtTaxRate(.25f);
                                 if (moneyNeeded < 5f)
                                 {
                                     if (command1 == "CHEAPEST")
@@ -854,14 +704,14 @@ namespace Ship_Game.AI {
                             int currentCost = (int) (ResearchTech.Cost * CostNormalizer);
                             //int previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * CostNormalizer);
 
-                            if (this.BestCombatShip != null &&
+                            if (BestCombatShip != null &&
                                 (techtype != TechnologyType.ShipHull && //techtype == TechnologyType.ShipHull ||//
                                  ResearchTech.ModulesUnlocked.Count > 0 ||
                                  ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0))
                             {
                                 Technology PreviousTech = ResourceManager.TechTree[researchtopic];
                                 //Ship 
-                                Ship ship = this.BestCombatShip;
+                                Ship ship = BestCombatShip;
                                 //if (ship.shipData.techsNeeded.Contains(PreviousTech.UID))
                                 //    previousCost = (int)(previousCost * .5f);
                                 if (ship.shipData.techsNeeded.Contains(ResearchTech.UID))
@@ -883,16 +733,16 @@ namespace Ship_Game.AI {
                 }
                 case "SHIPTECH":
                 {
-                    if (this.BestCombatShip == null)
+                    if (BestCombatShip == null)
                         return false;
-                    Ship ship = this.BestCombatShip;
+                    Ship ship = BestCombatShip;
                     Technology shiptech = availableTechs
                         .Where(uid => ship.shipData.techsNeeded.Contains(uid.UID))
                         .OrderBy(techscost => techscost.Cost)
                         .FirstOrDefault();
                     if (shiptech == null)
                     {
-                        //Log.Info(this.BestCombatShip.Name);
+                        //Log.Info(BestCombatShip.Name);
                         //foreach (string Bestshiptech in ship.shipData.techsNeeded) //.techsNeeded.Where(uid => !ship.shipData.techsNeeded.Contains(uid.UID))
                         //{
                         //    if (unlockedTech.Contains(Bestshiptech))
@@ -913,14 +763,14 @@ namespace Ship_Game.AI {
                     try
                     {
                         techtype = (TechnologyType) Enum.Parse(typeof(TechnologyType), command2);
-                        //Log.Info(this.EmpireName + " : " + techtype.ToString());
+                        //Log.Info(EmpireName + " : " + techtype.ToString());
                     }
                     catch
                     {
-                        this.res_strat = EmpireAI.ResearchStrategy.Random;
-                        this.RunResearchPlanner();
-                        this.res_strat = EmpireAI.ResearchStrategy.Scripted;
-                        researchtopic = this.OwnerEmpire.ResearchTopic;
+                        res_strat = EmpireAI.ResearchStrategy.Random;
+                        RunResearchPlanner();
+                        res_strat = EmpireAI.ResearchStrategy.Scripted;
+                        researchtopic = OwnerEmpire.ResearchTopic;
                         break;
                     }
 
@@ -936,7 +786,7 @@ namespace Ship_Game.AI {
                         researchtopic = ResearchTech.UID;
                         break;
                     }
-                    //float netresearch =this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn);
+                    //float netresearch =empire.GetPlanets().Where(owner => owner.Owner == empire).Sum(research => research.NetResearchPerTurn);
                     //netresearch = netresearch == 0 ? 1 : netresearch;
                     //if (ResourceManager.TechTree[researchtopic].Cost / netresearch < 500 )
                     researchtopic = null;
@@ -944,7 +794,7 @@ namespace Ship_Game.AI {
                 }
             }
             {
-                this.OwnerEmpire.ResearchTopic = researchtopic;
+                OwnerEmpire.ResearchTopic = researchtopic;
             }
             // else
             {
@@ -952,23 +802,23 @@ namespace Ship_Game.AI {
             }
 
 
-            if (string.IsNullOrEmpty(this.OwnerEmpire.ResearchTopic))
+            if (string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
                 return false;
             else
             {
                 //try
                 //{
-                //    if (ResourceManager.TechTree[this.empire.ResearchTopic].TechnologyType == TechnologyType.ShipHull)
+                //    if (ResourceManager.TechTree[empire.ResearchTopic].TechnologyType == TechnologyType.ShipHull)
                 //    {
-                //        this.BestCombatShip = "";
+                //        BestCombatShip = "";
                 //    }
                 //}
                 //catch(Exception e)
                 //{
-                //    e.Data.Add("Tech Name(UID)", this.empire.ResearchTopic);
+                //    e.Data.Add("Tech Name(UID)", empire.ResearchTopic);
 
                 //}
-                //Log.Info(this.EmpireName + " : " + ResourceManager.TechTree[this.empire.ResearchTopic].TechnologyType.ToString() + " : " + this.empire.ResearchTopic);
+                //Log.Info(EmpireName + " : " + ResourceManager.TechTree[empire.ResearchTopic].TechnologyType.ToString() + " : " + empire.ResearchTopic);
                 return true;
             }
         }
