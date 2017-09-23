@@ -416,7 +416,7 @@ namespace Ship_Game
             int minR          = RandomMath.IntBetween(0 + bonusP > 0 ? 1 : 0, 3 + GlobalStats.ExtraPlanets);
             int maxR          = RandomMath.IntBetween(minR, 6 + minR);
             NumberOfRings     = RandomMath.IntBetween(minR,maxR);
-            NumberOfRings += owner != null ? NumberOfRings < 3 ? 3 : 0 : 0;
+            NumberOfRings += owner != null ? NumberOfRings < 5 ? 5 : 0 : 0;
             RingList.Capacity = NumberOfRings;
 
             float ringSpace = ringMax / NumberOfRings;
