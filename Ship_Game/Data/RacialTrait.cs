@@ -113,6 +113,17 @@ namespace Ship_Game
             return (RacialTrait)MemberwiseClone();
         }
 
+        public bool TechTypeRestrictions(TechnologyType techtype)
+        {
+            if (Cybernetic > 0 && techtype ==
+                (TechnologyType)Enum.Parse(typeof(TechnologyType),
+                    "Colonization"))
+            {
+                return true;
+            }
+            return false;
+        }
+
         //Added by McShooterz: set old values from new bools
         public void LoadTraitConstraints()
         {
