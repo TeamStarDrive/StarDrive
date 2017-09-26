@@ -22,13 +22,13 @@ namespace Ship_Game.Debug
         ThreatMatrix,
         SpatialManager,
         input,
+        Tech,
         Last, // dummy value
     }
 
-    public sealed class DebugInfoScreen 
+    public sealed class DebugInfoScreen : GameScreen
     {
-        public bool IsOpen;
-        private readonly ScreenManager ScreenManager;
+        public bool IsOpen;        
         private readonly UniverseScreen Screen;
         private Rectangle Win;
         public static int ShipsDied;
@@ -58,7 +58,8 @@ namespace Ship_Game.Debug
         private static DebugModes Mode;
         private HashSet<Circle> Circles = new HashSet<Circle>();
         private int CircleTimer = 0;
-        public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen)
+        private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
+        public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
         {
             this.IsOpen = true;
             this.Screen = screen;
@@ -89,10 +90,35 @@ namespace Ship_Game.Debug
             }
         }
 
-        public void DebugLogText(string text, DebugModes mode)
+        public bool DebugLogText(string text, DebugModes mode)
         {
-            if (!IsOpen || Mode != mode || !GlobalStats.VerboseLogging) return;
+            if (!IsOpen || Mode != mode || !GlobalStats.VerboseLogging) return false;
             Log.Info(text);
+            return true;
+        }
+
+        public void ClearResearchLog(Empire empire)
+        {
+            if (!ResearchText.TryGetValue(empire.Name, out var empireTechs)) return;
+            
+            empireTechs.Clear();
+            
+        }
+        public void ResearchLog(string text, Empire empire)
+        {
+            if (!DebugLogText(text, DebugModes.Tech)) return;            
+            if (!ResearchText.TryGetValue(empire.Name, out var empireTechs))
+            {
+                var techs = new Array<string>();
+                techs.Add(text);
+                ResearchText.Add(empire.Name, techs);
+            }
+            else
+            {
+                empireTechs.Add(text);
+            }
+
+
         }
 
         public void DebugWarningText(string text, DebugModes mode)
@@ -104,6 +130,11 @@ namespace Ship_Game.Debug
         private Vector2 TextCursor  = Vector2.Zero;
         private Color   TextColor   = Color.White;
         private SpriteFont TextFont = Fonts.Arial12Bold;
+
+        public override void Update()
+        {
+            
+        }
 
         private void SetTextCursor(float x, float y, Color color)
         {
@@ -162,9 +193,46 @@ namespace Ship_Game.Debug
                 case DebugModes.Trade:        TradeInfo();        break;
                 case DebugModes.Targeting:    Targeting();        break;
                 case DebugModes.SpatialManager: SpatialManagement(); break;
-                case DebugModes.input:          InputDebug(); break;
+                case DebugModes.input:          InputDebug();        break;
+                case DebugModes.Tech:           Tech();              break;
             }
             ShipInfo();
+        }
+        private void Tech()
+        {
+            TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
+            int column = 0;
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                if (e.isFaction || e.MinorRace)
+                    continue;
+
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
+                DrawString(e.data.Traits.Name);
+
+                if (e.data.DiplomaticPersonality != null)
+                {
+                    DrawString(e.data.DiplomaticPersonality.Name);
+                    DrawString(e.data.EconomicPersonality.Name);
+                }
+                
+                if (!string.IsNullOrEmpty(e.ResearchTopic))
+                {
+                    float gamePaceStatic = UniverseScreen.GamePaceStatic * ResourceManager.TechTree[e.ResearchTopic].Cost;
+                    DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{gamePaceStatic:0}({e.GetProjectedResearchNextTurn().ToString(Fmt)})");
+                    DrawString("   --" + e.ResearchTopic);
+                }
+                DrawString($"");
+                if (ResearchText.TryGetValue(e.Name, out var empireLog))
+                    for (int x = 0; x < empireLog.Count - 1; x++)
+                    {
+                        var text = empireLog[x];
+                        DrawString(text);
+                    }
+                ++column;
+            }
+
+
         }
         private void Targeting()
         {
@@ -483,7 +551,6 @@ namespace Ship_Game.Debug
         {
             UniverseScreen.SpaceManager.DebugVisualize(Screen);
         }
-        private bool MouseWasHeld = false;
         private void InputDebug()
         {
             DrawString($"RightMouseHeld {Screen.Input.RightMouseHeld()}");
@@ -498,12 +565,15 @@ namespace Ship_Game.Debug
             
         }
 
-        public bool HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
-            if (input.WasKeyPressed(Keys.Left) || input.WasKeyPressed(Keys.Right))
-                CircleTimer = int.MinValue;
+            if (!input.WasKeyPressed(Keys.Left) && !input.WasKeyPressed(Keys.Right))
+                return false;
+            ResearchText.Clear();
+            CircleTimer = int.MinValue;
             if      (input.WasKeyPressed(Keys.Left))  --Mode;
-            else if (input.WasKeyPressed(Keys.Right)) ++Mode;
+            else  ++Mode;
+
             if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
             else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
             return false;

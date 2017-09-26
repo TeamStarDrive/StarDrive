@@ -556,95 +556,26 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (KeyValuePair<string, Technology> keyValuePair in ResourceManager.TechTree)
-            {
-                TechEntry techEntry = new TechEntry();
-                techEntry.Progress = 0.0f;
-                techEntry.UID = keyValuePair.Key;
-
-                //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                if (keyValuePair.Value.RaceRestrictions.Count != 0)
-                {
-                    techEntry.Discovered = false;
-                    techEntry.Tech.Secret = true;
-                    foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceRestrictions)
-                    {
-                        if (raceTech.ShipType == data.Traits.ShipType)
-                        {
-                            techEntry.Discovered = true;
-                            techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-                            if (data.Traits.Militaristic == 1 && techEntry.Tech.Militaristic)
-                                techEntry.Unlocked = true;
-                            break;
-                        }
-                    }
-                } // BROKEN added race exclusions. in this case to prevent some techs from being exposed to the opteris and cybernetic races but also allow it to work in mods with extra races and what not.  
-                else if (keyValuePair.Value.RaceExclusions.Count != 0)
-                {
-                    foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceExclusions)
-                    {
-                        if (raceTech.ShipType == data.Traits.ShipType ||
-                            (data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
-                        {
-                            techEntry.Discovered = false;
-                            techEntry.Unlocked = false;
-
-                            //techEntry.GetTech().Secret = true;                            
-
-                        }
-                    }
-                }
-                else //not racial tech
-                {
-                    techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-                    techEntry.Discovered = true;
-                }
-                if (isFaction || data.Traits.Prewarp == 1)
-                {
-                    techEntry.Unlocked = false;
-                }
-                if (data.Traits.Militaristic == 1)
-                {
-                    //added by McShooterz: alternate way to unlock militaristic techs
-                    if (techEntry.Tech.Militaristic && techEntry.Tech.RaceRestrictions.Count == 0)
-                        techEntry.Unlocked = true;
-
-                    // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
-                    if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
-                    {
-                        techEntry.Unlocked = techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" || techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
-                    }
-                }
-                if (data.Traits.Cybernetic > 0)
-                {
-                    if (techEntry.UID == "Biospheres")
-                        techEntry.Unlocked = true;
-                }
-                if (techEntry.Unlocked)
-                    techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
-                TechnologyDict.Add(keyValuePair.Key, techEntry);
-            }
+            InitTechs();
 
             foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
             foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
-            UnlockedTroops.Clear();
-
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;            
             //unlock from empire data file
-            foreach (string building in data.unlockBuilding)
-                UnlockedBuildingsDict[building] = true;
-
+            foreach (string building in data.unlockBuilding)  UnlockedBuildingsDict[building]  = true;
+            UnlockedTroops.Clear();
 
             //Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
-            foreach (KeyValuePair<string, TechEntry> entry in TechnologyDict)
+
+            foreach (var entry in TechnologyDict)
             {
                 var tech = entry.Value.Tech;
                 if (tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0 && !WeCanUseThis(tech, ourShips))
                     entry.Value.shipDesignsCanuseThis = false;
             }
-            foreach (KeyValuePair<string, TechEntry> tech in TechnologyDict)
+            foreach (var tech in TechnologyDict)
             {
                 if (!tech.Value.shipDesignsCanuseThis)
                     tech.Value.shipDesignsCanuseThis = WeCanUseThisLater(tech.Value);
@@ -673,57 +604,78 @@ namespace Ship_Game
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+        }
 
-            // @todo Is this part even used anymore? Should it get removed?
-            #if false // purge designs that don't advance the ships
-                Log.Info(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
-                if (!this.isFaction)
+        private void InitTechs()
+        {
+            foreach (var kv in ResourceManager.TechTree)
+            {
+                TechEntry techEntry = new TechEntry();
+                techEntry.Progress = 0.0f;
+                techEntry.UID = kv.Key;
+
+                //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
+                if (kv.Value.RaceRestrictions.Count != 0)
                 {
-                    HashSet<string> techs = new HashSet<string>();
-                    HashSet<string> purgelist = new HashSet<string>();
-                    int count = 2; //how many best ships to pick
-                    //pick the best ships and record their techs
-                    foreach (Ship ship in ResourceManager.ShipsDict.Values.OrderByDescending(str => str.BaseStrength))
+                    techEntry.Discovered = false;
+                    techEntry.Tech.Secret = true;
+                    foreach (Technology.RequiredRace raceTech in kv.Value.RaceRestrictions)
                     {
-                        foreach (string techsneeded in ship.shipData.techsNeeded)
-                            techs.Add(techsneeded);
-                        if (count < 0)
-                            break;
-                        count--;
-
-                    }
-                    // use the recorded techs and purge ships that do not have enough of those techs.
-                    foreach (Ship ship in ResourceManager.ShipsDict.Values)
-                    {
-                        if (ship.shipData.techsNeeded.Count == 0 || ship.shipData.BaseStrength == 0
-                            ||
-                            ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.prototype
-                            || ship.shipData.ShipStyle != this.data.Traits.ShipType || ship.shipData.techsNeeded.Count == 0
-                            )
-                            continue;
-                        var difference = ship.shipData.techsNeeded.Except(techs);
-                        if (difference.Count() == 0)
-                            continue;
-                        if (difference.Count() / ship.shipData.techsNeeded.Count < .1)
+                        if (raceTech.ShipType == data.Traits.ShipType)
                         {
-                            purgelist.Add(ship.shipData.Name);
+                            techEntry.Discovered = true;
+                            techEntry.Unlocked = kv.Value.RootNode == 1;
+                            if (data.Traits.Militaristic == 1 && techEntry.Tech.Militaristic)
+                                techEntry.Unlocked = true;
+                            break;
                         }
-
-
                     }
-                    Log.Info(this.data.PortraitName + " - Purging " + purgelist.Count.ToString());
-                    foreach (string purge in purgelist)
+                } 
+                else //not racial tech
+                {
+                    techEntry.Unlocked = kv.Value.RootNode == 1 && !kv.Value.Secret;
+                    techEntry.Discovered = !kv.Value.Secret;
+                }
+
+                if (kv.Value.RaceExclusions.Count != 0)
+                {
+                    foreach (Technology.RequiredRace raceTech in kv.Value.RaceExclusions)
                     {
-                        ResourceManager.ShipsDict.Remove(purge);
+                        if (raceTech.ShipType == data.Traits.ShipType )
+                        {
+                            techEntry.Discovered = false;
+                            techEntry.Unlocked = false;
+                            techEntry.Tech.Secret = true;
+                        }
                     }
                 }
-                
-                GC.WaitForPendingFinalizers(); GC.Collect();
 
-                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                GC.Collect();
-                Log.Info(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
-            #endif
+                if (isFaction || data.Traits.Prewarp == 1)
+                {
+                    techEntry.Unlocked = false;
+                }
+                if (data.Traits.Militaristic == 1)
+                {
+                    //added by McShooterz: alternate way to unlock militaristic techs
+                    if (techEntry.Tech.Militaristic && techEntry.Tech.RaceRestrictions.Count == 0)
+                        techEntry.Unlocked = true;
+
+                    // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
+                    if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
+                    {
+                        techEntry.Unlocked = techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" ||
+                                             techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
+                    }
+                }
+                if (data.Traits.Cybernetic > 0)
+                {
+                    if (techEntry.UID == "Biospheres")
+                        techEntry.Unlocked = true;
+                }
+                if (techEntry.Unlocked)
+                    techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
+                TechnologyDict.Add(kv.Key, techEntry);
+            }
         }
 
         public Array<Ship> GetOurFactionShips()

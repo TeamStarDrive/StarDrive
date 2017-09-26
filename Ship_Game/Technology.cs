@@ -126,6 +126,7 @@ namespace Ship_Game
             public string RevUID;
             public string Type;
         }
+
        
     }
 }
