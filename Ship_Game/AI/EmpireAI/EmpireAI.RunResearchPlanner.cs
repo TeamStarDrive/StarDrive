@@ -24,7 +24,7 @@ namespace Ship_Game.AI {
 
         private void RunResearchPlanner(string command = "CHEAPEST")
         {
-            if (!string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
+            if (OwnerEmpire.ResearchTopic.NotEmpty())
                 return;
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
             bool cybernetic = OwnerEmpire.data.Traits.Cybernetic > 0;
@@ -153,171 +153,167 @@ namespace Ship_Game.AI {
                 switch (scriptCommand)
                 {
                     case "SCRIPT":
-                    {
-                        string modifier = "";
-                        string[] script = scriptentry.Split(':');
-
-                        if (script.Count() > 2)
                         {
-                            modifier = script[2];
-                        }
-                        ScriptIndex++;
-                        if (ScriptedResearch("CHEAPEST", script[1], modifier))
-                            return true;
-                        loopcount++;
-                        goto Start;
-                    }
-                    case "LOOP":
-                    {
-                        ScriptIndex =
-                            int.Parse(OwnerEmpire.getResStrat().TechPath[ScriptIndex].id
-                                .Split(':')[1]);
-                        loopcount++;
-                        goto Start;
-                    }
-                    case "CHEAPEST":
-                    {
-                        string modifier = "";
-                        string[] script = scriptentry.Split(':');
+                            string modifier = "";
+                            string[] script = scriptentry.Split(':');
 
-                        if (script.Count() == 1)
+                            if (script.Count() > 2)
+                            {
+                                modifier = script[2];
+                            }
+                            ScriptIndex++;
+                            if (ScriptedResearch("CHEAPEST", script[1], modifier))
+                                return true;
+                            loopcount++;
+                            goto Start;
+                        }
+                    case "LOOP":
+                        {
+                            ScriptIndex =
+                                int.Parse(OwnerEmpire.getResStrat().TechPath[ScriptIndex].id
+                                    .Split(':')[1]);
+                            loopcount++;
+                            goto Start;
+                        }
+                    case "CHEAPEST":
+                        {
+                            string modifier = "";
+                            string[] script = scriptentry.Split(':');
+
+                            if (script.Count() == 1)
+                            {
+                                GoRandomOnce();
+                                ScriptIndex++;
+                                return true;
+                            }
+                            string[] modifiers = new string[script.Count() - 1];
+                            for (int i = 1; i < script.Count(); i++)
+                            {
+                                modifiers[i - 1] = script[i];
+                            }
+                            modifier = String.Join(":", modifiers);
+                            ScriptIndex++;
+                            if (ScriptedResearch(scriptCommand, script[1], modifier))
+                                return true;
+                            loopcount++;
+                            goto Start;
+                        }
+                    case "EXPENSIVE":
+                        {
+                            string modifier = "";
+                            string[] script = scriptentry.Split(':');
+
+                            if (script.Count() == 1)
+                            {
+                                GoRandomOnce("EXPENSIVE");
+                                ScriptIndex++;
+                                return true;
+                            }
+                            string[] modifiers = new string[script.Count() - 1];
+                            for (int i = 1; i < script.Count(); i++)
+                            {
+                                modifiers[i - 1] = script[i];
+                            }
+                            modifier = String.Join(":", modifiers);
+                            ScriptIndex++;
+                            if (ScriptedResearch(scriptCommand, script[1], modifier))
+                                return true;
+                            loopcount++;
+                            goto Start;
+                        }
+                    case "IFWAR":
+                        {
+                            loopcount += ScriptBump(atWar);
+                            goto Start;
+                        }
+                    case "IFHIGHTAX":
+                        {
+                            loopcount += ScriptBump(highTaxes);
+                            goto Start;
+                        }
+                    case "IFPEACE":
+                        {
+                            loopcount += ScriptBump(!atWar);
+                            goto Start;
+                        }
+                    case "IFCYBERNETIC":
+                        {
+                            loopcount += ScriptBump(OwnerEmpire.data.Traits.Cybernetic > 0);
+                            goto Start;
+                        }
+                    case "IFLOWRESEARCH":
+                        {
+                            loopcount += ScriptBump(lowResearch);
+                            goto Start;
+                        }
+                    case "IFNOTLOWRESEARCH":
+                        {
+                            loopcount += ScriptBump(!lowResearch);
+                            goto Start;
+                        }
+                    case "IFLOWINCOME":
+                        {
+                            loopcount += ScriptBump(lowincome);
+                            goto Start;
+                        }
+                    case "IFNOTLOWINCOME":
+                        {
+                            loopcount += ScriptBump(!lowincome);
+                            goto Start;
+                        }
+                    case "RANDOM":
                         {
                             GoRandomOnce();
                             ScriptIndex++;
                             return true;
                         }
-                        string[] modifiers = new string[script.Count() - 1];
-                        for (int i = 1; i < script.Count(); i++)
-                        {
-                            modifiers[i - 1] = script[i];
-                        }
-                        modifier = String.Join(":", modifiers);
-                        ScriptIndex++;
-                        if (ScriptedResearch(scriptCommand, script[1], modifier))
-                            return true;
-                        //GoRandomOnce();
-                            loopcount++;
-                        goto Start;
-                    }
-                    case "EXPENSIVE":
-                    {
-                        string modifier = "";
-                        string[] script = scriptentry.Split(':');
-
-                        if (script.Count() == 1)
-                        {
-                            res_strat = EmpireAI.ResearchStrategy.Random;
-                            RunResearchPlanner("EXPENSIVE");
-                            res_strat = EmpireAI.ResearchStrategy.Scripted;
-                            ScriptIndex++;
-                            return true;
-                        }
-                        string[] modifiers = new string[script.Count() - 1];
-                        for (int i = 1; i < script.Count(); i++)
-                        {
-                            modifiers[i - 1] = script[i];
-                        }
-                        modifier = String.Join(":", modifiers);
-                        ScriptIndex++;
-                        if (ScriptedResearch(scriptCommand, script[1], modifier))
-                            return true;
-                        //GoRandomOnce();
-                            loopcount++;
-                        goto Start;
-                    }
-                    case "IFWAR":
-                    {
-                        loopcount += ScriptBump(atWar);
-                        goto Start;
-                    }
-                    case "IFHIGHTAX":
-                    {
-                        loopcount += ScriptBump(highTaxes);
-                        goto Start;
-                    }
-                    case "IFPEACE":
-                    {
-                        loopcount += ScriptBump(!atWar);
-                        goto Start;
-                    }
-                    case "IFCYBERNETIC":
-                    {
-                        loopcount += ScriptBump(OwnerEmpire.data.Traits.Cybernetic > 0);
-                        goto Start;
-                    }
-                    case "IFLOWRESEARCH":
-                    {
-                        loopcount += ScriptBump(lowResearch);
-                        goto Start;
-                    }
-                    case "IFNOTLOWRESEARCH":
-                    {
-                        loopcount += ScriptBump(!lowResearch);
-                        goto Start;
-                    }
-                    case "IFLOWINCOME":
-                    {
-                        loopcount += ScriptBump(lowincome);
-                        goto Start;
-                    }
-                    case "IFNOTLOWINCOME":
-                    {
-                        loopcount += ScriptBump(!lowincome);
-                        goto Start;
-                    }
-                    case "RANDOM":
-                    {
-                        res_strat = EmpireAI.ResearchStrategy.Random;
-                        RunResearchPlanner();
-                        res_strat = EmpireAI.ResearchStrategy.Scripted;
-                        ScriptIndex++;
-                        return true;
-                    }
                     default:
-                    {
-                        TechEntry defaulttech;
-                        if (OwnerEmpire.GetTDict().TryGetValue(scriptentry, out defaulttech))
                         {
-                            if (defaulttech.Unlocked)
+                            DebugLog($"Hard Script : {scriptentry}");
+                            if (OwnerEmpire.GetTDict().TryGetValue(scriptentry, out TechEntry defaulttech))
+                            {
+                                if (defaulttech.Unlocked)
 
-                            {
-                                ScriptIndex++;
-                                goto Start;
+                                {
+                                    DebugLog($"Already Unlocked");
+                                    ScriptIndex++;
+                                    goto Start;
+                                }
+                                if (!defaulttech.Unlocked && OwnerEmpire.HavePreReq(defaulttech.UID))
+                                {
+                                    DebugLog($"Researching");
+                                    OwnerEmpire.ResearchTopic = defaulttech.UID;
+                                    ScriptIndex++;
+                                    if (!string.IsNullOrEmpty(scriptentry))
+                                        return true;
+                                }
                             }
-                            if (!defaulttech.Unlocked && OwnerEmpire.HavePreReq(defaulttech.UID))
+                            else
                             {
-                                OwnerEmpire.ResearchTopic = defaulttech.UID;
+                                Log.Info($"TechNotFound : {scriptentry}");
                                 ScriptIndex++;
-                                if (!string.IsNullOrEmpty(scriptentry))
+                            }
+
+
+                            foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.getResStrat()
+                                .TechPath)
+                            {
+                                if (!OwnerEmpire.GetTDict().ContainsKey(tech.id) ||
+                                    OwnerEmpire.GetTDict()[tech.id].Unlocked ||
+                                    !OwnerEmpire.HavePreReq(tech.id))
+                                {
+                                    continue;
+                                }
+
+                                OwnerEmpire.ResearchTopic = tech.id;
+                                ScriptIndex++;
+                                if (!string.IsNullOrEmpty(tech.id))
                                     return true;
                             }
-                        }
-                        else
-                        {
-                            Log.Info($"TechNotFound : {scriptentry}");
+                            res_strat = EmpireAI.ResearchStrategy.Random;
                             ScriptIndex++;
+                            return true;
                         }
-
-
-                        foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.getResStrat()
-                            .TechPath)
-                        {
-                            if (!OwnerEmpire.GetTDict().ContainsKey(tech.id) ||
-                                OwnerEmpire.GetTDict()[tech.id].Unlocked ||
-                                !OwnerEmpire.HavePreReq(tech.id))
-                            {
-                                continue;
-                            }
-
-                            OwnerEmpire.ResearchTopic = tech.id;
-                            ScriptIndex++;
-                            if (!string.IsNullOrEmpty(tech.id))
-                                return true;
-                        }
-                        res_strat = EmpireAI.ResearchStrategy.Random;
-                        ScriptIndex++;
-                        return true;
-                    }
                 }
             }
             if (OwnerEmpire.ResearchTopic.IsEmpty())
@@ -332,6 +328,7 @@ namespace Ship_Game.AI {
 
         private bool GoRandomOnce(string command = "CHEAPEST")
         {
+            DebugLog($"Go Random Once");
             res_strat = EmpireAI.ResearchStrategy.Random;
             RunResearchPlanner(command);
             res_strat = EmpireAI.ResearchStrategy.Scripted;
@@ -353,7 +350,7 @@ namespace Ship_Game.AI {
 
         private bool ScriptedResearch(string command1, string command2, string modifier)
         {
-            Array<Technology> availableTechs = AvailableTechs();
+            Array<TechEntry> availableTechs = AvailableTechs();
 
             if (availableTechs.Count <= 0) return false;
 
@@ -383,102 +380,52 @@ namespace Ship_Game.AI {
             {
                 case "RANDOM":
                 case "TECH":
-                {
-                    string[] script = modifier.Split(':');
-                    for (int i = 1; i < script.Count(); i++)
                     {
-                        try
+
+                        string[] script = modifier.Split(':');
+                        for (int i = 1; i < script.Count(); i++)
                         {
-                            techtype = (TechnologyType) Enum.Parse(typeof(TechnologyType), script[i]);
-                        }
-                        catch
-                        {
-                            Log.Error($"techType not found : ");
-                            return false;
-                        }
-                        DebugLog($"\nFind : {techtype.ToString()}");
-                        if (OwnerEmpire.data.Traits.TechTypeRestrictions(techtype))
-                        {
-                            DebugLog($"Trait Restricted : {techtype.ToString()}");
-                            continue;
-                        }
+                            TechEntry researchTech = GetScriptedTech(command1, script[i], availableTechs, moneyNeeded);
+                            if (researchTech == null) continue;
+
+                            string Testresearchtopic =
+                                researchTech
+                                    .UID;
+                            int currentCost = (int)Math.Ceiling(researchTech.TechCost * CostNormalizer);
 
 
-                        Technology researchTech = null;
-                        Technology[] filteredTechs = availableTechs.FilterBy(econ =>
-                        {
-                            if (econ.TechnologyType != techtype) return false;
-                            if (techtype != TechnologyType.Economic) return true;
-                            if (moneyNeeded > 5f) return true;
-                            if (econ.HullsUnlocked.Count == 0) return true;
-                            return false;
-                        });
-                        LogFinalScriptTechs(command1, techtype, filteredTechs);
-                        researchTech = ChooseScriptTech(command1, filteredTechs);
-                        if (researchTech == null)
-                        {
-                            DebugLog($"{techtype.ToString()} : No Tech found");
-                            continue;
+                            if (command1 == "CHEAPEST" && currentCost < previousCost)
+                            {
+                                DebugLog($"BetterChoice : {researchtopic.ToString()}");
+                                researchtopic = Testresearchtopic;
+                                previousCost = currentCost;
+                                CostNormalizer += .005f;
+                            }
+                            else if (command1 == "EXPENSIVE" && currentCost > previousCost)
+                            {
+                                DebugLog($"BetterChoice : {researchtopic.ToString()}");
+                                researchtopic = Testresearchtopic;
+                                previousCost = currentCost;
+                                CostNormalizer *= .25f;
+                            }
+                            else DebugLog($"command {command1} did not choose a tech");
                         }
 
-
-                        string Testresearchtopic =
-                            researchTech
-                                .UID;
-                        int currentCost = (int) Math.Ceiling(researchTech.Cost * CostNormalizer);
-
-
-                        if (command1 == "CHEAPEST" && currentCost < previousCost)
-                        {
-                            DebugLog($"BetterChoice : {researchtopic.ToString()}");
-                            researchtopic = Testresearchtopic;
-                            previousCost = currentCost;
-                            CostNormalizer += .005f;
-                        }
-                        else if (command1 == "EXPENSIVE" && currentCost > previousCost)
-                        {
-                            DebugLog($"BetterChoice : {researchtopic.ToString()}");
-                            researchtopic = Testresearchtopic;
-                            previousCost = currentCost;
-                            CostNormalizer *= .25f;
-                        }
-                        else DebugLog($"command {command1} did not choose a tech");
+                        break;
                     }
-
-                    break;
-                }
 
                 default:
-                {
-                    try
                     {
-                        techtype = (TechnologyType) Enum.Parse(typeof(TechnologyType), command2);
-                        //Log.Info(EmpireName + " : " + techtype.ToString());
-                    }
-                    catch
-                    {
-                        res_strat = EmpireAI.ResearchStrategy.Random;
-                        RunResearchPlanner();
-                        res_strat = EmpireAI.ResearchStrategy.Scripted;
-                        researchtopic = OwnerEmpire.ResearchTopic;
-                        break;
-                    }
-                    DebugLog($"Default Choice \n {techtype.ToString()}\n");
 
-                    //This should fix issue 414, but someone else will need to verify it
-                    // Allium Sativum
-                    Technology ResearchTech = null;
-                    ResearchTech = availableTechs.OrderByDescending(econ => econ.TechnologyType == techtype)
-                        .ThenBy(cost => cost.Cost)
-                        .FirstOrDefault();
-                    if (ResearchTech != null)
-                    {
-                        researchtopic = ResearchTech.UID;
+                        TechEntry researchTech = GetScriptedTech(command1, command2, availableTechs, moneyNeeded);
+                        if (researchTech != null)
+                        {
+                            researchtopic = researchTech.UID;
+                            break;
+                        }
+                        researchtopic = null;
                         break;
                     }
-                    researchtopic = null;
-                    break;
-                }
             }
             OwnerEmpire.ResearchTopic = researchtopic;
             DebugLog($"Tech Choosen : {researchtopic}");
@@ -492,46 +439,91 @@ namespace Ship_Game.AI {
             }
         }
 
-        private Technology ChooseScriptTech(string command1, Technology[] filteredTechs)
+        private TechEntry GetScriptedTech(string command1, string techType, Array<TechEntry> availableTechs, float moneyNeeded)
         {
-            Technology researchTech = null;
-            if (command1 == "CHEAPEST")
-                researchTech = filteredTechs.FindMin(cost => cost.Cost);
-            else if (command1 == "EXPENSIVE")
-                researchTech = filteredTechs.FindMax(cost => cost.Cost);
-            DebugLog($"{command1} : {researchTech?.UID ?? "Nothiing Found"}");
+            TechnologyType techtype;
+            try
+            {
+                techtype = (TechnologyType) Enum.Parse(typeof(TechnologyType), techType);
+            }
+            catch
+            {
+                Log.Error($"techType not found : ");
+                return null;
+            }
+            DebugLog($"\nFind : {techtype.ToString()}");
+            if (OwnerEmpire.data.Traits.TechTypeRestrictions(techtype))
+            {
+                DebugLog($"Trait Restricted : {techtype.ToString()}");
+                return null;
+            }
+
+
+            TechEntry researchTech = null;
+            TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
+            {
+                if (econ.TechnologyType != techtype) return false;
+                if (techtype != TechnologyType.Economic) return true;
+                if (moneyNeeded > 5f) return true;
+                if (econ.Tech.HullsUnlocked.Count == 0) return true;
+                return false;
+            });
+            
+            LogFinalScriptTechs(command1, techtype, filteredTechs);
+            researchTech = ChooseScriptTech(command1, filteredTechs);
+            if (researchTech == null)
+            {
+                DebugLog($"{techtype.ToString()} : No Tech found");
+                return null;
+            }
             return researchTech;
         }
 
-        private void LogFinalScriptTechs(string command1, TechnologyType techtype, Technology[] filteredTechs)
+        private TechEntry ChooseScriptTech(string command1, TechEntry[] filteredTechs)
+        {
+            TechEntry researchTech = null;
+            if (command1 == "CHEAPEST")
+                researchTech = filteredTechs.FindMin(cost => cost.TechCost);
+            else if (command1 == "EXPENSIVE")
+                researchTech = filteredTechs.FindMax(cost => cost.TechCost);
+            DebugLog($"{command1} : {researchTech?.UID ?? "Nothing Found"}");
+            return researchTech;
+        }
+
+        private void LogFinalScriptTechs(string command1, TechnologyType techtype, TechEntry[] filteredTechs)
         {
             var debugWin = Empire.Universe.DebugWin;
-            if (debugWin == null || (command1 != "CHEAPEST" && command1 != "EXPENSIVE")) return;
+            if (!GlobalStats.VerboseLogging && (debugWin == null || (command1 != "CHEAPEST" && command1 != "EXPENSIVE"))) return;
             DebugLog($"possible Techs : {filteredTechs.Length}");
             foreach (var tech in filteredTechs)
             {
-                DebugLog($" {tech.UID} : {tech.Cost}");
+                DebugLog($" {tech.UID} : {tech.TechCost}");
             }
         }
 
 
-        private Array<Technology> BestShiptechs(string modifier, HashSet<string> shipTechs, Array<Technology> availableTechs)
+        private Array<TechEntry> BestShiptechs(string modifier, HashSet<string> shipTechs, Array<TechEntry> availableTechs)
         {
-            Array<Technology> bestShiptechs = new Array<Technology>();
+            var bestShiptechs = new Array<TechEntry>();
 
             //use the shiptech choosers which just chooses tech in the list. 
+            var repeatingTechs = new Array<TechEntry>();
+            foreach (var kv in OwnerEmpire.TechnologyDict)
+            {
+                if (kv.Value.MaxLevel > 0)
+                    repeatingTechs.Add(kv.Value);
+            }
             foreach (string shiptech in shipTechs)
             {
-                Technology test = null;
-                if (ResourceManager.TechTree.TryGetValue(shiptech, out test))
+                if (OwnerEmpire.TechnologyDict.TryGetValue(shiptech, out TechEntry test))
                 {
                     bool skiprepeater = false;
                     //repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
                     if (test.MaxLevel > 0)
                     {
-                        foreach (TechEntry repeater in OwnerEmpire.TechnologyDict.Values)
+                        foreach (TechEntry repeater in repeatingTechs)
                         {
-                            if (test.UID == repeater.UID && (repeater.Level > 0))
+                            if (test == repeater && (repeater.Level > 0))
                             {
                                 skiprepeater = true;
                                 break;
@@ -549,7 +541,7 @@ namespace Ship_Game.AI {
         }
 
 
-        private HashSet<string> FindBestShip(string modifier, Array<Technology> availableTechs, string command)
+        private HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
             float techcost = -1;
             float str = 0;
@@ -559,7 +551,7 @@ namespace Ship_Game.AI {
             HashSet<string> wantedShipTechs = new HashSet<string>();
 
 
-            foreach (Technology bestshiptech in availableTechs)
+            foreach (TechEntry bestshiptech in availableTechs)
             {
                 switch (bestshiptech.TechnologyType)
                 {
@@ -668,7 +660,7 @@ namespace Ship_Game.AI {
                     if (OwnerEmpire.TechnologyDict.TryGetValue(sTech, out var tCost))
                     {
                         sTechCost += tCost.TechCost;
-                        if (availableTechs.Contains(tCost.Tech))
+                        if (availableTechs.Contains(tCost))
                             if (wantedShipTechs.Add(tCost.UID))
                                 numberOfShipTechs++;
                     }
@@ -720,22 +712,17 @@ namespace Ship_Game.AI {
             return techCost;
         }
 
-        private Array<Technology> AvailableTechs()
+        private Array<TechEntry> AvailableTechs()
         {
-            Array<Technology> availableTechs = new Array<Technology>();
+            var availableTechs = new Array<TechEntry>();
 
             foreach (var kv in OwnerEmpire.TechnologyDict)
             {
                 if (!kv.Value.Discovered || !kv.Value.shipDesignsCanuseThis || kv.Value.Unlocked ||
                     !OwnerEmpire.HavePreReq(kv.Key))
                     continue;
-                //if (kv.Value.Tech.RootNode == 1 && !kv.Value.Tech.Secret)
-                //{
-                //    kv.Value.Unlocked = true;
-                //    continue;
-                //}
-                //;
-                availableTechs.Add(kv.Value.Tech);
+
+                availableTechs.Add(kv.Value);
             }
             if (availableTechs.Count == 0)
                 DebugLog($"No Techs found to research");
