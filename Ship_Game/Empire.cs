@@ -615,10 +615,10 @@ namespace Ship_Game
                 techEntry.UID = kv.Key;
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                if (kv.Value.RaceRestrictions.Count != 0)
+                if (kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0)
                 {
                     techEntry.Discovered = false;
-                    techEntry.Tech.Secret = true;
+                    kv.Value.Secret = true;
                     foreach (Technology.RequiredRace raceTech in kv.Value.RaceRestrictions)
                     {
                         if (raceTech.ShipType == data.Traits.ShipType)
@@ -630,25 +630,22 @@ namespace Ship_Game
                             break;
                         }
                     }
-                } 
+
+                    foreach (Technology.RequiredRace raceTech in kv.Value.RaceExclusions)
+                    {                        
+                        if (raceTech.ShipType == data.Traits.ShipType)                                                    
+                            continue;                            
+                        
+                        techEntry.Discovered = true;                        
+                    }
+                }
                 else //not racial tech
                 {
                     techEntry.Unlocked = kv.Value.RootNode == 1 && !kv.Value.Secret;
                     techEntry.Discovered = !kv.Value.Secret;
                 }
 
-                if (kv.Value.RaceExclusions.Count != 0)
-                {
-                    foreach (Technology.RequiredRace raceTech in kv.Value.RaceExclusions)
-                    {
-                        if (raceTech.ShipType == data.Traits.ShipType )
-                        {
-                            techEntry.Discovered = false;
-                            techEntry.Unlocked = false;
-                            techEntry.Tech.Secret = true;
-                        }
-                    }
-                }
+
 
                 if (isFaction || data.Traits.Prewarp == 1)
                 {
