@@ -19,11 +19,14 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.Cost * (float)Math.Max(1, Math.Pow(2.0, Level));
 
+        //add initializer for tech
         [XmlIgnore][JsonIgnore]
         public Technology Tech => ResourceManager.TechTree[UID];
         [XmlIgnore]
         [JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
+        public TechnologyType TechnologyType => Tech.TechnologyType;
+        public int MaxLevel => Tech.MaxLevel;        
 
         private bool CheckSource(string unlockType, Empire empire)
         {
