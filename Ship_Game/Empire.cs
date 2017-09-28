@@ -651,24 +651,9 @@ namespace Ship_Game
                 {
                     techEntry.Unlocked = false;
                 }
-                if (data.Traits.Militaristic == 1)
-                {
-                    //added by McShooterz: alternate way to unlock militaristic techs
-                    if (techEntry.Tech.Militaristic && techEntry.Tech.RaceRestrictions.Count == 0)
-                        techEntry.Unlocked = true;
 
-                    // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
-                    if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
-                    {
-                        techEntry.Unlocked = techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" ||
-                                             techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
-                    }
-                }
-                if (data.Traits.Cybernetic > 0)
-                {
-                    if (techEntry.UID == "Biospheres")
-                        techEntry.Unlocked = true;
-                }
+                data.Traits.TechUnlocks(techEntry);
+
                 if (techEntry.Unlocked)
                     techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
                 TechnologyDict.Add(kv.Key, techEntry);

@@ -250,7 +250,7 @@ namespace Ship_Game.Gameplay
                 jitter += RandomMath2.Vector2D(Loyalty.data.MissileDodgeChance * 80f);
                 
             }
-            if ((Weapon?.Module.WeaponECM ?? 0) > 0)
+            if ((Weapon?.Module?.WeaponECM ?? 0) > 0)
                 jitter += RandomMath2.Vector2D((Weapon?.Module.WeaponECM ?? 0) * 80f);
 
             return jitter;
