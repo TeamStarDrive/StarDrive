@@ -113,9 +113,9 @@ namespace Ship_Game
             return (RacialTrait)MemberwiseClone();
         }
 
-        public bool TechTypeRestrictions(TechnologyType techtype)
+        public bool TechTypeRestrictions(TechnologyType techType)
         {
-            if (Cybernetic > 0 && techtype ==
+            if (Cybernetic > 0 && techType ==
                 (TechnologyType)Enum.Parse(typeof(TechnologyType),
                     "Colonization"))
             {
@@ -123,6 +123,30 @@ namespace Ship_Game
             }
             return false;
         }
+        public void TechUnlocks(TechEntry techEntry)
+        {
+            if (Militaristic == 1)
+            {
+                //added by McShooterz: alternate way to unlock militaristic techs
+                if (techEntry.Tech.Militaristic && techEntry.Tech.RaceRestrictions.Count == 0)
+                    techEntry.Unlocked = true;
+
+                // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
+                if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
+                {
+                    techEntry.Unlocked = techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" ||
+                                         techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
+                }
+            }
+
+            if (Cybernetic > 0)
+            {
+                if (techEntry.UID == "Biospheres")
+                    techEntry.Unlocked = true;
+            }
+
+        }
+
 
         //Added by McShooterz: set old values from new bools
         public void LoadTraitConstraints()

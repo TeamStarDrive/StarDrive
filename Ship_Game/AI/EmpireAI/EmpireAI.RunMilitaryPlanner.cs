@@ -886,15 +886,16 @@ namespace Ship_Game.AI {
             //Log.Info("number of candidates : " + PotentialShips.Count + " _ trying for : " + role);
             if (potentialShips.Count > 0)
             {
-                IOrderedEnumerable<Ship> sortedList =
-                    from ship3 in potentialShips
-                    orderby ship3.shipData.techsNeeded.Count >= nearmax descending, ship3.BaseStrength descending
-                    select ship3;
-                int ran = (int)(sortedList.Count() * .5f);
-                ran     = RandomMath.InRange(ran);
-                if (ran > sortedList.Count())
-                    ran = sortedList.Count();
-                ship    = sortedList.Skip(ran).First();
+                var sortedList = potentialShips.FilterBy(ships => ships.GetShipData().techsNeeded.Count >= nearmax);
+                sortedList.OrderByDescending(ships => ships.BaseStrength);
+                int newRand = (int)Math.Ceiling(RandomMath.AvgRandomBetween(0, (sortedList.Length -1) * 2f));
+                newRand -= sortedList.Length;
+
+                if (newRand < 0) newRand = 0;
+                
+                if (newRand > sortedList.Length -1)
+                    newRand = sortedList.Length -1;
+                ship = sortedList[newRand];
                 name    = ship.Name;
                 if (Empire.Universe.showdebugwindow)
                     Log.Info("Chosen Role: {0}  Chosen Hull: {1}  Strength: {2}",
