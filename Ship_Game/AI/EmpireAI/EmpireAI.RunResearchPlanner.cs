@@ -319,7 +319,7 @@ namespace Ship_Game.AI {
             if (OwnerEmpire.ResearchTopic.IsEmpty())
             {
                 GoRandomOnce();
-                if (loopcount <= ScriptIndex)
+                if (loopcount >= OwnerEmpire.getResStrat().TechPath.Count)
                     res_strat = EmpireAI.ResearchStrategy.Random;
 
             }
@@ -367,7 +367,7 @@ namespace Ship_Game.AI {
                 if (OwnerEmpire.ShipsWeCanBuild.Contains(GetBestCombatShip.Name))
                     BestCombatShip = null;
             }
-            HashSet<string> allAvailableShipTechs = FindBestShip(modifier, availableTechs, command1);
+            HashSet<string> allAvailableShipTechs = FindBestShip(modifier, availableTechs, command2);
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it.
 
@@ -584,12 +584,15 @@ namespace Ship_Game.AI {
             {
                 foreach (var bTech in BestCombatShip.GetShipData().techsNeeded)
                     nonShipTechs.Add(bTech);
+                DebugLog(
+                    $"Best Ship : {GetBestCombatShip.shipData.HullRole} : {GetBestCombatShip.GetStrength()}");
+                DebugLog($" : {GetBestCombatShip.Name}");
                 return nonShipTechs;
 
             }
             
             //now look through are cheapest to research designs that get use closer to the goal ship using pretty much the same logic. 
-            int timeToResearch = (int)((OwnerEmpire.Research + 1) * RandomMath.AvgRandomBetween(10f, 100f));
+            int timeToResearch = (int)((OwnerEmpire.Research + 1) * RandomMath.AvgRandomBetween(10f, 50f));
             timeToResearch = timeToResearch < 100 ? 100 : timeToResearch;
             techcost = timeToResearch;
             bool shipchange = false;
@@ -651,8 +654,7 @@ namespace Ship_Game.AI {
                 //try to line focus to main goal but if we cant, line focus as best as possible by what we already have. 
                 Array<string> currentTechs =
                     new Array<string>(shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs));
-                int currentTechCost = 0;// (int) ResourceManager.TechTree.Values
-                //    .Sum(tech => currentTechs.Contains(tech.UID) ? tech.Cost : 0);
+                int currentTechCost = 0;
 
                 float sTechCost = 0;
                 foreach (var sTech in currentTechs)
@@ -667,13 +669,19 @@ namespace Ship_Game.AI {
                 }
                 currentTechCost = (int)sTechCost;
 
-                currentTechCost -= mod;
-                
-                if (currentTechCost > techcost && techcost > 0) continue;
+                currentTechCost -= mod;                             
 
-                if (shortTermBest.shipData.BaseStrength > str)
+                float shortStr = shortTermBest.shipData.BaseStrength;
+
+                if (currentTechCost > techcost && currentTechCost > 0)
                 {
-                    str = shortTermBest.shipData.BaseStrength;
+                    float strMod = (techcost / currentTechCost) * .01f;
+                    shortStr *= strMod;
+                }
+
+                if (shortStr > str)
+                {
+                    str = shortStr;
                     BestCombatShip = shortTermBest;
                     shipchange = true;
                 }
