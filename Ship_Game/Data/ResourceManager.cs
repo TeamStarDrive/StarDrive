@@ -97,8 +97,7 @@ namespace Ship_Game
             {
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
-                if (hull.Role < ShipData.RoleName.gunboat)
-                    hull.unLockable = true;
+                
                 foreach (Technology hulltech2 in shipTechs.Keys)
                 {
                     foreach (Technology.UnlockedHull hulls in hulltech2.HullsUnlocked)
@@ -116,6 +115,8 @@ namespace Ship_Game
                     if (hull.unLockable)
                         break;
                 }
+                if (hull.Role < ShipData.RoleName.fighter)
+                    hull.unLockable = true;
             }
 
             int x = 0;
@@ -175,12 +176,13 @@ namespace Ship_Game
                 if (shipData.allModulesUnlocakable)
                 {
                     shipData.unLockable = true;
+                    if (shipData.BaseStrength <= 0f)
+                        kv.Value.CalculateBaseStrength();
                     foreach (string techname in shipData.techsNeeded)
                     {
                         shipData.TechScore += (int) TechTree[techname].Cost;
                         x++;
-                        if (shipData.BaseStrength <= 0f)
-                            kv.Value.CalculateBaseStrength();
+                        
                     }}
                 else
                 {

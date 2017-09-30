@@ -2653,11 +2653,11 @@ namespace Ship_Game.Gameplay
             // we mark the ship as dying and the main update loop will set reallyDie
             if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
             {
-                dying = true;
-                xdie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
-                ydie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
-                zdie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
-                dietimer = UniverseRandom.RandomBetween(4f, 6f);
+                dying         = true;
+                xdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
+                ydie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
+                zdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
+                dietimer      = UniverseRandom.RandomBetween(4f, 6f);
                 if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
                     reallyDie = true;
             }
@@ -2847,8 +2847,8 @@ namespace Ship_Game.Gameplay
             foreach (ShipModule slot in ModuleSlotList)
             {
                 bool isFullyHealed = slot.Health >= slot.HealthMax;
-                slot.HealthMax = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
-                slot.HealthMax = slot.HealthMax + slot.HealthMax * loyalty.data.Traits.ModHpModifier;
+                slot.HealthMax     = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
+                slot.HealthMax     = slot.HealthMax + slot.HealthMax * loyalty.data.Traits.ModHpModifier;
                 if (isFullyHealed)
                 {
                     // Basically, set maxhealth to what it would be with no modifier, then
@@ -2973,7 +2973,7 @@ namespace Ship_Game.Gameplay
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
-            int bombcount = 0;
+            int bombcount   = 0;
             int hangarcount = 0;
             foreach (ShipModule slot in ModuleSlotList)
             {
@@ -3040,7 +3040,7 @@ namespace Ship_Game.Gameplay
                 if (loyalty.data.Traits.ModHpModifier > 0)
                 {
                     float maxHealth = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
-                    slot.HealthMax = maxHealth + maxHealth * loyalty.data.Traits.ModHpModifier; 
+                    slot.HealthMax  = maxHealth + maxHealth * loyalty.data.Traits.ModHpModifier; 
                 }
                 if (slot.Health < slot.HealthMax)
                 {
@@ -3101,15 +3101,8 @@ namespace Ship_Game.Gameplay
             if (BaseStrength > baseStrengthNeeded)
                 return goodPower;
             return false;
-            //if (DesignRole >= ShipData.RoleName.fighter && !shipData.CarrierShip)
-            //    return goodPower;
-            ////if (DesignRole == ShipData.RoleName.troopShip || DesignRole == ShipData.RoleName.support)
-            ////    return goodPower;
-            ////return false;
-            //return goodPower;
 
         }
-        //public bool NonCombatshipIsGoodForGoals() => ShipIsGoodForGoals(float.MinValue);
 
         public bool ShipGoodToBuild(Empire empire)
         {

@@ -374,7 +374,7 @@ namespace Ship_Game
                 Data.EmpireList.Add(empireFromEmpireData);
                 EmpireManager.Add(empireFromEmpireData);
             }
-
+            
             foreach (Empire empire in Data.EmpireList)
             {
                 foreach (Empire e in Data.EmpireList)
@@ -385,8 +385,8 @@ namespace Ship_Game
                     empire.AddRelationships(e, r);
                     if (PlayerEmpire != e)
                         continue;
-
-                    float angerMod = (int)Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
+                    if (Difficulty <= UniverseData.GameDifficulty.Normal) continue;
+                        float angerMod = (int)Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
                     r.Anger_DiplomaticConflict = angerMod;
                     r.Anger_MilitaryConflict = 1;
                 }
