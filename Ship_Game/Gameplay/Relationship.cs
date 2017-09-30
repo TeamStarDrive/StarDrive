@@ -588,25 +588,6 @@ namespace Ship_Game.Gameplay
             foreach (TrustEntry te in TrustEntries) TrustUsed += te.TrustCost;
             foreach (FearEntry  te in FearEntries)  FearUsed  += te.FearCost;
 
-            // @todo Is this block used? If it's useless, lets throw it away
-            //foreach (Ship ship in us.GetShipsInOurBorders())
-            //{
-            //    if (ship.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
-            //    {
-            //        continue;
-            //    }
-            //    if (!this.Treaty_NAPact)
-            //    {
-            //        Relationship angerFromShipsInOurBorders1 = this;
-            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.UniverseRadius / 150f;
-            //    }
-            //    else
-            //    {
-            //        Relationship angerFromShipsInOurBorders2 = this;
-            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.UniverseRadius / 300f;
-            //    }
-            //}
-
             if (!Treaty_Alliance && !Treaty_OpenBorders)
             {
                 float strengthofshipsinborders = us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
@@ -619,35 +600,6 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            // @todo This block... should we remove this during a refactor/remove sweep?
-            //foreach (Ship shipsInOurBorder in us.GetShipsInOurBorders().Where(ship => ship.loyalty != null && ship.loyalty != us && !ship.loyalty.isFaction))
-            //{
-            //    //shipsInOurBorder.WeaponCentered = false;
-            //    //added by gremlin: maintenance in enemy space
-            //    if (shipsInOurBorder.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
-            //    {
-            //        if (shipsInOurBorder.loyalty == them && (them.GetRelations()[us].Treaty_OpenBorders))
-            //        {
-            //            shipsInOurBorder.isCloaking = true;
-            //            if (this.Treaty_Alliance)
-            //            {
-            //                shipsInOurBorder.isCloaked = true;
-            //            }
-            //        }
-            //        continue;
-            //    }
-            //    if (!this.Treaty_NAPact)
-            //    {
-            //        Relationship angerFromShipsInOurBorders1 = this;
-            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.UniverseRadius / 150f;
-            //        shipsInOurBorder.isDecloaking = true;
-            //    }
-            //    else
-            //    {
-            //        Relationship angerFromShipsInOurBorders2 = this;
-            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.UniverseRadius / 300f;
-            //    }
-            //}
 
             float ourMilScore   = 2300f + us.MilitaryScore;
             float theirMilScore = 2300f + them.MilitaryScore;

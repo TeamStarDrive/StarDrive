@@ -1209,7 +1209,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (w.EMPDamage > 0) off += w.EMPDamage * (1f / w.fireDelay) * .2f;
             }
-            if (hangarShipUID != null && !IsSupplyBay && !IsTroopBay)
+            if (hangarShipUID.NotEmpty() && !IsSupplyBay && !IsTroopBay)
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
                 {
