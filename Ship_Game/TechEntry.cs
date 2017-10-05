@@ -17,7 +17,7 @@ namespace Ship_Game
         [Serialize(7)] public float maxOffensiveValueFromthis = 0;
 
         [XmlIgnore][JsonIgnore]
-        public float TechCost => Tech.Cost * (float)Math.Max(1, Math.Pow(2.0, Level));
+        public float TechCost => Tech.Cost * (float)Math.Max(1, Math.Pow(2.0, Level)) * UniverseScreen.GamePaceStatic;
 
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
@@ -45,8 +45,10 @@ namespace Ship_Game
 
         public Array<string> UnLockHulls(Empire empire)
         {
-            var hullList = new Array<string>();
-            foreach (Technology.UnlockedHull unlockedHull in Tech.HullsUnlocked)
+            var techHulls = Tech.HullsUnlocked;
+            if (techHulls.IsEmpty) return null;
+            var hullList = new Array<string>();                      
+            foreach (Technology.UnlockedHull unlockedHull in techHulls)
             {
                 if (!CheckSource(unlockedHull.ShipType, empire))
                     continue;
@@ -123,7 +125,7 @@ namespace Ship_Game
                 Level++;
                 if (Level == Tech.MaxLevel)
                 {
-                    Progress = TechCost * UniverseScreen.GamePaceStatic;
+                    Progress = TechCost ;
                     Unlocked = true;
                 }
                 else
@@ -134,7 +136,7 @@ namespace Ship_Game
             }
             else
             {
-                Progress = Tech.Cost * UniverseScreen.GamePaceStatic;
+                Progress = Tech.Cost ;
                 Unlocked = true;
             }
             RaceRestrictonCheck(empire);

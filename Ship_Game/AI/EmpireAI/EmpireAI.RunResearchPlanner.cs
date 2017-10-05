@@ -38,7 +38,7 @@ namespace Ship_Game.AI {
             if (postResearchTopic.NotEmpty())
             {
                 researchDebt = 50 * (1f + OwnerEmpire.Research);
-                researchDebt = OwnerEmpire.TechnologyDict[postResearchTopic].TechCost / researchDebt;
+                researchDebt = OwnerEmpire.GetTechEntry(postResearchTopic).TechCost / researchDebt;
             }
             float economics = (OwnerEmpire.data.TaxRate * 10); 
             float needsFood = 0;
@@ -508,14 +508,15 @@ namespace Ship_Game.AI {
 
             //use the shiptech choosers which just chooses tech in the list. 
             var repeatingTechs = new Array<TechEntry>();
-            foreach (var kv in OwnerEmpire.TechnologyDict)
+            foreach (var kv in OwnerEmpire.GetTDict())
             {
                 if (kv.Value.MaxLevel > 0)
                     repeatingTechs.Add(kv.Value);
             }
             foreach (string shiptech in shipTechs)
             {
-                if (OwnerEmpire.TechnologyDict.TryGetValue(shiptech, out TechEntry test))
+                TechEntry test = OwnerEmpire.GetTechEntry(shiptech);
+                if (test != null)
                 {
                     bool skiprepeater = false;
                     //repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
@@ -590,9 +591,10 @@ namespace Ship_Game.AI {
                 return nonShipTechs;
 
             }
-            
+
             //now look through are cheapest to research designs that get use closer to the goal ship using pretty much the same logic. 
-            int timeToResearch = (int)((OwnerEmpire.Research + 1) * RandomMath.AvgRandomBetween(10f, 50f));
+            //RandomMath.AvgRandomBetween(200f, 500f)
+            int timeToResearch = (int)((OwnerEmpire.Research + 1) *  100 * UniverseScreen.GamePaceStatic);
             timeToResearch = timeToResearch < 100 ? 100 : timeToResearch;
             techcost = timeToResearch;
             bool shipchange = false;
@@ -621,9 +623,10 @@ namespace Ship_Game.AI {
                     continue;
                 if (!shortTermBest.shipData.techsNeeded.Intersect(shipTechs).Any())
                     continue;
-                if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
+                if (shortTermBest.shipData.HullData.techsNeeded.Except(shipTechs).Count() > 1)
                     continue;
-
+                if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
+                    continue;                
 
                 if (shortTermBest.shipData.techsNeeded.Count == 0)
                 {
@@ -659,13 +662,13 @@ namespace Ship_Game.AI {
                 float sTechCost = 0;
                 foreach (var sTech in currentTechs)
                 {
-                    if (OwnerEmpire.TechnologyDict.TryGetValue(sTech, out var tCost))
-                    {
-                        sTechCost += tCost.TechCost;
-                        if (availableTechs.Contains(tCost))
-                            if (wantedShipTechs.Add(tCost.UID))
-                                numberOfShipTechs++;
-                    }
+                    var tCost = OwnerEmpire.GetTechEntry(sTech);
+                    if (tCost == null)
+                        continue;
+                    sTechCost += tCost.TechCost;
+                    if (availableTechs.Contains(tCost))
+                        if (wantedShipTechs.Add(tCost.UID))
+                            numberOfShipTechs++;
                 }
                 currentTechCost = (int)sTechCost;
 
@@ -714,7 +717,7 @@ namespace Ship_Game.AI {
             {
                 if (!string.IsNullOrEmpty(techList.Find(tech => shipTech == tech)))
                 {
-                    techCost += (int) OwnerEmpire.TechnologyDict[shipTech].TechCost;
+                    techCost += (int) OwnerEmpire.GetTechEntry(shipTech).TechCost;
                 }
             }
             return techCost;
@@ -724,7 +727,7 @@ namespace Ship_Game.AI {
         {
             var availableTechs = new Array<TechEntry>();
 
-            foreach (var kv in OwnerEmpire.TechnologyDict)
+            foreach (var kv in OwnerEmpire.GetTDict())
             {
                 if (!kv.Value.Discovered || !kv.Value.shipDesignsCanuseThis || kv.Value.Unlocked ||
                     !OwnerEmpire.HavePreReq(kv.Key))
