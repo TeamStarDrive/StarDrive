@@ -6,31 +6,33 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class ResearchPopup : PopupWindow
-	{
-		public bool fade = true;
+    public sealed class ResearchPopup : PopupWindow
+    {
+        public bool fade = true;
 
-		public bool FromGame;
+        public bool FromGame;
 
-		public string TechUID;
+        public string TechUID;
 
-		private ScrollList UnlockSL;
+        private ScrollList UnlockSL;
 
-		private Rectangle UnlocksRect;
+        private Rectangle UnlocksRect;
         
-		public ResearchPopup(UniverseScreen s, string uid) : base(s, 600, 600)
-		{
-			this.TechUID = uid;
-			this.fade = true;
-			base.IsPopup = true;
-			this.FromGame = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0);
+        public ResearchPopup(UniverseScreen s, string uid) : base(s, 600, 600)
+        {
+            this.TechUID = uid;
+            this.fade = true;
+            base.IsPopup = true;
+            this.FromGame = true;
+            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            base.TransitionOffTime = TimeSpan.FromSeconds(0);
+            var techEntry = EmpireManager.Player.GetTechEntry(uid);
+            if (techEntry == null) return;
             this.TitleText = string.Concat(Localizer.Token(ResourceManager.TechTree[uid].NameIndex), 
                 ResourceManager.TechTree[uid].MaxLevel > 1 ? " " + 
-                NumberToRomanConvertor.NumberToRoman(EmpireManager.Player.TechnologyDict[uid].Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
-			this.MiddleText = Localizer.Token(ResourceManager.TechTree[uid].DescriptionIndex);
-		}
+                NumberToRomanConvertor.NumberToRoman(techEntry.Level) + "/" + NumberToRomanConvertor.NumberToRoman(techEntry.MaxLevel) : "");
+            this.MiddleText = Localizer.Token(techEntry.Tech.DescriptionIndex);
+        }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
@@ -143,21 +145,21 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.End();
         }
 
-		public override bool HandleInput(InputState input)
-		{
-			this.UnlockSL.HandleInput(input);
-			return base.HandleInput(input);
-		}
+        public override bool HandleInput(InputState input)
+        {
+            this.UnlockSL.HandleInput(input);
+            return base.HandleInput(input);
+        }
 
-		public override void LoadContent()
-		{
-			base.LoadContent();
-			this.UnlocksRect = new Rectangle(this.MidContainer.X + 20, this.MidContainer.Y + this.MidContainer.Height - 20, this.Rect.Width - 40, this.Rect.Height - this.MidContainer.Height - this.TitleRect.Height - 20);
-			Submenu UnlocksSubMenu = new Submenu(this.UnlocksRect);
-			this.UnlockSL = new ScrollList(UnlocksSubMenu, 100);
-			Technology unlockedTech = ResourceManager.TechTree[this.TechUID];
+        public override void LoadContent()
+        {
+            base.LoadContent();
+            this.UnlocksRect = new Rectangle(this.MidContainer.X + 20, this.MidContainer.Y + this.MidContainer.Height - 20, this.Rect.Width - 40, this.Rect.Height - this.MidContainer.Height - this.TitleRect.Height - 20);
+            Submenu UnlocksSubMenu = new Submenu(this.UnlocksRect);
+            this.UnlockSL = new ScrollList(UnlocksSubMenu, 100);
+            Technology unlockedTech = ResourceManager.TechTree[this.TechUID];
             foreach (Technology.UnlockedMod UnlockedMod in unlockedTech.ModulesUnlocked)
-			{
+            {
                 if (EmpireManager.Player.data.Traits.ShipType == UnlockedMod.Type || UnlockedMod.Type == null || UnlockedMod.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(UnlockedMod.ModuleUID);
@@ -170,9 +172,9 @@ namespace Ship_Game
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
-			}
-			foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
-			{
+            }
+            foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
+            {
                 if (troop.Type == EmpireManager.Player.data.Traits.ShipType || troop.Type == "ALL" || troop.Type == null || troop.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
@@ -182,9 +184,9 @@ namespace Ship_Game
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
-			}
-			foreach (Technology.UnlockedHull hull in unlockedTech.HullsUnlocked)
-			{
+            }
+            foreach (Technology.UnlockedHull hull in unlockedTech.HullsUnlocked)
+            {
                 if (EmpireManager.Player.data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
 
@@ -197,9 +199,9 @@ namespace Ship_Game
                     unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.Player));
                     this.UnlockSL.AddItem(unlock);
                 }
-			}
+            }
             foreach (Technology.UnlockedBuilding UnlockedBuilding in unlockedTech.BuildingsUnlocked)
-			{
+            {
                 if (EmpireManager.Player.data.Traits.ShipType == UnlockedBuilding.Type || UnlockedBuilding.Type == null || UnlockedBuilding.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
@@ -209,9 +211,9 @@ namespace Ship_Game
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
-			}
+            }
             foreach (Technology.UnlockedBonus UnlockedBonus in unlockedTech.BonusUnlocked)
-			{
+            {
                 if (EmpireManager.Player.data.Traits.ShipType == UnlockedBonus.Type || UnlockedBonus.Type == null || UnlockedBonus.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
@@ -222,8 +224,8 @@ namespace Ship_Game
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
-			}
-		}
+            }
+        }
 
         protected override void Destroy()
         {

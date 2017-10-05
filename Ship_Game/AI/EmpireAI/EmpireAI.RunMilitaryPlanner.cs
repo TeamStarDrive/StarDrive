@@ -425,7 +425,7 @@ namespace Ship_Game.AI {
                 var tnInOurSystems = new Array<Tasks.MilitaryTask>();
                 var tnInOurAOs     = new Array<Tasks.MilitaryTask>();
                 var tnRemainder    = new Array<Tasks.MilitaryTask>();
-                Toughnuts          = toughNuts.Count;
+                Toughnuts          = toughNuts.Count + remainder.Count + inOurSystems.Count + inOurAOs.Count;
                 foreach (Tasks.MilitaryTask task in toughNuts)
                 {
                     if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().ParentSystem))
@@ -878,15 +878,15 @@ namespace Ship_Game.AI {
                 if (role != ship.DesignRole)
                     continue;
 
-                if (ship.shipData.techsNeeded.Count > maxtech)
-                    maxtech = ship.shipData.techsNeeded.Count;
+                if (ship.shipData.TechScore > maxtech)
+                    maxtech = ship.shipData.TechScore;
                 potentialShips.Add(ship);
             }
             float nearmax = maxtech * .5f;
             //Log.Info("number of candidates : " + PotentialShips.Count + " _ trying for : " + role);
             if (potentialShips.Count > 0)
             {
-                var sortedList = potentialShips.FilterBy(ships => ships.GetShipData().techsNeeded.Count >= nearmax);
+                var sortedList = potentialShips.FilterBy(ships => ships.GetShipData().TechScore >= nearmax);
                 sortedList.OrderByDescending(ships => ships.BaseStrength);
                 int newRand = (int)Math.Ceiling(RandomMath.AvgRandomBetween(0, (sortedList.Length -1) * 2f));
                 newRand -= sortedList.Length;

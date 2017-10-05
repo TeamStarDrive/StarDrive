@@ -64,12 +64,14 @@ namespace Ship_Game
 			this.ScreenManager.SpriteBatch.FillRectangle(this.container, Color.Black);
 			this.QSL.DrawBlue(this.ScreenManager.SpriteBatch);
 			this.csub.Draw();
-			if (this.CurrentResearch != null)
+            var tech = CurrentResearch?.Node?.tech;
+            var complete = tech == null || CurrentResearch.Node.complete == true || tech.TechCost == tech.Progress;
+			if ( !complete)
 			{
 				this.CurrentResearch.Draw(this.ScreenManager);
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/timeleft"], this.TimeLeft, Color.White);
 				Vector2 Cursor = new Vector2((float)(this.TimeLeft.X + this.TimeLeft.Width - 7), (float)(this.TimeLeft.Y + this.TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2));
-				float cost = ResourceManager.TechTree[this.CurrentResearch.Node.tech.UID].Cost * UniverseScreen.GamePaceStatic - EmpireManager.Player.GetTDict()[EmpireManager.Player.ResearchTopic].Progress;
+				float cost = tech.TechCost - tech.Progress;
 				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
 				if (cost % (float)numTurns != 0f)
 				{
