@@ -449,6 +449,16 @@ namespace Ship_Game
             return TechnologyDict;
         }
 
+
+        public TechEntry GetTechEntry(string tech)
+        {
+            if (TechnologyDict.TryGetValue(tech, out TechEntry techEntry))
+                return techEntry;
+            Log.Error($"Attempt to find tech {tech} failed");
+            return null;
+
+        }
+
         public float GetProjectedResearchNextTurn()
         {
             float num = 0.0f;

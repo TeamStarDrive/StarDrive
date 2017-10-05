@@ -813,6 +813,9 @@ namespace Ship_Game
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             ResearchScreenNew clickTimer = this;
             clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
+            var tech = qcomponent?.CurrentResearch;
+            if (tech != null && tech.Node.tech.Progress >= tech.Node.tech.TechCost)
+                qcomponent.CurrentResearch.Node.complete = true;
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
