@@ -623,7 +623,8 @@ namespace Ship_Game.AI {
                     continue;
                 if (!shortTermBest.shipData.techsNeeded.Intersect(shipTechs).Any())
                     continue;
-                if (shortTermBest.shipData.HullData.techsNeeded.Except(shipTechs).Count() > 1)
+                var hullTechs = shortTermBest.shipData.HullData.techsNeeded.Except(shipTechs);
+                if (hullTechs.Count() > 1)
                     continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
                     continue;                
