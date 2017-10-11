@@ -164,6 +164,13 @@ namespace Ship_Game
             HasShipyard = false;            
         }
 
+        public bool NeedsFood()
+        {
+            if (Owner?.isFaction ?? true) return false;
+            float food = Owner.data.Traits.Cybernetic > 0 ? ProductionHere : FoodHere;
+            return food / MAX_STORAGE < .10f;
+        }
+
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
         {                        
             var newOrbital = this;

@@ -991,8 +991,8 @@ namespace Ship_Game.AI {
                 DoOrbit(AwaitClosest, elapsedTime);
                 return;
             }
-            SolarSystem home = null;
-            if (Owner.System == null)
+            SolarSystem home = Owner.System;
+            if (home == null)
             {
                 if (SystemToDefend != null)
                 {
