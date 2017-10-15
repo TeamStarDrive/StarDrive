@@ -34,11 +34,11 @@ namespace Ship_Game.AI
             foreach (var kv in Pins)
             {
                 if(kv.Value.EmpireName == string.Empty) continue;
-
+                
                 Empire pinEmpire = kv.Value.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.Value.EmpireName);
-                if (!empire.TryGetRelations(pinEmpire, out Relationship rel)) continue;
-
-                if (rel.Treaty_Alliance) continue;
+                if (!empire.IsEmpireAttackable(pinEmpire)) continue;
+                //if (!empire.TryGetRelations(pinEmpire, out Relationship rel)) continue;
+                //if (rel.Treaty_Alliance) continue;
 
                 str +=kv.Value.Strength;               
 

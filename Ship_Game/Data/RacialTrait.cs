@@ -123,7 +123,7 @@ namespace Ship_Game
             }
             return false;
         }
-        public void TechUnlocks(TechEntry techEntry)
+        public void TechUnlocks(TechEntry techEntry, Empire empire)
         {
             if (Militaristic == 1)
             {
@@ -134,8 +134,10 @@ namespace Ship_Game
                 // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
                 if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
                 {
-                    techEntry.Unlocked = techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" ||
-                                         techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
+                    if (techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" ||
+                                         techEntry.UID == "Military" || techEntry.UID == "ArmorTheory")
+                        techEntry.Unlocked = true;
+
                 }
             }
 

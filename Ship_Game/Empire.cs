@@ -102,6 +102,7 @@ namespace Ship_Game
         public float freighterBudget;
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
+        public float MaxResearchPotential = 10;
 
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
@@ -595,7 +596,8 @@ namespace Ship_Game
                 if (!kv.Value.Unlocked)
                     continue;
                 kv.Value.Unlocked = false;
-                UnlockTech(kv.Key);
+                kv.Value.Unlock(this);
+                //UnlockTech(kv.Key);
             }
 
             //unlock ships from empire data
@@ -618,6 +620,7 @@ namespace Ship_Game
 
         private void InitTechs()
         {
+            var unlockedTechs = new Array<TechEntry>();
             foreach (var kv in ResourceManager.TechTree)
             {
                 TechEntry techEntry = new TechEntry();
@@ -636,7 +639,7 @@ namespace Ship_Game
                             techEntry.Discovered = true;
                             techEntry.Unlocked = kv.Value.RootNode == 1;
                             if (data.Traits.Militaristic == 1 && techEntry.Tech.Militaristic)
-                                techEntry.Unlocked = true;
+                                techEntry.Unlocked = true;                                
                             break;
                         }
                     }
@@ -662,12 +665,13 @@ namespace Ship_Game
                     techEntry.Unlocked = false;
                 }
 
-                data.Traits.TechUnlocks(techEntry);
+                data.Traits.TechUnlocks(techEntry, this);
 
                 if (techEntry.Unlocked)
                     techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
                 TechnologyDict.Add(kv.Key, techEntry);
             }
+
         }
 
         public Array<Ship> GetOurFactionShips()
@@ -2004,7 +2008,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    foreach (Planet planet in this.OwnedPlanets)
+                    foreach (Planet planet in OwnedPlanets)
                     {
                         if (!this.data.IsRebelFaction)
                             StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
@@ -2016,11 +2020,15 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (Planet planet in this.OwnedPlanets)
+            Research = 0;
+            MaxResearchPotential = 0;
+            foreach (Planet planet in OwnedPlanets)
             {
                 if (!this.data.IsRebelFaction)
                     StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
+                Research += planet.NetResearchPerTurn;
+                MaxResearchPotential += planet.GetMaxResearchPotential;
             }
             if (this.data.TurnsBelowZero > 0 && (this.Money < 0.0 && !Universe.Debug))// && this.isPlayer)) // && this == Empire.Universe.PlayerEmpire)
             {
@@ -2107,21 +2115,21 @@ namespace Ship_Game
             }
             this.CalculateScore();
 
-            if (!string.IsNullOrEmpty(this.ResearchTopic))
+
+            if (!string.IsNullOrEmpty(ResearchTopic))
             {
-                this.Research = 0;
-                foreach (Planet planet in this.OwnedPlanets)
-                    this.Research += planet.NetResearchPerTurn;
-                float research = this.Research + this.leftoverResearch;
-                TechEntry tech;
-                if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
+
+                float research = Research + leftoverResearch;
+                TechEntry tech = GetTechEntry(ResearchTopic);
+
+                if (tech != null)
                 {
                     float cyberneticMultiplier = 1.0f;
-                    if (this.data.Traits.Cybernetic > 0)
+                    if (data.Traits.Cybernetic > 0)
                     {
                         foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
                         {
-                            Building building = ResourceManager.CreateBuilding(buildingName.Name);
+                            Building building = ResourceManager.GetBuildingTemplate(buildingName.Name);
                             if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
                             {
                                 cyberneticMultiplier = .5f;
@@ -2133,34 +2141,30 @@ namespace Ship_Game
                     if ((tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
                     {
                         tech.Progress += research;
-                        this.leftoverResearch = 0f;
+                        leftoverResearch = 0f;
                         research = 0;
                     }
                     else
                     {
-
-
                         research -= (tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
                         tech.Progress = tech.Tech.Cost * UniverseScreen.GamePaceStatic;
-                        this.UnlockTech(this.ResearchTopic);
-                        if (this.isPlayer)
-                            Universe.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
-                        this.data.ResearchQueue.Remove(this.ResearchTopic);
-                        if (this.data.ResearchQueue.Count > 0)
+                        UnlockTech(ResearchTopic);
+                        if (isPlayer)
+                            Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
+                        data.ResearchQueue.Remove(ResearchTopic);
+                        if (data.ResearchQueue.Count > 0)
                         {
-                            this.ResearchTopic = this.data.ResearchQueue[0];
-                            this.data.ResearchQueue.RemoveAt(0);
+                            ResearchTopic = data.ResearchQueue[0];
+                            data.ResearchQueue.RemoveAt(0);
                         }
                         else
-                            this.ResearchTopic = "";
+                            ResearchTopic = "";
                     }
                 }
-                this.leftoverResearch = research;
+                leftoverResearch = research;
             }
-            else if (this.data.ResearchQueue.Count > 0)
-                this.ResearchTopic = this.data.ResearchQueue[0];
-
-
+            else if (data.ResearchQueue.Count > 0)
+                ResearchTopic = data.ResearchQueue[0];
 
             UpdateRelationships();
 

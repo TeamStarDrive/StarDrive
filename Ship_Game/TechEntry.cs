@@ -22,8 +22,7 @@ namespace Ship_Game
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
         public Technology Tech => ResourceManager.TechTree[UID];
-        [XmlIgnore]
-        [JsonIgnore]
+        [XmlIgnore][JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
         public TechnologyType TechnologyType => Tech.TechnologyType;
         public int MaxLevel => Tech.MaxLevel;        
