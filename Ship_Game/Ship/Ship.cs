@@ -783,7 +783,7 @@ namespace Ship_Game.Gameplay
             if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= ftlmodtemp;
-            maxFTLSpeed = (WarpThrust / base.Mass + WarpThrust / base.Mass * loyalty.data.FTLModifier) * FTLModifier;
+            maxFTLSpeed = (WarpThrust / base.Mass + WarpThrust / base.Mass * (loyalty?.data?.FTLModifier ?? 35)) * FTLModifier;
 
 
         }
@@ -3095,9 +3095,11 @@ namespace Ship_Game.Gameplay
             float powerDraw = ModulePowerDraw * (empire?.data.FTLPowerDrainModifier ?? 1);
 
             bool warpTimeGood = (PowerStoreMax / (powerDraw - PowerFlowMax)
-                                 * velocityMaximum > GlobalStats.MinimumWarpRange);
+                                 * maxFTLSpeed > GlobalStats.MinimumWarpRange);
 
             bool goodPower = shipData.BaseCanWarp && (powerDraw <= PowerFlowMax || warpTimeGood);
+            if (!goodPower && empire == null)
+                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {powerDraw}/{PowerFlowMax}");
             if (BaseStrength > baseStrengthNeeded)
                 return goodPower;
             return false;

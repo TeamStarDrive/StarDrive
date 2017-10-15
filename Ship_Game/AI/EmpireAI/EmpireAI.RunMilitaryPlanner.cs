@@ -510,7 +510,7 @@ namespace Ship_Game.AI {
         {
             if (Nobuild)
                 return null;
-            float ratioFighters     = 1f;
+            float ratioFighters     = .5f;
             float ratioCorvettes    = 0f;
             float ratioFrigates     = 0f;
             float ratioCruisers     = 0f;
@@ -637,10 +637,10 @@ namespace Ship_Game.AI {
             }
             else if (OwnerEmpire.canBuildCruisers)
             {
-                ratioFighters  = 10f;
-                ratioCorvettes = 10f;
-                ratioFrigates  = 5f;
-                ratioCruisers  = 1f;
+                ratioFighters  = 1f;
+                ratioCorvettes = 2f;
+                ratioFrigates  = 3f;
+                ratioCruisers  = 4f;
                 ratioCapitals  = 0f;
                 if (OwnerEmpire.canBuildBombers)                
                     ratioBombers = 5f;
@@ -653,9 +653,9 @@ namespace Ship_Game.AI {
             }
             else if (OwnerEmpire.canBuildFrigates)
             {
-                ratioFighters  = 10f;
-                ratioCorvettes = 5f;
-                ratioFrigates  = 1f;
+                ratioFighters  = 1f;
+                ratioCorvettes = 2f;
+                ratioFrigates  = 3f;
                 ratioCruisers  = 0f;
                 ratioCapitals  = 0f;
                 if (OwnerEmpire.canBuildBombers)                
@@ -668,8 +668,8 @@ namespace Ship_Game.AI {
             }
             else if (OwnerEmpire.canBuildCorvettes)
             {
-                ratioFighters  = 5f;
-                ratioCorvettes = 1f;
+                ratioFighters  = 1f;
+                ratioCorvettes = 2f;
                 ratioFrigates  = 0f;
                 ratioCruisers  = 0f;
                 ratioCapitals  = 0f;
