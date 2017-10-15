@@ -686,6 +686,7 @@ namespace Ship_Game
                         Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
                         foreach (Ship ship in kv.Ships)
                         {
+                            if ((!ship?.Active ?? true)) continue;
                             Vector3 vector3_2 =
                                 Viewport.Project(
                                     new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);

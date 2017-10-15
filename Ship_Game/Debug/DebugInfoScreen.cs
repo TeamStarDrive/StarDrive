@@ -106,7 +106,7 @@ namespace Ship_Game.Debug
         }
         public void ResearchLog(string text, Empire empire)
         {
-            if (!DebugLogText(text, DebugModes.Tech)) return;            
+            if (!DebugLogText(text, DebugModes.Tech)) return;
             if (!ResearchText.TryGetValue(empire.Name, out var empireTechs))
             {
                 var techs = new Array<string>();
@@ -215,12 +215,27 @@ namespace Ship_Game.Debug
                     DrawString(e.data.DiplomaticPersonality.Name);
                     DrawString(e.data.EconomicPersonality.Name);
                 }
-                
+
+                DrawString($"corvettes: {e.canBuildCorvettes}");
+                DrawString($"frigates: {e.canBuildFrigates}");
+                DrawString($"cruisers: {e.canBuildCruisers}");
+                DrawString($"bombers: {e.canBuildBombers}");
+                DrawString($"carriers: {e.canBuildCarriers}");
+
                 if (!string.IsNullOrEmpty(e.ResearchTopic))
                 {
-                    float gamePaceStatic = UniverseScreen.GamePaceStatic * ResourceManager.TechTree[e.ResearchTopic].Cost;
-                    DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{gamePaceStatic:0}({e.GetProjectedResearchNextTurn().ToString(Fmt)})");
+                    var techEntry = e.GetTechEntry(e.ResearchTopic);
+                    float gamePaceStatic = techEntry.TechCost;
+                    DrawString($"Research: {techEntry.Progress:0}/{gamePaceStatic:0} ({e.GetProjectedResearchNextTurn().ToString(Fmt)} / {e.MaxResearchPotential.ToString(Fmt)})");
                     DrawString("   --" + e.ResearchTopic);
+                    Ship bestShip = e.GetGSAI().GetBestCombatShip;
+                    if (bestShip != null)
+                    {
+                        DrawString($"Ship : {bestShip.Name}");
+                        DrawString($"Hull : {bestShip.shipData.HullData.Role.ToString()}");                        
+                        DrawString($"Role : {bestShip.DesignRole.ToString()}");
+                        DrawString($"Str : {(int)bestShip.BaseStrength} - Tech : {bestShip.shipData.TechScore}");
+                    }
                 }
                 DrawString($"");
                 if (ResearchText.TryGetValue(e.Name, out var empireLog))

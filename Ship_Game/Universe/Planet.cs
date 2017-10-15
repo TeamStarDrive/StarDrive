@@ -34,7 +34,6 @@ namespace Ship_Game
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public Guid guid = Guid.NewGuid();
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
-        //public string Special = "None";   //This is never reassigned to any value other than "None", making it a waste of memory.  -Gretman
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public GoodState fs = GoodState.STORE;
         public GoodState ps = GoodState.STORE;
@@ -73,9 +72,8 @@ namespace Ship_Game
         public Vector2 Center;
         public string SpecialDescription;
         public bool HasShipyard;
-        public SolarSystem ParentSystem; //This was renamed to 'ParentSystem' as to unify this and the one I removed below -Gretman
-        public Matrix cloudMatrix;
-        //public SolarSystem ParentSystem;  //This served exactly the same purpose as the above SolarSystem object.
+        public SolarSystem ParentSystem; 
+        public Matrix cloudMatrix;        
         public bool hasEarthLikeClouds;
         public string Name;
         public string Description;
@@ -164,12 +162,7 @@ namespace Ship_Game
             HasShipyard = false;            
         }
 
-        public bool NeedsFood()
-        {
-            if (Owner?.isFaction ?? true) return false;
-            float food = Owner.data.Traits.Cybernetic > 0 ? ProductionHere : FoodHere;
-            return food / MAX_STORAGE < .10f;
-        }
+ 
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
         {                        
@@ -225,6 +218,13 @@ namespace Ship_Game
                 newOrbital.hasRings = true;
                 newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
             }
+        }
+
+        public bool NeedsFood()
+        {
+            if (Owner?.isFaction ?? true) return false;
+            float food = Owner.data.Traits.Cybernetic > 0 ? ProductionHere : FoodHere;
+            return food / MAX_STORAGE < .10f;
         }
 
         private void GenerateMoons(Planet newOrbital)
@@ -2458,9 +2458,7 @@ namespace Ship_Game
                                     }
 
                                 }
-                              //  this.system.ShipList.thisLock.ExitReadLock();
-                                //if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && Vector2.Distance(this.Position, ship.Center) < building.theWeapon.Range)
-                                //Ship ship = null;
+
                                 if (troop != null)
                                     target = troop;
                                 if(target != null)
@@ -2476,9 +2474,6 @@ namespace Ship_Game
                         }
                     }
                 }
-                //catch
-                //{
-                //}
             }
             for (int index = 0; index < Projectiles.Count; ++index)
             {
@@ -2761,39 +2756,19 @@ namespace Ship_Game
 
         private float CalculateCyberneticPercentForSurplus(float desiredSurplus)
         {
-            // replacing while loop with singal fromula, should save some clock cycles
-            //float Surplus = 0.0f;
-            //while ((double)Surplus < 1.0)
-            //{
-            //    Surplus += 0.01f;
-            //    float num2 = (float)((double)Surplus * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
-            //    //float num3 = num2 - this.consumption;
-            //    //if ((double)(num3 - this.Owner.data.TaxRate * num3) >= (double)desiredSurplus)
-
-            //    //taking taxes out of production first then taking out consumption to fix starvation at high tax rates
-            //    //Allium Sativum trying to fix issue #332
-            //    float num3 = num2 * (1 - this.Owner.data.TaxRate);
-            //    if ((double)(num3 - this.consumption) >= (double)desiredSurplus) 
-            //    {
-            //        this.ps = Planet.GoodState.EXPORT;
-            //        return Surplus;
-            //    }
-            //}
-            //this.fs = Planet.GoodState.IMPORT;
-            //return Surplus;
+ 
 
             float NoDivByZero = .0000001f;
-            float Surplus = (float)((consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate)+NoDivByZero);
+            float Surplus = (float)((consumption + desiredSurplus - PlusFlatProductionPerTurn) 
+                / ((Population / 1000.0) * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate)+NoDivByZero);
             if (Surplus < 1.0f)
             {
-               // this.ps = Planet.GoodState.EXPORT;
                 if (Surplus < 0)
                     return 0.0f;
                 return Surplus;
             }
             else
-            {
-               // this.ps = Planet.GoodState.IMPORT;
+            {             
                 return 1.0f;
             }
         }
@@ -2805,20 +2780,17 @@ namespace Ship_Game
             if(Owner.data.Traits.Cybernetic >0)
             {
 
-                Surplus = Surplus = (float)((consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate) + NoDivByZero);
-                    //(float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / 
-                    //((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * 
-                    //(1 - (this.Owner.data.TaxRate == 1 ? .9 : this.Owner.data.TaxRate)) + NoDivByZero);
+                Surplus = Surplus = (float)((consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) 
+                    * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate) + NoDivByZero);
+
                 if (Surplus < 1.0f)
                 {
-                    // this.ps = Planet.GoodState.EXPORT;
                     if (Surplus < 0)
                         return 0.0f;
                     return Surplus;
                 }
                 else
                 {
-                    // this.ps = Planet.GoodState.IMPORT;
                     return 1.0f;
                 }
             }
@@ -2828,7 +2800,8 @@ namespace Ship_Game
             // replacing while loop with singal fromula, should save some clock cycles
 
            
-            Surplus = (float)((consumption + desiredSurplus - FlatFoodAdded) / ((Population / 1000.0) * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero));
+            Surplus = (float)((consumption + desiredSurplus - FlatFoodAdded) / ((Population / 1000.0) 
+                * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero));
             if (Surplus < 1)
             {
                 if (Surplus < 0)
@@ -2837,7 +2810,6 @@ namespace Ship_Game
             }
             else
             {
-                //this.fs = Planet.GoodState.IMPORT;
                 //if you cant reach the desired surplus, produce as much as you can
                 return 1.0f;
             }
@@ -2845,8 +2817,6 @@ namespace Ship_Game
 
         private bool DetermineIfSelfSufficient()
         {
-            //float num = (float)(1.0 * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-            //return (double)(num + this.FoodPercentAdded * num - this.consumption) > 0.0;
              float NoDivByZero = .0000001f;
             return (float)((consumption - FlatFoodAdded) / ((Population / 1000.0) * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero)) < 1;
         }
@@ -5536,6 +5506,10 @@ output = maxp * take10 = 5
                 return num4 + Owner.data.Traits.ProductionMod * num4 - consumption;
             return num4 + Owner.data.Traits.ProductionMod * num4;
         }
+        public float GetMaxResearchPotential =>        
+            (Population / 1000) * PlusResearchPerColonist + PlusFlatResearchPerTurn
+            * (1+ ResearchPercentAdded
+            + Owner.data.Traits.ResearchMod* NetResearchPerTurn);
 
         public void InitializeSliders(Empire o)
         {

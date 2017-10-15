@@ -33,8 +33,7 @@ namespace Ship_Game.AI
         public float StationUpkeep                           = 0f;
         public float Toughnuts                               = 0;                
         public int Recyclepool                               = 0;
-        public float DefStr;
-
+        public float DefStr;        
         public EmpireAI(Empire e)
         {
             EmpireName                                = e.data.Traits.Name;
