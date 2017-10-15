@@ -39,7 +39,7 @@ namespace Ship_Game.AI {
             if (postResearchTopic.NotEmpty())
             {
                 researchDebt = OwnerEmpire.GetTechEntry(postResearchTopic).TechCost;
-                researchDebt =  researchDebt / (OwnerEmpire.MaxResearchPotential +1) * 100;                
+                researchDebt =  researchDebt / (OwnerEmpire.MaxResearchPotential +1 * 100);
             }
             float economics = (OwnerEmpire.data.TaxRate * 10); 
             float needsFood = 0;
