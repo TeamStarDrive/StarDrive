@@ -502,6 +502,11 @@ namespace Ship_Game
                 UpdateAllPositions();
         }
 
+        public void SnapToTechScreen()
+        {
+            
+        }
+
         public void SnapToCombat(Planet p)
         {
             GameAudio.PlaySfxAsync("sub_bass_whoosh");
