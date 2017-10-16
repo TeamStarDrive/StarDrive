@@ -222,7 +222,7 @@ namespace Ship_Game
             HandleFleetSelections(input);
 
             HandleRightMouseNew();
-            if (input.LeftMouseClick) InputClickableItems(input);
+            if (input.LeftMouseDoubleClick) InputClickableItems(input);
             if (!LookingAtPlanet)
             {
                 LeftClickOnClickableItem(input);
@@ -1107,7 +1107,7 @@ namespace Ship_Game
             SelectedItem       = null;
             ProjectingPosition = false;
             projectedGroup     = null;
-
+            //SelectedShipList.Clear();
             if (viewState >= UnivScreenState.SectorView)
             {
                 if ((SelectedSystem = CheckSolarSystemClick()) != null)
@@ -1119,10 +1119,12 @@ namespace Ship_Game
                 
             if ((SelectedFleet = CheckFleetClicked()) != null)
             {
-                SelectedShipList.Clear();                
+                SelectedShipList.Clear();
+                shipListInfoUI.ClearShipList();
                 pickedSomethingThisFrame = true;
                 GameAudio.FleetClicked();
                 SelectedShipList.AddRange(SelectedFleet.Ships);
+                shipListInfoUI.SetShipList(SelectedShipList, false);
                 return;
             }                
 
@@ -1483,12 +1485,12 @@ namespace Ship_Game
 
         private void InputClickableItems(InputState input)
         {
-            if (ClickTimer >= TimerDelay)
-            {
-                if (SelectedShip != null)
-                    ClickTimer = 0.0f;
-                return;
-            }
+            //if (ClickTimer >= TimerDelay)
+            //{
+            //    if (SelectedShip != null)
+            //        ClickTimer = 0.0f;
+            //    return;
+            //}
             SelectedShipList.Clear();
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                 previousSelection = SelectedShip;
