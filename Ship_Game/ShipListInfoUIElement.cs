@@ -196,7 +196,7 @@ namespace Ship_Game
         public void ClearShipList()
         {
             this.ShipList.Clear();
-            this.SelectedShipsSL.indexAtTop = 0;
+            this.SelectedShipsSL.Reset();
             this.SelectedShipsSL.ScrollBar.Y = this.SelectedShipsSL.ScrollBarHousing.Y;
         }
 
