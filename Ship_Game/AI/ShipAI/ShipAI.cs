@@ -223,12 +223,14 @@ namespace Ship_Game.AI
 
         private void ScrapShip(float elapsedTime, ShipGoal goal)
         {
-            if (Vector2.Distance(goal.TargetPlanet.Center, Owner.Center) >= goal.TargetPlanet.ObjectRadius + Owner.Radius)   //2500f)   //OrbitTarget.ObjectRadius *15)
+            if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.GravityWellRadius)
             {
-                //goal.MovePosition = goal.TargetPlanet.Position;
-                //this.MoveToWithin1000(elapsedTime, goal);
-                //goal.SpeedLimit = this.Owner.GetSTLSpeed();
                 DoOrbit(goal.TargetPlanet, elapsedTime);
+                return;
+            }
+            else if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
+            {
+                ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime, 200);
                 return;
             }
             OrderQueue.Clear();

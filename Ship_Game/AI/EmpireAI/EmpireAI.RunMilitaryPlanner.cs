@@ -624,14 +624,14 @@ namespace Ship_Game.AI {
             {
                 ratioFighters  = 0f;
                 ratioCorvettes = .0f;
-                ratioFrigates  = 10f;
+                ratioFrigates  = 5f;
                 ratioCruisers  = 5f;
-                ratioCapitals  = 1f;
+                ratioCapitals  = 2f;
                 if (OwnerEmpire.canBuildBombers)                
-                    ratioBombers = 5f;
+                    ratioBombers = 3f;
                 
                 if (OwnerEmpire.canBuildCarriers)                
-                    ratioCarriers = 1f;
+                    ratioCarriers = 2f;
                 
                 ratioSupport = 1f;
             }
@@ -655,7 +655,7 @@ namespace Ship_Game.AI {
             {
                 ratioFighters  = 1f;
                 ratioCorvettes = 2f;
-                ratioFrigates  = 3f;
+                ratioFrigates  = 5f;
                 ratioCruisers  = 0f;
                 ratioCapitals  = 0f;
                 if (OwnerEmpire.canBuildBombers)                

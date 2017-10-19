@@ -67,7 +67,7 @@
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
     <OutputPath>Deploy\upload\</OutputPath>
-    <DefineConstants>STEAM PERF AUTOTIME</DefineConstants>
+    <DefineConstants>STEAM xPERF xAUTOTIME</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>

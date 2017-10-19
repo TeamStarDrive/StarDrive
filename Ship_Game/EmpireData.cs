@@ -190,6 +190,7 @@ namespace Ship_Game
             WeaponTags.Add("Array", new WeaponTagModifier());
             WeaponTags.Add("Flak", new WeaponTagModifier());
             WeaponTags.Add("Tractor", new WeaponTagModifier());
+            
 
         }
 

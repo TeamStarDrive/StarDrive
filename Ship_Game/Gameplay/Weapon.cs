@@ -389,11 +389,10 @@ namespace Ship_Game.Gameplay
             Vector2 jitter = Vector2.Zero;
 
             //calaculate level. 
-            int sensorPower = (int)(Owner?.SensorRange ?? 1);            
-            sensorPower /= 40000;
+            int trackingPower = (int)(Owner?.TrackingPower ?? 1);                        
             if(level == -1)
                 level = (Owner?.Level ?? level) 
-                    + sensorPower //(Owner?.TrackingPower  ?? 0)
+                    + trackingPower //(Owner?.TrackingPower  ?? 0)
                     + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
             
             //reduce jitter by level cubed. if jitter is less than a module radius stop.

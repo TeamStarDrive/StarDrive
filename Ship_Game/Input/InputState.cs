@@ -154,7 +154,7 @@ namespace Ship_Game
         public bool ShowDebugWindow      => KeyPressed(Keys.H);  
         public bool EmpireToggle         => IsKeyDown(Keys.LeftShift);
         public bool SpawnShip            => KeyPressed(Keys.C);
-        public bool SpawnFleet1          => KeyPressed(Keys.Z);
+        public bool SpawnFleet1          => KeyPressed(Keys.Z) && !IsKeyDown(Keys.LeftControl);
         public bool SpawnFleet2          => IsKeyDown(Keys.LeftControl) && KeyPressed(Keys.Z);
         public bool KillThis             => KeyPressed(Keys.X);
         public bool SpawnRemnantShip     => KeyPressed(Keys.V);
