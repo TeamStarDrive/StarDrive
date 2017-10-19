@@ -60,19 +60,24 @@ namespace Ship_Game
             return hullList;
         }
 
-        public Array<string> UnlockModules(Empire empire)
+        public Array<Technology.UnlockedMod> GetUnlockableModules(Empire empire)
         {
-         
-            var modulesUnlocked = new Array<string>();
+            var modulesUnlocked = new Array<Technology.UnlockedMod>();
             //Added by McShooterz: Race Specific modules
             foreach (Technology.UnlockedMod unlockedMod in Tech.ModulesUnlocked)
             {
                 if (!CheckSource(unlockedMod.Type, empire))
                     continue;
-                empire.UnlockEmpireShipModule(unlockedMod.ModuleUID, UID);
-                modulesUnlocked.Add(unlockedMod.ModuleUID);
+                modulesUnlocked.Add(unlockedMod);
             }
             return modulesUnlocked;
+        }
+
+        public void UnlockModules(Empire empire)
+        {
+            //Added by McShooterz: Race Specific modules
+            foreach (Technology.UnlockedMod unlockedMod in GetUnlockableModules(empire))            
+                empire.UnlockEmpireShipModule(unlockedMod.ModuleUID, UID);            
         }
 
         public void UnlockTroops(Empire empire) //  Array<Technology.UnlockedTroop> unlockedTroops, string shipType, string techType = null)

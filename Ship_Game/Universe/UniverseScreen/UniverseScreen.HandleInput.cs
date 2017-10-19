@@ -83,9 +83,9 @@ namespace Ship_Game
 
                 if (input.SpawnShip)
                     Ship.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
-
+                if (input.SpawnFleet2) HelperFunctions.CreateFleetAt("Fleet 2", empire, mouseWorldPos);                
                 if (input.SpawnFleet1) HelperFunctions.CreateFleetAt("Fleet 1", empire, mouseWorldPos);
-                if (input.SpawnFleet2) HelperFunctions.CreateFleetAt("Fleet 2", empire, mouseWorldPos);
+                
 
                 if (SelectedShip != null)
                 {
@@ -1214,21 +1214,17 @@ namespace Ship_Game
                 SelectedShipList = new BatchRemovalCollection<Ship>(ships);
 
             SelectedSomethingTimer = 3f;
-            if (purgeSupply)
-            {
-                foreach (Ship ship in SelectedShipList)
-                {
-                    if (NonCombatShip(ship))
-                        SelectedShipList.QueuePendingRemoval(ship);
-                }
-                SelectedShipList.ApplyPendingRemovals();
-            }
             if (purgeLoyalty)
             {
+                isFleet = false;
                 foreach (Ship ship in SelectedShipList)
-                {
+                {                    
                     if (ship.loyalty != player)
+                    {
                         SelectedShipList.QueuePendingRemoval(ship);
+                        continue;
+                    }
+                    isFleet = isFleet || fleet.ContainsShip(ship);                    
                 }
                 SelectedShipList.ApplyPendingRemovals();
             }
@@ -1241,10 +1237,21 @@ namespace Ship_Game
                 }
                 SelectedShipList.ApplyPendingRemovals();
             }
+            
+            if (purgeSupply && !isFleet)
+            {
+                foreach (Ship ship in SelectedShipList)
+                {
+                    if (NonCombatShip(ship))
+                        SelectedShipList.QueuePendingRemoval(ship);
+                }
+                SelectedShipList.ApplyPendingRemovals();
+            }
+
 
 
             shipListInfoUI.SetShipList(SelectedShipList, isFleet);
-            SelectedFleet = fleet;
+            SelectedFleet = isFleet ? fleet : null;
 
             if (SelectedShipList.Count == 1)
             {

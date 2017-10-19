@@ -98,6 +98,7 @@ namespace Ship_Game
         public bool canBuildCarriers;
         public bool canBuildBombers;
         public bool canBuildTroopShips;
+        public bool canBuildSupportShips;
         public float currentMilitaryStrength;
         public float freighterBudget;
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
@@ -593,6 +594,7 @@ namespace Ship_Game
             }
             foreach (var kv in TechnologyDict)
             {
+                AddToShipTechLists(kv.Value);
                 if (!kv.Value.Unlocked)
                     continue;
                 kv.Value.Unlocked = false;
@@ -616,6 +618,7 @@ namespace Ship_Game
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+            data.TechDelayTime = 4;
         }
 
         private void InitTechs()
@@ -669,9 +672,17 @@ namespace Ship_Game
 
                 if (techEntry.Unlocked)
                     techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
-                TechnologyDict.Add(kv.Key, techEntry);
+                TechnologyDict.Add(kv.Key, techEntry);                
             }
 
+        }
+
+        private void AddToShipTechLists(TechEntry tech)
+        {
+            foreach (var module in tech.GetUnlockableModules(this))
+            {
+                PopulateShipTechLists(module.ModuleUID, tech.UID, tech.Unlocked);
+            }
         }
 
         public Array<Ship> GetOurFactionShips()
@@ -765,13 +776,17 @@ namespace Ship_Game
         public void UnlockEmpireShipModule(string moduleUID, string techUID = "")
         {
             UnlockedModulesDict[moduleUID] = true;
-            ShipTechs.Add(techUID);
+            PopulateShipTechLists(moduleUID, techUID);
+        }
+
+        private void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
+        {
+            if (addToMainShipTechs)
+                ShipTechs.Add(techUID);
             if (!isFaction)
             {
-
                 switch (ResourceManager.GetModuleTemplate(moduleUID).ModuleType)
                 {
-
                     case ShipModuleType.Hangar:
                         TroopShipTech.AddUnique(techUID);
                         CarrierTech.AddUnique(techUID);
@@ -796,6 +811,7 @@ namespace Ship_Game
                 }
             }
         }
+
         public void UnlockEmpireHull(string hullName, string techUID = "")
         {
             UnlockedHullsDict[hullName] = true;
