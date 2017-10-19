@@ -820,22 +820,10 @@ namespace Ship_Game.AI {
             HasPriorityOrder = true;
             IgnoreCombat = true;
             OrderQueue.Clear();
-            var sortedList =
-                from planet in Owner.loyalty.GetPlanets()
-                orderby Vector2.Distance(Owner.Center, planet.Center)
-                select planet;
-            OrbitTarget = null;
-            foreach (Planet Planet in sortedList)
-            {
-                if (!Planet.HasShipyard)
-                    continue;
-                OrbitTarget = Planet;
-                break;
-            }
-            if (OrbitTarget == null)
-            {
-                State = AIState.AwaitingOrders;
-            }
+            OrbitTarget = Owner.loyalty.RallyPoints.FindMin(p => p.Center.SqDist(Owner.Center));
+            
+            if (OrbitTarget == null)            
+                State = AIState.AwaitingOrders;            
             else
             {
                 OrderMoveTowardsPosition(OrbitTarget.Center, 0f, Vector2.One, true, OrbitTarget);

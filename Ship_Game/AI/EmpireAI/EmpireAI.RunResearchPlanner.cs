@@ -33,16 +33,17 @@ namespace Ship_Game.AI {
                 .Where(war => !war.Key.isFaction && (war.Value.AtWar || war.Value.PreparingForWar))
                 .Sum(str => str.Key.currentMilitaryStrength / OwnerEmpire.currentMilitaryStrength);
             wars += ThreatMatrix.StrengthOfAllThreats(OwnerEmpire) / (OwnerEmpire.currentMilitaryStrength + 1);
-
-            researchDebt = OwnerEmpire.getResStrat().ResearchPriority;
+            
             
             if (postResearchTopic.NotEmpty())
             {
                 researchDebt = OwnerEmpire.GetTechEntry(postResearchTopic).TechCost;
-                researchDebt =  researchDebt / (OwnerEmpire.MaxResearchPotential +1 * 100);
+                researchDebt = researchDebt / OwnerEmpire.MaxResearchPotential -  wars;
             }
+            researchDebt += OwnerEmpire.getResStrat().ResearchPriority;
             float economics = (OwnerEmpire.data.TaxRate * 10); 
             float needsFood = 0;
+
             foreach (Planet hunger in OwnerEmpire.GetPlanets())
             {
                 if ((cybernetic ? hunger.ProductionHere : hunger.FoodHere) / hunger.MAX_STORAGE < .20f)                
@@ -53,8 +54,9 @@ namespace Ship_Game.AI {
                     if (hunger.Fertility == 0)
                         needsFood += 2;
                 }
+
             }
-            float shipBuildBonus = 0f;
+            float shipBuildBonus = 0f; 
             if (OwnerEmpire.data.TechDelayTime > 0)
                 OwnerEmpire.data.TechDelayTime--;
             if (OwnerEmpire.data.TechDelayTime > 0)
@@ -63,9 +65,17 @@ namespace Ship_Game.AI {
             }
             else
                 shipBuildBonus = 0;
-
             needsFood = needsFood > 0 ? needsFood / OwnerEmpire.GetPlanets().Count : 0;
             needsFood *= 10;
+
+            float total = wars + researchDebt + needsFood + economics;
+            total *= .1f;
+            wars = wars / total;
+            researchDebt = researchDebt / total;
+            needsFood = needsFood / total;
+            economics = economics / total;
+
+          
             DebugLog($"wars : {wars}");
             DebugLog($"researchDebt : {researchDebt}");
             DebugLog($"cybernetic : {cybernetic}");
@@ -82,7 +92,7 @@ namespace Ship_Game.AI {
                     }
                 case EmpireAI.ResearchStrategy.Scripted:
                     {
-                        if (ProcessScript(wars > 0, economics > 5, researchDebt > 4, OwnerEmpire.Money < OwnerEmpire.GrossTaxes)) return;
+                        if (ProcessScript(wars > 0, economics > 4, researchDebt > 2, OwnerEmpire.Money < OwnerEmpire.GrossTaxes)) return;
                         break;
                     }
                 default:
@@ -123,7 +133,7 @@ namespace Ship_Game.AI {
                 if (pWeighted.Key == "SHIPTECH")
                 {
                     sendToScript += "ShipWeapons:ShipDefense:ShipGeneral:ShipHull";
-                    max += 4;
+                    max += 2;
                 }
                 else
                 {
@@ -131,9 +141,7 @@ namespace Ship_Game.AI {
                     max++;
                 }
             }
-            ScriptedResearch(command, "RANDOM", "TECH" + sendToScript);
-            
-
+            ScriptedResearch(command, "RANDOM", "TECH" + sendToScript);            
             return;
         }
 
@@ -608,13 +616,12 @@ namespace Ship_Game.AI {
             //now look through are cheapest to research designs that get use closer to the goal ship using pretty much the same logic. 
             //RandomMath.AvgRandomBetween(200f, 500f)
             
-            float currentR = OwnerEmpire.Research;
-            float maxR = OwnerEmpire.MaxResearchPotential;
-            float ratioR = 1.1f- (maxR - currentR) / (maxR);
+            float currentR = OwnerEmpire.Research +.1f;
 
-            int timeToResearch = (int)(maxTechCost * 100 * (currentR +1));
-            timeToResearch = timeToResearch < 100 ? 100 : timeToResearch;
-            techcost = timeToResearch;
+            maxTechCost = RandomMath.AvgRandomBetween(currentR, maxTechCost);
+            //int timeToResearch = (int)maxTechCost;
+            //timeToResearch = timeToResearch < 100 ? 100 : timeToResearch;
+            //techcost = timeToResearch;
             bool shipchange = false;
             Array<Ship> racialShips = new Array<Ship>();
             foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values.OrderBy(tech => tech.shipData
@@ -639,7 +646,6 @@ namespace Ship_Game.AI {
                 if (shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType &&
                     !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
                     continue;
-
                 if (shortTermBest.shipData.techsNeeded.Count == 0)
                     continue;
                 if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name))
@@ -647,7 +653,7 @@ namespace Ship_Game.AI {
                 if (!shortTermBest.shipData.techsNeeded.Intersect(shipTechs).Any())
                     continue;
                 var hullTechs = shortTermBest.shipData.HullData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs);
-                if (hullTechs.Any() && shipchange)
+                if (hullTechs.Any() )
                     continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
                     continue;
@@ -666,56 +672,56 @@ namespace Ship_Game.AI {
             { 
                 //forget the cost of tech that provide these ships. These are defined in techentry class.
                 int mod = 0;
-                if (!OwnerEmpire.canBuildBombers && shortTermBest.DesignRole == ShipData.RoleName.bomber)
-                    mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.BomberTech);
 
-                if (!OwnerEmpire.canBuildCarriers && shortTermBest.DesignRole == ShipData.RoleName.carrier)
+                if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.CarrierShip)
+                    continue;
+
+                if (shortTermBest.DesignRole == ShipData.RoleName.bomber)
+                    mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.BomberTech) * (OwnerEmpire.canBuildBombers ? 10 : 2);
+
+                if (shortTermBest.DesignRole == ShipData.RoleName.carrier)
                     mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.CarrierTech);
 
-                if (!OwnerEmpire.canBuildTroopShips && shortTermBest.DesignRole == ShipData.RoleName.troopShip)
+                 if (!OwnerEmpire.canBuildTroopShips && shortTermBest.DesignRole == ShipData.RoleName.troopShip)
                     mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.TroopShipTech);
 
-                if (!OwnerEmpire.canBuildTroopShips && shortTermBest.DesignRole == ShipData.RoleName.support)
+                if (shortTermBest.DesignRole == ShipData.RoleName.support)
                     mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.SupportShipTech);
 
-
-                //if (!OwnerEmpire.canBuildFrigates &&
-                //    shortTermBest.shipData.HullRole == ShipData.RoleName.cruiser)
-                //    continue;
                 //try to line focus to main goal but if we cant, line focus as best as possible by what we already have. 
                 Array<string> currentTechs =
                     new Array<string>(shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs));
                 int currentTechCost = 0;
 
                 float sTechCost = 0;
-                int extraTechs = shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs).Count();
-                foreach (var sTech in currentTechs)
+                foreach (var sTech in shortTermBest.shipData.techsNeeded)
                 {
                     var tCost = OwnerEmpire.GetTechEntry(sTech);
                     if (tCost == null)
+                        continue;
+                    float multiplier = 1;
+                    if (tCost.TechnologyType != TechnologyType.ShipHull && OwnerEmpire.ShipTechs.Contains(sTech))
                         continue;
                     if (availableTechs.Contains(tCost))
                     {
                         if (wantedShipTechs.Add(tCost.UID))
                             numberOfShipTechs++;
-                        sTechCost += tCost.TechCost;
-                        continue;
                     }
-                    sTechCost += tCost.TechCost * extraTechs;
-
-
+                    if (tCost.TechnologyType == TechnologyType.ShipHull)
+                        multiplier = tCost.TechCost / (OwnerEmpire.MaxResearchPotential * 10f);
+                    
+                        
+                    sTechCost += tCost.TechCost * multiplier;
                 }
                 currentTechCost = (int)(sTechCost);
 
-                currentTechCost -= mod;                             
+                currentTechCost -= mod;
+                if (currentTechCost < 1)
+                    currentTechCost = 1;
 
                 float shortStr = shortTermBest.shipData.BaseStrength;
-                
-                if (techcost > 0) //     currentTechCost > techcost && currentTechCost > 0)
-                {
-                    float strMod = (techcost / currentTechCost);
-                    shortStr *= strMod;
-                }
+                float strMod   = (maxTechCost / currentTechCost);
+                shortStr *= strMod;
 
                 if (shortStr > str)
                 {
@@ -783,6 +789,7 @@ namespace Ship_Game.AI {
 
         private float randomizer(float priority, float bonus)
         {
+            return RandomMath.AvgRandomBetween(0, priority + bonus);
             float index=0;
             index += RandomMath.RandomBetween(0, (priority + bonus));
             index += RandomMath.RandomBetween(0, (priority + bonus));

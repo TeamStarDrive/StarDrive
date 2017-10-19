@@ -2863,6 +2863,16 @@ namespace Ship_Game.Gameplay
             if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
+        private float PercentageOfShipByModules(ShipModule[] moduleList)
+        {
+            float moduleSize = 0;
+            foreach (var module in moduleList)
+            {
+                moduleSize += module.XSIZE * module.YSIZE;
+            }
+            return moduleSize >0 ? moduleSize / Size : 0;
+        }
+
         private ShipData.RoleName GetDesignRole()
         {
              ShipData.RoleName str = shipData.HullRole;
@@ -2883,38 +2893,42 @@ namespace Ship_Game.Gameplay
             //carrier
             if (Hangars.Count >0 && str >= ShipData.RoleName.freighter)
             {
-                if(Hangars.Sum(fighters => fighters.MaximumHangarShipSize > 0 ? ModuleSize(fighters) : 0) > Size * .20f)
+                float pSize = PercentageOfShipByModules(Hangars.FilterBy(module => module.MaximumHangarShipSize > 0));
+
+                if (pSize >  .10f)
                     return ShipData.RoleName.carrier;
             }
-            //troops ship
-            if ((this.TroopCapacity >0 || TroopList.Count >1) && (HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
+
+            if (BombBays.Count >0 && str >= ShipData.RoleName.freighter)
             {
-                if (TroopCapacity ==0 || Hangars.FilterBy(troopbay => troopbay.IsTroopBay)
-                    .Sum(ModuleSize)
-                    + Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding >0)
-                    .Sum(ModuleSize) > Size * .10f)
-                return ShipData.RoleName.troopShip;
+                float pSize = PercentageOfShipByModules(BombBays.ToArray());
+                if (pSize > .10f)
+                    return ShipData.RoleName.bomber;
+            }
+            
+            //troops ship
+            if ((HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
+            {
+                float pTroops = PercentageOfShipByModules(Hangars.FilterBy(troopbay => troopbay.IsTroopBay));
+                float pTrans = PercentageOfShipByModules(Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
+                if (pTrans + pTroops > .2f)
+                    return ShipData.RoleName.troopShip;                
             }
 
             if (hasOrdnanceTransporter || hasRepairBeam || HasSupplyBays || hasOrdnanceTransporter || InhibitionRadius > 0)            
             {
                 int spaceUsed = 0;
-                foreach(ShipModule module in this.ModuleSlotList)
-                {
-                    if (module.TransporterOrdnance < 1 && !module.IsSupplyBay && module.InhibitionRadius < 1)
-                        continue;
-                    spaceUsed += module.XSIZE * module.YSIZE;
-                }
-                foreach (ShipModule module in RepairBeams)
-                    spaceUsed += module.XSIZE * module.YSIZE;
+                float pSpecial = PercentageOfShipByModules(ModuleSlotList.FilterBy(module =>
+                module.TransporterOrdnance > 0 || module.IsSupplyBay || module.InhibitionRadius > 0));
+                pSpecial += PercentageOfShipByModules(RepairBeams.ToArray());
+                
+                if (pSpecial > .2f)
+                    return ShipData.RoleName.support;                
+            }
 
-                if (spaceUsed > Size * .2f)
-                    return ShipData.RoleName.support;
-            }
-            if (BombBays.Count * 4 > Size * .20f && str >= ShipData.RoleName.freighter)
-            {
-                return ShipData.RoleName.bomber;
-            }
+            if (shipData.Role == ShipData.RoleName.troop || shipData.Role == ShipData.RoleName.troopShip)
+                return ShipData.RoleName.troopShip;
+         
             if (str == ShipData.RoleName.corvette
                || str == ShipData.RoleName.gunboat)
                 return ShipData.RoleName.corvette;
@@ -2973,31 +2987,14 @@ namespace Ship_Game.Gameplay
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
-            int bombcount   = 0;
-            int hangarcount = 0;
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                if (slot.ModuleType == ShipModuleType.Bomb)
-                {
-                    bombcount += slot.Area;
-                    if (bombcount > Size / 5)
-                        empire.canBuildBombers = true;
-                }
-                if (slot.MaximumHangarShipSize > 0)
-                {
-                    hangarcount += slot.Area;
-                    if (hangarcount > Size / 5)
-                        empire.canBuildCarriers = true;
-                }
-                if (slot.IsTroopBay || slot.TransporterRange > 0)
-                    empire.canBuildTroopShips = true;
-            }
-
-            ShipData.RoleName r      = shipData.HullRole;
-            empire.canBuildCorvettes = empire.canBuildCorvettes || r == ShipData.RoleName.gunboat || r == ShipData.RoleName.corvette;
-            empire.canBuildFrigates  = empire.canBuildFrigates  || r == ShipData.RoleName.frigate || r == ShipData.RoleName.destroyer;
-            empire.canBuildCruisers  = empire.canBuildCruisers  || r == ShipData.RoleName.cruiser;
-            empire.canBuildCapitals  = empire.canBuildCapitals  || r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier;
+            empire.canBuildBombers      = empire.canBuildBombers || DesignRole == ShipData.RoleName.bomber;
+            empire.canBuildCarriers     = empire.canBuildCarriers || DesignRole == ShipData.RoleName.carrier;
+            empire.canBuildSupportShips = empire.canBuildSupportShips || DesignRole == ShipData.RoleName.support;
+            empire.canBuildTroopShips   = empire.canBuildTroopShips || DesignRole == ShipData.RoleName.troopShip;
+            empire.canBuildCorvettes    = empire.canBuildCorvettes || DesignRole == ShipData.RoleName.corvette;
+            empire.canBuildFrigates     = empire.canBuildFrigates || DesignRole == ShipData.RoleName.frigate;
+            empire.canBuildCruisers     = empire.canBuildCruisers || DesignRole == ShipData.RoleName.cruiser;
+            empire.canBuildCapitals     = empire.canBuildCapitals || DesignRole == ShipData.RoleName.capital;
         }
 
         // @todo autocalculate during ship instance init

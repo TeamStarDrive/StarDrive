@@ -51,6 +51,16 @@ namespace Ship_Game
             }
         }
 
+        public bool ContainsShip(Ship ship)
+        {
+            using (Ships.AcquireReadLock())
+            {
+                if (Ships.Contains(ship))
+                    return true;
+            }
+            return false;
+        }
+
         public virtual void AddShip(Ship ship)
         {
             using (Ships.AcquireWriteLock())
