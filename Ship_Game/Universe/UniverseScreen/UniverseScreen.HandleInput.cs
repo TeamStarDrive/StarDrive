@@ -1365,7 +1365,7 @@ namespace Ship_Game
                         else
                             ship.AI.OrderRebase(planet, true);
                     }
-                    else if (planet.habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
+                    else if (planet.habitable &&  ship.loyalty.IsEmpireAttackable(planet.Owner))
                     {
                         //add new right click troop and troop ship options on planets
                         if (Input.IsShiftKeyDown)
@@ -1386,7 +1386,7 @@ namespace Ship_Game
                     float friendlies = planet.GetGroundStrength(player);
                     if (planet.Owner != player)
                     {
-                        if (planet.Owner == null || player.IsEmpireAttackable(planet.Owner))
+                        if (player.IsEmpireAttackable(planet.Owner))
                         {
                             if (Input.IsShiftKeyDown)
                                 ship.AI.OrderBombardPlanet(planet);

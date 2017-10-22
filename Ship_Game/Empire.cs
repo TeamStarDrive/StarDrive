@@ -2851,14 +2851,15 @@ namespace Ship_Game
             ship.AI.State = AIState.AwaitingOrders;
             ship.ClearFleet();
         }
-        public bool IsEmpireAttackable(Empire empire, GameplayObject target = null)
+        public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
-            if (empire == this) return false;
-            if (empire == null) return true;            
-            if (!TryGetRelations(empire, out Relationship rel) || rel == null || !rel.Known) return false;            
+            if (targetEmpire == this) return false;
+            if (targetEmpire == null) return true;            
+            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null) return false;            
+            if(!rel.Known) return false;
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
-            if (isFaction || empire.isFaction ) return true;
+            if (isFaction || targetEmpire.isFaction ) return true;
             if (target == null) return true;
             if (rel.TotalAnger > 50) return true;            
             return target.IsAttackable(this, rel);
