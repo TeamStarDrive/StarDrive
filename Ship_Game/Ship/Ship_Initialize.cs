@@ -21,11 +21,16 @@ namespace Ship_Game.Gameplay
 
         public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool addToShieldManager = true)
         {
+            var internalPosistions = new Array<Vector2>();
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
             {
-                string uid = templateSlots[i].InstalledModuleUID;
+                var slot = templateSlots[i];
+                if (slot.Restrictions == Restrictions.I)
+                    internalPosistions.Add(slot.Position);
+                string uid = slot.InstalledModuleUID;
                 if (uid == "Dummy" || uid == null) // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+
                     continue;
                 if (!ResourceManager.ShipModules.ContainsKey(uid))
                 {
@@ -34,7 +39,6 @@ namespace Ship_Game.Gameplay
                 }
                 ++count;
             }
-
             ModuleSlotList = new ShipModule[count];
 
             count = 0;
@@ -53,6 +57,7 @@ namespace Ship_Game.Gameplay
                     orientation =
                         (ShipDesignScreen.ActiveModuleState)Enum.Parse(typeof(ShipDesignScreen.ActiveModuleState), slotData.Orientation);
                 }
+
                 ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager, orientation);
                 if (fromSave)
                 {
@@ -60,7 +65,17 @@ namespace Ship_Game.Gameplay
                     module.Health      = slotData.Health;
                     module.ShieldPower = slotData.ShieldPower;
                 }
-                
+                for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x+=16)
+                {
+                    for (float y = module.XMLPosition.Y; y < module.XMLPosition.Y + module.YSIZE * 16; y += 16)
+                    {
+                        if (internalPosistions.Contains(new Vector2(x, y)))
+                        {
+                            module.Restrictions = Restrictions.I;
+                            break;
+                        }
+                    }
+                }
 
 
                 module.HangarShipGuid = slotData.HangarshipGuid;
@@ -407,6 +422,7 @@ namespace Ship_Game.Gameplay
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
+        
             foreach (ShipModule module in ModuleSlotList)
             {
                 if (module.UID == "Dummy") // ignore legacy dummy modules
@@ -456,7 +472,7 @@ namespace Ship_Game.Gameplay
                     hasRepairBeam = true;
                 }
 
-                InternalSlotCount += module.Restrictions == Restrictions.I ? 1 : 0;
+                InternalSlotCount += module.Restrictions == Restrictions.I ? module.XSIZE * module.YSIZE : 0;
                 HasRepairModule |= module.IsRepairModule;
 
                 float massModifier = 1f;

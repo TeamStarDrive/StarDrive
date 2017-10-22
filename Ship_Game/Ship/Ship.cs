@@ -2087,7 +2087,7 @@ namespace Ship_Game.Gameplay
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             if ((InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount) <.35f)            
-                Die(LastDamagedBy, false);
+                  Die(LastDamagedBy, false);
 
             Mass = Math.Max((Size / 2), Mass);
             Mass = Math.Max(Mass, 1);
@@ -2331,11 +2331,12 @@ namespace Ship_Game.Gameplay
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
 
+           
             foreach (ShipModule slot in ModuleSlotList)
             {
                 //Get total internal slots
                 if (slot.Restrictions == Restrictions.I && slot.Active)
-                    ++ActiveInternalSlotCount;
+                    ActiveInternalSlotCount += slot.XSIZE * slot.YSIZE;
                 Health += slot.Health;
                 //if (this.shipStatusChanged)
                 {
