@@ -287,12 +287,13 @@ namespace Ship_Game.AI
                             if (!hangar.Active || hangar.hangarTimer > 0f ||
                                 Owner.Ordinance <= 100f || !sortedList.Skip(skip).Any())
                                 continue;
-                            if (ResourceManager.GetShipTemplate(hangar.hangarShipUID).Mass / 5f >
+                            var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            if (supplyShuttle.Mass / 5f >
                                 Owner.Ordinance) //fbedard: New spawning cost
                                 continue;
                             Ship shuttle =
                                 Ship.CreateShipFromHangar(hangar.hangarShipUID, Owner.loyalty, Owner.Center, Owner);
-                            shuttle.VanityName = "Supply_Shuttle";
+                            shuttle.VanityName = supplyShuttle.Name;
                             //shuttle.shipData.Role = ShipData.RoleName.supply;
                             //shuttle.GetAI().DefaultAIState = AIState.Flee;
                             shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
