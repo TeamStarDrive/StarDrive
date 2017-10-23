@@ -213,13 +213,13 @@ namespace Ship_Game.Gameplay
         {
             float damageAmount = DamageAmount;
             if (owner?.loyalty?.data != null && OrdinanceRequiredToFire > 0)
-                damageAmount += damageAmount * Owner.loyalty.data.OrdnanceEffectivenessBonus;
+                damageAmount += damageAmount * owner.loyalty.data.OrdnanceEffectivenessBonus;
 
             if (owner?.Level > 0)
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses) // Hull bonus damage increase
-                if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
+                if (ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
                     damageAmount += damageAmount * mod.DamageBonus;
 
             return damageAmount;            
