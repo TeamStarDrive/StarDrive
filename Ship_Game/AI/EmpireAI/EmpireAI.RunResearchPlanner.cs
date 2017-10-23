@@ -504,8 +504,6 @@ namespace Ship_Game.AI {
                 hullScaler = 2;
             if (tech.unlockFrigates)
                 hullScaler = 1;
-            //if (tech.unlockCorvettes)
-            //    hullScaler = 1;
             return researchTech;
         }
 
@@ -721,7 +719,7 @@ namespace Ship_Game.AI {
                     }
                     if (tCost.TechnologyType == TechnologyType.ShipHull)
                     {
-                        if (hullScaler > 0)
+                        if (hullScaler > 0 && OwnerEmpire.canBuildFrigates)
                         {
                             multiplier = 100;
                             if (tCost.Tech.unlockCorvettes)
