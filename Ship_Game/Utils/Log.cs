@@ -16,7 +16,7 @@ namespace Ship_Game
         public static readonly bool HasDebugger = Debugger.IsAttached;
 
         // sentry.io automatic crash reporting
-        private static readonly RavenClient Raven = new RavenClient("https://3e16bcf9f97d4af3b3fb4f8d4ba1830b:1f0e6d3598e14584877e0c0e87554966@sentry.io/123180");
+        private static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
         private static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
 
         // prevent flooding Raven with 2000 error messages if we fall into an exception loop
