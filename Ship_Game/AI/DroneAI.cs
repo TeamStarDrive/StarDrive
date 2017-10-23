@@ -93,7 +93,7 @@ namespace Ship_Game.AI
 			}
             else
 			{
-			    if (DroneTarget.Health < DroneTarget.HealthMax
+			    if (Beams.Count ==0 && DroneTarget.Health < DroneTarget.HealthMax
 			        && DroneWeapon.CooldownTimer <= 0f
 			        && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) < 15000f)
 			    {
@@ -102,6 +102,7 @@ namespace Ship_Game.AI
 			    for (int i = 0; i < Beams.Count; ++i)
 			    {
 			        Beams[i].UpdateDroneBeam(Drone.Center, DroneTarget.Center, DroneWeapon.BeamThickness, elapsedTime);
+                    
 			    }
 			    OrbitShip(DroneTarget, elapsedTime);
             }
