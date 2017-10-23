@@ -230,7 +230,8 @@ namespace Ship_Game.AI
                                                                 && ship.Mothership == null
                                                                 && ship.OrdinanceMax > 0
                                                                 && ship.Ordinance / ship.OrdinanceMax < 0.5f
-                                                                && !ship.IsTethered())
+                                                                && !ship.IsTethered()
+                                                                && ship.shipData.Role != ShipData.RoleName.supply)
                         .OrderBy(ship => Math.Truncate(Vector2.Distance(Owner.Center, ship.Center) + 4999) / 5000)
                         .ThenByDescending(ship => ship.OrdinanceMax - ship.Ordinance);
 //                      .OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
@@ -284,10 +285,11 @@ namespace Ship_Game.AI
                                 }
                                 continue;
                             }
+                            var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
                             if (!hangar.Active || hangar.hangarTimer > 0f ||
                                 Owner.Ordinance <= 100f || !sortedList.Skip(skip).Any())
                                 continue;
-                            var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            
                             if (supplyShuttle.Mass / 5f >
                                 Owner.Ordinance) //fbedard: New spawning cost
                                 continue;

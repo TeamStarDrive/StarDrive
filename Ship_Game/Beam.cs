@@ -300,7 +300,6 @@ namespace Ship_Game
             Thickness = thickness;
             Source    = srcCenter;
             ActualHitDestination = dstCenter;
-            //SetDestination(dstCenter);
 
             // apply drone repair effect
             if (DamageAmount < 0f && Source.Distance(Destination) <= (Range + 10f) && Target is Ship targetShip)
