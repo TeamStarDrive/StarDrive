@@ -9,4 +9,4 @@ pipelines:
   default:
     - step:
         script:
-          - echo "Everything is awesome!"
+          - ./notify-sentry-of-release.bash
