@@ -285,7 +285,7 @@ namespace Ship_Game.AI
                                 continue;
                             }
                             if (!hangar.Active || hangar.hangarTimer > 0f ||
-                                Owner.Ordinance >= 100f && sortedList.Skip(skip).Any())
+                                Owner.Ordinance <= 100f || !sortedList.Skip(skip).Any())
                                 continue;
                             if (ResourceManager.GetShipTemplate(hangar.hangarShipUID).Mass / 5f >
                                 Owner.Ordinance) //fbedard: New spawning cost
