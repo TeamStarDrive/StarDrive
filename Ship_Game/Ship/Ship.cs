@@ -264,13 +264,15 @@ namespace Ship_Game.Gameplay
             if (relationToThis.Treaty_NAPact) return false;
             if (AI.Target?.GetLoyalty() == attacker)
             {
-                if (!InCombat) Log.Info($"{attacker.Name} : Is being attacked by : {loyalty.Name}");
+                //if (!InCombat) Log.Info($"{attacker.Name} : Is being attacked by : {loyalty.Name}");
                 return true;
             }
 
+            if (attacker.isPlayer) return true;
+
             if (relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
-                if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
+                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
             if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
@@ -279,7 +281,7 @@ namespace Ship_Game.Gameplay
             if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
                 && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this))
             {
-                if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
+                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
                 return true;
             }
 
@@ -3075,11 +3077,10 @@ namespace Ship_Game.Gameplay
         {
             foreach (ShipModule module in ModuleSlotList)
             {
+                if (module.Health >= module.HealthMax) continue;
                 module.Health += repairAmount;
 
-                if (module.Health < 0f)
-                    module.Health = 0f;
-                else if (module.Health >= module.HealthMax)
+                if (module.Health >= module.HealthMax)
                     module.Health = module.HealthMax;
             }
         }
