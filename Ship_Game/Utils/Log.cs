@@ -26,7 +26,7 @@ namespace Ship_Game
         private static bool IsTerminating;
 
         static Log()
-        {
+        {            
             string init = "\r\n\r\n";
             init +=  " ================================================================== \r\n";
             init += $" ========== {GlobalStats.ExtendedVersion,-44} ==========\r\n";
@@ -72,7 +72,10 @@ namespace Ship_Game
         [Conditional("DEBUG")] public static void Info(string text)
         {
             if (GlobalStats.VerboseLogging)
+            {
                 LogFile.WriteLine(text);
+                LogFile.Flush();
+            }
             if (!HasDebugger) return;
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(text);
@@ -106,9 +109,11 @@ namespace Ship_Game
         {
             string text = "Warning: " + warning;
             LogFile.WriteLine(text);
-
+            LogFile.Flush();            
             if (!HasDebugger)
+            {                
                 return;
+            }
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
         }
@@ -149,7 +154,7 @@ namespace Ship_Game
 
             string text = "(!) Error: " + error;
             LogFile.WriteLine(text);
-
+            LogFile.Flush();
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Error);
@@ -176,7 +181,7 @@ namespace Ship_Game
 
             string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
             LogFile.WriteLine(withStack);
-            
+            LogFile.Flush();
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
@@ -198,7 +203,7 @@ namespace Ship_Game
             string text = CurryExceptionMessage(ex, error);
             string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
             LogFile.WriteLine(withStack);
-            
+            LogFile.Flush();
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
