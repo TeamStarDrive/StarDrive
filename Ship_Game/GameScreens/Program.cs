@@ -43,6 +43,8 @@ namespace Ship_Game
             }
             catch (Exception ex)
             {
+
+                Log.VerboseWarning($"FailSafe log {ex.InnerException}");
                 Log.ErrorDialog(ex, "Fatal main loop failure");
             }
             finally
