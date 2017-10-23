@@ -52,16 +52,22 @@ namespace Ship_Game
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
-            Jitter                  = Weapon.AdjustTargetting();
-            var targetVector = Target?.Center ?? destination;
-            JitterRadius            = (targetVector + Jitter).Distance(targetVector) / 4f;            
+            Jitter                  = Vector2.Zero;
+            var targetVector        = Target?.Center ?? destination;
+            JitterRadius            = 0;
 
             Owner                   = weapon.Owner ;
             Source                  = source;
-            SetDestination(destination, 1000f);
-            Destination += Jitter;
+            if (DamageAmount > 0)
+            {
+                Jitter = Weapon.AdjustTargetting(); 
+                JitterRadius = (targetVector + Jitter).Distance(targetVector) / 4f;
+                SetDestination(destination, 1000f);
+                Destination += Jitter;
+            }
             SetDestination(Destination);
-            WanderPath = Vector2.Normalize(targetVector - TargetPosistion) * 16f;
+            if (DamageAmount > 0)
+                WanderPath = Vector2.Normalize(targetVector - TargetPosistion) * 16f;
             ActualHitDestination    = Destination;                        
             Initialize();
             weapon.ModifyProjectile(this);
@@ -293,7 +299,8 @@ namespace Ship_Game
             Duration -= elapsedTime;
             Thickness = thickness;
             Source    = srcCenter;
-            SetDestination(dstCenter);
+            ActualHitDestination = dstCenter;
+            //SetDestination(dstCenter);
 
             // apply drone repair effect
             if (DamageAmount < 0f && Source.Distance(Destination) <= (Range + 10f) && Target is Ship targetShip)
