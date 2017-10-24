@@ -9,6 +9,6 @@ pipelines:
   default:
     - step:
         script:
-          - cd build
+          - cd deploy
           - chmod 777 notify-sentry-of-release.bash
           - ./notify-sentry-of-release.bash
