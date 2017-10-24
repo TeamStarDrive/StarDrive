@@ -128,7 +128,11 @@ namespace Ship_Game
             // ship collision, target modules instead
             var proj = (Projectile)Obj;
             var ship = (Ship)target.Obj;
-
+            if (ship == null)
+            {
+                Log.Info("HitTestProj had a null ship.");
+                return false;
+            }
             // give a lot of leeway here; if we fall short, collisions wont work right
             float maxDistPerFrame = proj.Velocity.Length() / 30.0f; // this actually depends on the framerate...
             if (maxDistPerFrame > 15.0f) // ray collision
