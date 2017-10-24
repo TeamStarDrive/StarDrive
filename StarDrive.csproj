@@ -1919,7 +1919,7 @@
     <None Include="Deploy\TortoiseHg\templates\spartan\shortlog.tmpl" />
     <None Include="Deploy\TortoiseHg\templates\spartan\shortlogentry.tmpl" />
     <None Include="Deploy\TortoiseHg\templates\spartan\tags.tmpl" />
-    <None Include="notify-sentry-of-release.bash" />
+    <None Include="Deploy\notify-sentry-of-release.bash" />
     <None Include="packages.config" />
     <None Include="README.md" />
     <None Include="StarDrive.sln.DotSettings" />
