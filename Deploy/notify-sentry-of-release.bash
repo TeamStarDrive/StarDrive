@@ -23,6 +23,12 @@ curl https://app.getsentry.com/api/0/projects/${SENTRY_ORGANIZATION}/${SENTRY_PR
 -H "Authorization: Bearer ${SENTRY_API_KEY}" \
 -X POST \
 -H "Content-Type:application/json" \
--d "{\"version\":\"${BITBUCKET_COMMIT}\",\"ref\":\"${BITBUCKET_BRANCH}\",\"projects\": [\"${SENTRY_PROJECT}\"]}"
-
-
+-d '
+  {
+    "version": "${BITBUCKET_COMMIT}",
+    "refs": [{
+        "repository":"sd-blackbox",
+        "commit":"${BITBUCKET_COMMIT}"
+    }],
+    "projects\": [\"${SENTRY_PROJECT}\"]}"
+'
