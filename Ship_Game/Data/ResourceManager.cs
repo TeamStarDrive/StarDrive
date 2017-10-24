@@ -1530,7 +1530,8 @@ namespace Ship_Game
         
         private static void LoadWeapons() // Refactored by RedFox
         {
-            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", uniqueFileNames: true))
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
+            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly, uniqueFileNames: true))
             {
                 Weapon wep = pair.Entity;
                 wep.UID = string.Intern(pair.Info.NameNoExt());
