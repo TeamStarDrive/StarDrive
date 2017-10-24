@@ -820,7 +820,7 @@ namespace Ship_Game.AI {
             HasPriorityOrder = true;
             IgnoreCombat = true;
             OrderQueue.Clear();
-            OrbitTarget = Owner.loyalty.RallyPoints.FindMin(p => p.Center.SqDist(Owner.Center));
+            OrbitTarget = Owner.loyalty.RallyPoints.FindMin(p => (p?.Center.SqDist(Owner.Center) ?? float.MaxValue));
             
             if (OrbitTarget == null)            
                 State = AIState.AwaitingOrders;            

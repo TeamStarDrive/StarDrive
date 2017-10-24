@@ -226,7 +226,7 @@ namespace Ship_Game
             var ser = new XmlSerializer(typeof(ModInformation));
             foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
             {
-                if (info.Name.Contains(".txt"))
+                if (!info.Name.EndsWith(".xml"))
                     continue;
                 try
                 {
@@ -236,7 +236,7 @@ namespace Ship_Game
                 {
                     Log.Warning("Load error in file {0}", info.Name);
                     ex.Data.Add("Load Error in file", info.Name);
-                    throw;
+                    
                 }
             }
             EnternamePos  = TitlePosition;
