@@ -1224,7 +1224,7 @@ namespace Ship_Game
                         SelectedShipList.QueuePendingRemoval(ship);
                         continue;
                     }
-                    isFleet = isFleet || fleet.ContainsShip(ship);                    
+                    isFleet = isFleet || (fleet?.ContainsShip(ship) ?? false);
                 }
                 SelectedShipList.ApplyPendingRemovals();
             }
