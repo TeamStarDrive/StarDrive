@@ -41,7 +41,7 @@ namespace Ship_Game
             // i am setting these values in the weapon CreateDroneBeam where possible.             
             Weapon                  = weapon;
             Target                  = target;
-            TargetPosistion         = target.Center;
+            TargetPosistion         = target?.Center ?? destination;
             Module                  = weapon.Module;
             DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost               = weapon.BeamPowerCostPerSecond;
@@ -108,7 +108,7 @@ namespace Ship_Game
         {
             range = range < 0 ? Range : range;
             Vector2 deltaVec = destination - Source;
-            TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
+            TargetPosistion = (Target?.Center ?? destination).NearestPointOnFiniteLine(Source, destination);
             Destination = Source + deltaVec.Normalized() * range;
         }
 

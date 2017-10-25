@@ -179,7 +179,7 @@ namespace Ship_Game
             if (!HasDebugger && ShouldIgnoreErrorText(text))
                 return;
 
-            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
+            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace ?? "");
             LogFile.WriteLine(withStack);
             LogFile.Flush();
             if (!HasDebugger) // only log errors to sentry if debugger not attached
@@ -295,6 +295,18 @@ namespace Ship_Game
                 else sb.AppendLine(line);
             }
             return sb.ToString();
+        }
+
+        public static void OpenURL(string URL)
+        {
+            if (SteamManager.isInitialized)
+            {
+                SteamManager.ActivateOverlayWebPage(URL);
+            }
+            else
+            {
+                Process.Start(URL);
+            }
         }
 
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();

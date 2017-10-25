@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-    public sealed class MessageBoxScreen : GameScreen
+    public  class MessageBoxScreen : GameScreen
     {
         private const string UsageText = "A button = Okay";
         private readonly bool PauseMenu;

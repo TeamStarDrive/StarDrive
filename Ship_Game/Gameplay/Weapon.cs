@@ -363,6 +363,9 @@ namespace Ship_Game.Gameplay
             Vector2 pip = targetPos;
             if (target != null && (!ProjectedImpactPoint(target, out pip) || !CheckFireArc(pip) || !PrepareToFire()))
                 return; // no projected impact point
+            else
+                if (target == null && (!CheckFireArc(pip) || !PrepareToFire()))
+                return;
 
             Vector2 direction = (pip - Module.Center).Normalized();
 
@@ -587,6 +590,8 @@ namespace Ship_Game.Gameplay
 
         public void MouseFireAtTarget(Vector2 targetPos)
         {
+            if (!CanFireWeapon())
+                return;
             if (isBeam) FireBeam(Module.Center, targetPos);
             else        FireAtTarget(targetPos, null);
         }
@@ -612,22 +617,21 @@ namespace Ship_Game.Gameplay
 
         public void FireAtAssignedTarget()
         {
+            if (!CanFireWeapon())
+                return;
             if (FireTarget is Ship targetShip)
             {
                 FireAtAssignedTargetNonVisible(targetShip);
                 return;
             }
-
-            if (CooldownTimer > 0f || !CanFireWeapon())
-                return;
-
             if (isBeam) FireBeam(Module.Center, FireTarget.Center, FireTarget);
             else        FireAtTarget(FireTarget.Center, FireTarget);
         }
 
         private void FireAtAssignedTargetNonVisible(Ship targetShip)
         {
-            if (Owner.Ordinance < OrdinanceRequiredToFire || Owner.PowerCurrent < PowerRequiredToFire)
+           
+            if (!CanFireWeapon())
                 return;
             CooldownTimer = fireDelay;
             if (IsRepairDrone)
