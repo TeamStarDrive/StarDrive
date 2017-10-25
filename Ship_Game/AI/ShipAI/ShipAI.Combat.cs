@@ -108,9 +108,8 @@ namespace Ship_Game.AI
                 Weapon weapon = Owner.Weapons[i];
 
                 // note: these are all optimizations
-                if (weapon.FireTarget == null || !weapon.Module.Active || weapon.CooldownTimer > 0f || !weapon.Module.Powered)
+                if (weapon.FireTarget == null || !weapon.Module.Active || weapon.CooldownTimer > 0f || !weapon.Module.Powered )
                     continue;
-
                 weapon.FireAtAssignedTarget();
             }
         }

@@ -358,9 +358,18 @@ namespace Ship_Game
                 UseRealLights = !UseRealLights; // toggle real lights
                 SetLighting(UseRealLights);
             }
-            if (input.ShowExceptionTracker && !ExceptionTracker.Visible) ReportManual("Manual Report", false);
+            if (input.ShowExceptionTracker)
+            {
+                Paused = true;
+                Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new");
+            }
 
-            if (input.SendKudos && !ExceptionTracker.Visible) ReportManual("Kudos", true);
+            if (input.SendKudos)
+            {
+                Paused = true;
+                Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");                
+            }
+            
 
             if (input.DebugMode)
             {
