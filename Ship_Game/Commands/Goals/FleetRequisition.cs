@@ -20,7 +20,14 @@ namespace Ship_Game.Commands
             //SetFleet(ai.Owner.fleet);
             //SetPlanetWhereBuilding(ai.OrbitTarget);            
         }
-
+        public FleetRequisition(string shipName, Empire owner)
+        {            
+            empire = owner;
+            ToBuildUID = shipName;            
+            beingBuilt = ResourceManager.GetShipTemplate(shipName);
+            GoalName = "FleetRequisition";
+            Evaluate();
+        }
         public override void Evaluate()
         {
             if (Held)
@@ -49,6 +56,7 @@ namespace Ship_Game.Commands
                     }
                     int num1 = 9999999;
                     int x = 0;
+                    //empire.RallyPoints.OrderBy(p => p.ConstructionQueue.Count);
                     foreach (Planet planet2 in list.OrderBy(planet =>
                     {
                         float weight = -6;                      // so shipyard modifier works properly
@@ -106,36 +114,39 @@ namespace Ship_Game.Commands
                     PlanetBuildingAt = planet1;
                     planet1.ConstructionQueue.Add(new QueueItem()
                     {
-                        isShip = true,
-                        QueueNumber = planet1.ConstructionQueue.Count,
-                        sData = beingBuilt.GetShipData(),
-                        Goal = this,
-                        Cost = beingBuilt.GetCost(empire),
+                        isShip        = true,
+                        QueueNumber   = planet1.ConstructionQueue.Count,
+                        sData         = beingBuilt.GetShipData(),
+                        Goal          = this,
+                        Cost          = beingBuilt.GetCost(empire),
                         NotifyOnEmpty = false
                     });
                     ++Step;
                     break;
                 case 2:
-                    if (fleet != null)
+                    if (fleet == null)
                     {
+                        empire.GetGSAI().Goals.QueuePendingRemoval(this);
+                        break;
+                    }
+
+                    using (fleet.DataNodes.AcquireWriteLock())
                         foreach (FleetDataNode current in fleet.DataNodes)
                         {
                             if (current.GoalGUID != guid) continue;
                             if (fleet.Ships.Count == 0)
-                                fleet.Position += new Vector2(RandomMath.RandomBetween(-3000f, 3000f), RandomMath.RandomBetween(-3000f, 3000f));
+                                fleet.Position = beingBuilt.Position +
+                                                 new Vector2(RandomMath.RandomBetween(-3000f, 3000f)
+                                                     , RandomMath.RandomBetween(-3000f, 3000f));
 
-                            var ship = beingBuilt.Clone();
-                            current.Ship = ship;
+                            var ship                 = beingBuilt;
+                            current.Ship             = ship;
+                            ship.RelativeFleetOffset = current.FleetOffset;                            
+                            current.GoalGUID         = Guid.Empty;
                             fleet.AddShip(ship);
-                            current.GoalGUID = Guid.Empty;
-
-                            ship.fleet = fleet;
-                            ship.RelativeFleetOffset = current.FleetOffset;
-                            ship.AI.OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.Facing, new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
+                            ship.AI.OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.Facing
+                                , new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
                         }
-                        break;
-                    }
-                    empire.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
             }
         }
