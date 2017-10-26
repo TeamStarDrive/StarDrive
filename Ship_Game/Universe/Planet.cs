@@ -5462,7 +5462,8 @@ output = maxp * take10 = 5
                             queueItem.Goal.ReportShipComplete(shipAt);
                         }
                     }
-                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform) && Owner != Empire.Universe.PlayerEmpire)
+                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform) 
+                        && Owner != Empire.Universe.PlayerEmpire)
                         Owner.ForcePoolAdd(shipAt);
                 }
                 else if (queueItem.isTroop &&  queueItem.productionTowards >= queueItem.Cost)
