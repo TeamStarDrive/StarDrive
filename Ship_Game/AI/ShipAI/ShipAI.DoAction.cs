@@ -814,7 +814,7 @@ namespace Ship_Game.AI {
             qi.sData.Level = (byte) Owner.Level;
             if (Owner.fleet != null)
             {
-                Goal refitgoal = new FleetRequisition(goal, this);
+                var refitgoal = new FleetRequisition(goal, this);
                 FleetNode.GoalGUID = refitgoal.guid;
                 Owner.loyalty.GetGSAI().Goals.Add(refitgoal);
                 qi.Goal = refitgoal;
