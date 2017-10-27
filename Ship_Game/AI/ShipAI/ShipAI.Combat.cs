@@ -463,13 +463,14 @@ namespace Ship_Game.AI
                     return;
             }
             if (Owner.fleet != null)
-                foreach (FleetDataNode datanode in Owner.fleet.DataNodes)
-                {
-                    if (datanode.Ship != Owner)
-                        continue;
-                    FleetNode = datanode;
-                    break;
-                }
+                using (Owner.fleet.DataNodes.AcquireReadLock())
+                    foreach (FleetDataNode datanode in Owner.fleet.DataNodes)
+                    {
+                        if (datanode?.Ship != Owner)
+                            continue;
+                        FleetNode = datanode;
+                        break;
+                    }
             if (Target != null && !Owner.InCombat)
             {
                 Owner.InCombatTimer = 15f;
