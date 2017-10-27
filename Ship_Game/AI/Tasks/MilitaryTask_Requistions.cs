@@ -605,7 +605,8 @@ namespace Ship_Game.AI.Tasks {
 
         private bool RequisitionClaimForce()
         {
-            AO closestAO = FindClosestAO();
+            AO closestAO = null;
+            if ((closestAO = FindClosestAO()) == null) return false; 
             float tfstrength = 0f;
             Array<Ship> elTaskForce = new Array<Ship>();
             int shipCount = 0;
@@ -659,6 +660,7 @@ namespace Ship_Game.AI.Tasks {
         private AO FindClosestAO()
         {
             var aos = Owner.GetGSAI().AreasOfOperations;
+            if (aos.Count == 0) return null;
             if (aos == null)
             {
                 Log.Error("{0} has no areas of operation", Owner.Name);
@@ -669,7 +671,7 @@ namespace Ship_Game.AI.Tasks {
                     ao => -ao.Center.SqDist(AO)) ??
                 aos.FindMin(ao => ao.Center.SqDist(AO));
             if (closestAO == null)
-            {
+            {               
                 Log.Error("{0} : no areas of operation found", Owner.Name);
                 return null;
             }
