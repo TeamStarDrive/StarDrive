@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
+using Microsoft.Xna.Framework.Media;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -41,6 +42,12 @@ namespace Ship_Game
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
+
+        //video player
+        protected AudioHandle MusicPlaying;
+        protected Video VideoFile;
+        protected VideoPlayer VideoPlaying;
+        protected Texture2D VideoTexture;
 
         protected GameScreen(GameScreen parent) 
             : this(parent, new Rectangle(0, 0, Game1.Instance.ScreenWidth, Game1.Instance.ScreenHeight))
@@ -287,6 +294,33 @@ namespace Ship_Game
             }
         }
 
+        public void PlayVideo (string videoPath, GameContentManager contentManagment = null)
+        {
+            contentManagment = contentManagment ?? TransientContent;
+            if (!string.IsNullOrEmpty(videoPath))
+            {
+                VideoFile = ResourceManager.LoadVideo(contentManagment, videoPath);
+                VideoPlaying = new VideoPlayer()
+                {
+                    Volume = GlobalStats.MusicVolume,
+                    IsLooped = true
+                };
+                VideoPlaying.Play(VideoFile);
+            }
+        }
+
+        public void PlayEmpireMusic(Empire empire, bool warMusic)
+        {
+            if (!empire.data.ModRace)
+            {
+                if (empire.data.MusicCue != null)
+                    if (warMusic)
+                        MusicPlaying = GameAudio.PlayMusic("Stardrive_Combat 1c_114BPM");
+                    else
+                        MusicPlaying = GameAudio.PlayMusic(empire.data.MusicCue);
+            }
+        }
+
         ~GameScreen() { Destroy(); }
 
         public void Dispose()
@@ -297,6 +331,25 @@ namespace Ship_Game
 
         protected virtual void Destroy()
         {
+            if (MusicPlaying.IsPlaying)
+            {
+                MusicPlaying.Stop();
+                GameAudio.SwitchBackToGenericMusic();
+            }            
+            
+            if (VideoFile != null)
+            {
+                VideoPlaying.Stop();
+            }
+            if (VideoPlaying != null)
+            {
+                VideoFile = null;
+                while (!VideoPlaying.IsDisposed)
+                {
+                    VideoPlaying.Dispose();
+                }
+            }
+            VideoPlaying = null;
             TransientContent?.Dispose(ref TransientContent);
         }
     }

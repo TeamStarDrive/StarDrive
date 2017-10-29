@@ -28,14 +28,6 @@ namespace Ship_Game
 
         private Planet pToDiscuss;
 
-        private AudioHandle music;
-
-        private Video video;
-
-        private VideoPlayer player;
-
-        private Texture2D videoTexture;
-
         private DiplomacyScreen.DialogState dState;
 
         private Menu2 Player;
@@ -456,13 +448,13 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.Begin();
             if (!string.IsNullOrEmpty(them.data.Traits.VideoPath))
             {
-                if (player.State != MediaState.Stopped)
+                if (VideoPlaying.State != MediaState.Stopped)
                 {
-                    videoTexture = player.GetTexture();
+                    VideoTexture = VideoPlaying.GetTexture();
                 }
-                if (videoTexture != null)
+                if (VideoTexture != null)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(videoTexture, Portrait, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(VideoTexture, Portrait, Color.White);
                 }
             }
             else
@@ -694,24 +686,24 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            if (!them.data.ModRace)
-            {
-                music.Stop();
-            }
-            GameAudio.SwitchBackToGenericMusic();
-            if (video != null)
-            {
-                player.Stop();
-            }
-            if (player != null)
-            {
-                video = null;
-                while (!player.IsDisposed)
-                {
-                    player.Dispose();
-                }
-            }
-            player = null;
+            //if (!them.data.ModRace)
+            //{
+            //    MusicPlaying.Stop();
+            //}
+            //GameAudio.SwitchBackToGenericMusic();
+            //if (VideoFile != null)
+            //{
+            //    VideoPlaying.Stop();
+            //}
+            //if (VideoPlaying != null)
+            //{
+            //    VideoFile = null;
+            //    while (!VideoPlaying.IsDisposed)
+            //    {
+            //        VideoPlaying.Dispose();
+            //    }
+            //}
+            //VideoPlaying = null;
             Dispose();
             base.ScreenManager.RemoveScreen(this);
         }
@@ -1470,31 +1462,12 @@ namespace Ship_Game
             OurItemsSL = new ScrollList(ussub, Fonts.Consolas18.LineSpacing + 5, true);
             var sub = new Submenu(blerdybloo);
             StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
-            if (!string.IsNullOrEmpty(them.data.Traits.VideoPath))
-            {
-                video = ResourceManager.LoadVideo(TransientContent, them.data.Traits.VideoPath);
-                player = new VideoPlayer()
-                {
-                    Volume = GlobalStats.MusicVolume,
-                    IsLooped = true
-                };
-                player.Play(video);
-            }
-            GameAudio.PauseGenericMusic();
-            if (!them.data.ModRace)
-            {
-                if (them.data.MusicCue != null)
-                {
-                    if (WarDeclared)
-                    {
-                        music = GameAudio.PlayMusic("Stardrive_Combat 1c_114BPM");
-                    }
-                    else
-                    {
-                        music = GameAudio.PlayMusic(them.data.MusicCue);
-                    }
-                }
-            }
+
+            PlayVideo(them.data.Traits.VideoPath);
+            GameAudio.PauseGenericMusic();            
+            PlayEmpireMusic(them,WarDeclared);                
+            
+            
             TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
         }
 
@@ -2072,34 +2045,34 @@ namespace Ship_Game
         {
             if (IsActive)
             {
-                if (player.State == MediaState.Paused)
+                if (VideoPlaying.State == MediaState.Paused)
                 {
-                    player.Resume();
+                    VideoPlaying.Resume();
                 }
                 if (!them.data.ModRace)
                 {
-                    if (music.IsPaused)
+                    if (MusicPlaying.IsPaused)
                     {
-                        music.Resume();
+                        MusicPlaying.Resume();
                     }
-                    else if (music.IsStopped)
+                    else if (MusicPlaying.IsStopped)
                     {
                         if (them.data.MusicCue.NotEmpty())
                         {
-                            music = GameAudio.PlayMusic(WarDeclared ? "Stardrive_Combat 1c_114BPM" : them.data.MusicCue);
+                            MusicPlaying = GameAudio.PlayMusic(WarDeclared ? "Stardrive_Combat 1c_114BPM" : them.data.MusicCue);
                         }
                     }
                 }
             }
             else
             {
-                if (player.State == MediaState.Playing)
+                if (VideoPlaying.State == MediaState.Playing)
                 {
-                    player.Pause();
+                    VideoPlaying.Pause();
                 }
-                if (!them.data.ModRace && music.IsPlaying)
+                if (!them.data.ModRace && MusicPlaying.IsPlaying)
                 {
-                    music.Pause();
+                    MusicPlaying.Pause();
                 }
             }
 
