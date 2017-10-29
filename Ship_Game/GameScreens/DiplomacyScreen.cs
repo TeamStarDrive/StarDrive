@@ -454,7 +454,13 @@ namespace Ship_Game
                 }
                 if (VideoTexture != null)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(VideoTexture, Portrait, Color.White);
+                    Color color = Color.White;
+                    if (WarDeclared || playerEmpire.GetRelations(them).AtWar)
+                    {
+                        color.B = 100;
+                        color.G = 100;
+                    }
+                    base.ScreenManager.SpriteBatch.Draw(VideoTexture, Portrait,null, color);
                 }
             }
             else
