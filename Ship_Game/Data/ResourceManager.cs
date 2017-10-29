@@ -1661,7 +1661,11 @@ namespace Ship_Game
 
         public static Video LoadVideo(GameContentManager content, string videoPath)
         {
-            return content.Load<Video>("Video/" + videoPath);
+            var video = content.Load<Video>("Video/" + videoPath);
+            if (video != null) return video;
+            Log.Error($"Video path {videoPath} found no file");//Loading 2
+            return video = content.Load<Video>("Video/Loading 2");
+
         }
     }
 }
