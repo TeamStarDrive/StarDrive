@@ -72,7 +72,7 @@ namespace Ship_Game.AI {
             float atWarBonus = 0.05f;
             if (OwnerEmpire.Money > 500f)
                 atWarBonus        += (offenseNeeded * (0.03f + OwnerEmpire.getResStrat().MilitaryPriority * .03f));
-            float capacity         = OwnerEmpire.Grossincome() * (.25f + atWarBonus) - underConstruction;
+            float capacity         = OwnerEmpire.Grossincome() * (.05f + atWarBonus) - underConstruction;
             float allowableDeficit = -(OwnerEmpire.Money * .05f) * atWarBonus;
 
             if (capacity > BuildCapacity)
