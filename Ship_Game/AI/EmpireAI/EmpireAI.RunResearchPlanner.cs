@@ -633,49 +633,12 @@ namespace Ship_Game.AI {
             //techcost = timeToResearch;
             bool shipchange = false;
             Array<Ship> racialShips = new Array<Ship>();
-            foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values.OrderBy(tech => tech.shipData
-                .TechScore))
-            {
-                try
-                {
-                    if (shortTermBest.shipData.HullRole < ShipData.RoleName.fighter ||
-                        shortTermBest.shipData.Role == ShipData.RoleName.prototype)
-                        continue;
-                }
-                catch
-                {
-                    Log.Warning($"Ship {shortTermBest.Name} has not shipData");
-                    continue;
-                }
-                racialShips.Add(shortTermBest);
-            }
+            GetRacialShips(racialShips);
             Array<Ship> researchableShips = new Array<Ship>();
-            foreach (Ship shortTermBest in racialShips)
+            for (int x =0; x<5; x++)
             {
-                if (shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType &&
-                    !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
-                    continue;
-                if (shortTermBest.shipData.techsNeeded.Count == 0)
-                    continue;
-                if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name))
-                    continue;
-                if (!shortTermBest.shipData.techsNeeded.Intersect(shipTechs).Any())
-                    continue;
-                var hullTechs = shortTermBest.shipData.HullData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs);
-                if (hullTechs.Any() )
-                    continue;
-                if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
-                    continue;
-
-                if (shortTermBest.shipData.techsNeeded.Count == 0)
-                {
-                    if (Empire.Universe.Debug)
-                    {
-                        Log.Info(OwnerEmpire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
-                    }
-                    continue;
-                }
-                researchableShips.Add(shortTermBest);
+                GetResearchableShips(racialShips, shipTechs, researchableShips, x);
+                if (researchableShips.Count > 0) break;
             }
             foreach(Ship shortTermBest in researchableShips)
             { 
@@ -775,6 +738,57 @@ namespace Ship_Game.AI {
 
             DebugLog($"ShipTechs Found : {numberOfShipTechs}");
             return nonShipTechs;
+        }
+
+        private static void GetRacialShips(Array<Ship> racialShips)
+        {
+            foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values.OrderBy(tech => tech.shipData
+                .TechScore))
+            {
+                try
+                {
+                    if (shortTermBest.shipData.HullRole < ShipData.RoleName.fighter ||
+                        shortTermBest.shipData.Role == ShipData.RoleName.prototype)
+                        continue;
+                }
+                catch
+                {
+                    Log.Warning($"Ship {shortTermBest.Name} has not shipData");
+                    continue;
+                }
+                racialShips.Add(shortTermBest);
+            }
+        }
+
+        private void GetResearchableShips(Array<Ship> racialShips, HashSet<string> shipTechs, Array<Ship> researchableShips, int hullCount)
+        {
+            foreach (Ship shortTermBest in racialShips)
+            {
+                if (shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType &&
+                    !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
+                    continue;
+                if (shortTermBest.shipData.techsNeeded.Count == 0)
+                    continue;
+                if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name))
+                    continue;
+                if (!shortTermBest.shipData.techsNeeded.Intersect(shipTechs).Any())
+                    continue;
+                var hullTechs = shortTermBest.shipData.HullData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs);
+                if (hullTechs.Count() > hullCount)
+                    continue;
+                if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
+                    continue;
+
+                if (shortTermBest.shipData.techsNeeded.Count == 0)
+                {
+                    if (Empire.Universe.Debug)
+                    {
+                        Log.Info(OwnerEmpire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
+                    }
+                    continue;
+                }
+                researchableShips.Add(shortTermBest);
+            }
         }
 
         private int AddMatchingTechCost(Ship ship, Array<string> techList)

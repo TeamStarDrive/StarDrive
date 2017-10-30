@@ -259,9 +259,9 @@ namespace Ship_Game.Gameplay
 
             return size;
         }
-        public override bool IsAttackable(Empire attacker, Relationship relationToThis)
+        public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (relationToThis.Treaty_NAPact) return false;
+            if (attackerRelationThis.Treaty_NAPact) return false;
             if (AI.Target?.GetLoyalty() == attacker)
             {
                 //if (!InCombat) Log.Info($"{attacker.Name} : Is being attacked by : {loyalty.Name}");
@@ -270,15 +270,16 @@ namespace Ship_Game.Gameplay
 
             if (attacker.isPlayer) return true;
 
-            if (relationToThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+            if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
                 //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
-            if (isColonyShip && System != null && relationToThis.WarnedSystemsList.Contains(System.guid)) return true;
-
+            if (isColonyShip && System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid)) return true;
+            if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
+                && System != null && attacker.GetOwnedSystems().Contains(System)) return true;
             //the below does a search for being inborders so its expensive. 
-            if (relationToThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
                 && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this))
             {
                 //if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
@@ -3097,7 +3098,7 @@ namespace Ship_Game.Gameplay
                                  * maxFTLSpeed > GlobalStats.MinimumWarpRange);
 
             bool goodPower = shipData.BaseCanWarp && (powerDraw <= PowerFlowMax || warpTimeGood);
-            if (!goodPower && empire == null)
+            if (!goodPower || empire == null)
                 Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {powerDraw}/{PowerFlowMax}");
             if (BaseStrength > baseStrengthNeeded)
                 return goodPower;

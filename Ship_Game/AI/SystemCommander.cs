@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Gameplay;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI
 {
@@ -270,34 +271,34 @@ namespace Ship_Game.AI
         public int TroopsWanted;
         public int TroopsHere;
         public Planet Planet;
-        private readonly Empire Empire;
+        private readonly Empire Owner;
+        public float Distance;
         public PlanetTracker(Planet toTrack, Empire empire)
         {
             Planet = toTrack;
-            Empire = empire;
+            Owner = empire;
 
         }
         public float UpdateValue()
         {
-            Empire us = Planet.Owner;
+            Empire planetOwner = Planet.Owner;
             Value = 0;
-            bool enemy = Empire.IsEmpireAttackable(Planet.Owner, null);
-            if (Planet.Owner == Empire || !enemy)
+            bool enemy = Owner.IsEmpireAttackable(Planet.Owner, null);
+            if (Planet.Owner == Owner || !enemy)
             {
                 Value += Planet.Population / 10000f;
                 Value += Planet.GovBuildings ? 1 : 0;
                 Value += Planet.HasShipyard ? 5 : 0;
                 Value += Planet.developmentLevel;
-                if (Empire.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
+                if (Owner.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
             }
-            Value += (Planet.MaxPopulation / 10000f);
-            Value += Planet.Fertility;
-            Value += Planet.MineralRichness;
-            Value += Planet.CommoditiesPresent.Count;
+            Value += Planet.EmpireBaseValue(Owner) *.1f;
+            
 
-            if (us == null || !enemy)
-                return Value;
-            if (!us.TryGetRelations(us, out Relationship them) || them == null || !them.Known) return Value;            
+            if (planetOwner == null || !enemy)
+                return Value;            
+            var them = Owner.GetRelations(planetOwner);
+            if (them == null || !them.Known) return Value;
             if (them.Trust < 50f) Value += 2.5f;
             if (them.Trust < 10f) Value += 2.5f;
             if (them.TotalAnger > 2.5f) Value += 2.5f;

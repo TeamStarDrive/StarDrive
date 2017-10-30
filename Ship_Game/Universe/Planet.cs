@@ -220,11 +220,23 @@ namespace Ship_Game
             }
         }
 
+        public float EmpireFertility(Empire empire) =>
+            (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : Fertility;
+            
+
+        public float EmpireBaseValue(Empire empire) => 
+            (CommoditiesPresent.Count +
+            EmpireFertility(empire)
+            * MineralRichness) 
+            * (MaxPopulation / 1000f);
+
         public bool NeedsFood()
         {
             if (Owner?.isFaction ?? true) return false;
-            float food = Owner.data.Traits.Cybernetic > 0 ? ProductionHere : FoodHere;
-            return food / MAX_STORAGE < .10f;
+            bool cyber = Owner.data.Traits.Cybernetic > 0;
+            float food = cyber ? ProductionHere : FoodHere;
+            bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .5f : (NetFoodPerTurn <= 0 && FarmerPercentage >.25f);
+            return food / MAX_STORAGE < .10f && badProduction;
         }
 
         private void GenerateMoons(Planet newOrbital)

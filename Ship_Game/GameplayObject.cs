@@ -123,7 +123,7 @@ namespace Ship_Game
             return false; // by default, objects can't be touched
         }
 
-        public virtual bool IsAttackable(Empire attacker, Relationship relationToThis)
+        public virtual bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
             return false;
         }
