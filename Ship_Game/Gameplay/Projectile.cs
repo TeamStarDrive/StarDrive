@@ -257,10 +257,10 @@ namespace Ship_Game.Gameplay
             
         }
 
-        public override bool IsAttackable(Empire attacker, Relationship relationToThis)
+        public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
             if (MissileAI?.GetTarget.GetLoyalty() == attacker) return true;            
-            if (!relationToThis.Treaty_OpenBorders && !relationToThis.Treaty_Trade
+            if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade
                 && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(Owner)) return true;
            
             return false;

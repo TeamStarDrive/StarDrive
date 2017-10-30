@@ -918,9 +918,11 @@ namespace Ship_Game.AI
 
         public struct PlanetRanker
         {
-            public Planet planet;
-            public float PV;
+            public Planet Planet;
+            public float Value;
             public float Distance;
+            public float JumpRange;
+            public bool OutOfRange;
         }
     }
 }
