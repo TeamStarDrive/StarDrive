@@ -57,11 +57,16 @@ namespace Ship_Game.AI {
                                         ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
                 
             }
-
+            float anger = 0;
+            foreach (var rel in OwnerEmpire.AllRelations)
+            {
+                anger += rel.Value.TotalAnger;
+            }
+            anger *= .01f;
             float offenseNeeded = 0;
             offenseNeeded += ThreatMatrix.StrengthOfAllThreats(OwnerEmpire);
             offenseNeeded /= OwnerEmpire.currentMilitaryStrength;
-
+            offenseNeeded = anger;
             if (offenseNeeded <= 0)            
                 offenseNeeded = 0;
             
@@ -70,8 +75,8 @@ namespace Ship_Game.AI {
             NumberOfShipGoals += (int) offenseNeeded;
 
             float atWarBonus = 0.05f;
-            if (OwnerEmpire.Money > 500f)
-                atWarBonus        += (offenseNeeded * (0.03f + OwnerEmpire.getResStrat().MilitaryPriority * .03f));
+            if (offenseNeeded > 2)
+                atWarBonus        += (offenseNeeded * (.05f + OwnerEmpire.getResStrat().MilitaryPriority * .03f));
             float capacity         = OwnerEmpire.Grossincome() * (.05f + atWarBonus) - underConstruction;
             float allowableDeficit = -(OwnerEmpire.Money * .05f) * atWarBonus;
 

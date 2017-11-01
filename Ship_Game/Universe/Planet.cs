@@ -37,7 +37,17 @@ namespace Ship_Game
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public GoodState fs = GoodState.STORE;
         public GoodState ps = GoodState.STORE;
-
+        public Planet.GoodState GetGoodState(string good)
+        {
+            switch (good)
+            {
+                case "Food":
+                    return fs;
+                case "Production":
+                    return ps;
+            }
+            return 0;
+        }
         public Array<Building> BuildingList = new Array<Building>();
         public SpaceStation Station = new SpaceStation();
         public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
@@ -103,6 +113,17 @@ namespace Ship_Game
         private int numInvadersLast;
         public float ProductionHere;
         public float NetFoodPerTurn;
+        public float GetNetGoodProd(string good)
+        {
+            switch (good)
+            {
+                case "Food":
+                    return NetFoodPerTurn;
+                case "Production":
+                    return NetProductionPerTurn;
+            }
+            return 0;
+        }
         public float FoodPercentAdded;
         public float FlatFoodAdded;
         public float NetProductionPerTurn;
@@ -132,6 +153,17 @@ namespace Ship_Game
         private float unfed;
         private Shield Shield;
         public float FoodHere;
+        public float GetGoodHere(string good)
+        {
+            switch (good)
+            {
+                case "Food":
+                    return FoodHere;
+                case "Production":
+                    return ProductionHere;
+            }
+            return 0;
+        }
         public int developmentLevel;
         public bool CorsairPresence;
         public bool queueEmptySent = true;
@@ -144,6 +176,30 @@ namespace Ship_Game
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
 
+        public void SetExportWeight(string goodType, float weight)
+        {
+            switch (goodType)
+            {
+                case "Food":
+                    ExportFSWeight = weight;
+                    break;
+                case "Production":
+                    ExportPSWeight = weight;
+                    break;
+
+            }   
+        }
+        public float GetExportWeight(string goodType)
+        {
+            switch (goodType)
+            {
+                case "Food":
+                    return ExportFSWeight;
+                case "Production":
+                    return ExportPSWeight;                    
+            }
+            return 0;
+        }
         private AudioEmitter Emitter;
         private float InvisibleRadius;
         public float GravityWellRadius { get; private set; }
@@ -3646,9 +3702,9 @@ namespace Ship_Game
             }
             int buildingsinQueue = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding).Count();
             bool needsBiospheres = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding && isbuilding.Building.Name == "Biospheres").Count() != buildingsinQueue;
-            bool StuffInQueueToBuild = ConstructionQueue.Count >0;// .Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
+            bool StuffInQueueToBuild = ConstructionQueue.Count >5;// .Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
             bool ForgetReseachAndBuild =
-     string.IsNullOrEmpty(Owner.ResearchTopic) || StuffInQueueToBuild || (developmentLevel < 3 && (ProductionHere + 1) / (MAX_STORAGE + 1) < .9f);
+     string.IsNullOrEmpty(Owner.ResearchTopic) || StuffInQueueToBuild || (developmentLevel < 3 && (ProductionHere + 1) / (MAX_STORAGE + 1) < .5f);
             if (colonyType == ColonyType.Research && string.IsNullOrEmpty(Owner.ResearchTopic))
             {
                 colonyType = ColonyType.Industrial;
@@ -4396,7 +4452,7 @@ namespace Ship_Game
                         WorkerPercentage = (1f - FarmerPercentage);
 
                         if (StuffInQueueToBuild)
-                            WorkerPercentage *= ((MAX_STORAGE - ProductionHere) / MAX_STORAGE);
+                            WorkerPercentage *= ((MAX_STORAGE - ProductionHere) / MAX_STORAGE) / developmentLevel;
                         else
                             WorkerPercentage = 0;
 

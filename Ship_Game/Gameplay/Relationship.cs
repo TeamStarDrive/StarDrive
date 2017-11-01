@@ -139,10 +139,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-#if PERF			
-            if (Empire.Universe.PlayerEmpire==Them)
-                return;
-#endif
+
             
             if (GlobalStats.perf && Empire.Universe.PlayerEmpire == Them)
                 return;
@@ -474,13 +471,10 @@ namespace Ship_Game.Gameplay
         {
             if (us.data.Defeated)
                 return;
-        #if PERF
-            if (Empire.Universe.PlayerEmpire == them)
-                return;
-        #else
+
             if (GlobalStats.perf && Empire.Universe.PlayerEmpire == them)
                 return;
-        #endif
+
             if(us.isPlayer)
             {
                 UpdatePlayerRelations(us, them);
@@ -626,6 +620,7 @@ namespace Ship_Game.Gameplay
             if (Anger_DiplomaticConflict < 0f) Anger_DiplomaticConflict = 0f;
 
             TotalAnger = Anger_DiplomaticConflict + Anger_FromShipsInOurBorders + Anger_MilitaryConflict + Anger_TerritorialConflict;
+            TotalAnger = TotalAnger > 100 ? 100 : TotalAnger;
             TurnsKnown += 1;
             turnsSinceLastContact += 1;
         }
