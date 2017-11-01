@@ -1061,7 +1061,7 @@ namespace Ship_Game
 
                 if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
                 {
-                    Vector2 screenPos = DrawLineProjected(start, ship.AI.OrbitTarget.Center, color, 2500f, 0);
+                    Vector2 screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Center, color, 2500f, 0);
                     string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
                     DrawPointerWithText(screenPos, ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
                     return;

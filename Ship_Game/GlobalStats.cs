@@ -195,6 +195,9 @@ namespace Ship_Game
             VerboseLogging = true;
 #endif
 
+#if PERF 
+            perf = true;
+#endif
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
             if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
             GetSetting("Language", ref Language);

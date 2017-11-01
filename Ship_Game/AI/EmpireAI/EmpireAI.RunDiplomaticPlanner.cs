@@ -904,10 +904,10 @@ namespace Ship_Game.AI {
                     {
                         foreach (Empire enemy in closeenemies.OwnerList)
                         {
-#if PERF
+
                             if (enemy.isPlayer)
                                 continue;
-#endif
+
                             if (enemy.isFaction)
                                 continue;
                             Relationship check = null;
