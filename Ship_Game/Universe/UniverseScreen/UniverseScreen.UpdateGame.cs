@@ -79,11 +79,15 @@ namespace Ship_Game
                                     deltaTime = (float) zgameTime.ElapsedGameTime.TotalSeconds;
                                 }
                             }
-                            #if AUTOTIME
+                            if (GlobalStats.perf)
+                            {
                                 if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
                                     ++GameSpeed;
                                 else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
-                            #endif
+                                
+                            }
+                            
+                            
                         }
                     }
                     failedLoops = 0; // no exceptions this turn

@@ -135,7 +135,7 @@ namespace Ship_Game.Gameplay
         public float GetColonists()  => Cargo?.Colonists * PassengerModifier ?? 0f;
         public float GetProduction() => Cargo?.Production ?? 0f;
         public float GetFood()       => Cargo?.Food       ?? 0f;
-
+        
         // Lazy Init cargo module, only when we actually LoadCargo
         private CargoContainer CargoCont => Cargo ?? (Cargo = new CargoContainer(CargoSpaceMax));
 

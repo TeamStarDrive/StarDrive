@@ -1103,10 +1103,7 @@ namespace Ship_Game
             this.Relationships[e].Known = true;
             if (!e.GetRelations(this).Known)
                 e.DoFirstContact(this);
-#if PERF
-            if (Empire.Universe.player == this)
-                return;
-#endif
+
             if (GlobalStats.perf && Universe.player == this)
                 return;
             try
@@ -1581,20 +1578,21 @@ namespace Ship_Game
             float pop = p.MaxPopulation /1000;
              if(this.data.Traits.Cybernetic >0)
                  fertility = richness;
-             if (fertility > .5 && fertility <= 1 && richness < 1 && pop <= 4 && pop > .5)
+            if (richness >= 1 && fertility >= 1 && pop > 7)
+                return Planet.ColonyType.Core;
+            if (fertility > .5 && fertility <= 1 && richness <= 1 && pop < 8 && pop > 3)
                  return Planet.ColonyType.Research;
              if (fertility > 1 && richness < 1 && pop >=2)
-                 return Planet.ColonyType.Agricultural;
-             if (richness > 1 && fertility > 1 && pop >4)
-                 return Planet.ColonyType.Core;
-             if (richness >= 1 && fertility < .5)
+                 return Planet.ColonyType.Agricultural;            
+             if (richness >= 1 )
                  return Planet.ColonyType.Industrial;
-             return Planet.ColonyType.Research;
+
+             //return Planet.ColonyType.Research;
              //if (richness > .5 && fertility < .5 && pop < 2)
              //    return Planet.ColonyType.Industrial;
              //if (richness <= 1 && fertility < 1 && pop >= 1)
              //    return Planet.ColonyType.Research;
-             //return Planet.ColonyType.Colony;
+             return Planet.ColonyType.Colony;
         }
         public Planet.ColonyType AssessColonyNeeds(Planet p)
         {
@@ -2476,11 +2474,12 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                if (ship == null)
+                if (ship == null || ship.loyalty != this)
                     continue;
                 //fbedard: civilian can be freighter too!
                 //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpaceMax == 0 || ship.AI == null || ship.isConstructor
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) 
+                    || ship.isColonyShip || ship.CargoSpaceMax == 0 || ship.AI == null || ship.isConstructor
                     || ship.AI.State == AIState.Refit || ship.AI.State == AIState.Scrap
                     )
                 {
@@ -2489,7 +2488,7 @@ namespace Ship_Game
                     continue;
                 }
                 this.freighterBudget += ship.GetMaintCost();
-                if (ship.AI.State != AIState.AwaitingOrders && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader)
+                if (ship.Velocity != Vector2.Zero && ship.AI.State != AIState.AwaitingOrders && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader)
                     continue;
                     
                 if ((ship.AI.start == null || ship.AI.end == null) ||  ship.AI.OrderQueue.IsEmpty) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&

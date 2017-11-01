@@ -202,7 +202,7 @@ namespace Ship_Game.AI
 
         private bool SelectPlanetByFilter(Planet[] safePlanets, out Planet targetPlanet, Func<Planet, bool> predicate)
         {
-            float minSqDist = 999999999f;
+            float minSqDist = float.MaxValue;
             targetPlanet = null;
 
             for (int i = 0; i < safePlanets.Length; ++i)
