@@ -28,13 +28,13 @@ namespace Ship_Game.AI
 		ReturnToHangar,
 		MineAsteroids,
 		Ferrying,
-		Refit,
-		Scrap,
+		Refit,		
 		Intercept,
 		FormationWarp,
 		AssaultPlanet,
 		Exterminate,
-		Scuttle,
-        BombardTroops
-	}
+	    BombardTroops,
+        Scuttle,
+	    Scrap
+    }
 }

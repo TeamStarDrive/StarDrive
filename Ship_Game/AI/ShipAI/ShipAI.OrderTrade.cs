@@ -116,14 +116,19 @@ namespace Ship_Game.AI {
 
             if (Owner.loyalty.data.Traits.Cybernetic > 0)
                 Owner.TradingFood = false;
-
+            var prodCargo = Owner.GetProduction();
 
             //if (DeliverShipment("Food")) return;
+            #region Deliver Food LAST (return if already loaded)
 
+            if (end == null && (Owner.TradingFood || Owner.GetFood() > 0.01f) && prodCargo == 0.0f)
+            {
+                if (DeliverShipment("Food") && Owner.GetFood() > 0.01f) return;
+            }
 
             #region deliver Production (return if already loaded)
 
-            var prodCargo = Owner.GetProduction();
+        
 
             if (end == null && (Owner.TradingProd || prodCargo > 0f))
             {
@@ -132,12 +137,7 @@ namespace Ship_Game.AI {
 
             #endregion
 
-            #region Deliver Food LAST (return if already loaded)
-
-            if (end == null && (Owner.TradingFood || Owner.GetFood() > 0.01f) && prodCargo == 0.0f)
-            {
-                if (DeliverShipment("Food") && Owner.GetFood() > 0.01f) return;               
-            }
+     
 
             #endregion           
 
@@ -156,7 +156,8 @@ namespace Ship_Game.AI {
             }
             else
             {
-                AwaitClosest = start ?? end ?? Owner.loyalty.RallyPoints[0];
+                AwaitClosest = start ?? end ?? Owner.loyalty.RallyPoints.FindMin(d => d.Center.SqDist(Owner.Center)) 
+                    ?? Owner.loyalty.GetPlanets().FindMin(d => d.Center.SqDist(Owner.Center));
                 start = null;
                 end = null;                
                 if (Owner.CargoSpaceUsed > 0)
@@ -171,9 +172,9 @@ namespace Ship_Game.AI {
 
         private void GetShipment(string goodType)
         {
-            var ProdFood = goodType.Substring(0, 4);
+            var prodOrFood = goodType.Substring(0, 4);
 
-            if (start != null || end == null || (FoodOrProd != null && FoodOrProd != ProdFood) ||
+            if (start != null || end == null || (FoodOrProd != null && FoodOrProd != prodOrFood) ||
                 (Owner.CargoSpaceUsed != 0 && !(Owner.CargoSpaceUsed / Owner.CargoSpaceMax < .2f))) return;
 
             var flag = false;
@@ -205,7 +206,7 @@ namespace Ship_Game.AI {
                         {
                             plan = s.AI.OrderQueue.PeekLast;
                             if (plan != null && s.AI.State == AIState.SystemTrader && s.AI.start == p &&
-                                plan.Plan == Plan.PickupGoods && s.AI.FoodOrProd == ProdFood)
+                                plan.Plan == Plan.PickupGoods && s.AI.FoodOrProd == prodOrFood)
                             {
                                 float currenTrade = TradeSort(s, p, goodType, s.CargoSpaceMax, false);
                                 if (currenTrade > 1000)
@@ -456,7 +457,7 @@ namespace Ship_Game.AI {
             }
 
             // RedFox: Where to load & drop nearest Population
-            SelectPlanetByFilter(safePlanets, out start, p => p.MaxPopulation > 1000 && p.Population > 1000);
+            SelectPlanetByFilter(safePlanets, out start, p => p.MaxPopulation > 8000 && p.Population > 5000);
             SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget);
 
             if (start != null && end != null)
@@ -509,7 +510,7 @@ namespace Ship_Game.AI {
                 start.ProductionHere += Owner.UnloadProduction();
                 start.Population += Owner.UnloadColonists();
 
-                float maxFoodLoad = (start.MAX_STORAGE * 0.10f).Clamp(0f, start.MAX_STORAGE - start.FoodHere);
+                float maxFoodLoad = (start.MAX_STORAGE * 0.10f).Clamp(0f, end.MAX_STORAGE - end.FoodHere);
                 start.FoodHere -= Owner.LoadFood(maxFoodLoad);
 
                 OrderQueue.RemoveFirst();
@@ -522,7 +523,7 @@ namespace Ship_Game.AI {
                 start.FoodHere += Owner.UnloadFood();
                 start.Population += Owner.UnloadColonists();
 
-                float maxProdLoad = (start.MAX_STORAGE * .10f).Clamp(0f, start.MAX_STORAGE - start.ProductionHere);
+                float maxProdLoad = (start.MAX_STORAGE * .10f).Clamp(0f, end.MAX_STORAGE - end.ProductionHere);
                 start.ProductionHere -= Owner.LoadProduction(maxProdLoad);
 
                 OrderQueue.RemoveFirst();
