@@ -130,7 +130,10 @@ namespace Ship_Game
             foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag. 
                 ship.shipStatusChanged = true;
         }
-
+        public Planet FindNearestRallyPoint(Vector2 location)
+        {
+            return RallyPoints?.FindMin(p => p.Center.SqDist(location)) ?? OwnedPlanets?.FindMin(p => p.Center.SqDist(location));
+        }
         public string Name => data.Traits.Name;
 
         // Empire unique ID. If this is 0, then this empire is invalid!
@@ -1139,8 +1142,8 @@ namespace Ship_Game
 #endif
 
             
-            this.UpdateTimer -= elapsedTime;
-            if (this.UpdateTimer <= 0f)
+            UpdateTimer -= elapsedTime;
+            if (UpdateTimer <= 0f)
             {                
                 if (this == Universe.PlayerEmpire)
                 {
@@ -1260,11 +1263,11 @@ namespace Ship_Game
                     this.empireShipTotal++;
                 }
                 this.RecalculateMaxHP = false;
-                this.UpdateTimer = (float)GlobalStats.TurnTimer;
+                UpdateTimer = (float)GlobalStats.TurnTimer;
                 this.DoMoney();
                 this.TakeTurn();
             }
-            SetRallyPoints();
+            
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
@@ -1326,30 +1329,7 @@ namespace Ship_Game
                 }
             }
 
-            totalShipMaintenance = 0.0f;
-                
-            using (OwnedShips.AcquireReadLock())
-            foreach (Ship ship in OwnedShips)
-            {
-                if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
-                    || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
-                {
-                    data.DefenseBudget -= ship.GetMaintCost();
-                    continue;
-                }
-                totalShipMaintenance += ship.GetMaintCost();
-            }
-
-            using (OwnedProjectors.AcquireReadLock())
-            foreach (Ship ship in OwnedProjectors)
-            {
-                    if (data.SSPBudget > 0)
-                    {
-                        data.SSPBudget -= ship.GetMaintCost();
-                        continue;
-                    }
-                    totalShipMaintenance += ship.GetMaintCost();
-            }
+            DoShipMaintenanceCost();
 
             using (OwnedPlanets.AcquireReadLock())
             {
@@ -1380,6 +1360,36 @@ namespace Ship_Game
             Money += data.FlatMoneyBonus;
             Money += TradeMoneyAddedThisTurn;
             Money -= totalMaint;
+        }
+
+        private void DoShipMaintenanceCost()
+        {
+            totalShipMaintenance = 0.0f;
+
+            using (OwnedShips.AcquireReadLock())
+                foreach (Ship ship in OwnedShips)
+                {
+                    if (!ship.Active || ship.AI.State >= AIState.Scrap) continue;
+                    if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
+                                                   || (ship.shipData.Role == ShipData.RoleName.station &&
+                                                       (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                    {
+                        data.DefenseBudget -= ship.GetMaintCost();
+                        continue;
+                    }
+                    totalShipMaintenance += ship.GetMaintCost();
+                }
+
+            using (OwnedProjectors.AcquireReadLock())
+                foreach (Ship ship in OwnedProjectors)
+                {
+                    if (data.SSPBudget > 0)
+                    {
+                        data.SSPBudget -= ship.GetMaintCost();
+                        continue;
+                    }
+                    totalShipMaintenance += ship.GetMaintCost();
+                }
         }
 
         public float EstimateIncomeAtTaxRate(float rate)
@@ -2550,25 +2560,20 @@ namespace Ship_Game
                     switch (type)
                     {
                         case 1:
+                        case 2:
                             {
                                 ship.AI.State = AIState.SystemTrader;
                                 ship.AI.OrderTrade(0.1f);
                                 type++;
                                 break;
                             }
-                        case 2:
-                            {
-                                ship.AI.State = AIState.PassengerTransport;
-                                ship.AI.OrderTransportPassengers(0.1f);
-                                type++;
-                                break;
-                            }
-
+                        
                         default:
+                            ship.AI.State = AIState.PassengerTransport;
+                            ship.AI.OrderTransportPassengers(0.1f);
+                            type =1;                            
                             break;
                     }
-                    if (type > 2)
-                        type = 1;
                     if (ship.AI.start == null && ship.AI.end == null)
                         assignedShips.Add(ship);
 

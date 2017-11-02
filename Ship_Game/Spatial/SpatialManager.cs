@@ -150,7 +150,7 @@ namespace Ship_Game.Gameplay
                 float modifiedRadius = damageRadius;
                 
                 // Check if valid target
-                if (source.Owner?.loyalty == ship.loyalty)
+                if (source.Owner?.loyalty == ship.loyalty || !ship.Active)
                     continue;
 
                 // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.

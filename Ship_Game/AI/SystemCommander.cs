@@ -104,11 +104,22 @@ namespace Ship_Game.AI
         public bool AddShip(Ship ship)
         {
             if (CurrentShipStr  > IdealShipStrength ) return false;
-            if (!ShipsDict.ContainsValue(ship))
+            if (ShipsDict.TryGetValue(ship.guid, out Ship dictShip))
+            {
+                if (dictShip != ship)
+                {
+                    CurrentShipStr -= (int)dictShip.BaseStrength;
+                    dictShip = ship;
+                    CurrentShipStr += (int)ship.BaseStrength;
+                }
+                
+            }
+            else
             {
                 ShipsDict.Add(ship.guid, ship);
-                CurrentShipStr += (int)ship.BaseStrength;                                
+                CurrentShipStr += (int)ship.BaseStrength;
             }
+
             if (ship.AI.SystemToDefend != System)
                 ship.AI.OrderSystemDefense(System);            
             return true;
