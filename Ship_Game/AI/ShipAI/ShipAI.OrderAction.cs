@@ -820,20 +820,26 @@ namespace Ship_Game.AI {
             HasPriorityOrder = true;
             IgnoreCombat = true;
             OrderQueue.Clear();
-            OrbitTarget = Owner.loyalty.RallyPoints.FindMin(p => (p?.Center.SqDist(Owner.Center) ?? float.MaxValue));
-            
-            if (OrbitTarget == null)            
-                State = AIState.AwaitingOrders;            
-            else
+            OrbitTarget = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+
+            if (OrbitTarget == null)
             {
-                OrderMoveTowardsPosition(OrbitTarget.Center, 0f, Vector2.One, true, OrbitTarget);
-                var scrap = new ShipGoal(Plan.Scrap, Vector2.Zero, 0f)
-                {
-                    TargetPlanet = OrbitTarget
-                };
-                OrderQueue.Enqueue(scrap);
-                State = AIState.Scrap;
+                Owner.ScuttleTimer = 1;
+                State = AIState.Scuttle;
+                HasPriorityOrder = true;
+                Owner.QueueTotalRemoval();
+                return;
             }
+
+
+            OrderMoveTowardsPosition(OrbitTarget.Center, 0f, Vector2.One, true, OrbitTarget);
+            var scrap = new ShipGoal(Plan.Scrap, Vector2.Zero, 0f)
+            {
+                TargetPlanet = OrbitTarget
+            };
+            OrderQueue.Enqueue(scrap);
+            State = AIState.Scrap;
+
             State = AIState.Scrap;
         }
 
