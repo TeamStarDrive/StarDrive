@@ -195,22 +195,20 @@ namespace Ship_Game.AI.Tasks {
                     || (ship.System != null && ship.System.CombatInSystem))
                     continue;
 
-                if (utility != null && (ship.InhibitionRadius > 0 || ship.hasOrdnanceTransporter ||
-                                        ship.hasRepairBeam || ship.HasRepairModule || ship.HasSupplyBays))
+                if (utility != null && (ship.DesignRole == ShipData.RoleName.support))                    
                 {
                     utility.Add(ship);
                 }
-                else if (bombers != null && ship.BombBays.Count > 0)
+                else if (bombers != null && ship.DesignRole == ShipData.RoleName.bomber)
                 {
                     bombers.Add(ship);
                 }
-                else if (troopShips != null && (ship.TroopList.Count > 0 &&
-                                                (ship.hasAssaultTransporter || ship.HasTroopBay ||
-                                                 ship.GetShipData().Role == ShipData.RoleName.troop)))
+                else if (troopShips != null && (ship.DesignRole == ShipData.RoleName.troop || ship.DesignRole == ShipData.RoleName.troopShip))
                 {
                     troopShips.Add(ship);
                 }
-                else if (combat != null && ship.BombBays.Count <= 0 && ship.BaseStrength > 0)
+                else if (combat != null && ship.DesignRole >= ShipData.RoleName.fighter && ship.DesignRole < ShipData.RoleName.prototype
+                    && ship.DesignRole != ShipData.RoleName.scout)
                 {
                     combat.Add(ship);
                 }
@@ -467,7 +465,7 @@ namespace Ship_Game.AI.Tasks {
             Array<Ship> potentialUtilityShips = new Array<Ship>();
             GetAvailableShips(closestAO, potentialBombers, potentialCombatShips, potentialAssaultShips,
                 potentialUtilityShips);
-            Planet rallypoint = Owner.RallyPoints?.FindMin(p => p.Center.SqDist(AO));
+            Planet rallypoint = Owner.FindNearestRallyPoint(AO);
             if (rallypoint == null)
                 return;
 

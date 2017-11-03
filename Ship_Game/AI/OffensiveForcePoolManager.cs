@@ -30,9 +30,9 @@ namespace Ship_Game.AI
                     continue;
                 }
                 areasOfOperation.ThreatLevel = 0;
-                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, Owner);
+                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, Owner, 10000);
 
-                int min =(int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) * .5f) +100;
+                int min =(int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) * .1f) +100;
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
             }
