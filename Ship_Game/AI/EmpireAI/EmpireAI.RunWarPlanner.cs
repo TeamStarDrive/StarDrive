@@ -521,16 +521,16 @@ namespace Ship_Game.AI {
                                 {
                                     if (militaryTask.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                                         flag = false;
-                                    if (militaryTask.type == Tasks.MilitaryTask.TaskType.DefendClaim)
-                                    {
-                                        claim = true;
-                                        if (militaryTask.Step == 2)
-                                            claimPressent = true;
-                                    }
+                                    //if (militaryTask.type == Tasks.MilitaryTask.TaskType.DefendClaim)
+                                    //{
+                                    //    claim = true;
+                                    //    if (militaryTask.Step == 2)
+                                    //        claimPressent = true;
+                                    //}
                                 }
                             }
                         }
-                        if (flag && claimPressent)
+                        if (flag)// && claimPressent)
                         {
                             TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                         }
@@ -609,7 +609,7 @@ namespace Ship_Game.AI {
 
         private void RunWarPlanner()
         {
-            float warWeight = 1 + OwnerEmpire.getResStrat().ExpansionPriority +
+            float warWeight = 1 +
                               OwnerEmpire.getResStrat().MilitaryPriority;
 
             foreach (var kv in OwnerEmpire.AllRelations.OrderByDescending(anger =>
@@ -664,43 +664,41 @@ namespace Ship_Game.AI {
                             }
                             foreach (Planet planet in list1)
                             {
-                                bool assault      = true;
-                                bool claim        = false;
+                                bool assault = true;
+                                bool claim = true;
                                 bool claimPresent = false;
+                                TaskList.ForEach(task =>
                                 {
-                                    TaskList.ForEach(task =>
+                                    if (task.GetTargetPlanet() == planet &&
+                                        task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                                     {
-                                        if (task.GetTargetPlanet() == planet &&
-                                            task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                                        {
-                                            assault = false;
-                                        }
-                                        if (task.GetTargetPlanet() == planet &&
-                                            task.type == Tasks.MilitaryTask.TaskType.DefendClaim)
-                                        {
-                                            if (task.Step == 2)
-                                                claimPresent = true;
-                                            claim = true;
-                                        }
-                                    }, false, false);
-                                }
-                                if (assault && claimPresent)
+                                        assault = false;
+                                    }
+                                    //if (task.GetTargetPlanet() == planet &&
+                                    //    task.type == Tasks.MilitaryTask.TaskType.DefendClaim)
+                                    //{
+                                    //    if (task.Step == 2)
+                                    //        claimPresent = true;
+                                    //    claim = true;
+                                    //}
+                                }, false, false);
+                                if (assault)// && claimPresent)
                                 {
                                     TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                                 }
-                                if (!claim)
-                                {
-                                    var task = new Tasks.MilitaryTask()
-                                    {
-                                        AO = planet.Center
-                                    };
-                                    task.SetEmpire(OwnerEmpire);
-                                    task.AORadius = 75000f;
-                                    task.SetTargetPlanet(planet);
-                                    task.TargetPlanetGuid = planet.guid;
-                                    task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
-                                    TaskList.Add(task);
-                                }
+                                //if (!claim)
+                                //{
+                                //    var task = new Tasks.MilitaryTask()
+                                //    {
+                                //        AO = planet.Center
+                                //    };
+                                //    task.SetEmpire(OwnerEmpire);
+                                //    task.AORadius = 75000f;
+                                //    task.SetTargetPlanet(planet);
+                                //    task.TargetPlanetGuid = planet.guid;
+                                //    task.type = Tasks.MilitaryTask.TaskType.DefendClaim;
+                                //    TaskList.Add(task);
+                                //}
                             }
                             break;
                         case WarType.ImperialistWar:
@@ -728,8 +726,8 @@ namespace Ship_Game.AI {
                             }
                             foreach (Planet planet in list2)
                             {
-                                bool flag         = true;
-                                bool claim        = false;
+                                bool flag = true;
+                                bool claim = false;
                                 bool claimPresent = false;
                                 {
                                     TaskList.ForEach(task =>
@@ -741,36 +739,36 @@ namespace Ship_Game.AI {
                                         {
                                             flag = false;
                                         }
-                                        if (task.GetTargetPlanet() != planet ||
-                                            task.type != Tasks.MilitaryTask.TaskType.DefendClaim) return;
-                                        if (task.Step == 2)
-                                            claimPresent = true;
+                                        //if (task.GetTargetPlanet() != planet ||
+                                        //    task.type != Tasks.MilitaryTask.TaskType.DefendClaim) return;
+                                        //if (task.Step == 2)
+                                        //    claimPresent = true;
 
-                                        claim = true;
+                                        //claim = true;
                                     }, false, false);
                                 }
-                                if (flag && claimPresent)
+                                if (flag)// && claimPresent)
                                 {
                                     TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                                 }
-                                if (!claim)
-                                {
-                                    // @todo This is repeated everywhere. Might cut down a lot of code by creating a function
+                                //if (!claim)
+                                //{
+                                //    // @todo This is repeated everywhere. Might cut down a lot of code by creating a function
 
-                                    Tasks.MilitaryTask task = new Tasks.MilitaryTask()
-                                    {
-                                        AO = planet.Center
-                                    };
-                                    task.SetEmpire(OwnerEmpire);
-                                    task.AORadius = 75000f;
-                                    task.SetTargetPlanet(planet);
-                                    task.TargetPlanetGuid = planet.guid;
-                                    task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
-                                    task.EnemyStrength    = 0;
-                                    {
-                                        TaskList.Add(task);
-                                    }
-                                }
+                                //    Tasks.MilitaryTask task = new Tasks.MilitaryTask()
+                                //    {
+                                //        AO = planet.Center
+                                //    };
+                                //    task.SetEmpire(OwnerEmpire);
+                                //    task.AORadius = 75000f;
+                                //    task.SetTargetPlanet(planet);
+                                //    task.TargetPlanetGuid = planet.guid;
+                                //    task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
+                                //    task.EnemyStrength    = 0;
+                                //    {
+                                //        TaskList.Add(task);
+                                //    }
+                                //}
                             }
                             break;
                         case WarType.GenocidalWar:

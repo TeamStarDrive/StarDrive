@@ -1267,7 +1267,7 @@ namespace Ship_Game
                 this.DoMoney();
                 this.TakeTurn();
             }
-            
+            SetRallyPoints();
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
