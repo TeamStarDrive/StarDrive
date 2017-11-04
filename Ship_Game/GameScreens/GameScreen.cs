@@ -305,7 +305,14 @@ namespace Ship_Game
                     Volume = GlobalStats.MusicVolume,
                     IsLooped = true
                 };
-                VideoPlaying.Play(VideoFile);
+                try
+                {
+                    VideoPlaying.Play(VideoFile);
+                }
+                catch
+                {
+                    Log.Error($"Video '{videoPath}' failed.");
+                }
             }
         }
 
