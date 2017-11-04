@@ -462,7 +462,7 @@ namespace Ship_Game.AI
                 if (doreturn)
                     return;
             }
-            if (Owner.fleet != null)
+            if (Owner.fleet?.DataNodes != null) //@TODO Investigate why datanodes can be null here. 
                 using (Owner.fleet.DataNodes.AcquireReadLock())
                     foreach (FleetDataNode datanode in Owner.fleet.DataNodes)
                     {
