@@ -74,11 +74,13 @@ namespace Ship_Game
 		}
 
         private string WhichFrameString => WhichFrame.ToString("00");
-	    private Texture2D TextureDefault    => ResourceManager.TextureDict["Troops/"+TexturePath];
-        private Texture2D TextureIdleAnim   => ResourceManager.TextureDict["Troops/"+idle_path+WhichFrameString];
-        private Texture2D TextureAttackAnim => ResourceManager.TextureDict["Troops/"+attack_path+WhichFrameString];
+	    private Texture2D TextureDefault    => ResourceManager.Texture("Troops/"+TexturePath);
+        private Texture2D TextureIdleAnim   => ResourceManager.Texture("Troops/"+idle_path+WhichFrameString, "Troops/" + idle_path+
+            ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+        private Texture2D TextureAttackAnim => ResourceManager.Texture("Troops/" + attack_path + WhichFrameString, "Troops/" + idle_path +
+            ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
-	    public void Draw(SpriteBatch spriteBatch, Rectangle drawRect)
+        public void Draw(SpriteBatch spriteBatch, Rectangle drawRect)
 		{
 			if (!facingRight)
 			{
@@ -233,12 +235,17 @@ namespace Ship_Game
 			troop.updateTimer -= elapsedTime;
 		    if (updateTimer > 0f)
                 return;
-		    if (!Idle)
+            troop.first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
+            int whichFrame = WhichFrame;
+            if (!Idle)
 		    {
-		        updateTimer = 0.75f / num_attack_frames;
-                ++WhichFrame;
-		        if (WhichFrame <= num_attack_frames - (first_frame == 1 ? 0 : 1))
+		        updateTimer = 0.75f / num_attack_frames;                
+                whichFrame++;
+		        if (whichFrame <= num_attack_frames - (first_frame == 1 ? 0 : 1))
+		        {
+                    WhichFrame++;
                     return;
+		        }
 
 		        WhichFrame = first_frame;
 		        Idle = true;
@@ -246,9 +253,12 @@ namespace Ship_Game
 		    else
 		    {
 		        updateTimer = 1f / num_idle_frames;
-                ++WhichFrame;
-		        if (WhichFrame <= num_idle_frames - (first_frame == 1 ? 0 : 1))
+		        whichFrame++;
+                if (whichFrame <= num_idle_frames - (first_frame == 1 ? 0 : 1))
+		        {
+		            WhichFrame++;
                     return;
+		        }
 
 		        WhichFrame = first_frame;
 		    }

@@ -375,7 +375,6 @@ namespace Ship_Game.AI {
             DebugLog($"Possible Techs : {availableTechs.Count}");
 
             string researchtopic = "";
-            TechnologyType techtype;
             float moneyNeeded = OwnerEmpire.data.ShipBudget * .2f;
 
             //OwnerEmpire.UpdateShipsWeCanBuild();
@@ -572,7 +571,7 @@ namespace Ship_Game.AI {
 
         private HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
-            float techcost = -1;
+            
             float str = 0;
             int numberOfShipTechs = 0;
             HashSet<string> shipTechs = new HashSet<string>();
@@ -830,11 +829,7 @@ namespace Ship_Game.AI {
         private float randomizer(float priority, float bonus)
         {
             return RandomMath.AvgRandomBetween(0, priority + bonus);
-            float index=0;
-            index += RandomMath.RandomBetween(0, (priority + bonus));
-            index += RandomMath.RandomBetween(0, (priority + bonus));
-            index += RandomMath.RandomBetween(0, (priority + bonus));
-            return index ;
+           
         }
     }
 }

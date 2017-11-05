@@ -112,7 +112,6 @@ namespace Ship_Game.AI {
 
         private Planet MarkBestPlanet(Array<Goal.PlanetRanker> ranker)
         {
-            bool ok;
             Planet toMark = null;
             if (ranker.Count > 0)
             {

@@ -108,10 +108,8 @@ namespace Ship_Game.AI {
             }
 
             OrderQueue.Clear();
-            Planet potential = null;
            
-            IOrderedEnumerable<Planet> sortPlanets;
-            bool flag;
+            
             var secondaryPlanets = new Array<Planet>();            
 
             if (Owner.loyalty.data.Traits.Cybernetic > 0)

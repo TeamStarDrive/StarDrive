@@ -2921,7 +2921,7 @@ namespace Ship_Game.Gameplay
 
             if (hasOrdnanceTransporter || hasRepairBeam || HasSupplyBays || hasOrdnanceTransporter || InhibitionRadius > 0)            
             {
-                int spaceUsed = 0;
+                
                 float pSpecial = PercentageOfShipByModules(ModuleSlotList.FilterBy(module =>
                 module.TransporterOrdnance > 0 || module.IsSupplyBay || module.InhibitionRadius > 0));
                 pSpecial += PercentageOfShipByModules(RepairBeams.ToArray());
