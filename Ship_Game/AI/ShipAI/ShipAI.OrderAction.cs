@@ -1048,8 +1048,8 @@ namespace Ship_Game.AI {
         private void AwaitOrdersPlayer(float elapsedTime)
         {
             HasPriorityOrder = false;
-            if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreat < 2 - elapsedTime * 5)
-                ScanForThreat = 0;
+            if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
+                ScanForThreatTimer = 0;
             if (EscortTarget != null)
             {
                 State = AIState.Escort;
