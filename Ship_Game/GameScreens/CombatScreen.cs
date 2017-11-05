@@ -140,6 +140,12 @@ namespace Ship_Game
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
                 pgs.ClickRect = new Rectangle(this.gridPos.X + pgs.x * xsize, this.gridPos.Y + pgs.y * ysize, xsize, ysize);
+                foreach (var troop in pgs.TroopsHere)
+                {
+                    //@TODO HACK. first frame is getting overwritten or lost somewhere. 
+                    troop.WhichFrame = troop.first_frame;
+                    
+                }
             }
             for (int row = 0; row < 6; row++)
             {

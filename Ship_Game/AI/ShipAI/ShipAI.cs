@@ -553,7 +553,7 @@ namespace Ship_Game.AI
                             ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
                             if (State != AIState.AwaitingOrders) //fbedard: set new order for ship returning to fleet
                                 State = AIState.AwaitingOrders;
-                            if (Owner.fleet.GetStack().Count > 0)
+                            if (Owner.fleet?.GetStack().Count > 0)
                                 ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
                         }
                     }
