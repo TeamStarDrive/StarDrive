@@ -165,8 +165,17 @@ namespace Ship_Game.AI
 
         public void AssignShipToForce(Ship toAdd)
         {            
-            if (toAdd.fleet != null ||OwnerEmpire.GetShipsFromOffensePools().Contains(toAdd) )            
-                Log.Error("ship in {0}", toAdd.fleet?.Name ?? "force Pool");
+            if (toAdd.fleet != null ||OwnerEmpire.GetShipsFromOffensePools().Contains(toAdd) )
+            {
+                //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool
+                if (toAdd.fleet.ContainsShip(toAdd))
+                {
+                    OwnerEmpire.ForcePoolRemove(toAdd);
+                    Log.Error("ship in {0}", toAdd.fleet?.Name ?? "force Pool");
+                    return;
+                }
+                toAdd.fleet = null;
+            }
             
             int numWars = OwnerEmpire.AtWarCount;
             

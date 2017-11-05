@@ -510,7 +510,6 @@ namespace Ship_Game.AI {
                     {
                         bool flag = true;
                         bool claim = false;
-                        bool claimPressent = false;
                         if (!s.Contains(planet.ParentSystem))
                             continue;
                         using (TaskList.AcquireReadLock())
@@ -665,8 +664,6 @@ namespace Ship_Game.AI {
                             foreach (Planet planet in list1)
                             {
                                 bool assault = true;
-                                bool claim = true;
-                                bool claimPresent = false;
                                 TaskList.ForEach(task =>
                                 {
                                     if (task.GetTargetPlanet() == planet &&
@@ -728,7 +725,6 @@ namespace Ship_Game.AI {
                             {
                                 bool flag = true;
                                 bool claim = false;
-                                bool claimPresent = false;
                                 {
                                     TaskList.ForEach(task =>
                                     {

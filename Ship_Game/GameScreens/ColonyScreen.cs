@@ -3078,6 +3078,24 @@ namespace Ship_Game
                         continue;
                     }
                     add = false;
+                    for (int index = this.buildSL.indexAtTop; index < this.buildSL.Entries.Count; ++index)
+                    {
+                        if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
+                        {
+                            try
+                            {
+                                ScrollList.Entry entry = this.buildSL.Entries[index];
+                                if (entry != null)
+                                {
+                                    if (entry.item is Troop troop) troop.Update(elapsedTime);
+                                }
+                            }
+                            catch
+                            { }
+
+                        }
+                    }
+
                 }
                 if (add)
                 {
