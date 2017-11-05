@@ -1640,7 +1640,8 @@ namespace Ship_Game.Gameplay
         public void ScrambleAssaultShips(float strengthNeeded)
         {
             bool flag = strengthNeeded > 0;
-            foreach (ShipModule slot in ModuleSlotList.Where(slot => slot.ModuleType == ShipModuleType.Hangar && slot.IsTroopBay && TroopList.Count > 0 && slot.GetHangarShip() == null && slot.hangarTimer <= 0f))
+            foreach (ShipModule slot in ModuleSlotList.Where(slot => slot.ModuleType == ShipModuleType.Hangar 
+            && slot.IsTroopBay && TroopList.Count > 0 && slot.GetHangarShip() == null && slot.hangarTimer <= 0f))
             {                
                 if (flag && strengthNeeded < 0)
                     break;
@@ -2147,18 +2148,18 @@ namespace Ship_Game.Gameplay
 
         private void UpdateTroops()
         {
-            Array<Troop> OwnTroops = new Array<Troop>();
+            Array<Troop> ownTroops = new Array<Troop>();
             Array<Troop> EnemyTroops = new Array<Troop>();
             foreach (Troop troop in TroopList)
             {
                 if (troop.GetOwner() == loyalty)
-                    OwnTroops.Add(troop);
+                    ownTroops.Add(troop);
                 else
                     EnemyTroops.Add(troop);
             }
             if (HealPerTurn > 0)
             {
-                foreach (Troop troop in OwnTroops)
+                foreach (Troop troop in ownTroops)
                 {
                     if (troop.Strength < troop.GetStrengthMax())
                     {
@@ -2201,9 +2202,9 @@ namespace Ship_Game.Gameplay
                 EnemyTroops.Clear();
                 foreach (Troop troop in TroopList)
                     EnemyTroops.Add(troop);
-                if (OwnTroops.Count > 0 && EnemyTroops.Count > 0)
+                if (ownTroops.Count > 0 && EnemyTroops.Count > 0)
                 {
-                    foreach (Troop troop in OwnTroops)
+                    foreach (Troop troop in ownTroops)
                     {
                         for (int index = 0; index < troop.Strength; ++index)
                         {
@@ -2250,7 +2251,7 @@ namespace Ship_Game.Gameplay
                                 ++num2;
                         }
                     }
-                    foreach (Troop troop in OwnTroops)
+                    foreach (Troop troop in ownTroops)
                     {
                         float num3 = num2;
                         if (num2 > 0)
@@ -2279,23 +2280,20 @@ namespace Ship_Game.Gameplay
                             MechanicalBoardingDefense = 0.0f;
                     }
                 }
-                OwnTroops.Clear();
+                ownTroops.Clear();
                 foreach (Troop troop in TroopList)
                 {
                     if (troop.GetOwner() == loyalty)
-                        OwnTroops.Add(troop);
+                        ownTroops.Add(troop);
                 }
-                if (OwnTroops.Count == 0 && MechanicalBoardingDefense <= 0.0)
-                {
-                    loyalty.GetShips().QueuePendingRemoval(this);
-                    loyalty = EnemyTroops[0].GetOwner();
-                    loyalty.AddShipNextFrame(this);
-                    if (fleet != null)
-                        ClearFleet();
+                if (ownTroops.Count != 0 || !(MechanicalBoardingDefense <= 0.0)) return;
 
-                    AI.ClearOrdersNext = true;
-                    AI.State = AIState.AwaitingOrders;
-                }
+                loyalty.GetShips().QueuePendingRemoval(this);
+                loyalty.RemoveShip(this);
+                SetSystem(null);
+                loyalty = EnemyTroops[0].GetOwner();
+                loyalty.AddShipNextFrame(this);                
+                shipStatusChanged = true;
             }
         }
 
