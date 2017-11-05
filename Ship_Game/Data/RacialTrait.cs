@@ -1,5 +1,6 @@
 using System;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -265,6 +266,20 @@ namespace Ship_Game
             {
                 Prototype = 1;
             }
+          
+        }
+
+        public void ApplyTraitToShip(Ship ship)
+        {
+            if (Pack)
+            {
+                ship.DamageModifier = -0.25f;
+
+                ship.DamageModifier = ship.DamageModifier + 0.05f * ship.AI.FriendliesNearby.Count;
+                if (ship.DamageModifier > 0.5f)
+                    ship.DamageModifier = 0.5f;
+            }
         }
     }
+}
 }

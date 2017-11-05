@@ -828,10 +828,9 @@ namespace Ship_Game.Gameplay
                     hangarShip.Mothership = Parent;
                     hangarShip.DoEscort(Parent);
                     hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
-                    if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                    {
+                    if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)                    
                         hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
-                    }
+                    
                     HangarShipGuid = hangarShip.guid;
                     hangarTimer = hangarTimerConstant;
                     Parent.Ordinance -= hangarShip.Mass / 5f;
