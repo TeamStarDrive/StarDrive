@@ -194,16 +194,6 @@ namespace Ship_Game
 
         }
 
-        public void ApplyPackTraitToShip()
-        {
-            if (!Traits.Pack) return;
-            Owner.DamageModifier = -0.25f;
-            Ship owner = Owner;
-            owner.DamageModifier = owner.DamageModifier + 0.05f * FriendliesNearby.Count;
-            if (Owner.DamageModifier > 0.5f)
-                Owner.DamageModifier = 0.5f;
-        }
-
         public EmpireData GetClone()
         {
             return (EmpireData)MemberwiseClone();
