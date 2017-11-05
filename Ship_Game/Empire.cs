@@ -2847,7 +2847,6 @@ namespace Ship_Game
             {
                 OwnedShips.Remove(ship);
             }
-            ship.fleet?.RemoveShip(ship);
             GetGSAI().DefensiveCoordinator.Remove(ship);
             
             ship.AI.OrderQueue.Clear();
