@@ -164,7 +164,8 @@ namespace Ship_Game.AI
 
 
         public void AssignShipToForce(Ship toAdd)
-        {            
+        {
+            toAdd.ClearFleet();
             if (toAdd.fleet != null ||OwnerEmpire.GetShipsFromOffensePools().Contains(toAdd) )
             {
                 //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool

@@ -128,7 +128,7 @@ namespace Ship_Game.AI.Tasks {
 
             foreach (Ship ship in potentialAssaultShips)
             {
-                if (ForceStrength > EnemyTroopStrength * 1.25f)
+                if (ForceStrength > EnemyTroopStrength * 1.5f)
                     break;
 
                 newFleet.AddShip(ship);
@@ -137,17 +137,14 @@ namespace Ship_Game.AI.Tasks {
 
             foreach (Troop t in potentialTroops)
             {
-                if (ForceStrength > EnemyTroopStrength * 1.25f)
+                if (ForceStrength > EnemyTroopStrength * 1.5f)
                     break;
 
-                if (t.GetPlanet() != null && t.GetPlanet().ParentSystem.combatTimer <= 0 && !t.GetPlanet().RecentCombat)
-                {
-                    if (t.GetOwner() != null)
-                    {
-                        newFleet.AddShip(t.Launch());
-                        ForceStrength += t.Strength;
-                    }
-                }
+                if (t.GetPlanet() == null || !(t.GetPlanet().ParentSystem.combatTimer <= 0) ||
+                    t.GetPlanet().RecentCombat) continue;
+                if (t.GetOwner() == null) continue;
+                newFleet.AddShip(t.Launch());
+                ForceStrength += t.Strength;
             }
 
             Owner.GetFleetsDict()[FleetNum] = newFleet;

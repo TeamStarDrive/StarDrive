@@ -860,7 +860,7 @@ namespace Ship_Game.AI {
             var potentialShips = new Array<Ship>();
             string name = "";
             Ship ship;
-            int maxtech = 0;
+            int maxStr = 0;
             foreach (string shipsWeCanBuild in OwnerEmpire.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipsWeCanBuild, out ship))
@@ -868,24 +868,22 @@ namespace Ship_Game.AI {
 
                 if (role != ship.DesignRole)
                     continue;
-
-                if (ship.shipData.TechScore > maxtech)
-                    maxtech = ship.shipData.TechScore;
+                maxStr = Math.Max(maxStr, (int)ship.shipData.BaseStrength);
+                
                 potentialShips.Add(ship);
             }
-            float nearmax = maxtech * .5f;
+            float nearmax = maxStr * .80f;
             //Log.Info("number of candidates : " + PotentialShips.Count + " _ trying for : " + role);
             if (potentialShips.Count > 0)
             {
-                var sortedList = potentialShips.FilterBy(ships => ships.GetShipData().TechScore >= nearmax);
-                sortedList.OrderByDescending(ships => ships.BaseStrength);
-                int newRand = (int)Math.Ceiling(RandomMath.AvgRandomBetween(0, (sortedList.Length -1) * 2f));
-                newRand -= sortedList.Length;
+                var sortedList = potentialShips.FilterBy(ships => ships.GetShipData().BaseStrength >= nearmax);
+                //sortedList.OrderByDescending(ships => ships.BaseStrength);
+                int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length -1);                
 
-                if (newRand < 0) newRand = 0;
                 
-                if (newRand > sortedList.Length -1)
-                    newRand = sortedList.Length -1;
+                newRand = Math.Max(0, newRand);
+                newRand = Math.Min(sortedList.Length -1, newRand);
+                
                 ship = sortedList[newRand];
                 name    = ship.Name;
                 if (Empire.Universe.showdebugwindow)

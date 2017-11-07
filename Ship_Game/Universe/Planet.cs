@@ -204,7 +204,7 @@ namespace Ship_Game
         private float InvisibleRadius;
         public float GravityWellRadius { get; private set; }
         public SunZone Zone { get; private set; }
-
+        private float HabitalTileChance = 10;
         public float ObjectRadius
         {
             get { return SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius; }
@@ -326,6 +326,7 @@ namespace Ship_Game
                 MaxPopulation = 0;
                 Fertility = 0;
                 planetType = RandomMath.IntBetween(1, 24);
+                TilesList.Clear();
                 ApplyPlanetType();
                 if (Zone == sunZone || (Zone == SunZone.Any && sunZone == SunZone.Near)) break;
                 if (x > 2 && Zone == SunZone.Any) break;
@@ -678,6 +679,7 @@ namespace Ship_Game
 
         private void ApplyPlanetType()
         {
+            HabitalTileChance = 20;
             switch (planetType)
             {
                 case 1:
@@ -685,9 +687,10 @@ namespace Ship_Game
                     planetComposition = Localizer.Token(1700);
                     hasEarthLikeClouds = true;
                     habitable = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(4000f, 8000f);
-                    Fertility = RandomMath.RandomBetween(0.1f, 0.2f);
+                    MaxPopulation = (int) RandomMath.RandomBetween(4000f, 8000f);                    
+                    Fertility = RandomMath.RandomBetween(0.8f, 1.5f);
                     Zone = SunZone.Habital;
+                    HabitalTileChance = 20;
                     break;
                 case 2:
                     Type = "Gas Giant";
@@ -753,10 +756,11 @@ namespace Ship_Game
                     Type = "Tundra";
                     planetComposition = Localizer.Token(1707);
                     MaxPopulation = (int) RandomMath.RandomBetween(4000f, 8000f);
-                    Fertility = RandomMath.RandomBetween(0.5f, 0.9f);
+                    Fertility = RandomMath.AvgRandomBetween(0.5f, 1f);
                     hasEarthLikeClouds = true;
                     habitable = true;
                     Zone = SunZone.Far;
+                    HabitalTileChance = 20;
                     break;
                 case 12:
                     Type = "Gas Giant";
@@ -770,17 +774,19 @@ namespace Ship_Game
                     habitable = true;
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int) RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(0.8f, 3f);
+                    Fertility = RandomMath.AvgRandomBetween(1f, 3f);
                     Zone = SunZone.Habital;
+                    HabitalTileChance = 75;
                     break;
                 case 14:
                     Type = "Desert";
                     planetComposition = Localizer.Token(1710);
-                    MaxPopulation = (int) RandomMath.RandomBetween(1000f, 3000f);
-                    Fertility = RandomMath.RandomBetween(0.2f, 0.8f);
-                    habitable = true;
-                    double num2 = RandomMath.RandomBetween(0.0f, 100f);
-                    Zone = SunZone.Near;
+                    HabitalTileChance = RandomMath.AvgRandomBetween(10f, 45f);
+                    MaxPopulation = (int)HabitalTileChance * 100;                    
+                    Fertility = RandomMath.AvgRandomBetween(-2f, 2f);
+                    Fertility = Fertility < .8f ? .8f : Fertility;
+                    habitable = true;                    
+                    Zone = SunZone.Near;                    
                     break;
                 case 15:
                     Type = "Gas Giant";
@@ -806,19 +812,23 @@ namespace Ship_Game
                     break;
                 case 18:
                     Type = "Steppe";
-                    planetComposition = Localizer.Token(1714);
-                    Fertility = RandomMath.RandomBetween(0.4f, 1.4f);
+                    planetComposition = Localizer.Token(1714);                    
                     hasEarthLikeClouds = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(2000f, 4000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(15f,45f);
+                    MaxPopulation = (int)HabitalTileChance * 200;
+                    Fertility = RandomMath.AvgRandomBetween(0f, 2f);
+                    Fertility = Fertility < .8f ? .8f : Fertility;
                     habitable = true;
-                    Zone = SunZone.Habital;
+                    Zone = SunZone.Habital;                    
                     break;
                 case 19:
                     Type = "Swamp";
                     habitable = true;
                     planetComposition = Localizer.Token(1715);
-                    MaxPopulation = (int) RandomMath.RandomBetween(1000f, 3000f);
-                    Fertility = RandomMath.RandomBetween(0.8f, 2f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 45f);
+                    MaxPopulation = HabitalTileChance * 200;                    
+                    Fertility = RandomMath.AvgRandomBetween(-2f, 3f);
+                    Fertility = Fertility < 1 ? 1 : Fertility;
                     hasEarthLikeClouds = true;
                     Zone = SunZone.Near;
                     break;
@@ -832,8 +842,10 @@ namespace Ship_Game
                     planetComposition = Localizer.Token(1716);
                     habitable = true;
                     hasEarthLikeClouds = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(3000f, 6000f);
-                    Fertility = RandomMath.RandomBetween(2f, 5f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 45f);
+                    MaxPopulation = HabitalTileChance * 100 + 1500;                                        
+                    Fertility = RandomMath.AvgRandomBetween(-3f, 5f);
+                    Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
                     break;
                 case 22:
@@ -841,8 +853,10 @@ namespace Ship_Game
                     planetComposition = Localizer.Token(1717);
                     habitable = true;
                     hasEarthLikeClouds = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
+                    MaxPopulation = HabitalTileChance * 200f;
+                    Fertility = RandomMath.AvgRandomBetween(0f, 3f);
+                    Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
                     break;
                 case 23:
@@ -863,8 +877,10 @@ namespace Ship_Game
                     planetComposition = Localizer.Token(1720);
                     habitable = true;
                     hasEarthLikeClouds = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
+                    MaxPopulation = HabitalTileChance * 200f;
+                    Fertility = RandomMath.AvgRandomBetween(-.50f, 3f);
+                    Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
                     break;
                 case 26:
@@ -877,8 +893,10 @@ namespace Ship_Game
                     planetComposition = Localizer.Token(1721);
                     habitable = true;
                     hasEarthLikeClouds = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
+                    MaxPopulation = HabitalTileChance * 200f;
+                    Fertility = RandomMath.AvgRandomBetween(-50f, 3f);
+                    Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
                     break;
                 case 29:
@@ -886,8 +904,10 @@ namespace Ship_Game
                     planetComposition = Localizer.Token(1722);
                     habitable = true;
                     hasEarthLikeClouds = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(50f, 80f);
+                    MaxPopulation = HabitalTileChance * 150f;
+                    Fertility = RandomMath.AvgRandomBetween(-50f, 3f);
+                    Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
                     break;
             }
@@ -898,12 +918,12 @@ namespace Ship_Game
             switch (Type)
             {
                 case "Terran":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.TerranHab ?? 25);
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.TerranHab ?? HabitalTileChance);
                     foreach (RandomItem item in ResourceManager.RandomItemsList)
                         SpawnRandomItem(item, item.TerranChance, item.TerranInstanceMax);
                     break;
                 case "Steppe":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? HabitalTileChance);
                     foreach (RandomItem item in ResourceManager.RandomItemsList)
                         SpawnRandomItem(item, item.SteppeChance, item.SteppeInstanceMax);
                     break;
@@ -918,22 +938,22 @@ namespace Ship_Game
                         SpawnRandomItem(item, item.BarrenChance, item.BarrenInstanceMax);
                     break;
                 case "Tundra":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
                     foreach (RandomItem item in ResourceManager.RandomItemsList)
                         SpawnRandomItem(item, item.TundraChance, item.TundraInstanceMax);
                     break;
                 case "Desert":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
                     foreach (RandomItem item in ResourceManager.RandomItemsList)
                         SpawnRandomItem(item, item.DesertChance, item.DesertInstanceMax);
                     break;
                 case "Oceanic":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? 55);
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
                     foreach (RandomItem item in ResourceManager.RandomItemsList)
                         SpawnRandomItem(item, item.OceanicChance, item.OceanicInstanceMax);
                     break;
                 case "Swamp":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? 33);
+                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? HabitalTileChance);
                     foreach (RandomItem item in ResourceManager.RandomItemsList)
                         SpawnRandomItem(item, item.SwampChance, item.SwampInstanceMax);
                     break;
@@ -960,7 +980,7 @@ namespace Ship_Game
             }
         }
 
-        private void SetTileHabitability(int habChance)
+        private void SetTileHabitability(float habChance)
         {            
             {
                 if (UniqueHab)
@@ -1025,6 +1045,8 @@ namespace Ship_Game
                 MineralRichness = 0.1f;
                 //this.richness = Planet.Richness.UltraPoor;
             }
+            
+            TilesList.Clear();
             switch (planetType)
             {
                 case 1:
@@ -1033,7 +1055,8 @@ namespace Ship_Game
                     hasEarthLikeClouds = true;
                     habitable = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
-                    Fertility = RandomMath.RandomBetween(0.1f, 0.2f);
+                    Fertility = RandomMath.RandomBetween(0.5f, 2f);
+                    HabitalTileChance = 20;
                     break;
                 case 2:
                     Type = "Gas Giant";
@@ -1093,6 +1116,7 @@ namespace Ship_Game
                     Fertility = RandomMath.RandomBetween(0.5f, 0.9f);
                     hasEarthLikeClouds = true;
                     habitable = true;
+                    HabitalTileChance = 20;
                     break;
                 case 12:
                     Type = "Gas Giant";
@@ -1106,13 +1130,15 @@ namespace Ship_Game
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(0.8f, 3f);
+                    HabitalTileChance = 75;
                     break;
                 case 14:
                     Type = "Desert";
                     planetComposition = Localizer.Token(1710);
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    Fertility = RandomMath.RandomBetween(0.2f, 0.8f);
+                    Fertility = RandomMath.RandomBetween(0.2f, 1.8f);
                     habitable = true;
+                    HabitalTileChance = 20;
                     break;
                 case 15:
                     Type = "Gas Giant";
@@ -1132,6 +1158,7 @@ namespace Ship_Game
                     MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     habitable = true;
+                    HabitalTileChance = 10;
                     break;
                 case 18:
                     Type = "Steppe";
@@ -1140,14 +1167,16 @@ namespace Ship_Game
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
                     habitable = true;
+                    HabitalTileChance = 50;
                     break;
                 case 19:
                     Type = "Swamp";
                     habitable = true;
                     planetComposition = Localizer.Token(1712);
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    Fertility = RandomMath.RandomBetween(0.8f, 2f);
+                    Fertility = RandomMath.RandomBetween(1f, 5f);
                     hasEarthLikeClouds = true;
+                    HabitalTileChance = 20;
                     break;
                 case 20:
                     Type = "Gas Giant";
@@ -1160,6 +1189,7 @@ namespace Ship_Game
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
                     Fertility = RandomMath.RandomBetween(2f, 5f);
+                    HabitalTileChance = 20;
                     break;
                 case 22:
                     Type = "Terran";
@@ -1168,6 +1198,7 @@ namespace Ship_Game
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(1f, 3f);
+                    HabitalTileChance = 75;
                     break;
                 case 23:
                     Type = "Volcanic";
@@ -1186,7 +1217,8 @@ namespace Ship_Game
                     habitable = true;
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
+                    Fertility = RandomMath.RandomBetween(1f, 2f);
+                    HabitalTileChance = 90;
                     break;
                 case 26:
                     Type = "Gas Giant";
@@ -1199,6 +1231,7 @@ namespace Ship_Game
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(1f, 3f);
+                    HabitalTileChance = 60;
                     break;
                 case 29:
                     Type = "Terran";
@@ -1207,54 +1240,28 @@ namespace Ship_Game
                     hasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(1f, 3f);
+                    HabitalTileChance = 50;
                     break;
             }
        
             if (!habitable)
                 MineralRichness = 0.0f;
-            if (Type == "Barren")
+            else
             {
+                if (Fertility > 0)
                 for (int x = 0; x < 7; ++x)
                 {
                     for (int y = 0; y < 5; ++y)
                     {
                         double num2 = RandomMath.RandomBetween(0.0f, 100f);
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, false));
+                        bool habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
+                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitableTile));
+
                     }
                 }
             }
-            if (Type == "Terran")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        int num2 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, num2 > 25));
-                    }
-                }
-            }
-            if (Type == "Oceanic" || Type == "Desert" || Type == "Tundra")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        int num2 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, num2 > 50));
-                    }
-                }
-            }
-            if (!(Type == "Steppe") && !(Type == "Swamp"))
-                return;
-            for (int x = 0; x < 7; ++x)
-            {
-                for (int y = 0; y < 5; ++y)
-                {
-                    int num2 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                    TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, num2 > 33));
-                }
-            }
+
+            
         }
 
         public void Terraform()
@@ -1323,7 +1330,7 @@ namespace Ship_Game
                         else
                             continue;
                     case "Terran":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) > 25)
+                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                         {
                             planetGridSquare.Habitable = true;
                             continue;
@@ -1331,7 +1338,7 @@ namespace Ship_Game
                         else
                             continue;
                     case "Swamp":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < 45)
+                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                         {
                             planetGridSquare.Habitable = true;
                             continue;
@@ -1339,7 +1346,7 @@ namespace Ship_Game
                         else
                             continue;
                     case "Ocean":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < 35)
+                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                         {
                             planetGridSquare.Habitable = true;
                             continue;
@@ -1347,7 +1354,7 @@ namespace Ship_Game
                         else
                             continue;
                     case "Desert":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < 25)
+                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                         {
                             planetGridSquare.Habitable = true;
                             continue;
@@ -1355,7 +1362,7 @@ namespace Ship_Game
                         else
                             continue;
                     case "Steppe":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < 33)
+                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                         {
                             planetGridSquare.Habitable = true;
                             continue;
@@ -1363,7 +1370,7 @@ namespace Ship_Game
                         else
                             continue;
                     case "Tundra":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < 50)
+                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                         {
                             planetGridSquare.Habitable = true;
                             continue;
