@@ -755,7 +755,8 @@ namespace Ship_Game.AI
         private bool IsInvading(float thierGroundStrength, float ourGroundStrength, Tasks.MilitaryTask task, int LandingspotsNeeded =5)
         {            
             int freeLandingSpots = task.GetTargetPlanet().GetGroundLandingSpots();
-            if (freeLandingSpots == 0) return false;
+            if (freeLandingSpots == 0)
+                return false;
 
             float planetAssaultStrength = 0.0f;
             foreach (Ship ship in Ships)            

@@ -533,17 +533,17 @@ namespace Ship_Game.AI {
                         {
                             TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                         }
-                        if (claim) continue;
-                        var task = new Tasks.MilitaryTask()
-                        {
-                            AO = planet.Center
-                        };
-                        task.SetEmpire(OwnerEmpire);
-                        task.AORadius = 75000f;
-                        task.SetTargetPlanet(planet);
-                        task.TargetPlanetGuid = planet.guid;
-                        task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
-                        TaskList.Add(task);
+                        //if (claim) continue;
+                        //var task = new Tasks.MilitaryTask()
+                        //{
+                        //    AO = planet.Center
+                        //};
+                        //task.SetEmpire(OwnerEmpire);
+                        //task.AORadius = 75000f;
+                        //task.SetTargetPlanet(planet);
+                        //task.TargetPlanetGuid = planet.guid;
+                        //task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
+                        //TaskList.Add(task);
                     }
                     break;
                 case WarType.GenocidalWar:

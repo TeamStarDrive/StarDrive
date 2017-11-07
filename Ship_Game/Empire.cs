@@ -595,16 +595,22 @@ namespace Ship_Game
                 if (!tech.Value.shipDesignsCanuseThis)
                     tech.Value.shipDesignsCanuseThis = WeCanUseThisLater(tech.Value);
             }
-            foreach (var kv in TechnologyDict)
+            foreach (var kv in TechnologyDict.OrderBy(hulls => hulls.Value.Tech.HullsUnlocked.Count >0))
             {
                 AddToShipTechLists(kv.Value);
                 if (!kv.Value.Unlocked)
                     continue;
                 kv.Value.Unlocked = false;
                 kv.Value.Unlock(this);
-                //UnlockTech(kv.Key);
             }
-
+            foreach (var kv in TechnologyDict.Where(hulls => hulls.Value.Tech.HullsUnlocked.Count > 0 && hulls.Value.Tech.RootNode != 1))
+            {
+                AddToShipTechLists(kv.Value);
+                if (!kv.Value.Unlocked)
+                    continue;
+                kv.Value.Unlocked = false;
+                kv.Value.Unlock(this);
+            }
             //unlock ships from empire data
             foreach (string ship in data.unlockShips)
                 ShipsWeCanBuild.Add(ship);
@@ -622,6 +628,7 @@ namespace Ship_Game
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
             data.TechDelayTime = 4;
+            
         }
 
         private void InitTechs()
@@ -636,27 +643,27 @@ namespace Ship_Game
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
                 if (kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0)
                 {
-                    techEntry.Discovered = false;
-                    kv.Value.Secret = true;
+                    techEntry.Discovered |= kv.Value.RaceRestrictions.Count == 0;
+                    kv.Value.Secret |= kv.Value.RaceRestrictions.Count != 0; ;
                     foreach (Technology.RequiredRace raceTech in kv.Value.RaceRestrictions)
                     {
-                        if (raceTech.ShipType == data.Traits.ShipType)
+                        if (raceTech.ShipType != data.Traits.ShipType) continue;
+                        techEntry.Discovered = true;                                                                                 
+                        break;
+                    }
+                    if (techEntry.Discovered)
+                    {
+                        foreach (Technology.RequiredRace raceTech in kv.Value.RaceExclusions)
                         {
-                            techEntry.Discovered = true;
-                            techEntry.Unlocked = kv.Value.RootNode == 1;
-                            if (data.Traits.Militaristic == 1 && techEntry.Tech.Militaristic)
-                                techEntry.Unlocked = true;                                
+                            if (raceTech.ShipType != data.Traits.ShipType) continue;
+                            techEntry.Discovered = false;
+                            kv.Value.Secret = true;
                             break;
                         }
                     }
-
-                    foreach (Technology.RequiredRace raceTech in kv.Value.RaceExclusions)
-                    {                        
-                        if (raceTech.ShipType == data.Traits.ShipType)                                                    
-                            continue;                            
-                        
-                        techEntry.Discovered = true;                        
-                    }
+                   
+                    if (techEntry.Discovered)
+                        techEntry.Unlocked = kv.Value.RootNode == 1;
                 }
                 else //not racial tech
                 {

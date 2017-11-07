@@ -52,6 +52,7 @@ namespace Ship_Game
         public struct RequiredRace
         {
             public string ShipType;
+            public string RacialTrait;
         }
 
         //added by McShooterz: Alternate Tach variables

@@ -15,7 +15,9 @@
     </LeadsToTech>
   </LeadsTo>
   <RaceExclusions>
-    <ShipType>Opteris</ShipType>
+    <RequiredRace>
+      <ShipType>Opteris</ShipType>
+    </RequiredRace>
   </RaceExclusions>
   <ModulesUnlocked />
   <BuildingsUnlocked>
