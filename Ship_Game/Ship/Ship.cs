@@ -377,8 +377,8 @@ namespace Ship_Game.Gameplay
                 if (TroopList.IsEmpty)
                     return 0.0f;
 
-                int assaultSpots = shipData.Role == ShipData.RoleName.troop ? TroopList.Count : 0;
-                assaultSpots += Hangars.Count(sm => sm.IsTroopBay);
+                int assaultSpots =( DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troopShip) ? TroopList.Count : 0;
+                assaultSpots += Hangars.FilterBy(sm => sm.IsTroopBay).Length;
                 assaultSpots += Transporters.Sum(sm => sm.TransporterTroopLanding);
 
                 int troops = Math.Min(TroopList.Count, assaultSpots);
@@ -2806,7 +2806,7 @@ namespace Ship_Game.Gameplay
             RepairBeams.Clear();
         }
 
-        public void ClearFleet() => fleet?.RemoveShip(this);
+        public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
         
 
         public void Dispose()
@@ -3084,7 +3084,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty}";
+        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {

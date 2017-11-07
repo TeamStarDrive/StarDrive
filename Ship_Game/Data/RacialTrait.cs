@@ -126,16 +126,17 @@ namespace Ship_Game
         }
         public void TechUnlocks(TechEntry techEntry, Empire empire)
         {
+            if (!techEntry.Discovered) return;
             if (Militaristic == 1)
             {
                 //added by McShooterz: alternate way to unlock militaristic techs
-                if (techEntry.Tech.Militaristic && techEntry.Tech.RaceRestrictions.Count == 0)
+                if (techEntry.Tech.Militaristic)
                     techEntry.Unlocked = true;
 
                 // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
                 if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
                 {
-                    if (techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" ||
+                    if (techEntry.UID == "HeavyFighterHull" ||
                                          techEntry.UID == "Military" || techEntry.UID == "ArmorTheory")
                         techEntry.Unlocked = true;
 
