@@ -166,18 +166,13 @@ namespace Ship_Game.AI
         public void AssignShipToForce(Ship toAdd)
         {
             toAdd.ClearFleet();
-            if (toAdd.fleet != null ||OwnerEmpire.GetShipsFromOffensePools().Contains(toAdd) )
+            if (OwnerEmpire.GetShipsFromOffensePools().Contains(toAdd))
             {
                 //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool
-                if (toAdd.fleet.ContainsShip(toAdd))
-                {
-                    OwnerEmpire.ForcePoolRemove(toAdd);
-                    Log.Error("ship in {0}", toAdd.fleet?.Name ?? "force Pool");
-                    return;
-                }
-                toAdd.fleet = null;
+                OwnerEmpire.ForcePoolRemove(toAdd);
+                         
             }
-            
+
             int numWars = OwnerEmpire.AtWarCount;
             
             float baseDefensePct = 0.1f;
@@ -422,42 +417,47 @@ namespace Ship_Game.AI
                 bool Compare(int o, int n) => o > 0 && o > n;
                 
                 for (int x = 0; x < 4; x++)                
-                    if (!Compare(original[x], newTech[x])) return false;
+                    if (Compare(original[x], newTech[x])) return false;
                 
                 return true;
             }
-
-            int upgrades = 0;
-            var offPool =OwnerEmpire.GetShipsFromOffensePools();
+            
+            var offPool =OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
-                if (upgrades < 5)
+                if (ship.AI.BadGuysNear) continue;
+                if (ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget) continue;
+
+
+                int techScore = ship.GetTechScore(out int[] origTechs);
+                string name = "";
+                float newStr = 0;
+                foreach (string shipName in OwnerEmpire.ShipsWeCanBuild)
                 {
-                    int techScore = ship.GetTechScore(out int[] origTechs);
-                    string name = "";
+                    Ship newTemplate = ResourceManager.GetShipTemplate(shipName);
+                    if (newTemplate.GetShipData().Hull != ship.GetShipData().Hull)
+                        continue;
+                    if (newTemplate.DesignRole != ship.DesignRole) continue;
+                    if (newTemplate.GetStrength() <= newStr) continue;
+                    if (ship.shipData.techsNeeded.Except(newTemplate.shipData.techsNeeded).Any()) continue;
 
-                    foreach (string shipName in OwnerEmpire.ShipsWeCanBuild)
-                    {
-                        Ship newTemplate = ResourceManager.GetShipTemplate(shipName);
-                        if (newTemplate.GetShipData().Hull != ship.GetShipData().Hull)                                                        
-                            continue;
-                        int newScore =newTemplate.GetTechScore(out int[] newTech);
+                    int newScore = newTemplate.GetTechScore(out int[] newTech);
 
-                        if(newScore <= techScore || !TechCompare(origTechs, newTech)) continue;                        
 
-                        name      = shipName;
-                        techScore = newScore;
-                        origTechs = newTech;
-                    }
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        ship.AI.OrderRefitTo(name);
-                        ++upgrades;
-                    }                    
+                    var newTechs = newTemplate.shipData.techsNeeded.Except(ship.shipData.techsNeeded).ToArray();
+
+                    if (newTechs.Length == 0 && (newScore <= techScore || !TechCompare(origTechs, newTech)))
+                        continue;
+
+                    name = shipName;
+                    newStr = newTemplate.GetStrength();
+                    techScore = newScore;
+                    origTechs = newTech;
                 }
-                else
-                    break;
+                if (string.IsNullOrEmpty(name)) continue;
+                ship.AI.OrderRefitTo(name);
+                
             }
         }
 

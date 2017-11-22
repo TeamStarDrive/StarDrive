@@ -170,7 +170,7 @@ namespace Ship_Game.AI.Tasks {
             foreach (Ship ship in ships)
             {
                 if (ship.fleet != null)
-                    Log.Error("GetAvailableShips: a ship is in fleet '{0}' and not available for {1}", ship.fleet.Name,
+                    Log.Info("GetAvailableShips: a ship is in fleet '{0}' and not available for {1}", ship.fleet.Name,
                         type.ToString());
                 if (area.GetWaitingShips().ContainsRef(ship))
                     Log.Error("ship is in waiting list and should not be");

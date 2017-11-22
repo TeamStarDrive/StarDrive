@@ -2569,6 +2569,8 @@ namespace Ship_Game
                         case 1:
                         case 2:
                             {
+                                if (ship.AI.FoodOrProd == "Pass")
+                                    ship.AI.FoodOrProd = "";
                                 ship.AI.State = AIState.SystemTrader;
                                 ship.AI.OrderTrade(0.1f);
                                 type++;
@@ -2577,6 +2579,9 @@ namespace Ship_Game
                         
                         default:
                             ship.AI.State = AIState.PassengerTransport;
+                            ship.TradingFood = false;
+                            ship.TradingProd = false;
+                            ship.AI.FoodOrProd = "";
                             ship.AI.OrderTransportPassengers(0.1f);
                             type =1;                            
                             break;

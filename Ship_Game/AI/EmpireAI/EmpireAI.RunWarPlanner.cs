@@ -440,21 +440,20 @@ namespace Ship_Game.AI {
             {
                 case WarType.BorderConflict:
                     var list1 = new Array<Planet>();
-                    IOrderedEnumerable<Planet> orderedEnumerable1 = r.Key.GetPlanets()
+                    var orderedEnumerable1 = r.Key.GetPlanets()
                         .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
                                   (r.Key.GetGSAI()
                                       .DefensiveCoordinator.DefenseDict
                                       .TryGetValue(planet.ParentSystem, out scom)
                                       ? scom.RankImportance
-                                      : 0));
+                                      : 0)).ToArray();
                     s = new Array<SolarSystem>();
 
-                    for (int x = 0; x < orderedEnumerable1.Count(); ++x)
+                    for (int x = 0; x < orderedEnumerable1.Length; ++x)
                     {
-                        Planet p = orderedEnumerable1.ElementAt(x);
+                        Planet p = orderedEnumerable1[x];
                         if (s.Count > warWeight)
                             break;
-
                         if (!s.Contains(p.ParentSystem))
                         {
                             s.Add(p.ParentSystem);
@@ -485,18 +484,18 @@ namespace Ship_Game.AI {
                     break;
                 case WarType.ImperialistWar:
                     var planets = new Array<Planet>();                    
-                    IOrderedEnumerable<Planet> importantPlanets = r.Key.GetPlanets().OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
+                    Planet[] importantPlanets = r.Key.GetPlanets().OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
                                   (r.Key.GetGSAI()
                                       .DefensiveCoordinator.DefenseDict
                                       .TryGetValue(planet.ParentSystem, out scom)
                                       ? scom.RankImportance
-                                      : 0));
+                                      : 0)).ToArray();
                     s = new Array<SolarSystem>();
                     for (int index = 0;
-                        index < importantPlanets.Count();
+                        index < importantPlanets.Length;
                         ++index)
                     {
-                        Planet p = importantPlanets.ElementAt(index);
+                        Planet p = importantPlanets[index];
                         if (s.Count > warWeight)
                             break;
 
@@ -508,8 +507,7 @@ namespace Ship_Game.AI {
                     }
                     foreach (Planet planet in planets)
                     {
-                        bool flag = true;
-                        bool claim = false;
+                        bool flag = true;                        
                         if (!s.Contains(planet.ParentSystem))
                             continue;
                         using (TaskList.AcquireReadLock())
@@ -519,31 +517,14 @@ namespace Ship_Game.AI {
                                 if (militaryTask.GetTargetPlanet() == planet)
                                 {
                                     if (militaryTask.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                                        flag = false;
-                                    //if (militaryTask.type == Tasks.MilitaryTask.TaskType.DefendClaim)
-                                    //{
-                                    //    claim = true;
-                                    //    if (militaryTask.Step == 2)
-                                    //        claimPressent = true;
-                                    //}
+                                        flag = false;                                    
                                 }
                             }
                         }
-                        if (flag)// && claimPressent)
+                        if (flag)
                         {
                             TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                         }
-                        //if (claim) continue;
-                        //var task = new Tasks.MilitaryTask()
-                        //{
-                        //    AO = planet.Center
-                        //};
-                        //task.SetEmpire(OwnerEmpire);
-                        //task.AORadius = 75000f;
-                        //task.SetTargetPlanet(planet);
-                        //task.TargetPlanetGuid = planet.guid;
-                        //task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
-                        //TaskList.Add(task);
                     }
                     break;
                 case WarType.GenocidalWar:
@@ -638,19 +619,20 @@ namespace Ship_Game.AI {
                             Array<Planet> list1 = new Array<Planet>();
                             s = new Array<SolarSystem>();
 
-                            IOrderedEnumerable<Planet> orderedEnumerable1 = kv.Key.GetPlanets()
+                            var orderedEnumerable1 = kv.Key.GetPlanets()
                                 .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
                                     (kv.Key.GetGSAI()
                                         .DefensiveCoordinator.DefenseDict
                                         .TryGetValue(planet.ParentSystem, out scom)
                                         ? scom.RankImportance
-                                        : 0));
+                                        : 0)).ToArray();
+                            
                             for (int index = 0;
-                                index < orderedEnumerable1.Count();
+                                index < orderedEnumerable1.Length;
                                 ++index)
                             {
                                 Planet p =
-                                    orderedEnumerable1.ElementAt(index);
+                                    orderedEnumerable1[index];                                
                                 if (s.Count > warWeight)
                                     break;
 
@@ -670,32 +652,12 @@ namespace Ship_Game.AI {
                                         task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                                     {
                                         assault = false;
-                                    }
-                                    //if (task.GetTargetPlanet() == planet &&
-                                    //    task.type == Tasks.MilitaryTask.TaskType.DefendClaim)
-                                    //{
-                                    //    if (task.Step == 2)
-                                    //        claimPresent = true;
-                                    //    claim = true;
-                                    //}
+                                    }                              
                                 }, false, false);
-                                if (assault)// && claimPresent)
+                                if (assault)
                                 {
                                     TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                                 }
-                                //if (!claim)
-                                //{
-                                //    var task = new Tasks.MilitaryTask()
-                                //    {
-                                //        AO = planet.Center
-                                //    };
-                                //    task.SetEmpire(OwnerEmpire);
-                                //    task.AORadius = 75000f;
-                                //    task.SetTargetPlanet(planet);
-                                //    task.TargetPlanetGuid = planet.guid;
-                                //    task.type = Tasks.MilitaryTask.TaskType.DefendClaim;
-                                //    TaskList.Add(task);
-                                //}
                             }
                             break;
                         case WarType.ImperialistWar:
@@ -724,47 +686,22 @@ namespace Ship_Game.AI {
                             foreach (Planet planet in list2)
                             {
                                 bool flag = true;
-                                bool claim = false;
-                                {
-                                    TaskList.ForEach(task =>
-                                    {
-                                        if (!flag && claim)
-                                            return;
-                                        if (task.GetTargetPlanet() == planet &&
-                                            task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                                        {
-                                            flag = false;
-                                        }
-                                        //if (task.GetTargetPlanet() != planet ||
-                                        //    task.type != Tasks.MilitaryTask.TaskType.DefendClaim) return;
-                                        //if (task.Step == 2)
-                                        //    claimPresent = true;
+                                //bool claim = false;
 
-                                        //claim = true;
-                                    }, false, false);
-                                }
-                                if (flag)// && claimPresent)
+                                TaskList.ForEach(task =>
+                                {
+                                    if (!flag)
+                                        return;
+                                    if (task.GetTargetPlanet() == planet &&
+                                        task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
+                                    {
+                                        flag = false;
+                                    }
+                                }, false, false);
+                                if (flag)
                                 {
                                     TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
                                 }
-                                //if (!claim)
-                                //{
-                                //    // @todo This is repeated everywhere. Might cut down a lot of code by creating a function
-
-                                //    Tasks.MilitaryTask task = new Tasks.MilitaryTask()
-                                //    {
-                                //        AO = planet.Center
-                                //    };
-                                //    task.SetEmpire(OwnerEmpire);
-                                //    task.AORadius = 75000f;
-                                //    task.SetTargetPlanet(planet);
-                                //    task.TargetPlanetGuid = planet.guid;
-                                //    task.type             = Tasks.MilitaryTask.TaskType.DefendClaim;
-                                //    task.EnemyStrength    = 0;
-                                //    {
-                                //        TaskList.Add(task);
-                                //    }
-                                //}
                             }
                             break;
                         case WarType.GenocidalWar:

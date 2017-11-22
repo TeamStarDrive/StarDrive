@@ -805,7 +805,7 @@ namespace Ship_Game
                 ship.IsPlayerDesign = false;
                 ship.FromSave       = true;
             }
-            ship.BaseStrength = ship.CalculateBaseStrength();
+            ship.BaseStrength = ship.CalculateShipStrength();
 
             foreach (ModuleSlotData slot in shipData.data.ModuleSlots)
             {
