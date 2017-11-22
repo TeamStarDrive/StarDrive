@@ -62,7 +62,7 @@ namespace Ship_Game
             {
                 Jitter = Weapon.AdjustTargetting(); 
                 JitterRadius = (targetVector + Jitter).Distance(targetVector) / 4f;
-                SetDestination(destination, 1000f);
+                SetDestination(destination, 4000f);
                 Destination += Jitter;
             }
             SetDestination(Destination);

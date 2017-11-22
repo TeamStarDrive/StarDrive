@@ -192,7 +192,7 @@ namespace Ship_Game
                         energyDps = weapon.DamageAmount / weapon.fireDelay;
                 }
             }
-            if (ammoDps >= (ammoDps + energyDps) * 0.5f && currentAmmo <= maxAmmo * 0.1f) //is ammo really needed and if so is ammo < 1/10th of max
+            if (maxAmmo > 0 && ammoDps >= (ammoDps + energyDps) * 0.5f && currentAmmo <= maxAmmo * 0.1f) //is ammo really needed and if so is ammo < 1/10th of max
             {
                 return false;
             }

@@ -218,6 +218,50 @@ namespace Ship_Game
             HasShipyard = false;            
         }
 
+        public Goods ImportPriority()
+        {
+            if (NetFoodPerTurn <= 0 || FarmerPercentage > .5f)
+            {
+                if (ConstructingGoodsBuilding(Goods.Food))
+                    return Goods.Production;
+                return Goods.Food;
+            }
+            if (ConstructionQueue.Count > 0) return Goods.Production;
+            if (ps == GoodState.IMPORT) return Goods.Production;
+            if (fs == GoodState.IMPORT) return Goods.Food;
+            return Goods.Food;
+        }
+
+        public bool ConstructingGoodsBuilding(Goods goods)
+        {
+            if (ConstructionQueue.IsEmpty) return false;
+            switch (goods)
+            {
+                case Goods.Production:
+                    foreach (var item in ConstructionQueue)
+                    {
+                        if (item.isBuilding && item.Building.ProducesProduction)
+                        {
+                            return true;                            
+                        }
+                    }
+                    break;
+                case Goods.Food:
+                    foreach (var item in ConstructionQueue)
+                    {
+                        if (item.isBuilding && item.Building.ProducesFood)
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+                case Goods.Colonists:
+                    break;
+                default:
+                    break;
+            }
+            return false;
+        }
  
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
@@ -3457,71 +3501,40 @@ namespace Ship_Game
             bool FSexport = false;
             bool PSexport = false;
             int pc = Owner.GetPlanets().Count;
-            
-            
-            
-            
+
+
+
+
             bool exportPSFlag = true;
             bool exportFSFlag = true;
-             float exportPTrack = Owner.exportPTrack;
-         float exportFTrack = Owner.exportFTrack;
-     
-            
-            //foreach (Planet planet in this.Owner.GetPlanets())
-            //{
-            //    pc++;
-            //    //                if (this.ExportPSWeight < 0 || this.ExportFSWeight < 0)
-            //    if (planet.fs == GoodState.IMPORT)
-            //    {
-            //        importFSNeed += planet.MAX_STORAGE - planet.FoodHere;
-            //        FSexport = true;
-            //    }
-            //    if (planet.fs == GoodState.EXPORT)
-            //        exportFSNeed += planet.FoodHere * (this.ExportFSWeight * -.01f);
+            float exportPTrack = Owner.exportPTrack;
+            float exportFTrack = Owner.exportFTrack;
 
-            //    //if (planet.ExportFSWeight < exportFTrack)
-            //    exportFTrack += planet.ExportFSWeight;
-            //    if (planet.ps == GoodState.IMPORT)
-            //    {
-            //        importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
-            //        PSexport = true;
-            //    }
-            //    if (planet.ps == GoodState.EXPORT)
-            //        exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);
-
-            //    //if (planet.ExportPSWeight < exportPTrack)
-            //    exportPTrack += planet.ExportPSWeight;
-            //    Storage += planet.MAX_STORAGE;
-
-
-            //}
             if (pc == 1)
             {
                 FSexport = false;
                 PSexport = false;
             }
-            exportFSFlag = exportFTrack / pc *2 >= ExportFSWeight;
-            exportPSFlag = exportPTrack / pc *2  >= ExportPSWeight;
-            
-            if (!exportFSFlag || Owner.averagePLanetStorage >= MAX_STORAGE) //|| this.ExportFSWeight > exportFTrack //exportFSNeed <= 0 ||
+            exportFSFlag = exportFTrack / pc * 2 >= ExportFSWeight;
+            exportPSFlag = exportPTrack / pc * 2 >= ExportPSWeight;
+
+            if (!exportFSFlag || Owner.averagePLanetStorage >= MAX_STORAGE)
                 FSexport = true;
-            
-            if ( !exportPSFlag || Owner.averagePLanetStorage >= MAX_STORAGE) //|| this.ExportPSWeight > exportPTrack //exportPSNeed <= 0 ||
+
+            if (!exportPSFlag || Owner.averagePLanetStorage >= MAX_STORAGE)
                 PSexport = true;
-            //this.ExportFSWeight = 0;
-            //this.ExportPSWeight = 0;
             float PRatio = ProductionHere / MAX_STORAGE;
             float FRatio = FoodHere / MAX_STORAGE;
 
             int queueCount = ConstructionQueue.Count;
             switch (colonyType)
             {
-                
-                case ColonyType.Colony:               
+
+                case ColonyType.Colony:
                 case ColonyType.Industrial:
                     if (Population >= 1000 && MaxPopulation >= Population)
                     {
-                        if (PRatio < .9 && queueCount > 0) //&& FSexport
+                        if (PRatio < .9 && queueCount > 0) 
                             ps = GoodState.IMPORT;
                         else if (queueCount == 0)
                         {
@@ -3533,13 +3546,13 @@ namespace Ship_Game
                     }
                     else if (queueCount > 0 || Owner.data.Traits.Cybernetic > 0)
                     {
-                        if (PRatio < .5f ) //&& PSexport
+                        if (PRatio < .5f)
                             ps = GoodState.IMPORT;
-                        else if (!PSexport && PRatio >.5)
+                        else if (!PSexport && PRatio > .5)
                             ps = GoodState.EXPORT;
                         else
                             ps = GoodState.STORE;
-                    } 
+                    }
                     else
                     {
                         if (PRatio > .5f && !PSexport)
@@ -3547,38 +3560,38 @@ namespace Ship_Game
                         else if (PRatio > .5f && PSexport)
                             ps = GoodState.STORE;
                         else ps = GoodState.EXPORT;
-                        
+
                     }
-                    
-                if(NetFoodPerTurn < 0)
+
+                    if (NetFoodPerTurn < 0)
                         fs = Planet.GoodState.IMPORT;
                     else if (FRatio > .75f)
                         fs = Planet.GoodState.STORE;
                     else
                         fs = Planet.GoodState.IMPORT;
-                break;
+                    break;
 
-                    
+
                 case ColonyType.Agricultural:
-                if (PRatio > .75 && !PSexport)
+                    if (PRatio > .75 && !PSexport)
                         ps = Planet.GoodState.EXPORT;
-                else if (PRatio < .5 && PSexport)
+                    else if (PRatio < .5 && PSexport)
                         ps = Planet.GoodState.IMPORT;
-                else
+                    else
                         ps = GoodState.STORE;
 
 
-                if (NetFoodPerTurn > 0 )
+                    if (NetFoodPerTurn > 0)
                         fs = Planet.GoodState.EXPORT;
-                else if (NetFoodPerTurn < 0)
+                    else if (NetFoodPerTurn < 0)
                         fs = Planet.GoodState.IMPORT;
-                    else if(FRatio> .75f )
+                    else if (FRatio > .75f)
                         fs = Planet.GoodState.STORE;
-                else
+                    else
                         fs = Planet.GoodState.IMPORT;
 
-                break;
-                
+                    break;
+
                 case ColonyType.Research:
 
                     {
@@ -3596,7 +3609,7 @@ namespace Ship_Game
                         else
                         if (FRatio > .75f && !FSexport)
                             fs = Planet.GoodState.EXPORT;
-                        else if ( FRatio < .75) //FSexport &&
+                        else if (FRatio < .75) //FSexport &&
                             fs = Planet.GoodState.IMPORT;
                         else
                             fs = GoodState.STORE;
@@ -3604,81 +3617,63 @@ namespace Ship_Game
                         break;
                     }
 
-                case ColonyType.Core:                
-                if(MaxPopulation > Population * .75f && Population > developmentLevel * 1000)
-                {
+                case ColonyType.Core:
+                    if (MaxPopulation > Population * .75f && Population > developmentLevel * 1000)
+                    {
 
-                    if (PRatio > .33f )
+                        if (PRatio > .33f)
                             ps = GoodState.EXPORT;
-                    else if ( PRatio < .33 )
+                        else if (PRatio < .33)
                             ps = GoodState.STORE;
+                        else
+                            ps = GoodState.IMPORT;
+                    }
                     else
-                            ps = GoodState.IMPORT;
-                }
-                else
-                {
-                    if (PRatio > .75 && !FSexport)
+                    {
+                        if (PRatio > .75 && !FSexport)
                             ps = GoodState.EXPORT;
-                    else if (PRatio < .5) //&& FSexport
+                        else if (PRatio < .5) //&& FSexport
                             ps = GoodState.IMPORT;
-                    else ps = GoodState.STORE;
-                }
+                        else ps = GoodState.STORE;
+                    }
 
                     if (NetFoodPerTurn < 0)
                         fs = Planet.GoodState.IMPORT;
-                    else if(FRatio > .25)
+                    else if (FRatio > .25)
                         fs = GoodState.EXPORT;
-                else if (NetFoodPerTurn > developmentLevel * .5)
+                    else if (NetFoodPerTurn > developmentLevel * .5)
                         fs = GoodState.STORE;
-                else
+                    else
                         fs = GoodState.IMPORT;
-                        
 
-                break;
+
+                    break;
                 case ColonyType.Military:
                 case ColonyType.TradeHub:
-                if (fs != GoodState.STORE)
-                    if (FRatio > .50)
+                    if (fs != GoodState.STORE)
+                        if (FRatio > .50)
                             fs = GoodState.EXPORT;
-                    else
+                        else
                             fs = GoodState.IMPORT;
-                if (ps != GoodState.STORE)
-                    if (PRatio > .50)
+                    if (ps != GoodState.STORE)
+                        if (PRatio > .50)
                             ps = GoodState.EXPORT;
-                    else
+                        else
                             ps = GoodState.IMPORT;
 
-                break;
+                    break;
 
                 default:
                     break;
             }
-            if(!PSexport)
+            if (!PSexport)
                 this.PSexport = true;
             else
             {
                 this.PSexport = false;
             }
 
-            //if(!FSexport)
-            //    this.FSexport = true;
-            //else
-            //{
-            //    this.FSexport = false;
-            //}
-            //if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
-            //{
-                
-            //    this.ps = GoodState.STORE;
-            //}
 
-            //if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
-            //{
-                
-            //    this.fs = GoodState.STORE;
-            //}
-
-           
         }
         public void DoGoverning()
         {

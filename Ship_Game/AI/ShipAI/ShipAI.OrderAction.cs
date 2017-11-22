@@ -696,18 +696,9 @@ namespace Ship_Game.AI {
 
             OrderQueue.Clear();
 
-            var sortedList =
-                from planet in Owner.loyalty.GetPlanets()
-                orderby Vector2.Distance(Owner.Center, planet.Center)
-                select planet;
-            OrbitTarget = null;
-            foreach (Planet Planet in sortedList)
-            {
-                if (!Planet.HasShipyard && !Owner.loyalty.isFaction)
-                    continue;
-                OrbitTarget = Planet;
-                break;
-            }
+
+            OrbitTarget = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+         
             if (OrbitTarget == null)
             {
                 State = AIState.AwaitingOrders;
@@ -798,8 +789,9 @@ namespace Ship_Game.AI {
         {
 #if SHOWSCRUB
 //Log.Info(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
-#endif
-
+#endif            
+            Owner.ClearFleet();
+            Owner.loyalty.ForcePoolRemove(Owner);
             if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
             {
                 Owner.ScuttleTimer = 1;
@@ -812,11 +804,7 @@ namespace Ship_Game.AI {
             {
                 ActiveWayPoints.Clear();
             }
-            Owner.loyalty.ForcePoolRemove(Owner);
-
-            Owner.fleet?.RemoveShip(Owner);
-
-
+            
             HasPriorityOrder = true;
             IgnoreCombat = true;
             OrderQueue.Clear();
@@ -838,8 +826,6 @@ namespace Ship_Game.AI {
                 TargetPlanet = OrbitTarget
             };
             OrderQueue.Enqueue(scrap);
-            State = AIState.Scrap;
-
             State = AIState.Scrap;
         }
 
