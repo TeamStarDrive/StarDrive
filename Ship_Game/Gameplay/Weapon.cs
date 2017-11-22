@@ -447,7 +447,7 @@ namespace Ship_Game.Gameplay
                 pip     = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
                     target.Center, ship.Velocity, ship.Acceleration);
                  jitter += AdjustTargetting();
-                Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 1000) + jitter;                
+                Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 4000) + jitter;                
                 pip = SetDestination(jitteredtarget, ownerCenter, ownerCenter.Distance(pip));
 
             }
@@ -456,7 +456,7 @@ namespace Ship_Game.Gameplay
                 pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
                     target.Center, target.Velocity);
                 jitter += AdjustTargetting();
-                jitter += SetDestination(pip, ownerCenter, 1000);                                
+                jitter += SetDestination(pip, ownerCenter, 4000);                                
                 pip     = SetDestination(jitter, ownerCenter, ownerCenter.Distance(pip));
             }
 

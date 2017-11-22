@@ -80,5 +80,8 @@ namespace Ship_Game
             b.theWeapon = null;
             return b;
 		}
+
+        public bool ProducesProduction => PlusFlatProductionAmount >0 || PlusProdPerColonist >0 || PlusProdPerRichness >0;
+        public bool ProducesFood => PlusFlatFoodAmount >0 || PlusFoodPerColonist > 0;
 	}
 }

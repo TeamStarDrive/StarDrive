@@ -1145,6 +1145,28 @@ namespace Ship_Game.Gameplay
             def += shield_power_max * ((shield_radius * .05f) / slotCount);
             //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
             def += HealthMax * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
+            def *= 1 + BeamResist;
+            def *= 1 + KineticResist;
+            def *= 1 + EnergyResist;
+            def *= 1 + GuidedResist;
+            def *= 1 + MissileResist;
+            def *= 1 + HybridResist;
+            def *= 1 + InterceptResist;
+            def *= 1 + ExplosiveResist;
+            def *= 1 + RailgunResist;
+            def *= 1 + SpaceBombResist;
+            def *= 1 + BombResist;
+            def *= 1 + BioWeaponResist;
+            def *= 1 + DroneResist;
+            def *= 1 + WarpResist;
+            def *= 1 + TorpedoResist;
+            def *= 1 + CannonResist;
+            def *= 1 + SubspaceResist;
+            def *= 1 + PDResist;
+            def *= 1 + FlakResist;
+            def *= 1 + DamageThreshold / Health;
+            def += ECM;
+            def *= 1 + EMP_Protection / slotCount;
             return def;
         }
 
@@ -1158,14 +1180,22 @@ namespace Ship_Game.Gameplay
 
                 //Doctor: The 25% penalty to explosive weapons was presumably to note that not all the damage is applied to a single module - this isn't really weaker overall, though
                 //and unfairly penalises weapons with explosive damage and makes them appear falsely weaker.
-                off += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                
+                off +=  w.Tag_Guided ? w.DamageAmount * w.SalvoCount * (1f / w.fireDelay) : !w.isBeam ? w.DamageAmount * w.SalvoCount * (1f / w.fireDelay) / (1 + w.FireCone *.25f) : w.DamageAmount * 18f;
+                off += w.EMPDamage * (1f / w.fireDelay) *.2f ;
+                off += w.MassDamage * (1f / w.fireDelay) *.5f;
+                off += w.PowerDamage * (1f / w.fireDelay) ;
+                off += w.RepulsionDamage * (1f / w.fireDelay);
+                off += w.SiphonDamage * (1f / w.fireDelay);
+                off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
+                
 
                 //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
                 if (w.Tag_Guided)
                     off *= 1.25f;
 
                 //Doctor: Higher range on a weapon attracts a small bonus to offensive rating. E.g. a range 2000 weapon gets 5% uplift vs a 5000 range weapon 12.5% uplift. 
-                off *= (1 + (w.Range / 40000));
+                off *= w.Range / 4000 ;// (1 + (w.Range / 1000) *.1f);
 
                 //Doctor: Here follows multipliers which modify the perceived offensive value of weapons based on any modifiers they may have against armour and shields
                 //Previously if e.g. a rapid-fire cannon only did 20% damage to armour, it could have amuch higher off rating than a railgun that had less technical DPS but did double armour damage.
@@ -1198,21 +1228,33 @@ namespace Ship_Game.Gameplay
 
                 //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
                 off *= w.OffPowerMod;
+                if (w.TruePD)
+                    off *= .2f;
+                if (w.Tag_Intercept && w.Tag_Missile)
+                    off *= .8f;
+                if (w.ProjectileSpeed > 1)
+                    off *= w.ProjectileSpeed / 4000;
+                if (w.DamageRadius > 1)
+                    off *= w.DamageRadius / 16f;
 
-                if (off > 0f && (w.TruePD || w.Range < 1000))
+                
+                
+                int allRoles = 0;
+                int restrictedRoles = 0;
+                foreach (ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
                 {
-                    float range = 0f;
-                    if (w.Range < 1000)
-                        range = (1000f - w.Range) * .01f;
-                    off /= (2 + range);
+                    allRoles++;
+                    if (!w.TargetValid(role))
+                        restrictedRoles++;
                 }
-                if (w.EMPDamage > 0) off += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
+                off *= restrictions;
             }
             if (hangarShipUID.NotEmpty() && !IsSupplyBay && !IsTroopBay)
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
                 {
-                    off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateBaseStrength();
+                    off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateShipStrength();
                 }
                 else off += 100f;
             }

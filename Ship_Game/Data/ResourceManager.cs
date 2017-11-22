@@ -179,7 +179,7 @@ namespace Ship_Game
                 {
                     shipData.unLockable = true;
                     if (shipData.BaseStrength <= 0f)
-                        kv.Value.CalculateBaseStrength();
+                        kv.Value.CalculateShipStrength();
                     shipData.TechScore = 0;
                     foreach (string techname in shipData.techsNeeded)
                     {
@@ -1305,7 +1305,7 @@ namespace Ship_Game
 
             foreach (var entry in ShipsDict) // Added by gremlin : Base strength Calculator
             {
-                entry.Value.CalculateBaseStrength();
+                entry.Value.BaseStrength = entry.Value.CalculateShipStrength();
             }
         }
 

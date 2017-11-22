@@ -246,6 +246,7 @@ namespace Ship_Game.Gameplay
             }
         }
         public ShipData.RoleName DesignRole { get; private set; }
+
         private int Calculatesize()
         {
             int size = 0;
@@ -1985,7 +1986,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 foreach (ShipModule slot in ModuleSlotList)
-                    slot.Update(1f);
+                    slot.Update(deltaTime);
                 if (shipStatusChanged) //|| InCombat
                     ShipStatusChange();
                 //Power draw based on warp
@@ -2456,6 +2457,7 @@ namespace Ship_Game.Gameplay
                     Thrust         += Thrust * mod.SpeedBonus;
                 }
             }
+            CalculateShipStrength(setBaseStrength: false);
 
         }
         public bool IsTethered()
@@ -2464,92 +2466,18 @@ namespace Ship_Game.Gameplay
         }
 
         //added by Gremlin : active ship strength calculator
-        public float GetStrength()
+        private float CurrentStrength = -1;
+        public float GetStrength(bool recalculate = false)
         {            
-            if (Health >= HealthMax * 0.75f && !LowHealth && BaseStrength != -1)
+            if (Health >= HealthMax * 0.75f && !LowHealth && BaseStrength > -1)
                 return BaseStrength;
-            float strength = 0f;
-            float defense = 0f;
-            LowHealth = !(Health >= HealthMax * 0.75f);
-
-            int slotCount = ModuleSlotList.Length;
-
-            bool fighters = false;
-            bool weapons = false;
-
-            //Parallel.ForEach(this.ModuleSlotList, slot =>  //
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-#if DEBUG
-
-                //if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
-                    //Log.Info("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
-
-#endif
-                if ((BaseStrength == -1 ||( slot.Powered && slot.Active )))
-                {
-                    if (slot.InstalledWeapon != null)
-                    {
-                        weapons = true;
-                        float offRate = 0;
-                        Weapon w = slot.InstalledWeapon;
-                        float damageAmount = w.DamageAmount + w.EMPDamage + w.PowerDamage + w.MassDamage;
-                        if (!w.explodes)
-                        {
-                            offRate += (!w.isBeam ? (damageAmount * w.SalvoCount) * (1f / w.fireDelay) : damageAmount * 18f);
-                        }
-                        else
-                        {
-
-                            offRate += (damageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
-
-                        }
-                        if (offRate > 0 && w.TruePD || w.Range < 1000)
-                        {
-                            float range = 0f;
-                            if (w.Range < 1000)
-                            {
-                                range = (1000f - w.Range) * .01f;
-                            }
-                            offRate /= (2 + range);
-                        }
-                        //if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
-                        strength += offRate;
-                    }
-
-                    if (slot.hangarShipUID != null && !slot.IsSupplyBay)
-                    {
-                        if(slot.IsTroopBay)
-                        {
-                            strength += 50;
-                            continue;
-                        }
-                        fighters = true;
-                        if (ResourceManager.ShipsDict.TryGetValue(slot.hangarShipUID, out Ship hangarship))
-                        {
-                            strength += hangarship.BaseStrength;
-                        }
-                        else strength += 300;
-                    }
-                    defense += slot.ShieldPower * ((slot.shield_radius * 0.05f) / slotCount);
-                    defense += slot.Health * ((slot.ModuleType == ShipModuleType.Armor ? (slot.XSIZE) : 1f) / (slotCount * 4));
-                }
-            }//);
-            if (!fighters && !weapons) strength = 0;
-            if (defense > strength) defense = strength;
-            //the base strength should be the ships strength at full health. 
-            //this.BaseStrength = Str + def;
-            return strength + defense;
+            if (recalculate)
+                CurrentStrength = CalculateShipStrength(false);
+            return CurrentStrength;
         }
 
 
-        public float GetDPS()
-        {
-            float num = 0.0f;
-            foreach (Weapon weapon in Weapons)
-                num += weapon.DamageAmount * (1f / weapon.fireDelay);
-            return num;
-        }
+        public float GetDPS() => DPS;
 
         //Added by McShooterz: add experience for cruisers and stations, modified for dynamic system
         public void AddKill(Ship killed)
@@ -2892,55 +2820,64 @@ namespace Ship_Game.Gameplay
             {
                 return module.XSIZE * module.YSIZE;
             }
+
+            if (BombBays.Count > 0 && str >= ShipData.RoleName.freighter)
+            {
+                float pSize = PercentageOfShipByModules(BombBays.ToArray());
+                if (pSize > .05f)
+                    return ShipData.RoleName.bomber;
+            }
+            else
+                //troops ship
+            if ((HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
+            {
+                float pTroops = PercentageOfShipByModules(Hangars.FilterBy(troopbay => troopbay.IsTroopBay));
+                float pTrans = PercentageOfShipByModules(Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
+                if (pTrans + pTroops > .1f)
+                    return ShipData.RoleName.troopShip;
+            }
+            else
             //carrier
             if (Hangars.Count >0 && str >= ShipData.RoleName.freighter)
             {
                 float pSize = PercentageOfShipByModules(Hangars.FilterBy(module => module.MaximumHangarShipSize > 0));
 
-                if (pSize >  .10f)
+                if (pSize >  .05f)
                     return ShipData.RoleName.carrier;
-            }
+            }                  
+            else
+            //if (hasOrdnanceTransporter || hasRepairBeam || HasSupplyBays || hasOrdnanceTransporter || InhibitionRadius > 0)
+            {
 
-            if (BombBays.Count >0 && str >= ShipData.RoleName.freighter)
-            {
-                float pSize = PercentageOfShipByModules(BombBays.ToArray());
-                if (pSize > .10f)
-                    return ShipData.RoleName.bomber;
-            }
-            
-            //troops ship
-            if ((HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
-            {
-                float pTroops = PercentageOfShipByModules(Hangars.FilterBy(troopbay => troopbay.IsTroopBay));
-                float pTrans = PercentageOfShipByModules(Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
-                if (pTrans + pTroops > .2f)
-                    return ShipData.RoleName.troopShip;                
-            }
-
-            if (hasOrdnanceTransporter || hasRepairBeam || HasSupplyBays || hasOrdnanceTransporter || InhibitionRadius > 0)            
-            {
-                
                 float pSpecial = PercentageOfShipByModules(ModuleSlotList.FilterBy(module =>
-                module.TransporterOrdnance > 0 || module.IsSupplyBay || module.InhibitionRadius > 0));
+                module.TransporterOrdnance > 0 || module.IsSupplyBay || module.InhibitionRadius > 0
+                || module.InstalledWeapon?.MassDamage > 0 || module.InstalledWeapon?.EMPDamage > 0
+                || module.InstalledWeapon?.RepulsionDamage > 0 || module.InstalledWeapon?.SiphonDamage > 0
+                || module.InstalledWeapon?.TroopDamageChance > 0
+                || module.InstalledWeapon?.isRepairBeam == true || module.InstalledWeapon?.IsRepairDrone == true
+                ));
                 pSpecial += PercentageOfShipByModules(RepairBeams.ToArray());
                 
-                if (pSpecial > .2f)
+                if (pSpecial > .1f)
                     return ShipData.RoleName.support;                
             }
 
             if (shipData.Role == ShipData.RoleName.troop || shipData.Role == ShipData.RoleName.troopShip)
                 return ShipData.RoleName.troopShip;
          
-            if (str == ShipData.RoleName.corvette
-               || str == ShipData.RoleName.gunboat)
-                return ShipData.RoleName.corvette;
-            if (str == ShipData.RoleName.carrier || str == ShipData.RoleName.capital)
-                return ShipData.RoleName.capital;
-            if (str == ShipData.RoleName.destroyer || str == ShipData.RoleName.frigate)
-                return ShipData.RoleName.frigate;
-            if (str == ShipData.RoleName.scout || str == ShipData.RoleName.fighter)
-            {
-                return Weapons.Count == 0 ? ShipData.RoleName.scout : ShipData.RoleName.fighter;
+            switch (str) {
+                case ShipData.RoleName.corvette:
+                case ShipData.RoleName.gunboat:
+                    return ShipData.RoleName.corvette;
+                case ShipData.RoleName.carrier:
+                case ShipData.RoleName.capital:
+                    return ShipData.RoleName.capital;
+                case ShipData.RoleName.destroyer:
+                case ShipData.RoleName.frigate:
+                    return ShipData.RoleName.frigate;
+                case ShipData.RoleName.scout:
+                case ShipData.RoleName.fighter:
+                    return Weapons.Count == 0 ? ShipData.RoleName.scout : ShipData.RoleName.fighter;
             }
 
             return str;
@@ -3000,7 +2937,9 @@ namespace Ship_Game.Gameplay
         }
 
         // @todo autocalculate during ship instance init
-        public float CalculateBaseStrength()
+        private int DPS =0;
+        private int Defense = 0;
+        public float CalculateShipStrength(bool setBaseStrength = true)
         {
             float offense = 0f;
             float defense = 0f;
@@ -3020,11 +2959,14 @@ namespace Ship_Game.Gameplay
                 if (template.WarpThrust > 0)
                     BaseCanWarp = true;
             }
+            DPS = (int)offense;
+            Defense = (int)defense;
 
             if (!fighters && !weapons) offense = 0f;
             if (defense > offense) defense = offense;
-
-            return BaseStrength = shipData.BaseStrength = offense + defense;
+            if (setBaseStrength)
+                shipData.BaseStrength = offense + defense;
+            return offense + defense;
         }
 
 

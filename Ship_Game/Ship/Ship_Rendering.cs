@@ -222,10 +222,15 @@ namespace Ship_Game.Gameplay
         {
             // try to scale the icon so its size remains consistent when zooming in/out
             float size = ScaleIconSize(screenRadius, minSize, maxSize);
-
+            
             if (StrategicIconPath.IsEmpty())
-                StrategicIconPath = "TacticalIcons/symbol_" + (isConstructor ? "construction" : shipData.GetRole());
-            Texture2D icon = ResourceManager.Texture(StrategicIconPath) 
+            {
+                StrategicIconPath = "TacticalIcons/symbol_" + (isConstructor ? "construction" : DesignRole.ToString());
+                if(ResourceManager.Texture(StrategicIconPath, "") == null)
+                    StrategicIconPath = "TacticalIcons/symbol_" + shipData.GetRole();
+                
+            }
+            Texture2D icon = ResourceManager.Texture(StrategicIconPath, "") 
                           ?? ResourceManager.Texture("TacticalIcons/symbol_fighter"); // default symbol
             us.DrawTextureSized(icon, screenPos, Rotation, size, size, loyalty.EmpireColor);
             

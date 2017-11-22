@@ -14,7 +14,7 @@ namespace Ship_Game.AI
         private bool Jammed;
         private bool EcmRun;
         private Vector2 LaunchJitter;
-        private Vector2 TargetJitter;
+        private readonly Vector2 TargetJitter;
         private readonly int Level;
         private float TargettingTimer;
 
@@ -64,7 +64,7 @@ namespace Ship_Game.AI
                     }
                 }
 
-                foreach (Ship ship in TargetList)
+                foreach (Ship ship in owningShip.AI.PotentialTargets)
                 {
                     if (!ship.Active || ship.dying || ship.engineState == Ship.MoveState.Warp)
                         continue;
@@ -73,7 +73,7 @@ namespace Ship_Game.AI
                 }                
             }
 
-            if (TargetList.IsEmpty)
+            if (TargetList?.IsEmpty ?? true)
                 return;
 
             Empire owner = owningShip?.loyalty ?? Missile.Planet.Owner;

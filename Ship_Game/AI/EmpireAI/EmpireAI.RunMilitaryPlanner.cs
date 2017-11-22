@@ -766,13 +766,14 @@ namespace Ship_Game.AI {
                     numSupport > desiredSupport)
                 {
                     foreach (var ship in OwnerEmpire.GetShips()
-                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet == null
+                        .FilterBy(ship => !ship.InCombat && ship.inborders && (ship.fleet == null || ship.fleet.IsCoreFleet)
                                        && ship.AI.State != AIState.Scrap && ship.Mothership == null && ship.Active
                                        && ship.shipData.HullRole >= ShipData.RoleName.fighter &&
                                        ship.GetMaintCost(OwnerEmpire) > 0)
-                        .OrderByDescending(defense => DefensiveCoordinator.DefensiveForcePool.Contains(defense))
-                        .ThenBy(ship => ship.Level)
-                        .ThenBy(ship => ship.BaseStrength)
+                                       .OrderBy(ship => ship.shipData.techsNeeded.Count)
+                        //.OrderByDescending(defense => DefensiveCoordinator.DefensiveForcePool.Contains(defense))
+                        //.ThenBy(ship => ship.Level)
+                        //.ThenBy(ship => ship.BaseStrength)
                     )
                     {
                         if (numFighters > (desiredFighters)
@@ -868,7 +869,7 @@ namespace Ship_Game.AI {
 
                 if (role != ship.DesignRole)
                     continue;
-                maxStr = Math.Max(maxStr, (int)ship.shipData.BaseStrength);
+                maxStr = Math.Max(maxStr, (int)ship.shipData.techsNeeded.Count);
                 
                 potentialShips.Add(ship);
             }
@@ -876,7 +877,7 @@ namespace Ship_Game.AI {
             //Log.Info("number of candidates : " + PotentialShips.Count + " _ trying for : " + role);
             if (potentialShips.Count > 0)
             {
-                var sortedList = potentialShips.FilterBy(ships => ships.GetShipData().BaseStrength >= nearmax);
+                var sortedList = potentialShips.FilterBy(ships => ships.GetShipData().techsNeeded.Count >= nearmax);
                 //sortedList.OrderByDescending(ships => ships.BaseStrength);
                 int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length -1);                
 
@@ -887,8 +888,8 @@ namespace Ship_Game.AI {
                 ship = sortedList[newRand];
                 name    = ship.Name;
                 if (Empire.Universe.showdebugwindow)
-                    Log.Info("Chosen Role: {0}  Chosen Hull: {1}  Strength: {2}",
-                        ship.GetShipData().Role, ship.GetShipData().Hull, ship.BaseStrength);
+                    Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.GetShipData().Hull}  " +
+                             $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
             }
 
             potentialShips.Clear();

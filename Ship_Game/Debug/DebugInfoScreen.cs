@@ -347,7 +347,8 @@ namespace Ship_Game.Debug
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
                 DrawString("AI State: "+ship.AI.State);
 
-
+                if (ship.AI.State == AIState.SystemTrader)
+                    DrawString($"Trading Prod:{ship.TradingProd} food:{ship.TradingFood} Goods:{ship.AI.FoodOrProd}");
                 if (ship.AI.OrderQueue.IsEmpty)
                 {
                     DrawString("Nothing in the Order queue");

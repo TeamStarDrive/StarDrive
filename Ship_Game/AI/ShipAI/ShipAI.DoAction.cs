@@ -107,24 +107,25 @@ namespace Ship_Game.AI {
 
         private void DoAttackRun(float elapsedTime)
         {
-            float distanceToTarget = Owner.Center.Distance(Target.Center);
+            Vector2 interceptPoint = Owner.Center.ProjectImpactPoint(
+                Vector2.Zero, Owner.Speed, Target.Center, Target.Velocity);
+            float distanceToTarget = Owner.Center.Distance(interceptPoint);
             float adjustedWeaponRange = Owner.maxWeaponsRange * .35f;
             float spacerdistance = Owner.Radius * 3 + Target.Radius;
             if (spacerdistance > adjustedWeaponRange)
                 spacerdistance = adjustedWeaponRange;
-
+            
             if (distanceToTarget > spacerdistance && distanceToTarget > adjustedWeaponRange)
             {
                 RunTimer = 0f;
                 AttackRunStarted = false;
 
-                Vector2 interceptPoint = Owner.Center.ProjectImpactPoint(
-                                            Vector2.Zero, Owner.Speed, Target.Center, Target.Velocity);
+                
 
                 ThrustTowardsPosition(interceptPoint, elapsedTime, Owner.Speed);
                 return;
             }
-
+            
             if (distanceToTarget < adjustedWeaponRange)
             {                
                 RunTimer += elapsedTime;
@@ -135,7 +136,7 @@ namespace Ship_Game.AI {
                     return;
                 }
                 //when close enough veer away
-                if (distanceToTarget < (Owner.Radius + Target.Radius) * 3f && !AttackRunStarted)
+                if ((distanceToTarget < adjustedWeaponRange * .25f ||  distanceToTarget < (Owner.Radius + Target.Radius) * 3f) && !AttackRunStarted)
                 {
                     AttackRunStarted = true;
                     int ran = RandomMath.IntBetween(0, 1);
