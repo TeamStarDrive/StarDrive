@@ -2811,7 +2811,7 @@ namespace Ship_Game.Gameplay
                 return ShipData.RoleName.construction;
             if (isColonyShip)
                 return ShipData.RoleName.colony;
-            if (this.IsSupplyShip)
+            if (IsSupplyShip)
                 return ShipData.RoleName.supply;
             if (shipData.Role == ShipData.RoleName.troop)
                 return ShipData.RoleName.troop;
