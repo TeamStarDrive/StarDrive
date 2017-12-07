@@ -122,6 +122,7 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 T item = items[i];
+                if (item == null) continue;
                 float value = selector(item);
                 if (value > min) continue;
                 min = value;

@@ -1694,31 +1694,32 @@ namespace Ship_Game
         }
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)
-        {
+        {            
+            if (qi.isBuilding == false &&  (FarmerPercentage > .5f || NetFoodPerTurn < 0))
+                return false;
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in TilesList)
             {
                 if (!planetGridSquare.Habitable && planetGridSquare.building == null && (!planetGridSquare.Biosphere && planetGridSquare.QItem == null))
                     list.Add(planetGridSquare);
             }
-            if (b.Name == "Biospheres" && list.Count > 0)
+            if (b.Name != "Biospheres" || list.Count <= 0) return false;
+
+            int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
+            PlanetGridSquare planetGridSquare1 = list[index];
+            foreach (PlanetGridSquare planetGridSquare2 in TilesList)
             {
-                int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
-                PlanetGridSquare planetGridSquare1 = list[index];
-                foreach (PlanetGridSquare planetGridSquare2 in TilesList)
+                if (planetGridSquare2 == planetGridSquare1)
                 {
-                    if (planetGridSquare2 == planetGridSquare1)
-                    {
-                        qi.Building = b;
-                        qi.isBuilding = true;
-                        qi.Cost = b.Cost;
-                        qi.productionTowards = 0.0f;
-                        planetGridSquare2.QItem = qi;
-                        qi.pgs = planetGridSquare2;
-                        qi.NotifyOnEmpty = false;
-                        ConstructionQueue.Add(qi);
-                        return true;
-                    }
+                    qi.Building = b;
+                    qi.isBuilding = true;
+                    qi.Cost = b.Cost;
+                    qi.productionTowards = 0.0f;
+                    planetGridSquare2.QItem = qi;
+                    qi.pgs = planetGridSquare2;
+                    qi.NotifyOnEmpty = false;
+                    ConstructionQueue.Add(qi);
+                    return true;
                 }
             }
             return false;
@@ -2902,7 +2903,7 @@ namespace Ship_Game
                 Surplus = Surplus = (float)((consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) 
                     * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate) + NoDivByZero);
 
-                if (Surplus < 1.0f)
+                if (Surplus < .75f)
                 {
                     if (Surplus < 0)
                         return 0.0f;
@@ -2910,7 +2911,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    return 1.0f;
+                    return .75f;
                 }
             }
             
@@ -2921,7 +2922,7 @@ namespace Ship_Game
            
             Surplus = (float)((consumption + desiredSurplus - FlatFoodAdded) / ((Population / 1000.0) 
                 * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero));
-            if (Surplus < 1)
+            if (Surplus < .75f)
             {
                 if (Surplus < 0)
                     return 0.0f;
@@ -2930,7 +2931,7 @@ namespace Ship_Game
             else
             {
                 //if you cant reach the desired surplus, produce as much as you can
-                return 1.0f;
+                return .75f;
             }
         }
 
@@ -3083,11 +3084,10 @@ namespace Ship_Game
             qi.IsPlayerAdded = PlayerAdded;
             qi.isBuilding = true;
             qi.Building = b;
-            qi.Cost = b.Cost;// ResourceManager.BuildingsDict[b.Name].Cost;   //GetBuilding(b.Name).Cost;
+            qi.Cost = b.Cost;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty = false;
-            Building terraformer=null;
-            ResourceManager.BuildingsDict.TryGetValue("Terraformer",out terraformer);
+            ResourceManager.BuildingsDict.TryGetValue("Terraformer",out Building terraformer);
             
             if (terraformer == null)
             {
@@ -3095,16 +3095,18 @@ namespace Ship_Game
                 {
                     if (!bdict.Value)
                         continue;
-                    ResourceManager.BuildingsDict.TryGetValue("Terraformer", out terraformer);
-                    if (terraformer.PlusTerraformPoints > 0)
-                        break;
-
+                    Building check = ResourceManager.GetBuildingTemplate(bdict.Key);
+                    
+                    if (check.PlusTerraformPoints <=0)
+                        continue;
+                    terraformer = check;
                 }
             }
             if (AssignBuildingToTile(b, qi))
                 ConstructionQueue.Add(qi);
 
-            else if (Owner.data.Traits.Cybernetic <=0 && Owner.GetBDict()[terraformer.Name] && Fertility < 1.0 && WeCanAffordThis(terraformer, colonyType))
+            else if (Owner.data.Traits.Cybernetic <=0 && Owner.GetBDict()[terraformer.Name] && Fertility < 1.0 
+                && WeCanAffordThis(terraformer, colonyType))
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in ConstructionQueue)
@@ -3136,6 +3138,11 @@ namespace Ship_Game
                 if (ConstructionQueue[index].isBuilding && ConstructionQueue[index].Building.Name == UID)
                     return true;
             }
+            //foreach (var pgs in TilesList)
+            //{
+            //    if (pgs.QItem?.isBuilding  == true && pgs.QItem.Building.Name == UID)
+            //        return true;
+            //}
             return false;
         }
 
@@ -3146,7 +3153,8 @@ namespace Ship_Game
             for (int i = 0; i < BuildingList.Count; ++i)
                 if (BuildingList[i].Name == buildingName)
                     return true;
-            return false;
+            return BuildingInQueue(buildingName);
+            
         }
 
         public bool WeCanAffordThis(Building building, Planet.ColonyType governor)
@@ -3221,7 +3229,7 @@ namespace Ship_Game
                 return true;
 
             if (building.PlusTaxPercentage * GrossMoneyPT >= building.Maintenance 
-                || building.CreditsPerColonist * (Population / 1000f) >= building.Maintenance 
+                || building.CreditsProduced(this) >= building.Maintenance 
 
                 
                 ) 
@@ -3229,23 +3237,28 @@ namespace Ship_Game
             if (building.Name == "Outpost" || building.WinsGame  )
                 return true;
             //dont build +food if you dont need to
+
             if (Owner.data.Traits.Cybernetic <= 0 && building.PlusFlatFoodAmount > 0)// && this.Fertility == 0)
             {
 
-                if (NetFoodPerTurn > 0 && FarmerPercentage < .3 || BuildingList.Contains(building))
+                if (NetFoodPerTurn > 0 && FarmerPercentage < .3 || BuildingExists(building.Name))
 
                     return false;
                 else
                     return true;
                
             }
-            if(income > building.Maintenance && Population >= 1000 ) 
+            if (Owner.data.Traits.Cybernetic < 1 && income > building.Maintenance ) 
             {
-                if (building.PlusFoodPerColonist > 0 && FarmerPercentage > .5f && Fertility >= 1)
+                float food = building.FoodProduced(this);
+                if (food * FarmerPercentage > 1)
                 {
                     return true;
                 }
-
+                else
+                {
+                    
+                }
             }
             if(Owner.data.Traits.Cybernetic >0)
             {

@@ -729,12 +729,12 @@ namespace Ship_Game.AI {
             if (Owner.velocityMaximum < 1)
                 return;
             float distance = orbitTarget.Center.Distance(Owner.Center);
-            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && distance < Empire.ProjectorRadius * 2)
-            {
-                OrbitPos = orbitTarget.Center;
-                OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, OrbitTarget);
-                return;
-            }
+            //if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && distance < Empire.ProjectorRadius * 2)
+            //{
+            //    OrbitPos = orbitTarget.Center;
+            //    OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, OrbitTarget);
+            //    return;
+            //}
 
             if (distance > 15000f)
             {

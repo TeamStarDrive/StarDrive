@@ -96,25 +96,37 @@ namespace Ship_Game.AI {
             if (Owner.TradeTimer > 0f)
                 return;
 
-            if (Owner.GetColonists() > 0.0f) return;
             if (IsAlreadyTrading()) return;
             if (!IsReadyForTrade) return;
+
+            if (Owner.loyalty.isPlayer && start == null && end == null)
+            {
+                if (FoodOrProd == "" || FoodOrProd == "Prod")
+                {
+                    FoodOrProd = "Food";
+                    Owner.TradingFood = true;
+                }
+                else
+                {
+                    Owner.TradingProd = true;
+                    FoodOrProd = "Prod";
+                }
+            }
+            if (Owner.GetColonists() > 0.0f) return;
+          
             if (!AnyTradeSystems()) return;
+
+
             if (FoodOrProd == "")
             {
                 end = null;
                 start = null;
+                return;
             }
 
-            lock (WayPointLocker)
-            {
-                ActiveWayPoints.Clear();
-            }
-
-            OrderQueue.Clear();
+                               
            
-           
-            if (Owner.loyalty.data.Traits.Cybernetic < 1 && (end == null || Owner.GetFood() > 0))
+            if (Owner.loyalty.data.Traits.Cybernetic < 1 && FoodOrProd == "Food" && (end == null || Owner.GetFood() > 0))
             {
                 if ( DeliverShipment("Food"))
                 {                    
@@ -131,7 +143,7 @@ namespace Ship_Game.AI {
                 }
             }
             
-            if (end == null || Owner.GetProduction() >0)
+            if (FoodOrProd == "Prod" && end == null || Owner.GetProduction() >0)
             {
                 if(DeliverShipment("Production"))
                 {
@@ -148,10 +160,7 @@ namespace Ship_Game.AI {
                     Owner.TradingProd = false;
                 }
             }
-            if (Owner.TradingFood)
-            GetShipment("Food");
-            else
-            GetShipment("Production");
+            GetShipment(Owner.TradingFood ? "Food" : "Production");
 
             if (start != null && end != null && start != end)
             {
@@ -167,7 +176,7 @@ namespace Ship_Game.AI {
                 end = null;                
                 if (Owner.CargoSpaceUsed > 0)
                     Owner.ClearCargo();
-                State = AIState.AwaitingOrders;
+                State = AIState.SystemTrader;
                 return;
             }
             State = AIState.SystemTrader;
@@ -267,41 +276,36 @@ namespace Ship_Game.AI {
                 float thisTradeStr = TradeSort(Owner, p, goodType, Owner.CargoSpaceMax, true);
                 if (thisTradeStr >= UniverseScreen.UniverseSize && p.GetGoodHere(goodType) >= 0)
                     continue;
-
+                if (goodType == "Food" && p.ImportPriority().ToString() != goodType)
+                    continue;
                 using (Owner.loyalty.GetShips().AcquireReadLock())
                 {
                     for (var k = 0; k < Owner.loyalty.GetShips().Count; k++)
                     {
                         Ship s = Owner.loyalty.GetShips()[k];
-                        if (s != null &&
-                            (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory ==
-                             ShipData.Category.Civilian) && s != Owner && !s.isConstructor)
-                        {
-                            if (s.AI.State == AIState.SystemTrader && s.AI.end == p &&
-                                s.AI.FoodOrProd == goodSwitch)
-                            {
-                                if (p.ImportPriority().ToString() != goodType)
-                                {
-                                   
-                                    break;
-                                }
-                                float currenTrade = TradeSort(s, p, goodType, s.CargoSpaceMax, true);
-                                if (currenTrade < thisTradeStr)
-                                    faster = false;
-                                if (currenTrade > UniverseData.UniverseWidth && !faster)
-                                {
-                                    flag = true;
-                                    break;
-                                }
-                                cargoSpaceMax = cargoSpaceMax - s.CargoSpaceMax;
-                            }
-
-                            if (cargoSpaceMax <= 0f)
+                        if (s == null ||
+                            (s.shipData.Role != ShipData.RoleName.freighter &&
+                             s.shipData.ShipCategory != ShipData.Category.Civilian) || s == Owner ||
+                            s.isConstructor) continue;
+                        if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == goodSwitch)
+                        {                          
+                            float currenTrade = TradeSort(s, p, goodType, s.CargoSpaceMax, true);
+                            if (currenTrade < thisTradeStr)
+                                faster = false;
+                            if (currenTrade > UniverseData.UniverseWidth && !faster)
                             {
                                 flag = true;
                                 break;
                             }
+                            cargoSpaceMax = cargoSpaceMax - s.CargoSpaceMax;
                         }
+
+                        if (cargoSpaceMax <= 0f)
+                        {
+                            flag = true;
+                            break;
+                        }
+
                     }
                 }
                
@@ -316,7 +320,12 @@ namespace Ship_Game.AI {
             if (end == null) return false;
 
             FoodOrProd = goodSwitch;
+            lock (WayPointLocker)
+            {
+                ActiveWayPoints.Clear();
+            }
 
+            OrderQueue.Clear();
             //if (Owner.CargoSpaceFree / Owner.CargoSpaceMax > .25f) return true;
             OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
             AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
@@ -367,7 +376,7 @@ namespace Ship_Game.AI {
         }
 
         private bool IsReadyForTrade => Math.Abs(Owner.CargoSpaceMax) > 0 && State != AIState.Flee && !Owner.isConstructor &&
-                   !Owner.isColonyShip;
+                   !Owner.isColonyShip && Owner.DesignRole == ShipData.RoleName.freighter;
 
         private bool IsAlreadyTrading()
         {
@@ -440,7 +449,7 @@ namespace Ship_Game.AI {
         private bool PassengerDropOffTarget(Planet p)
         {
             return p != start && p.MaxPopulation > 2000f && p.Population / p.MaxPopulation < 0.5f
-                   && RelativePlanetFertility(p) >= 0.5f;
+                   && !p.NeedsFood();
         }
 
         public void OrderTransportPassengers(float elapsedTime)
@@ -474,7 +483,8 @@ namespace Ship_Game.AI {
             }
 
             // RedFox: Where to load & drop nearest Population
-            SelectPlanetByFilter(safePlanets, out start, p => p.MaxPopulation > 8000 && p.Population > 5000);
+            SelectPlanetByFilter(safePlanets, out start, p => p.NeedsFood() 
+                || p.MaxPopulation > 8000 && p.Population > p.MaxPopulation *.75f);
             SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget);
 
             if (start != null && end != null)

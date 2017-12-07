@@ -316,7 +316,7 @@ namespace Ship_Game.Gameplay
             InitializeThrusters();
             RecalculateMaxHP();
             SetmaxFTLSpeed();
-            
+            DesignRole = GetDesignRole();
             ShipInitialized = true;
         }
 
