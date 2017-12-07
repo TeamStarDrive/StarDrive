@@ -807,7 +807,11 @@ namespace Ship_Game.AI
         {
             OrderTrade(elapsedTime);
             if (start == null || end == null)
+            {
                 AwaitOrders(elapsedTime);
+                State = AIState.SystemTrader;
+            }
+
             return;
         }
 
