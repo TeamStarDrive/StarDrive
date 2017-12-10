@@ -669,27 +669,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 2:
-                    //bool flag2 = false;
-                    //foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
-                    //{
-                    //    if (!ship.isColonyShip && !ship.isConstructor 
-                    //        && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) 
-                    //        && (!ship.PlayerShip && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit)) && ship.AI.State != AIState.Scrap)
-                    //    {
-                    //        this.freighter = ship;
-                    //        flag2 = true;
-                    //    }
-                    //}
-                    //if (!flag2)
-                    //{
-                    //    this.empire.ReportGoalComplete(this);
-                    //    break;
-                    //}
-                    foreach (QueueItem q in PlanetBuildingAt.ConstructionQueue)
-                    {
-                        if (q.Goal == this)
-                            return;                                                
-                    }
+                   
                     empire.ReportGoalComplete(this);
                     break;
             }

@@ -261,7 +261,7 @@ namespace Ship_Game
             PlayerEmpire                = playerShip.loyalty;
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
-            PlayerEmpire.isPlayer       = true;
+            PlayerEmpire.isPlayer       = true;            
             SpaceManager.Setup(UniverseSize);
         }
 

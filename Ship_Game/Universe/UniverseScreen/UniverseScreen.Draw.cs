@@ -1017,7 +1017,7 @@ namespace Ship_Game
         {
             if (viewState > UnivScreenState.SystemView)
                 return;
-
+            
             for (int i = 0; i < ship.Projectiles.Count; i++)
             {
                 Projectile projectile = ship.Projectiles[i];

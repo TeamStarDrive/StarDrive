@@ -35,38 +35,33 @@ namespace Ship_Game.AI {
             if (toAttack == null)
                 return;
 
-            if (Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
+            if (!Owner.loyalty.IsEmpireAttackable(toAttack.loyalty)) return;
+            if (State == AIState.AttackTarget && Target == toAttack)
+                return;
+            if (State == AIState.SystemDefender && Target == toAttack)
+                return;
+            if (Owner.Weapons.Count == 0 || Owner.shipData.Role == ShipData.RoleName.troop)
             {
-                if (!relations.Treaty_Peace)
-                {
-                    if (State == AIState.AttackTarget && Target == toAttack)
-                        return;
-                    if (State == AIState.SystemDefender && Target == toAttack)
-                        return;
-                    if (Owner.Weapons.Count == 0 || Owner.shipData.Role == ShipData.RoleName.troop)
-                    {
-                        OrderInterceptShip(toAttack);
-                        return;
-                    }
-                    Intercepting = true;
-                    lock (WayPointLocker)
-                    {
-                        ActiveWayPoints.Clear();
-                    }
-                    State = AIState.AttackTarget;
-                    Target = toAttack;
-                    Owner.InCombatTimer = 15f;
-                    OrderQueue.Clear();
-                    IgnoreCombat = false;
-                    TargetQueue.Add(toAttack);
-                    HasPriorityTarget = true;
-                    HasPriorityOrder = false;
-                    var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
-                    OrderQueue.Enqueue(combat);
-                    return;
-                }
                 OrderInterceptShip(toAttack);
+                return;
             }
+            Intercepting = true;
+            lock (WayPointLocker)
+            {
+                ActiveWayPoints.Clear();
+            }
+            State = AIState.AttackTarget;
+            Target = toAttack;
+            Owner.InCombatTimer = 15f;
+            OrderQueue.Clear();
+            IgnoreCombat = false;
+            TargetQueue.Add(toAttack);
+            HasPriorityTarget = true;
+            HasPriorityOrder = false;
+            var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
+            OrderQueue.Enqueue(combat);
+            return;
+            OrderInterceptShip(toAttack);
         }
 
         public void OrderBombardPlanet(Planet toBombard)

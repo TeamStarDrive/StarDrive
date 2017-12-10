@@ -176,6 +176,8 @@ namespace Ship_Game
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
 
+        public float TradeIncomingColonists =0;
+
         public void SetExportWeight(string goodType, float weight)
         {
             switch (goodType)
@@ -335,8 +337,9 @@ namespace Ship_Game
             if (Owner?.isFaction ?? true) return false;
             bool cyber = Owner.data.Traits.Cybernetic > 0;
             float food = cyber ? ProductionHere : FoodHere;
-            bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .5f : (NetFoodPerTurn <= 0 && FarmerPercentage >.25f);
-            return food / MAX_STORAGE < .10f && badProduction;
+            bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .5f : 
+                (NetFoodPerTurn <= 0 && FarmerPercentage >.5f);
+            return food / MAX_STORAGE < .10f || badProduction;
         }
 
         private void GenerateMoons(Planet newOrbital)
@@ -2868,10 +2871,48 @@ namespace Ship_Game
             ApplyProductionTowardsConstruction();
             GrowPopulation();
             HealTroops();
+            CalculateIncomingTrade();
             if (FoodHere > MAX_STORAGE)
                 FoodHere = MAX_STORAGE;
             if (ProductionHere > MAX_STORAGE)
                 ProductionHere = MAX_STORAGE;
+        }
+
+        public float IncomingFood = 0;
+        public float IncomingProduction = 0;
+        public float IncomingColonists = 0;
+
+
+
+        private bool AddToIncomingTrade(ref float type, float amount)
+        {
+            if (amount < 1) return false;
+            type += amount;
+            return true;
+        }
+        private void CalculateIncomingTrade()
+        {
+            if (Owner == null || Owner.isFaction) return;
+            IncomingProduction = 0;
+            IncomingFood = 0;
+            TradeIncomingColonists = 0;
+            using (Owner.GetShips().AcquireReadLock())
+            {
+                foreach (var ship in Owner.GetShips())
+                {
+                    if (ship.DesignRole != ShipData.RoleName.freighter) continue;
+                    if (ship.AI.end != this) continue;
+                    if (ship.AI.State != AIState.SystemTrader && ship.AI.State != AIState.PassengerTransport) continue;
+
+                    if (AddToIncomingTrade(ref IncomingFood, ship.GetFood())) return;
+                    if (AddToIncomingTrade(ref IncomingProduction, ship.GetProduction())) return;
+                    if (AddToIncomingTrade(ref IncomingColonists, ship.GetColonists())) return;
+
+                    if (AddToIncomingTrade(ref IncomingFood, ship.CargoSpaceMax * (ship.TransportingFood ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.TransportingProduction ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
+                }
+            }
         }
 
         private float CalculateCyberneticPercentForSurplus(float desiredSurplus)
@@ -5273,9 +5314,10 @@ namespace Ship_Game
                 return false;
             
             QueueItem item = ConstructionQueue[Index];
-            float amountToRush = GetMaxProductionPotential();//(int)(this.ProductionHere * .25f); //item.Cost - item.productionTowards;
-            amountToRush = amountToRush < 5 ? 5 : amountToRush;
-            float amount = amountToRush < ProductionHere ? amountToRush : ProductionHere;
+            float amountToRush = GetMaxProductionPotential();
+
+            amountToRush = Empire.Universe.Debug ? float.MaxValue : amountToRush < 5 ? 5 : amountToRush;
+            float amount = amountToRush < ProductionHere ? amountToRush : Empire.Universe.Debug ? float.MaxValue : ProductionHere;
             if (amount < 1)
             {
                 return false;
@@ -5291,7 +5333,7 @@ namespace Ship_Game
             if (Crippled_Turns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null )) //|| this.Owner.Money <= 0))
                 return;
            
-            float amount = ProductionHere;
+            float amount = Empire.Universe.Debug ? float.MaxValue : ProductionHere ;
             ProductionHere = 0f;
             ApplyProductiontoQueue(amount, Index);
             
@@ -5318,23 +5360,18 @@ output = maxp * take10 = 5
             if (maxp < 5)
                 maxp = 5;
             float StorageRatio = 0;
-                //float TimeToEmpty = cs / maxp;
-            float take10Turns = 0;//TimeToEmpty / (this.ps == GoodState.EXPORT ? 20 : 10);
-            //bool NoNeedToStore = this.Owner.GetPlanets().Count == 1;
+            float take10Turns = 0;
                 StorageRatio= ProductionHere / MAX_STORAGE;
             take10Turns = maxp * StorageRatio;
 
                
                 if (!PSexport)
-                    take10Turns *= (StorageRatio < .75f ? ps == GoodState.EXPORT ? .5f : ps == GoodState.STORE ? .25f : 1 : 1);
-                    //take10Turns = maxp;
+                    take10Turns *= (StorageRatio < .75f ? ps == GoodState.EXPORT ? .5f : ps == GoodState.STORE ? .25f : 1 : 1);                    
             if (!GovernorOn || colonyType == ColonyType.Colony)
                 {
                     take10Turns = NetProductionPerTurn; ;
                 }
-                float normalAmount =  take10Turns;// maxp* take10Turns;
-
-
+                float normalAmount =  take10Turns;
 
             normalAmount = normalAmount < 0 ? 0 : normalAmount;
             normalAmount = normalAmount >
@@ -5347,37 +5384,10 @@ output = maxp * take10 = 5
             //fbedard: apply all remaining production on Planet with no governor
             if (ps != GoodState.EXPORT && colonyType == Planet.ColonyType.Colony && Owner.isPlayer )
             {
-                normalAmount = ProductionHere;
+                normalAmount =  ProductionHere;
                 ProductionHere = 0f;
                 ApplyProductiontoQueue(normalAmount, 0);                
-            }
-
-            //return;
-            //if (this.ProductionHere > this.MAX_STORAGE * 0.6f && this.GovernorOn)
-            //{
-            //    float amount = this.ProductionHere - (this.MAX_STORAGE * 0.6f);
-            //    this.ProductionHere = this.MAX_STORAGE * 0.6f;
-            //    this.ApplyProductiontoQueue(normalAmount + amount, 0);
-            //}
-            //else
-            //{
-            //    //Only store 25% if exporting
-            //    if (this.ps == GoodState.EXPORT)
-            //    {
-            //        this.ApplyProductiontoQueue(normalAmount * 0.75f, 0);
-            //        this.ProductionHere += 0.25f * normalAmount;
-            //    }
-            //    else
-            //        this.ApplyProductiontoQueue(normalAmount, 0);
-            //}
-            //Lost production converted into 50% money
-            //The Doctor: disabling until this can be more smoothly integrated into the economic predictions, UI and AI
-            /*
-            if (this.ProductionHere > this.MAX_STORAGE)
-            {
-                this.Owner.Money += (this.ProductionHere - this.MAX_STORAGE) * 0.5f;
-                this.ProductionHere = this.MAX_STORAGE;
-            } */
+            }            
         }
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
@@ -5454,42 +5464,56 @@ output = maxp * take10 = 5
                 //else if ((double)queueItem.productionTowards >= (double)queueItem.Cost)
                 //    this.queueEmptySent = false;
 
-                if (queueItem.isBuilding &&  queueItem.productionTowards >= queueItem.Cost)
+                if (queueItem.isBuilding && queueItem.productionTowards >= queueItem.Cost)
                 {
-                    Building building = ResourceManager.CreateBuilding(queueItem.Building.Name);
-                    if(queueItem.IsPlayerAdded)
-                    building.IsPlayerAdded = queueItem.IsPlayerAdded;
-                    BuildingList.Add(building);
-                    Fertility -= ResourceManager.CreateBuilding(queueItem.Building.Name).MinusFertilityOnBuild;
-                    if (Fertility < 0.0)
-                        Fertility = 0.0f;
-                    if (queueItem.pgs != null)
-                    {
-                        if (queueItem.Building != null && queueItem.Building.Name == "Biospheres")
+                    bool dupBuildingWorkaround = false;
+                    if (queueItem.Building.Name != "Biospheres")
+                        foreach (Building dup in BuildingList)
                         {
-                            queueItem.pgs.Habitable = true;
-                            queueItem.pgs.Biosphere = true;
-                            queueItem.pgs.building = null;
-                            queueItem.pgs.QItem = null;
+                            if (dup.Name == queueItem.Building.Name)
+                            {
+                                ProductionHere += queueItem.productionTowards;
+                                ConstructionQueue.QueuePendingRemoval(queueItem);
+                                dupBuildingWorkaround = true;
+                            }
                         }
-                        else
-                        {
-                            queueItem.pgs.building = building;
-                            queueItem.pgs.QItem = null;
-                        }
-                    }
-                    if (queueItem.Building.Name == "Space Port")
+                    if (!dupBuildingWorkaround)
                     {
-                        Station.planet = this;
-                        Station.ParentSystem = ParentSystem;
-                        Station.LoadContent(Empire.Universe.ScreenManager);
-                        HasShipyard = true;
+                        Building building = ResourceManager.CreateBuilding(queueItem.Building.Name);
+                        if (queueItem.IsPlayerAdded)
+                            building.IsPlayerAdded = queueItem.IsPlayerAdded;
+                        BuildingList.Add(building);
+                        Fertility -= ResourceManager.CreateBuilding(queueItem.Building.Name).MinusFertilityOnBuild;
+                        if (Fertility < 0.0)
+                            Fertility = 0.0f;
+                        if (queueItem.pgs != null)
+                        {
+                            if (queueItem.Building != null && queueItem.Building.Name == "Biospheres")
+                            {
+                                queueItem.pgs.Habitable = true;
+                                queueItem.pgs.Biosphere = true;
+                                queueItem.pgs.building = null;
+                                queueItem.pgs.QItem = null;
+                            }
+                            else
+                            {
+                                queueItem.pgs.building = building;
+                                queueItem.pgs.QItem = null;
+                            }
+                        }
+                        if (queueItem.Building.Name == "Space Port")
+                        {
+                            Station.planet = this;
+                            Station.ParentSystem = ParentSystem;
+                            Station.LoadContent(Empire.Universe.ScreenManager);
+                            HasShipyard = true;
+                        }
+                        if (queueItem.Building.AllowShipBuilding)
+                            HasShipyard = true;
+                        if (building.EventOnBuild != null && Owner != null && Owner == Empire.Universe.PlayerEmpire)
+                            Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, Empire.Universe.PlayerEmpire, ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
+                        ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
-                    if (queueItem.Building.AllowShipBuilding)
-                        HasShipyard = true;
-                    if (building.EventOnBuild != null && Owner != null && Owner == Empire.Universe.PlayerEmpire)
-                        Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, Empire.Universe.PlayerEmpire, ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
-                    ConstructionQueue.QueuePendingRemoval(queueItem);
                 }
                 else if (queueItem.isShip && !ResourceManager.ShipsDict.ContainsKey(queueItem.sData.Name))
                 {
@@ -5545,11 +5569,11 @@ output = maxp * take10 = 5
                             queueItem.Goal.ReportShipComplete(shipAt);
                         }
                     }
-                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform) 
+                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
                         && Owner != Empire.Universe.PlayerEmpire)
                         Owner.ForcePoolAdd(shipAt);
                 }
-                else if (queueItem.isTroop &&  queueItem.productionTowards >= queueItem.Cost)
+                else if (queueItem.isTroop && queueItem.productionTowards >= queueItem.Cost)
                 {
                     if (AssignTroopToTile(ResourceManager.CreateTroop(queueItem.troopType, Owner)))
                     {

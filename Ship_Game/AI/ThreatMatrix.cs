@@ -37,14 +37,27 @@ namespace Ship_Game.AI
                 
                 Empire pinEmpire = kv.Value.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.Value.EmpireName);
                 if (!empire.IsEmpireAttackable(pinEmpire)) continue;
-                //if (!empire.TryGetRelations(pinEmpire, out Relationship rel)) continue;
-                //if (rel.Treaty_Alliance) continue;
-
                 str +=kv.Value.Strength;               
 
             }
             return str;
         }
+
+        public float StrengthOfEmpire(Empire empire)
+        {
+            float str = 0f;
+            foreach (var kv in Pins)
+            {
+                if (kv.Value.EmpireName == string.Empty) continue;
+
+                Empire pinEmpire = kv.Value.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.Value.EmpireName);
+                if (pinEmpire != empire) continue;                
+                str += kv.Value.Strength;
+
+            }
+            return str;
+        }
+
         public Array<Ship> GetAllProjectorsExcept(Empire empire)
         {
             var projectors = new Array<Ship>();
@@ -123,7 +136,7 @@ namespace Ship_Game.AI
             }
             return retList;
         }
-        public Map<Vector2, Ship[]> PingRadarShipClustersByVector(Vector2 position, float radius, float granularity,Empire empire)
+        public Map<Vector2, Ship[]> PingRadarShipClustersByVector(Vector2 position, float radius, float granularity,Empire empire, bool truePosition = false)
         {
             var retList = new Map<Vector2, Ship[]>();
             Array<Ship> pings = PingRadarShip(position,radius,empire);
@@ -133,7 +146,7 @@ namespace Ship_Game.AI
             {
                 if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
-
+                if (position.Distance(ship.Center) > radius) continue;
                 Array<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
                 if (cluster.Count == 0)
                     continue;
