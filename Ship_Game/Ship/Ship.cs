@@ -1986,7 +1986,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 foreach (ShipModule slot in ModuleSlotList)
-                    slot.Update(deltaTime);
+                      slot.Update(1);
                 if (shipStatusChanged) //|| InCombat
                     ShipStatusChange();
                 //Power draw based on warp
@@ -2291,8 +2291,8 @@ namespace Ship_Game.Gameplay
 
                 loyalty.GetShips().QueuePendingRemoval(this);
                 loyalty.RemoveShip(this);
-                SetSystem(null);
-                loyalty = EnemyTroops[0].GetOwner();
+                ChangeLoyalty(changeTo: EnemyTroops[0].GetOwner());
+                SetSystem(null);                
                 loyalty.AddShipNextFrame(this);                
                 shipStatusChanged = true;
             }
@@ -2814,12 +2814,7 @@ namespace Ship_Game.Gameplay
             if (IsSupplyShip)
                 return ShipData.RoleName.supply;
             if (shipData.Role == ShipData.RoleName.troop)
-                return ShipData.RoleName.troop;
-                
-            int ModuleSize(ShipModule module)
-            {
-                return module.XSIZE * module.YSIZE;
-            }
+                return ShipData.RoleName.troop;                           
 
             if (BombBays.Count > 0 && str >= ShipData.RoleName.freighter)
             {

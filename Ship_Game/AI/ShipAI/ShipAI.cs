@@ -305,7 +305,7 @@ namespace Ship_Game.AI
         {
             if (State != AIState.Resupply && !HasPriorityOrder &&
                 Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] &&
-                Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: ships will go for repair
+                Owner.DesignRole >= ShipData.RoleName.supply) //fbedard: ships will go for repair
                 if (Owner.fleet == null || Owner.fleet != null && !Owner.fleet.HasRepair)
                     OrderResupplyNearest(false);
             if (State == AIState.AwaitingOrders && Owner.NeedResupplyTroops)

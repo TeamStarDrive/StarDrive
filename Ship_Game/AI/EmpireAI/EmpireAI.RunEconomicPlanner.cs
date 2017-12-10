@@ -25,8 +25,9 @@ namespace Ship_Game.AI {
                                  OwnerEmpire.data.FlatMoneyBonus; //mmore savings than GDP 
             treasuryGoal *= (OwnerEmpire.data.treasuryGoal * 100);
             treasuryGoal  = treasuryGoal <= 1 ? 1 : treasuryGoal;
-            FindTaxRateToReturnAmount(1);
-            float tempTax = FindTaxRateToReturnAmount(treasuryGoal * (1 - (money / treasuryGoal)));
+            treasuryGoal *= 1 - money / treasuryGoal;
+            treasuryGoal *= .01f;
+            float tempTax = FindTaxRateToReturnAmount(treasuryGoal);
             if (tempTax - OwnerEmpire.data.TaxRate > .02f)
                 OwnerEmpire.data.TaxRate += .02f;
             else

@@ -342,6 +342,16 @@ namespace Ship_Game.AI
                 }
             }
             EmpireTroopRatio = UniverseWants;
+            if (UniverseWants > 1.25f)
+            {
+                foreach (var troop in troopShips)
+                {
+                    if (troop.DesignRole != ShipData.RoleName.troop) continue;
+                    if (troop.AI.State == AIState.AwaitingOrders)
+                        troop.AI.OrderScrapShip();
+                }
+            }
+
             if (UniverseWants > .8f) return;
 
             foreach (var kv in DefenseDict)

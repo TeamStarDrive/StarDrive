@@ -28,7 +28,7 @@ namespace Ship_Game.AI {
                     }
                     foreach (Ship assimilate in this.OwnerEmpire.GetShips())
                     {
-                        if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null)
+                        if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null && assimilate.AI.State !=  AIState.Colonize)
                         {
                             if (HasPlanets)
                             {
@@ -37,29 +37,29 @@ namespace Ship_Game.AI {
                                     Planet target = null;
                                     if (assimilate.System != null)
                                     {
-                                        target = assimilate.System.PlanetList
-                                            .Where(owner => owner.Owner != this.OwnerEmpire && owner.Owner != null)
-                                            .FirstOrDefault();
+                                            target = assimilate.System.PlanetList
+                                                .Find(owner => owner.Owner != this.OwnerEmpire && owner.Owner != null);
+                                            
                                     }
                                     if (target != null)
                                     {
-                                        assimilate.shipData.Role = ShipData.RoleName.troop;
                                         assimilate.TroopList.Add(ResourceManager.CreateTroop("Remnant Defender",
                                             assimilate.loyalty));
-
-                                        if (assimilate.GetStrength() <= 0)
-                                        {
-                                            assimilate.isColonyShip = true;
+                                        assimilate.isColonyShip = true;
 
                                             // @todo this looks like FindMinFiltered
-                                            Planet capture = Empire.Universe.PlanetsDict.Values
-                                                .Where(potentials => potentials.Owner == null && potentials.habitable)
-                                                .OrderBy(potentials => Vector2.Distance(assimilate.Center,
-                                                    potentials.Center))
-                                                .FirstOrDefault();
-                                            if (capture != null)
-                                                assimilate.AI.OrderColonization(capture);
-                                        }
+                                            //Planet capture = Empire.Universe.PlanetsDict.Values
+                                            //    .Where(potentials => potentials.Owner == null && potentials.habitable)
+                                            //    .OrderBy(potentials => Vector2.Distance(assimilate.Center,
+                                            //        potentials.Center))
+                                            //    .FirstOrDefault();
+
+                                        Planet capture = Empire.Universe.PlanetsDict.Values.ToArray().FindMaxFiltered(
+                                                potentials => potentials.Owner == null && potentials.habitable,
+                                                potentials => -assimilate.Center.SqDist(potentials.Center));
+                                                
+                                        if (capture != null)
+                                            assimilate.AI.OrderColonization(capture);
                                     }
                                 }
                                 else

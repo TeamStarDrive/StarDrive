@@ -160,7 +160,11 @@ namespace Ship_Game
                 TroopShipTech = new Array<string>();
                 CarrierTech = new Array<string>();
                 SupportShipTech = new Array<string>();
-            }
+                
+                UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
+                
+            }            
+
         }
         public class PatchCacheEntry
         {
@@ -640,7 +644,9 @@ namespace Ship_Game
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
             data.TechDelayTime = 4;
-            
+            if (EmpireManager.NumEmpires ==0)
+                UpdateTimer = 0;
+
         }
 
         private void InitTechs()

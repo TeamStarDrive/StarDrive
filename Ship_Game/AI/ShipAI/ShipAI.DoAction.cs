@@ -182,7 +182,7 @@ namespace Ship_Game.AI {
         private void DoCombat(float elapsedTime)
         {
             var ctarget = Target as Ship;
-            if ((!Target?.Active ?? true) || ctarget.engineState == Ship.MoveState.Warp)
+            if (Target?.Active != true || ctarget?.engineState != Ship.MoveState.Sublight)
             {
                 Intercepting = false;
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&

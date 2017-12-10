@@ -581,8 +581,8 @@ namespace Ship_Game
                         Ship ship = player.KnownShips[j];
                         if (!ship.InFrustum) continue;
 
-                        var renderProj = ship.Projectiles;
-                        for (int i = renderProj.Count - 1; i >= 0; i--)
+                        var renderProj = ship.Projectiles.ToArray();
+                        for (int i = renderProj.Length - 1; i >= 0; i--)
                         {
                             //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
                             Projectile projectile = renderProj[i];

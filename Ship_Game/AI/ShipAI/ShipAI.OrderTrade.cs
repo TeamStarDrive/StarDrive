@@ -92,30 +92,19 @@ namespace Ship_Game.AI {
         public void OrderTrade(float elapsedTime)
         {
             //trade timer is sent but uses arbitrary timer just to delay the routine.
+
             Owner.TradeTimer -= elapsedTime;
             if (Owner.TradeTimer > 0f)
                 return;
 
-            if (IsAlreadyTrading()) return;
-            if (!IsReadyForTrade) return;
 
-            if (Owner.loyalty.isPlayer && start == null && end == null)
-            {
-                if (FoodOrProd == "" || FoodOrProd == "Prod")
-                {
-                    FoodOrProd = "Food";
-                    Owner.TradingFood = true;
-                }
-                else
-                {
-                    Owner.TradingProd = true;
-                    FoodOrProd = "Prod";
-                }
-            }
+            PlayerManualTrade();
+
             if (Owner.GetColonists() > 0.0f) return;
           
             if (!AnyTradeSystems()) return;
-
+            if (IsAlreadyTrading()) return;
+            if (!IsReadyForTrade) return;
 
             if (FoodOrProd == "")
             {
@@ -184,6 +173,28 @@ namespace Ship_Game.AI {
             if (FoodOrProd.IsEmpty())
                 FoodOrProd = Owner.TradingFood ? "Food" : "Prod";
             //catch { }
+        }
+
+        private void PlayerManualTrade()
+        {
+            if (Owner.loyalty.isPlayer && !Owner.loyalty.AutoFreighters && start == null && end == null)
+            {
+                if (FoodOrProd == "")
+                {
+                    FoodOrProd = "Food";
+                }
+                if (Owner.CargoSpaceUsed < 1)
+                    if (FoodOrProd == "Prod")
+                    {
+                        FoodOrProd = "Food";
+                        Owner.TradingFood = true;
+                    }
+                    else
+                    {
+                        Owner.TradingProd = true;
+                        FoodOrProd = "Prod";
+                    }
+            }
         }
 
         private void GetShipment(string goodType)
@@ -448,7 +459,13 @@ namespace Ship_Game.AI {
 
         private bool PassengerDropOffTarget(Planet p)
         {
-            return p != start && p.MaxPopulation > 2000f && p.Population / p.MaxPopulation < 0.5f
+            return p != start && p.MaxPopulation > 2000f && (p.Population + p.IncomingColonists) / p.MaxPopulation < 0.75f
+                   && !p.NeedsFood();
+        }
+
+        private bool PassengerPickUpTarget(Planet p)
+        {
+            return p != start && p.MaxPopulation > 2000f && (p.Population + p.IncomingColonists) / p.MaxPopulation > 0.75f
                    && !p.NeedsFood();
         }
 
@@ -464,9 +481,8 @@ namespace Ship_Game.AI {
                 return;
             }
       
-            Planet[] safePlanets = Owner.loyalty.GetPlanets()
-                .Where(combat => combat.ParentSystem.combatTimer <= 0f)
-                .ToArray();
+            Planet[] safePlanets = Owner.loyalty.GetPlanets().ToArray().FilterBy
+                (combat => combat.ParentSystem.combatTimer <= 0f);
             OrderQueue.Clear();
 
             // RedFox: Where to drop nearest Population
@@ -478,19 +494,30 @@ namespace Ship_Game.AI {
                     State = AIState.PassengerTransport;
                     FoodOrProd = "Pass";
                     AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
+                    end.IncomingColonists += Owner.GetColonists();
                 }
+                else if (SelectPlanetByFilter(safePlanets, out end, p => p.Population < p.MaxPopulation))
+                {
+                    OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
+                    State = AIState.PassengerTransport;
+                    FoodOrProd = "Pass";
+                    AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
+                    end.IncomingColonists += Owner.GetColonists();
+                }
+                else
+                    Owner.ClearCargo();
                 return;
             }
 
             // RedFox: Where to load & drop nearest Population
-            SelectPlanetByFilter(safePlanets, out start, p => p.NeedsFood() 
-                || p.MaxPopulation > 8000 && p.Population > p.MaxPopulation *.75f);
+            SelectPlanetByFilter(safePlanets, out start, p => PassengerPickUpTarget(p));
             SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget);
 
             if (start != null && end != null)
             {
                 OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
                     true, start);
+                end.IncomingColonists += Owner.CargoSpaceMax;
                 AddShipGoal(Plan.PickupPassengers, Vector2.Zero, 0f);
             }
             else

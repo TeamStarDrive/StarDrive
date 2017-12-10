@@ -879,10 +879,10 @@ namespace Ship_Game.Gameplay
                 }
                 hangarShipUID = ship.Name;
             }
-            if (ship == null || ship.Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
+            if (ship == null || (!Parent.loyalty.isFaction && ship.Mass / 5f > Parent.Ordinance))  //fbedard: New spawning cost
                 return;
 
-            SetHangarShip(Ship.CreateShipFromHangar(ship.Name, Parent.loyalty, Center, Parent));
+            SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Center, Parent));
 
             hangarShip.DoEscort(Parent);
             hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;

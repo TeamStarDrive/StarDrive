@@ -7,7 +7,7 @@ namespace Ship_Game.AI.Tasks {
     {
         public Planet GetTargetPlanet() => TargetPlanet;
 
-        private Array<Troop> GetTroopsOnPlanets(Array<Troop> potentialTroops, Vector2 rallyPoint)
+        private Array<Troop> GetTroopsOnPlanets(Array<Troop> potentialTroops, Vector2 rallyPoint, int needed = 0)
         {
             var defenseDict = Owner.GetGSAI().DefensiveCoordinator.DefenseDict;
             var troopSystems = Owner.GetOwnedSystems().OrderBy(troopSource => defenseDict[troopSource].RankImportance)
@@ -19,7 +19,7 @@ namespace Ship_Game.AI.Tasks {
                 {
                     if (planet.Owner != Owner) continue;
                     if (planet.RecentCombat) continue;
-                    int extra = rank / 2;
+                    int extra = needed == 0 ? rank / 3 : needed;
                     potentialTroops.AddRange(planet.GetEmpireTroops(Owner, extra));
                 }
                 if (potentialTroops.Count > 100)
@@ -69,7 +69,7 @@ namespace Ship_Game.AI.Tasks {
             if (scom != null)
                 importance = 1 + scom.RankImportance * .01f;
 
-            float distance = 250000 * importance;
+            float distance = 50000 * importance;
             MinimumEscortStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, distance, Owner);
             standardMinimum *= importance;
             if (MinimumEscortStrength < standardMinimum)
@@ -439,8 +439,9 @@ namespace Ship_Game.AI.Tasks {
             }
             int landingSpots = TargetPlanet.GetGroundLandingSpots();
             AO closestAO = FindClosestAO();
+            
 
-            if (closestAO == null || closestAO.GetOffensiveForcePool().Count < 5)
+            if (closestAO == null || closestAO.GetOffensiveForcePool().Count == 0)
                 return;
 
             if (Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
@@ -472,7 +473,8 @@ namespace Ship_Game.AI.Tasks {
 
             foreach (Troop t in potentialTroops)
                 ourAvailableStrength = ourAvailableStrength + t.Strength;
-
+            if (ourAvailableStrength < enemyTroopStrength)
+                return;
             float MinimumEscortStrength = GetEnemyStrAtTarget();
 
             // I'm unsure on ball-park figures for ship strengths. Given it used to build up to 1500, sticking flat +300 on seems a good start
@@ -662,7 +664,7 @@ namespace Ship_Game.AI.Tasks {
                 return null;
             }
             AO closestAO =
-                aos.FindMaxFiltered(ao => ao.GetOffensiveForcePool().Count > 0 && ao.GetWaitingShips().Count == 0,
+                aos.FindMaxFiltered(ao => ao.GetOffensiveForcePool().Count > 4 ,
                     ao => -ao.Center.SqDist(AO)) ??
                 aos.FindMin(ao => ao.Center.SqDist(AO));
             if (closestAO == null)
@@ -676,6 +678,8 @@ namespace Ship_Game.AI.Tasks {
         private void RequisitionExplorationForce()
         {
             AO closestAO = FindClosestAO();
+
+
 
             if (closestAO == null || closestAO.GetOffensiveForcePool().Count < 1)
             {
@@ -693,7 +697,7 @@ namespace Ship_Game.AI.Tasks {
             }
             EnemyStrength = 0f;
             EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Owner);
-
+            
             MinimumTaskForceStrength = EnemyStrength + 0.35f * EnemyStrength;
 
             if (MinimumTaskForceStrength < 1f)
@@ -701,7 +705,7 @@ namespace Ship_Game.AI.Tasks {
 
 
             Array<Troop> potentialTroops = new Array<Troop>();
-            potentialTroops = GetTroopsOnPlanets(potentialTroops, closestAO.GetPlanet().Center);
+            potentialTroops = GetTroopsOnPlanets(potentialTroops, closestAO. GetPlanet().Center);
             if (potentialTroops.Count < 4)
             {
                 NeededTroopStrength = 20;
@@ -740,23 +744,23 @@ namespace Ship_Game.AI.Tasks {
             if (tfstrength >= MinimumTaskForceStrength && ourAvailableStrength >= 20f)
             {
                 StartingStrength = tfstrength;
-                CreateFleet(elTaskForce, potentialAssaultShips, potentialTroops, EnemyStrength, closestAO, null,
+                CreateFleet(elTaskForce, potentialAssaultShips, potentialTroops, 20, closestAO, null,
                     "Exploration Force");
             }
         }
 
         private void RequisitionForces()
         {
-            IOrderedEnumerable<AO> sorted = Owner.GetGSAI().AreasOfOperations
+            var sorted = Owner.GetGSAI().AreasOfOperations
                 .OrderByDescending(ao => ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >=
                                          MinimumTaskForceStrength)
-                .ThenBy(ao => Vector2.Distance(AO, ao.Center));
+                .ThenBy(ao => Vector2.Distance(AO, ao.Center)).ToArray();
 
-            if (!sorted.Any())
+            if (sorted.Length == 0)
                 return;
 
-            AO closestAO = sorted.First<AO>();
-            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, AORadius, Owner);
+            AO closestAO = sorted[0];
+            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Owner,100000);
 
             MinimumTaskForceStrength = EnemyStrength;
             if (MinimumTaskForceStrength < 1f)
