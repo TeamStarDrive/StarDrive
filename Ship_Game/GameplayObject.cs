@@ -104,6 +104,16 @@ namespace Ship_Game
             System = system;
         }
 
+        public void ChangeLoyalty(Empire changeTo)
+        {
+            if (InSpatial)
+                UniverseScreen.SpaceManager.Remove(this);
+            if ((Type & GameObjectType.Proj) != 0) ((Projectile)this).Loyalty = changeTo;
+            if ((Type & GameObjectType.Ship) != 0) ((Ship)this).loyalty = changeTo;
+            if (!DisableSpatialCollision && Active && NotInSpatial)
+                UniverseScreen.SpaceManager.Add(this);
+        }
+
         public int GetLoyaltyId()
         {
             if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty?.Id ?? 0;

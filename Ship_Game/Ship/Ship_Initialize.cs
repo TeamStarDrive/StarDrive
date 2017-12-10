@@ -166,7 +166,6 @@ namespace Ship_Game.Gameplay
                 ship.Level += (int)Empire.Universe.GameDifficulty;
 
             ship.InitializeShip(loadingFromSavegame: false);
-
             owner.AddShip(ship);
             Empire.Universe?.MasterShipList.Add(ship);
             return ship;
@@ -215,13 +214,32 @@ namespace Ship_Game.Gameplay
         }
 
         // Hangar Ship Creation
-        public static Ship CreateShipFromHangar(string key, Empire owner, Vector2 p, Ship parent)
+        public static Ship CreateShipFromHangar(ShipModule hangar, Empire owner, Vector2 p, Ship parent)
         {
-            Ship ship = CreateShipAtPoint(key, owner, p);
+            Ship ship = CreateShipAtPoint(hangar.hangarShipUID, owner, p);
             if (ship == null) return null;
             ship.Mothership = parent;
-            ship.Velocity = parent.Velocity;
+            ship.Velocity = parent.Velocity;            
+
+            if (ship.SetSupplyShuttleRole(hangar.IsSupplyBay))
+                return ship;
+            if (ship.SetTroopShuttleRole(hangar.IsTroopBay))
+                return ship;
+            
             return ship;
+        }
+
+        private bool SetSupplyShuttleRole(bool isSupplyBay) => SetSpecialRole(ShipData.RoleName.supply, isSupplyBay, "Supply Shuttle");
+        private bool SetTroopShuttleRole(bool isTroopBay) => SetSpecialRole(ShipData.RoleName.troop, isTroopBay, "");
+
+        private bool SetSpecialRole(ShipData.RoleName roleToset, bool ifTrue, string vanityName)
+        {
+            if (!ifTrue) return false;            
+            DesignRole = roleToset;
+            if (vanityName.NotEmpty())
+                VanityName = vanityName;
+            return true;
+            
         }
 
         public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)

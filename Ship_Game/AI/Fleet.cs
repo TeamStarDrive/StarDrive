@@ -304,6 +304,16 @@ namespace Ship_Game.AI
             this.Owner.GetGSAI().TaskList.ApplyPendingRemovals();
         }
 
+        private bool IsInFormationWarp()
+        {
+            foreach (Ship ship in Ships)
+            {
+                if (ship.AI.State != AIState.FormationWarp) continue;
+                return false;                
+            }
+            return true;
+        }
+
         private void DoCorsairRaid(float elapsedTime)
         {
             if (this.TaskStep != 0)
@@ -332,23 +342,25 @@ namespace Ship_Game.AI
         private void DoExplorePlanet(Tasks.MilitaryTask task) //Mer Gretman Left off here
         {
             Log.Info("DoExplorePlanet called!  " + this.Owner.PortraitName);
-            bool eventBuildingFound = false;
+            bool eventBuildingFound = true;
             foreach (Building building in task.GetTargetPlanet().BuildingList)
             {
-                if (!string.IsNullOrEmpty(building.EventTriggerUID))
-                {
-                    eventBuildingFound = true;
+                if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
+                
+                    eventBuildingFound = false;
                     break;
-                }
+                
             }
 
             bool weHaveTroops = false;
             if (!eventBuildingFound)    //No need to do this part if a task ending scenario has already been found -Gretman
             {
+                
+
                 using (this.Ships.AcquireReadLock())
                     foreach (Ship ship in this.Ships)
                     {
-                        if (ship.TroopList.Count > 0)
+                        if (ship.TroopList.Count > 0 || ship.DesignRole == ShipData.RoleName.troop)
                             weHaveTroops = true;
                     }
                 if (!weHaveTroops)
@@ -1309,7 +1321,7 @@ namespace Ship_Game.AI
                     //this.DoCohesiveClearAreaOfEnemies(task);
                     //break;
                 case 1:
-                   // Array<ThreatMatrix.Pin> list1 = new Array<ThreatMatrix.Pin>();
+                    
                     Map<Vector2, float> threatDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarStrengthClusters(this.FleetTask.AO, this.FleetTask.AORadius, 10000f, this.Owner);
                     float strength = this.GetStrength();                    
 
@@ -1342,8 +1354,8 @@ namespace Ship_Game.AI
                     
                     
                 case 2:
-
-                    if (this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.TargetPosition, 150000, this.Owner) <1)
+                    
+                    if (this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(TargetPosition, 75000, Owner) <1)
                     {
                         this.TaskStep = 1;
                         break;
@@ -1351,13 +1363,15 @@ namespace Ship_Game.AI
                     else
                     {
                         
-                        if (Vector2.Distance(this.TargetPosition, this.FindAveragePosition()) > 25000)
+                        if (Vector2.Distance(this.TargetPosition, this.FindAveragePosition()) > 10000)
                             break;
-                        this.TaskStep = 3;
+                        if (!IsInFormationWarp())
+                            this.TaskStep = 3;
                         break;
                     }
                 case 3:
-                    this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(this.Position, 150000, 10000, this.Owner);
+                    this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector
+                        (this.Position, 150000, 10000, this.Owner);
                    
                     if (this.EnemyClumpsDict.Count == 0)
                     {
@@ -1375,7 +1389,7 @@ namespace Ship_Game.AI
                         {
                             float num = 0.0f;
                             foreach (Ship ship in this.Ships)
-                            {
+                            {                                
                                 if (!list4.Contains(ship) && (num == 0 || num < toAttack.GetStrength()))
                                 {
                                     ship.AI.Intercepting = true;
@@ -1387,7 +1401,7 @@ namespace Ship_Game.AI
                         }
                         Array<Ship> list5 = new Array<Ship>();
                         foreach (Ship ship in this.Ships)
-                        {
+                        {                            
                             if (!list4.Contains(ship))
                                 list5.Add(ship);
                         }
@@ -1401,7 +1415,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 4:
-                    if (IsFleetSupplied())
+                    if (!IsFleetSupplied())
                     {
                         this.TaskStep = 5;
                         break;
@@ -1410,7 +1424,7 @@ namespace Ship_Game.AI
                     bool allInCombat = true;
                     foreach (Ship ship in this.Ships)
                     {
-                        if (ship.AI.BadGuysNear && !ship.InDeepSpace)
+                        if (!ship.AI.BadGuysNear )
                         {
                             allInCombat = false;
                             break;
@@ -1440,21 +1454,8 @@ namespace Ship_Game.AI
                         ship.AI.OrderResupplyNearest(true);
                     this.TaskStep = 6;
                     break;
-                case 6:
-                    float num6 = 0.0f;
-                    float num7 = 0.0f;
-                    foreach (Ship ship in this.Ships)
-                    {
-                        if (ship.AI.State != AIState.Resupply)
-                        {
-                            task.EndTask();
-                            return;
-                        }
-                        ship.AI.HasPriorityOrder = true;
-                        num6 += ship.Ordinance;
-                        num7 += ship.OrdinanceMax;
-                    }
-                    if (num6 != num7)
+                case 6:                  
+                    if (!IsFleetSupplied(wantedSupplyRatio: .9f))
                         break;
                     this.TaskStep = 1;
                     break;
@@ -1518,7 +1519,7 @@ namespace Ship_Game.AI
                         this.TaskStep = 4;
                         break;
                     case 4:
-                        if (IsFleetSupplied())
+                        if (!IsFleetSupplied())
                         {
                             this.TaskStep = 5;
                             break;
@@ -1707,7 +1708,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 4:
-                    if (IsFleetSupplied())
+                    if (!IsFleetSupplied())
                     {
                         this.TaskStep = 5;
                         break;

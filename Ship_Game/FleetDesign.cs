@@ -38,7 +38,7 @@ namespace Ship_Game
         }
         public float ApplyFleetWeight(Fleet fleet, Ship potential)
         {
-            float weight = 0;
+            float weight = 0;           
             if ((DefenderWeight > .49f && DefenderWeight < .51f) || (AssistWeight > .49f && AssistWeight < .51f))
                 return weight;
             foreach (Ship ship in fleet.GetShips)

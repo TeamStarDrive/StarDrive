@@ -30,52 +30,39 @@ namespace Ship_Game.AI {
             {
                 if (g.GoalName == "BuildOffensiveShips" || g.GoalName == "BuildDefensiveShips")
                 {
-                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                    {
-                        underConstruction = underConstruction +
-                                            ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
-                    }                    
-                    else                    
-                        underConstruction = underConstruction +
-                                            ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
-                    
-                    foreach (var t in ResourceManager.ShipsDict[g.ToBuildUID].TroopList)                    
+
+                    underConstruction = underConstruction +
+                                        ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
+
+                    foreach (var t in ResourceManager.ShipsDict[g.ToBuildUID].TroopList)
                         troopStrengthUnderConstruction = troopStrengthUnderConstruction + t.Strength;
-                    
+
                     numgoals = numgoals + 1f;
                 }
                 if (g.GoalName != "BuildConstructionShip")                
                     continue;
                 
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                {
-                    underConstruction = underConstruction +
-                                        ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
-                }
-                else                
+                               
                     underConstruction = underConstruction +
                                         ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
                 
             }
             float anger = 0;
+            int angryCount = 0;
+            float offenseNeeded = 0;
             foreach (var rel in OwnerEmpire.AllRelations)
             {
-                anger += rel.Value.TotalAnger;
+                if (rel.Key.isFaction || rel.Value.AtWar ||  rel.Value.TotalAnger > OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                {
+                    offenseNeeded += ThreatMatrix.StrengthOfEmpire(rel.Key) / OwnerEmpire.currentMilitaryStrength;
+                }
             }
-            anger *= .01f;
-            float offenseNeeded = 0;
-            offenseNeeded += ThreatMatrix.StrengthOfAllThreats(OwnerEmpire);
-            offenseNeeded /= OwnerEmpire.currentMilitaryStrength;
-            offenseNeeded = anger;
-            if (offenseNeeded <= 0)            
-                offenseNeeded = 0;
             
-            if (offenseNeeded > 20)
-                offenseNeeded = 20;
+     
             NumberOfShipGoals += (int) offenseNeeded;
             var income = OwnerEmpire.Grossincome();
             float atWarBonus = 0f;
-            if (offenseNeeded > 2)
+            //if (offenseNeeded > 2)
                 atWarBonus        += (offenseNeeded * (.05f + OwnerEmpire.getResStrat().MilitaryPriority * .03f));
             float capacity         = income * (.05f + atWarBonus) - underConstruction;
             float allowableDeficit = OwnerEmpire.Money * -(1f - OwnerEmpire.data.TaxRate);// - (OwnerEmpire.Money * .05f) * atWarBonus;
@@ -93,17 +80,10 @@ namespace Ship_Game.AI {
 
                 foreach (Ship ship1 in OwnerEmpire.GetShips())
                 {
-                    if (ship1.AI.State != AIState.Scrap)                    
+                    if (ship1.AI.State != AIState.Scrap)
                         continue;
-                    
-                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                    {
-                        howMuchWeAreScrapping = howMuchWeAreScrapping + ship1.GetMaintCostRealism();
-                    }
-                    else
-                    {
-                        howMuchWeAreScrapping = howMuchWeAreScrapping + ship1.GetMaintCost(OwnerEmpire);
-                    }
+                    howMuchWeAreScrapping = howMuchWeAreScrapping + ship1.GetMaintCost(OwnerEmpire);
+
                 }
                 if (howMuchWeAreScrapping < Math.Abs(capacity))
                 {

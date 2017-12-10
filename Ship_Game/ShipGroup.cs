@@ -131,8 +131,8 @@ namespace Ship_Game
         {
             if (StoredFleetPosition == Vector2.Zero)
                 StoredFleetPosition = FindAveragePositionset();
-            else if (Ships.Count != 0)
-                StoredFleetPosition = Ships[0].Center;
+            //else if (Ships.Count != 0)
+            //    StoredFleetPosition = Ships[0].Center;
             return StoredFleetPosition;
         }
 
@@ -172,7 +172,7 @@ namespace Ship_Game
             this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average();
         }
 
-        protected bool IsFleetSupplied()
+        protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
         {
             float currentAmmo = 0.0f;
             float maxAmmo = 0.0f;
@@ -192,11 +192,7 @@ namespace Ship_Game
                         energyDps = weapon.DamageAmount / weapon.fireDelay;
                 }
             }
-            if (maxAmmo > 0 && ammoDps >= (ammoDps + energyDps) * 0.5f && currentAmmo <= maxAmmo * 0.1f) //is ammo really needed and if so is ammo < 1/10th of max
-            {
-                return false;
-            }
-            return true;
+            return !(maxAmmo > 0) || !(ammoDps >= (ammoDps + energyDps) * 0.5f) || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
         }
 
         public void MoveDirectlyNow(Vector2 movePosition, float facing, Vector2 fVec)
