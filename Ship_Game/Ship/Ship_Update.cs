@@ -127,16 +127,20 @@ namespace Ship_Game.Gameplay
             //if (ClickTimer < 0f) ClickTimer = 10f;
 
             if (elapsedTime > 0f)
-            {
+            {                
                 UpdateProjectiles(elapsedTime);
                 UpdateBeams(elapsedTime);
                 if (!EMPdisabled && Active) AI.Update(elapsedTime);
             }
 
             if (Active)
-            {
+            { 
                 InCombatTimer -= elapsedTime;
-                if (InCombatTimer > 0.0) InCombat = true;
+                if (InCombatTimer > 0.0)
+                {
+                    
+                    InCombat = true;
+                }
                 else
                 {
                     if (InCombat)

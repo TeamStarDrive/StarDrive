@@ -55,6 +55,10 @@ namespace Ship_Game.AI {
             Owner.InCombatTimer = 15f;
             OrderQueue.Clear();
             IgnoreCombat = false;
+            if (!Owner.loyalty.isPlayer)
+            {
+                CombatState = Owner.shipData.CombatState;
+            }
             TargetQueue.Add(toAttack);
             HasPriorityTarget = true;
             HasPriorityOrder = false;

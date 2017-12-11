@@ -465,8 +465,8 @@ namespace Ship_Game.AI {
 
         private bool PassengerPickUpTarget(Planet p)
         {
-            return p != start && p.MaxPopulation > 2000f && (p.Population + p.IncomingColonists) / p.MaxPopulation > 0.75f
-                   && !p.NeedsFood();
+            return p != start && p.NeedsFood() || p.MaxPopulation > 2000f 
+                && (p.Population + p.IncomingColonists) / p.MaxPopulation > 0.75f;
         }
 
         public void OrderTransportPassengers(float elapsedTime)
@@ -510,7 +510,7 @@ namespace Ship_Game.AI {
             }
 
             // RedFox: Where to load & drop nearest Population
-            SelectPlanetByFilter(safePlanets, out start, p => PassengerPickUpTarget(p));
+            SelectPlanetByFilter(safePlanets, out start, PassengerPickUpTarget);
             SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget);
 
             if (start != null && end != null)
@@ -518,6 +518,7 @@ namespace Ship_Game.AI {
                 OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
                     true, start);
                 end.IncomingColonists += Owner.CargoSpaceMax;
+                start.IncomingColonists -= Owner.CargoSpaceMax;
                 AddShipGoal(Plan.PickupPassengers, Vector2.Zero, 0f);
             }
             else

@@ -346,6 +346,7 @@ namespace Ship_Game.Debug
                 DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
                 DrawString("AI State: "+ship.AI.State);
+                DrawString("Combat State: " + ship.AI.CombatState);
 
                 if (ship.AI.State == AIState.SystemTrader)
                     DrawString($"Trading Prod:{ship.TradingProd} food:{ship.TradingFood} Goods:{ship.AI.FoodOrProd}");

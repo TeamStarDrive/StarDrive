@@ -342,8 +342,11 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                if (!(OrdinanceMax > 0f) || !(Ordinance / OrdinanceMax < 0.05f) || AI.HasPriorityTarget)
-                    return false;
+                bool lowAmmo =  !AI.HasPriorityOrder && OrdinanceMax > 0f && Ordinance / OrdinanceMax < 0.05f;
+                if (!lowAmmo) return false;
+                foreach (var weapon in Weapons)
+                    if (weapon.OrdinanceRequiredToFire < .01 && AI.State != AIState.AwaitingOrders)
+                        return false;                
                 return !AI.FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100);
             }
 
@@ -2011,8 +2014,11 @@ namespace Ship_Game.Gameplay
                     if (InCombat || shield_power != shield_max)
                     {
                         shield_power = 0.0f;
-                        foreach (ShipModule shield in Shields)
+                        for (int x = 0; x < Shields.Length; x++)
+                        {
+                            ShipModule shield = Shields[x];
                             shield_power += shield.ShieldPower;
+                        }
                         if (shield_power > shield_max)
                             shield_power = shield_max;
                     }

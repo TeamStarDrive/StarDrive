@@ -1098,17 +1098,17 @@ namespace Ship_Game {
         {
             var savedShip = new ShipData
             {
-                Animated     = this.ActiveHull.Animated,
-                CombatState  = this.ActiveHull.CombatState,
-                Hull         = this.ActiveHull.Hull,
-                IconPath     = this.ActiveHull.IconPath,
-                ModelPath    = this.ActiveHull.ModelPath,
-                Name         = this.ActiveHull.Name,
-                Role         = this.ActiveHull.Role,
-                ShipStyle    = this.ActiveHull.ShipStyle,
-                ThrusterList = this.ActiveHull.ThrusterList
+                Animated = this.ActiveHull.Animated,
+                CombatState = this.ActiveHull.CombatState,
+                Hull = this.ActiveHull.Hull,
+                IconPath = this.ActiveHull.IconPath,
+                ModelPath = this.ActiveHull.ModelPath,
+                Name = this.ActiveHull.Name,
+                Role = this.ActiveHull.Role,
+                ShipStyle = this.ActiveHull.ShipStyle,
+                ThrusterList = this.ActiveHull.ThrusterList,
+                ModuleSlots = new ModuleSlotData[Slots.Count]
             };
-
             for (int i = 0; i < Slots.Count; ++i)
             {
                 SlotStruct slot = Slots[i];
