@@ -605,6 +605,7 @@ namespace Ship_Game.AI {
                 if (!(warWeight > 0)) continue;
                 if (kv.Key.isFaction)
                 {
+                    FightBrutalWar(kv);
                     kv.Value.AtWar = false;
                     continue;
                 }
