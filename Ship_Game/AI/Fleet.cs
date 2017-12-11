@@ -308,7 +308,7 @@ namespace Ship_Game.AI
         {
             foreach (Ship ship in Ships)
             {
-                if (ship.AI.State != AIState.FormationWarp) continue;
+                if (ship.AI.State != AIState.FormationWarp ) continue;
                 return false;                
             }
             return true;
@@ -611,7 +611,7 @@ namespace Ship_Game.AI
 
                             //TODO: Indiction logic.   this doesnt work. 
                             Planet targetPlanet = task.GetTargetPlanet(); 
-                            if (FleetTaskAttackAllEnemiesInAO(targetPlanet.Center, targetPlanet.GravityWellRadius, targetPlanet.GravityWellRadius / CountCombatSquads))
+                            if (FleetTaskAttackAllEnemiesInAO(targetPlanet.Center, targetPlanet.GravityWellRadius *3, targetPlanet.GravityWellRadius / CountCombatSquads))
                                 TaskStep = 4;
                             
                             //using (Owner.GetGSAI().TaskList.AcquireReadLock())
@@ -719,7 +719,7 @@ namespace Ship_Game.AI
                         ship.AI.Intercepting = true;
                         ship.AI.OrderAttackSpecificTarget(clumpCenter);
                         assignedShips.Add(ship);
-                        strength -= ship.GetStrength();
+                        strength -= ship.GetStrength();                        
                         if (strength < 0)
                         {
                             allGroupsCovered = true;
@@ -1363,10 +1363,11 @@ namespace Ship_Game.AI
                     else
                     {
                         
-                        if (Vector2.Distance(this.TargetPosition, this.FindAveragePosition()) > 10000)
+                        if (Vector2.Distance(this.TargetPosition, this.FindAveragePosition()) > 10000
+                        && IsInFormationWarp()
+                            )
                             break;
-                        if (!IsInFormationWarp())
-                            this.TaskStep = 3;
+                        this.TaskStep = 3;
                         break;
                     }
                 case 3:
@@ -1774,7 +1775,15 @@ namespace Ship_Game.AI
             else
             {
                 if (EmpireManager.Player == Owner || IsCoreFleet )
+                {
+                    if (!IsCoreFleet) return;
+                    foreach (Ship ship in Ships)
+                    {
+                        ship.AI.HasPriorityTarget = false;
+                        ship.AI.Intercepting = false;
+                    }
                     return;
+                }
                 Owner.GetGSAI().UsedFleets.Remove(which);                
                 for (int i = 0; i < Ships.Count; ++i)
                 {

@@ -117,21 +117,27 @@ namespace Ship_Game.AI
         public GameplayObject ScanForCombatTargets(Vector2 position, float radius)
         {
             BadGuysNear = false;
+            GameplayObject priorityTarget = null;           
             FriendliesNearby.Clear();
             PotentialTargets.Clear();
             NearbyShips.Clear();
             //this.TrackProjectiles.Clear();
+            
 
 
-
-            if (HasPriorityTarget && Target == null)
+            if (HasPriorityTarget)
             {
-                HasPriorityTarget = false;
-                if (TargetQueue.Count > 0)
+                if (Target == null)
                 {
-                    HasPriorityTarget = true;
-                    Target = TargetQueue.First();
+                    HasPriorityTarget = false;
+                    if (TargetQueue.Count > 0)
+                    {
+                        HasPriorityTarget = true;
+                        Target = TargetQueue.First();
+                    }
                 }
+                else
+                    priorityTarget = Target;
             }
             if (Target is Ship target)
             {

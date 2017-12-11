@@ -184,7 +184,6 @@ namespace Ship_Game.AI {
             var ctarget = Target as Ship;
             if (Target?.Active != true || ctarget?.engineState != Ship.MoveState.Sublight)
             {
-                Intercepting = false;
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
                                                               t.Center.InRadius(Owner.Center, Owner.SensorRange));
                 if (Target == null)
@@ -241,6 +240,12 @@ namespace Ship_Game.AI {
                     Owner.HyperspaceReturn();
             }
             else if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
+            {
+                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
+                return;
+            }
+            if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
+                && Owner.Center.OutsideRadius(Target.Center,Owner.maxWeaponsRange))
             {
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 return;
@@ -650,18 +655,18 @@ namespace Ship_Game.AI {
         private void DoNonFleetArtillery(float elapsedTime)
         {
             //Heavily modified by Gretman
-            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Target.Center);
+            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.Center.ProjectImpactPoint(Owner.Velocity, Owner.maxWeaponsRange, Target.Center,Target.Velocity));
             var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
             float distanceToTarget = Owner.Center.Distance(Target.Center);
             float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius) * 0.85f;
-
+            float minDistance = Math.Max(adjustedRange * .25f + Target.Radius, adjustedRange *.5f);
             if (distanceToTarget > adjustedRange)
             {
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 return;
             }
 
-            if (distanceToTarget < Owner.Radius)
+            if (distanceToTarget < minDistance)
             {
                 Owner.Velocity = Owner.Velocity + Vector2.Normalize(-forward) * (elapsedTime * Owner.GetSTLSpeed());
             }
@@ -826,22 +831,14 @@ namespace Ship_Game.AI {
 
         private void DoRepairDroneLogic(Weapon w)
         {
-            // @todo Refactor this bloody mess
-            //Turns out the ship was used to get a vector to the target ship and not actually used for any kind of targeting. 
-
-            Ship friendliesNearby = null;
             using (FriendliesNearby.AcquireReadLock())
             {
-                foreach (Ship ship in FriendliesNearby)
-                {
-                    if (!ship.Active || ship.Health > ship.HealthMax * 0.95f
-                        || !Owner.Center.InRadius(ship.Center, 20000f))
-                        continue;
-                    friendliesNearby = ship;
-                    break;
-                }
-                if (friendliesNearby == null) return;
-                Vector2 target = w.Center.DirectionToTarget(friendliesNearby.Center);
+                Ship repairMe = FriendliesNearby.FindMinFiltered(
+                    filter: ship => ShipNeedsRepair(ship, 20000f),
+                    selector: ship => ship.Health / ship.HealthMax);
+
+                if (repairMe == null) return;
+                Vector2 target = w.Center.DirectionToTarget(repairMe.Center);
                 target.Y = target.Y * -1f;
                 w.FireDrone(target);
             }
@@ -850,14 +847,17 @@ namespace Ship_Game.AI {
         private void DoRepairBeamLogic(Weapon w)
         {
             Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ship.Active && ship != w.Owner
-                                 && ship.Health / ship.HealthMax < .9f
-                                 && Owner.Center.Distance(ship.Center) <= w.Range + 500f,
-                    selector: ship => ship.Health);
+                    filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),                    
+                    selector: ship => ship.Health / ship.HealthMax);
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);
         }
-
+        private bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
+        {
+            return target.Active && target != dontHealSelf
+                    && target.Health / target.HealthMax < .9f
+                    && Owner.Center.Distance(target.Center) <= maxDistance;
+        }
         private void DoOrdinanceTransporterLogic(ShipModule module)
         {
             Ship repairMe = module.GetParent()
