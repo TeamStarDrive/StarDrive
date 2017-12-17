@@ -475,7 +475,8 @@ namespace Ship_Game.AI.Tasks {
                 ourAvailableStrength = ourAvailableStrength + t.Strength;
             if (ourAvailableStrength < enemyTroopStrength)
                 return;
-            float MinimumEscortStrength = GetEnemyStrAtTarget();
+
+            float minimumEscortStrength = GetEnemyStrAtTarget(Owner.currentMilitaryStrength * .05f);
 
             // I'm unsure on ball-park figures for ship strengths. Given it used to build up to 1500, sticking flat +300 on seems a good start
             //updated. Now it will use 1/10th of the current military strength escort strength needed is under 1000
@@ -483,18 +484,18 @@ namespace Ship_Game.AI.Tasks {
             //sort of cheating but as it would be much the same calculation as the attacking empire would use.... hrmm.
             // actually i think the raw importance value could be used to create an importance for that planet. interesting... that could be very useful in many areas. 
 
-            MinimumTaskForceStrength = MinimumEscortStrength;
+            MinimumTaskForceStrength = minimumEscortStrength;
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             float tfstrength = 0f;
-            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, MinimumEscortStrength, tfstrength,
+            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, minimumEscortStrength, tfstrength,
                 out float tempStrength));
             tfstrength += tempStrength;
 
-            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, MinimumEscortStrength * 1.5f, tfstrength,
+            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, minimumEscortStrength * 1.5f, tfstrength,
                 out tempStrength));
             tfstrength += tempStrength;
 
-            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, MinimumEscortStrength));
+            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, minimumEscortStrength));
             if (tfstrength >= MinimumTaskForceStrength)
             {
                 if (ourAvailableStrength >= enemyTroopStrength && landingSpots > 8 && troopCount >= 10)
@@ -701,7 +702,7 @@ namespace Ship_Game.AI.Tasks {
             MinimumTaskForceStrength = EnemyStrength + 0.35f * EnemyStrength;
 
             if (MinimumTaskForceStrength < 1f)
-                MinimumTaskForceStrength = 1;
+                MinimumTaskForceStrength = Owner.currentMilitaryStrength *.05f;
 
 
             Array<Troop> potentialTroops = new Array<Troop>();

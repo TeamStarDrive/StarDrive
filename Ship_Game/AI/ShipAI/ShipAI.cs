@@ -18,7 +18,7 @@ namespace Ship_Game.AI
         private SolarSystem SystemToPatrol;
         private readonly Array<Planet> PatrolRoute = new Array<Planet>();
         private int StopNumber;
-        public FleetDataNode FleetNode { get; private set; }         
+        public FleetDataNode FleetNode { get;  set; }         
         private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
 
         public static UniverseScreen UniverseScreen;

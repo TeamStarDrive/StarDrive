@@ -77,6 +77,7 @@ namespace Ship_Game.AI.Tasks
             AO = target.Center;
             AORadius = 35000f;
             this.Owner = Owner;
+            MinimumTaskForceStrength = Owner.currentMilitaryStrength *.1f;
         }
 
         public MilitaryTask(Empire Owner)

@@ -326,11 +326,12 @@ namespace Ship_Game
             (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : Fertility;
             
 
-        public float EmpireBaseValue(Empire empire) => 
-            (CommoditiesPresent.Count +
-            EmpireFertility(empire)
-            * MineralRichness) 
-            * (MaxPopulation / 1000f);
+        public float EmpireBaseValue(Empire empire) => (
+            CommoditiesPresent.Count +
+            (1 + EmpireFertility(empire))
+            * (1 + MineralRichness )
+            * (float)Math.Ceiling(MaxPopulation / 1000f)
+            );
 
         public bool NeedsFood()
         {
