@@ -345,6 +345,7 @@ namespace Ship_Game.AI {
         private void FightBrutalWar(KeyValuePair<Empire, Relationship> r)
         {
             var invasionTargets = new Array<Planet>();
+            Vector2 ownerCenter = OwnerEmpire.GetWeightedCenter();
             foreach (Planet p in OwnerEmpire.GetPlanets())
             {
                 foreach (Planet toCheck in p.ParentSystem.PlanetList)
@@ -359,7 +360,8 @@ namespace Ship_Game.AI {
             }
             if (invasionTargets.Count > 0)
             {
-                Planet target = invasionTargets[0];
+               
+                Planet target = invasionTargets.FindMin(distance=> distance.Center.SqDist(ownerCenter));
                 bool ok = true;
 
                 using (TaskList.AcquireReadLock())
@@ -379,6 +381,7 @@ namespace Ship_Game.AI {
                     var invadeTask = new Tasks.MilitaryTask(target, OwnerEmpire);
                     {
                         TaskList.Add(invadeTask);
+                        //if (r.Key.isFaction) return;
                     }
                 }
             }
@@ -441,7 +444,7 @@ namespace Ship_Game.AI {
                 case WarType.BorderConflict:
                     var list1 = new Array<Planet>();
                     var orderedEnumerable1 = r.Key.GetPlanets()
-                        .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
+                        .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 -
                                   (r.Key.GetGSAI()
                                       .DefensiveCoordinator.DefenseDict
                                       .TryGetValue(planet.ParentSystem, out scom)
@@ -594,20 +597,39 @@ namespace Ship_Game.AI {
 
             foreach (var kv in OwnerEmpire.AllRelations.OrderByDescending(anger =>
                 {
-                    float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(), OwnerEmpire.GetWeightedCenter());
+                    if (!anger.Value.Known) return 0;
+                    float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());                    
                     angerMod = (Empire.Universe.UniverseSize - angerMod) / UniverseData.UniverseWidth;
                     if (anger.Value.AtWar)
                         angerMod *= 100;
-                    return anger.Value.TotalAnger * angerMod;
+                    angerMod += anger.Key.GetPlanets().Any(p => IsInOurAOs(p.Center)) ? 1 : 0;
+                    foreach (var s in OwnerEmpire.GetOwnedSystems())
+                    {
+                        if (s.OwnerList.Contains(anger.Key))
+                        {
+                            angerMod *= 2;
+                            break;
+                        }
+                    }
+                    float killableMod = 1 + (int)OwnerEmpire.currentMilitaryStrength / (ThreatMatrix.StrengthOfEmpire(anger.Key) +1);
+                    return (anger.Value.TotalAnger + 1) * angerMod * killableMod;
                 }
             ))
             {
+                if (!kv.Value.Known) continue;
+                if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;
                 if (!(warWeight > 0)) continue;
-                if (kv.Key.isFaction)
+                if (kv.Key.isFaction )
                 {
-                    FightBrutalWar(kv);
-                    kv.Value.AtWar = false;
-                    continue;
+                    foreach (var planet in kv.Key.GetPlanets())
+                    {
+                        if ( IsInOurAOs(planet.Center))
+                        {
+                            FightBrutalWar(kv);
+                            kv.Value.AtWar = false;
+                            continue;
+                        }
+                    }                    
                 }
                 warWeight--;
                 SystemCommander scom;

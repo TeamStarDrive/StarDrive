@@ -3034,11 +3034,11 @@ namespace Ship_Game.Gameplay
             empire = empire ?? loyalty;
             if (!shipData.BaseCanWarp) return false;
             float powerDraw = ModulePowerDraw * (empire?.data.FTLPowerDrainModifier ?? 1);
+            float goodPowerSupply = PowerFlowMax - powerDraw;
+            bool warpTimeGood = goodPowerSupply >= 0 || PowerStoreMax / Math.Min(-goodPowerSupply,1)
+                                 * maxFTLSpeed > GlobalStats.MinimumWarpRange;
 
-            bool warpTimeGood = (PowerStoreMax / (powerDraw - PowerFlowMax)
-                                 * maxFTLSpeed > GlobalStats.MinimumWarpRange);
-
-            bool goodPower = shipData.BaseCanWarp && (powerDraw <= PowerFlowMax || warpTimeGood);
+            bool goodPower = shipData.BaseCanWarp && warpTimeGood;
             if (!goodPower || empire == null)
                 Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {powerDraw}/{PowerFlowMax}");
             if (BaseStrength > baseStrengthNeeded)

@@ -1168,9 +1168,20 @@ namespace Ship_Game
 
             
             UpdateTimer -= elapsedTime;
-            if (UpdateTimer <= 0f)
+            this.currentMilitaryStrength = 0;
+            for (int index = 0; index < this.OwnedShips.Count; ++index)
+            {
+                Ship ship = this.OwnedShips[index];
+                if (ship != null)
+                {
+                    if (ship.shipData.HullRole < ShipData.RoleName.troop) continue;
+                    this.currentMilitaryStrength += ship.GetStrength();
+                }
+
+            }
+            if (UpdateTimer <= 0f && !data.Defeated)
             {                
-                if (this == Universe.PlayerEmpire)
+                if (this == Universe.PlayerEmpire )
                 {
                     Universe.StarDate += 0.1f;
                     Universe.StarDate = (float)Math.Round(Universe.StarDate, 1);
@@ -1355,7 +1366,6 @@ namespace Ship_Game
             }
 
             DoShipMaintenanceCost();
-
             using (OwnedPlanets.AcquireReadLock())
             {
                 float newBuildM = 0f;
@@ -1378,10 +1388,11 @@ namespace Ship_Game
                 }
                 totalBuildingMaintenance = newBuildM;
             }
-
+            
             totalMaint = GetTotalBuildingMaintenance() + GetTotalShipMaintenance();
             AllTimeMaintTotal += totalMaint;
-            Money += (GrossTaxes * data.TaxRate) + OtherIncome;
+            
+            Money += GrossTaxes * data.TaxRate + OtherIncome;
             Money += data.FlatMoneyBonus;
             Money += TradeMoneyAddedThisTurn;
             Money -= totalMaint;
@@ -1395,14 +1406,15 @@ namespace Ship_Game
                 foreach (Ship ship in OwnedShips)
                 {
                     if (!ship.Active || ship.AI.State >= AIState.Scrap) continue;
+                    float maintenance = ship.GetMaintCost();
                     if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
                                                    || (ship.shipData.Role == ShipData.RoleName.station &&
                                                        (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                     {
-                        data.DefenseBudget -= ship.GetMaintCost();
+                        data.DefenseBudget -= maintenance;
                         continue;
                     }
-                    totalShipMaintenance += ship.GetMaintCost();
+                    totalShipMaintenance += maintenance;
                 }
 
             using (OwnedProjectors.AcquireReadLock())
@@ -1427,7 +1439,8 @@ namespace Ship_Game
         }
         public float EstimateShipCapacityAtTaxRate(float rate)
         {
-            return GrossTaxes * rate + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus - (GetTotalBuildingMaintenance() );
+            return (GrossTaxes + OtherIncome + TradeMoneyAddedThisTurn 
+                + data.FlatMoneyBonus - GetTotalBuildingMaintenance()) * rate ;
         }
 
         public float GetActualNetLastTurn()
@@ -2282,18 +2295,8 @@ namespace Ship_Game
                 foreach (Building building in planet.BuildingList)
                     this.IndustrialScore += building.Cost / 20f;
             }
-            this.currentMilitaryStrength =0;
-            for (int index = 0; index < this.OwnedShips.Count; ++index)
-            {
-                Ship ship = this.OwnedShips[index];
-                if (ship != null)
-                {
-                    
-                    
-                    this.currentMilitaryStrength += ship.GetStrength();
-                }
-                
-            }
+            
+         
             this.data.MilitaryScoreTotal += this.currentMilitaryStrength;
             this.TotalScore = (int)((double)this.MilitaryScore / 100.0 + (double)this.IndustrialScore + (double)this.TechScore + (double)this.ExpansionScore);
             MilitaryScore = data.ScoreAverage == 0 ? 0f : data.MilitaryScoreTotal / data.ScoreAverage;

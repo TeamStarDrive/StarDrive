@@ -252,7 +252,7 @@ namespace Ship_Game.AI
                 UpdatePin(ship, pin.InBorders, insensor);            
             }
         }
-        public float PingRadarStr(Vector2 position, float radius, Empire us, bool factionOnly, bool any = false)
+        public float PingRadarStr(Vector2 position, float radius, Empire us, bool factionOnly , bool any = false)
         {
             float str = 0f;
             foreach (var kv in Pins)            

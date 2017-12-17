@@ -251,6 +251,13 @@ namespace Ship_Game.AI
             ShipWeight[] sortedList2 = NearbyShips.OrderByDescending(weight => weight.Weight).ToArray();
 
             PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
+            if (Owner.fleet != null)
+            {
+                foreach (Ship ship in PotentialTargets)
+                    Owner.fleet.FleetTargetList.AddUniqueRef(ship);
+                foreach (Ship ship in Owner.fleet.FleetTargetList)
+                    PotentialTargets.AddUniqueRef(ship);
+            }
 
             if (Target != null && !Target.Active)
             {
@@ -432,15 +439,15 @@ namespace Ship_Game.AI
             //@TODO Investigate why datanodes can be null here.
             //Also investigate why this is here at all. 
             //it seems to be setting the ships FleetNode value... why?? looks like a bug workaround. 
-            if (Owner.fleet?.DataNodes != null)  
-                using (Owner.fleet.DataNodes.AcquireReadLock())
-                    foreach (FleetDataNode datanode in Owner.fleet.DataNodes)
-                    {
-                        if (datanode?.Ship != Owner)
-                            continue;
-                        FleetNode = datanode;
-                        break;
-                    }
+            //if (Owner.fleet?.DataNodes != null)  
+            //    using (Owner.fleet.DataNodes.AcquireReadLock())
+            //        foreach (FleetDataNode datanode in Owner.fleet.DataNodes)
+            //        {
+            //            if (datanode?.Ship != Owner)
+            //                continue;
+            //            FleetNode = datanode;
+            //            break;
+                    //}
             
             if (Target == null || Owner.InCombat) return;
             Owner.InCombatTimer = 15f;

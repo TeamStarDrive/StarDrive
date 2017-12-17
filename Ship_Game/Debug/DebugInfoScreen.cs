@@ -52,6 +52,10 @@ namespace Ship_Game.Debug
         public static int CanceledMtask4Count;
         private int Shipsnotinforcepool;
         private int ShipsinDefforcepool;
+        private int ShipsInAOPool;
+        private int WarShips;
+        private int Freighters;
+        private int UtilityShip;
         public Ship ItemToBuild;
         private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
@@ -76,8 +80,11 @@ namespace Ship_Game.Debug
                     if (!empire.GetForcePool().Contains(ship))
                     {
                         foreach (AO ao in empire.GetGSAI().AreasOfOperations)
-                            if (ao.GetOffensiveForcePool().Contains(ship) && ship?.shipData.Role != ShipData.RoleName.troop && ship?.BaseStrength > 0)
+                            if (ao.GetOffensiveForcePool().Contains(ship) && ship?.DesignRole != ShipData.RoleName.troop && ship?.BaseStrength > 0)
+                            {
+                                ShipsInAOPool++;
                                 flag = true;
+                            }
                         if (flag)
                             continue;
 
@@ -181,7 +188,7 @@ namespace Ship_Game.Debug
             DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
             DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
 
-            DrawString("Ships not in Any Pool: "+Shipsnotinforcepool+" In Defenspool: "+ShipsinDefforcepool);
+            DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
             DrawCircles();
             TextFont = Fonts.Arial12Bold;
             switch (Mode)
@@ -241,8 +248,8 @@ namespace Ship_Game.Debug
                 if (ResearchText.TryGetValue(e.Name, out var empireLog))
                     for (int x = 0; x < empireLog.Count - 1; x++)
                     {
-                        var text = empireLog[x];
-                        DrawString(text);
+                        var text = empireLog[x];                        
+                        DrawString(text ?? "Error");
                     }
                 ++column;
             }
@@ -398,7 +405,13 @@ namespace Ship_Game.Debug
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
-                DrawString("Ship Count:    "+e.GetShips().Count);
+                DrawString($"Ship Count:    {e.GetShips().Count}" +
+                           $" :{e.GetShips().Count(warship=> warship.DesignRole ==  ShipData.RoleName.fighter)}" +
+                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.frigate)}" +
+                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.cruiser)}" +
+                           $" :{e.GetShips().Count(warship => warship.DesignRole > ShipData.RoleName.cruiser)}"
+                           );
                 DrawString("Build Maint:   "+e.GetTotalBuildingMaintenance());
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
                 DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
@@ -506,15 +519,11 @@ namespace Ship_Game.Debug
               
                 foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values.ToArray())
                 {
-                    if (pin.Position != Vector2.Zero)
-                    {
-                        Screen.DrawCircleProjectedZ(pin.Position, 50f, e.EmpireColor, 6);
+                    if (pin.Position == Vector2.Zero) continue;
+                    Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 6, e.EmpireColor);
 
-                        if (pin.InBorders)
-                        {
-                            Screen.DrawCircleProjectedZ(pin.Position, 50f, e.EmpireColor, 3);
-                        }
-                    }
+                    if (!pin.InBorders) continue;
+                    Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 3, e.EmpireColor);
                 }
 
             }
@@ -528,7 +537,7 @@ namespace Ship_Game.Debug
                         if (e.grid[x, y] != 1)
                             continue;
                         var translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
-                        Screen.DrawCircleProjectedZ(translated, Screen.reducer * .001f , e.EmpireColor, 4);
+                        Screen.DrawCircleProjectedZ(translated, Screen.reducer , e.EmpireColor, 4);
                     }
         }
         private void TradeInfo()
