@@ -110,12 +110,13 @@ namespace Ship_Game.AI {
             Goals.Add(cgoal);
         }
 
-        private Planet MarkBestPlanet(Array<Goal.PlanetRanker> ranker)
+        private static Planet MarkBestPlanet(IReadOnlyCollection<Goal.PlanetRanker> ranker)
         {
             Planet toMark = null;
             if (ranker.Count > 0)
             {
-                var winner = new Goal.PlanetRanker();
+                Goal.PlanetRanker winner;
+                winner.Planet = null;
                 float highest = float.MinValue;                
                 foreach (Goal.PlanetRanker pr in ranker)
                 {
@@ -142,16 +143,18 @@ namespace Ship_Game.AI {
                 if (ColonizeBlockedByMorals(s)) continue;
 
                 float str = ThreatMatrix.PingRadarStr(s.Position, 300000f, OwnerEmpire, true);
-              
+                if (str > 0) continue;
                 foreach (Planet planetList in s.PlanetList)
                 {
                     if (!planetList.habitable)
-                        continue;                                        
-
+                        continue;
+                    if (planetList.Owner != null) continue;
+                    if (IsAlreadyMarked(planetList, str)) continue;
                     int commodities = planetList.CommoditiesPresent.Count;
                     
                     Goal.PlanetRanker r2 = PlanetRank(weightedCenter, planetList, commodities);
-                    if (r2.Value < .5f ) continue;
+                    if (r2.Value < .3f )
+                        continue;
                     bool hasCommodities = commodities > 0;                  
 
                     if (IsBadWorld(planetList, canColonizeBarren, hasCommodities, foodBonus)) continue;
@@ -159,10 +162,10 @@ namespace Ship_Game.AI {
 
                     allPlanetsRanker.Add(r2);
 
-                    if (IsAlreadyMarked(planetList)) continue;
-                    if (planetList.Owner != null) continue;
+                    
+                    
 
-                    if (str >0 && ThreatMatrix.PingRadarStr(planetList.Center, 50000f, OwnerEmpire) >0 )
+                    if (str >0 && ThreatMatrix.PingRadarStr(planetList.Center, 50000f, OwnerEmpire, false, any: true) >0 )
                         continue;
                     ranker.Add(r2);
                     
@@ -181,14 +184,12 @@ namespace Ship_Game.AI {
 
         private Goal.PlanetRanker PlanetRank(Vector2 weightedCenter, Planet planetList, int commodities)
         {
-            float distanceInJumps;
             var r2 = new Goal.PlanetRanker()
             {
                 Distance = Vector2.Distance(weightedCenter, planetList.Center)
             };
-            distanceInJumps = r2.Distance / 600000f;
-            if (distanceInJumps < 1f)
-                distanceInJumps = 1f;
+            float distanceInJumps = Math.Max(r2.Distance / 600000, 1);
+            
             r2.JumpRange = distanceInJumps;
             r2.Planet = planetList;            
             
@@ -235,19 +236,25 @@ namespace Ship_Game.AI {
             
         }
 
-        private bool IsAlreadyMarked(Planet planetList)
+        private bool IsAlreadyMarked(Planet planetList,float str)
         {
             bool ok = true;
+            Goal remove = null;
             foreach (Goal g in Goals)
             {
                 if (g.type != GoalType.Colonize || g.GetMarkedPlanet() != planetList)
                     continue;
 
                 ok = false;
+                if (str > 0) remove = g;
                 break;
             }
             if (!ok)
+            {
+                if (remove != null)
+                    Goals.Remove(remove);
                 return true;
+            }
             return false;
         }
 
@@ -262,8 +269,8 @@ namespace Ship_Game.AI {
             int numPlanets = 0;
             foreach (Planet p in OwnerEmpire.GetPlanets())
             {
-                if (p.NeedsFood())
-                    numColonyGoals++;
+                //if (p.NeedsFood())
+                //    numColonyGoals++;
                 for (int i = 0; (float) i < p.Population / 1000f; i++)
                 {
                     weightedCenter = weightedCenter + p.Center;

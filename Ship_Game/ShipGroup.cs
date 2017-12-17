@@ -20,6 +20,7 @@ namespace Ship_Game
         public float Facing;
         protected Stack<Fleet.FleetGoal> GoalStack;
         public Vector2 GoalMovePosition;
+        public Array<Ship> FleetTargetList;
         [XmlIgnore][JsonIgnore] public Vector2 StoredFleetPosition;
         [XmlIgnore][JsonIgnore] public float StoredFleetDistancetoMove;
         [XmlIgnore][JsonIgnore] public IReadOnlyList<Ship> GetShips => Ships;
@@ -32,6 +33,7 @@ namespace Ship_Game
         public ShipGroup()
         {
             Ships = new BatchRemovalCollection<Ship>();
+            FleetTargetList = new Array<Ship>();
         }
 
         public void InitializeGoalStack()
