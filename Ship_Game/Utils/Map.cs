@@ -74,5 +74,6 @@ namespace Ship_Game
         {
             lock (this) return Values.ToArray();
         }
+        
     }
 }
