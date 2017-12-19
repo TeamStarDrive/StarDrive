@@ -122,7 +122,7 @@ namespace Ship_Game.AI {
                                 offer1.RejectDL = "NAPact Rejected";
                                 Relationship r = Relationship.Value;
                                 offer1.ValueToModify =
-                                    new Ref<bool>(() => r.HaveRejected_NAPACT, x => r.HaveRejected_NAPACT = x);
+                                    new Ref<bool>(() => r.HaveRejectedNapact, x => r.HaveRejectedNapact = x);
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 Offer offer2 = new Offer();
                                 offer2.NAPact = true;
@@ -136,7 +136,7 @@ namespace Ship_Game.AI {
                             if (Relationship.Value.TurnsKnown > this.FirstDemand && Relationship.Value.Treaty_NAPact)
                                 Relationship.Value.Posture = Posture.Friendly;
                             else if (Relationship.Value.TurnsKnown > this.FirstDemand &&
-                                     Relationship.Value.HaveRejected_NAPACT)
+                                     Relationship.Value.HaveRejectedNapact)
                                 Relationship.Value.Posture = Posture.Neutral;
                             this.AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust);
                             if (Relationship.Value.Trust > 50f && Relationship.Value.TotalAnger < 10)
@@ -417,7 +417,7 @@ namespace Ship_Game.AI {
                     case Posture.Neutral:
                     {
                         if (Relationship.Value.TurnsKnown >= this.FirstDemand && !Relationship.Value.Treaty_NAPact &&
-                            !Relationship.Value.HaveRejected_Demand_Tech && !Relationship.Value.XenoDemandedTech)
+                            !Relationship.Value.HaveRejectedDemandTech && !Relationship.Value.XenoDemandedTech)
                         {
                             Array<string> PotentialDemands = new Array<string>();
                             foreach (KeyValuePair<string, TechEntry> tech in Relationship.Key.GetTDict())
@@ -448,8 +448,8 @@ namespace Ship_Game.AI {
                                     RejectDL = "Xeno Demand Tech Rejected"
                                 };
                                 Ship_Game.Gameplay.Relationship relationship = Relationship.Value;
-                                TheirDemand.ValueToModify = new Ref<bool>(() => relationship.HaveRejected_Demand_Tech,
-                                    (bool x) => relationship.HaveRejected_Demand_Tech = x);
+                                TheirDemand.ValueToModify = new Ref<bool>(() => relationship.HaveRejectedDemandTech,
+                                    (bool x) => relationship.HaveRejectedDemandTech = x);
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 if (Relationship.Key != Empire.Universe.PlayerEmpire)
                                 {
@@ -463,7 +463,7 @@ namespace Ship_Game.AI {
                                 }
                             }
                         }
-                        if (!Relationship.Value.HaveRejected_Demand_Tech)
+                        if (!Relationship.Value.HaveRejectedDemandTech)
                         {
                             continue;
                         }
@@ -767,8 +767,8 @@ namespace Ship_Game.AI {
                                 offer1.AcceptDL = "NAPact Accepted";
                                 offer1.RejectDL = "NAPact Rejected";
                                 Relationship r = Relationship.Value;
-                                offer1.ValueToModify = new Ref<bool>((Func<bool>) (() => r.HaveRejected_NAPACT),
-                                    (Action<bool>) (x => r.HaveRejected_NAPACT = x));
+                                offer1.ValueToModify = new Ref<bool>((Func<bool>) (() => r.HaveRejectedNapact),
+                                    (Action<bool>) (x => r.HaveRejectedNapact = x));
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 Offer offer2 = new Offer();
                                 offer2.NAPact = true;
@@ -783,7 +783,7 @@ namespace Ship_Game.AI {
                             if (Relationship.Value.TurnsKnown > this.FirstDemand && Relationship.Value.Treaty_NAPact)
                                 Relationship.Value.Posture = Posture.Friendly;
                             else if (Relationship.Value.TurnsKnown > this.FirstDemand &&
-                                     Relationship.Value.HaveRejected_NAPACT)
+                                     Relationship.Value.HaveRejectedNapact)
                                 Relationship.Value.Posture = Posture.Neutral;
                             float usedTrust2 = 0.0f;
                             foreach (TrustEntry trustEntry in (Array<TrustEntry>) Relationship.Value.TrustEntries)

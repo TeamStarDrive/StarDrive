@@ -257,21 +257,21 @@ namespace Ship_Game.AI.Tasks
             {
                 if (IsCoreFleetTask)
                 {
-                    Owner.GetFleetsDict()[WhichFleet].FleetTask = null;
-                    Owner.GetFleetsDict()[WhichFleet].MoveToDirectly(closestAO.Center, 0f, new Vector2(0f, -1f));
+                    Owner.GetFleet(WhichFleet).FleetTask = null;
+                    Owner.GetFleet(WhichFleet).MoveToDirectly(closestAO.Center, 0f, new Vector2(0f, -1f));
                 }
                 else
                 {
                     foreach (Ship ship in Owner.GetFleetsDict()[WhichFleet].Ships)
                     {
-                        Owner.GetFleetsDict()[WhichFleet].RemoveShip(ship);
+                        Owner.GetFleet(WhichFleet).RemoveShip(ship);
                         closestAO.AddShip(ship);
                         closestAO.TurnsToRelax = 0;
                     }
 
                     TaskForce.Clear();
                     Owner.GetGSAI().UsedFleets.Remove(WhichFleet);
-                    Owner.GetFleetsDict()[WhichFleet].Reset();
+                    Owner.GetFleet(WhichFleet).Reset();
                 }
             }
             
@@ -470,7 +470,7 @@ namespace Ship_Game.AI.Tasks
                 }
             } 
             
-            if (Owner.GetFleetsDict()[WhichFleet].FleetTask == null )
+            if (Owner.GetFleet(WhichFleet)?.FleetTask == null )
             {
                 EndTask();
                 return;
@@ -501,7 +501,7 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            Owner.GetFleetsDict()[WhichFleet].Ships.ApplyPendingRemovals();
+            Owner.GetFleet(WhichFleet).Ships.ApplyPendingRemovals();
             float currentEnemyStrength = 0f;
 
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetGSAI().ThreatMatrix.Pins)
@@ -523,7 +523,7 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            if (currentEnemyStrength == 0f || currentStrength == 0f)
+            if (currentEnemyStrength < 1 || currentStrength < 0f)
                 EndTask();
         }
 
@@ -536,7 +536,7 @@ namespace Ship_Game.AI.Tasks
                     if (!Owner.GetFleetsDict().ContainsKey(WhichFleet))
                         return;
 
-                    foreach (Ship ship in Owner.GetFleetsDict()[WhichFleet].Ships)
+                    foreach (Ship ship in Owner.GetFleet(WhichFleet).Ships)
                     {
                         ship.AI.OrderQueue.Clear();
                         ship.AI.State = AIState.AwaitingOrders;

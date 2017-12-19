@@ -175,6 +175,12 @@ namespace Ship_Game
 
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
 
+        public Fleet GetFleet(int key)
+        {
+            FleetsDict.TryGetValue(key, out Fleet fleet);
+            return fleet;
+        }
+
         public Fleet FirstFleet
         {
             get { return FleetsDict[1]; }
@@ -500,6 +506,21 @@ namespace Ship_Game
 
         public int NumPlanets => OwnedPlanets.Count;
 
+        public SolarSystem[] GetBorderSystems(Empire them)
+        {
+            var solarSystems = new HashSet<SolarSystem>();
+
+            foreach (var solarSystem in GetOwnedSystems())
+            {
+                SolarSystem ss = them.GetOwnedSystems().FindMin(s => s.Position.SqDist(solarSystem.Position));
+                if (ss == null)
+                    break;
+                if (!ss.IsExploredBy(this)) continue;
+                solarSystems.Add(ss);
+            }
+            return solarSystems.ToArray(); 
+        }
+
         public void UpdatePlanetIncomes()
         {
             using (OwnedPlanets.AcquireReadLock())
@@ -762,6 +783,7 @@ namespace Ship_Game
 
             foreach (KeyValuePair<string, TechEntry> kv in TechnologyDict)
             {
+                AddToShipTechLists(kv.Value);
                 if (!kv.Value.Unlocked)
                     continue;
                 kv.Value.Unlocked = false;
@@ -1174,7 +1196,7 @@ namespace Ship_Game
                 Ship ship = this.OwnedShips[index];
                 if (ship != null)
                 {
-                    if (ship.shipData.HullRole < ShipData.RoleName.troop) continue;
+                    if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
                     this.currentMilitaryStrength += ship.GetStrength();
                 }
 

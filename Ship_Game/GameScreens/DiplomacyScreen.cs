@@ -422,7 +422,7 @@ namespace Ship_Game
         {
             StatementsSL.Reset();
             TheirText = "";
-            if (TheirOffer.NAPact && them.GetRelations(playerEmpire).HaveRejected_NAPACT)
+            if (TheirOffer.NAPact && them.GetRelations(playerEmpire).HaveRejectedNapact)
             {
                 TheirText = string.Concat(GetDialogueByName("ComeAround_NAPACT"), "\n\n");
             }

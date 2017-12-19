@@ -100,7 +100,7 @@ namespace Ship_Game.Gameplay
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
 
-        public bool HaveRejected_Demand_Tech
+        public bool HaveRejectedDemandTech
         {
             get { return haveRejectedDemandTech; }
             set
@@ -113,9 +113,9 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public bool HaveRejected_NAPACT
+        public bool HaveRejectedNapact
         {
-            get { return haveRejectedNAPact; }
+            get => haveRejectedNAPact;
             set
             {
                 haveRejectedNAPact = value;
@@ -131,6 +131,62 @@ namespace Ship_Game.Gameplay
 
         public Relationship()
         {
+        }
+
+        public float RiskAssesment (Empire us, Empire them, float riskLimit = .75f)
+        {
+            if (!Known) return 0;
+            float risk = float.MaxValue;
+            float strength = Math.Max(100, us.currentMilitaryStrength);
+            if (!them.isFaction && !AtWar && !PreparingForWar &&
+                !(TotalAnger > us.data.DiplomaticPersonality.Territorialism)) return 0;
+            if (!them.isFaction)            
+                return (risk = us.GetGSAI().ThreatMatrix.StrengthOfEmpire(them) / strength) > riskLimit ? 0 :risk;
+            var s = new HashSet<SolarSystem>();
+            foreach (var task in us.GetGSAI().TaskList)
+            {
+                if (task.type != AI.Tasks.MilitaryTask.TaskType.DefendClaim) continue;
+                var p = task.GetTargetPlanet();
+                var ss = p.ParentSystem;
+                if (!s.Add(ss)) continue;
+                float test;
+                if ((test = us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss)) > 0 && test <  risk)
+                    risk = test;
+            }            
+            risk /= strength;
+            return risk > riskLimit ? 0 : risk;
+        }
+
+        public float BorderRiskAssesment(Empire us, Empire them, float riskLimit = .5f)
+        {
+            if (!Known) return 0;
+            float strength = 0;
+            foreach (var ss in us.GetBorderSystems(them))
+            {
+                strength += us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss);
+            }
+            strength /= Math.Max(us.currentMilitaryStrength, 100);
+            return strength > riskLimit ? 0 : strength;            
+        }
+
+        public float ExpansionRiskAssement(Empire us, Empire them, float riskLimit = .5f)
+        {
+            if (!Known || them.NumPlanets ==0) return 0;
+            float themStrength = 0;
+            float usStrength = 0;
+            
+            foreach (Planet p in them.GetPlanets())
+            {
+                if (!p.IsExploredBy(us)) continue;
+                themStrength += p.developmentLevel;
+            }
+            
+            foreach (Planet p in us.GetPlanets())
+            {
+                usStrength += p.developmentLevel;
+            }
+            float strength = (themStrength / usStrength) *.25f;
+            return strength > riskLimit ? 0 : strength;
         }
 
         public void DamageRelationship(Empire Us, Empire Them, string why, float Amount, Planet p)

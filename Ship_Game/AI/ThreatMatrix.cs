@@ -58,6 +58,21 @@ namespace Ship_Game.AI
             return str;
         }
 
+        public float StrengthOfEmpireInSystem(Empire empire, SolarSystem system)
+        {
+            float str = 0f;
+
+            foreach (var kv in Pins)
+            {
+                if (kv.Value.EmpireName == string.Empty) continue;
+                if (kv.Value.EmpireName != empire.data.Traits.Name) continue;
+                if (system.Position.OutsideRadius(kv.Value.Position, system.StarRadius)) continue;
+                str += kv.Value.Strength;
+
+            }
+            return str;
+        }
+
         public Array<Ship> GetAllProjectorsExcept(Empire empire)
         {
             var projectors = new Array<Ship>();
@@ -222,6 +237,7 @@ namespace Ship_Game.AI
             return largestCluster;
 
         }
+        
         public Vector2 PingRadarAvgPos(Vector2 position, float radius, Empire us)
         {
             var pos = new Vector2();
