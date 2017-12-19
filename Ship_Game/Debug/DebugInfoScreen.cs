@@ -390,7 +390,7 @@ namespace Ship_Game.Debug
             int column = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isFaction || e.MinorRace)
+                if (e.isFaction || e.MinorRace || e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);

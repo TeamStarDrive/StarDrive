@@ -388,6 +388,9 @@ namespace Ship_Game.AI {
                     BestCombatShip = null;
             }
             HashSet<string> allAvailableShipTechs = FindBestShip(modifier, availableTechs, command2);
+            DebugLog(
+                $"Best Ship : {GetBestCombatShip?.shipData.HullRole} : {GetBestCombatShip?.GetStrength()}");
+            DebugLog($" : {GetBestCombatShip?.Name}");
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it.
 
@@ -569,7 +572,6 @@ namespace Ship_Game.AI {
         {
             
             float str = 0;
-            int numberOfShipTechs = 0;
             HashSet<string> shipTechs = new HashSet<string>();
             HashSet<string> nonShipTechs = new HashSet<string>();
             HashSet<string> wantedShipTechs = new HashSet<string>();
@@ -599,8 +601,6 @@ namespace Ship_Game.AI {
                         break;
                 }
                 shipTechs.Add(bestshiptech.UID);
-                if (maxTechCost < bestshiptech.TechCost)
-                    maxTechCost = bestshiptech.TechCost;
             }
             if (!modifier.Contains("ShipWeapons") && !modifier.Contains("ShipDefense") &&
                 !modifier.Contains("ShipGeneral") && !modifier.Contains("ShipHull"))
@@ -619,56 +619,33 @@ namespace Ship_Game.AI {
 
             //now look through are cheapest to research designs that get use closer to the goal ship using pretty much the same logic.            
             
-            float currentR = OwnerEmpire.Research +.1f;
-
-            maxTechCost = RandomMath.AvgRandomBetween(currentR, maxTechCost);
-            //int timeToResearch = (int)maxTechCost;
-            //timeToResearch = timeToResearch < 100 ? 100 : timeToResearch;
-            //techcost = timeToResearch;
-            bool shipchange = false;
+            
+            
             Array<Ship> racialShips = new Array<Ship>();
             GetRacialShips(racialShips);
             Array<Ship> researchableShips = new Array<Ship>();
             var hulls = new Array<ShipData>();
             for (int x = 0 ; x< 5; x++)
             {
-                GetResearchableShips(racialShips, shipTechs, researchableShips, hulls, x);                
-               
-                if (researchableShips.Count > 0) break;
+              
             }
-            numberOfShipTechs = GetLineFocusedShipTech(availableTechs, researchableShips, shipTechs
-                , wantedShipTechs, numberOfShipTechs, maxTechCost, str, ref shipchange);
+            GetResearchableShips(racialShips, shipTechs, researchableShips, hulls);
 
+            if (researchableShips.Count <= 0) return nonShipTechs;
 
-
-            HullScaler--;
-
-            if (shipchange)
-                if (BestCombatShip.shipData.HullData.techsNeeded.Count > HullScaler)
-                    HullScaler += BestCombatShip.shipData.HullData.techsNeeded.Count;
-
-            if (shipchange && command == "RANDOM")
-            {
-                DebugLog(
-                    $"Best Ship : {GetBestCombatShip.shipData.HullRole} : {GetBestCombatShip.GetStrength()}");
-                DebugLog($" : {GetBestCombatShip.Name}");
-                foreach (var tech in BestCombatShip.shipData.techsNeeded)
-                    nonShipTechs.Add(tech);                
+            if (!GetLineFocusedShip(researchableShips, shipTechs))
                 return nonShipTechs;
-            }
-            foreach (var tech in wantedShipTechs)
+            foreach (var tech in BestCombatShip.shipData.techsNeeded)
                 nonShipTechs.Add(tech);
-            
-
-            //End of line focusing. 
-
-            DebugLog($"ShipTechs Found : {numberOfShipTechs}");
             return nonShipTechs;
+
         }
 
-        private int GetLineFocusedShipTech(Array<TechEntry> availableTechs, Array<Ship> researchableShips, HashSet<string> shipTechs,
-            HashSet<string> wantedShipTechs, int numberOfShipTechs, float maxTechCost, float str, ref bool shipchange)
+        private bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
         {
+
+            var shipSorter = new Dictionary<int, Array<Ship>>();
+            int maxKey = 0;
             foreach (Ship shortTermBest in researchableShips)
             {
                 //forget the cost of tech that provide these ships. These are defined in techentry class.
@@ -677,65 +654,50 @@ namespace Ship_Game.AI {
                 if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.CarrierShip)
                     continue;
 
-                if (shortTermBest.DesignRole == ShipData.RoleName.bomber)
-                    mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.BomberTech) * (OwnerEmpire.canBuildBombers ? 10 : 2);
-
-                if (shortTermBest.DesignRole == ShipData.RoleName.carrier)
-                    mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.CarrierTech);
-
-                if (!OwnerEmpire.canBuildTroopShips && shortTermBest.DesignRole == ShipData.RoleName.troopShip)
-                    mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.TroopShipTech);
-
-                if (shortTermBest.DesignRole == ShipData.RoleName.support)
-                    mod = AddMatchingTechCost(shortTermBest, OwnerEmpire.SupportShipTech);
-
                 //try to line focus to main goal but if we cant, line focus as best as possible by what we already have. 
                 Array<string> currentTechs =
-                    new Array<string>(shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs));
-                int currentTechCost = 0;
+                    new Array<string>(shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs));
 
-                float sTechCost = 0;
-                float multiplier = currentTechs.Count(ct => !shipTechs.Contains(ct));
-                foreach (var sTech in shortTermBest.shipData.techsNeeded)
+                int numberOfShipTechs = currentTechs.Count;
+
+
+                if (shortTermBest.DesignRole == ShipData.RoleName.bomber)
+                    mod = OwnerEmpire.canBuildBombers ? 0 : 1;
+
+                if (shortTermBest.DesignRole == ShipData.RoleName.carrier)
+                    mod = OwnerEmpire.canBuildCarriers ? 1 : 2;
+
+                if (!OwnerEmpire.canBuildTroopShips && shortTermBest.DesignRole == ShipData.RoleName.troopShip)
+                    mod = OwnerEmpire.canBuildTroopShips ? 1 : 2;
+
+                if (shortTermBest.DesignRole == ShipData.RoleName.support)
+                    mod = OwnerEmpire.canBuildSupportShips ? 1 : 2;
+                int key = Math.Max(numberOfShipTechs - mod, 0);
+                
+                if (shipSorter.TryGetValue(key, out Array<Ship> test))
+                    test.Add(shortTermBest);
+                else
                 {
-                    var tCost = OwnerEmpire.GetTechEntry(sTech);
-                    if (tCost == null)
-                        continue;
-                    if (availableTechs.Contains(tCost))
-                    {
-                        if (wantedShipTechs.Add(tCost.UID))
-                            numberOfShipTechs++;
-                    }
-                    if (OwnerEmpire.BomberTech.Contains(sTech) || OwnerEmpire.CarrierTech.Contains(sTech)
-                        || OwnerEmpire.SupportShipTech.Contains(sTech))
-                        continue;
-
-                    if (tCost.TechnologyType == TechnologyType.ShipHull && HullScaler > 0)
-                    {
-                        multiplier += shortTermBest.shipData.HullData.techsNeeded.Count + HullScaler;
-                    }
-
-                    sTechCost += tCost.TechCost;
-                }
-                currentTechCost = (int) sTechCost;
-                currentTechCost -= mod;
-                multiplier = multiplier < 1 ? 1 : multiplier;
-                currentTechCost = (int) (currentTechCost * multiplier);
-                if (currentTechCost < 1)
-                    currentTechCost = 1;
-
-                float shortStr = shortTermBest.shipData.BaseStrength;
-                float strMod = (maxTechCost / currentTechCost);
-                shortStr *= strMod;
-
-                if (shortStr > str)
-                {
-                    str = shortStr;
-                    BestCombatShip = shortTermBest;
-                    shipchange = true;
+                    test = new Array<Ship> {shortTermBest};
+                    shipSorter.Add(key, test);
                 }
             }
-            return numberOfShipTechs;
+            int[] keys = shipSorter.Keys.ToArray();
+            if (keys.Length == 0)
+                return false;
+            int firstKey = keys.Min();
+            var ships = shipSorter[firstKey].OrderByDescending(ship => (int)ship.DesignRole).ToList();            
+            for (int x = 0; x < ships.Count; x++)
+            {
+                var ship = ships[x];
+                int rand = RandomMath.IntBetween(1, ships.Count -1) + x;
+                if (rand < ships.Count )
+                    continue;
+                return (BestCombatShip = ship) != null;
+            }
+            return false;
+            
+            
         }
 
         private static void GetRacialShips(Array<Ship> racialShips)
@@ -759,26 +721,27 @@ namespace Ship_Game.AI {
         }
 
         private void GetResearchableShips(Array<Ship> racialShips, HashSet<string> shipTechs, Array<Ship> researchableShips,
-            Array<ShipData> hulls, int hullCount)
+            Array<ShipData> hulls)
         {           
             foreach (Ship shortTermBest in racialShips)
             {
                 if (shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType &&
                     !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
                     continue;
-                if (shortTermBest.shipData.techsNeeded.Count == 0)
-                    continue;
+                //if (shortTermBest.shipData.techsNeeded.Count == 0)
+                //    continue;
+                if (shortTermBest.DesignRole < ShipData.RoleName.troopShip) continue;
                 if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name))
                     continue;
-                if (!shortTermBest.shipData.techsNeeded.Intersect(shipTechs).Any())
-                    continue;
-                var hullTechs = shortTermBest.shipData.HullData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs).ToArray();
+                //if (!shortTermBest.shipData.techsNeeded.Intersect(shipTechs).Any())
+                //    continue;
+                //var hullTechs = shortTermBest.shipData.HullData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs).ToArray();
                
-                if (hullTechs.Length > hullCount)
-                    continue;             
-                if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
-                    continue;
-                hulls.AddUnique(shortTermBest.shipData.HullData);
+                //if (hullTechs.Length > hullCount)
+                //    continue;             
+                //if (!shortTermBest.ShipGoodToBuild(OwnerEmpire))
+                //    continue;
+                //hulls.AddUnique(shortTermBest.shipData.HullData);
 
                 if (shortTermBest.shipData.techsNeeded.Count == 0)
                 {

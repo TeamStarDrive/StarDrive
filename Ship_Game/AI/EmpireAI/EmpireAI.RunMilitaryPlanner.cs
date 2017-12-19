@@ -58,9 +58,9 @@ namespace Ship_Game.AI {
             
             foreach (KeyValuePair<Empire, Relationship> rel in OwnerEmpire.AllRelations)
             {
-                offenseNeeded += rel.Value.RiskAssesment(OwnerEmpire, rel.Key);
-                offenseNeeded += rel.Value.BorderRiskAssesment(OwnerEmpire, rel.Key);
-                offenseNeeded += rel.Value.ExpansionRiskAssement(OwnerEmpire, rel.Key);
+                offenseNeeded = Math.Max(offenseNeeded, rel.Value.RiskAssesment(OwnerEmpire, rel.Key));
+                offenseNeeded = Math.Max(offenseNeeded, rel.Value.BorderRiskAssesment(OwnerEmpire, rel.Key));
+                offenseNeeded = Math.Max(offenseNeeded, rel.Value.ExpansionRiskAssement(OwnerEmpire, rel.Key));
             }
 
             //increase ship goals if a lot of ships are needed.
@@ -521,7 +521,7 @@ namespace Ship_Game.AI {
                 
                 if (OwnerEmpire.canBuildCapitals)
                 {
-                    SetRatios(fighters: .5f, corvettes: .5f , frigates: 2, cruisers: 2 , capitals: 4, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: .5f, corvettes: 1 , frigates: 2, cruisers: 2 , capitals: 4, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildCruisers)
                 {
@@ -738,7 +738,7 @@ namespace Ship_Game.AI {
         private static void PickRoles(ref float numShips, float desiredShips, ShipData.RoleName role, Map<ShipData.RoleName, float>
              rolesPicked)
         {
-            if (!(numShips < desiredShips)) return;            
+            if (numShips > desiredShips) return;            
             rolesPicked.Add(role,  numShips / desiredShips);
         }
   

@@ -133,7 +133,7 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public float RiskAssesment (Empire us, Empire them, float riskLimit = .75f)
+        public float RiskAssesment (Empire us, Empire them, float riskLimit = 1)
         {
             if (!Known) return 0;
             float risk = float.MaxValue;
