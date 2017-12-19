@@ -3750,13 +3750,14 @@ namespace Ship_Game
             Building food = cheapestFlatfood;
             Building res = cheapestFlatResearch;
             bool noMoreBiospheres = true;
-            foreach(PlanetGridSquare pgs in TilesList)
-            {
-                if(pgs.Habitable)
-                    continue;
-                noMoreBiospheres = false;
-                break;
-            }
+            if (income > .05f && !NeedsFood())
+                foreach (PlanetGridSquare pgs in TilesList)
+                {
+                    if (pgs.Habitable)
+                        continue;
+                    noMoreBiospheres = false;
+                    break;
+                }
             int buildingsinQueue = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding).Count();
             bool needsBiospheres = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding && isbuilding.Building.Name == "Biospheres").Count() != buildingsinQueue;
             bool StuffInQueueToBuild = ConstructionQueue.Count >5;// .Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
