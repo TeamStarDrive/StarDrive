@@ -32,7 +32,7 @@ namespace Ship_Game.AI {
                 relation.Anger_MilitaryConflict = 0f;
                 relation.WarnedAboutShips = false;
                 relation.WarnedAboutColonizing = false;
-                relation.HaveRejected_Demand_Tech = false;
+                relation.HaveRejectedDemandTech = false;
                 relation.HaveRejected_OpenBorders = false;
                 relation.HaveRejected_TRADE = false;
                 relation.HasDefenseFleet = false;
@@ -77,7 +77,7 @@ namespace Ship_Game.AI {
                     relationThem.Anger_MilitaryConflict = 0f;
                     relationThem.WarnedAboutShips = false;
                     relationThem.WarnedAboutColonizing = false;
-                    relationThem.HaveRejected_Demand_Tech = false;
+                    relationThem.HaveRejectedDemandTech = false;
                     relationThem.HaveRejected_OpenBorders = false;
                     relationThem.HaveRejected_TRADE = false;
                     if (relationThem.DefenseFleet != -1)
@@ -448,7 +448,7 @@ namespace Ship_Game.AI {
                 OwnerEmpire.GetRelations(Them).Anger_MilitaryConflict = 0f;
                 OwnerEmpire.GetRelations(Them).WarnedAboutShips = false;
                 OwnerEmpire.GetRelations(Them).WarnedAboutColonizing = false;
-                OwnerEmpire.GetRelations(Them).HaveRejected_Demand_Tech = false;
+                OwnerEmpire.GetRelations(Them).HaveRejectedDemandTech = false;
                 OwnerEmpire.GetRelations(Them).HaveRejected_OpenBorders = false;
                 OwnerEmpire.GetRelations(Them).HaveRejected_TRADE = false;
                 OwnerEmpire.GetRelations(Them).HasDefenseFleet = false;
@@ -491,7 +491,7 @@ namespace Ship_Game.AI {
                     Them.GetRelations(this.OwnerEmpire).Anger_MilitaryConflict = 0f;
                     Them.GetRelations(this.OwnerEmpire).WarnedAboutShips = false;
                     Them.GetRelations(this.OwnerEmpire).WarnedAboutColonizing = false;
-                    Them.GetRelations(this.OwnerEmpire).HaveRejected_Demand_Tech = false;
+                    Them.GetRelations(this.OwnerEmpire).HaveRejectedDemandTech = false;
                     Them.GetRelations(this.OwnerEmpire).HaveRejected_OpenBorders = false;
                     Them.GetRelations(this.OwnerEmpire).HaveRejected_TRADE = false;
                     if (Them.GetRelations(this.OwnerEmpire).DefenseFleet != -1)
