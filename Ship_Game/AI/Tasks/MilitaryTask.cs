@@ -163,7 +163,11 @@ namespace Ship_Game.AI.Tasks
             {
                 if (IsCoreFleetTask)
                 {
-                    Fleet.FleetTask = null;
+                    foreach (Ship ship in Fleet.Ships)
+                    {
+                        ship.AI.CombatState = ship.shipData.CombatState;
+                    }
+                    Fleet.FleetTask = null;                
                 }
                 else
                 {
@@ -179,6 +183,7 @@ namespace Ship_Game.AI.Tasks
                         Ship ship = Fleet.Ships[index];
                         ship.AI.OrderQueue.Clear();
                         ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.CombatState = ship.shipData.CombatState;
                         Fleet.RemoveShip(ship);
                         ship.HyperspaceReturn();
                         ship.isSpooling = false;
