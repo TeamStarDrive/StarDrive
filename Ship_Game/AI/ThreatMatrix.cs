@@ -139,13 +139,12 @@ namespace Ship_Game.AI
         {
             Array<Ship> retList = new Array<Ship>();
             foreach (var kv in Pins)
-            {
-                if (position.OutsideRadius(kv.Value.Position , radius)) continue;
-                
+            {                                
                 Ship ship = kv.Value.Ship;
                 if (ship == null) continue;
 
                 if (!empire.IsEmpireAttackable(ship.loyalty, ship)) continue;
+                if (position.OutsideRadius(kv.Value.Position, radius)) continue;
                 retList.Add(kv.Value.Ship);
                 
             }

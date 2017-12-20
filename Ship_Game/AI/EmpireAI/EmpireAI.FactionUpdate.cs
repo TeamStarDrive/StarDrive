@@ -28,7 +28,8 @@ namespace Ship_Game.AI {
                     }
                     foreach (Ship assimilate in this.OwnerEmpire.GetShips())
                     {
-                        if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null && assimilate.AI.State !=  AIState.Colonize)
+                        if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null 
+                                && assimilate.AI.State !=  AIState.Colonize && assimilate.AI.State != AIState.Refit)
                         {
                             if (HasPlanets)
                             {
