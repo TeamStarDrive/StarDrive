@@ -46,7 +46,7 @@ namespace Ship_Game.AI
 
 
         public bool HasRepair;  //fbedard: ships in fleet with repair capability will not return for repair.
-
+        public bool ReadyForWarp { get; private set; }
         public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid}";
 
         //This file refactored by Gretman
@@ -283,7 +283,8 @@ namespace Ship_Game.AI
         public void Reset()
         {
             while (Ships.Count > 0) {
-                Ships.PopLast().fleet = null;
+                var ship = Ships.PopLast();                
+                Ships.PopLast().ClearFleet();
             }
             TaskStep  = 0;
             FleetTask = null;
@@ -1903,7 +1904,7 @@ namespace Ship_Game.AI
             if (ship.Active && ship.fleet != this)
                 Log.Error("{0} : not equal {1}", ship.fleet.Name, Name);
             ship.fleet = null;
-            RemoveFromAllSquads(ship);
+            RemoveFromAllSquads(ship);            
             if (Ships != null)
                 if (!Ships.Remove(ship) && ship.Active)
                 {
@@ -1916,15 +1917,20 @@ namespace Ship_Game.AI
         public void Update(float elapsedTime)
         {
             HasRepair = false;
-
+            ReadyForWarp = true;
             for (int index = Ships.Count - 1; index >= 0; index--)
             {
                 Ship ship = Ships[index];
                 if (!ship.Active)
+                {
                     RemoveShip(ship);
-                else AddShip(ship, true);
+                    continue;
+                }
+                AddShip(ship, true);                
+                    
+                if (ship.ShipReadyForWap()) continue;
+                ReadyForWarp = false;
             }
-
             Ships.ApplyPendingRemovals();
 
             if (Ships.Count <= 0 || GoalStack.Count <= 0)

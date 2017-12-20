@@ -12,7 +12,6 @@ namespace Ship_Game.AI {
         private float DesiredFacing;
         private Vector2 FinalFacingVector;
         public Queue<Vector2> ActiveWayPoints = new Queue<Vector2>();
-        public bool ReadyToWarp = true;
         public Planet OrbitTarget;
         private float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
 
@@ -771,24 +770,6 @@ namespace Ship_Game.AI {
             {
                 if (Distance > 7500f) //Not near destination
                 {
-                    var fleetReady = true;
-
-                    using (Owner.fleet.Ships.AcquireReadLock())
-                    {
-                        foreach (Ship ship in Owner.fleet.Ships)
-                        {
-                            if (ship.AI.State != AIState.FormationWarp) continue;
-                            if (ship.AI.ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f ||
-                                                        ship.isSpooling))
-                            {
-                                if (Owner.FightersOut) Owner.RecoverFighters(); //Recall Fighters
-                                continue;
-                            }
-                            fleetReady = false;
-                            break;
-                        }
-                    }
-
                     float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove;
                     speedLimit = Owner.fleet.Speed;
 
@@ -811,7 +792,7 @@ namespace Ship_Game.AI {
 
                     #endregion
 
-                    if (fleetReady) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
+                    if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
                     else if (Owner.engineState == Ship.MoveState.Warp)
                         Owner.HyperspaceReturn(); //Fleet is not ready for warp
                 }

@@ -66,7 +66,7 @@ namespace Ship_Game.AI {
             //increase ship goals if a lot of ships are needed.
             NumberOfShipGoals += (int)(5 * offenseNeeded);
             offenseNeeded = Math.Max(offenseNeeded, .1f);
-            offenseNeeded = Math.Min(offenseNeeded, .75f);
+            offenseNeeded = OwnerEmpire.ResearchTopic.IsEmpty() ? offenseNeeded : Math.Min(offenseNeeded,.75f);
             float capacity     = OwnerEmpire.EstimateShipCapacityAtTaxRate(offenseNeeded);
             
             //for certain things use the savings to pay for surplus
