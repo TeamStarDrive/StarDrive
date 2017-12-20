@@ -102,7 +102,11 @@ namespace Ship_Game.AI {
 
             if (Owner.GetColonists() > 0.0f) return;
           
-            if (!AnyTradeSystems()) return;
+            if (Owner.loyalty.TradeBlocked)
+            {
+                Owner.TradeTimer = 5;
+                return;
+            }
             if (IsAlreadyTrading()) return;
             if (!IsReadyForTrade) return;
 
@@ -366,25 +370,6 @@ namespace Ship_Game.AI {
             return planets;
         }
 
-        private bool AnyTradeSystems()
-        {
-            var allincombat = true;
-            var noimport = true;
-            foreach (Planet p in Owner.loyalty.GetPlanets())
-            {
-                if (p.ParentSystem.combatTimer <= 0)
-                    allincombat = false;
-                if (p.ps == Planet.GoodState.IMPORT || p.fs == Planet.GoodState.IMPORT)
-                    noimport = false;                
-            }
-
-            if (allincombat || noimport && Owner.CargoSpaceUsed > 0)
-            {
-                Owner.TradeTimer = 5f;
-                return false;
-            }
-            return true;
-        }
 
         private bool IsReadyForTrade => Math.Abs(Owner.CargoSpaceMax) > 0 && State != AIState.Flee && !Owner.isConstructor &&
                    !Owner.isColonyShip && Owner.DesignRole == ShipData.RoleName.freighter;

@@ -2510,6 +2510,9 @@ namespace Ship_Game
             }
             return false;
         }
+
+        public bool TradeBlocked { get; private set; }
+
         private void AssessFreighterNeeds()
         {
             int tradeShips = 0;
@@ -2607,6 +2610,7 @@ namespace Ship_Game
             int freighters = unusedFreighters.Count;
             //get number of freighters being built
 
+            TradeBlocked = IsTradeBlocked();
 
             int type = 1;
             while (freighters > 0 )
@@ -2693,6 +2697,22 @@ namespace Ship_Game
                 //}
             }
 
+        }
+
+
+        public bool IsTradeBlocked()
+        {
+            var allincombat = true;
+            var noimport = true;
+            foreach (Planet p in GetPlanets())
+            {
+                if (p.ParentSystem.combatTimer <= 0)
+                    allincombat = false;
+                if (p.ps == Planet.GoodState.IMPORT || p.fs == Planet.GoodState.IMPORT)
+                    noimport = false;
+            }
+
+            return allincombat || noimport;
         }
 
         public void ReportGoalComplete(Goal g)

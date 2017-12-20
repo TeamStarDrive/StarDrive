@@ -660,7 +660,8 @@ namespace Ship_Game.AI {
                 foreach (var ship in OwnerEmpire.GetShips()
                         .FilterBy(ship => !ship.InCombat &&
                                           (!ship.fleet?.IsCoreFleet ?? true)
-                                          && ship.AI.State != AIState.Scrap && ship.Mothership == null && ship.Active
+                                          && ship.AI.State != AIState.Scrap && ship.AI.State != AIState.Scuttle
+                                          && ship.Mothership == null && ship.Active
                                           && ship.DesignRole >= ShipData.RoleName.fighter &&
                                           ship.GetMaintCost(OwnerEmpire) > 0)
                         .OrderBy(ship => ship.shipData.techsNeeded.Count)
