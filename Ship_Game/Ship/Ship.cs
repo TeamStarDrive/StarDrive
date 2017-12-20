@@ -1535,7 +1535,7 @@ namespace Ship_Game.Gameplay
         {
             if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500 )
                 return;
-            if (RecallFighters())
+            if (RecallingFighters())
                 return;
             if (EnginesKnockedOut)
             {
@@ -1551,7 +1551,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private bool RecallFighters()
+        private bool RecallingFighters()
         {
             if (!RecallFightersBeforeFTL || Hangars.Count <= 0)
                 return false;
@@ -2742,7 +2742,13 @@ namespace Ship_Game.Gameplay
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
         
-
+        public bool ShipReadyForWap()
+        {
+            if (AI.State != AIState.FormationWarp ) return true;
+            if (!(PowerCurrent / (PowerStoreMax + 0.01f) >= 0.2f) && !isSpooling) return false;
+            if (engineState == MoveState.Warp) return true;
+            return !RecallingFighters();
+        }
         public void Dispose()
         {
             Dispose(true);
@@ -2811,62 +2817,64 @@ namespace Ship_Game.Gameplay
 
         private ShipData.RoleName GetDesignRole()
         {
-             ShipData.RoleName str = shipData.HullRole;
+            ShipData.RoleName hullRole = shipData.HullRole;
 
             if (isConstructor)
                 return ShipData.RoleName.construction;
             if (isColonyShip)
                 return ShipData.RoleName.colony;
-            if (IsSupplyShip)
-                return ShipData.RoleName.supply;
             if (shipData.Role == ShipData.RoleName.troop)
-                return ShipData.RoleName.troop;                           
+                return ShipData.RoleName.troop;
+            float pSize = 0;
+            //str >= ShipData.RoleName.freighter
+            if (BombBays.Count > 0 && PercentageOfShipByModules(BombBays.ToArray()) > 05f)
+                return ShipData.RoleName.bomber;
 
-            if (BombBays.Count > 0 && str >= ShipData.RoleName.freighter)
-            {
-                float pSize = PercentageOfShipByModules(BombBays.ToArray());
-                if (pSize > .05f)
-                    return ShipData.RoleName.bomber;
-            }
-            else
-                //troops ship
-            if ((HasTroopBay || hasTransporter || hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
+            //troops ship
+            if ((HasTroopBay || hasTransporter || hasAssaultTransporter) && hullRole >= ShipData.RoleName.freighter)
             {
                 float pTroops = PercentageOfShipByModules(Hangars.FilterBy(troopbay => troopbay.IsTroopBay));
-                float pTrans = PercentageOfShipByModules(Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
+                float pTrans =
+                    PercentageOfShipByModules(Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
                 if (pTrans + pTroops > .1f)
                     return ShipData.RoleName.troopShip;
             }
-            else
+
             //carrier
-            if (Hangars.Count >0 && str >= ShipData.RoleName.freighter)
+            if (Hangars.Count > 0 && hullRole >= ShipData.RoleName.freighter)
             {
-                float pSize = PercentageOfShipByModules(Hangars.FilterBy(module => module.MaximumHangarShipSize > 0));
+                Array<ShipModule> carrier = new Array<ShipModule>();
+                Array<ShipModule> support = new Array<ShipModule>();
 
-                if (pSize >  .05f)
+                foreach (var hangar in Hangars)
+                {
+                    if (hangar.MaximumHangarShipSize > 0)
+                        carrier.Add(hangar);
+                    else
+                        support.Add(hangar);
+                }
+                if (PercentageOfShipByModules(carrier.ToArray()) > .05)
                     return ShipData.RoleName.carrier;
-            }                  
-            else
-            //if (hasOrdnanceTransporter || hasRepairBeam || HasSupplyBays || hasOrdnanceTransporter || InhibitionRadius > 0)
-            {
+                if (PercentageOfShipByModules(support.ToArray()) > .05)
+                    return ShipData.RoleName.support;
+            }
 
-                float pSpecial = PercentageOfShipByModules(ModuleSlotList.FilterBy(module =>
+            float pSpecial = PercentageOfShipByModules(ModuleSlotList.FilterBy(module =>
                 module.TransporterOrdnance > 0 || module.IsSupplyBay || module.InhibitionRadius > 0
                 || module.InstalledWeapon?.MassDamage > 0 || module.InstalledWeapon?.EMPDamage > 0
                 || module.InstalledWeapon?.RepulsionDamage > 0 || module.InstalledWeapon?.SiphonDamage > 0
                 || module.InstalledWeapon?.TroopDamageChance > 0
                 || module.InstalledWeapon?.isRepairBeam == true || module.InstalledWeapon?.IsRepairDrone == true
-                ));
-                pSpecial += PercentageOfShipByModules(RepairBeams.ToArray());
-                
-                if (pSpecial > .1f)
-                    return ShipData.RoleName.support;                
-            }
+            ));
+            pSpecial += PercentageOfShipByModules(RepairBeams.ToArray());
 
-            if (shipData.Role == ShipData.RoleName.troop || shipData.Role == ShipData.RoleName.troopShip)
-                return ShipData.RoleName.troopShip;
-         
-            switch (str) {
+            if (pSpecial > .02f)
+                return ShipData.RoleName.support;
+            if (IsSupplyShip  && Weapons.Count == 0)
+                return ShipData.RoleName.supply;            
+
+            switch (hullRole)
+            {
                 case ShipData.RoleName.corvette:
                 case ShipData.RoleName.gunboat:
                     return ShipData.RoleName.corvette;
@@ -2881,7 +2889,7 @@ namespace Ship_Game.Gameplay
                     return Weapons.Count == 0 ? ShipData.RoleName.scout : ShipData.RoleName.fighter;
             }
 
-            return str;
+            return hullRole;
         }
 
         public void TestShipModuleDamage()

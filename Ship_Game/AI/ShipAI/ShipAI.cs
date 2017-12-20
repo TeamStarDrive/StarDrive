@@ -276,7 +276,7 @@ namespace Ship_Game.AI
 
             if (State == AIState.ManualControl)
                 return;
-            ReadyToWarp = true;
+
             Owner.isThrusting = false;
             Owner.isTurning = false;
 
