@@ -2805,14 +2805,23 @@ namespace Ship_Game.Gameplay
             if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
-        private float PercentageOfShipByModules(ShipModule[] moduleList)
+        private float PercentageOfShipByModules(ShipModule[] modules)
         {
-            float moduleSize = 0;
-            foreach (var module in moduleList)
+            int area = 0;
+            foreach (ShipModule module in modules)
+                area += module.XSIZE * module.YSIZE;
+            return area > 0 ? area / (float)Size : 0.0f;
+        }
+        private float PercentageOfShipByModules(Array<ShipModule> modules)
+        {
+            int area = 0;
+            int count = modules.Count;
+            for (int i = 0; i < count; ++i)
             {
-                moduleSize += module.XSIZE * module.YSIZE;
+                ShipModule module = modules[i];
+                area += module.XSIZE * module.YSIZE;
             }
-            return moduleSize >0 ? moduleSize / Size : 0;
+            return area > 0 ? area / (float)Size : 0.0f;
         }
 
         private ShipData.RoleName GetDesignRole()
@@ -2825,9 +2834,7 @@ namespace Ship_Game.Gameplay
                 return ShipData.RoleName.colony;
             if (shipData.Role == ShipData.RoleName.troop)
                 return ShipData.RoleName.troop;
-            float pSize = 0;
-            //str >= ShipData.RoleName.freighter
-            if (BombBays.Count > 0 && PercentageOfShipByModules(BombBays.ToArray()) > 05f)
+            if (BombBays.Count > 0 && PercentageOfShipByModules(BombBays) > 05f)
                 return ShipData.RoleName.bomber;
 
             //troops ship
@@ -2853,9 +2860,9 @@ namespace Ship_Game.Gameplay
                     else
                         support.Add(hangar);
                 }
-                if (PercentageOfShipByModules(carrier.ToArray()) > .05)
+                if (PercentageOfShipByModules(carrier) > .05)
                     return ShipData.RoleName.carrier;
-                if (PercentageOfShipByModules(support.ToArray()) > .05)
+                if (PercentageOfShipByModules(support) > .05)
                     return ShipData.RoleName.support;
             }
 
@@ -2866,7 +2873,7 @@ namespace Ship_Game.Gameplay
                 || module.InstalledWeapon?.TroopDamageChance > 0
                 || module.InstalledWeapon?.isRepairBeam == true || module.InstalledWeapon?.IsRepairDrone == true
             ));
-            pSpecial += PercentageOfShipByModules(RepairBeams.ToArray());
+            pSpecial += PercentageOfShipByModules(RepairBeams);
 
             if (pSpecial > .02f)
                 return ShipData.RoleName.support;
