@@ -137,6 +137,8 @@ namespace Ship_Game
         public static float ShadowQuality = 1.0f; //1.0f highest, 0.0f lowest
         public static int ShadowDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
         public static int EffectDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static bool DrawNebulas    = true;
+        public static bool DrawStarfield  = true;
 
         public static bool IsEnglish => Language == Language.English;
         public static bool IsFrench  => Language == Language.French;
