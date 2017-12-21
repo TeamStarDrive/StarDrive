@@ -346,7 +346,12 @@ namespace Ship_Game.AI
                                 }
                                 continue;
                             }
-                            var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                            if (hangar.hangarShipUID.IsEmpty())
+                            {
+                                hangar.hangarShipUID = Owner.loyalty.data.DefaultTroopShip;
+
+                            }
+                            var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);                            
                             if (!hangar.Active || hangar.hangarTimer > 0f ||
                                 Owner.Ordinance <= 100f || sortedList[skip] == null)
                                 continue;

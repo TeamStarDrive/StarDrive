@@ -215,7 +215,7 @@ namespace Ship_Game.Gameplay
 
         // Hangar Ship Creation
         public static Ship CreateShipFromHangar(ShipModule hangar, Empire owner, Vector2 p, Ship parent)
-        {
+        {            
             Ship ship = CreateShipAtPoint(hangar.hangarShipUID, owner, p);
             if (ship == null) return null;
             ship.Mothership = parent;

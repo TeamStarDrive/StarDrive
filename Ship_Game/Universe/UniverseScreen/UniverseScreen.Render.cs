@@ -31,8 +31,10 @@ namespace Ship_Game
 
         private void RenderBackdrop()
         {
-            bg.Draw(this, starfield);
-            bg3d.Draw();
+            if (GlobalStats.DrawStarfield)
+                bg.Draw(this, starfield);
+            if (GlobalStats.DrawNebulas)
+               bg3d.Draw();
 
             ClickableShipsList.Clear();
             ScreenManager.SpriteBatch.Begin();

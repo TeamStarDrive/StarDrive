@@ -353,8 +353,11 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="scenestate"></param>
     public virtual void BeginFrameRendering(ISceneState scenestate)
     {
-      foreach (IRenderableManager renderableManager in this.Renderables)
-        renderableManager.BeginFrameRendering(scenestate);
+        for (int i = 0; i < this.Renderables.Count; i++)
+        {
+            IRenderableManager renderableManager = this.Renderables[i];
+            renderableManager.BeginFrameRendering(scenestate);
+        }
     }
 
     /// <summary>
