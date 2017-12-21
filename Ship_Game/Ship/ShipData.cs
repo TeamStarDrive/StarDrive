@@ -260,7 +260,7 @@ namespace Ship_Game
 
         public enum RoleName
         {
-            disabled,
+            disabled = 1,
             platform,
             station,
             construction,
@@ -271,6 +271,7 @@ namespace Ship_Game
             troopShip,
             support,
             bomber,
+            carrier,
             fighter,
             scout,            
             gunboat,
@@ -278,8 +279,7 @@ namespace Ship_Game
             corvette,
             frigate,
             destroyer,
-            cruiser,
-            carrier,
+            cruiser,            
             capital,
             prototype
         }

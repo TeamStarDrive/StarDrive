@@ -521,19 +521,19 @@ namespace Ship_Game.AI {
                 
                 if (OwnerEmpire.canBuildCapitals)
                 {
-                    SetRatios(fighters: .5f, corvettes: 1 , frigates: 2, cruisers: 2 , capitals: 4, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 1, corvettes: 3 , frigates: 2, cruisers: 2 , capitals: 1, bombers: 3, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildCruisers)
                 {
-                    SetRatios(fighters: 1, corvettes: 1, frigates: 2, cruisers: 4, capitals: 0, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 3, corvettes: 3, frigates: 2, cruisers: 1, capitals: 0, bombers: 3, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildFrigates)
                 {
-                    SetRatios(fighters: 1, corvettes: 2, frigates: 4, cruisers: 0, capitals: 0, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 1, corvettes: 2, frigates: 1, cruisers: 0, capitals: 0, bombers: .25f, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildCorvettes)
                 {
-                    SetRatios(fighters: 1, corvettes: 3, frigates: 0, cruisers: 0, capitals: 0, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 2, corvettes: 1, frigates: 0, cruisers: 0, capitals: 0, bombers: .25f, carriers: 1, support: .25f, troopShip: 1);                    
                 }
                 else
                 {
@@ -573,10 +573,14 @@ namespace Ship_Game.AI {
             {
 
                 if (ratio < .01f) return 0;
-                float normalizedRatioed = ratio / totalRatio;
+                //float normalizedRatioed = ratio / totalRatio;
                 float shipUpkeep = Math.Max(roleUpkeep, 1) / Math.Max(roleCount, 1);                
-                float possible = capacity / shipUpkeep;
-                return possible * normalizedRatioed;
+                //float possible = capacity / shipUpkeep;
+                //return possible * normalizedRatioed;
+                float mainRatio = shipUpkeep * ratio / TotalUpkeep;
+                float possible = capacity * mainRatio / shipUpkeep;
+                return possible;
+
                 
             }
             private void SetCountsTrackRole(ref float roleCount, ref float roleMaint, float upkeep)
@@ -603,7 +607,7 @@ namespace Ship_Game.AI {
                 if (OwnerEmpire.canBuildCarriers)
                 {
                     RatioCarriers = carriers ;
-                    RatioCarriers += RatioFighters;
+                    RatioCarriers += RatioFighters *.25f;
                     RatioFighters = 0;
                 }
                 if (OwnerEmpire.canBuildSupportShips)
