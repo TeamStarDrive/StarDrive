@@ -2834,7 +2834,7 @@ namespace Ship_Game.Gameplay
                 return ShipData.RoleName.colony;
             if (shipData.Role == ShipData.RoleName.troop)
                 return ShipData.RoleName.troop;
-            if (BombBays.Count > 0 && PercentageOfShipByModules(BombBays) > 05f)
+            if (BombBays.Count > 0 && PercentageOfShipByModules(BombBays) > .05f)
                 return ShipData.RoleName.bomber;
 
             //troops ship
