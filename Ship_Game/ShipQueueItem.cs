@@ -28,58 +28,8 @@ namespace Ship_Game
 			this.ListRect = qRect;
 			//this.Role role = data.Role;
 			//string str = role;
-            if (data.ShipCategory == ShipData.Category.Civilian)
-            {
-                this.IconPath = "TacticalIcons/symbol_freighter";
-                return;
-            }
-            /*
-			if (role != null)
-			{
-				switch (data.Role)
-				{
-                    case RoleName.fighter:
-					{
-						this.IconPath = "TacticalIcons/symbol_fighter";
-						return;
-					}
-					case ShipData.RoleName.scout:
-					{
-						this.IconPath = "TacticalIcons/symbol_fighter";
-						return;
-					}
-					case ShipData.RoleName.capital:
-					{
-						this.IconPath = "TacticalIcons/symbol_capital";
-						return;
-					}
-					case ShipData.RoleName.frigate:
-					{
-						this.IconPath = "TacticalIcons/symbol_frigate";
-						return;
-					}
-					case ShipData.RoleName.freighter:
-					{
-						this.IconPath = "TacticalIcons/symbol_freighter";
-						return;
-					}
-					case ShipData.RoleName.station:
-					{
-						this.IconPath = "TacticalIcons/symbol_station";
-						return;
-					}
-					case ShipData.RoleName.carrier:
-					{
-						this.IconPath = "TacticalIcons/symbol_carrier";
-						break;
-					}
-					default:
-					{
-						return;
-					}
-				}
-			}
-            */
+            if (data.ShipCategory == ShipData.Category.Civilian)            
+                this.IconPath = "TacticalIcons/symbol_freighter";            
 		}
 
 		public void Draw(SpriteBatch spriteBatch)

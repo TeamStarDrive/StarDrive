@@ -795,59 +795,56 @@ namespace Ship_Game
         }
 
         private void DrawShipUI(GameTime gameTime)
-        {
-            Vector2 vector2 = new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y);
+        {            
             lock (GlobalStats.FleetButtonLocker)
             {
-                foreach (UniverseScreen.FleetButton item_0 in this.FleetButtons)
+                foreach (FleetButton fleetButton in this.FleetButtons)
                 {
-                    Selector local_1 = new Selector(item_0.ClickRect, Color.TransparentBlack);
-                    Rectangle local_2 = new Rectangle(item_0.ClickRect.X + 6, item_0.ClickRect.Y + 6,
-                        item_0.ClickRect.Width - 12, item_0.ClickRect.Width - 12);
-                    bool local_3 = false;
-                    for (int local_4 = 0; local_4 < item_0.Fleet.Ships.Count; ++local_4)
+                    var buttonSelector = new Selector(fleetButton.ClickRect, Color.TransparentBlack);
+                    var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
+                        fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
+
+                    bool inCombat = false;
+                    for (int ship = 0; ship < fleetButton.Fleet.Ships.Count; ++ship)
                     {
                         try
                         {
-                            if (item_0.Fleet.Ships[local_4].InCombat)
-                            {
-                                local_3 = true;
-                                break;
-                            }
+                            if (!fleetButton.Fleet.Ships[ship].InCombat) continue;
+                            inCombat = true;
+                            break;
                         }
                         catch { }
                     }
-                    float local_6_1 = Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * 200f;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_square"],
-                        item_0.ClickRect,
-                        local_3
-                            ? new Color(byte.MaxValue, (byte) 0, (byte) 0, (byte) local_6_1)
-                            : new Color((byte) 0, (byte) 0, (byte) 0, (byte) 80));
-                    local_1.Draw(ScreenManager.SpriteBatch);
-                    this.ScreenManager.SpriteBatch.Draw(
-                        ResourceManager.TextureDict["FleetIcons/" + item_0.Fleet.FleetIconIndex.ToString()], local_2,
+                    byte buttonFlashTimer = (byte)(Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * 200f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
+                        fleetButton.ClickRect,
+                        inCombat
+                            ? new Color(byte.MaxValue, 0,  0,  buttonFlashTimer)
+                            : new Color( 0,  0,  0,  80));
+                    buttonSelector.Draw(ScreenManager.SpriteBatch);
+                    ScreenManager.SpriteBatch.Draw(
+                        ResourceManager.Texture("FleetIcons/" + fleetButton.Fleet.FleetIconIndex), housing,
                         EmpireManager.Player.EmpireColor);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, item_0.Key.ToString(),
-                        new Vector2((float) (item_0.ClickRect.X + 4), (float) (item_0.ClickRect.Y + 4)), Color.Orange);
-                    Vector2 local_7 = new Vector2((float) (item_0.ClickRect.X + 50), (float) item_0.ClickRect.Y);
-                    for (int local_8 = 0; local_8 < item_0.Fleet.Ships.Count; ++local_8)
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),
+                        new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4), Color.Orange);
+                    
+                    //draw ship icons to right of button
+                    Vector2 shipSpacingH = new Vector2( fleetButton.ClickRect.X + 50, fleetButton.ClickRect.Y);
+                    for (int x = 0; x < fleetButton.Fleet.Ships.Count; ++x)
                     {
                         try
                         {
-                            Ship local_9 = item_0.Fleet.Ships[local_8];
+                            Ship ship = fleetButton.Fleet.Ships[x];
 
-                            Rectangle local_10 = new Rectangle((int) local_7.X, (int) local_7.Y, 15, 15);
-                            local_7.X += (float) (15);
-                            if ((double) local_7.X > 200.0)
+                            var iconHousing = new Rectangle((int) shipSpacingH.X, (int) shipSpacingH.Y, 15, 15);
+                            shipSpacingH.X +=  15f;
+                            if (shipSpacingH.X > 200f)
                             {
-                                local_7.X = (float) (item_0.ClickRect.X + 50);
-                                local_7.Y += 15f;
-                            }
-                            this.ScreenManager.SpriteBatch.Draw(
-                                ResourceManager.TextureDict[
-                                    "TacticalIcons/symbol_" +
-                                    (local_9.isConstructor ? "construction" : local_9.shipData.GetRole())], local_10,
-                                item_0.Fleet.Owner.EmpireColor);
+                                shipSpacingH.X = fleetButton.ClickRect.X + 50f;
+                                shipSpacingH.Y += 15f;
+                            }                            
+                            this.ScreenManager.SpriteBatch.Draw(ship.GetTacticalIcon(), iconHousing,
+                                fleetButton.Fleet.Owner.EmpireColor);
                         }
                         catch { }
                     }
@@ -954,8 +951,7 @@ namespace Ship_Game
                 if (!ship.Active)
                     continue;
 
-                var symbol = ResourceManager.Texture("TacticalIcons/symbol_" +
-                                                     (ship.isConstructor ? "construction" : ship.shipData.GetRole()));
+                var symbol = ship.GetTacticalIcon();                
 
                 float num = ship.Size / (30f + symbol.Width);
                 float scale = num * 4000f / CamHeight;

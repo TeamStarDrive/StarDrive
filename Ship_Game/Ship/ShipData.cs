@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 
 namespace Ship_Game
@@ -36,9 +37,7 @@ namespace Ship_Game
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
 
-        // @todo This lookup is expensive and never changes once initialized, find a way to initialize this properly
-        [XmlIgnore][JsonIgnore] public RoleName HullRole => ResourceManager.HullsDict.TryGetValue(Hull, out ShipData role) ? role.Role : Role;
-        [XmlIgnore][JsonIgnore] public ShipData HullData => ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : null;
+        // @todo This lookup is expensive and never changes once initialized, find a way to initialize this properly        
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
@@ -55,6 +54,8 @@ namespace Ship_Game
         //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
+        [XmlIgnore] [JsonIgnore] public RoleName HullRole => HullData?.Role ?? Role;
+        [XmlIgnore] [JsonIgnore] public ShipData HullData { get; private set; }
 
         public override string ToString() { return Name; }
 
@@ -213,8 +214,9 @@ namespace Ship_Game
                 ship.techsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.techsNeeded.Add(s->Techs[i].AsInterned);
+                ship.HullData = ResourceManager.HullsDict.TryGetValue(ship.Hull, out ShipData hull) ? hull : null;
                 return ship;
-            }
+            }           
             catch (Exception e)
             {
                 Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'");
@@ -247,6 +249,7 @@ namespace Ship_Game
             return CategoryArray[(int)ShipCategory];
         }
 
+       
         public enum Category
         {
             Unclassified,
@@ -270,8 +273,7 @@ namespace Ship_Game
             troop,
             troopShip,
             support,
-            bomber,
-            carrier,
+            bomber,            
             fighter,
             scout,            
             gunboat,
@@ -279,7 +281,8 @@ namespace Ship_Game
             corvette,
             frigate,
             destroyer,
-            cruiser,            
+            cruiser,
+            carrier,
             capital,
             prototype
         }
