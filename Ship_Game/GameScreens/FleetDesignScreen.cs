@@ -548,16 +548,14 @@ namespace Ship_Game
                         (int) radius * 2, (int) radius * 2);
                     if (node.GoalGUID == Guid.Empty)
                     {
-                        spriteBatch.Draw(
-                            ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r,
+                        spriteBatch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                                 ? Color.White
                                 : Color.Red));
                     }
                     else
                     {
-                        spriteBatch.Draw(
-                            ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r,
+                        spriteBatch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                                 ? Color.White
                                 : Color.Yellow));
@@ -596,8 +594,7 @@ namespace Ship_Game
                     }
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
-                    spriteBatch.Draw(
-                        ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r,
+                    spriteBatch.Draw(ship.GetTacticalIcon(), r,
                         (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                             ? Color.White
                             : Color.Green));
@@ -615,7 +612,7 @@ namespace Ship_Game
                         scale = 1f;
                     if (scale < 0.15f)
                         scale = 0.15f;
-                    item = ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)];
+                    item = ship.GetTacticalIcon();
                 }
                 float single = Mouse.GetState().X;
                 MouseState state = Mouse.GetState();

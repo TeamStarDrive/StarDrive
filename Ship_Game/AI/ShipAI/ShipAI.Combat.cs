@@ -220,7 +220,7 @@ namespace Ship_Game.AI
             shieldAvg /= NearbyShips.Count + .01f;
             dpsAvg /= NearbyShips.Count + .01f;
 
-            SuppluShuttleLaunch();
+            SupplyShuttleLaunch();
             if (Owner.shipData.Role == ShipData.RoleName.supply && Owner.Mothership == null)
                 OrderScrapShip(); //Destroy shuttle without mothership
 
@@ -279,7 +279,7 @@ namespace Ship_Game.AI
             return null;
         }
 
-        private void SuppluShuttleLaunch()
+        private void SupplyShuttleLaunch()
         {
             //fbedard: for launch only
 
@@ -348,9 +348,10 @@ namespace Ship_Game.AI
                             }
                             if (hangar.hangarShipUID.IsEmpty())
                             {
-                                hangar.hangarShipUID = Owner.loyalty.data.DefaultTroopShip;
+                                hangar.hangarShipUID = "Supply_Shuttle";
 
                             }
+                            hangar.hangarShipUID = "Supply_Shuttle";
                             var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);                            
                             if (!hangar.Active || hangar.hangarTimer > 0f ||
                                 Owner.Ordinance <= 100f || sortedList[skip] == null)

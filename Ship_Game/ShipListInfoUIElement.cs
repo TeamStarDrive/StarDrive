@@ -285,7 +285,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 //this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
-                longName = string.Concat(this.HoveredShip.Name, " - ", this.HoveredShip.shipData.GetRole());
+                longName = string.Concat(this.HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
                 if (this.HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
                     longName += string.Concat(" - ", this.HoveredShip.shipData.GetCategory());
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
@@ -703,7 +703,7 @@ namespace Ship_Game
             for (int i = 0; i < shipList.Count; i++)
             {
                 Ship ship = shipList[i];
-                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", (ship.isConstructor ? "construction" : ship.shipData.GetRole())))
+                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), ship.GetTacticalIcon())
                 {
                     IsToggle = false,
                     ReferenceObject = ship,

@@ -1926,10 +1926,8 @@ namespace Ship_Game.AI
                     RemoveShip(ship);
                     continue;
                 }
-                AddShip(ship, true);                
-                    
-                if (ship.ShipReadyForWap()) continue;
-                ReadyForWarp = false;
+                AddShip(ship, true);
+                ReadyForWarp = ReadyForWarp && ship.ShipReadyForWarp();                
             }
             Ships.ApplyPendingRemovals();
 

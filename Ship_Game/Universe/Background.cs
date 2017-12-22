@@ -97,7 +97,7 @@ namespace Ship_Game
 
             universe.ScreenManager.SpriteBatch.Begin();
             var c = new Color(255, 255, 255, 160);
-            universe.ScreenManager.SpriteBatch.FillRectangle(blackRect, new Color(12, 17, 24));
+            universe.ScreenManager.SpriteBatch.FillRectangle(blackRect, Color.Black);// new Color(12, 17, 24));
             if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
                 universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, c);
             else

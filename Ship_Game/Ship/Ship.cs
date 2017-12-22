@@ -246,7 +246,19 @@ namespace Ship_Game.Gameplay
             }
         }
         public ShipData.RoleName DesignRole { get; private set; }
+        public Texture2D GetTacticalIcon()
+        {
+            if (DesignRole == ShipData.RoleName.support)
+                return ResourceManager.Texture("TacticalIcons/symbol_supply");
 
+            string roleName = DesignRole.ToString();
+            string iconName = $"TacticalIcons/symbol_";
+            Texture2D icon = ResourceManager.Texture(iconName + roleName, "") ??
+                ResourceManager.Texture(iconName + shipData.HullRole, "");
+            if (icon != null) return icon;
+            
+            return ResourceManager.Texture("TacticalIcons/symbol_construction");
+        }
         private int Calculatesize()
         {
             int size = 0;
@@ -2742,10 +2754,10 @@ namespace Ship_Game.Gameplay
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
         
-        public bool ShipReadyForWap()
+        public bool ShipReadyForWarp()
         {
             if (AI.State != AIState.FormationWarp ) return true;
-            if (!(PowerCurrent / (PowerStoreMax + 0.01f) >= 0.2f) && !isSpooling) return false;
+            if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f) return false;
             if (engineState == MoveState.Warp) return true;
             return !RecallingFighters();
         }
@@ -2826,7 +2838,7 @@ namespace Ship_Game.Gameplay
 
         private ShipData.RoleName GetDesignRole()
         {
-            ShipData.RoleName hullRole = shipData.HullRole;
+            ShipData.RoleName hullRole = shipData?.HullRole ?? shipData.Role;
 
             if (isConstructor)
                 return ShipData.RoleName.construction;
@@ -2878,9 +2890,20 @@ namespace Ship_Game.Gameplay
             if (pSpecial > .02f)
                 return ShipData.RoleName.support;
             if (IsSupplyShip  && Weapons.Count == 0)
-                return ShipData.RoleName.supply;            
+                return ShipData.RoleName.supply;
 
-            switch (hullRole)
+            ShipData.RoleName fixRole;
+
+            if (hullRole != shipData.Role)
+            {
+                
+            }
+
+            
+            if (shipData.Role == ShipData.RoleName.prototype)
+                fixRole = hullRole;
+            else fixRole = shipData.Role;
+            switch (fixRole)
             {
                 case ShipData.RoleName.corvette:
                 case ShipData.RoleName.gunboat:

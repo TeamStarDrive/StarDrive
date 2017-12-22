@@ -20,7 +20,7 @@ namespace Ship_Game
                 (int) RandomMath.AvgRandomBetween(-screen.UniverseSize * 1.5f, screen.UniverseSize * 2 - nebsize),
                 (int) RandomMath.AvgRandomBetween(-screen.UniverseSize * 1.5f, screen.UniverseSize * 2 - nebsize),
                 nebsize, nebsize)); //Updated to take full advantage of the bigger maps -Gretman
-            for (int i = 0; i < 4 + (int) (Screen.UniverseSize / 2000000); i++) //And add more nedulas and stuff
+            for (int i = 0; i < 4 + (int) (Screen.UniverseSize / 4000000); i++) //And add more nedulas and stuff
                 CreateRandomSmallObject();
         }
 
@@ -83,7 +83,7 @@ namespace Ship_Game
             BackgroundItem BigNeb_1 = new BackgroundItem
             {
                 Texture = ResourceManager.SmallNebulas[
-                    (int) RandomMath.RandomBetween(0f, ResourceManager.SmallNebulas.Count)]
+                    RandomMath.IntBetween(0, ResourceManager.SmallNebulas.Count -1)]
             };
             Vector2 nebUpperLeft = new Vector2(
                 RandomMath.RandomBetween(-Screen.UniverseSize * 1.5f, Screen.UniverseSize * 0.75f),
@@ -91,7 +91,7 @@ namespace Ship_Game
                     Screen.UniverseSize * 0.75f)); //More Random Here -Gretman
             //float zPos = (float)RandomMath.RandomBetween(200000f, 2500000f);
             //float xSize = RandomMath.RandomBetween(800000f, 1800000f);
-            float zPos = RandomMath.RandomBetween(100000f, 5000000f);
+            float zPos = RandomMath.RandomBetween(500000f, 5000000f);
             float xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
             float ySize = BigNeb_1.Texture.Height / BigNeb_1.Texture.Width * xSize;
             BigNeb_1.UpperLeft = new Vector3(nebUpperLeft, zPos);
@@ -105,10 +105,10 @@ namespace Ship_Game
             BackgroundItem BigNeb_2 = new BackgroundItem
             {
                 Texture = ResourceManager.SmallNebulas[
-                    (int) RandomMath.RandomBetween(0f, ResourceManager.SmallNebulas.Count)]
+                    RandomMath.IntBetween(0, ResourceManager.SmallNebulas.Count -1)]
             };
             //zPos = zPos + 200000f;
-            zPos = zPos + RandomMath.RandomBetween(100000f, 400000f);
+            zPos = zPos + RandomMath.RandomBetween(300000f, 500000f);
             //xSize = RandomMath.RandomBetween(800000f, 1800000f);
             xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
             ySize = BigNeb_2.Texture.Height / BigNeb_2.Texture.Width * xSize;
@@ -123,10 +123,10 @@ namespace Ship_Game
             BackgroundItem BigNeb_3 = new BackgroundItem
             {
                 Texture = ResourceManager.SmallNebulas[
-                    (int) RandomMath.RandomBetween(0f, ResourceManager.SmallNebulas.Count)]
+                     RandomMath.IntBetween(0, ResourceManager.SmallNebulas.Count -1)]
             };
             //zPos = zPos + 200000f;
-            zPos = zPos + RandomMath.RandomBetween(100000f, 400000f);
+            zPos = zPos + RandomMath.RandomBetween(300000f, 500000f);
             //xSize = RandomMath.RandomBetween(800000f, 1800000f);
             xSize = RandomMath.RandomBetween(800000f, Screen.UniverseSize * 0.75f);
             ySize = BigNeb_3.Texture.Height / BigNeb_3.Texture.Width * xSize;

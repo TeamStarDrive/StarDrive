@@ -12,7 +12,7 @@ namespace Ship_Game
 
 		private const int starSize = 1;
 
-		public int numberOfStars = 200;
+		public int numberOfStars = 100;
 
 		private readonly static Color backgroundColor;
 
@@ -44,11 +44,11 @@ namespace Ship_Game
 
 		private readonly static float[] movementFactors;
 
-		private int DesiredSmallStars = 30;
+		private int DesiredSmallStars = RandomMath.IntBetween(10,30);
 
-		private int DesiredMedStars = 10;
+		private int DesiredMedStars = RandomMath.IntBetween(2, 10);
 
-		private int DesiredLargeStars = 4;
+		private int DesiredLargeStars = RandomMath.IntBetween(1, 4);
 
 		private Rectangle starfieldRectangle;
 
