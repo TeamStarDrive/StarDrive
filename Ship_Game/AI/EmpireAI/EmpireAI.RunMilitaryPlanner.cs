@@ -428,10 +428,10 @@ namespace Ship_Game.AI {
             public float RatioFrigates;
             public float RatioCruisers;
             public float RatioCapitals;         
-            public float RatioBombers;
-            public float RatioCarriers;
-            public float RatioSupport;
-            public float RatioTroopShip;
+            public float RatioBombers   = 0;
+            public float RatioCarriers  = 0;
+            public float RatioSupport   = 0;
+            public float RatioTroopShip = 0;
             public float CapFighters;
             public float CapCorvettes;
             public float CapFrigates;
@@ -453,7 +453,7 @@ namespace Ship_Game.AI {
             public float TotalUpkeep;
             public float TotalMilShipCount;
             private readonly EmpireAI EmpireAI;
-            private Empire OwnerEmpire => EmpireAI.OwnerEmpire;
+            private Empire OwnerEmpire  => EmpireAI.OwnerEmpire;
             public float DesiredFighters;
             public float DesiredCorvettes;
             public float DesiredFrigates;
@@ -521,11 +521,11 @@ namespace Ship_Game.AI {
                 
                 if (OwnerEmpire.canBuildCapitals)
                 {
-                    SetRatios(fighters: 6, corvettes: 4 , frigates: 4, cruisers: 2 , capitals: 1, bombers: 3, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 6, corvettes: 4 , frigates: 4, cruisers: 2 , capitals: 1, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildCruisers)
                 {
-                    SetRatios(fighters: 10, corvettes: 10, frigates: 4, cruisers: 1, capitals: 0, bombers: 3, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 10, corvettes: 10, frigates: 4, cruisers: 1, capitals: 0, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildFrigates)
                 {

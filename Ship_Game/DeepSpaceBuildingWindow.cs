@@ -218,8 +218,9 @@ namespace Ship_Game
             }
             if (this.itemToBuild != null)
             {
-                float scale = (float)((float)this.itemToBuild.Size) / (float)ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width;
-                Vector2 IconOrigin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2));
+                var platform = ResourceManager.TextureDict["TacticalIcons/symbol_platform"];
+                float scale = (float)((float)this.itemToBuild.Size) / platform.Width;
+                Vector2 IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
                 scale = scale * 4000f / this.screen.CamHeight;
                 if (scale > 1f)
                 {
@@ -254,7 +255,7 @@ namespace Ship_Game
                     }
                 }
                 Rectangle? nullable = null;
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_platform"], MousePos, nullable, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+                this.ScreenManager.SpriteBatch.Draw(platform, MousePos, nullable, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
         }
 
