@@ -1701,24 +1701,25 @@ namespace Ship_Game.Gameplay
 
         public ShipData ToShipData()
         {
-            var data = new ShipData();
-            data.BaseCanWarp      = shipData.BaseCanWarp;
-            data.BaseStrength     = BaseStrength;
-            data.techsNeeded      = shipData.techsNeeded;
-            data.TechScore        = shipData.TechScore;
-            data.ShipCategory     = shipData.ShipCategory;
-            data.Name             = Name;
-            data.Level            = (byte)Level;
-            data.experience       = (byte)experience;
-            data.Role             = shipData.Role;
-            data.IsShipyard       = GetShipData().IsShipyard;
-            data.IsOrbitalDefense = GetShipData().IsOrbitalDefense;
-            data.Animated         = GetShipData().Animated;
-            data.CombatState      = AI.CombatState;
-            data.ModelPath        = GetShipData().ModelPath;
-            data.ModuleSlots      = GetModuleSlotDataArray();
-            data.ThrusterList     = new Array<ShipToolScreen.ThrusterZone>();
+            var data                       = new ShipData();
+            data.BaseCanWarp               = shipData.BaseCanWarp;
+            data.BaseStrength              = BaseStrength;
+            data.techsNeeded               = shipData.techsNeeded;
+            data.TechScore                 = shipData.TechScore;
+            data.ShipCategory              = shipData.ShipCategory;
+            data.Name                      = Name;
+            data.Level                     = (byte)Level;
+            data.experience                = (byte)experience;
+            data.Role                      = shipData.Role;
+            data.IsShipyard                = GetShipData().IsShipyard;
+            data.IsOrbitalDefense          = GetShipData().IsOrbitalDefense;
+            data.Animated                  = GetShipData().Animated;
+            data.CombatState               = AI.CombatState;
+            data.ModelPath                 = GetShipData().ModelPath;
+            data.ModuleSlots               = GetModuleSlotDataArray();
+            data.ThrusterList              = new Array<ShipToolScreen.ThrusterZone>();
             data.MechanicalBoardingDefense = MechanicalBoardingDefense;
+            data.HullData                  = shipData.HullData;
             foreach (Thruster thruster in ThrusterList)
                 data.ThrusterList.Add(new ShipToolScreen.ThrusterZone
                 {
