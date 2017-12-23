@@ -986,7 +986,7 @@ namespace Ship_Game
                         ShipData shipData  = ShipData.Parse(info);
                         shipData.Hull      = string.Intern(dirName + "/" + shipData.Hull);
                         shipData.ShipStyle = string.Intern(dirName);
-
+                        shipData.SetHullData(shipData);
                         lock (retList)
                         {
                             HullsDict[shipData.Hull] = shipData;
