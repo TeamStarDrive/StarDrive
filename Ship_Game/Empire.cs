@@ -1455,6 +1455,10 @@ namespace Ship_Game
         {
             return GrossTaxes * rate + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus - (GetTotalBuildingMaintenance() + GetTotalShipMaintenance());
         }
+        public float PercentageOfIncome(float rate)
+        {
+            return (GrossTaxes + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus - (GetTotalBuildingMaintenance() + GetTotalShipMaintenance())) * rate;
+        }
         public float Grossincome()
         {
             return GrossTaxes + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;

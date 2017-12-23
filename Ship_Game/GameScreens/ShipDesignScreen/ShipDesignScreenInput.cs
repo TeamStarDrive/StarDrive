@@ -36,7 +36,8 @@ namespace Ship_Game {
                 ShipStyle    = hull.ShipStyle,
                 ThrusterList = hull.ThrusterList,
                 ShipCategory = hull.ShipCategory,
-                CarrierShip  = hull.CarrierShip
+                CarrierShip  = hull.CarrierShip,
+                HullData     = hull.HullData
             };
             Techs.Clear();
             AddToTechList(ActiveHull.HullData.techsNeeded);
@@ -1098,16 +1099,17 @@ namespace Ship_Game {
         {
             var savedShip = new ShipData
             {
-                Animated = this.ActiveHull.Animated,
-                CombatState = this.ActiveHull.CombatState,
-                Hull = this.ActiveHull.Hull,
-                IconPath = this.ActiveHull.IconPath,
-                ModelPath = this.ActiveHull.ModelPath,
-                Name = this.ActiveHull.Name,
-                Role = this.ActiveHull.Role,
-                ShipStyle = this.ActiveHull.ShipStyle,
-                ThrusterList = this.ActiveHull.ThrusterList,
-                ModuleSlots = new ModuleSlotData[Slots.Count]
+                Animated     = ActiveHull.Animated,
+                CombatState  = ActiveHull.CombatState,
+                Hull         = ActiveHull.Hull,
+                IconPath     = ActiveHull.IconPath,
+                ModelPath    = ActiveHull.ModelPath,
+                Name         = ActiveHull.Name,
+                Role         = ActiveHull.Role,
+                ShipStyle    = ActiveHull.ShipStyle,
+                ThrusterList = ActiveHull.ThrusterList,
+                ModuleSlots  = new ModuleSlotData[Slots.Count],
+                HullData     = ActiveHull.HullData
             };
             for (int i = 0; i < Slots.Count; ++i)
             {

@@ -55,7 +55,12 @@ namespace Ship_Game
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
         [XmlIgnore] [JsonIgnore] public RoleName HullRole => HullData?.Role ?? Role;
-        [XmlIgnore] [JsonIgnore] public ShipData HullData { get; private set; }
+        [XmlIgnore] [JsonIgnore] public ShipData HullData { get; internal set; }
+
+        public void SetHullData(ShipData shipData)
+        {            
+            shipData.HullData = ResourceManager.HullsDict.TryGetValue(shipData.Hull, out ShipData hull) ? hull : shipData;
+        }
 
         public override string ToString() { return Name; }
 
@@ -214,7 +219,8 @@ namespace Ship_Game
                 ship.techsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.techsNeeded.Add(s->Techs[i].AsInterned);
-                ship.HullData = ResourceManager.HullsDict.TryGetValue(ship.Hull, out ShipData hull) ? hull : null;
+                ship.SetHullData(ship);                
+                
                 return ship;
             }           
             catch (Exception e)

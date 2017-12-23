@@ -1,6 +1,7 @@
 using Ship_Game;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Newtonsoft.Json;
 using Ship_Game.AI;
@@ -99,6 +100,7 @@ namespace Ship_Game.Gameplay
         [Serialize(57)] public float FearUsed;
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
+        [JsonIgnore] public EmpireRiskAssessment Risk;
 
         public bool HaveRejectedDemandTech
         {
@@ -127,6 +129,7 @@ namespace Ship_Game.Gameplay
         public Relationship(string name)
         {
             Name = name;
+            Risk = new EmpireRiskAssessment(this);
         }
 
         public Relationship()
@@ -531,6 +534,8 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.perf && Empire.Universe.PlayerEmpire == them)
                 return;
 
+            Risk.UpdateRiskAssessment(us);
+
             if(us.isPlayer)
             {
                 UpdatePlayerRelations(us, them);
@@ -706,8 +711,10 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
+            Risk = null;
             TrustEntries?.Dispose(ref TrustEntries);
-            FearEntries?.Dispose(ref FearEntries);
+            FearEntries?.Dispose(ref FearEntries);            
         }
+        
     }
 }
