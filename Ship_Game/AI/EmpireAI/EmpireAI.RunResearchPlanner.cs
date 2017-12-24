@@ -375,7 +375,7 @@ namespace Ship_Game.AI {
             DebugLog($"Possible Techs : {availableTechs.Count}");
 
             string researchtopic = "";
-            float moneyNeeded = OwnerEmpire.data.ShipBudget * .2f;
+            float moneyNeeded = BuildCapacity * .2f;
 
             //OwnerEmpire.UpdateShipsWeCanBuild();
 
