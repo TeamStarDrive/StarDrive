@@ -54,7 +54,6 @@ namespace Ship_Game.AI {
             and hopefully get more bang for the buck later. 
             */         
             float offenseNeeded = 0;
-            float borderThreat = 0;
             
             foreach (KeyValuePair<Empire, Relationship> rel in OwnerEmpire.AllRelations)
             {
@@ -65,16 +64,13 @@ namespace Ship_Game.AI {
             NumberOfShipGoals += (int)(5 * offenseNeeded);
             offenseNeeded = Math.Max(offenseNeeded, OwnerEmpire.getResStrat().MilitaryRatio); 
             offenseNeeded = OwnerEmpire.ResearchTopic.IsEmpty() ? offenseNeeded : Math.Min(offenseNeeded,.75f);
-            float capacity     = OwnerEmpire.EstimateShipCapacityAtTaxRate(offenseNeeded);
+            float capacity = BuildCapacity;
             
             //for certain things use the savings to pay for surplus
             bool ignoreDebt    = OwnerEmpire.Money > 0 && offenseNeeded > .2f && OwnerEmpire.data.TaxRate < .75f;            
-            
-            BuildCapacity = capacity;
+                        
             float maintenance = OwnerEmpire.GetTotalShipMaintenance();
-            capacity -= maintenance;
-            
-            OwnerEmpire.data.ShipBudget = BuildCapacity;            
+            capacity -= maintenance;                          
             
             //scrap crap if needed
             if(!ignoreDebt && capacity < 0)

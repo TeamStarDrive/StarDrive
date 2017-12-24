@@ -256,6 +256,7 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
+                
                 foreach (AO area in e.GetGSAI().AreasOfOperations)
                 {
                     area.PrepareForSave();

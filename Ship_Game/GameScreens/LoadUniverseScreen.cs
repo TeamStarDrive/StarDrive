@@ -83,8 +83,7 @@ namespace Ship_Game
                 if(string.IsNullOrEmpty(sdata.empireData.DefaultTroopShip))
                 {
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
-                }
-
+                }              
             }
             foreach(TechEntry tech in sdata.TechTree)
             {
@@ -440,6 +439,8 @@ namespace Ship_Game
                     Empire empire = EmpireManager.GetEmpireByName(r.Name);
                     e.AddRelationships(empire, r);
                     r.ActiveWar?.SetCombatants(e, empire);
+                    r.Risk = new EmpireRiskAssessment(r);
+
                 }
             }
             data.SolarSystemsList = new Array<SolarSystem>();
