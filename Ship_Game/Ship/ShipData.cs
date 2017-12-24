@@ -279,7 +279,8 @@ namespace Ship_Game
             troop,
             troopShip,
             support,
-            bomber,            
+            bomber,
+            carrier,
             fighter,
             scout,            
             gunboat,
@@ -287,8 +288,7 @@ namespace Ship_Game
             corvette,
             frigate,
             destroyer,
-            cruiser,
-            carrier,
+            cruiser,            
             capital,
             prototype
         }
