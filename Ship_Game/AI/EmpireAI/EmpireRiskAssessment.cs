@@ -79,7 +79,7 @@ namespace Ship_Game.AI
             float risk = float.MaxValue;
             float strength = Math.Max(100, us.currentMilitaryStrength);
             if (!Them.isFaction && !Relation.AtWar && !Relation.PreparingForWar &&
-                !(Relation.TotalAnger > us.data.DiplomaticPersonality.Territorialism)) return 0;
+                !(Relation.TotalAnger > (us.data.DiplomaticPersonality?.Territorialism ?? 50f ))) return 0;
             if (!Them.isFaction)
                 return (risk = us.GetGSAI().ThreatMatrix.StrengthOfEmpire(Them) / strength) > riskLimit ? 0 : risk;
             var s = new HashSet<SolarSystem>();

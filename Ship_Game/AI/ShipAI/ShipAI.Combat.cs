@@ -351,7 +351,6 @@ namespace Ship_Game.AI
                                 hangar.hangarShipUID = "Supply_Shuttle";
 
                             }
-                            hangar.hangarShipUID = "Supply_Shuttle";
                             var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);                            
                             if (!hangar.Active || hangar.hangarTimer > 0f ||
                                 Owner.Ordinance <= 100f || sortedList[skip] == null)

@@ -1699,7 +1699,7 @@ namespace Ship_Game
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)
         {            
-            if (qi.isBuilding == false &&  (FarmerPercentage > .5f || NetFoodPerTurn < 0))
+            if (qi.isBuilding == false &&  NeedsFood()) //(FarmerPercentage > .5f || NetFoodPerTurn < 0))
                 return false;
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in TilesList)
@@ -3328,7 +3328,7 @@ namespace Ship_Game
             }
             if(!makingMoney || developmentLevel < 3)
             {
-                if (building.Icon == "Biospheres")
+                if (building.Name == "Biospheres")
                     return false;
             }
                 
@@ -5078,19 +5078,15 @@ namespace Ship_Game
                      && (!Owner.isPlayer || colonyType == ColonyType.Military))
                 {
 
-                    SystemCommander SCom;
-                    if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out SCom))
+                    SystemCommander systemCommander;
+                    if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out systemCommander))
                     {
-                        float DefBudget;
-                        DefBudget = Owner.data.DefenseBudget * SCom.PercentageOfValue;
-
-                        float maxProd = GetMaxProductionPotential();
-                        //bool buildStation =false;
+                        float defBudget = Owner.data.DefenseBudget * systemCommander.PercentageOfValue;                        
+                        
+                        float maxProd = GetMaxProductionPotential();                        
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
                         float stationUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.station].Upkeep;
                         string station = Owner.GetGSAI().GetStarBase();
-                        //if (DefBudget >= 1 && !string.IsNullOrEmpty(station))
-                        //    buildStation = true;
                         int PlatformCount = 0;
                         int stationCount = 0;
                         foreach (QueueItem queueItem in ConstructionQueue)
@@ -5099,25 +5095,26 @@ namespace Ship_Game
                                 continue;
                             if (queueItem.sData.Role == ShipData.RoleName.platform)
                             {
-                                if (DefBudget - platformUpkeep < -platformUpkeep * .5) //|| (buildStation && DefBudget > stationUpkeep))
+                                if (defBudget - platformUpkeep < -platformUpkeep * .5) //|| (buildStation && DefBudget > stationUpkeep))
                                 {
                                     ConstructionQueue.QueuePendingRemoval(queueItem);
                                     continue;
                                 }
-                                DefBudget -= platformUpkeep;
+                                defBudget -= platformUpkeep;
                                 PlatformCount++;
                             }
                             if (queueItem.sData.Role == ShipData.RoleName.station)
                             {
-                                if (DefBudget - stationUpkeep < -stationUpkeep)
+                                if (defBudget - stationUpkeep < -stationUpkeep)
                                 {
                                     ConstructionQueue.QueuePendingRemoval(queueItem);
                                     continue;
                                 }
-                                DefBudget -= stationUpkeep;
+                                defBudget -= stationUpkeep;
                                 stationCount++;
                             }
                         }
+                        
                         foreach (Ship platform in Shipyards.Values)
                         {
                             if (platform.BaseStrength <= 0)
@@ -5127,35 +5124,32 @@ namespace Ship_Game
                             if (platform.shipData.Role == ShipData.RoleName.station)
                             {
                                 stationUpkeep = platform.GetMaintCost();
-                                if (DefBudget - stationUpkeep < -stationUpkeep)
+                                if (defBudget - stationUpkeep < -stationUpkeep)
                                 {
 
                                     platform.AI.OrderScrapShip();
                                     continue;
                                 }
-                                DefBudget -= stationUpkeep;
+                                defBudget -= stationUpkeep;
                                 stationCount++;
                             }
                             if (platform.shipData.Role == ShipData.RoleName.platform)//|| (buildStation && DefBudget < 5))
                             {
                                 platformUpkeep = platform.GetMaintCost();
-                                if (DefBudget - platformUpkeep < -platformUpkeep)
+                                if (defBudget - platformUpkeep < -platformUpkeep)
                                 {
                                     platform.AI.OrderScrapShip();
 
                                     continue;
                                 }
-                                DefBudget -= platformUpkeep;
+                                defBudget -= platformUpkeep;
                                 PlatformCount++;
                             }
 
                         }
-                        //this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0 && ship.Value.Role==ShipData.RoleName.platform).Count();
-
-
-                        if (DefBudget > stationUpkeep && maxProd > 10.0
-&& stationCount < (int)(SCom.RankImportance * .5f) //(int)(SCom.PercentageOfValue * this.developmentLevel)
-&& stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                        
+                        if (defBudget > stationUpkeep && maxProd > 10.0 && stationCount < (int)(systemCommander.RankImportance * .5f) 
+                            && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
                             // string platform = this.Owner.GetGSAI().GetStarBase();
                             if (!string.IsNullOrEmpty(station))
@@ -5169,10 +5163,10 @@ namespace Ship_Game
                                        Cost = ship.GetCost(Owner)
                                    });
                             }
-                            DefBudget -= stationUpkeep;
+                            defBudget -= stationUpkeep;
                         }
-                        if (DefBudget > platformUpkeep && maxProd > 1.0
-                            && PlatformCount < SCom.RankImportance //(int)(SCom.PercentageOfValue * this.developmentLevel)
+                        if (defBudget > platformUpkeep && maxProd > 1.0
+                            && PlatformCount < systemCommander.RankImportance //(int)(SCom.PercentageOfValue * this.developmentLevel)
                             && PlatformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
                             string platform = Owner.GetGSAI().GetDefenceSatellite();
@@ -5194,19 +5188,11 @@ namespace Ship_Game
 
             }
             #endregion
-            //if (this.Population > 3000.0 || this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.75)
+            
             #region Scrap
-            //if (this.colonyType!= ColonyType.TradeHub)
+            
             {
-                //Array<Building> list = new Array<Building>();
-                //foreach (Building building in this.BuildingList)
-                //{
-                //    if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0 && building.Name != "Biospheres")
-                //    //
-                //        list.Add(building);
-                //}
-                //foreach (Building b in list)
-                //    this.ScrapBuilding(b);
+                
 
                 Array<Building> list1 = new Array<Building>();
                 if (Fertility >= 1 )
@@ -5219,8 +5205,7 @@ namespace Ship_Game
                     }
                 }
 
-                //finances
-                //if (this.Owner.Money*.5f < this.Owner.GrossTaxes*(1-this.Owner.data.TaxRate) && this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn < 0)
+                
                 {
                     using (ConstructionQueue.AcquireReadLock())
                     foreach (PlanetGridSquare PGS in TilesList)
@@ -5251,33 +5236,11 @@ namespace Ship_Game
 
                         }
                     }
-                    //foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
-                    //{
-                    //    if(queueItem.Building == cheapestFlatfood || queueItem.Building == cheapestFlatprod || queueItem.Building == cheapestFlatResearch)
-                    //        continue;
-                    //    if (queueItem.isBuilding &&  !WeCanAffordThis(queueItem.Building, this.colonyType))
-                    //    {
-                    //        this.ProductionHere += queueItem.productionTowards;
-                    //        this.ConstructionQueue.QueuePendingRemoval(queueItem);
-                    //    }
-                    //}
-                    ConstructionQueue.ApplyPendingRemovals();
-                    //foreach (Building building in this.BuildingList)
-                    //{
-                    //    if (building.Name != "Biospheres" && !WeCanAffordThis(building, this.colonyType))
-                    //        //
-                    //        list1.Add(building);
-                    //}
 
+                    ConstructionQueue.ApplyPendingRemovals();
+ 
                 }
 
-                //foreach (Building b in list1.OrderBy(maintenance=> maintenance.Maintenance))
-                //{
-
-                //    if (b == cheapestFlatprod || b == cheapestFlatfood || b == cheapestFlatResearch)
-                //        continue;
-                //    this.ScrapBuilding(b);
-                //}
             #endregion
             }
         }
