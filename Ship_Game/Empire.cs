@@ -682,7 +682,7 @@ namespace Ship_Game
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
                 if (kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0)
                 {
-                    techEntry.Discovered |= kv.Value.RaceRestrictions.Count == 0;
+                    techEntry.Discovered |= kv.Value.RaceRestrictions.Count == 0 && kv.Value.ComesFrom.Count >0;
                     kv.Value.Secret |= kv.Value.RaceRestrictions.Count != 0; ;
                     foreach (Technology.RequiredRace raceTech in kv.Value.RaceRestrictions)
                     {
@@ -706,8 +706,9 @@ namespace Ship_Game
                 }
                 else //not racial tech
                 {
-                    techEntry.Unlocked = kv.Value.RootNode == 1 && !kv.Value.Secret;
-                    techEntry.Discovered = !kv.Value.Secret;
+                    bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
+                    techEntry.Unlocked = kv.Value.RootNode == 1 && !secret;
+                    techEntry.Discovered = !secret;
                 }
 
 
@@ -2522,7 +2523,7 @@ namespace Ship_Game
             int tradeShips = 0;
             int passengerShips = 0;
 
-            float moneyForFreighters = (this.Money * .1f) * .1f - this.freighterBudget;
+            float moneyForFreighters = this.Money * .01f - this.freighterBudget;
             this.freighterBudget = 0;
 
             int freighterLimit = GlobalStats.FreighterLimit;

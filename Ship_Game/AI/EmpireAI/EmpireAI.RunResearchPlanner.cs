@@ -658,21 +658,15 @@ namespace Ship_Game.AI {
                 Array<string> currentTechs =
                     new Array<string>(shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs));
 
-                int numberOfShipTechs = currentTechs.Count;
+                //int maxTech = 0;
+                //foreach (string techName in currentTechs)
+                //{
+                //    int techs = OwnerEmpire.GetTechEntry(techName).CountTechsToOneInList(currentTechs, OwnerEmpire);
+                //    maxTech = Math.Max(techs, maxTech);
 
+                //}
 
-                //if (shortTermBest.DesignRole == ShipData.RoleName.bomber)
-                //    mod = OwnerEmpire.canBuildBombers ? 0 : 1;
-
-                //if (shortTermBest.DesignRole == ShipData.RoleName.carrier)
-                //    mod = OwnerEmpire.canBuildCarriers ? 0 : 1;
-
-                //if (!OwnerEmpire.canBuildTroopShips && shortTermBest.DesignRole == ShipData.RoleName.troopShip)
-                //    mod = 1;
-
-                //if (shortTermBest.DesignRole == ShipData.RoleName.support)
-                //    mod = 1;
-                int key = Math.Max(numberOfShipTechs - mod, 0);
+                int key = currentTechs.Count;
                 
                 if (techSorter.TryGetValue(key, out Array<Ship> test))
                     test.Add(shortTermBest);
@@ -693,7 +687,7 @@ namespace Ship_Game.AI {
             //choose Ship
 
             Array<Ship> ships = new Array<Ship>(roleSorter[keyChosen].
-                OrderByDescending(data => data.shipData.techsNeeded.Count ));// SumShipTechCostFiltered(data, OwnerEmpire.ShipTechs)));
+                OrderByDescending(ship => ship.shipData.techsNeeded.Count )); //ship.GetStrength()));//  
             for (int x = 1; x <= ships.Count; x++)
             {
                 var ship = ships[x-1];
@@ -780,10 +774,22 @@ namespace Ship_Game.AI {
                 if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name))
                     continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire)) continue;
-                if (!shortTermBest.shipData.unLockable) continue;
+                if (!shortTermBest.shipData.unLockable) continue;                
+                if (ShipHasUndiscoveredTech(shortTermBest)) continue;
                 researchableShips.Add(shortTermBest);
             }
         }
+
+        private bool ShipHasUndiscoveredTech(Ship ship)
+        {
+            foreach (var techName in ship.shipData.techsNeeded)
+            {
+                if (!OwnerEmpire.GetTechEntry(techName).Discovered)
+                    return true;
+            }
+            return false;
+        }
+        
 
         private static bool IsRoleValid(ShipData.RoleName role)
         {
@@ -793,16 +799,13 @@ namespace Ship_Game.AI {
                 case ShipData.RoleName.supply:
                 case ShipData.RoleName.troop:
                 case ShipData.RoleName.prototype:
+                case ShipData.RoleName.construction:
+                case ShipData.RoleName.freighter:
+                case ShipData.RoleName.colony:
                     return false;
                 case ShipData.RoleName.platform:
                     break;
                 case ShipData.RoleName.station:
-                    break;
-                case ShipData.RoleName.construction:
-                    break;
-                case ShipData.RoleName.colony:
-                    break;
-                case ShipData.RoleName.freighter:
                     break;
                 case ShipData.RoleName.troopShip:
                     break;

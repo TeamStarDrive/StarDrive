@@ -121,6 +121,18 @@ namespace Ship_Game
             return triggered;
         }
        
+        public int CountTechsToOneInList(Array<string> techList, Empire empire)
+        {
+            int count = 0;
+            foreach (Technology.LeadsToTech leadTo in Tech.LeadsTo)
+            {
+                if (!techList.Contains(leadTo.UID)) continue;
+                count++;
+                return count + empire.GetTechEntry(leadTo.UID).CountTechsToOneInList(techList, empire);
+            }
+            return count;
+
+        }
 
         public void Unlock(Empire empire)
         {
@@ -173,6 +185,9 @@ namespace Ship_Game
                 
             }
         }
+
+        
+        
 
         public void UnlockBonus(Empire empire)
         {
