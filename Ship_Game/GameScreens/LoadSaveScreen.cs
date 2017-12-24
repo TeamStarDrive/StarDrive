@@ -68,7 +68,7 @@ namespace Ship_Game
                         Log.Info("Savegame missing payload: {0}", data.FI.FullName);
                         continue;
                     }
-
+                    
                     if (GlobalStats.ActiveMod != null)
                     {
                         // check mod and check version of save file since format changed

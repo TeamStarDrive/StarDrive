@@ -39,7 +39,9 @@ namespace Ship_Game.AI {
                 OwnerEmpire.data.TaxRate += .02f;
             else
                 OwnerEmpire.data.TaxRate = tempTax;
-            SetBudgetForeArea(.01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(.2f,risk));
+            float militaryRatio = OwnerEmpire.getResStrat().MilitaryRatio;
+            SetBudgetForeArea(.01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, militaryRatio));
+            BuildCapacity = OwnerEmpire.EstimateShipCapacityAtTaxRate(Math.Max(GetRisk(), militaryRatio));
         }
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {
