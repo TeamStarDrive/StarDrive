@@ -111,7 +111,7 @@ namespace Ship_Game
                     Planet planet = this.s.PlanetList[i];
                     Vector2 planetPos = pPos.PointFromAngle(s.PlanetList[i].OrbitalAngle, 40 + 40 * i);
                     planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
-                    float fIconScale = 1.0f + ((float)(Math.Log(this.s.PlanetList[i].scale)));
+                    float fIconScale = 1.0f + ((float)(Math.Log(this.s.PlanetList[i].Scale)));
                     Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));
                     if (PlanetRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                     {
@@ -125,7 +125,7 @@ namespace Ship_Game
                         };
                         this.ClickList.Add(cm);
                     }
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.s.PlanetList[i].planetType)], PlanetRect, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.s.PlanetList[i].PlanetType)], PlanetRect, Color.White);
             
                     if (this.screen.SelectedPlanet == this.s.PlanetList[i])
                     {
@@ -242,13 +242,13 @@ namespace Ship_Game
                         }
                         if (p.Owner == null)
                         {
-                            HelperFunctions.DrawDropShadowText1(this.ScreenManager, p.Name, this.PlanetTypeCursor, SystemInfoUIElement.SysFont, (p.habitable ? this.tColor : Color.LightPink));
+                            HelperFunctions.DrawDropShadowText1(this.ScreenManager, p.Name, this.PlanetTypeCursor, SystemInfoUIElement.SysFont, (p.Habitable ? this.tColor : Color.LightPink));
                         }
                         else
                         {
-                            HelperFunctions.DrawDropShadowText1(this.ScreenManager, p.Name, this.PlanetTypeCursor, SystemInfoUIElement.SysFont, (p.habitable ? p.Owner.EmpireColor : Color.LightPink));
+                            HelperFunctions.DrawDropShadowText1(this.ScreenManager, p.Name, this.PlanetTypeCursor, SystemInfoUIElement.SysFont, (p.Habitable ? p.Owner.EmpireColor : Color.LightPink));
                         }
-                        if (p.habitable)
+                        if (p.Habitable)
                         {
                             int Spacing = SystemInfoUIElement.DataFont.LineSpacing;
                             this.PlanetTypeCursor.Y = this.PlanetTypeCursor.Y + (float)(Spacing + 4);

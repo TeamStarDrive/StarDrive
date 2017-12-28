@@ -46,8 +46,8 @@ namespace Ship_Game
             TargetPlanet = p;
             PlanetRadius = TargetPlanet.SO.WorldBoundingSphere.Radius;
             Vector3 vtt = new Vector3(TargetPlanet.Center, 2500f) + 
-                new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.scale, 
-                            RandomMath2.RandomBetween(-500f, 500f) * p.scale, 0f) - Position;
+                new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.Scale, 
+                            RandomMath2.RandomBetween(-500f, 500f) * p.Scale, 0f) - Position;
             vtt = Vector3.Normalize(vtt);
             Velocity = vtt * 1350f;
         }

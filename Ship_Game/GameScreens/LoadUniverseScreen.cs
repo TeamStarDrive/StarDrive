@@ -116,12 +116,12 @@ namespace Ship_Game
             }
             if (psdata.Scale > 0f)
             {
-                p.scale = psdata.Scale;
+                p.Scale = psdata.Scale;
             }
             else
             {
                 float scale = RandomMath.RandomBetween(1f, 2f);
-                p.scale = scale;
+                p.Scale = scale;
             }
             p.colonyType = psdata.ColonyType;
             if (!psdata.GovernorOn)
@@ -130,8 +130,8 @@ namespace Ship_Game
                 p.colonyType = Planet.ColonyType.Colony;
             }
             p.OrbitalAngle          = psdata.OrbitalAngle;
-            p.fs                    = psdata.FoodState;
-            p.ps                    = psdata.ProdState;
+            p.FS                    = psdata.FoodState;
+            p.PS                    = psdata.ProdState;
             p.FoodLocked            = psdata.FoodLock;
             p.ProdLocked            = psdata.ProdLock;
             p.ResLocked             = psdata.ResLock;
@@ -141,13 +141,13 @@ namespace Ship_Game
             p.Fertility             = psdata.Fertility;
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
-            p.hasRings              = psdata.HasRings;
-            p.planetType            = psdata.WhichPlanet;
+            p.HasRings              = psdata.HasRings;
+            p.PlanetType            = psdata.WhichPlanet;
             p.ShieldStrengthCurrent = psdata.ShieldStrength;
             p.LoadAttributes();
-            p.Crippled_Turns = psdata.Crippled_Turns;
-            p.planetTilt     = RandomMath.RandomBetween(45f, 135f);
-            p.ObjectRadius   = 1000f * (float)(1 + (Math.Log(p.scale) / 1.5));
+            p.CrippledTurns = psdata.Crippled_Turns;
+            p.PlanetTilt     = RandomMath.RandomBetween(45f, 135f);
+            p.ObjectRadius   = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             foreach (Guid guid in psdata.StationsList)
                 p.Shipyards[guid] = null; // reserve shipyards
             p.FarmerPercentage     = psdata.farmerPercentage;
@@ -155,9 +155,9 @@ namespace Ship_Game
             p.ResearcherPercentage = psdata.researcherPercentage;
             p.FoodHere             = psdata.foodHere;
             p.ProductionHere       = psdata.prodHere;
-            if (p.hasRings)
+            if (p.HasRings)
             {
-                p.ringTilt = RandomMath.RandomBetween(-80f, -45f);
+                p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
             }
             foreach (SavedGame.PGSData d in psdata.PGSList)
             {

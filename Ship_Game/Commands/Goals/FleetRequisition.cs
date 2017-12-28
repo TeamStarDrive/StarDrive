@@ -85,7 +85,7 @@ namespace Ship_Game.Commands
                         }
                         //weight -= planet.ConstructionQueue.Count;
 
-                        weight -= planet.developmentLevel;          // minus because order by goes smallest to largest, not other way round
+                        weight -= planet.DevelopmentLevel;          // minus because order by goes smallest to largest, not other way round
                         weight -= planet.MineralRichness;
                         weight /= planet.ShipBuildingModifier;      // planets with shipyards in orbit should be higher in list
 

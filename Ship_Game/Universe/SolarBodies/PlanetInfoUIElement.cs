@@ -171,7 +171,7 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, this.tColor);
                     return;
                 }
-                if (!this.p.habitable)
+                if (!this.p.Habitable)
                 {
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.p.Name, NamePos, this.tColor);
                     string text = Localizer.Token(1427);
@@ -193,7 +193,7 @@ namespace Ship_Game
 
                 this.PlanetTypeRichness = string.Concat(this.p.GetTypeTranslation(), " ", this.p.GetRichness());
                 this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], this.PlanetIconRect, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIconRect, Color.White);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.PlanetTypeRichness, this.PlanetTypeCursor, this.tColor);
                 Rectangle fIcon = new Rectangle(240, this.Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.TextureDict["NewUI/icon_food"].Height, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], fIcon, Color.White);
@@ -324,7 +324,7 @@ namespace Ship_Game
 
             this.PlanetTypeRichness = string.Concat(this.p.GetTypeTranslation(), " ", this.p.GetRichness());
             this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], this.PlanetIconRect, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIconRect, Color.White);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.PlanetTypeRichness, this.PlanetTypeCursor, this.tColor);
             this.p.UpdateIncomes(false);
             this.ColonySliderFood.amount = this.p.FarmerPercentage;
@@ -374,7 +374,7 @@ namespace Ship_Game
             Vector2 textPos = new Vector2((float)(this.ColonySliderFood.sRect.X + 180), (float)(this.ColonySliderFood.sRect.Y - 2));
             if (this.p.Owner.data.Traits.Cybernetic == 0)
             {
-                float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.consumption;
+                float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.Consumption;
                 str = netFoodPerTurn.ToString(this.fmt);
             }
             else
@@ -383,7 +383,7 @@ namespace Ship_Game
             }
             string food = str;
             textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(food).X;
-            if (this.p.NetFoodPerTurn - this.p.consumption >= 0f || this.p.Owner.data.Traits.Cybernetic == 1)
+            if (this.p.NetFoodPerTurn - this.p.Consumption >= 0f || this.p.Owner.data.Traits.Cybernetic == 1)
             {
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, new Color(255, 239, 208));
             }
@@ -424,7 +424,7 @@ namespace Ship_Game
             textPos = new Vector2((float)(this.ColonySliderProd.sRect.X + 180), (float)(this.ColonySliderProd.sRect.Y - 2));
             if (this.p.Owner.data.Traits.Cybernetic != 0)
             {
-                float netProductionPerTurn = this.p.NetProductionPerTurn - this.p.consumption;
+                float netProductionPerTurn = this.p.NetProductionPerTurn - this.p.Consumption;
                 str1 = netProductionPerTurn.ToString(this.fmt);
             }
             else
@@ -433,7 +433,7 @@ namespace Ship_Game
             }
             string prod = str1;
             textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(prod).X;
-            if (this.p.Owner.data.Traits.Cybernetic == 0 || this.p.NetProductionPerTurn - this.p.consumption >= 0f)
+            if (this.p.Owner.data.Traits.Cybernetic == 0 || this.p.NetProductionPerTurn - this.p.Consumption >= 0f)
             {
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, prod, textPos, new Color(255, 239, 208));
             }
@@ -588,7 +588,7 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(62);
             }
-            if (this.p.habitable)
+            if (this.p.Habitable)
             {
                 if (this.Inspect.HandleInput(input))
                 {

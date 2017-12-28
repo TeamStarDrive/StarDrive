@@ -151,7 +151,7 @@ namespace Ship_Game
             Rectangle PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.3f), base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - eRect.Y - eRect.Height - 22);
             int iconSize = PlanetInfoRect.X + PlanetInfoRect.Height - (int)((float)(PlanetInfoRect.X + PlanetInfoRect.Height) * 0.4f);
             Rectangle PlanetIconRect = new Rectangle(PlanetInfoRect.X + 10, PlanetInfoRect.Y + PlanetInfoRect.Height / 2 - iconSize / 2, iconSize, iconSize);
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", SelectedPlanet.planetType)], PlanetIconRect, Color.White);
+            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", SelectedPlanet.PlanetType)], PlanetIconRect, Color.White);
             Vector2 nameCursor = new Vector2((float)(PlanetIconRect.X + PlanetIconRect.Width / 2) - Fonts.Pirulen16.MeasureString(SelectedPlanet.Name).X / 2f, (float)(PlanetInfoRect.Y + 15));
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, SelectedPlanet.Name, nameCursor, Color.White);
             Vector2 PNameCursor = new Vector2((float)(PlanetIconRect.X + PlanetIconRect.Width + 5), nameCursor.Y + 20f);
@@ -570,7 +570,7 @@ namespace Ship_Game
                 {
                     IOrderedEnumerable<Planet> sortedList = 
                         from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetFoodPerTurn - p.consumption
+                        orderby p.NetFoodPerTurn - p.Consumption
                         select p;
                     food.Ascending = true;
                     ResetListSorted(sortedList);
@@ -579,7 +579,7 @@ namespace Ship_Game
                 {
                     IOrderedEnumerable<Planet> sortedList = 
                         from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetFoodPerTurn - p.consumption descending
+                        orderby p.NetFoodPerTurn - p.Consumption descending
                         select p;
                     ResetListSorted(sortedList);
                     food.Ascending = false;
@@ -599,7 +599,7 @@ namespace Ship_Game
                         {
                             return p.NetProductionPerTurn;
                         }
-                        return p.NetProductionPerTurn - p.consumption;
+                        return p.NetProductionPerTurn - p.Consumption;
                     });
                     prod.Ascending = true;
                     ResetListSorted(sortedList);
@@ -611,7 +611,7 @@ namespace Ship_Game
                         {
                             return p.NetProductionPerTurn;
                         }
-                        return p.NetProductionPerTurn - p.consumption;
+                        return p.NetProductionPerTurn - p.Consumption;
                     });
                     ResetListSorted(sortedList);
                     prod.Ascending = false;

@@ -56,7 +56,7 @@ namespace Ship_Game.AI {
                                             //    .FirstOrDefault();
 
                                         Planet capture = Empire.Universe.PlanetsDict.Values.ToArray().FindMaxFiltered(
-                                                potentials => potentials.Owner == null && potentials.habitable,
+                                                potentials => potentials.Owner == null && potentials.Habitable,
                                                 potentials => -assimilate.Center.SqDist(potentials.Center));
                                                 
                                         if (capture != null)
@@ -81,7 +81,7 @@ namespace Ship_Game.AI {
 
 
                                     Planet capture = Empire.Universe.PlanetsDict.Values
-                                        .Where(potentials => potentials.Owner == null && potentials.habitable)
+                                        .Where(potentials => potentials.Owner == null && potentials.Habitable)
                                         .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Center))
                                         .FirstOrDefault();
                                     if (capture != null)

@@ -54,7 +54,7 @@ namespace Ship_Game.AI
                 State = AIState.Colonize;
                 return;
             }
-            if (TargetPlanet.Owner != null || !TargetPlanet.habitable)
+            if (TargetPlanet.Owner != null || !TargetPlanet.Habitable)
             {                
                 if (ColonizeGoal != null)
                 {					
@@ -86,7 +86,7 @@ namespace Ship_Game.AI
             Owner.CreateColonizationBuildingFor(ColonizeTarget);
 
             ColonizeTarget.TerraformPoints += Owner.loyalty.data.EmpireFertilityBonus;
-            ColonizeTarget.Crippled_Turns = 0;
+            ColonizeTarget.CrippledTurns = 0;
             StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, UniverseScreen);		
                 
             foreach (Goal g in Owner.loyalty.GetGSAI().Goals)

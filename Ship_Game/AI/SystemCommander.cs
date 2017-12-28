@@ -220,7 +220,7 @@ namespace Ship_Game.AI
                 // find max number of troops for system.
                 var planets = System.PlanetList.FilterBy(planet => planet.Owner == Us);
                 int planetCount = planets.Length;
-                int developmentlevel = planets.Sum(development => development.developmentLevel);
+                int developmentlevel = planets.Sum(development => development.DevelopmentLevel);
                 SystemDevelopmentlevel = developmentlevel;
                 int maxtroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetPotentialGroundTroops());
                 IdealTroopCount = (mintroopLevel + (int)RankImportance) * planetCount;
@@ -300,7 +300,7 @@ namespace Ship_Game.AI
                 Value += Planet.Population / 10000f;
                 Value += Planet.GovBuildings ? 1 : 0;
                 Value += Planet.HasShipyard ? 5 : 0;
-                Value += Planet.developmentLevel;
+                Value += Planet.DevelopmentLevel;
                 if (Owner.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
             }
             Value += Planet.EmpireBaseValue(Owner) *.1f;

@@ -373,18 +373,18 @@ namespace Ship_Game
                         Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
                         OrbitalAngle = randomAngle,
                         ParentSystem = this,
-                        planetType   = 22
+                        PlanetType   = 22
                     };
                     newOrbital.SetPlanetAttributes();
                     newOrbital.Center      = planetCenter;
-                    newOrbital.scale         = scale;
+                    newOrbital.Scale         = scale;
                     newOrbital.ObjectRadius  = planetRadius;
                     newOrbital.OrbitalRadius = ringRadius;
-                    newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
+                    newOrbital.PlanetTilt = RandomMath.RandomBetween(45f, 135f);
                     if (RandomMath.IntBetween(1, 100) < 15)
                     {
-                        newOrbital.hasRings = true;
-                        newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
+                        newOrbital.HasRings = true;
+                        newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
                     }
                     float fertility       = newOrbital.Fertility;
                     float mineralRichness = newOrbital.MineralRichness;
@@ -511,12 +511,12 @@ namespace Ship_Game
                         OrbitalAngle       = randomAngle,
                         ParentSystem       = newSys,
                         SpecialDescription = ringData.SpecialDescription,
-                        planetType         = whichPlanet,
+                        PlanetType         = whichPlanet,
                         Center             = planetCenter,
-                        scale              = scale,
+                        Scale              = scale,
                         ObjectRadius       = planetRadius,
                         OrbitalRadius      = ringRadius,
-                        planetTilt         = RandomMath.RandomBetween(45f, 135f)
+                        PlanetTilt         = RandomMath.RandomBetween(45f, 135f)
                     };
                     newOrbital.InitializePlanetMesh(null);
                     if (!ringData.HomePlanet || owner == null)
@@ -524,7 +524,7 @@ namespace Ship_Game
                         if (ringData.UniqueHabitat)
                         {
                             newOrbital.UniqueHab = true;
-                            newOrbital.uniqueHabPercent = ringData.UniqueHabPC;
+                            newOrbital.UniqueHabPercent = ringData.UniqueHabPC;
                         }
                         newOrbital.SetPlanetAttributes();
                         if (ringData.MaxPopDefined > 0)
@@ -581,8 +581,8 @@ namespace Ship_Game
                     }
                     if (ringData.HasRings != null)
                     {
-                        newOrbital.hasRings = true;
-                        newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
+                        newOrbital.HasRings = true;
+                        newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
                     }
                     //Add buildings to planet
                     if (ringData.BuildingList.Count > 0)

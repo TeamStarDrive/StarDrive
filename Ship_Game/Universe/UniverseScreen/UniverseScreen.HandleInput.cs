@@ -494,7 +494,7 @@ namespace Ship_Game
                 {
                     UniverseScreen.ClickablePlanets planets = ClickPlanetList[i];
                     if (input.CursorPosition.InRadius(planets.ScreenPos, planets.Radius) &&
-                        planets.planetToClick.habitable)
+                        planets.planetToClick.Habitable)
                         cState = UniverseScreen.CursorState.Orbit;
                 }
             }
@@ -807,7 +807,7 @@ namespace Ship_Game
             if (!pieMenu.Visible)
             {
                 pieMenu.RootNode = planetMenu;
-                if (SelectedPlanet.Owner == null && SelectedPlanet.habitable)
+                if (SelectedPlanet.Owner == null && SelectedPlanet.Habitable)
                     LoadMenuNodes(false, true);
                 else
                     LoadMenuNodes(false, false);
@@ -1360,7 +1360,7 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("echo_affirm1");
                 if (ship.isColonyShip)
                 {
-                    if (planet.Owner == null && planet.habitable)
+                    if (planet.Owner == null && planet.Habitable)
                         ship.AI.OrderColonization(planet);
                     else
                         ship.AI.OrderToOrbit(planet, true);
@@ -1374,7 +1374,7 @@ namespace Ship_Game
                         else
                             ship.AI.OrderRebase(planet, true);
                     }
-                    else if (planet.habitable &&  ship.loyalty.IsEmpireAttackable(planet.Owner))
+                    else if (planet.Habitable &&  ship.loyalty.IsEmpireAttackable(planet.Owner))
                     {
                         //add new right click troop and troop ship options on planets
                         if (Input.IsShiftKeyDown)
@@ -1734,8 +1734,8 @@ namespace Ship_Game
                         if (queueItem.Goal != SelectedItem.AssociatedGoal) continue;
 
                         planet.ProductionHere += queueItem.productionTowards;
-                        if (planet.ProductionHere > planet.MAX_STORAGE)
-                            planet.ProductionHere = planet.MAX_STORAGE;
+                        if (planet.ProductionHere > planet.MaxStorage)
+                            planet.ProductionHere = planet.MaxStorage;
                         planet.ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                     planet.ConstructionQueue.ApplyPendingRemovals();
