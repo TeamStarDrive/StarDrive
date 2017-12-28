@@ -45,7 +45,7 @@ namespace Ship_Game.AI {
                     {
                         if (p.Owner != OwnerEmpire)
                             continue;
-                        devLevelos += p.developmentLevel;
+                        devLevelos += p.DevelopmentLevel;
                     }
                     if (devLevelos == 0)
                         continue;
@@ -65,7 +65,7 @@ namespace Ship_Game.AI {
                         {
                             if (p.Owner != OwnerEmpire)
                                 continue;
-                            devLevel += p.developmentLevel;
+                            devLevel += p.DevelopmentLevel;
                         }
                         if (!createRoad)                        
                             continue;
@@ -158,8 +158,8 @@ namespace Ship_Game.AI {
                                     Planet productionHere = p;
                                     productionHere.ProductionHere =
                                         productionHere.ProductionHere + qi.productionTowards;
-                                    if (p.ProductionHere > p.MAX_STORAGE)                                    
-                                        p.ProductionHere = p.MAX_STORAGE;
+                                    if (p.ProductionHere > p.MaxStorage)                                    
+                                        p.ProductionHere = p.MaxStorage;
                                     
                                     p.ConstructionQueue.QueuePendingRemoval(qi);
                                 }

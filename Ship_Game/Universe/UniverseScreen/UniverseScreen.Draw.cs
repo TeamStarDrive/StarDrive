@@ -483,7 +483,7 @@ namespace Ship_Game
                 {
                     foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
-                        float radius = 2500f * cplanet.planetToClick.scale;
+                        float radius = 2500f * cplanet.planetToClick.Scale;
                         DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 150), 50, 1f,
                             nodeTex, new Color(0, 0, 255, 50));
                     }
@@ -739,7 +739,7 @@ namespace Ship_Game
 
                     }
                    
-                    float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.scale)) / 2.75f));
+                    float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
                     if (planet.Owner != null && wellKnown )
                     {
 
@@ -749,12 +749,12 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.planetType].Width /
+                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType].Width /
                                      2f),
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.planetType].Height /
+                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType].Height /
                                      2f));
                         this.ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict["Planets/" + (object) planet.planetType], position,
+                            ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType], position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         origin =
                             new Vector2(
@@ -775,12 +775,12 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.planetType).Width /
+                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Width /
                                      2),
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.planetType).Height /
+                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Height /
                                      2f));
                         this.ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + (object) planet.planetType), position,
+                            ResourceManager.Texture("Planets/" + (object) planet.PlanetType), position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                     }
                 }

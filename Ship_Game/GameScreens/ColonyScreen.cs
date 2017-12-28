@@ -148,26 +148,26 @@ namespace Ship_Game
             if (GlobalStats.HardcoreRuleset)
             {
                 int num2 = (theMenu7.Width - 40) / 4;
-                this.ResourceButtons.Add(new ThreeStateButton(p.fs, "Food", new Vector2((float)(theMenu7.X + 20), (float)(theMenu7.Y + 30))));
-                this.ResourceButtons.Add(new ThreeStateButton(p.ps, "Production", new Vector2((float)(theMenu7.X + 20 + num2), (float)(theMenu7.Y + 30))));
+                this.ResourceButtons.Add(new ThreeStateButton(p.FS, "Food", new Vector2((float)(theMenu7.X + 20), (float)(theMenu7.Y + 30))));
+                this.ResourceButtons.Add(new ThreeStateButton(p.PS, "Production", new Vector2((float)(theMenu7.X + 20 + num2), (float)(theMenu7.Y + 30))));
                 this.ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "Fissionables", new Vector2((float)(theMenu7.X + 20 + num2 * 2), (float)(theMenu7.Y + 30))));
                 this.ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "ReactorFuel", new Vector2((float)(theMenu7.X + 20 + num2 * 3), (float)(theMenu7.Y + 30))));
             }
             else
             {
                 this.FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (double)(theMenu7.Height - 25)), (int)(0.400000005960464 * (double)theMenu7.Width), 18));
-                this.FoodStorage.Max = p.MAX_STORAGE;
+                this.FoodStorage.Max = p.MaxStorage;
                 this.FoodStorage.Progress = p.FoodHere;
                 this.FoodStorage.color = "green";
                 this.foodDropDown = this.LowRes ? new DropDownMenu(new Rectangle(theMenu7.X + 90 + (int)(0.400000005960464 * (double)theMenu7.Width) + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * (double)theMenu7.Width), 18)) : new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * (double)theMenu7.Width) + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * (double)theMenu7.Width), 18));
                 this.foodDropDown.AddOption(Localizer.Token(329));
                 this.foodDropDown.AddOption(Localizer.Token(330));
                 this.foodDropDown.AddOption(Localizer.Token(331));
-                this.foodDropDown.ActiveIndex = (int)p.fs;
+                this.foodDropDown.ActiveIndex = (int)p.FS;
                 var iconStorageFood = ResourceManager.TextureDict["NewUI/icon_storage_food"];
                 this.foodStorageIcon = new Rectangle(theMenu7.X + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
                 this.ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (double)(theMenu7.Height - 25)), (int)(0.400000005960464 * (double)theMenu7.Width), 18));
-                this.ProdStorage.Max = p.MAX_STORAGE;
+                this.ProdStorage.Max = p.MaxStorage;
                 this.ProdStorage.Progress = p.ProductionHere;
                 var iconStorageProd = ResourceManager.TextureDict["NewUI/icon_storage_production"];
                 this.profStorageIcon = new Rectangle(theMenu7.X + 20, this.ProdStorage.pBar.Y + this.ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
@@ -175,7 +175,7 @@ namespace Ship_Game
                 this.prodDropDown.AddOption(Localizer.Token(329));
                 this.prodDropDown.AddOption(Localizer.Token(330));
                 this.prodDropDown.AddOption(Localizer.Token(331));
-                this.prodDropDown.ActiveIndex = (int)p.ps;
+                this.prodDropDown.ActiveIndex = (int)p.PS;
             }
             Rectangle theMenu8 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu4.Y, theMenu2.Width - 60 - theMenu4.Width, (int)((double)theMenu2.Height * 0.5));
             this.subColonyGrid = new Submenu(theMenu8);
@@ -305,9 +305,9 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(369), this.TitlePos, new Color(byte.MaxValue, (byte)239, (byte)208));
             if (!GlobalStats.HardcoreRuleset)
             {
-                this.FoodStorage.Max = this.p.MAX_STORAGE;
+                this.FoodStorage.Max = this.p.MaxStorage;
                 this.FoodStorage.Progress = this.p.FoodHere;
-                this.ProdStorage.Max = this.p.MAX_STORAGE;
+                this.ProdStorage.Max = this.p.MaxStorage;
                 this.ProdStorage.Progress = this.p.ProductionHere;
             }
             this.PlanetInfo.Draw();
@@ -971,7 +971,7 @@ namespace Ship_Game
                 position2.X -= 15f;
             string text1 = this.p.Owner.data.Traits.Cybernetic == 0 ? this.p.GetNetFoodPerTurn().ToString(format) : "Unnecessary";
             position2.X -= Fonts.Arial12Bold.MeasureString(text1).X;
-            if ((double)this.p.NetFoodPerTurn - (double)this.p.consumption < 0.0 && this.p.Owner.data.Traits.Cybernetic != 1 && text1 != "0")
+            if ((double)this.p.NetFoodPerTurn - (double)this.p.Consumption < 0.0 && this.p.Owner.data.Traits.Cybernetic != 1 && text1 != "0")
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text1, position2, Color.LightPink);
             else
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text1, position2, new Color(byte.MaxValue, (byte)239, (byte)208));
@@ -1004,11 +1004,11 @@ namespace Ship_Game
             }
             else
             {
-                num4 = this.p.NetProductionPerTurn - this.p.consumption;
+                num4 = this.p.NetProductionPerTurn - this.p.Consumption;
                 str1 = num4.ToString(format);
             }
             string text2 = str1;
-            if (this.p.Crippled_Turns > 0)
+            if (this.p.CrippledTurns > 0)
             {
                 text2 = Localizer.Token(2202);
                 position2.X -= Fonts.Arial12Bold.MeasureString(text2).X;
@@ -1020,7 +1020,7 @@ namespace Ship_Game
             }
             else
                 position2.X -= Fonts.Arial12Bold.MeasureString(text2).X;
-            if (this.p.Crippled_Turns > 0 || this.p.RecentCombat || this.p.Owner.data.Traits.Cybernetic != 0 && (double)this.p.NetProductionPerTurn - (double)this.p.consumption < 0.0 && text2 != "0")
+            if (this.p.CrippledTurns > 0 || this.p.RecentCombat || this.p.Owner.data.Traits.Cybernetic != 0 && (double)this.p.NetProductionPerTurn - (double)this.p.Consumption < 0.0 && text2 != "0")
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, position2, Color.LightPink);
             else
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, position2, new Color(byte.MaxValue, (byte)239, (byte)208));
@@ -1069,7 +1069,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.ResLock.Path], this.ResLock.LockRect, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)150));
             else
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.ResLock.Path], this.ResLock.LockRect, Color.White);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)this.p.planetType], this.PlanetIcon, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)this.p.PlanetType], this.PlanetIcon, Color.White);
             float num5 = 80f;
             if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
@@ -1247,11 +1247,11 @@ namespace Ship_Game
             {
                 this.FoodStorage.Progress = this.p.FoodHere;
                 this.ProdStorage.Progress = this.p.ProductionHere;
-                if (this.p.fs == Planet.GoodState.STORE)
+                if (this.p.FS == Planet.GoodState.STORE)
                     this.foodDropDown.ActiveIndex = 0;
-                else if (this.p.fs == Planet.GoodState.IMPORT)
+                else if (this.p.FS == Planet.GoodState.IMPORT)
                     this.foodDropDown.ActiveIndex = 1;
-                else if (this.p.fs == Planet.GoodState.EXPORT)
+                else if (this.p.FS == Planet.GoodState.EXPORT)
                     this.foodDropDown.ActiveIndex = 2;
                 if (this.p.Owner.data.Traits.Cybernetic == 0)
                 {
@@ -1264,11 +1264,11 @@ namespace Ship_Game
                     this.foodDropDown.DrawGrayed(this.ScreenManager.SpriteBatch);
                 }
                 this.ProdStorage.Draw(this.ScreenManager.SpriteBatch);
-                if (this.p.ps == Planet.GoodState.STORE)
+                if (this.p.PS == Planet.GoodState.STORE)
                     this.prodDropDown.ActiveIndex = 0;
-                else if (this.p.ps == Planet.GoodState.IMPORT)
+                else if (this.p.PS == Planet.GoodState.IMPORT)
                     this.prodDropDown.ActiveIndex = 1;
-                else if (this.p.ps == Planet.GoodState.EXPORT)
+                else if (this.p.PS == Planet.GoodState.EXPORT)
                     this.prodDropDown.ActiveIndex = 2;
                 this.prodDropDown.Draw(this.ScreenManager.SpriteBatch);
                 if (!this.LowRes)
@@ -1363,15 +1363,15 @@ namespace Ship_Game
                 {
                     desc = string.Concat(desc, Localizer.Token(2028));
                 }
-                else if (this.p.fs == Planet.GoodState.EXPORT)
+                else if (this.p.FS == Planet.GoodState.EXPORT)
                 {
                     desc = string.Concat(desc, Localizer.Token(2025));
                 }
-                else if (this.p.fs == Planet.GoodState.IMPORT)
+                else if (this.p.FS == Planet.GoodState.IMPORT)
                 {
                     desc = string.Concat(desc, Localizer.Token(2026));
                 }
-                else if (this.p.fs == Planet.GoodState.STORE)
+                else if (this.p.FS == Planet.GoodState.STORE)
                 {
                     desc = string.Concat(desc, Localizer.Token(2027));
                 }
@@ -1380,15 +1380,15 @@ namespace Ship_Game
                 bCursor.Y = bCursor.Y + Fonts.Arial12Bold.MeasureString(desc).Y;
                 desc = "";
                 bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                if (this.p.ps == Planet.GoodState.EXPORT)
+                if (this.p.PS == Planet.GoodState.EXPORT)
                 {
                     desc = string.Concat(desc, Localizer.Token(345));
                 }
-                else if (this.p.ps == Planet.GoodState.IMPORT)
+                else if (this.p.PS == Planet.GoodState.IMPORT)
                 {
                     desc = string.Concat(desc, Localizer.Token(346));
                 }
-                else if (this.p.ps == Planet.GoodState.STORE)
+                else if (this.p.PS == Planet.GoodState.STORE)
                 {
                     desc = string.Concat(desc, Localizer.Token(347));
                 }
@@ -1396,7 +1396,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
                 if (this.p.Owner.data.Traits.Cybernetic == 0)
                 {
-                    if (this.p.FoodHere + this.p.NetFoodPerTurn - this.p.consumption < 0f)
+                    if (this.p.FoodHere + this.p.NetFoodPerTurn - this.p.Consumption < 0f)
                     {
                         bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.MeasureString(desc).Y + (float)Fonts.Arial12Bold.LineSpacing);
                         desc = this.parseText(Localizer.Token(344), (float)(this.pFacilities.Menu.Width - 40));
@@ -1404,7 +1404,7 @@ namespace Ship_Game
                         return;
                     }
                 }
-                else if (this.p.ProductionHere + this.p.NetProductionPerTurn - this.p.consumption < 0f)
+                else if (this.p.ProductionHere + this.p.NetProductionPerTurn - this.p.Consumption < 0f)
                 {
                     bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.MeasureString(desc).Y + (float)Fonts.Arial12Bold.LineSpacing);
                     desc = this.parseText(Localizer.Token(344), (float)(this.pFacilities.Menu.Width - 40));
@@ -2367,10 +2367,10 @@ namespace Ship_Game
                 {
                     this.foodDropDown.Toggle();
                     Planet planet = this.p;
-                    planet.fs = (Planet.GoodState)((int)planet.fs + (int)Planet.GoodState.IMPORT);
-                    if (this.p.fs > Planet.GoodState.EXPORT)
+                    planet.FS = (Planet.GoodState)((int)planet.FS + (int)Planet.GoodState.IMPORT);
+                    if (this.p.FS > Planet.GoodState.EXPORT)
                     {
-                        this.p.fs = Planet.GoodState.STORE;
+                        this.p.FS = Planet.GoodState.STORE;
                     }
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
@@ -2379,10 +2379,10 @@ namespace Ship_Game
                     this.prodDropDown.Toggle();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     Planet planet1 = this.p;
-                    planet1.ps = (Planet.GoodState)((int)planet1.ps + (int)Planet.GoodState.IMPORT);
-                    if (this.p.ps > Planet.GoodState.EXPORT)
+                    planet1.PS = (Planet.GoodState)((int)planet1.PS + (int)Planet.GoodState.IMPORT);
+                    if (this.p.PS > Planet.GoodState.EXPORT)
                     {
-                        this.p.ps = Planet.GoodState.STORE;
+                        this.p.PS = Planet.GoodState.STORE;
                     }
                 }
             }
@@ -2455,7 +2455,7 @@ namespace Ship_Game
                             break;
                         }
                     }
-                    if (e.apply.HitTest(MousePos) && !this.p.RecentCombat && this.p.Crippled_Turns <= 0)
+                    if (e.apply.HitTest(MousePos) && !this.p.RecentCombat && this.p.CrippledTurns <= 0)
                     {
                         if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
@@ -2490,9 +2490,9 @@ namespace Ship_Game
                     {
                         Planet productionHere2 = this.p;
                         productionHere2.ProductionHere = productionHere2.ProductionHere + (e.item as QueueItem).productionTowards;
-                        if (this.p.ProductionHere > this.p.MAX_STORAGE)
+                        if (this.p.ProductionHere > this.p.MaxStorage)
                         {
-                            this.p.ProductionHere = this.p.MAX_STORAGE;
+                            this.p.ProductionHere = this.p.MaxStorage;
                         }
                         QueueItem item = (e.item as QueueItem);
                         if (item.pgs != null)

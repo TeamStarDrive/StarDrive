@@ -1,116 +1,62 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
-{
-    public enum PlanetType
-    {
-        Other,
-        Barren,
-        Terran,
-    }
-
-    public enum SunZone
-    {
-        Near,
-        Habital,
-        Far,
-        VeryFar,
-        Any
-    }
-
-    public sealed class Planet : Explorable, IDisposable
+{ 
+    public sealed class Planet : SolarSystemBody, IDisposable
     {
         public bool GovBuildings = true;
         public bool GovSliders = true;
-        public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
-        public Guid guid = Guid.NewGuid();
-        public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
+
+        public BatchRemovalCollection<Combat> ActiveCombats        = new BatchRemovalCollection<Combat>();                
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
-        public GoodState fs = GoodState.STORE;
-        public GoodState ps = GoodState.STORE;
-        public Planet.GoodState GetGoodState(string good)
+        public BatchRemovalCollection<Troop> TroopsHere            = new BatchRemovalCollection<Troop>();
+        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
+        public BatchRemovalCollection<Ship> BasedShips             = new BatchRemovalCollection<Ship>();
+        public BatchRemovalCollection<Projectile> Projectiles      = new BatchRemovalCollection<Projectile>();
+        private readonly Map<string, float> ResourcesDict          = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
+        private readonly Array<Building> BuildingsCanBuild         = new Array<Building>();
+        public Array<string> CommoditiesPresent                    = new Array<string>();
+        public Array<string> Guardians                             = new Array<string>();
+        public Array<string> PlanetFleets                          = new Array<string>();
+        public Map<Guid, Ship> Shipyards                           = new Map<Guid, Ship>();
+
+        public GoodState FS = GoodState.STORE;
+        public GoodState PS = GoodState.STORE;
+        public GoodState GetGoodState(string good)
         {
             switch (good)
             {
                 case "Food":
-                    return fs;
+                    return FS;
                 case "Production":
-                    return ps;
+                    return PS;
             }
             return 0;
-        }
-        public Array<Building> BuildingList = new Array<Building>();
-        public SpaceStation Station = new SpaceStation();
-        public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
-        public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
-        private float ZrotateAmount = 0.03f;
-        public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
-        public bool GovernorOn = true;
-        private AudioEmitter emit = new AudioEmitter();
+        }        
+        public SpaceStation Station = new SpaceStation();        
+        public bool GovernorOn = true;       
         private float DecisionTimer = 0.5f;
-        public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
-        private Array<Building> BuildingsCanBuild = new Array<Building>();
         public float FarmerPercentage = 0.34f;
         public float WorkerPercentage = 0.33f;
-        public float ResearcherPercentage = 0.33f;
-        public Array<string> CommoditiesPresent = new Array<string>();
-        private Map<string, float> ResourcesDict = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
-        private float PosUpdateTimer = 1f;
-        public float MAX_STORAGE = 10f;
-        public string DevelopmentStatus = "Undeveloped";
-        public Array<string> Guardians = new Array<string>();
+        public float ResearcherPercentage = 0.33f;        
+        public float MaxStorage = 10f;                
         public bool FoodLocked;
         public bool ProdLocked;
         public bool ResLocked;
         public bool RecentCombat;
-        public int Crippled_Turns;
-        public ColonyType colonyType;
-        public float ShieldStrengthCurrent;
-        public float ShieldStrengthMax;
+        public int CrippledTurns;
+        public ColonyType colonyType;       
         private int TurnsSinceTurnover;
-        public bool isSelected;
-        public Vector2 Center;
-        public string SpecialDescription;
-        public bool HasShipyard;
-        public SolarSystem ParentSystem; 
-        public Matrix cloudMatrix;        
-        public bool hasEarthLikeClouds;
-        public string Name;
-        public string Description;
-        public Empire Owner;
-        public float OrbitalAngle;
-        public float Population;
-        public float Density;
-        public float Fertility;
-        public float MineralRichness;
-        public float OrbitalRadius;
-        public int planetType;
-        public bool hasRings;
-        public float planetTilt;
-        public float ringTilt;
-        public float scale;
-        public Matrix World;
-        public Matrix RingWorld;
-        public SceneObject SO;
-        public bool habitable;
-        public string planetComposition;
-        public float MaxPopulation;
-        public string Type;
-        private float Zrotate;
+        //public bool isSelected;
         public float BuildingRoomUsed;
         public int StorageAdded;
         public float CombatTimer;
-        private int numInvadersLast;
+        private int NumInvadersLast;
         public float ProductionHere;
         public float NetFoodPerTurn;
         public float GetNetGoodProd(string good)
@@ -140,8 +86,6 @@ namespace Ship_Game
         public float PlusProductionPerColonist;
         public float MaxPopBonus;
         public bool AllowInfantry;
-        public float TerraformPoints;
-        public float TerraformToAdd;
         public float PlusFlatPopulationPerTurn;
         public int TotalDefensiveStrength;
         public float GrossFood;
@@ -149,9 +93,9 @@ namespace Ship_Game
         public float PlusCreditsPerColonist;
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
-        public float consumption;
-        private float unfed;
-        private Shield Shield;
+        public float Consumption;
+        private float Unfed;
+        
         public float FoodHere;
         public float GetGoodHere(string good)
         {
@@ -164,15 +108,12 @@ namespace Ship_Game
             }
             return 0;
         }
-        public int developmentLevel;
+        
         public bool CorsairPresence;
-        public bool queueEmptySent = true;
-        public float RepairPerTurn = 50;
-        public Array<string> PlanetFleets = new Array<string>();
+        public bool QueueEmptySent = true;
+        public float RepairPerTurn = 50;        
         private bool PSexport = false;
-        //private bool FSexport = false;
-        public bool UniqueHab = false;
-        public int uniqueHabPercent;
+
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
 
@@ -191,6 +132,7 @@ namespace Ship_Game
 
             }   
         }
+
         public float GetExportWeight(string goodType)
         {
             switch (goodType)
@@ -202,69 +144,13 @@ namespace Ship_Game
             }
             return 0;
         }
-        private AudioEmitter Emitter;
-        private float InvisibleRadius;
-        public float GravityWellRadius { get; private set; }
-        public SunZone Zone { get; private set; }
-        private float HabitalTileChance = 10;
-        public float ObjectRadius
-        {
-            get { return SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius; }
-            set { InvisibleRadius = SO != null ? SO.WorldBoundingSphere.Radius : value; }
-        }
-        
+
         public Planet()
         {
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 AddGood(keyValuePair.Key, 0);
             HasShipyard = false;            
         }
-
-        public Goods ImportPriority()
-        {
-            if (NetFoodPerTurn <= 0 || FarmerPercentage > .5f)
-            {
-                if (ConstructingGoodsBuilding(Goods.Food))
-                    return Goods.Production;
-                return Goods.Food;
-            }
-            if (ConstructionQueue.Count > 0) return Goods.Production;
-            if (ps == GoodState.IMPORT) return Goods.Production;
-            if (fs == GoodState.IMPORT) return Goods.Food;
-            return Goods.Food;
-        }
-
-        public bool ConstructingGoodsBuilding(Goods goods)
-        {
-            if (ConstructionQueue.IsEmpty) return false;
-            switch (goods)
-            {
-                case Goods.Production:
-                    foreach (var item in ConstructionQueue)
-                    {
-                        if (item.isBuilding && item.Building.ProducesProduction)
-                        {
-                            return true;                            
-                        }
-                    }
-                    break;
-                case Goods.Food:
-                    foreach (var item in ConstructionQueue)
-                    {
-                        if (item.isBuilding && item.Building.ProducesFood)
-                        {
-                            return true;
-                        }
-                    }
-                    break;
-                case Goods.Colonists:
-                    break;
-                default:
-                    break;
-            }
-            return false;
-        }
- 
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
         {                        
@@ -287,7 +173,7 @@ namespace Ship_Game
                 sunZone = SunZone.VeryFar;
             if (owner != null && owner.Capital == null && sunZone >= SunZone.Habital)
             {
-                planetType = RandomMath.IntBetween(0, 1) == 0 ? 27 : 29;
+                PlanetType = RandomMath.IntBetween(0, 1) == 0 ? 27 : 29;
                 owner.SpawnHomePlanet(newOrbital);
                 Name = ParentSystem.Name + " " + NumberToRomanConvertor.NumberToRoman(1);
             }
@@ -299,9 +185,9 @@ namespace Ship_Game
             
             float zoneBonus = ((int)sunZone +1) * .2f * ((int)sunZone +1);
             float scale = RandomMath.RandomBetween(0f, zoneBonus) + .9f;
-            if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 ||
-                newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 ||
-                newOrbital.planetType == 26)
+            if (newOrbital.PlanetType == 2 || newOrbital.PlanetType == 6 || newOrbital.PlanetType == 10 ||
+                newOrbital.PlanetType == 12 || newOrbital.PlanetType == 15 || newOrbital.PlanetType == 20 ||
+                newOrbital.PlanetType == 26)
                 scale += 2.5f;
 
             float planetRadius       = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
@@ -309,22 +195,66 @@ namespace Ship_Game
             newOrbital.OrbitalRadius = ringRadius + planetRadius;
             Vector2 planetCenter     = MathExt.PointOnCircle(randomAngle, ringRadius);
             newOrbital.Center        = planetCenter;
-            newOrbital.scale         = scale;            
-            newOrbital.planetTilt    = RandomMath.RandomBetween(45f, 135f);
+            newOrbital.Scale         = scale;            
+            newOrbital.PlanetTilt    = RandomMath.RandomBetween(45f, 135f);
 
 
             GenerateMoons(newOrbital);
 
             if (RandomMath.RandomBetween(1f, 100f) < 15f)
             {
-                newOrbital.hasRings = true;
-                newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
+                newOrbital.HasRings = true;
+                newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
             }
         }
 
+        public Goods ImportPriority()
+        {
+            if (NetFoodPerTurn <= 0 || FarmerPercentage > .5f)
+            {
+                if (ConstructingGoodsBuilding(Goods.Food))
+                    return Goods.Production;
+                return Goods.Food;
+            }
+            if (ConstructionQueue.Count > 0) return Goods.Production;
+            if (PS == GoodState.IMPORT) return Goods.Production;
+            if (FS == GoodState.IMPORT) return Goods.Food;
+            return Goods.Food;
+        }
+
+        public bool ConstructingGoodsBuilding(Goods goods)
+        {
+            if (ConstructionQueue.IsEmpty) return false;
+            switch (goods)
+            {
+                case Goods.Production:
+                    foreach (var item in ConstructionQueue)
+                    {
+                        if (item.isBuilding && item.Building.ProducesProduction)
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+                case Goods.Food:
+                    foreach (var item in ConstructionQueue)
+                    {
+                        if (item.isBuilding && item.Building.ProducesFood)
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+                case Goods.Colonists:
+                    break;
+                default:
+                    break;
+            }
+            return false;
+        }
+
         public float EmpireFertility(Empire empire) =>
-            (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : Fertility;
-            
+            (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : Fertility;            
 
         public float EmpireBaseValue(Empire empire) => (
             CommoditiesPresent.Count +
@@ -340,7 +270,7 @@ namespace Ship_Game
             float food = cyber ? ProductionHere : FoodHere;
             bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .5f : 
                 (NetFoodPerTurn <= 0 && FarmerPercentage >.5f);
-            return food / MAX_STORAGE < .10f || badProduction;
+            return food / MaxStorage < .10f || badProduction;
         }
 
         private void GenerateMoons(Planet newOrbital)
@@ -363,31 +293,7 @@ namespace Ship_Game
             }
         }
 
-        private void GenerateType(SunZone sunZone)
-        {            
-            for (int x = 0; x < 5; x++)
-            {                
-                Type = "";
-                planetComposition = "";
-                hasEarthLikeClouds = false;
-                habitable = false;
-                MaxPopulation = 0;
-                Fertility = 0;
-                planetType = RandomMath.IntBetween(1, 24);
-                TilesList.Clear();
-                ApplyPlanetType();
-                if (Zone == sunZone || (Zone == SunZone.Any && sunZone == SunZone.Near)) break;
-                if (x > 2 && Zone == SunZone.Any) break;
-            }
-        }
 
-        private void PlayPlanetSfx(string sfx, Vector3 position)
-        {
-            if (Emitter == null)
-                Emitter = new AudioEmitter();
-            Emitter.Position = position;
-            GameAudio.PlaySfxAsync(sfx, Emitter);
-        }
 
         public void AddProjectile(Projectile projectile)
         {
@@ -642,945 +548,15 @@ namespace Ship_Game
             if (Owner != null && Owner.data.Traits.Cybernetic == 1)
                 return NetFoodPerTurn;
             else
-                return NetFoodPerTurn - consumption;
+                return NetFoodPerTurn - Consumption;
         }
 
         public float GetNetProductionPerTurn()
         {
             if (Owner != null && Owner.data.Traits.Cybernetic == 1)
-                return NetProductionPerTurn - consumption;
+                return NetProductionPerTurn - Consumption;
             else
                 return NetProductionPerTurn;
-        }
-
-        public string GetRichness()
-        {
-            if (MineralRichness > 2.5)
-                return Localizer.Token(1442);
-            if (MineralRichness > 1.5)
-                return Localizer.Token(1443);
-            if (MineralRichness > 0.75)
-                return Localizer.Token(1444);
-            if (MineralRichness > 0.25)
-                return Localizer.Token(1445);
-            else
-                return Localizer.Token(1446);
-        }
-
-        public string GetOwnerName()
-        {
-            if (Owner != null)
-                return Owner.data.Traits.Singular;
-            return habitable ? " None" : " Uninhabitable";
-        }
-
-        public string GetTile()
-        {
-            if (Type != "Terran")
-                return Type;
-            switch (planetType)
-            {
-                case 1:  return "Terran";
-                case 13: return "Terran_2";
-                case 22: return "Terran_3";
-                default: return "Terran";
-            }
-        }
-
-        public string GetTypeTranslation()
-        {
-            switch (Type)
-            {
-                case "Terran":    return Localizer.Token(1447);
-                case "Barren":    return Localizer.Token(1448);
-                case "Gas Giant": return Localizer.Token(1449);
-                case "Volcanic":  return Localizer.Token(1450);
-                case "Tundra":    return Localizer.Token(1451);
-                case "Desert":    return Localizer.Token(1452);
-                case "Steppe":    return Localizer.Token(1453);
-                case "Swamp":     return Localizer.Token(1454);
-                case "Ice":       return Localizer.Token(1455);
-                case "Oceanic":   return Localizer.Token(1456);
-                default:          return "";
-            }
-        }
-
-        public void SetPlanetAttributes(bool setType = true)
-        {
-            hasEarthLikeClouds = false;
-            float richness = RandomMath.RandomBetween(0.0f, 100f);
-            if (richness >= 92.5f)      MineralRichness = RandomMath.RandomBetween(2.00f, 2.50f);
-            else if (richness >= 85.0f) MineralRichness = RandomMath.RandomBetween(1.50f, 2.00f);
-            else if (richness >= 25.0f) MineralRichness = RandomMath.RandomBetween(0.75f, 1.50f);
-            else if (richness >= 12.5f) MineralRichness = RandomMath.RandomBetween(0.25f, 0.75f);
-            else if (richness  < 12.5f) MineralRichness = RandomMath.RandomBetween(0.10f, 0.25f);
-
-            if (setType) ApplyPlanetType();
-            if (!habitable)
-                MineralRichness = 0.0f;
-                       
-
-            AddEventsAndCommodities();
-        }
-
-
-
-        private void ApplyPlanetType()
-        {
-            HabitalTileChance = 20;
-            switch (planetType)
-            {
-                case 1:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1700);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(4000f, 8000f);                    
-                    Fertility = RandomMath.RandomBetween(0.8f, 1.5f);
-                    Zone = SunZone.Habital;
-                    HabitalTileChance = 20;
-                    break;
-                case 2:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1701);
-                    Zone = SunZone.Far;
-                    break;
-                case 3:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1702);
-                    habitable = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    Zone = SunZone.Any;
-                    break;
-                case 4:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1703);
-                    habitable = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    Zone = SunZone.Any;
-                    break;
-                case 5:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    Zone = SunZone.Any;
-                    break;
-                case 6:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1701);
-                    Zone = SunZone.Far;
-                    break;
-                case 7:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    Zone = SunZone.Any;
-                    break;
-                case 8:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1703);
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    Zone = SunZone.Any;
-                    break;
-                case 9:
-                    Type = "Volcanic";
-                    planetComposition = Localizer.Token(1705);
-                    Zone = SunZone.Any;
-                    break;
-                case 10:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1706);
-                    Zone = SunZone.Far;
-                    break;
-                case 11:
-                    Type = "Tundra";
-                    planetComposition = Localizer.Token(1707);
-                    MaxPopulation = (int) RandomMath.RandomBetween(4000f, 8000f);
-                    Fertility = RandomMath.AvgRandomBetween(0.5f, 1f);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    Zone = SunZone.Far;
-                    HabitalTileChance = 20;
-                    break;
-                case 12:
-                    Type = "Gas Giant";
-                    habitable = false;
-                    planetComposition = Localizer.Token(1708);
-                    Zone = SunZone.Far;
-                    break;
-                case 13:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1709);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.AvgRandomBetween(1f, 3f);
-                    Zone = SunZone.Habital;
-                    HabitalTileChance = 75;
-                    break;
-                case 14:
-                    Type = "Desert";
-                    planetComposition = Localizer.Token(1710);
-                    HabitalTileChance = RandomMath.AvgRandomBetween(10f, 45f);
-                    MaxPopulation = (int)HabitalTileChance * 100;                    
-                    Fertility = RandomMath.AvgRandomBetween(-2f, 2f);
-                    Fertility = Fertility < .8f ? .8f : Fertility;
-                    habitable = true;                    
-                    Zone = SunZone.Near;                    
-                    break;
-                case 15:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    planetType = 26;
-                    Zone = SunZone.Far;
-                    break;
-                case 16:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1712);
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    Zone = SunZone.Any;
-                    break;
-                case 17:
-                    Type = "Ice";
-                    planetComposition = Localizer.Token(1713);
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    Zone = SunZone.VeryFar;
-                    break;
-                case 18:
-                    Type = "Steppe";
-                    planetComposition = Localizer.Token(1714);                    
-                    hasEarthLikeClouds = true;
-                    HabitalTileChance = RandomMath.AvgRandomBetween(15f,45f);
-                    MaxPopulation = (int)HabitalTileChance * 200;
-                    Fertility = RandomMath.AvgRandomBetween(0f, 2f);
-                    Fertility = Fertility < .8f ? .8f : Fertility;
-                    habitable = true;
-                    Zone = SunZone.Habital;                    
-                    break;
-                case 19:
-                    Type = "Swamp";
-                    habitable = true;
-                    planetComposition = Localizer.Token(1715);
-                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 45f);
-                    MaxPopulation = HabitalTileChance * 200;                    
-                    Fertility = RandomMath.AvgRandomBetween(-2f, 3f);
-                    Fertility = Fertility < 1 ? 1 : Fertility;
-                    hasEarthLikeClouds = true;
-                    Zone = SunZone.Near;
-                    break;
-                case 20:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    Zone = SunZone.Far;
-                    break;
-                case 21:
-                    Type = "Oceanic";
-                    planetComposition = Localizer.Token(1716);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 45f);
-                    MaxPopulation = HabitalTileChance * 100 + 1500;                                        
-                    Fertility = RandomMath.AvgRandomBetween(-3f, 5f);
-                    Fertility = Fertility < 1 ? 1 : Fertility;
-                    Zone = SunZone.Habital;
-                    break;
-                case 22:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1717);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
-                    MaxPopulation = HabitalTileChance * 200f;
-                    Fertility = RandomMath.AvgRandomBetween(0f, 3f);
-                    Fertility = Fertility < 1 ? 1 : Fertility;
-                    Zone = SunZone.Habital;
-                    break;
-                case 23:
-                    Type = "Volcanic";
-                    planetComposition = Localizer.Token(1718);
-                    Zone = SunZone.Near;
-                    break;
-                case 24:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1719);
-                    habitable = true;
-                    MaxPopulation = (int) RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    Zone = SunZone.Any;
-                    break;
-                case 25:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1720);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
-                    MaxPopulation = HabitalTileChance * 200f;
-                    Fertility = RandomMath.AvgRandomBetween(-.50f, 3f);
-                    Fertility = Fertility < 1 ? 1 : Fertility;
-                    Zone = SunZone.Habital;
-                    break;
-                case 26:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    Zone = SunZone.Far;
-                    break;
-                case 27:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1721);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
-                    MaxPopulation = HabitalTileChance * 200f;
-                    Fertility = RandomMath.AvgRandomBetween(-50f, 3f);
-                    Fertility = Fertility < 1 ? 1 : Fertility;
-                    Zone = SunZone.Habital;
-                    break;
-                case 29:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1722);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    HabitalTileChance = RandomMath.AvgRandomBetween(50f, 80f);
-                    MaxPopulation = HabitalTileChance * 150f;
-                    Fertility = RandomMath.AvgRandomBetween(-50f, 3f);
-                    Fertility = Fertility < 1 ? 1 : Fertility;
-                    Zone = SunZone.Habital;
-                    break;
-            }
-        }
-
-        private void AddEventsAndCommodities()
-        {
-            switch (Type)
-            {
-                case "Terran":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.TerranHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.TerranChance, item.TerranInstanceMax);
-                    break;
-                case "Steppe":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.SteppeChance, item.SteppeInstanceMax);
-                    break;
-                case "Ice":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.IceHab ?? 15);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.IceChance, item.IceInstanceMax);
-                    break;
-                case "Barren":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.BarrenHab ?? 0);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.BarrenChance, item.BarrenInstanceMax);
-                    break;
-                case "Tundra":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.TundraChance, item.TundraInstanceMax);
-                    break;
-                case "Desert":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.DesertChance, item.DesertInstanceMax);
-                    break;
-                case "Oceanic":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.OceanicChance, item.OceanicInstanceMax);
-                    break;
-                case "Swamp":
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.SwampChance, item.SwampInstanceMax);
-                    break;
-            }
-            AddTileEvents();
-        }
-
-        private void AddTileEvents()
-        {
-            if (RandomMath.RandomBetween(0.0f, 100f) <= 15 && habitable)
-            {
-                Array<string> list = new Array<string>();
-                foreach (var kv in ResourceManager.BuildingsDict)
-                {
-                    if (!string.IsNullOrEmpty(kv.Value.EventTriggerUID) && !kv.Value.NoRandomSpawn)
-                        list.Add(kv.Key);
-                }
-                int index = (int) RandomMath.RandomBetween(0f, list.Count + 0.85f);
-                if (index >= list.Count)
-                    index = list.Count - 1;
-                var b = AssignBuildingToRandomTile(ResourceManager.CreateBuilding(list[index]));
-                BuildingList.Add(b.building);
-                Log.Info($"Event building : {b.building.Name} : created on {Name}");
-            }
-        }
-
-        private void SetTileHabitability(float habChance)
-        {            
-            {
-                if (UniqueHab)
-                {
-                    habChance = uniqueHabPercent;
-                }
-                bool habitable = false;
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        if (habChance > 0)
-                            habitable = RandomMath.RandomBetween(0, 100) < habChance;
-
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitable));
-                    }
-                }
-            }
-        }
-
-        public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
-        {
-            if ((GlobalStats.HardcoreRuleset || !randItem.HardCoreOnly) && RandomMath.RandomBetween(0.0f, 100f) < chance)
-            {
-                int itemCount = (int)RandomMath.RandomBetween(1f, instanceMax + 0.95f);
-                for (int i = 0; i < itemCount; ++i)
-                {
-                    if (!ResourceManager.BuildingsDict.ContainsKey(randItem.BuildingID)) continue;
-                    var pgs = AssignBuildingToRandomTile(ResourceManager.CreateBuilding(randItem.BuildingID));
-                    pgs.Habitable = true;
-                    Log.Info($"Resouce Created : '{pgs.building.Name}' : on '{Name}' ");
-                    BuildingList.Add(pgs.building);
-                }
-            }
-        }
-
-        public void SetPlanetAttributes(float mrich)
-        {
-            float num1 = mrich;
-            if (num1 >= 87.5f)
-            {
-                //this.richness = Planet.Richness.UltraRich;
-                MineralRichness = 2.5f;
-            }
-            else if (num1 >= 75f)
-            {
-                //this.richness = Planet.Richness.Rich;
-                MineralRichness = 1.5f;
-            }
-            else if (num1 >= 25.0)
-            {
-                //this.richness = Planet.Richness.Average;
-                MineralRichness = 1f;
-            }
-            else if (num1 >= 12.5)
-            {
-                MineralRichness = 0.5f;
-                //this.richness = Planet.Richness.Poor;
-            }
-            else if (num1 < 12.5)
-            {
-                MineralRichness = 0.1f;
-                //this.richness = Planet.Richness.UltraPoor;
-            }
-            
-            TilesList.Clear();
-            switch (planetType)
-            {
-                case 1:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1700);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
-                    Fertility = RandomMath.RandomBetween(0.5f, 2f);
-                    HabitalTileChance = 20;
-                    break;
-                case 2:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1701);
-                    break;
-                case 3:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1702);
-                    habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    break;
-                case 4:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1702);
-                    habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    break;
-                case 5:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1703);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    break;
-                case 6:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1701);
-                    break;
-                case 7:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    break;
-                case 8:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1703);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    break;
-                case 9:
-                    Type = "Volcanic";
-                    planetComposition = Localizer.Token(1705);
-                    break;
-                case 10:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1706);
-                    break;
-                case 11:
-                    Type = "Tundra";
-                    planetComposition = Localizer.Token(1707);
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
-                    Fertility = RandomMath.RandomBetween(0.5f, 0.9f);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    HabitalTileChance = 20;
-                    break;
-                case 12:
-                    Type = "Gas Giant";
-                    habitable = false;
-                    planetComposition = Localizer.Token(1708);
-                    break;
-                case 13:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1709);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(0.8f, 3f);
-                    HabitalTileChance = 75;
-                    break;
-                case 14:
-                    Type = "Desert";
-                    planetComposition = Localizer.Token(1710);
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    Fertility = RandomMath.RandomBetween(0.2f, 1.8f);
-                    habitable = true;
-                    HabitalTileChance = 20;
-                    break;
-                case 15:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    planetType = 26;
-                    break;
-                case 16:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1712);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    break;
-                case 17:
-                    Type = "Ice";
-                    planetComposition = Localizer.Token(1713);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    habitable = true;
-                    HabitalTileChance = 10;
-                    break;
-                case 18:
-                    Type = "Steppe";
-                    planetComposition = Localizer.Token(1714);
-                    Fertility = RandomMath.RandomBetween(0.4f, 1.4f);
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
-                    habitable = true;
-                    HabitalTileChance = 50;
-                    break;
-                case 19:
-                    Type = "Swamp";
-                    habitable = true;
-                    planetComposition = Localizer.Token(1712);
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    Fertility = RandomMath.RandomBetween(1f, 5f);
-                    hasEarthLikeClouds = true;
-                    HabitalTileChance = 20;
-                    break;
-                case 20:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    break;
-                case 21:
-                    Type = "Oceanic";
-                    planetComposition = Localizer.Token(1716);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
-                    Fertility = RandomMath.RandomBetween(2f, 5f);
-                    HabitalTileChance = 20;
-                    break;
-                case 22:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1717);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
-                    HabitalTileChance = 75;
-                    break;
-                case 23:
-                    Type = "Volcanic";
-                    planetComposition = Localizer.Token(1718);
-                    break;
-                case 24:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1719);
-                    habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
-                    Fertility = 0.0f;
-                    break;
-                case 25:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1720);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 2f);
-                    HabitalTileChance = 90;
-                    break;
-                case 26:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    break;
-                case 27:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1721);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
-                    HabitalTileChance = 60;
-                    break;
-                case 29:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1722);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
-                    Fertility = RandomMath.RandomBetween(1f, 3f);
-                    HabitalTileChance = 50;
-                    break;
-            }
-       
-            if (!habitable)
-                MineralRichness = 0.0f;
-            else
-            {
-                if (Fertility > 0)
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        double num2 = RandomMath.RandomBetween(0.0f, 100f);
-                        bool habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitableTile));
-
-                    }
-                }
-            }
-
-            
-        }
-
-        public void Terraform()
-        {
-            switch (planetType)
-            {
-                case 7:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 500f);
-                    hasEarthLikeClouds = false;
-                    habitable = true;
-                    break;
-                case 11:
-                    Type = "Tundra";
-                    planetComposition = Localizer.Token(1724);
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    break;
-                case 14:
-                    Type = "Desert";
-                    planetComposition = Localizer.Token(1725);
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    habitable = true;
-                    break;
-                case 18:
-                    Type = "Steppe";
-                    planetComposition = Localizer.Token(1726);
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
-                    habitable = true;
-                    break;
-                case 19:
-                    Type = "Swamp";
-                    planetComposition = Localizer.Token(1727);
-                    habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    hasEarthLikeClouds = true;
-                    break;
-                case 21:
-                    Type = "Oceanic";
-                    planetComposition = Localizer.Token(1728);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
-                    break;
-                case 22:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1717);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(6000f, 10000f);
-                    break;
-            }
-            foreach (PlanetGridSquare planetGridSquare in TilesList)
-            {
-                switch (Type)
-                {
-                    case "Barren":
-                        if (!planetGridSquare.Biosphere)
-                        {
-                            planetGridSquare.Habitable = false;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Terran":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Swamp":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Ocean":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Desert":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Steppe":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Tundra":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    default:
-                        continue;
-                }
-            }
-            UpdateDescription();
-            CreatePlanetSceneObject(Empire.Universe);
-        }
-
-        public void LoadAttributes()
-        {
-            switch (planetType)
-            {
-                case 1:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1700);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    break;
-                case 2:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1701);
-                    break;
-                case 3:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1702);
-                    habitable = true;
-                    break;
-                case 4:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1702);
-                    habitable = true;
-                    break;
-                case 5:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1703);
-                    habitable = true;
-                    break;
-                case 6:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1701);
-                    break;
-                case 7:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1704);
-                    habitable = true;
-                    break;
-                case 8:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1703);
-                    habitable = true;
-                    break;
-                case 9:
-                    Type = "Volcanic";
-                    planetComposition = Localizer.Token(1705);
-                    break;
-                case 10:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1706);
-                    break;
-                case 11:
-                    Type = "Tundra";
-                    planetComposition = Localizer.Token(1707);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    break;
-                case 12:
-                    Type = "Gas Giant";
-                    habitable = false;
-                    planetComposition = Localizer.Token(1708);
-                    break;
-                case 13:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1709);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    break;
-                case 14:
-                    Type = "Desert";
-                    planetComposition = Localizer.Token(1710);
-                    habitable = true;
-                    break;
-                case 15:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    planetType = 26;
-                    break;
-                case 16:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1712);
-                    habitable = true;
-                    break;
-                case 17:
-                    Type = "Ice";
-                    planetComposition = Localizer.Token(1713);
-                    habitable = true;
-                    break;
-                case 18:
-                    Type = "Steppe";
-                    planetComposition = Localizer.Token(1714);
-                    hasEarthLikeClouds = true;
-                    habitable = true;
-                    break;
-                case 19:
-                    Type = "Swamp";
-                    planetComposition = "";
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    break;
-                case 20:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    break;
-                case 21:
-                    Type = "Oceanic";
-                    planetComposition = Localizer.Token(1716);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    break;
-                case 22:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1717);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    break;
-                case 23:
-                    Type = "Volcanic";
-                    planetComposition = Localizer.Token(1718);
-                    break;
-                case 24:
-                    Type = "Barren";
-                    planetComposition = Localizer.Token(1719);
-                    habitable = true;
-                    break;
-                case 25:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1720);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    break;
-                case 26:
-                    Type = "Gas Giant";
-                    planetComposition = Localizer.Token(1711);
-                    break;
-                case 27:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1721);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    break;
-                case 29:
-                    Type = "Terran";
-                    planetComposition = Localizer.Token(1722);
-                    habitable = true;
-                    hasEarthLikeClouds = true;
-                    break;
-            }
         }
 
         public bool AssignTroopToNearestAvailableTile(Troop t, PlanetGridSquare tile)
@@ -1613,7 +589,6 @@ namespace Ship_Game
 
         }
         
-
         public bool AssignTroopToTile(Troop t)
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
@@ -1670,23 +645,6 @@ namespace Ship_Game
             if (AssignBuildingToRandomTile(b, true) != null) return true;
             if (AssignBuildingToRandomTile(b) != null) return true;
             return false;
-        }
-
-        public PlanetGridSquare AssignBuildingToRandomTile(Building b, bool habitable = false)
-        {
-            PlanetGridSquare[] list;
-            if (!habitable)
-                list = TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null);
-            else
-                list = TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null && planetGridSquare.Habitable == true);
-            if (list.Length == 0)
-                return null;
-
-            int index = RandomMath.InRange(list.Length-1);             
-            var targetPGS = TilesList.Find(pgs => pgs == list[index]);
-            targetPGS.building = b;
-            return targetPGS;
-
         }
 
         public void AssignBuildingToSpecificTile(Building b, PlanetGridSquare pgs)
@@ -2056,7 +1014,7 @@ namespace Ship_Game
                     ++num1;
             }
             
-            if (num2 > numInvadersLast && numInvadersLast == 0)
+            if (num2 > NumInvadersLast && NumInvadersLast == 0)
             {
                 if (Empire.Universe.PlayerEmpire == Owner)
                     Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(this, index, Owner);
@@ -2078,7 +1036,7 @@ namespace Ship_Game
                     }
                 }
             }
-            numInvadersLast = num2;
+            NumInvadersLast = num2;
             if (num2 <= 0 || num1 != 0 )//|| this.Owner == null)
                 return;
             if (index.TryGetRelations(Owner, out Relationship rel))
@@ -2172,9 +1130,8 @@ namespace Ship_Game
             GovernorOn = true;
         }
 
-        private void TraitLess(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Max(invaderValue, ownerValue);
-        private void TraitMore(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Min(invaderValue, ownerValue);
-
+        private static void TraitLess(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Max(invaderValue, ownerValue);
+        private static void TraitMore(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Min(invaderValue, ownerValue);
 
         public void DoTroopTimers(float elapsedTime)
         {
@@ -2613,12 +1570,11 @@ namespace Ship_Game
             Projectiles.ApplyPendingRemovals();
             UpdatePosition(elapsedTime);
         }
-
    
         //added by gremlin affectnearbyships
         private void AffectNearbyShips()
         {
-            float repairPool = developmentLevel * RepairPerTurn * 20;
+            float repairPool = DevelopmentLevel * RepairPerTurn * 20;
             if(HasShipyard)
             {
                 foreach(Ship ship in Shipyards.Values)
@@ -2734,39 +1690,39 @@ namespace Ship_Game
             if (Fertility <= 0.0)
             {
                 Fertility = 0.0f;
-                planetType = 7;
+                PlanetType = 7;
                 Terraform();
             }
             else if (Type == "Barren" && Fertility > 0.01)
             {
-                planetType = 14;
+                PlanetType = 14;
                 Terraform();
             }
             else if (Type == "Desert" && Fertility > 0.35)
             {
-                planetType = 18;
+                PlanetType = 18;
                 Terraform();
             }
             else if (Type == "Ice" && Fertility > 0.35)
             {
-                planetType = 19;
+                PlanetType = 19;
                 Terraform();
             }
             else if (Type == "Swamp" && Fertility > 0.75)
             {
-                planetType = 21;
+                PlanetType = 21;
                 Terraform();
             }
             else if (Type == "Steppe" && Fertility > 0.6)
             {
-                planetType = 11;
+                PlanetType = 11;
                 Terraform();
             }
             else
             {
                 if (!(Type == "Tundra") || Fertility <= 0.95)
                     return;
-                planetType = 22;
+                PlanetType = 22;
                 Terraform();
             }
         }
@@ -2774,9 +1730,9 @@ namespace Ship_Game
         public void UpdateOwnedPlanet()
         {
             ++TurnsSinceTurnover;
-            --Crippled_Turns;
-            if (Crippled_Turns < 0)
-                Crippled_Turns = 0;
+            --CrippledTurns;
+            if (CrippledTurns < 0)
+                CrippledTurns = 0;
             ConstructionQueue.ApplyPendingRemovals();
             UpdateDevelopmentStatus();
             Description = DevelopmentStatus;
@@ -2787,32 +1743,32 @@ namespace Ship_Game
                 Fertility += TerraformToAdd;
                 if (Type == "Barren" && Fertility > 0.01)
                 {
-                    planetType = 14;
+                    PlanetType = 14;
                     Terraform();
                 }
                 else if (Type == "Desert" && Fertility > 0.35)
                 {
-                    planetType = 18;
+                    PlanetType = 18;
                     Terraform();
                 }
                 else if (Type == "Ice" && Fertility > 0.35)
                 {
-                    planetType = 19;
+                    PlanetType = 19;
                     Terraform();
                 }
                 else if (Type == "Swamp" && Fertility > 0.75)
                 {
-                    planetType = 21;
+                    PlanetType = 21;
                     Terraform();
                 }
                 else if (Type == "Steppe" && Fertility > 0.6)
                 {
-                    planetType = 11;
+                    PlanetType = 11;
                     Terraform();
                 }
                 else if (Type == "Tundra" && Fertility > 0.95)
                 {
-                    planetType = 22;
+                    PlanetType = 22;
                     Terraform();
                 }
                 if (Fertility > 1.0)
@@ -2825,17 +1781,17 @@ namespace Ship_Game
             // notification about empty queue
             if (GlobalStats.ExtraNotifications && Owner != null && Owner.isPlayer)
             {
-                if (ConstructionQueue.Count == 0 && !queueEmptySent)
+                if (ConstructionQueue.Count == 0 && !QueueEmptySent)
                 {
                     if (colonyType == ColonyType.Colony || colonyType == ColonyType.Core || colonyType == ColonyType.Industrial || !GovernorOn)
                     {
-                        queueEmptySent = true;
+                        QueueEmptySent = true;
                         Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
                     }
                 }
                 else if (ConstructionQueue.Count > 0)
                 {
-                    queueEmptySent = false;
+                    QueueEmptySent = false;
                 }
             }
             //if ((double)this.ShieldStrengthCurrent < (double)this.ShieldStrengthMax)
@@ -2873,17 +1829,117 @@ namespace Ship_Game
             GrowPopulation();
             HealTroops();
             CalculateIncomingTrade();
-            if (FoodHere > MAX_STORAGE)
-                FoodHere = MAX_STORAGE;
-            if (ProductionHere > MAX_STORAGE)
-                ProductionHere = MAX_STORAGE;
+            if (FoodHere > MaxStorage)
+                FoodHere = MaxStorage;
+            if (ProductionHere > MaxStorage)
+                ProductionHere = MaxStorage;
         }
 
         public float IncomingFood = 0;
         public float IncomingProduction = 0;
         public float IncomingColonists = 0;
 
-
+        public void UpdateDevelopmentStatus()
+        {
+            Density = Population / 1000f;
+            float num = MaxPopulation / 1000f;
+            if (Density <= 0.5f)
+            {
+                DevelopmentLevel = 1;
+                DevelopmentStatus = Localizer.Token(1763);
+                if (num >= 2 && Type != "Barren")
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1764);
+                    planet.DevelopmentStatus = str;
+                }
+                else if (num >= 2f && Type == "Barren")
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1765);
+                    planet.DevelopmentStatus = str;
+                }
+                else if (num < 0 && Type != "Barren")
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1766);
+                    planet.DevelopmentStatus = str;
+                }
+                else if (num < 0.5f && Type == "Barren")
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1767);
+                    planet.DevelopmentStatus = str;
+                }
+            }
+            else if (Density > 0.5f && Density <= 2)
+            {
+                DevelopmentLevel = 2;
+                DevelopmentStatus = Localizer.Token(1768);
+                if (num >= 2)
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1769);
+                    planet.DevelopmentStatus = str;
+                }
+                else if (num < 2)
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1770);
+                    planet.DevelopmentStatus = str;
+                }
+            }
+            else if (Density > 2.0 && Density <= 5.0)
+            {
+                DevelopmentLevel = 3;
+                DevelopmentStatus = Localizer.Token(1771);
+                if (num >= 5.0)
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1772);
+                    planet.DevelopmentStatus = str;
+                }
+                else if (num < 5.0)
+                {
+                    var planet = this;
+                    string str = planet.DevelopmentStatus + Localizer.Token(1773);
+                    planet.DevelopmentStatus = str;
+                }
+            }
+            else if (Density > 5.0 && Density <= 10.0)
+            {
+                DevelopmentLevel = 4;
+                DevelopmentStatus = Localizer.Token(1774);
+            }
+            else if (Density > 10.0)
+            {
+                DevelopmentLevel = 5;
+                DevelopmentStatus = Localizer.Token(1775);
+            }
+            if (NetProductionPerTurn >= 10.0 && HasShipyard)
+            {
+                var planet = this;
+                string str = planet.DevelopmentStatus + Localizer.Token(1776);
+                planet.DevelopmentStatus = str;
+            }
+            else if (Fertility >= 2.0 && NetFoodPerTurn > (double)MaxPopulation)
+            {
+                var planet = this;
+                string str = planet.DevelopmentStatus + Localizer.Token(1777);
+                planet.DevelopmentStatus = str;
+            }
+            else if (NetResearchPerTurn > 5.0)
+            {
+                var planet = this;
+                string str = planet.DevelopmentStatus + Localizer.Token(1778);
+                planet.DevelopmentStatus = str;
+            }
+            if (!AllowInfantry || TroopsHere.Count <= 6)
+                return;
+            var planet1 = this;
+            string str1 = planet1.DevelopmentStatus + Localizer.Token(1779);
+            planet1.DevelopmentStatus = str1;
+        }
 
         private bool AddToIncomingTrade(ref float type, float amount)
         {
@@ -2921,7 +1977,7 @@ namespace Ship_Game
  
 
             float NoDivByZero = .0000001f;
-            float Surplus = (float)((consumption + desiredSurplus - PlusFlatProductionPerTurn) 
+            float Surplus = (float)((Consumption + desiredSurplus - PlusFlatProductionPerTurn) 
                 / ((Population / 1000.0) * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate)+NoDivByZero);
             if (Surplus < 1.0f)
             {
@@ -2942,7 +1998,7 @@ namespace Ship_Game
             if(Owner.data.Traits.Cybernetic >0)
             {
 
-                Surplus = Surplus = (float)((consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) 
+                Surplus = Surplus = (float)((Consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) 
                     * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate) + NoDivByZero);
 
                 if (Surplus < .75f)
@@ -2962,7 +2018,7 @@ namespace Ship_Game
             // replacing while loop with singal fromula, should save some clock cycles
 
            
-            Surplus = (float)((consumption + desiredSurplus - FlatFoodAdded) / ((Population / 1000.0) 
+            Surplus = (float)((Consumption + desiredSurplus - FlatFoodAdded) / ((Population / 1000.0) 
                 * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero));
             if (Surplus < .75f)
             {
@@ -2980,7 +2036,7 @@ namespace Ship_Game
         private bool DetermineIfSelfSufficient()
         {
              float NoDivByZero = .0000001f;
-            return (float)((consumption - FlatFoodAdded) / ((Population / 1000.0) * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero)) < 1;
+            return (float)((Consumption - FlatFoodAdded) / ((Population / 1000.0) * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero)) < 1;
         }
 
         public float GetDefendingTroopStrength()
@@ -3304,7 +2360,7 @@ namespace Ship_Game
             }
             if(Owner.data.Traits.Cybernetic >0)
             {
-                if(NetProductionPerTurn - consumption <0)
+                if(NetProductionPerTurn - Consumption <0)
                 {
                     if(building.PlusFlatProductionAmount >0 && (WorkerPercentage > .5 || income >building.Maintenance*2))
                     {
@@ -3326,7 +2382,7 @@ namespace Ship_Game
                     return false;
                 
             }
-            if(!makingMoney || developmentLevel < 3)
+            if(!makingMoney || DevelopmentLevel < 3)
             {
                 if (building.Name == "Biospheres")
                     return false;
@@ -3356,20 +2412,20 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount > 0
                                 || building.StorageAdded > 0 
                                // || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount>0))
-                                || (needDefense && isdefensive && developmentLevel > 3)
+                                || (needDefense && isdefensive && DevelopmentLevel > 3)
                                 )
                                 return true;
                                 //iftrue = true;
                             
                         }
-                        if (!iftrue && MedPri && developmentLevel > 2 && makingMoney)
+                        if (!iftrue && MedPri && DevelopmentLevel > 2 && makingMoney)
                         {
                             if (
                                 building.Name == "Biospheres"||
                                 ( building.PlusTerraformPoints > 0 && Fertility < 3)
                                 || building.MaxPopIncrease > 0 
                                 || building.PlusFlatPopulation > 0
-                                || developmentLevel > 3
+                                || DevelopmentLevel > 3
                                   || building.PlusFlatResearchAmount > 0
                                 || (building.PlusResearchPerColonist > 0 && MaxPopulation > 999)
                                 || (needDefense && isdefensive )
@@ -3377,7 +2433,7 @@ namespace Ship_Game
                                 )
                                 return true;
                         }
-                        if (LowPri && developmentLevel > 4 && makingMoney)
+                        if (LowPri && DevelopmentLevel > 4 && makingMoney)
                         {
                             iftrue = true;
                         }
@@ -3404,18 +2460,18 @@ namespace Ship_Game
                                 || (building.PlusResearchPerColonist>0 && Population / 1000 > 1)
                                 //|| building.Name == "Biospheres"                                
                                 
-                                || (needDefense && isdefensive && developmentLevel > 3)                                
+                                || (needDefense && isdefensive && DevelopmentLevel > 3)                                
                                 || (Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
                                 )
                                 return true;
                         }
-                        if (MedPri && developmentLevel > 3 &&makingMoney )
+                        if (MedPri && DevelopmentLevel > 3 &&makingMoney )
                         {
-                            if (developmentLevel > 2 && needDefense && (building.theWeapon != null || building.Strength > 0))
+                            if (DevelopmentLevel > 2 && needDefense && (building.theWeapon != null || building.Strength > 0))
                                 return true;
                             iftrue = true;
                         }
-                        if (!iftrue && LowPri && developmentLevel > 4 && makingMoney && income > building.Maintenance)
+                        if (!iftrue && LowPri && DevelopmentLevel > 4 && makingMoney && income > building.Maintenance)
                         {
                             
                             iftrue = true;
@@ -3439,11 +2495,11 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount > 0
                                 || (Owner.data.Traits  .Cybernetic <=0 && Fertility < 1f && building.PlusFlatFoodAmount > 0)                             
                                 || building.StorageAdded > 0
-                                || (needDefense && isdefensive && developmentLevel > 3)
+                                || (needDefense && isdefensive && DevelopmentLevel > 3)
                                 )
                                 return true;
                         }
-                        if (MedPri && developmentLevel > 2 && makingMoney)
+                        if (MedPri && DevelopmentLevel > 2 && makingMoney)
                         {
                             if (building.PlusResearchPerColonist * Population / 1000 >building.Maintenance
                             || ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && Population == MaxPopulation && income > building.Maintenance)
@@ -3458,9 +2514,9 @@ namespace Ship_Game
                             }
 
                         }
-                        if (!iftrue && LowPri && developmentLevel > 3 && makingMoney && income >building.Maintenance)
+                        if (!iftrue && LowPri && DevelopmentLevel > 3 && makingMoney && income >building.Maintenance)
                         {
-                            if (needDefense && isdefensive && developmentLevel > 2)
+                            if (needDefense && isdefensive && DevelopmentLevel > 2)
                                 return true;
                             
                         }
@@ -3497,7 +2553,7 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount > 0)
                                 iftrue = true;
                         }
-                        if (!iftrue && LowPri && developmentLevel > 4)
+                        if (!iftrue && LowPri && DevelopmentLevel > 4)
                         {
                             //if(building.Name!= "Biospheres")
                             iftrue = true;
@@ -3524,12 +2580,12 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount >0
                                 || building.PlusResearchPerColonist > 0
                                 || (Owner.data.Traits.Cybernetic > 0 && (building.PlusFlatProductionAmount > 0 || building.PlusProdPerColonist > 0 ))
-                                || (needDefense && isdefensive && developmentLevel > 3)
+                                || (needDefense && isdefensive && DevelopmentLevel > 3)
                                 )
                                 return true;
 
                         }
-                        if ( MedPri && developmentLevel > 3 && makingMoney)
+                        if ( MedPri && DevelopmentLevel > 3 && makingMoney)
                         {
                             if (((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && Population > MaxPopulation * .5f)
                             || Owner.data.Traits.Cybernetic <=0 &&( (building.PlusTerraformPoints > 0 && Fertility < 1 && Population > MaxPopulation * .5f && MaxPopulation > 2000)
@@ -3537,9 +2593,9 @@ namespace Ship_Game
                                 )
                                 return true;
                         }
-                        if ( LowPri && developmentLevel > 4 && makingMoney)
+                        if ( LowPri && DevelopmentLevel > 4 && makingMoney)
                         {
-                            if (needDefense && isdefensive && developmentLevel > 2)
+                            if (needDefense && isdefensive && DevelopmentLevel > 2)
                                 
                             return true;
                         }
@@ -3573,13 +2629,13 @@ namespace Ship_Game
             exportFSFlag = exportFTrack / pc * 2 >= ExportFSWeight;
             exportPSFlag = exportPTrack / pc * 2 >= ExportPSWeight;
 
-            if (!exportFSFlag || Owner.averagePLanetStorage >= MAX_STORAGE)
+            if (!exportFSFlag || Owner.averagePLanetStorage >= MaxStorage)
                 FSexport = true;
 
-            if (!exportPSFlag || Owner.averagePLanetStorage >= MAX_STORAGE)
+            if (!exportPSFlag || Owner.averagePLanetStorage >= MaxStorage)
                 PSexport = true;
-            float PRatio = ProductionHere / MAX_STORAGE;
-            float FRatio = FoodHere / MAX_STORAGE;
+            float PRatio = ProductionHere / MaxStorage;
+            float FRatio = FoodHere / MaxStorage;
 
             int queueCount = ConstructionQueue.Count;
             switch (colonyType)
@@ -3590,60 +2646,60 @@ namespace Ship_Game
                     if (Population >= 1000 && MaxPopulation >= Population)
                     {
                         if (PRatio < .9 && queueCount > 0) 
-                            ps = GoodState.IMPORT;
+                            PS = GoodState.IMPORT;
                         else if (queueCount == 0)
                         {
-                            ps = GoodState.EXPORT;
+                            PS = GoodState.EXPORT;
                         }
                         else
-                            ps = GoodState.STORE;
+                            PS = GoodState.STORE;
 
                     }
                     else if (queueCount > 0 || Owner.data.Traits.Cybernetic > 0)
                     {
                         if (PRatio < .5f)
-                            ps = GoodState.IMPORT;
+                            PS = GoodState.IMPORT;
                         else if (!PSexport && PRatio > .5)
-                            ps = GoodState.EXPORT;
+                            PS = GoodState.EXPORT;
                         else
-                            ps = GoodState.STORE;
+                            PS = GoodState.STORE;
                     }
                     else
                     {
                         if (PRatio > .5f && !PSexport)
-                            ps = GoodState.EXPORT;
+                            PS = GoodState.EXPORT;
                         else if (PRatio > .5f && PSexport)
-                            ps = GoodState.STORE;
-                        else ps = GoodState.EXPORT;
+                            PS = GoodState.STORE;
+                        else PS = GoodState.EXPORT;
 
                     }
 
                     if (NetFoodPerTurn < 0)
-                        fs = Planet.GoodState.IMPORT;
+                        FS = Planet.GoodState.IMPORT;
                     else if (FRatio > .75f)
-                        fs = Planet.GoodState.STORE;
+                        FS = Planet.GoodState.STORE;
                     else
-                        fs = Planet.GoodState.IMPORT;
+                        FS = Planet.GoodState.IMPORT;
                     break;
 
 
                 case ColonyType.Agricultural:
                     if (PRatio > .75 && !PSexport)
-                        ps = Planet.GoodState.EXPORT;
+                        PS = Planet.GoodState.EXPORT;
                     else if (PRatio < .5 && PSexport)
-                        ps = Planet.GoodState.IMPORT;
+                        PS = Planet.GoodState.IMPORT;
                     else
-                        ps = GoodState.STORE;
+                        PS = GoodState.STORE;
 
 
                     if (NetFoodPerTurn > 0)
-                        fs = Planet.GoodState.EXPORT;
+                        FS = Planet.GoodState.EXPORT;
                     else if (NetFoodPerTurn < 0)
-                        fs = Planet.GoodState.IMPORT;
+                        FS = Planet.GoodState.IMPORT;
                     else if (FRatio > .75f)
-                        fs = Planet.GoodState.STORE;
+                        FS = Planet.GoodState.STORE;
                     else
-                        fs = Planet.GoodState.IMPORT;
+                        FS = Planet.GoodState.IMPORT;
 
                     break;
 
@@ -3651,70 +2707,70 @@ namespace Ship_Game
 
                     {
                         if (PRatio > .75f && !PSexport)
-                            ps = Planet.GoodState.EXPORT;
+                            PS = Planet.GoodState.EXPORT;
                         else if (PRatio < .5f) //&& PSexport
-                            ps = Planet.GoodState.IMPORT;
+                            PS = Planet.GoodState.IMPORT;
                         else
-                            ps = GoodState.STORE;
+                            PS = GoodState.STORE;
 
                         if (NetFoodPerTurn < 0)
-                            fs = Planet.GoodState.IMPORT;
+                            FS = Planet.GoodState.IMPORT;
                         else if (NetFoodPerTurn < 0)
-                            fs = Planet.GoodState.IMPORT;
+                            FS = Planet.GoodState.IMPORT;
                         else
                         if (FRatio > .75f && !FSexport)
-                            fs = Planet.GoodState.EXPORT;
+                            FS = Planet.GoodState.EXPORT;
                         else if (FRatio < .75) //FSexport &&
-                            fs = Planet.GoodState.IMPORT;
+                            FS = Planet.GoodState.IMPORT;
                         else
-                            fs = GoodState.STORE;
+                            FS = GoodState.STORE;
 
                         break;
                     }
 
                 case ColonyType.Core:
-                    if (MaxPopulation > Population * .75f && Population > developmentLevel * 1000)
+                    if (MaxPopulation > Population * .75f && Population > DevelopmentLevel * 1000)
                     {
 
                         if (PRatio > .33f)
-                            ps = GoodState.EXPORT;
+                            PS = GoodState.EXPORT;
                         else if (PRatio < .33)
-                            ps = GoodState.STORE;
+                            PS = GoodState.STORE;
                         else
-                            ps = GoodState.IMPORT;
+                            PS = GoodState.IMPORT;
                     }
                     else
                     {
                         if (PRatio > .75 && !FSexport)
-                            ps = GoodState.EXPORT;
+                            PS = GoodState.EXPORT;
                         else if (PRatio < .5) //&& FSexport
-                            ps = GoodState.IMPORT;
-                        else ps = GoodState.STORE;
+                            PS = GoodState.IMPORT;
+                        else PS = GoodState.STORE;
                     }
 
                     if (NetFoodPerTurn < 0)
-                        fs = Planet.GoodState.IMPORT;
+                        FS = Planet.GoodState.IMPORT;
                     else if (FRatio > .25)
-                        fs = GoodState.EXPORT;
-                    else if (NetFoodPerTurn > developmentLevel * .5)
-                        fs = GoodState.STORE;
+                        FS = GoodState.EXPORT;
+                    else if (NetFoodPerTurn > DevelopmentLevel * .5)
+                        FS = GoodState.STORE;
                     else
-                        fs = GoodState.IMPORT;
+                        FS = GoodState.IMPORT;
 
 
                     break;
                 case ColonyType.Military:
                 case ColonyType.TradeHub:
-                    if (fs != GoodState.STORE)
+                    if (FS != GoodState.STORE)
                         if (FRatio > .50)
-                            fs = GoodState.EXPORT;
+                            FS = GoodState.EXPORT;
                         else
-                            fs = GoodState.IMPORT;
-                    if (ps != GoodState.STORE)
+                            FS = GoodState.IMPORT;
+                    if (PS != GoodState.STORE)
                         if (PRatio > .50)
-                            ps = GoodState.EXPORT;
+                            PS = GoodState.EXPORT;
                         else
-                            ps = GoodState.IMPORT;
+                            PS = GoodState.IMPORT;
 
                     break;
 
@@ -3762,7 +2818,7 @@ namespace Ship_Game
             bool needsBiospheres = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding && isbuilding.Building.Name == "Biospheres").Count() != buildingsinQueue;
             bool StuffInQueueToBuild = ConstructionQueue.Count >5;// .Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
             bool ForgetReseachAndBuild =
-     string.IsNullOrEmpty(Owner.ResearchTopic) || StuffInQueueToBuild || (developmentLevel < 3 && (ProductionHere + 1) / (MAX_STORAGE + 1) < .5f);
+     string.IsNullOrEmpty(Owner.ResearchTopic) || StuffInQueueToBuild || (DevelopmentLevel < 3 && (ProductionHere + 1) / (MaxStorage + 1) < .5f);
             if (colonyType == ColonyType.Research && string.IsNullOrEmpty(Owner.ResearchTopic))
             {
                 colonyType = ColonyType.Industrial;
@@ -3773,8 +2829,8 @@ namespace Ship_Game
 
                 FarmerPercentage = 0.0f;
 
-                float surplus = GrossProductionPerTurn - consumption;
-                surplus = surplus * (1 - (ProductionHere + 1) / (MAX_STORAGE + 1));
+                float surplus = GrossProductionPerTurn - Consumption;
+                surplus = surplus * (1 - (ProductionHere + 1) / (MaxStorage + 1));
                 WorkerPercentage = CalculateCyberneticPercentForSurplus(surplus);
                 if (WorkerPercentage > 1.0)
                     WorkerPercentage = 1f;
@@ -3931,7 +2987,7 @@ namespace Ship_Game
                 for (int index = 0; index < ConstructionQueue.Count; ++index)
                 {
                     QueueItem queueItem1 = ConstructionQueue[index];
-                    if (index == 0 && queueItem1.isBuilding && ProductionHere > MAX_STORAGE * .5)
+                    if (index == 0 && queueItem1.isBuilding && ProductionHere > MaxStorage * .5)
                     {
                         if (queueItem1.Building.Name == "Outpost"
                             ||  queueItem1.Building.PlusFlatProductionAmount > 0.0f
@@ -3975,11 +3031,11 @@ namespace Ship_Game
                                 //this.fs = GoodState.EXPORT;
                                 //Determine if excess food
                                
-                                float surplus = (NetFoodPerTurn * (string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) * (1 - (FoodHere + 1) / (MAX_STORAGE + 1));
+                                float surplus = (NetFoodPerTurn * (string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) * (1 - (FoodHere + 1) / (MaxStorage + 1));
                                 if(Owner.data.Traits.Cybernetic >0)
                                 {
-                                    surplus = GrossProductionPerTurn - consumption;
-                                    surplus = surplus * ((string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) * (1 - (ProductionHere + 1) / (MAX_STORAGE + 1));
+                                    surplus = GrossProductionPerTurn - Consumption;
+                                    surplus = surplus * ((string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) * (1 - (ProductionHere + 1) / (MaxStorage + 1));
                                         //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
                                 }
                                 FarmerPercentage = CalculateFarmerPercentForSurplus(surplus);
@@ -3989,12 +3045,12 @@ namespace Ship_Game
                                     FarmerPercentage = .9f;
                                 WorkerPercentage =
                                 (1f - FarmerPercentage) *
-                                (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MAX_STORAGE + 1)));
+                                (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
    
                                 float Remainder = 1f - FarmerPercentage;
                                 //Research is happening
-                                WorkerPercentage = (Remainder * (string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : (1 - (ProductionHere) / (MAX_STORAGE))));
-                                if (ProductionHere / MAX_STORAGE > .9 && !StuffInQueueToBuild)
+                                WorkerPercentage = (Remainder * (string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : (1 - (ProductionHere) / (MaxStorage))));
+                                if (ProductionHere / MaxStorage > .9 && !StuffInQueueToBuild)
                                     WorkerPercentage = 0;
                                 ResearcherPercentage = Remainder - WorkerPercentage;
                                 if (Owner.data.Traits.Cybernetic > 0)
@@ -4041,7 +3097,7 @@ namespace Ship_Game
                                         break;
                                     }
                                 }
-                                if (!hasShipyard && developmentLevel > 2)
+                                if (!hasShipyard && DevelopmentLevel > 2)
                                     ConstructionQueue.Add(new QueueItem()
                                     {
                                         isShip = true,
@@ -4140,7 +3196,7 @@ namespace Ship_Game
                                         coreCost = b.Cost;
                                         break;
                                     }
-                                    else if (building.Cost < coreCost && ((building.Name != "Biospheres" && building.PlusTerraformPoints <=0 ) || Population / MaxPopulation <= 0.25 && developmentLevel > 2 && !noMoreBiospheres))
+                                    else if (building.Cost < coreCost && ((building.Name != "Biospheres" && building.PlusTerraformPoints <=0 ) || Population / MaxPopulation <= 0.25 && DevelopmentLevel > 2 && !noMoreBiospheres))
                                     {
                                         b = building;
                                         coreCost = b.Cost;
@@ -4194,7 +3250,7 @@ namespace Ship_Game
                                     if (flag1)
                                         AddBuildingToCQ(b);
                                 }
-                                else if (Owner.GetBDict()["Biospheres"] && MineralRichness >= 1.0f && ((Owner.data.Traits.Cybernetic > 0 && GrossProductionPerTurn > consumption) || Owner.data.Traits.Cybernetic <=0 && Fertility >= 1.0))
+                                else if (Owner.GetBDict()["Biospheres"] && MineralRichness >= 1.0f && ((Owner.data.Traits.Cybernetic > 0 && GrossProductionPerTurn > Consumption) || Owner.data.Traits.Cybernetic <=0 && Fertility >= 1.0))
                                 {
                                     if (Owner == Empire.Universe.PlayerEmpire)
                                     {
@@ -4242,25 +3298,25 @@ namespace Ship_Game
                         //? true : .75f;
                         //this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
                         float IndySurplus = (NetFoodPerTurn) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
-                            (1 - (FoodHere + 1) / (MAX_STORAGE + 1));
+                            (1 - (FoodHere + 1) / (MaxStorage + 1));
                         if (Owner.data.Traits.Cybernetic > 0)
                         {
-                            IndySurplus = GrossProductionPerTurn - consumption;
-                            IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MAX_STORAGE + 1));
+                            IndySurplus = GrossProductionPerTurn - Consumption;
+                            IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));
                             //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
                         }
                         //if ((double)this.FoodHere <= (double)this.consumption)
                         {
 
                             FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
-                            FarmerPercentage *= (FoodHere / MAX_STORAGE) > .25 ? .5f : 1;
+                            FarmerPercentage *= (FoodHere / MaxStorage) > .25 ? .5f : 1;
                             if ( FarmerPercentage == 1 && StuffInQueueToBuild)
                                 FarmerPercentage = CalculateFarmerPercentForSurplus(0);
                             WorkerPercentage =
                                 (1f - FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
                                 * (ForgetReseachAndBuild ? 1 :
-                             (1 - (ProductionHere + 1) / (MAX_STORAGE + 1)));
-                            if (ProductionHere / MAX_STORAGE > .75 && !StuffInQueueToBuild)
+                             (1 - (ProductionHere + 1) / (MaxStorage + 1)));
+                            if (ProductionHere / MaxStorage > .75 && !StuffInQueueToBuild)
                                 WorkerPercentage = 0;
 
                             ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage;// 0.0f;
@@ -4503,14 +3559,14 @@ namespace Ship_Game
                         //    this.WorkerPercentage = 0;
                         //this.ResearcherPercentage = 1f - this.FarmerPercentage - this.WorkerPercentage;
 
-                        IndySurplus = (NetFoodPerTurn) * ((MAX_STORAGE - FoodHere * 2f ) / MAX_STORAGE);
+                        IndySurplus = (NetFoodPerTurn) * ((MaxStorage - FoodHere * 2f ) / MaxStorage);
                         //(1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
                         FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
 
                         WorkerPercentage = (1f - FarmerPercentage);
 
                         if (StuffInQueueToBuild)
-                            WorkerPercentage *= ((MAX_STORAGE - ProductionHere) / MAX_STORAGE) / developmentLevel;
+                            WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage) / DevelopmentLevel;
                         else
                             WorkerPercentage = 0;
 
@@ -4604,7 +3660,7 @@ namespace Ship_Game
                                     b = building;
                                     break;
                                 }
-                                else if (num8 <2 && building.Cost < num1 && (building.Name != "Biospheres" || (num8 ==0 && developmentLevel >2 && !noMoreBiospheres) ))
+                                else if (num8 <2 && building.Cost < num1 && (building.Name != "Biospheres" || (num8 ==0 && DevelopmentLevel >2 && !noMoreBiospheres) ))
                                 //&& 
                                 //( (double)building.PlusResearchPerColonist > 0.0 
                                 //|| (double)building.PlusFlatResearchAmount > 0.0
@@ -4690,14 +3746,14 @@ namespace Ship_Game
                         StuffInQueueToBuild = ConstructionQueue.Where(building => building.isBuilding || (building.Cost > NetProductionPerTurn * 10)).Count() > 0;
                         ForgetReseachAndBuild =
                             string.IsNullOrEmpty(Owner.ResearchTopic) ; //? 1 : .5f;
-                        IndySurplus = (NetFoodPerTurn) * ((MAX_STORAGE - FoodHere) / MAX_STORAGE);
+                        IndySurplus = (NetFoodPerTurn) * ((MaxStorage - FoodHere) / MaxStorage);
                         //(1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
                         FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
 
                         WorkerPercentage = (1f - FarmerPercentage);
 
                         if (StuffInQueueToBuild)
-                            WorkerPercentage *= ((MAX_STORAGE - ProductionHere) / MAX_STORAGE);
+                            WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage);
                         else
                             WorkerPercentage = 0;
 
@@ -4793,7 +3849,7 @@ namespace Ship_Game
                                     num1 = building.Cost;
                                     b = building;
                                 }
-                                else if (building.Cost < num1 && (building.Name != "Biospheres" || (num9 == 0 && developmentLevel > 2 && !noMoreBiospheres)))
+                                else if (building.Cost < num1 && (building.Name != "Biospheres" || (num9 == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
 
                                 {
 
@@ -4826,7 +3882,7 @@ namespace Ship_Game
                         FarmerPercentage = 0.0f;
                         WorkerPercentage = 1f;
                         ResearcherPercentage = 0.0f;
-                        if (FoodHere <= consumption)
+                        if (FoodHere <= Consumption)
                         {
                             FarmerPercentage = CalculateFarmerPercentForSurplus(0.01f);
                             WorkerPercentage = 1f - FarmerPercentage;
@@ -4836,7 +3892,7 @@ namespace Ship_Game
                         WorkerPercentage = (1f - FarmerPercentage);
 
                         if (StuffInQueueToBuild)
-                            WorkerPercentage *= ((MAX_STORAGE - ProductionHere) / MAX_STORAGE);
+                            WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage);
                         else
                             WorkerPercentage = 0;
 
@@ -4854,10 +3910,10 @@ namespace Ship_Game
                             WorkerPercentage += FarmerPercentage;
                             FarmerPercentage = 0;
                         }
-                        if(!Owner.isPlayer && fs == GoodState.STORE)
+                        if(!Owner.isPlayer && FS == GoodState.STORE)
                         {
-                            fs = GoodState.IMPORT;
-                            ps = GoodState.IMPORT;
+                            FS = GoodState.IMPORT;
+                            PS = GoodState.IMPORT;
                                
                         }
                         SetExportState(colonyType);
@@ -4961,7 +4017,7 @@ namespace Ship_Game
                                     num1 = building.Cost;
                                     b = building;
                                 }
-                                else if (building.Cost < num1 && (building.Name != "Biospheres" || (buildingCount == 0 && developmentLevel > 2 && !noMoreBiospheres)))
+                                else if (building.Cost < num1 && (building.Name != "Biospheres" || (buildingCount == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
                                 {
 
                                     num1 = building.Cost;
@@ -5000,13 +4056,13 @@ namespace Ship_Game
                             ResearcherPercentage = 0.0f;
 
                             //? true : .75f;
-                            ps = ProductionHere >= 20  ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                            PS = ProductionHere >= 20  ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
                             float IndySurplus2 = (NetFoodPerTurn) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
-                                (1 - (FoodHere + 1) / (MAX_STORAGE + 1));
+                                (1 - (FoodHere + 1) / (MaxStorage + 1));
                             if (Owner.data.Traits.Cybernetic > 0)
                             {
-                                IndySurplus = GrossProductionPerTurn - consumption;
-                                IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MAX_STORAGE + 1));
+                                IndySurplus = GrossProductionPerTurn - Consumption;
+                                IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));
                                 //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
                             }
                             //if ((double)this.FoodHere <= (double)this.consumption)
@@ -5018,8 +4074,8 @@ namespace Ship_Game
                                 WorkerPercentage =
                                     (1f - FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
                                     * (ForgetReseachAndBuild ? 1 :
-                                 (1 - (ProductionHere + 1) / (MAX_STORAGE + 1)));
-                                if (ProductionHere / MAX_STORAGE > .75 && !StuffInQueueToBuild)
+                                 (1 - (ProductionHere + 1) / (MaxStorage + 1)));
+                                if (ProductionHere / MaxStorage > .75 && !StuffInQueueToBuild)
                                     WorkerPercentage = 0;
                                 ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage;// 0.0f;
                                 if (Owner.data.Traits.Cybernetic > 0)
@@ -5036,7 +4092,7 @@ namespace Ship_Game
                 }
             }
 
-            if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && developmentLevel > 2 && colonyType != ColonyType.Research) //  this.ProductionHere > this.MAX_STORAGE * .75f)
+            if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 && colonyType != ColonyType.Research) //  this.ProductionHere > this.MAX_STORAGE * .75f)
             #region Troops and platforms
             {
                 //Added by McShooterz: Colony build troops
@@ -5273,7 +4329,7 @@ namespace Ship_Game
         public bool ApplyStoredProduction(int Index)
         {
             
-            if (Crippled_Turns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null ))//|| this.Owner.Money <=0))
+            if (CrippledTurns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null ))//|| this.Owner.Money <=0))
                 return false;
             if (Owner != null && !Owner.isPlayer && Owner.data.Traits.Cybernetic > 0)
                 return false;
@@ -5295,7 +4351,7 @@ namespace Ship_Game
 
         public void ApplyAllStoredProduction(int Index)
         {
-            if (Crippled_Turns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null )) //|| this.Owner.Money <= 0))
+            if (CrippledTurns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null )) //|| this.Owner.Money <= 0))
                 return;
            
             float amount = Empire.Universe.Debug ? float.MaxValue : ProductionHere ;
@@ -5306,7 +4362,7 @@ namespace Ship_Game
 
         private void ApplyProductionTowardsConstruction()
         {
-            if (Crippled_Turns > 0 || RecentCombat)
+            if (CrippledTurns > 0 || RecentCombat)
                 return;
             /*
              * timeToEmptyMax = maxs/maxp; = 2
@@ -5326,12 +4382,12 @@ output = maxp * take10 = 5
                 maxp = 5;
             float StorageRatio = 0;
             float take10Turns = 0;
-                StorageRatio= ProductionHere / MAX_STORAGE;
+                StorageRatio= ProductionHere / MaxStorage;
             take10Turns = maxp * StorageRatio;
 
                
                 if (!PSexport)
-                    take10Turns *= (StorageRatio < .75f ? ps == GoodState.EXPORT ? .5f : ps == GoodState.STORE ? .25f : 1 : 1);                    
+                    take10Turns *= (StorageRatio < .75f ? PS == GoodState.EXPORT ? .5f : PS == GoodState.STORE ? .25f : 1 : 1);                    
             if (!GovernorOn || colonyType == ColonyType.Colony)
                 {
                     take10Turns = NetProductionPerTurn; ;
@@ -5347,7 +4403,7 @@ output = maxp * take10 = 5
             ProductionHere += NetProductionPerTurn > 0.0f ? NetProductionPerTurn : 0.0f;
 
             //fbedard: apply all remaining production on Planet with no governor
-            if (ps != GoodState.EXPORT && colonyType == Planet.ColonyType.Colony && Owner.isPlayer )
+            if (PS != GoodState.EXPORT && colonyType == Planet.ColonyType.Colony && Owner.isPlayer )
             {
                 normalAmount =  ProductionHere;
                 ProductionHere = 0f;
@@ -5357,9 +4413,9 @@ output = maxp * take10 = 5
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
         {
-            if (Crippled_Turns > 0 || RecentCombat || howMuch <= 0.0)
+            if (CrippledTurns > 0 || RecentCombat || howMuch <= 0.0)
             {
-                if (howMuch > 0 && Crippled_Turns <= 0)
+                if (howMuch > 0 && CrippledTurns <= 0)
                 ProductionHere += howMuch;
                 return;
             }
@@ -5416,8 +4472,8 @@ output = maxp * take10 = 5
                         else
                         {
                             ProductionHere += queueItem.productionTowards;
-                            if (ProductionHere > MAX_STORAGE)
-                                ProductionHere = MAX_STORAGE;
+                            if (ProductionHere > MaxStorage)
+                                ProductionHere = MaxStorage;
                             if (queueItem.pgs != null)
                                 queueItem.pgs.QItem = null;
                             ConstructionQueue.Remove(queueItem);
@@ -5484,8 +4540,8 @@ output = maxp * take10 = 5
                 {
                     ConstructionQueue.QueuePendingRemoval(queueItem);
                     ProductionHere += queueItem.productionTowards;
-                    if (ProductionHere > MAX_STORAGE)
-                        ProductionHere = MAX_STORAGE;
+                    if (ProductionHere > MaxStorage)
+                        ProductionHere = MaxStorage;
                 }
                 else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost)
                 {
@@ -5509,7 +4565,7 @@ output = maxp * take10 = 5
                     if (queueItem.sData.Role == ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
                     {
                         int num = Shipyards.Count / 9;
-                        shipAt.Position = Center + MathExt.PointOnCircle(Shipyards.Count * 40, 2000 + 2000 * num * scale);
+                        shipAt.Position = Center + MathExt.PointOnCircle(Shipyards.Count * 40, 2000 + 2000 * num * Scale);
                         shipAt.Center = shipAt.Position;
                         shipAt.TetherToPlanet(this);
                         Shipyards.Add(shipAt.guid, shipAt);
@@ -5576,7 +4632,7 @@ output = maxp * take10 = 5
             float num3 = num2 + num1 * Population / 1000;
             float num4 = num3;
             if (Owner.data.Traits.Cybernetic > 0)
-                return num4 + Owner.data.Traits.ProductionMod * num4 - consumption;
+                return num4 + Owner.data.Traits.ProductionMod * num4 - Consumption;
             return num4 + Owner.data.Traits.ProductionMod * num4;
         }
         public float GetMaxResearchPotential =>        
@@ -5736,7 +4792,7 @@ output = maxp * take10 = 5
             NetProductionPerTurn =  (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
             if (Owner.data.Traits.Cybernetic > 0)
-                NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - consumption) ;
+                NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
             else
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * NetProductionPerTurn;
 
@@ -5752,7 +4808,7 @@ output = maxp * take10 = 5
                     Station.SetVisibility(true, Empire.Universe.ScreenManager, this);
             }
 
-            consumption =  (Population / 1000 + Owner.data.Traits.ConsumptionModifier * Population / 1000);
+            Consumption =  (Population / 1000 + Owner.data.Traits.ConsumptionModifier * Population / 1000);
             if(Owner.data.Traits.Cybernetic >0)
             {
                 if(Population > 0.1 && NetProductionPerTurn <= 0)
@@ -5765,46 +4821,46 @@ output = maxp * take10 = 5
             GrossMoneyPT += PlusTaxPercentage * GrossMoneyPT;
             //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
             //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
-            MAX_STORAGE = StorageAdded;
-            if (MAX_STORAGE < 10)
-                MAX_STORAGE = 10f;
+            MaxStorage = StorageAdded;
+            if (MaxStorage < 10)
+                MaxStorage = 10f;
         }
 
         private void HarvestResources()
         {
-            unfed = 0.0f;
+            Unfed = 0.0f;
             if (Owner.data.Traits.Cybernetic > 0 )
             {
                 FoodHere = 0.0f;
-                NetProductionPerTurn -= consumption;
+                NetProductionPerTurn -= Consumption;
 
                  if(NetProductionPerTurn < 0f)
                     ProductionHere += NetProductionPerTurn;
                 
-              if (ProductionHere > MAX_STORAGE)
+              if (ProductionHere > MaxStorage)
                 {
-                    unfed = 0.0f;
-                    ProductionHere = MAX_STORAGE;
+                    Unfed = 0.0f;
+                    ProductionHere = MaxStorage;
                 }
                 else if (ProductionHere < 0 )
                 {
 
-                    unfed = ProductionHere;
+                    Unfed = ProductionHere;
                     ProductionHere = 0.0f;
                 }
             }
             else
             {
-                NetFoodPerTurn -= consumption;
+                NetFoodPerTurn -= Consumption;
                 FoodHere += NetFoodPerTurn;
-                if (FoodHere > MAX_STORAGE)
+                if (FoodHere > MaxStorage)
                 {
-                    unfed = 0.0f;
-                    FoodHere = MAX_STORAGE;
+                    Unfed = 0.0f;
+                    FoodHere = MaxStorage;
                 }
                 else if (FoodHere < 0 )
                 {
-                    unfed = FoodHere;
+                    Unfed = FoodHere;
                     FoodHere = 0.0f;
                 }
             }
@@ -5866,7 +4922,7 @@ output = maxp * take10 = 5
                 num1 = Owner.data.Traits.PopGrowthMin * 1000f;
             float num2 = num1 + PlusFlatPopulationPerTurn;
             float num3 = num2 + Owner.data.Traits.ReproductionMod * num2;
-            if ( Math.Abs(unfed) <= 0 )
+            if ( Math.Abs(Unfed) <= 0 )
             {
 
                 Population += num3;
@@ -5874,7 +4930,7 @@ output = maxp * take10 = 5
                     Population = MaxPopulation + MaxPopBonus;
             }
             else
-                Population += unfed * 10f;
+                Population += Unfed * 10f;
             if (Population >= 100.0)
                 return;
             Population = 100f;
@@ -5893,45 +4949,20 @@ output = maxp * take10 = 5
                 float num3 = num2 + Owner.data.Traits.ReproductionMod * num2;
                 if (Owner.data.Traits.Cybernetic > 0)
                 {
-                    if (ProductionHere + NetProductionPerTurn - consumption <= 0.1)
-                        return -(Math.Abs(ProductionHere + NetProductionPerTurn - consumption) / 10f);
+                    if (ProductionHere + NetProductionPerTurn - Consumption <= 0.1)
+                        return -(Math.Abs(ProductionHere + NetProductionPerTurn - Consumption) / 10f);
                     if (Population < MaxPopulation + MaxPopBonus && Population +  num3 < MaxPopulation + MaxPopBonus)
                         return Owner.data.BaseReproductiveRate * Population;
                 }
                 else
                 {
-                    if (FoodHere + NetFoodPerTurn - consumption <= 0f)
-                        return -(Math.Abs(FoodHere + NetFoodPerTurn - consumption) / 10f);
+                    if (FoodHere + NetFoodPerTurn - Consumption <= 0f)
+                        return -(Math.Abs(FoodHere + NetFoodPerTurn - Consumption) / 10f);
                     if (Population < MaxPopulation + MaxPopBonus && Population +  num3 < MaxPopulation + MaxPopBonus)
                         return Owner.data.BaseReproductiveRate * Population;
                 }
             }
             return 0.0f;
-        }
-
-        private void CreatePlanetSceneObject(GameScreen screen)
-        {
-            if (SO != null)
-                screen?.RemoveObject(SO);
-
-            SO = ResourceManager.GetPlanetarySceneMesh("Model/SpaceObjects/planet_" + planetType);
-            SO.World = Matrix.CreateScale(scale * 3)
-                     * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-
-            RingWorld = Matrix.CreateRotationX(ringTilt.ToRadians())
-                      * Matrix.CreateScale(5f)
-                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-
-            screen?.AddObject(SO);
-        }
-
-        public void InitializePlanetMesh(GameScreen screen)
-        {
-            Shield = ShieldManager.AddPlanetaryShield(Center);
-            UpdateDescription();
-            CreatePlanetSceneObject(screen);
-
-            GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(scale)) / 1.5)));
         }
 
         public void AddGood(string goodId, int Amount)
@@ -5940,396 +4971,6 @@ output = maxp * take10 = 5
                 ResourcesDict[goodId] += Amount;
             else
                 ResourcesDict.Add(goodId, Amount);
-        }
-
-        private void UpdatePosition(float elapsedTime)
-        {
-            Zrotate += ZrotateAmount * elapsedTime;
-            if (!Empire.Universe.Paused)
-            {
-                OrbitalAngle += (float)Math.Asin(15.0 / OrbitalRadius);
-                if (OrbitalAngle >= 360.0f)
-                    OrbitalAngle -= 360f;
-            }
-            PosUpdateTimer -= elapsedTime;
-            if (PosUpdateTimer <= 0.0f || ParentSystem.isVisible)
-            {
-                PosUpdateTimer = 5f;
-                Center = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
-            }
-            if (ParentSystem.isVisible)
-            {
-                BoundingSphere boundingSphere = new BoundingSphere(new Vector3(Center, 0.0f), 300000f);
-                //System.Threading.Tasks.Parallel.Invoke(() =>
-                {
-                    SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateRotationZ(-Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                }//,
-                //() =>
-                {
-                    cloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * Matrix.CreateRotationZ((float)(-Zrotate / 1.5)) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                }//,
-                //() =>
-                {
-                    RingWorld = Matrix.Identity * Matrix.CreateRotationX(ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                }
-                //);
-
-
-
-
-                SO.Visibility = ObjectVisibility.Rendered;
-            }
-            else
-                SO.Visibility = ObjectVisibility.None;
-        }
-
-
-
-        private void UpdateDescription()
-        {
-            if (SpecialDescription != null)
-            {
-                Description = SpecialDescription;
-            }
-            else
-            {
-                Description = "";
-                Planet planet1 = this;
-                string str1 = planet1.Description + Name + " " + planetComposition + ". ";
-                planet1.Description = str1;
-                if (Fertility > 2 )
-                {
-                    if (planetType == 21)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1729);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 13 || planetType == 22)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1730);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1731);
-                        planet2.Description = str2;
-                    }
-                }
-                else if (Fertility > 1 )
-                {
-                    if (planetType == 19)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1732);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 21)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1733);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 13 || planetType == 22)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1734);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1735);
-                        planet2.Description = str2;
-                    }
-                }
-                else if (Fertility > 0.6f)
-                {
-                    if (planetType == 14)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1736);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 21)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1737);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 17)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1738);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 19)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1739);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 18)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1740);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 11)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1741);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 13 || planetType == 22)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1742);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1743);
-                        planet2.Description = str2;
-                    }
-                }
-                else
-                {
-                    double num = RandomMath.RandomBetween(1f, 2f);
-                    if (planetType == 9 || planetType == 23)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1744);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 20 || planetType == 15)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1745);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 17)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1746);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 18)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1747);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 11)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1748);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 14)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1749);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 2 || planetType == 6 || planetType == 10)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1750);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 3 || planetType == 4 || planetType == 16)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1751);
-                        planet2.Description = str2;
-                    }
-                    else if (planetType == 1)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1752);
-                        planet2.Description = str2;
-                    }
-                    else if (habitable)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description ?? "";
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1753);
-                        planet2.Description = str2;
-                    }
-                }
-                if (Fertility < 0.6f && MineralRichness >= 2 && habitable)
-                {
-                    Planet planet2 = this;
-                    string str2 = planet2.Description + Localizer.Token(1754);
-                    planet2.Description = str2;
-                    if (MineralRichness > 3 )
-                    {
-                        Planet planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1755);
-                        planet3.Description = str3;
-                    }
-                    else if (MineralRichness >= 2 )
-                    {
-                        Planet planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1756);
-                        planet3.Description = str3;
-                    }
-                    else
-                    {
-                        if (MineralRichness < 1 )
-                            return;
-                        Planet planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1757);
-                        planet3.Description = str3;
-                    }
-                }
-                else if (MineralRichness > 3  && habitable)
-                {
-                    Planet planet2 = this;
-                    string str2 = planet2.Description + Localizer.Token(1758);
-                    planet2.Description = str2;
-                }
-                else if (MineralRichness >= 2  && habitable)
-                {
-                    Planet planet2 = this;
-                    string str2 = planet2.Description + Name + Localizer.Token(1759);
-                    planet2.Description = str2;
-                }
-                else if (MineralRichness >= 1 && habitable)
-                {
-                    Planet planet2 = this;
-                    string str2 = planet2.Description + Name + Localizer.Token(1760);
-                    planet2.Description = str2;
-                }
-                else
-                {
-                    if (MineralRichness >= 1 || !habitable)
-                        return;
-                    if (planetType == 14)
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Name + Localizer.Token(1761);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        Planet planet2 = this;
-                        string str2 = planet2.Description + Name + Localizer.Token(1762);
-                        planet2.Description = str2;
-                    }
-                }
-            }
-        }
-
-        private void UpdateDevelopmentStatus()
-        {
-            Density = Population / 1000f;
-            float num = MaxPopulation / 1000f;
-            if (Density <= 0.5f)
-            {
-                developmentLevel = 1;
-                DevelopmentStatus = Localizer.Token(1763);
-                if ( num >= 2  && Type != "Barren")
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1764);
-                    planet.DevelopmentStatus = str;
-                }
-                else if ( num >= 2f && Type == "Barren")
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1765);
-                    planet.DevelopmentStatus = str;
-                }
-                else if (num < 0 && Type != "Barren")
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1766);
-                    planet.DevelopmentStatus = str;
-                }
-                else if ( num < 0.5f && Type == "Barren")
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1767);
-                    planet.DevelopmentStatus = str;
-                }
-            }
-            else if (Density > 0.5f && Density <= 2 )
-            {
-                developmentLevel = 2;
-                DevelopmentStatus = Localizer.Token(1768);
-                if ( num >= 2 )
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1769);
-                    planet.DevelopmentStatus = str;
-                }
-                else if ( num < 2 )
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1770);
-                    planet.DevelopmentStatus = str;
-                }
-            }
-            else if (Density > 2.0 && Density <= 5.0)
-            {
-                developmentLevel = 3;
-                DevelopmentStatus = Localizer.Token(1771);
-                if (num >= 5.0)
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1772);
-                    planet.DevelopmentStatus = str;
-                }
-                else if (num < 5.0)
-                {
-                    Planet planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1773);
-                    planet.DevelopmentStatus = str;
-                }
-            }
-            else if (Density > 5.0 && Density <= 10.0)
-            {
-                developmentLevel = 4;
-                DevelopmentStatus = Localizer.Token(1774);
-            }
-            else if (Density > 10.0)
-            {
-                developmentLevel = 5;
-                DevelopmentStatus = Localizer.Token(1775);
-            }
-            if (NetProductionPerTurn >= 10.0 && HasShipyard)
-            {
-                Planet planet = this;
-                string str = planet.DevelopmentStatus + Localizer.Token(1776);
-                planet.DevelopmentStatus = str;
-            }
-            else if (Fertility >= 2.0 && NetFoodPerTurn > (double)MaxPopulation)
-            {
-                Planet planet = this;
-                string str = planet.DevelopmentStatus + Localizer.Token(1777);
-                planet.DevelopmentStatus = str;
-            }
-            else if (NetResearchPerTurn > 5.0)
-            {
-                Planet planet = this;
-                string str = planet.DevelopmentStatus + Localizer.Token(1778);
-                planet.DevelopmentStatus = str;
-            }
-            if (!AllowInfantry || TroopsHere.Count <= 6)
-                return;
-            Planet planet1 = this;
-            string str1 = planet1.DevelopmentStatus + Localizer.Token(1779);
-            planet1.DevelopmentStatus = str1;
         }
 
         //added by gremlin: get a planets ground combat strength
@@ -6498,15 +5139,6 @@ output = maxp * take10 = 5
             TradeHub,
         }
 
-        public enum Richness
-        {
-            UltraPoor,
-            Poor,
-            Average,
-            Rich,
-            UltraRich,
-        }
-
         public enum GoodState
         {
             STORE,
@@ -6537,160 +5169,8 @@ output = maxp * take10 = 5
             ConstructionQueue?.Dispose(ref ConstructionQueue);
             BasedShips?.Dispose(ref BasedShips);
             Projectiles?.Dispose(ref Projectiles);
+            TroopsHere?.Dispose(ref TroopsHere);
         }
     }
 }
 
-/* Old core governor sliders calcs
- * this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.5f);
-                            if ((double)this.NetFoodPerTurn - (double)this.consumption < 0.0 && (double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
-                            {
-                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                                float num = 1f - this.FarmerPercentage;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
-                                {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                    {
-                                        this.WorkerPercentage = (float)(num * 2.0 / 5.0);
-                                        this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = num;
-                                    }
-                                }
-                                else
-                                {
-                                    this.WorkerPercentage = num;
-                                    this.ResearcherPercentage = 0.0f;
-                                }
-                            }
-                            else
-                                this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
-                            if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
-                                this.fs = Planet.GoodState.IMPORT;
-                            if (this.DetermineIfSelfSufficient() && (double)this.FoodHere > 1.0 && (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
-                            {
-                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
-                                float num = 1f - this.FarmerPercentage;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
-                                {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                    {
-                                        this.WorkerPercentage = num / 2f;
-                                        this.ResearcherPercentage = num / 2f;
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = num;
-                                    }
-                                }
-                                else
-                                {
-                                    this.WorkerPercentage = num;
-                                    this.ResearcherPercentage = 0.0f;
-                                }
-                                this.fs = Planet.GoodState.IMPORT;
-                            }
-                            else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
-                            {
-                                if ((double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
-                                {
-                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                                    float num = 1f - this.FarmerPercentage;
-                                    //Added by McShooterz: No research percentage if not researching
-                                    if (this.Owner.ResearchTopic != "")
-                                    {
-                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                        {
-                                            this.WorkerPercentage = num / 2f;
-                                            this.ResearcherPercentage = num / 2f;
-                                        }
-                                        else
-                                        {
-                                            this.WorkerPercentage = 0f;
-                                            this.ResearcherPercentage = num;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = num;
-                                        this.ResearcherPercentage = 0.0f;
-                                    }
-                                }
-                                else
-                                {
-                                    this.FarmerPercentage = 0.0f;
-                                    //Added by McShooterz: No research percentage if not researching
-                                    if (this.Owner.ResearchTopic != "")
-                                    {
-                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                        {
-                                            this.WorkerPercentage = 0.5f;
-                                            this.ResearcherPercentage = 0.5f;
-                                        }
-                                        else
-                                        {
-                                            this.WorkerPercentage = 0f;
-                                            this.ResearcherPercentage = 1f;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 1f;
-                                        this.ResearcherPercentage = 0f;
-                                    }
-                                }
-                            }
-                            else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
-                            {
-                                this.FarmerPercentage = 0.0f;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
-                                {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                    {
-                                        this.WorkerPercentage = 0.7f;
-                                        this.ResearcherPercentage = 0.3f;
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = 1f;
-                                    }
-                                }
-                                else
-                                {
-                                    this.WorkerPercentage = 1f;
-                                    this.ResearcherPercentage = 0f;
-                                }
-                            }
-                            else
-                            {
-                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                                float num = 1f - this.FarmerPercentage;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
-                                {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                    {
-                                        this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
-                                        this.ResearcherPercentage = num / 4f;
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = num;
-                                    }
-                                }
-                                else
-                                {
-                                    this.WorkerPercentage = num;
-                                    this.ResearcherPercentage = 0.0f;
-                                }
-                            }
- */

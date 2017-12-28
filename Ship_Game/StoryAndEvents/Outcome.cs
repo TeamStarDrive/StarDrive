@@ -146,7 +146,7 @@ namespace Ship_Game
             {
                 foreach (Planet rp in s.PlanetList)
                 {
-                    if (!rp.habitable || rp.Owner != null)
+                    if (!rp.Habitable || rp.Owner != null)
                     {
                         continue;
                     }

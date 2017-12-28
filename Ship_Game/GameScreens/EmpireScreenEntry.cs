@@ -158,7 +158,7 @@ namespace Ship_Game
 			};
 			this.FoodStorage = new ProgressBar(new Rectangle(this.StorageRect.X + 50, this.SliderRect.Y + (int)(0.25 * (double)this.SliderRect.Height), (int)(0.4f * (float)this.StorageRect.Width), 18))
 			{
-				Max = this.p.MAX_STORAGE,
+				Max = this.p.MaxStorage,
 				Progress = this.p.FoodHere,
 				color = "green"
 			};
@@ -171,11 +171,11 @@ namespace Ship_Game
 			this.foodDropDown.AddOption(Localizer.Token(329));
 			this.foodDropDown.AddOption(Localizer.Token(330));
 			this.foodDropDown.AddOption(Localizer.Token(331));
-			this.foodDropDown.ActiveIndex = (int)this.p.fs;
+			this.foodDropDown.ActiveIndex = (int)this.p.FS;
 			this.foodStorageIcon = new Rectangle(this.StorageRect.X + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
 			this.ProdStorage = new ProgressBar(new Rectangle(this.StorageRect.X + 50, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height + 10, (int)(0.4f * (float)this.StorageRect.Width), 18))
 			{
-				Max = this.p.MAX_STORAGE,
+				Max = this.p.MaxStorage,
 				Progress = this.p.ProductionHere
 			};
 			this.prodStorageIcon = new Rectangle(this.StorageRect.X + 20, this.ProdStorage.pBar.Y + this.ProdStorage.pBar.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -183,7 +183,7 @@ namespace Ship_Game
 			this.prodDropDown.AddOption(Localizer.Token(329));
 			this.prodDropDown.AddOption(Localizer.Token(330));
 			this.prodDropDown.AddOption(Localizer.Token(331));
-			this.prodDropDown.ActiveIndex = (int)this.p.ps;
+			this.prodDropDown.ActiveIndex = (int)this.p.PS;
 			this.ApplyProductionRect = new Rectangle(this.QueueRect.X + this.QueueRect.Width - 50, this.QueueRect.Y + this.QueueRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height);
 		}
 
@@ -206,7 +206,7 @@ namespace Ship_Game
 				ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.p.ParentSystem.Name, SysNameCursor, TextColor);
 			}
 			Rectangle planetIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 25, this.PlanetNameRect.Height - 50, this.PlanetNameRect.Height - 50);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], planetIconRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], planetIconRect, Color.White);
 			Vector2 cursor = new Vector2((float)(this.PopRect.X + this.PopRect.Width - 5), (float)(this.PlanetNameRect.Y + this.PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			float population = this.p.Population / 1000f;
 			string popstring = population.ToString("#.0");
@@ -216,7 +216,7 @@ namespace Ship_Game
 			cursor = new Vector2((float)(this.FoodRect.X + this.FoodRect.Width - 5), (float)(this.PlanetNameRect.Y + this.PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
-				float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.consumption;
+				float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.Consumption;
 				str = netFoodPerTurn.ToString("#.0");
 			}
 			else
@@ -226,11 +226,11 @@ namespace Ship_Game
 			string fstring = str;
 			cursor.X = cursor.X - Fonts.Arial12.MeasureString(fstring).X;
 			HelperFunctions.ClampVectorToInt(ref cursor);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, fstring, cursor, (this.p.NetFoodPerTurn - this.p.consumption >= 0f ? Color.White : Color.LightPink));
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, fstring, cursor, (this.p.NetFoodPerTurn - this.p.Consumption >= 0f ? Color.White : Color.LightPink));
 			cursor = new Vector2((float)(this.ProdRect.X + this.FoodRect.Width - 5), (float)(this.PlanetNameRect.Y + this.PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			if (this.p.Owner.data.Traits.Cybernetic != 0)
 			{
-				float netProductionPerTurn = this.p.NetProductionPerTurn - this.p.consumption;
+				float netProductionPerTurn = this.p.NetProductionPerTurn - this.p.Consumption;
 				str1 = netProductionPerTurn.ToString("#.0");
 			}
 			else
@@ -241,7 +241,7 @@ namespace Ship_Game
 			cursor.X = cursor.X - Fonts.Arial12.MeasureString(pstring).X;
 			HelperFunctions.ClampVectorToInt(ref cursor);
 			bool pink = false;
-			if (this.p.Owner.data.Traits.Cybernetic != 0 && this.p.NetProductionPerTurn - this.p.consumption < 0f)
+			if (this.p.Owner.data.Traits.Cybernetic != 0 && this.p.NetProductionPerTurn - this.p.Consumption < 0f)
 			{
 				pink = true;
 			}
@@ -389,7 +389,7 @@ namespace Ship_Game
 			Vector2 textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
-				float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.consumption;
+				float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.Consumption;
 				str = netFoodPerTurn.ToString(this.fmt);
 			}
 			else
@@ -398,7 +398,7 @@ namespace Ship_Game
 			}
 			string food = str;
 			textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(food).X;
-			if (this.p.NetFoodPerTurn - this.p.consumption >= 0f || this.p.Owner.data.Traits.Cybernetic == 1)
+			if (this.p.NetFoodPerTurn - this.p.Consumption >= 0f || this.p.Owner.data.Traits.Cybernetic == 1)
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, new Color(255, 239, 208));
 			}
@@ -431,7 +431,7 @@ namespace Ship_Game
 			textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			if (this.p.Owner.data.Traits.Cybernetic != 0)
 			{
-				float netProductionPerTurn = this.p.NetProductionPerTurn - this.p.consumption;
+				float netProductionPerTurn = this.p.NetProductionPerTurn - this.p.Consumption;
 				str1 = netProductionPerTurn.ToString(this.fmt);
 			}
 			else
@@ -440,7 +440,7 @@ namespace Ship_Game
 			}
 			string prod = str1;
 			textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(prod).X;
-			if (this.p.Owner.data.Traits.Cybernetic == 0 || this.p.NetProductionPerTurn - this.p.consumption >= 0f)
+			if (this.p.Owner.data.Traits.Cybernetic == 0 || this.p.NetProductionPerTurn - this.p.Consumption >= 0f)
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, prod, textPos, new Color(255, 239, 208));
 			}
@@ -648,10 +648,10 @@ namespace Ship_Game
 			{
 				this.foodDropDown.Toggle();
 				Planet planet1 = this.p;
-				planet1.fs = (Planet.GoodState)((int)planet1.fs + (int)Planet.GoodState.IMPORT);
-				if (this.p.fs > Planet.GoodState.EXPORT)
+				planet1.FS = (Planet.GoodState)((int)planet1.FS + (int)Planet.GoodState.IMPORT);
+				if (this.p.FS > Planet.GoodState.EXPORT)
 				{
-					this.p.fs = Planet.GoodState.STORE;
+					this.p.FS = Planet.GoodState.STORE;
 				}
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 			}
@@ -660,10 +660,10 @@ namespace Ship_Game
 				this.prodDropDown.Toggle();
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 				Planet planet2 = this.p;
-				planet2.ps = (Planet.GoodState)((int)planet2.ps + (int)Planet.GoodState.IMPORT);
-				if (this.p.ps > Planet.GoodState.EXPORT)
+				planet2.PS = (Planet.GoodState)((int)planet2.PS + (int)Planet.GoodState.IMPORT);
+				if (this.p.PS > Planet.GoodState.EXPORT)
 				{
-					this.p.ps = Planet.GoodState.STORE;
+					this.p.PS = Planet.GoodState.STORE;
 				}
 			}
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
@@ -977,7 +977,7 @@ namespace Ship_Game
 			this.ResLock.LockRect = new Rectangle(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width + 10, this.ColonySliderRes.sRect.Y + 2 + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
 			this.FoodStorage = new ProgressBar(new Rectangle(this.StorageRect.X + 50, this.SliderRect.Y + (int)(0.25 * (double)this.SliderRect.Height), (int)(0.4f * (float)this.StorageRect.Width), 18))
 			{
-				Max = this.p.MAX_STORAGE,
+				Max = this.p.MaxStorage,
 				Progress = this.p.FoodHere,
 				color = "green"
 			};
@@ -990,11 +990,11 @@ namespace Ship_Game
 			this.foodDropDown.AddOption(Localizer.Token(329));
 			this.foodDropDown.AddOption(Localizer.Token(330));
 			this.foodDropDown.AddOption(Localizer.Token(331));
-			this.foodDropDown.ActiveIndex = (int)this.p.fs;
+			this.foodDropDown.ActiveIndex = (int)this.p.FS;
 			this.foodStorageIcon = new Rectangle(this.StorageRect.X + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
 			this.ProdStorage = new ProgressBar(new Rectangle(this.StorageRect.X + 50, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height + 10, (int)(0.4f * (float)this.StorageRect.Width), 18))
 			{
-				Max = this.p.MAX_STORAGE,
+				Max = this.p.MaxStorage,
 				Progress = this.p.ProductionHere
 			};
 			this.prodStorageIcon = new Rectangle(this.StorageRect.X + 20, this.ProdStorage.pBar.Y + this.ProdStorage.pBar.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -1002,7 +1002,7 @@ namespace Ship_Game
 			this.prodDropDown.AddOption(Localizer.Token(329));
 			this.prodDropDown.AddOption(Localizer.Token(330));
 			this.prodDropDown.AddOption(Localizer.Token(331));
-			this.prodDropDown.ActiveIndex = (int)this.p.ps;
+			this.prodDropDown.ActiveIndex = (int)this.p.PS;
 			this.ApplyProductionRect = new Rectangle(this.QueueRect.X + this.QueueRect.Width - 50, this.QueueRect.Y + this.QueueRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height);
 		}
 	}

@@ -268,7 +268,7 @@
     </Compile>
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadRaceScreen.cs" />
-    <Compile Include="Ship_Game\Moon.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Moon.cs" />
     <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
     <Compile Include="Ship_Game\UI\UIColors.cs" />
@@ -277,7 +277,8 @@
     <Compile Include="Ship_Game\UI\UIInterfaces.cs" />
     <Compile Include="Ship_Game\UI\UILabel.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperSandbox.cs" />
-    <Compile Include="Ship_Game\Universe\Explorable.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\SolarSystemBody.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Explorable.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Camera.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Draw.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.HandleInput.cs" />
@@ -287,7 +288,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
-    <Compile Include="Ship_Game\Universe\PlanetEdict.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Ship_Game\Utils\Array.cs" />
@@ -382,7 +383,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\UnexploredPlanetScreen.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\UnexploredPlanetScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -645,11 +646,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\PlanetListScreen.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\PlanetScreen.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -661,7 +662,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\UnownedPlanetScreen.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\UnownedPlanetScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -705,7 +706,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\Planet.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -729,7 +730,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\PlanetListScreenEntry.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreenEntry.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1065,7 +1066,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\SystemInfoUIElement.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\SystemInfoUIElement.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1201,7 +1202,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\PlanetInfoUIElement.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetInfoUIElement.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1337,7 +1338,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\PlanetGridSquare.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetGridSquare.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

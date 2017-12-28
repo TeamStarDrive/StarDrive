@@ -1010,7 +1010,7 @@ namespace Ship_Game.AI {
                     if (AwaitClosest == null) AwaitClosest = p;
                     var ours = false;
                     if (Owner.loyalty.isFaction)
-                        ours = p.Owner != null || p.habitable; //for factions it just has to be habitable
+                        ours = p.Owner != null || p.Habitable; //for factions it just has to be habitable
 
                     else ours = p.Owner == Owner.loyalty;
 

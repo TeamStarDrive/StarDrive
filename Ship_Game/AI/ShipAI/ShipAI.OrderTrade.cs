@@ -17,8 +17,8 @@ namespace Ship_Game.AI {
                 if (Owner.loyalty.data.Traits.Mercantile > 0f)
                     Owner.loyalty.AddTradeMoney(Owner.CargoSpaceUsed * Owner.loyalty.data.Traits.Mercantile);
 
-                end.FoodHere += Owner.UnloadFood(end.MAX_STORAGE - end.FoodHere);
-                end.ProductionHere += Owner.UnloadProduction(end.MAX_STORAGE - end.ProductionHere);
+                end.FoodHere += Owner.UnloadFood(end.MaxStorage - end.FoodHere);
+                end.ProductionHere += Owner.UnloadProduction(end.MaxStorage - end.ProductionHere);
                 end = null;
             }
             start = null;
@@ -71,15 +71,15 @@ namespace Ship_Game.AI {
 
             if (Delivery)
             {
-                bool badCargo = Effeciency + resourceAmount > PlanetCheck.MAX_STORAGE;             
+                bool badCargo = Effeciency + resourceAmount > PlanetCheck.MaxStorage;             
                 if (!badCargo)
                     return timeTotarget * (badCargo
-                               ? PlanetCheck.MAX_STORAGE / (Effeciency + resourceAmount)
+                               ? PlanetCheck.MaxStorage / (Effeciency + resourceAmount)
                                : 1);
             }
             else
             {
-                Effeciency = PlanetCheck.MAX_STORAGE * .5f < ship.CargoSpaceMax
+                Effeciency = PlanetCheck.MaxStorage * .5f < ship.CargoSpaceMax
                     ? resourceAmount + Effeciency < ship.CargoSpaceMax * .5f
                         ? ship.CargoSpaceMax * .5f / (resourceAmount + Effeciency)
                         : 1
@@ -254,7 +254,7 @@ namespace Ship_Game.AI {
                                     cargoSpaceMax = cargoSpaceMax - efficiency;
                             }
 
-                            if (cargoSpaceMax <= 0 + p.MAX_STORAGE * .1f) 
+                            if (cargoSpaceMax <= 0 + p.MaxStorage * .1f) 
                             {
                                 flag = true;
                                 break;
@@ -286,7 +286,7 @@ namespace Ship_Game.AI {
             {
                 if (p.ParentSystem.CombatInSystem) continue;
                 var flag = false;
-                float cargoSpaceMax = p.MAX_STORAGE - p.GetGoodHere(goodType);
+                float cargoSpaceMax = p.MaxStorage - p.GetGoodHere(goodType);
                 var faster = true;
                 float thisTradeStr = TradeSort(Owner, p, goodType, Owner.CargoSpaceMax, true);
                 if (thisTradeStr >= UniverseScreen.UniverseSize && p.GetGoodHere(goodType) >= 0)
@@ -364,7 +364,7 @@ namespace Ship_Game.AI {
 
                     if (planet.GetGoodState(goodType) == goodState && InsideAreaOfOperation(planet))
                         planets.Planets.Add(planet);
-                    else if (planet.MAX_STORAGE - planet.GetGoodHere(goodType) > 0)
+                    else if (planet.MaxStorage - planet.GetGoodHere(goodType) > 0)
                         planets.SecondaryPlanets.Add(planet);
                 }
             return planets;
@@ -550,7 +550,7 @@ namespace Ship_Game.AI {
                 start.ProductionHere += Owner.UnloadProduction();
                 start.Population += Owner.UnloadColonists();
 
-                float maxFoodLoad = (start.FoodHere).Clamp(0f, start.MAX_STORAGE * 0.10f);
+                float maxFoodLoad = (start.FoodHere).Clamp(0f, start.MaxStorage * 0.10f);
                 start.FoodHere -= Owner.LoadFood(maxFoodLoad);
 
                 OrderQueue.RemoveFirst();
@@ -563,7 +563,7 @@ namespace Ship_Game.AI {
                 start.FoodHere += Owner.UnloadFood();
                 start.Population += Owner.UnloadColonists();
 
-                float maxProdLoad = (start.ProductionHere).Clamp(0f, start.MAX_STORAGE * 10f);
+                float maxProdLoad = (start.ProductionHere).Clamp(0f, start.MaxStorage * 10f);
                 start.ProductionHere -= Owner.LoadProduction(maxProdLoad);
 
                 OrderQueue.RemoveFirst();

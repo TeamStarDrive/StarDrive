@@ -42,7 +42,7 @@ namespace Ship_Game
                 var potentials = new Array<Planet>();
                 foreach (var planet in Empire.Universe.PlanetsDict)
                 {
-                    if (planet.Value.habitable)
+                    if (planet.Value.Habitable)
                         potentials.Add(planet.Value);
                 }
                 if (potentials.Count > 0)
@@ -53,7 +53,7 @@ namespace Ship_Game
                         toImprove.TerraformExternal(0.5f);
                         string txt = toImprove.Name + Localizer.Token(4011);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            txt, "Planets/"+toImprove.planetType, "SnapToPlanet", toImprove);
+                            txt, "Planets/"+toImprove.PlanetType, "SnapToPlanet", toImprove);
                     }
                 }
             }
@@ -63,7 +63,7 @@ namespace Ship_Game
                 var potentials = new Array<Planet>();
                 foreach (var planet in Empire.Universe.PlanetsDict)
                 {
-                    if (planet.Value.habitable)
+                    if (planet.Value.Habitable)
                         potentials.Add(planet.Value);
                 }
                 if (potentials.Count > 0)
@@ -79,7 +79,7 @@ namespace Ship_Game
                         }
                         string txt = toImprove.Name + Localizer.Token(4012);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            txt, "Planets/"+toImprove.planetType, "SnapToPlanet", toImprove);
+                            txt, "Planets/"+toImprove.PlanetType, "SnapToPlanet", toImprove);
                     }
                 }
             }
@@ -88,7 +88,7 @@ namespace Ship_Game
                 var potentials = new Array<Planet>();
                 foreach (var planet in Empire.Universe.PlanetsDict)
                 {
-                    if (planet.Value.habitable)
+                    if (planet.Value.Habitable)
                         potentials.Add(planet.Value);
                 }
 
@@ -103,7 +103,7 @@ namespace Ship_Game
 
                         string eventtext = targetplanet.Name + Localizer.Token(4105);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            eventtext, "Planets/"+targetplanet.planetType, "SnapToPlanet", targetplanet);
+                            eventtext, "Planets/"+targetplanet.PlanetType, "SnapToPlanet", targetplanet);
                     }
                     else Log.Info($"Something horrible would have happened to '{targetplanet.Name}' but it was on a planet the player hasn't discovered yet.");
                 }

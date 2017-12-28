@@ -115,7 +115,7 @@ namespace Ship_Game
                 }
             }
             Rectangle planetIconRect = new Rectangle(this.PlanetNameRect.X + 5, this.PlanetNameRect.Y + 5, this.PlanetNameRect.Height - 10, this.PlanetNameRect.Height - 10);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.planet.planetType)], planetIconRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.planet.PlanetType)], planetIconRect, Color.White);
             if (this.planet.Owner != null)
             {
                 SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
@@ -230,16 +230,16 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.planet.Name, rpos, TextColor);
             rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing - 3);
             Vector2 FertilityCursor = new Vector2((float)(this.FertRect.X + 35), (float)(this.FertRect.Y + this.FertRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.Fertility.ToString("#.0"), FertilityCursor, (this.planet.habitable ? Color.White : Color.LightPink));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.Fertility.ToString("#.0"), FertilityCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
             Vector2 RichCursor = new Vector2((float)(this.RichRect.X + 35), (float)(this.RichRect.Y + this.RichRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.MineralRichness.ToString("#.0"), RichCursor, (this.planet.habitable ? Color.White : Color.LightPink));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.MineralRichness.ToString("#.0"), RichCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
             Vector2 PopCursor = new Vector2((float)(this.PopRect.X + 60), (float)(this.PopRect.Y + this.PopRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
             SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;
             float population = this.planet.Population / 1000f;
             string str = population.ToString("#.0");
             float maxPopulation = (this.planet.MaxPopulation + this.planet.MaxPopBonus) / 1000f;
-            spriteBatch1.DrawString(arial12Bold, string.Concat(str, " / ", maxPopulation.ToString("#.0")), PopCursor, (this.planet.habitable ? Color.White : Color.LightPink));
+            spriteBatch1.DrawString(arial12Bold, string.Concat(str, " / ", maxPopulation.ToString("#.0")), PopCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
             Vector2 OwnerCursor = new Vector2((float)(this.OwnerRect.X + 20), (float)(this.OwnerRect.Y + this.OwnerRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
             SpriteBatch spriteBatch2 = ScreenManager.SpriteBatch;
             SpriteFont spriteFont = Fonts.Arial12Bold;
@@ -249,19 +249,19 @@ namespace Ship_Game
             }
             else
             {
-                singular = (this.planet.habitable ? Localizer.Token(2263) : Localizer.Token(2264));
+                singular = (this.planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
             }
             spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, (this.planet.Owner != null ? this.planet.Owner.EmpireColor : Color.Gray));
             string PlanetText = string.Concat(this.planet.GetTypeTranslation(), " ", this.planet.GetRichness());
             Vector2 vector2 = new Vector2((float)(this.FertRect.X + 10), (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2) - Fonts.Arial12Bold.MeasureString(PlanetText).Y / 2f);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetText, rpos, TextColor);
-            if (this.planet.habitable && this.planet.Owner == null)
+            if (this.planet.Habitable && this.planet.Owner == null)
             {
                 this.Colonize.Draw(ScreenManager.SpriteBatch);
             }
 
             //if (i > 0 && this.planet.Owner == null)
-            if (this.planet.Owner ==null && this.planet.habitable)  //fbedard: can send troop anywhere
+            if (this.planet.Owner ==null && this.planet.Habitable)  //fbedard: can send troop anywhere
             {
                 int troopsInvading = this.screen.EmpireUI.empire.GetShips()
                  .Where(troop => troop.TroopList.Count > 0)

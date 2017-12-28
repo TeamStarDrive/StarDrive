@@ -265,7 +265,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -281,7 +281,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -305,7 +305,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -321,7 +321,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -345,7 +345,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -361,7 +361,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -385,7 +385,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -401,7 +401,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -425,7 +425,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -441,7 +441,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -465,7 +465,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -481,7 +481,7 @@ namespace Ship_Game
                         select planet;
                     foreach (Planet p in sortedList)
                     {
-                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                        if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                         {
                             continue;
                         }
@@ -544,7 +544,7 @@ namespace Ship_Game
             {
                 foreach (Planet p in this.ExploredPlanets)
                 {
-                    if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                    if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                     {
                         continue;
                     }
@@ -564,7 +564,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -580,7 +580,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -599,7 +599,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -615,7 +615,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -638,7 +638,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -654,7 +654,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -678,7 +678,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -694,7 +694,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -718,7 +718,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -734,7 +734,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -758,7 +758,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
@@ -774,7 +774,7 @@ namespace Ship_Game
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }

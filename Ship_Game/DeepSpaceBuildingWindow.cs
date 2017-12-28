@@ -244,7 +244,7 @@ namespace Ship_Game
                 {
                     foreach (UniverseScreen.ClickablePlanets p in this.screen.ClickPlanetList)
                     {
-                        if (Vector2.Distance(p.planetToClick.Center, pp) > (2500f * p.planetToClick.scale))
+                        if (Vector2.Distance(p.planetToClick.Center, pp) > (2500f * p.planetToClick.Scale))
                         {
                             continue;
                         }
