@@ -1,9 +1,9 @@
-using Microsoft.Xna.Framework;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Gameplay
 {

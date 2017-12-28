@@ -32,7 +32,7 @@ namespace Ship_Game.AI
             }
             else if (Missile.Planet != null)
             {
-                Level = missile.Planet.developmentLevel;
+                Level = missile.Planet.DevelopmentLevel;
                 TargetList = new Array<Ship>();
                 GameplayObject[] nearbyShips = UniverseScreen.SpaceManager.FindNearby(
                             Missile, Missile.Planet.GravityWellRadius, GameObjectType.Ship);

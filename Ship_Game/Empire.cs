@@ -140,9 +140,9 @@ namespace Ship_Game
 
         public Planet[] BestShipYards => RallyPoints.FilterBy(planet =>
         planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
-        && planet.developmentLevel > 2
+        && planet.DevelopmentLevel > 2
         && planet.colonyType != Planet.ColonyType.Research
-        && (planet.colonyType != Planet.ColonyType.Industrial || planet.developmentLevel > 3)
+        && (planet.colonyType != Planet.ColonyType.Industrial || planet.DevelopmentLevel > 3)
         );
 
 
@@ -1278,7 +1278,7 @@ namespace Ship_Game
                         if (planet == this.Capital)
                             this.EmpireShipCountReserve = +5;
                         else
-                            this.EmpireShipCountReserve += planet.developmentLevel;
+                            this.EmpireShipCountReserve += planet.DevelopmentLevel;
                         if (this.EmpireShipCountReserve > 50)
                         {
                             this.EmpireShipCountReserve = 50;
@@ -1400,7 +1400,7 @@ namespace Ship_Game
                 {
                     exportFTrack += planet.ExportFSWeight;
                     exportPTrack += planet.ExportPSWeight;
-                    averagePLanetStorage += (int)planet.MAX_STORAGE;
+                    averagePLanetStorage += (int)planet.MaxStorage;
                 }
                 averagePLanetStorage /= planetcount;
                 
@@ -2713,7 +2713,7 @@ namespace Ship_Game
             {
                 if (p.ParentSystem.combatTimer <= 0)
                     allincombat = false;
-                if (p.ps == Planet.GoodState.IMPORT || p.fs == Planet.GoodState.IMPORT)
+                if (p.PS == Planet.GoodState.IMPORT || p.FS == Planet.GoodState.IMPORT)
                     noimport = false;
             }
 

@@ -314,7 +314,7 @@ namespace Ship_Game
                         if (DiceRoll >= ResourceManager.AgentMissionData.SabotageRollPerfect)
                         {
                             Planet crippledTurns = target;
-                            crippledTurns.Crippled_Turns = crippledTurns.Crippled_Turns + 5 + this.Level * 5;
+                            crippledTurns.CrippledTurns = crippledTurns.CrippledTurns + 5 + this.Level * 5;
                             if (Target == EmpireManager.Player)
                             {
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6048), " ", target.Name), Target);
@@ -335,7 +335,7 @@ namespace Ship_Game
                         else if (DiceRoll > ResourceManager.AgentMissionData.SabotageRollGood)
                         {
                             Planet planet = target;
-                            planet.Crippled_Turns = planet.Crippled_Turns + 5 + this.Level * 3;
+                            planet.CrippledTurns = planet.CrippledTurns + 5 + this.Level * 3;
                             if (Target == EmpireManager.Player)
                             {
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6048), " ", target.Name, Localizer.Token(6049),  " ", Owner.data.Traits.Name), Target);

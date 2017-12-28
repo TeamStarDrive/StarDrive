@@ -162,7 +162,7 @@ namespace Ship_Game.AI
                             case Planet.ColonyType.Military:        weight += 2; break;
                             case Planet.ColonyType.TradeHub:        weight += 2; break;
                         }
-                        weight += planet.developmentLevel;
+                        weight += planet.DevelopmentLevel;
                         weight += planet.MineralRichness;
                         return weight;
                     }))
@@ -207,7 +207,7 @@ namespace Ship_Game.AI
                             break;
                         if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
-                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
+                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MaxStorage * .5f)
                                 PlanetBuildingAt.ApplyStoredProduction(0);
                         }
                         break;

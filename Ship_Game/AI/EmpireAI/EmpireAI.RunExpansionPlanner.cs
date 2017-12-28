@@ -146,7 +146,7 @@ namespace Ship_Game.AI {
                 if (str > 0) continue;
                 foreach (Planet planetList in s.PlanetList)
                 {
-                    if (!planetList.habitable)
+                    if (!planetList.Habitable)
                         continue;
                     if (planetList.Owner != null) continue;
                     if (IsAlreadyMarked(planetList, str)) continue;

@@ -82,7 +82,7 @@ namespace Ship_Game
                 RelevantEmpire  = emp,
                 Message         = wasColonized.Name + Localizer.Token(1513),
                 ReferencedItem1 = wasColonized,
-                IconPath        = "Planets/" + wasColonized.planetType,
+                IconPath        = "Planets/" + wasColonized.PlanetType,
                 Action          = "SnapToPlanet"
             }, "sd_ui_notification_colonized_01");
         }
@@ -94,7 +94,7 @@ namespace Ship_Game
                 RelevantEmpire  = conquerer,
                 Message         = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
                 ReferencedItem1 = wasConquered.ParentSystem,
-                IconPath        = "Planets/" + wasConquered.planetType,
+                IconPath        = "Planets/" + wasConquered.PlanetType,
                 Action          = "SnapToSystem"
             }, "sd_troop_march_01");
         }
@@ -118,7 +118,7 @@ namespace Ship_Game
                 RelevantEmpire  = invader,
                 Message         = invader.data.Traits.Singular + Localizer.Token(1507) + where.Name + "!",
                 ReferencedItem1 = where,
-                IconPath        = "Planets/" + where.planetType,
+                IconPath        = "Planets/" + where.PlanetType,
                 Action          = "CombatScreen"
             }, "sd_notify_alert", "sd_troop_march_01");
         }
@@ -129,7 +129,7 @@ namespace Ship_Game
             {
                 Message         = "Foreign troops evacuated from " + where.Name,
                 ReferencedItem1 = where,
-                IconPath        = "Planets/" + where.planetType,
+                IconPath        = "Planets/" + where.PlanetType,
                 Action          = "SnapToPlanet"
             }, "sd_notify_alert");
         }
@@ -140,7 +140,7 @@ namespace Ship_Game
             {
                 Message         = "Your troops stationed on " + where.Name + " had to evacuate when " + where.Owner.data.Traits.Name + " colonized the planet",
                 ReferencedItem1 = where,
-                IconPath        = "Planets/" + where.planetType,
+                IconPath        = "Planets/" + where.PlanetType,
                 Action          = "SnapToPlanet"
             }, "sd_notify_alert");
         }
@@ -186,7 +186,7 @@ namespace Ship_Game
                 Message         = Localizer.Token(1505) + p.Name + Localizer.Token(1506),
                 ReferencedItem1 = p.ParentSystem,
                 ReferencedItem2 = p,
-                IconPath        = "Planets/" + p.planetType,
+                IconPath        = "Planets/" + p.PlanetType,
                 Action          = "SnapToExpandSystem"
             }, "sd_ui_notification_encounter");
         }
@@ -199,7 +199,7 @@ namespace Ship_Game
                 RelevantEmpire  = us,
                 Message         = Localizer.Token(1510) + wasConquered.Name,
                 ReferencedItem1 = wasConquered,
-                IconPath        = "Planets/" + wasConquered.planetType,
+                IconPath        = "Planets/" + wasConquered.PlanetType,
                 Action          = "SnapToPlanet"
             }, "sd_troop_march_01");
         }
@@ -212,7 +212,7 @@ namespace Ship_Game
                 RelevantEmpire  = us,
                 Message         = "Removed " + them.data.Traits.Singular + " agent from " + wasConquered.Name,
                 ReferencedItem1 = wasConquered,
-                IconPath        = "Planets/" + wasConquered.planetType,
+                IconPath        = "Planets/" + wasConquered.PlanetType,
                 Action          = "SnapToPlanet"
             }, "sd_troop_march_01");
         }
@@ -274,7 +274,7 @@ namespace Ship_Game
             {
                 Message         = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
                 ReferencedItem1 = died.ParentSystem,
-                IconPath        = "Planets/" + died.planetType,
+                IconPath        = "Planets/" + died.PlanetType,
                 Action          = "SnapToSystem"
             }, "sd_ui_notification_warning");
         }
@@ -355,7 +355,7 @@ namespace Ship_Game
                 RelevantEmpire  = planet.Owner,
                 Message         = planet.Name + " is not producing anything.",
                 ReferencedItem1 = this, //this.system,
-                IconPath        = "Planets/" + planet.planetType, //"UI/icon_warning_money",
+                IconPath        = "Planets/" + planet.PlanetType, //"UI/icon_warning_money",
                 Action          = "SnapToPlanet" //"SnapToSystem",
             }, "sd_ui_notification_warning");
         }

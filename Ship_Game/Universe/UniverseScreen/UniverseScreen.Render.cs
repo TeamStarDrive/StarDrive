@@ -109,26 +109,26 @@ namespace Ship_Game
                                     out Vector2 planetScreenPos, out float planetScreenRadius);
                                 float scale = planetScreenRadius / 115f;
 
-                                if (planet.planetType == 1 || planet.planetType == 11 ||
-                                    (planet.planetType == 13 || planet.planetType == 21) ||
-                                    (planet.planetType == 22 || planet.planetType == 25 ||
-                                     (planet.planetType == 27 || planet.planetType == 29)))
+                                if (planet.PlanetType == 1 || planet.PlanetType == 11 ||
+                                    (planet.PlanetType == 13 || planet.PlanetType == 21) ||
+                                    (planet.PlanetType == 22 || planet.PlanetType == 25 ||
+                                     (planet.PlanetType == 27 || planet.PlanetType == 29)))
                                     this.ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
-                                else if (planet.planetType == 5 || planet.planetType == 7 ||
-                                         (planet.planetType == 8 || planet.planetType == 9) || planet.planetType == 23)
+                                else if (planet.PlanetType == 5 || planet.PlanetType == 7 ||
+                                         (planet.PlanetType == 8 || planet.PlanetType == 9) || planet.PlanetType == 23)
                                     this.ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
                                         Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
-                                else if (planet.planetType == 17)
+                                else if (planet.PlanetType == 17)
                                     this.ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
-                                else if (planet.planetType == 19)
+                                else if (planet.PlanetType == 19)
                                     this.ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
-                                else if (planet.planetType == 14 || planet.planetType == 18)
+                                else if (planet.PlanetType == 14 || planet.PlanetType == 18)
                                     this.ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
@@ -628,13 +628,13 @@ namespace Ship_Game
                         Planet p = solarSystem.PlanetList[j];
                         if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                         {
-                            if (p.hasEarthLikeClouds)
+                            if (p.HasEarthLikeClouds)
                             {
-                                DrawClouds(xnaPlanetModel, p.cloudMatrix, view, projection, p);
-                                DrawAtmo(xnaPlanetModel, p.cloudMatrix, view, projection, p);
+                                DrawClouds(xnaPlanetModel, p.CloudMatrix, view, projection, p);
+                                DrawAtmo(xnaPlanetModel, p.CloudMatrix, view, projection, p);
                             }
-                            if (p.hasRings)
-                                DrawRings(p.RingWorld, view, projection, p.scale);
+                            if (p.HasRings)
+                                DrawRings(p.RingWorld, view, projection, p.Scale);
                         }
                     }
                 }
