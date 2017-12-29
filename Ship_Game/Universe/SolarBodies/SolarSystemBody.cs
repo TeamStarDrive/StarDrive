@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -30,8 +33,30 @@ namespace Ship_Game
         Rich,
         UltraRich,
     }
+    public class OrbitalDrop
+    {
+        public Vector2 Position;
+        public Vector2 Velocity;
+        public float Rotation;
+        public PlanetGridSquare Target;
+    }
+
+
     public class SolarSystemBody : Explorable
     {
+    
+        public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
+        public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
+        public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
+        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
+        public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
+        public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
+        protected readonly Map<string, float> ResourcesDict = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
+        protected readonly Array<Building> BuildingsCanBuild = new Array<Building>();
+        public Array<string> CommoditiesPresent = new Array<string>();
+        public Array<string> Guardians = new Array<string>();
+        public Array<string> PlanetFleets = new Array<string>();
+        public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
         public Matrix RingWorld;
         public SceneObject SO;
         // ReSharper disable once InconsistentNaming some conflict issues makhing this GUID and possible save and load issues changing this. 
@@ -81,7 +106,8 @@ namespace Ship_Game
         public string DevelopmentStatus = "Undeveloped";
         public float TerraformPoints;
         public float TerraformToAdd;
-
+        public Planet.ColonyType colonyType;
+        protected int TurnsSinceTurnover;
         protected void PlayPlanetSfx(string sfx, Vector3 position)
         {
             if (Emitter == null)
@@ -89,7 +115,7 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-
+        public bool GovernorOn = true;
         public float ObjectRadius
         {
             get => SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius;
@@ -465,7 +491,7 @@ namespace Ship_Game
                 int index = (int)RandomMath.RandomBetween(0f, list.Count + 0.85f);
                 if (index >= list.Count)
                     index = list.Count - 1;
-                var b = AssignBuildingToRandomTile(ResourceManager.CreateBuilding(list[index]));
+                PlanetGridSquare b = ResourceManager.CreateBuilding(list[index]).AssignBuildingToRandomTile(this);
                 BuildingList.Add(b.building);
                 Log.Info($"Event building : {b.building.Name} : created on {Name}");
             }
@@ -478,27 +504,14 @@ namespace Ship_Game
                 for (int i = 0; i < itemCount; ++i)
                 {
                     if (!ResourceManager.BuildingsDict.ContainsKey(randItem.BuildingID)) continue;
-                    var pgs = AssignBuildingToRandomTile(ResourceManager.CreateBuilding(randItem.BuildingID));
+                    var pgs = ResourceManager.CreateBuilding(randItem.BuildingID).AssignBuildingToRandomTile(this);
                     pgs.Habitable = true;
                     Log.Info($"Resouce Created : '{pgs.building.Name}' : on '{Name}' ");
                     BuildingList.Add(pgs.building);
                 }
             }
         }
-        public PlanetGridSquare AssignBuildingToRandomTile(Building b, bool habitable = false)
-        {
-            PlanetGridSquare[] list;
-            list = !habitable ? TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null) 
-                : TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null && planetGridSquare.Habitable);
-            if (list.Length == 0)
-                return null;
 
-            int index = RandomMath.InRange(list.Length - 1);
-            var targetPGS = TilesList.Find(pgs => pgs == list[index]);
-            targetPGS.building = b;
-            return targetPGS;
-
-        }
         public void SetPlanetAttributes(float mrich)
         {
             float num1 = mrich;
@@ -1361,7 +1374,100 @@ namespace Ship_Game
             UpdateDescription();
             CreatePlanetSceneObject(Empire.Universe);
         }
+        private static void TraitLess(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Max(invaderValue, ownerValue);
+        private static void TraitMore(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Min(invaderValue, ownerValue);
+        public void ChangeOwnerByInvasion(Empire newOwner)
+        {
+            if (newOwner.TryGetRelations(Owner, out Relationship rel))
+            {
+                if (rel.AtWar && rel.ActiveWar != null)
+                    ++rel.ActiveWar.ColoniestWon;
+            }
+            else if (Owner.TryGetRelations(newOwner, out Relationship relship) && relship.AtWar && relship.ActiveWar != null)
+                ++relship.ActiveWar.ColoniesLost;
+            ConstructionQueue.Clear();
+            foreach (PlanetGridSquare planetGridSquare in TilesList)
+                planetGridSquare.QItem = null;
+            Owner.RemovePlanet((Planet)this);
+            if (newOwner == Empire.Universe.PlayerEmpire && Owner == EmpireManager.Cordrazine)
+                GlobalStats.IncrementCordrazineCapture();
 
+            if (this.IsExploredBy(Empire.Universe.PlayerEmpire))
+            {
+                if (!newOwner.isFaction)
+                    Empire.Universe.NotificationManager.AddConqueredNotification((Planet)this, newOwner, Owner);
+                else
+                {
+                    lock (GlobalStats.OwnedPlanetsLock)
+                    {
+                        Empire.Universe.NotificationManager.AddPlanetDiedNotification((Planet)this, Empire.Universe.PlayerEmpire);
+                        bool local_7 = true;
+
+                        if (Owner != null)
+                        {
+                            foreach (Planet item_3 in ParentSystem.PlanetList)
+                            {
+                                if (item_3.Owner == Owner && item_3 != (Planet)this)
+                                    local_7 = false;
+                            }
+                            if (local_7)
+                                ParentSystem.OwnerList.Remove(Owner);
+                        }
+                        Owner = null;
+                    }
+                    ConstructionQueue.Clear();
+                    return;
+                }
+            }
+
+            if (newOwner.data.Traits.Assimilators)
+            {
+                TraitLess(ref newOwner.data.Traits.DiplomacyMod, ref Owner.data.Traits.DiplomacyMod);
+                TraitLess(ref newOwner.data.Traits.DodgeMod, ref Owner.data.Traits.DodgeMod);
+                TraitLess(ref newOwner.data.Traits.EnergyDamageMod, ref Owner.data.Traits.EnergyDamageMod);
+                TraitMore(ref newOwner.data.Traits.ConsumptionModifier, ref Owner.data.Traits.ConsumptionModifier);
+                TraitLess(ref newOwner.data.Traits.GroundCombatModifier, ref Owner.data.Traits.GroundCombatModifier);
+                TraitLess(ref newOwner.data.Traits.Mercantile, ref Owner.data.Traits.Mercantile);
+                TraitLess(ref newOwner.data.Traits.PassengerModifier, ref Owner.data.Traits.PassengerModifier);
+                TraitLess(ref newOwner.data.Traits.ProductionMod, ref Owner.data.Traits.ProductionMod);
+                TraitLess(ref newOwner.data.Traits.RepairMod, ref Owner.data.Traits.RepairMod);
+                TraitLess(ref newOwner.data.Traits.ResearchMod, ref Owner.data.Traits.ResearchMod);
+                TraitLess(ref newOwner.data.Traits.ShipCostMod, ref Owner.data.Traits.ShipCostMod);
+                TraitLess(ref newOwner.data.Traits.PopGrowthMin, ref Owner.data.Traits.PopGrowthMin);
+                TraitMore(ref newOwner.data.Traits.PopGrowthMax, ref Owner.data.Traits.PopGrowthMax);
+                TraitLess(ref newOwner.data.Traits.ModHpModifier, ref Owner.data.Traits.ModHpModifier);
+                TraitLess(ref newOwner.data.Traits.TaxMod, ref Owner.data.Traits.TaxMod);
+                TraitMore(ref newOwner.data.Traits.MaintMod, ref Owner.data.Traits.MaintMod);
+                TraitLess(ref newOwner.data.SpyModifier, ref Owner.data.SpyModifier);
+                TraitLess(ref newOwner.data.Traits.Spiritual, ref Owner.data.Traits.Spiritual);
+
+            }
+            if (newOwner.isFaction)
+                return;
+
+            foreach (var kv in Shipyards)
+            {
+                if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.GetOwner() != newOwner))
+                    continue;
+                kv.Value.loyalty = newOwner;
+                Owner.RemoveShip(kv.Value);      //Transfer to new owner's ship list. Fixes platforms changing loyalty after game load bug      -Gretman
+                newOwner.AddShip(kv.Value);
+                Log.Info("Owner of platform tethered to {0} changed from {1} to {2}", Name, Owner.PortraitName, newOwner.PortraitName);
+            }
+            Owner = newOwner;
+            TurnsSinceTurnover = 0;
+            Owner.AddPlanet((Planet)this);
+            ConstructionQueue.Clear();
+            ParentSystem.OwnerList.Clear();
+
+            foreach (Planet planet in ParentSystem.PlanetList)
+            {
+                if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
+                    ParentSystem.OwnerList.Add(planet.Owner);
+            }
+            colonyType = Owner.AssessColonyNeeds((Planet)this);
+            GovernorOn = true;
+        }
         
     }
 }

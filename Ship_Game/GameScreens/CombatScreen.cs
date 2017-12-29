@@ -702,7 +702,7 @@ namespace Ship_Game
                             else if (e.item is Troop)
                             {
                                 (e.item as Troop).GetShip().TroopList.Remove(e.item as Troop);
-                                this.p.AssignTroopToTile(e.item as Troop);
+                                (e.item as Troop).AssignTroopToTile(this.p);
                             }
                         }
                         this.OrbitSL.Entries.Clear();
