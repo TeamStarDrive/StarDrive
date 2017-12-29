@@ -581,7 +581,7 @@ namespace Ship_Game.AI {
                 else
                     ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime, Owner.Speed);
                 if (distCenter < goal.TargetPlanet.ObjectRadius &&
-                    goal.TargetPlanet.AssignTroopToTile(Owner.TroopList[0]))
+                    Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
                     Owner.QueueTotalRemoval();
                 return;
             }
@@ -612,7 +612,7 @@ namespace Ship_Game.AI {
                     {
                         if (troop == null || troop.GetOwner() != Owner.loyalty)
                             continue;
-                        if (goal.TargetPlanet.AssignTroopToTile(troop))
+                        if (troop.AssignTroopToTile(goal.TargetPlanet))
                         {
                             toRemove.Add(troop);
                             landLimit--;
@@ -783,7 +783,7 @@ namespace Ship_Game.AI {
             {
                 Owner.QueueTotalRemoval();
             }
-            else if (Goal.TargetPlanet.AssignTroopToTile(Owner.TroopList[0]))
+            else if (Owner.TroopList[0].AssignTroopToTile(Goal.TargetPlanet))
             {
                 Owner.TroopList.Clear();
                 Owner.QueueTotalRemoval();

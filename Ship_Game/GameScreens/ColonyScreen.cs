@@ -3041,7 +3041,7 @@ namespace Ship_Game
         {
             if (this.toScrap != null)
             {
-                this.p.ScrapBuilding(this.toScrap);
+                this.toScrap.ScrapBuilding(this.p);
             }
             this.Update(0f);
         }

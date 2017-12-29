@@ -622,7 +622,7 @@ namespace Ship_Game
                                     Troop t = ResourceManager.CreateTroop(troopType, darebels);
                                     t.Name = Localizer.Token(darebels.data.TroopNameIndex);
                                     t.Description = Localizer.Token(darebels.data.TroopDescriptionIndex);
-                                    target.AssignTroopToTile(t);
+                                    t.AssignTroopToTile(target);
                                     break;
                                 }
                             }
