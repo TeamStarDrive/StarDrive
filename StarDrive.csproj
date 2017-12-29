@@ -268,7 +268,8 @@
     </Compile>
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadRaceScreen.cs" />
-    <Compile Include="Ship_Game\Troops\GroundCombatAI.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\TroopManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Moon.cs" />
     <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />

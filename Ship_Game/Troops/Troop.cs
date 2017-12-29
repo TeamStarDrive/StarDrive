@@ -321,8 +321,9 @@ namespace Ship_Game
 
         }
 
-        public bool AssignTroopToTile(Planet planet)
+        public bool AssignTroopToTile(Planet planet = null)
         {
+            planet = planet ?? p;
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
