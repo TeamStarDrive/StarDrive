@@ -5,7 +5,7 @@ using System.Linq;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public class GroundCombatAI
+    public class TroopManager
     {
         private readonly SolarSystemBody Ground;
 
@@ -29,7 +29,7 @@ namespace Ship_Game
 
         // ReSharper disable once UnusedParameter.Local Habital concept here is to not use this class if the planet cant have
         // ground combat. but that will be a future project. 
-        public GroundCombatAI (SolarSystemBody solarSystemBody, bool habitable)
+        public TroopManager (SolarSystemBody solarSystemBody, bool habitable)
         {
             Ground = solarSystemBody;
         }

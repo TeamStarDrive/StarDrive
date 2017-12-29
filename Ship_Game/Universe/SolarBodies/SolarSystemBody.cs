@@ -99,16 +99,14 @@ namespace Ship_Game
         public float MaxPopulation;
         public Array<Building> BuildingList = new Array<Building>();
         public float ShieldStrengthCurrent;
-        public float ShieldStrengthMax;
-        protected Shield Shield;
+        public float ShieldStrengthMax;        
         private float PosUpdateTimer = 1f;
         private float ZrotateAmount = 0.03f;
         public string DevelopmentStatus = "Undeveloped";
         public float TerraformPoints;
         public float TerraformToAdd;
-        public Planet.ColonyType colonyType;
-        protected int TurnsSinceTurnover;
-        protected void PlayPlanetSfx(string sfx, Vector3 position)
+        public Planet.ColonyType colonyType;        
+        public void PlayPlanetSfx(string sfx, Vector3 position)
         {
             if (Emitter == null)
                 Emitter = new AudioEmitter();
@@ -121,6 +119,9 @@ namespace Ship_Game
             get => SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius;
             set => InvisibleRadius = SO != null ? SO.WorldBoundingSphere.Radius : value;
         }
+        public int TurnsSinceTurnover { get; protected set; }
+        public Shield Shield { get; protected set;}
+
         public string GetTypeTranslation()
         {
             switch (Type)
