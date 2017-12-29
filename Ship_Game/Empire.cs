@@ -2172,7 +2172,7 @@ namespace Ship_Game
                                     Troop troop = ResourceManager.CreateTroop(troopType, rebelsFromEmpireData);
                                     troop.Name = Localizer.Token(rebelsFromEmpireData.data.TroopNameIndex);
                                     troop.Description = Localizer.Token(rebelsFromEmpireData.data.TroopDescriptionIndex);
-                                    planet.AssignTroopToTile(troop); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
+                                    troop.AssignTroopToTile(planet); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
                                     break;
                                 }
                             }
@@ -2440,7 +2440,7 @@ namespace Ship_Game
                                 list.Add(building);
                         }
                         foreach (Building b in list)
-                            planet.ScrapBuilding(b);
+                            b.ScrapBuilding(planet);
                     }
                 }
             }

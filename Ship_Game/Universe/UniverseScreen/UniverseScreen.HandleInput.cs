@@ -105,8 +105,7 @@ namespace Ship_Game
                 else if (SelectedPlanet != null && Debug && (input.KillThis))
                 {
                     foreach (string troopType in ResourceManager.TroopTypes)
-                        SelectedPlanet.AssignTroopToTile(
-                            ResourceManager.CreateTroop(troopType, EmpireManager.Remnants));
+                        ResourceManager.CreateTroop(troopType, EmpireManager.Remnants).AssignTroopToTile(SelectedPlanet);
                 }
 
                 if (input.SpawnRemnantShip)

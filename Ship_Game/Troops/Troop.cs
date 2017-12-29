@@ -1,10 +1,9 @@
+using System;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using System.Xml.Serialization;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -292,5 +291,63 @@ namespace Ship_Game
         {
             return Cost * UniverseScreen.GamePaceStatic;
         }
+        public bool AssignTroopToNearestAvailableTile(Troop t, PlanetGridSquare tile, Planet planet )
+        {
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
+            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+            {
+                if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops
+                    && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0)
+                    && (Math.Abs(tile.x - planetGridSquare.x) <= 1 && Math.Abs(tile.y - planetGridSquare.y) <= 1))
+                    list.Add(planetGridSquare);
+            }
+            if (list.Count > 0)
+            {
+                int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
+                PlanetGridSquare planetGridSquare1 = list[index];
+                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
+                {
+                    if (planetGridSquare2 == planetGridSquare1)
+                    {
+                        planetGridSquare2.TroopsHere.Add(t);
+                        planet.TroopsHere.Add(t);
+                        t.SetPlanet(planet);
+                        return true;
+
+                    }
+                }
+            }
+            return false;
+
+        }
+
+        public bool AssignTroopToTile(Planet planet)
+        {
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
+            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+            {
+                if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
+                    list.Add(planetGridSquare);
+            }
+            if (list.Count > 0)
+            {
+                int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
+                PlanetGridSquare planetGridSquare = list[index];
+                foreach (PlanetGridSquare eventLocation in planet.TilesList)
+                {
+                    if (eventLocation == planetGridSquare)
+                    {
+                        eventLocation.TroopsHere.Add(this);
+                        planet.TroopsHere.Add(this);
+                        this.SetPlanet(planet);
+                        if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
+                            return true;
+                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(planet, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
+                    }
+                }
+            }
+            return false;
+        }
+
     }
 }

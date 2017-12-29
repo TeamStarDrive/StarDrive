@@ -3,89 +3,89 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-	public sealed class Outcome
-	{
-		private Planet _selectedPlanet;
+    public sealed class Outcome
+    {
+        private Planet _selectedPlanet;
 
-		public bool BeginArmageddon;
+        public bool BeginArmageddon;
 
-		public int Chance;
+        public int Chance;
 
-		private Artifact _grantedArtifact;
+        private Artifact _grantedArtifact;
 
-		public Array<string> TroopsToSpawn;
+        public Array<string> TroopsToSpawn;
 
-		public Array<string> FriendlyShipsToSpawn;
+        public Array<string> FriendlyShipsToSpawn;
 
-		public Array<string> RemnantShipsToSpawn;
+        public Array<string> RemnantShipsToSpawn;
 
-		public bool UnlockSecretBranch;
+        public bool UnlockSecretBranch;
 
-		public string SecretTechDiscovered;
+        public string SecretTechDiscovered;
 
-		public string TitleText;
+        public string TitleText;
 
-		public string UnlockTech;
+        public string UnlockTech;
 
-		public bool WeHadIt;
+        public bool WeHadIt;
 
-		public bool GrantArtifact;
+        public bool GrantArtifact;
 
-		public bool RemoveTrigger;
+        public bool RemoveTrigger;
 
-		public string ReplaceWith = "";
+        public string ReplaceWith = "";
 
-		public string DescriptionText;
+        public string DescriptionText;
 
-		public int MoneyGranted;
+        public int MoneyGranted;
 
-		public Array<string> TroopsGranted;
+        public Array<string> TroopsGranted;
 
-		public float FoodProductionBonus;
+        public float FoodProductionBonus;
 
-		public float IndustryBonus;
+        public float IndustryBonus;
 
-		public float ScienceBonus;
+        public float ScienceBonus;
 
-		public bool SelectRandomPlanet;
+        public bool SelectRandomPlanet;
 
-		public string SpawnBuildingOnPlanet;
+        public string SpawnBuildingOnPlanet;
 
-		public string SpawnFleetInOrbitOfPlanet;
+        public string SpawnFleetInOrbitOfPlanet;
 
         public bool OnlyTriggerOnce;
 
         public bool AlreadyTriggered;
 
-	    public Artifact GetArtifact()
-		{
-			return this._grantedArtifact;
-		}
+        public Artifact GetArtifact()
+        {
+            return this._grantedArtifact;
+        }
 
-		public Planet GetPlanet()
-		{
-			return this._selectedPlanet;
-		}
+        public Planet GetPlanet()
+        {
+            return this._selectedPlanet;
+        }
 
-		public void SetArtifact(Artifact art)
-		{
-			this._grantedArtifact = art;
-		}
+        public void SetArtifact(Artifact art)
+        {
+            this._grantedArtifact = art;
+        }
 
-		public void SetPlanet(Planet p)
-		{
-			this._selectedPlanet = p;
-		}
+        public void SetPlanet(Planet p)
+        {
+            this._selectedPlanet = p;
+        }
 
-	    private void FlatGrants(Empire triggerEmpire)
-	    {
+        private void FlatGrants(Empire triggerEmpire)
+        {
             triggerEmpire.Money += MoneyGranted;
             triggerEmpire.data.Traits.ResearchMod += ScienceBonus;
             triggerEmpire.data.Traits.ProductionMod += IndustryBonus;
         }
 
-	    private void TechGrants(Empire triggerer)
-	    {
+        private void TechGrants(Empire triggerer)
+        {
             if (SecretTechDiscovered != null)
             {
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
@@ -111,8 +111,8 @@ namespace Ship_Game
             }
         }
 
-	    private void ShipGrants(Empire triggerer ,Planet p)
-	    {
+        private void ShipGrants(Empire triggerer ,Planet p)
+        {
             foreach (string ship in FriendlyShipsToSpawn)
             {
                 triggerer.ForcePoolAdd(Ship.CreateShipAt(ship, triggerer, p, true));
@@ -124,8 +124,8 @@ namespace Ship_Game
             }
         }
 
-	    private void BuildingActions(Planet p, PlanetGridSquare eventLocation)
-	    {
+        private void BuildingActions(Planet p, PlanetGridSquare eventLocation)
+        {
             if (RemoveTrigger)
             {
                 p.BuildingList.Remove(eventLocation.building);
@@ -138,9 +138,9 @@ namespace Ship_Game
             }
         }
 
-	    private bool SetRandomPlanet()
-	    {
-	        if (!SelectRandomPlanet) return false;
+        private bool SetRandomPlanet()
+        {
+            if (!SelectRandomPlanet) return false;
             Array<Planet> potentials = new Array<Planet>();
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
@@ -159,20 +159,20 @@ namespace Ship_Game
                 return true;
             }
             return false;	        
-	    }
-	    private void TroopActions(Empire triggerer, Planet p, PlanetGridSquare eventLocation)
-	    {
+        }
+        private void TroopActions(Empire triggerer, Planet p, PlanetGridSquare eventLocation)
+        {
             if (TroopsGranted != null)
             {
                 foreach (string troopname in TroopsGranted)
                 {
                     Troop t = ResourceManager.CreateTroop(troopname, triggerer);
                     t.SetOwner(triggerer);
-                    if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
+                    if (t.AssignTroopToNearestAvailableTile(t, eventLocation, p))
                     {
                         continue;
                     }
-                    p.AssignTroopToTile(t);
+                    t.AssignTroopToTile(p);
                 }
             }
             if (TroopsToSpawn != null)
@@ -181,25 +181,25 @@ namespace Ship_Game
                 {
                     Troop t = ResourceManager.CreateTroop(troopname, EmpireManager.Unknown);
                     t.SetOwner(EmpireManager.Unknown);
-                    if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
+                    if (t.AssignTroopToNearestAvailableTile(t, eventLocation,p))
                     {
                         continue;
                     }
-                    p.AssignTroopToTile(t);
+                    t.AssignTroopToTile(p);
                 }
             }
         }
 
-	    public bool InValidOutcome(Empire triggerer)
-	    {
-	        return this.OnlyTriggerOnce && this.AlreadyTriggered && triggerer.isPlayer;
+        public bool InValidOutcome(Empire triggerer)
+        {
+            return this.OnlyTriggerOnce && this.AlreadyTriggered && triggerer.isPlayer;
 
-	    }
-	    public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
-	    {
+        }
+        public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
+        {
             //artifact setup
             if (GrantArtifact)
-	        {
+            {
                 //Find all available artifacts
                 Array<Artifact> potentials = new Array<Artifact>();
                 foreach (var kv in ResourceManager.ArtifactsDict)
@@ -224,34 +224,34 @@ namespace Ship_Game
                     SetArtifact(chosenArtifact);
                     chosenArtifact.CheckGrantArtifact(triggerer, this, popup);
                 }                
-	        }
+            }
             //Generic grants
-	        FlatGrants(triggerer);
+            FlatGrants(triggerer);
             TechGrants(triggerer);
-	        ShipGrants(triggerer, p);
-	        if (BeginArmageddon)
-	        {
-	            GlobalStats.RemnantArmageddon = true;
-	        }
+            ShipGrants(triggerer, p);
+            if (BeginArmageddon)
+            {
+                GlobalStats.RemnantArmageddon = true;
+            }
             //planet triggered events
-	        if (p != null)
-	        {
-	            BuildingActions(p, eventLocation);
-	            TroopActions(triggerer, p, eventLocation);
+            if (p != null)
+            {
+                BuildingActions(p, eventLocation);
+                TroopActions(triggerer, p, eventLocation);
                 return;	            
-	        }
+            }
 
-	        //events that trigger on other planets
-	        if(!SetRandomPlanet()) return;
-	        p = this._selectedPlanet;
+            //events that trigger on other planets
+            if(!SetRandomPlanet()) return;
+            p = this._selectedPlanet;
                         
             if (eventLocation == null)
-	        {
+            {
                 eventLocation = p.TilesList[17];
-	        }
+            }
 
             BuildingActions(p, eventLocation);
             TroopActions(triggerer, p, eventLocation);
-	    }
-	}
+        }
+    }
 }

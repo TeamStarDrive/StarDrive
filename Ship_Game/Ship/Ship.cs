@@ -2947,7 +2947,7 @@ namespace Ship_Game.Gameplay
 
                 Building building = ResourceManager.CreateBuilding(template);
                 colonizeTarget.BuildingList.Add(building);
-                colonizeTarget.AssignBuildingToTileOnColonize(building);
+                building.AssignBuildingToTileOnColonize(colonizeTarget);
                 break;
             }
         }

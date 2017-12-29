@@ -71,7 +71,7 @@ namespace Ship_Game
         public void SetPlanet(Planet p)
         {
             p.BuildingList.Add(this);
-            p.AssignBuildingToTile(this);
+            this.AssignBuildingToTile(p);
         }
 
         public Building Clone()
@@ -109,5 +109,122 @@ namespace Ship_Game
             return Production(planet, PlusFlatResearchAmount, PlusResearchPerColonist);
         }
 
+        public bool AssignBuildingToTile(SolarSystemBody solarSystemBody  = null)
+        {
+            if (AssignBuildingToRandomTile(solarSystemBody, true) != null)
+                return true;
+            PlanetGridSquare targetPGS;
+            if (!string.IsNullOrEmpty(this.EventTriggerUID))
+            {
+                targetPGS = AssignBuildingToRandomTile(solarSystemBody);
+                if (targetPGS != null)                
+                    return targetPGS.Habitable = true;                    
+                
+            }
+            if (this.Name == "Outpost" || !string.IsNullOrEmpty(this.EventTriggerUID))
+            {
+                targetPGS = AssignBuildingToRandomTile(solarSystemBody);
+                if (targetPGS != null)
+                    return targetPGS.Habitable = true;
+            }
+            if (this.Name == "Biospheres")
+                return AssignBuildingToRandomTile(solarSystemBody) != null;                    
+            return false;            
+        }
+
+        public PlanetGridSquare AssignBuildingToRandomTile(SolarSystemBody solarSystemBody, bool habitable = false)
+        {
+            PlanetGridSquare[] list;
+            list = !habitable ? solarSystemBody.TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null) 
+                : solarSystemBody.TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null && planetGridSquare.Habitable);
+            if (list.Length == 0)
+                return null;
+
+            int index = RandomMath.InRange(list.Length - 1);
+            var targetPGS = solarSystemBody.TilesList.Find(pgs => pgs == list[index]);
+            targetPGS.building = this;
+            return targetPGS;
+
+        }
+
+        public void AssignBuildingToSpecificTile(PlanetGridSquare pgs, Array<Building> BuildingList)
+        {
+            if (pgs.building != null)
+                BuildingList.Remove(pgs.building);
+            pgs.building = this;
+            BuildingList.Add(this);
+        }
+
+        public bool AssignBuildingToTileOnColonize(Planet planet)
+        {
+            if (this.AssignBuildingToRandomTile(planet, habitable: true) != null) return true;
+            return this.AssignBuildingToRandomTile(planet) != null;
+        }
+
+        public bool AssignBuildingToTile(QueueItem qi, Planet planet)
+        {
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
+            if (this.Name == "Biospheres") 
+                return false;
+            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+            {
+                bool flag = true;
+                foreach (QueueItem queueItem in planet.ConstructionQueue)
+                {
+                    if (queueItem.pgs == planetGridSquare)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag && planetGridSquare.Habitable && planetGridSquare.building == null)
+                    list.Add(planetGridSquare);
+            }
+            if (list.Count > 0)
+            {
+                int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
+                PlanetGridSquare planetGridSquare1 = list[index];
+                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
+                {
+                    if (planetGridSquare2 == planetGridSquare1)
+                    {
+                        planetGridSquare2.QItem = qi;
+                        qi.pgs = planetGridSquare2;
+                        return true;
+                    }
+                }
+            }
+            else if (this.CanBuildAnywhere)
+            {
+                PlanetGridSquare planetGridSquare1 = planet.TilesList[(int)RandomMath.RandomBetween(0.0f, planet.TilesList.Count)];
+                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
+                {
+                    if (planetGridSquare2 == planetGridSquare1)
+                    {
+                        planetGridSquare2.QItem = qi;
+                        qi.pgs = planetGridSquare2;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void ScrapBuilding(Planet planet)
+        {
+            Building building1 = null;
+            foreach (Building building2 in planet.BuildingList)
+            {
+                if (this == building2)
+                    building1 = building2;
+            }
+            planet.BuildingList.Remove(building1);
+            planet.ProductionHere += ResourceManager.BuildingsDict[this.Name].Cost / 2f;
+            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+            {
+                if (planetGridSquare.building != null && planetGridSquare.building == building1)
+                    planetGridSquare.building = null;
+            }
+        }
     }
 }
