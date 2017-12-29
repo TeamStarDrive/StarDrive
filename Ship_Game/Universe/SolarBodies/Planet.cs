@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -25,7 +26,8 @@ namespace Ship_Game
 
 
 
-        GroundCombatAI GroundCombatAI;
+        public TroopManager TroopManager;
+        GeodeticManager GeodeticManager;
         public GoodState FS = GoodState.STORE;
         public GoodState PS = GoodState.STORE;
         public GoodState GetGoodState(string good)
@@ -115,7 +117,7 @@ namespace Ship_Game
 
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
-        public bool RecentCombat => GroundCombatAI.RecentCombat;
+        public bool RecentCombat => TroopManager.RecentCombat;
 
         public float TradeIncomingColonists =0;
 
@@ -150,7 +152,8 @@ namespace Ship_Game
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 AddGood(keyValuePair.Key, 0);
             HasShipyard = false;
-            GroundCombatAI = new GroundCombatAI(this, Habitable);
+            TroopManager = new TroopManager(this, Habitable);
+            GeodeticManager = new GeodeticManager(this);
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
@@ -207,7 +210,8 @@ namespace Ship_Game
                 newOrbital.HasRings = true;
                 newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
             }
-            GroundCombatAI = new GroundCombatAI(this, Habitable);
+            TroopManager = new TroopManager(this, Habitable);
+            GeodeticManager = new GeodeticManager(this);
         }
 
         public Goods ImportPriority()
@@ -303,243 +307,7 @@ namespace Ship_Game
         }
 
         //added by gremlin deveks drop bomb
-        public void DropBomb(Bomb bomb)
-        {
-            if (bomb.Owner == Owner)
-            {
-                return;
-            }
-            if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar && TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.Owner)
-            {
-                Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
-            }
-            GroundCombatAI.SetInCombat();
-            if (ShieldStrengthCurrent <= 0f)
-            {
-                float ran = RandomMath.RandomBetween(0f, 100f);
-                bool hit = !(ran < 75f);
-                Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
-
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && ParentSystem.isVisible)
-                {
-                    PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
-
-                    ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
-                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
-                    for (int i = 0; i < 50; i++)
-                    {
-                        Empire.Universe.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
-                    }
-                }
-                var od = new OrbitalDrop();
-                Array<PlanetGridSquare> PotentialHits = new Array<PlanetGridSquare>();
-                if (hit)
-                {
-                    int buildingcount = 0;
-                    foreach (PlanetGridSquare pgs in TilesList)
-                    {
-                        if (pgs.building == null && pgs.TroopsHere.Count <= 0)
-                        {
-                            continue;
-                        }
-                        PotentialHits.Add(pgs);
-                        if(pgs.building!=null)
-                        {
-                            buildingcount++;
-                        }
-                    }
-                    if ( PotentialHits.Count <= 0)
-                    {
-                        hit = false;
-                        if (BuildingList.Count > 0)
-                            BuildingList.Clear();
-                    }
-                    else
-                    {
-                        int ranhit = (int)RandomMath.RandomBetween(0f, PotentialHits.Count + 1f);
-                        if (ranhit > PotentialHits.Count - 1)
-                        {
-                            ranhit = PotentialHits.Count - 1;
-                        }
-                        od.Target = PotentialHits[ranhit];
-                    }
-                }
-                if (!hit)
-                {
-                    int row = (int)RandomMath.RandomBetween(0f, 5f);
-                    int column = (int)RandomMath.RandomBetween(0f, 7f);
-                    if (row > 4)
-                    {
-                        row = 4;
-                    }
-                    if (column > 6)
-                    {
-                        column = 6;
-                    }
-                    foreach (PlanetGridSquare pgs in TilesList)
-                    {
-                        if (pgs.x != column || pgs.y != row)
-                        {
-                            continue;
-                        }
-                        od.Target = pgs;
-                        break;
-                    }
-                }
-                if (od.Target.TroopsHere.Count > 0)
-                {
-                    Troop item = od.Target.TroopsHere[0];
-                    item.Strength = item.Strength - (int)RandomMath.RandomBetween(ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Min, ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max);
-                    if (od.Target.TroopsHere[0].Strength <= 0)
-                    {
-                        TroopsHere.Remove(od.Target.TroopsHere[0]);
-                        od.Target.TroopsHere.Clear();
-                    }
-                }
-                else if (od.Target.building != null)
-                {
-                    Building target = od.Target.building;
-                    target.Strength = target.Strength - (int)RandomMath.RandomBetween(ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMin, ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax);
-                    if (od.Target.building.CombatStrength > 0)
-                    {
-                        od.Target.building.CombatStrength = od.Target.building.Strength;
-                    }
-                    if (od.Target.building.Strength <= 0)
-                    {
-                        BuildingList.Remove(od.Target.building);
-                        od.Target.building = null;
-
-                        bool flag = od.Target.Biosphere;
-                        //Added Code here
-                        od.Target.Habitable = false;
-                        od.Target.highlighted = false;
-                        od.Target.Biosphere = false;
-                        if (flag)
-                        {
-                            foreach (Building bios in BuildingList)
-                            {
-                                if (bios.Name == "Biospheres")
-                                {
-                                    od.Target.building = bios;
-                                    break;
-                                }
-                            }
-                            if (od.Target.building != null)
-                            {
-                                Population -= od.Target.building.MaxPopIncrease;
-                                BuildingList.Remove(od.Target.building);
-                                od.Target.building = null;
-                            }
-                        }
-                    }
-                }
-                if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
-                {
-                    GameAudio.PlaySfxAsync("Explo1");
-                    CombatScreen.SmallExplosion exp1 = new CombatScreen.SmallExplosion(4);
-                    exp1.grid = od.Target.ClickRect;
-                    lock (GlobalStats.ExplosionLocker)
-                    {
-                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(exp1);
-                    }
-                }
-                if (Population <= 0f)
-                {
-                    Population = 0f;
-                    if (Owner != null)
-                    {
-                        Owner.RemovePlanet(this);
-                        if (IsExploredBy(Empire.Universe.PlayerEmpire))
-                        {
-                            Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
-                        }
-                        bool removeowner = true;
-                        if (Owner != null)
-                        {
-                            foreach (Planet other in ParentSystem.PlanetList)
-                            {
-                                if (other.Owner != Owner || other == this)
-                                {
-                                    continue;
-                                }
-                                removeowner = false;
-                            }
-                            if (removeowner)
-                            {
-                                ParentSystem.OwnerList.Remove(Owner);
-                            }
-                        }
-                        ConstructionQueue.Clear();
-                        Owner = null;
-                        return;
-                    }
-                }
-                if (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction != null)
-                {
-                    string hardCodedAction = ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction;
-                    string str = hardCodedAction;
-                    if (hardCodedAction != null)
-                    {
-                        if (str != "Free Owlwoks")
-                        {
-                            return;
-                        }
-                        if (Owner != null && Owner == EmpireManager.Cordrazine)
-                        {
-                            for (int i = 0; i < TroopsHere.Count; i++)
-                            {
-                                if (TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && TroopsHere[i].TargetType == "Soft")
-                                {
-                                    if (SteamManager.SetAchievement("Owlwoks_Freed"))
-                                    {
-                                        SteamManager.SaveAllStatAndAchievementChanges();
-                                    }
-                                    TroopsHere[i].SetOwner(bomb.Owner);
-                                    TroopsHere[i].Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
-                                    TroopsHere[i].Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                {
-                    PlayPlanetSfx("sd_impact_shield_01", Shield.Center);
-                }
-                Shield.Rotation = Center.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
-                Shield.displacement = 0f;
-                Shield.texscale = 2.8f;
-                Shield.Radius = SO.WorldBoundingSphere.Radius + 100f;
-                Shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                Shield.texscale = 2.8f;
-                Shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                Shield.Center = new Vector3(Center.X, Center.Y, 2500f);
-                Shield.pointLight.World = bomb.World;
-                Shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                Shield.pointLight.Radius = 50f;
-                Shield.pointLight.Intensity = 8f;
-                Shield.pointLight.Enabled = true;
-                Vector3 vel = Vector3.Normalize(bomb.Position - Shield.Center);
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                {
-                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
-                    for (int i = 0; i < 200; i++)
-                    {
-                        Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vel * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
-                    }
-                }
-                Planet shieldStrengthCurrent = this;
-                shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent - ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max;
-                if (ShieldStrengthCurrent < 0f)
-                {
-                    ShieldStrengthCurrent = 0f;
-                    return;
-                }
-            }
-        }
+        public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);        
 
         public float GetNetFoodPerTurn()
         {
@@ -612,7 +380,7 @@ namespace Ship_Game
             }
             foreach (Guid key in list)
                 Shipyards.Remove(key);
-            GroundCombatAI.Update(elapsedTime);
+            TroopManager.Update(elapsedTime);
            
             for (int index1 = 0; index1 < BuildingList.Count; ++index1)
             {
@@ -684,119 +452,6 @@ namespace Ship_Game
             UpdatePosition(elapsedTime);
         }
    
-        //added by gremlin affectnearbyships
-        private void AffectNearbyShips()
-        {
-            float repairPool = DevelopmentLevel * RepairPerTurn * 20;
-            if(HasShipyard)
-            {
-                foreach(Ship ship in Shipyards.Values)
-                    repairPool += ship.RepairRate;                    
-            }
-            for (int i = 0; i < ParentSystem.ShipList.Count; i++)
-            {
-                Ship ship = ParentSystem.ShipList[i];
-                if(ship != null && ship.loyalty.isFaction)
-                {
-                    ship.Ordinance = ship.OrdinanceMax;
-                    if (ship.HasTroopBay )
-                    {
-                        if (Population > 0)
-                        {
-                            if (ship.TroopCapacity > ship.TroopList.Count)
-                            {
-                                ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
-                            }
-                            if (Owner != null && Population > 0)
-                            {
-                                Population *= .5f;
-                                Population -= 1000;
-                                ProductionHere *= .5f;
-                                FoodHere *= .5f;
-                            }
-                            if (Population < 0)
-                                Population = 0;
-                        }
-                        else if (ParentSystem.combatTimer < -30 && ship.TroopCapacity > ship.TroopList.Count)
-                        {
-                            ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
-                            ParentSystem.combatTimer = 0;
-                        }
-                    }
-                }
-                if (ship != null && ship.loyalty == Owner && HasShipyard && ship.Position.InRadius(Center, 5000f))
-                {
-                    ship.PowerCurrent = ship.PowerStoreMax;
-                    ship.Ordinance = ship.OrdinanceMax;
-                    if (GlobalStats.HardcoreRuleset)
-                    {
-                        //while (ship.CargoSpaceFree > 0f)
-                        //{
-                        //    var resource = ResourcesDict.FirstOrDefault(kv => kv.Value > 0f);
-                        //    if (resource.Value <= 0f) break;
-                        //}
-                        //foreach (KeyValuePair<string, float> maxGood in ship.GetMaxGoods())
-                        //{
-                        //    if (ship.GetCargo(maxGood.Key) >= maxGood.Value)
-                        //        continue;
-                        //    while (ResourcesDict[maxGood.Key] > 0f && ship.GetCargo(maxGood.Key) < maxGood.Value)
-                        //    {
-                        //        float cargoSpace = maxGood.Value - ship.GetCargo(maxGood.Key);
-                        //        if (cargoSpace < 1f)
-                        //        {
-                        //            ResourcesDict[maxGood.Key] -= cargoSpace;
-                        //            ship.AddCargo(maxGood.Key, cargoSpace);
-                        //        }
-                        //        else
-                        //        {
-                        //            ResourcesDict[maxGood.Key] -= 1f;
-                        //            ship.AddCargo(maxGood.Key, 1f);
-                        //        }
-                        //    }
-                        //}
-                    }
-                    //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
-                    if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent <90))
-                    {
-                        //bool repairing = false;
-                        ship.RepairShipModules(ref repairPool);
-                    }
-                    else if(ship.AI.State == AIState.Resupply)
-                    {
-                
-                        ship.AI.OrderQueue.Clear();
-                    
-                        ship.AI.Target = null;
-                        ship.AI.PotentialTargets.Clear();
-                        ship.AI.HasPriorityOrder = false;
-                        ship.AI.State = AIState.AwaitingOrders;
-
-                    }
-                    //auto load troop:
-                    using (TroopsHere.AcquireWriteLock())
-                    {
-                        if ((ParentSystem.combatTimer > 0 && ship.InCombat) || !TroopsHere.Any() ||
-                            TroopsHere.Any(troop => troop.GetOwner() != Owner))
-                            continue;
-                        foreach (var pgs in TilesList)
-                        {
-                            if (ship.TroopCapacity ==0 || ship.TroopList.Count >= ship.TroopCapacity) 
-                                break;
-
-                            using (pgs.TroopsHere.AcquireWriteLock())
-                                if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
-                                {                                
-                                    Troop troop = pgs.TroopsHere[0];
-                                    ship.TroopList.Add(troop);
-                                    pgs.TroopsHere.Clear();
-                                    TroopsHere.Remove(troop);
-                                }
-                        }
-                    }
-                }
-            }
-        }
-
         public void TerraformExternal(float amount)
         {
             Fertility += amount;
@@ -849,7 +504,7 @@ namespace Ship_Game
             ConstructionQueue.ApplyPendingRemovals();
             UpdateDevelopmentStatus();
             Description = DevelopmentStatus;
-            AffectNearbyShips();
+            GeodeticManager.AffectNearbyShips();
             TerraformPoints += TerraformToAdd;
             if (TerraformPoints > 0.0f && Fertility < 1.0)
             {
@@ -4239,7 +3894,7 @@ output = maxp * take10 = 5
             BasedShips?.Dispose(ref BasedShips);
             Projectiles?.Dispose(ref Projectiles);
             TroopsHere?.Dispose(ref TroopsHere);
-            GroundCombatAI = null;
+            TroopManager = null;
         }
     }
 }
