@@ -166,6 +166,14 @@ namespace Ship_Game
             }            
 
         }
+
+        public Empire(Empire parentEmpire)
+        {
+
+            TechnologyDict = parentEmpire.TechnologyDict;
+
+        }
+
         public class PatchCacheEntry
         {
             public readonly Array<Vector2> Path;
@@ -286,6 +294,7 @@ namespace Ship_Game
 
         public void CleanOut()
         {
+            data.Defeated = false;
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
             OwnedShips.Clear();
@@ -353,19 +362,8 @@ namespace Ship_Game
             EmpireAI.Goals.Clear();
             EmpireAI.TaskList.Clear();
             foreach (var kv in FleetsDict) kv.Value.Reset();
-            Empire rebels = CreatingNewGameScreen.CreateRebelsFromEmpireData(data, this);
-            rebels.data.Traits.Name     = data.Traits.Singular + " Remnant";
-            rebels.data.Traits.Singular = data.Traits.Singular;
-            rebels.data.Traits.Plural   = data.Traits.Plural;
-            rebels.isFaction = true;
-            foreach (Empire key in EmpireManager.Empires)
-            {
-                key.AddRelation(rebels);
-                rebels.AddRelation(key);                
-                
-            }
-            EmpireManager.Add(rebels);
-            data.RebellionLaunched = true;
+            
+            Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);       
             StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.Empires.IndexOf(rebels), new Snapshot(Universe.StarDate));
             foreach (Ship s in OwnedShips)
             {
@@ -747,7 +745,7 @@ namespace Ship_Game
         public void InitializeFromSave()
         {
             EmpireAI = new EmpireAI(this);
-            for (int key = 1; key < 100; ++key)
+            for (int key = 1; key < 1; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};
                 fleet.SetNameByFleetIndex(key);
@@ -1121,7 +1119,9 @@ namespace Ship_Game
 
         public void AddRelation(Empire empire)
         {
-            Relationships.Add(empire, new Relationship(empire.data.Traits.Name));            
+            if (!Relationships.TryGetValue(empire, out Relationship relation))
+                Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
+
         }
         public bool TryGetRelations(Empire empire, out Relationship relations)
         {
@@ -1214,8 +1214,8 @@ namespace Ship_Game
                         StatTracker.SnapshotsDict.Add(starDate, new SerializableDictionary<int, Snapshot>());
                     foreach (Empire empire in EmpireManager.Empires)
                     {
-                        if (empire.data.IsRebelFaction)
-                            continue;
+                        //if (empire.data.IsRebelFaction)
+                        //    continue;
 
                         var snapshots = StatTracker.SnapshotsDict[starDate];
                         int empireIndex = EmpireManager.Empires.IndexOf(empire);
@@ -1960,12 +1960,15 @@ namespace Ship_Game
                 SetAsDefeated();
                 if (Universe.PlayerEmpire == this)
                 {
+                    Game1.Instance.EndingGame(true);
                     foreach (Ship ship in Universe.MasterShipList)
                     {
                         ship.Die(null, true);
                     }
+
                     Universe.Paused = true;
                     HelperFunctions.CollectMemory();
+                    Game1.Instance.EndingGame(false);
                     Universe.ScreenManager.AddScreen(new YouLoseScreen(Empire.Universe));
                     Universe.Paused = false;
                     return;
@@ -2137,22 +2140,8 @@ namespace Ship_Game
                         }
                     if (rebelsFromEmpireData == null)
                     {
-                        rebelsFromEmpireData = CreatingNewGameScreen.CreateRebelsFromEmpireData(this.data, this);
-                        if (rebelsFromEmpireData != null)
-                        {
-                            rebelsFromEmpireData.data.IsRebelFaction = true;
-                            rebelsFromEmpireData.data.Traits.Name = data.RebelName;
-                            rebelsFromEmpireData.data.Traits.Singular = data.RebelSing;
-                            rebelsFromEmpireData.data.Traits.Plural = data.RebelPlur;
-                            rebelsFromEmpireData.isFaction = true;
-                            foreach (Empire key in EmpireManager.Empires)
-                            {
-                                key.AddRelation(rebelsFromEmpireData);
-                                rebelsFromEmpireData.AddRelation(key);
-                            }
-                            EmpireManager.Add(rebelsFromEmpireData);
-                            this.data.RebellionLaunched = true;
-                        }
+                        rebelsFromEmpireData = EmpireManager.CreateRebelsFromEmpireData(this.data, this);
+             
                     }
 
                     if (rebelsFromEmpireData != null)
@@ -2164,17 +2153,8 @@ namespace Ship_Game
                                 Universe.NotificationManager.AddRebellionNotification(planet, rebelsFromEmpireData); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable
                             for (int index = 0; index < planet.Population / 1000; ++index)
                             {
-                                foreach (string troopType in ResourceManager.TroopTypes)
-                                {
-                                    if (!WeCanBuildTroop(troopType))
-                                        continue;
-
-                                    Troop troop = ResourceManager.CreateTroop(troopType, rebelsFromEmpireData);
-                                    troop.Name = Localizer.Token(rebelsFromEmpireData.data.TroopNameIndex);
-                                    troop.Description = Localizer.Token(rebelsFromEmpireData.data.TroopDescriptionIndex);
-                                    troop.AssignTroopToTile(planet); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
-                                    break;
-                                }
+                                Troop troop = EmpireManager.CreateRebelTroop(rebelsFromEmpireData);
+                                troop.AssignTroopToTile(planet); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
                             }
                         }
                         //if(this.data.TurnsBelowZero >10 && this.data.TurnsBelowZero < 20)

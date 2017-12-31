@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
     public class EmpireManager
     {
-        private static readonly Array<Empire>       EmpireList = new Array<Empire>();
+        private static readonly Array<Empire> EmpireList = new Array<Empire>();
         private static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>(); 
 
         private static Empire PlayerEmpire;
@@ -98,6 +99,59 @@ namespace Ship_Game
                 if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Trade)
                     allies.Add(empire);
             return allies;
+        }
+
+        public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
+        {
+            Empire empire = new Empire(parent)
+            {
+                isFaction = true,
+                data = CreatingNewGameScreen.CopyEmpireData(data)
+                
+            };
+            //Added by McShooterz: mod folder support
+            DiplomaticTraits diplomaticTraits = ResourceManager.DiplomaticTraits;
+            int index1                        = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
+            int index2                        = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
+            int index3                        = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
+            int index4                        = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
+            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index1];
+            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index2];
+            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index3];
+            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index4];
+            empire.data.SpyModifier           = data.Traits.SpyMultiplier;
+            empire.PortraitName               = data.PortraitName;
+            empire.EmpireColor                = new Color(128, 128, 128, 255);
+
+            empire.InitializeFromSave();
+            
+            empire.data.IsRebelFaction = true;
+            empire.data.Traits.Name = data.RebelName;
+            empire.data.Traits.Singular = data.RebelSing;
+            empire.data.Traits.Plural = data.RebelPlur;
+            empire.isFaction = true;
+            EmpireManager.Add(empire);
+            foreach (Empire key in EmpireManager.Empires)
+            {
+                key.AddRelation(empire);
+                empire.AddRelation(key);
+            }
+            data.RebellionLaunched = true;
+         
+            return empire;
+        }
+        public static Troop CreateRebelTroop(Empire rebelEmpire)
+        {
+            foreach (string troopType in ResourceManager.TroopTypes)
+            {
+                if (!rebelEmpire.WeCanBuildTroop(troopType))
+                    continue;
+
+                Troop troop = ResourceManager.CreateTroop(troopType, rebelEmpire);                
+                troop.Description = Localizer.Token(rebelEmpire.data.TroopDescriptionIndex);
+                return troop;                
+            }
+            return null;
         }
     }
 }

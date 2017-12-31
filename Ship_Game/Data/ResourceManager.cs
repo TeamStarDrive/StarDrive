@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
+using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
@@ -38,7 +39,7 @@ namespace Ship_Game
 
         public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
         private static Map<string, Troop> TroopsDict              = new Map<string, Troop>();
-        private static Array<string>      TroopsDictKeys          = new Array<string>();
+        private static Array<string> TroopsDictKeys          = new Array<string>();
         public static IReadOnlyList<string> TroopTypes            => TroopsDictKeys;
         public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>();
         public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>();
@@ -209,10 +210,10 @@ namespace Ship_Game
         {
             Reset();
             Log.Info("Load {0}", GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla");
-            LoadLanguage();
-            LoadTroops();
+            LoadLanguage();            
             LoadTextures();
             LoadToolTips();
+            LoadTroops();
             LoadHullData();
             LoadWeapons();
             LoadShipModules();
@@ -230,7 +231,7 @@ namespace Ship_Game
             LoadSmallStars();
             LoadMediumStars();
             LoadLargeStars();
-            LoadEmpires();
+            LoadEmpires();            
             LoadDialogs();
             LoadEncounters();
             LoadExpEvents();
@@ -322,10 +323,10 @@ namespace Ship_Game
             {
                 var s = new XmlSerializer(typeof(T));
                 foreach (FileInfo info in files)
-                    if (LoadEntity(s, info, where, out T entity))
+                    if (LoadEntity(s, info, @where, out T entity))
                         result.Add(entity);
             }
-            else Log.Error($"{where}: No files in '{dir}'");
+            else Log.Error($"{@where}: No files in '{dir}'");
             return result;
         }
 
@@ -390,7 +391,7 @@ namespace Ship_Game
         }
 
         public static float GetTroopCost(string troopType) => TroopsDict[troopType].GetCost();
-        public static Troop GetTroopTemplate(string troopType) => TroopsDict[troopType];
+        public static Troop GetTroopTemplate(string troopType) =>TroopsDict[troopType];
         public static Array<Troop> GetTroopTemplates() => new Array<Troop>(TroopsDict.Values);
 
         public static Troop CopyTroop(Troop t)
@@ -529,8 +530,8 @@ namespace Ship_Game
         //////////////////////////////////////////////////////////////////////////////////////////
         
 
-        private static readonly Map<string, Model>        Models        = new Map<string, Model>();
-        private static readonly Map<string, StaticMesh>   Meshes        = new Map<string, StaticMesh>();
+        private static readonly Map<string, Model> Models        = new Map<string, Model>();
+        private static readonly Map<string, StaticMesh> Meshes        = new Map<string, StaticMesh>();
         private static readonly Map<string, SkinnedModel> SkinnedModels = new Map<string, SkinnedModel>();
 
         private static int SubmeshCount(int maxSubmeshes, int meshSubmeshCount)
@@ -542,7 +543,7 @@ namespace Ship_Game
         {
             return new SceneObject(modelName)
             {
-                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
+                ObjectType = ObjectType.Dynamic
             };
 
         }
@@ -602,7 +603,7 @@ namespace Ship_Game
             SceneObject so = DynamicObject(modelName);
             int count = SubmeshCount(maxSubmeshes, model.Meshes.Count);
 
-            so.Visibility = SynapseGaming.LightingSystem.Core.ObjectVisibility.RenderedAndCastShadows;
+            so.Visibility = ObjectVisibility.RenderedAndCastShadows;
 
             for (int i = 0; i < count; ++i)
                 so.Add(model.Meshes[i]);
@@ -621,7 +622,7 @@ namespace Ship_Game
 
             return new SceneObject(skinned.Model, modelName)
             {
-                ObjectType = SynapseGaming.LightingSystem.Core.ObjectType.Dynamic
+                ObjectType = ObjectType.Dynamic
             };
         }
 
@@ -860,7 +861,7 @@ namespace Ship_Game
             {
                 foreach (Artifact art in arts)
                 {
-                    art.Name = string.Intern(art.Name);
+                    art.Name = String.Intern(art.Name);
                     ArtifactsDict[art.Name] = art;
                 }
             }
@@ -870,7 +871,7 @@ namespace Ship_Game
         {
             foreach (Building newB in LoadEntities<Building>("Buildings", "LoadBuildings", uniqueFileNames: true))
             {
-                BuildingsDict[string.Intern(newB.Name)] = newB;
+                BuildingsDict[String.Intern(newB.Name)] = newB;
             }
         }
 
@@ -950,7 +951,7 @@ namespace Ship_Game
             foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods", uniqueFileNames: true))
             {
                 Good good = pair.Entity;
-                good.UID = string.Intern(pair.Info.NameNoExt());
+                good.UID = String.Intern(pair.Info.NameNoExt());
                 GoodsDict[good.UID] = good;
             }
         }
@@ -984,8 +985,8 @@ namespace Ship_Game
                     {
                         string dirName     = info.Directory?.Name ?? "";
                         ShipData shipData  = ShipData.Parse(info);
-                        shipData.Hull      = string.Intern(dirName + "/" + shipData.Hull);
-                        shipData.ShipStyle = string.Intern(dirName);
+                        shipData.Hull      = String.Intern(dirName + "/" + shipData.Hull);
+                        shipData.ShipStyle = String.Intern(dirName);
                         shipData.SetHullData(shipData);
                         lock (retList)
                         {
@@ -1025,7 +1026,7 @@ namespace Ship_Game
                 try
                 {
                     // only accept "prefixNN" format, because there are a bunch of textures in the asteroids folder
-                    if (!nameNoExt.StartsWith(modelPrefix) || !int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
+                    if (!nameNoExt.StartsWith(modelPrefix) || !Int32.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                         continue;
                     models.Add(ContentManager.Load<Model>(info.CleanResPath()));
                 }
@@ -1181,10 +1182,10 @@ namespace Ship_Game
                     continue;
                 ShipModule_Deserialize data = pair.Entity;
 
-                data.UID = string.Intern(pair.Info.NameNoExt());
-                data.IconTexturePath = string.Intern(data.IconTexturePath);
+                data.UID = String.Intern(pair.Info.NameNoExt());
+                data.IconTexturePath = String.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
-                    data.WeaponType = string.Intern(data.WeaponType);
+                    data.WeaponType = String.Intern(data.WeaponType);
            
                 if (GlobalStats.VerboseLogging)
                 {
@@ -1325,7 +1326,7 @@ namespace Ship_Game
             Array<Technology> rootTechs = new Array<Technology>();
             foreach (InfoPair<Technology> rootTech in techList)
             {
-                rootTech.Entity.UID = string.Intern(rootTech.Info.NameNoExt());
+                rootTech.Entity.UID = String.Intern(rootTech.Info.NameNoExt());
                 if (rootTech.Entity.RootNode == 0) continue;
                 if (rootTechs.Contains(rootTech.Entity))
                     Log.Warning($"Duplicate root tech : '{rootTech.Entity}'");
@@ -1605,7 +1606,8 @@ namespace Ship_Game
             foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops", uniqueFileNames: true))
             {
                 Troop troop = pair.Entity;
-                troop.Name = string.Intern(pair.Info.NameNoExt());
+                troop.Name = pair.Info.NameNoExt();
+                troop.Type = pair.Info.NameNoExt();
                 TroopsDict[troop.Name] = troop;
 
                 if (troop.StrengthMax <= 0)
@@ -1621,7 +1623,7 @@ namespace Ship_Game
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly, uniqueFileNames: true))
             {
                 Weapon wep = pair.Entity;
-                wep.UID = string.Intern(pair.Info.NameNoExt());
+                wep.UID = String.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
 
                 if (wep.Tag_Missile)

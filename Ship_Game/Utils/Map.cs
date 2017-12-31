@@ -18,7 +18,7 @@ namespace Ship_Game
         public Map() : base(0, null)
         {
         }
-
+        
         public Map(int capacity) : base(capacity, null)
         {
         }
