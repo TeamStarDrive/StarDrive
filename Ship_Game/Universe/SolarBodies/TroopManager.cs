@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.Gameplay;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -11,7 +12,7 @@ namespace Ship_Game
 
         private Array<PlanetGridSquare> TilesList => Ground.TilesList;
         private Empire Owner => Ground.Owner;
-        private Array<Troop> TroopsHere => Ground.TroopsHere;
+        private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
         private Array<Building> BuildingList => Ground.BuildingList;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;       
         private SolarSystem ParentSystem => Ground.ParentSystem;
@@ -682,6 +683,149 @@ namespace Ship_Game
             Ground.ChangeOwnerByInvasion(index);
 
             
+        }
+
+        public float GetDefendingTroopStrength()
+        {
+            float num = 0;
+            for (int index = 0; index < TroopsHere.Count; index++)
+            {
+                Troop troop = TroopsHere[index];
+                if (troop.GetOwner() == Owner)
+                    num += troop.Strength;
+            }
+            return num;
+        }
+        public int CountEmpireTroops(Empire us)
+        {
+            int num = 0;
+            for (int index = 0; index < TroopsHere.Count; index++)
+            {
+                Troop troop = TroopsHere[index];
+                if (troop.GetOwner() == us)
+                    num++;
+            }
+            return num;
+        }
+        public int GetDefendingTroopCount()
+        {
+            return CountEmpireTroops(Owner);
+        }
+        public bool AnyOfOurTroops(Empire us)
+        {
+            for (int index = 0; index < TroopsHere.Count; index++)
+            {
+                Troop troop = TroopsHere[index];
+                if (troop.GetOwner() == us)
+                    return true;
+            }
+            return false;
+        }
+        public float GetGroundStrength(Empire empire)
+        {
+            float num = 0;
+            if (Owner == empire)
+                num += BuildingList.Sum(offense => offense.CombatStrength);
+            using (TroopsHere.AcquireReadLock())
+                num += TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            return num;
+
+
+        }
+        public int GetPotentialGroundTroops()
+        {
+            int num = 0;
+
+            foreach (PlanetGridSquare PGS in TilesList)
+            {
+                num += PGS.number_allowed_troops;
+
+            }
+            return num; //(int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
+
+
+        }
+        public float GetGroundStrengthOther(Empire allButThisEmpire)
+        {
+            //float num = 0;
+            //if (this.Owner == null || this.Owner != empire)
+            //    num += this.BuildingList.Sum(offense => offense.CombatStrength > 0 ? offense.CombatStrength : 1);
+            //this.TroopsHere.thisLock.EnterReadLock();
+            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == null || empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
+            //this.TroopsHere.thisLock.ExitReadLock();
+            //return num;
+            float enemyTroopStrength = 0f;
+            TroopsHere.ForEach(trooper =>
+            {
+
+                if (trooper.GetOwner() != allButThisEmpire)
+                {
+                    enemyTroopStrength += trooper.Strength;
+                }
+            });
+            for (int i = 0; i < BuildingList.Count; i++)
+            {
+                Building b;
+                try
+                {
+                    b = BuildingList[i];
+                }
+                catch
+                {
+                    continue;
+                }
+                if (b == null)
+                    continue;
+                if (b.CombatStrength > 0)
+                    enemyTroopStrength += b.Strength + b.CombatStrength;
+            }
+
+            return enemyTroopStrength;            
+        }
+        public bool TroopsHereAreEnemies(Empire empire)
+        {
+            bool enemies = false;
+            using (TroopsHere.AcquireReadLock())
+                foreach (Troop trooper in TroopsHere)
+                {
+                    if (!empire.TryGetRelations(trooper.GetOwner(), out Relationship trouble) || trouble.AtWar)
+                    {
+                        enemies = true;
+                        break;
+                    }
+
+                }
+            return enemies;
+        }
+
+        public int GetGroundLandingSpots()
+        {
+            int spotCount = TilesList.Where(spots => spots.building == null).Sum(spots => spots.number_allowed_troops);
+            int troops = TroopsHere.Where(owner => owner.GetOwner() == Owner).Count();
+            return spotCount - troops;
+
+
+        }
+        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake)
+        {
+            var troops = new Array<Troop>();
+            foreach (Troop troop in TroopsHere)
+            {
+                if (troop.GetOwner() != empire) continue;
+
+                if (maxToTake-- < 0)
+                    troops.Add(troop);
+            }
+            return troops;
+        }
+        //Added by McShooterz: heal builds and troops every turn
+        public void HealTroops()
+        {
+            if (RecentCombat)
+                return;
+            using (TroopsHere.AcquireReadLock())
+                foreach (Troop troop in TroopsHere)
+                    troop.Strength = troop.GetStrengthMax();
         }
     }
 }

@@ -598,7 +598,7 @@ namespace Ship_Game
                             AddExperience(ResourceManager.AgentMissionData.RebellionExpPerfect, Owner);
                             if (!targetEmpire.data.RebellionLaunched)
                             {
-                                Empire rebels = CreatingNewGameScreen.CreateRebelsFromEmpireData(targetEmpire.data, targetEmpire);
+                                Empire rebels = EmpireManager.CreateRebelsFromEmpireData(targetEmpire.data, targetEmpire);
                                 rebels.data.IsRebelFaction  = true;
                                 rebels.data.Traits.Name     = targetEmpire.data.RebelName;
                                 rebels.data.Traits.Singular = targetEmpire.data.RebelSing;

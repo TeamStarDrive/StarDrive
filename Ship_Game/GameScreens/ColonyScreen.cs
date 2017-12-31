@@ -675,7 +675,7 @@ namespace Ship_Game
                                     {
                                         (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).Name, position, Color.White);
+                                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
                                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
                                         position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
@@ -708,7 +708,7 @@ namespace Ship_Game
                                     vector2_1.Y = (float)entry.clickRect.Y;
                                     (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).Name, position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
                                     position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
@@ -773,7 +773,7 @@ namespace Ship_Game
                                 {
                                     (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).Name, position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
                                     position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
@@ -805,7 +805,7 @@ namespace Ship_Game
                                     vector2_1.Y = (float)entry.clickRect.Y;
                                     (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).Name, position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
                                     position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
@@ -1313,7 +1313,7 @@ namespace Ship_Game
             if (this.detailInfo is Troop)
             {
                 Troop t = this.detailInfo as Troop;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, t.Name, bCursor, new Color(255, 239, 208));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, t.DisplayNameEmpire(p.Owner), bCursor, new Color(255, 239, 208));
                 bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
                 string desc = this.parseText(t.Description, (float)(this.pFacilities.Menu.Width - 40));
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));

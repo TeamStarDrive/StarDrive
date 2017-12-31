@@ -31,6 +31,11 @@ namespace Ship_Game.Universe.SolarBodies
             TroopManager = SolarSystemBody.TroopManager;
         }
 
+        public void Update(float elaspedTime)
+        {
+            
+        }
+
         private void PlayPlanetSfx(string name, Vector3 position) => SolarSystemBody.PlayPlanetSfx(name, position);
 
         public void DropBomb(Bomb bomb)

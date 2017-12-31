@@ -743,30 +743,6 @@ namespace Ship_Game
             return empireData;
         }
 
-        public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
-        {
-            Empire empire = new Empire
-            {
-                isFaction = true,
-                data = CopyEmpireData(data)
-            };
-            //Added by McShooterz: mod folder support
-            DiplomaticTraits diplomaticTraits = ResourceManager.DiplomaticTraits;
-            int index1 = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
-            int index2 = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
-            int index3 = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
-            int index4 = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
-            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index1];
-            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index2];
-            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index3];
-            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index4];
-            empire.data.SpyModifier = data.Traits.SpyMultiplier;
-            empire.PortraitName     = data.PortraitName;
-            empire.EmpireColor      = new Color(128, 128, 128, 255);
-            empire.Initialize();
-            return empire;
-        }
-
         private Empire CreateEmpireFromEmpireData(EmpireData data)
         {
             Empire empire = new Empire();

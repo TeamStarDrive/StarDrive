@@ -762,8 +762,7 @@ namespace Ship_Game
                 solarSystem.MoonList.Clear();
             }
             foreach (Empire empire in EmpireManager.Empires)
-                empire.CleanOut();
-
+                empire.CleanOut();            
             JunkList.ApplyPendingRemovals();
             foreach (SpaceJunk spaceJunk in JunkList)
                 spaceJunk.DestroySceneObject();

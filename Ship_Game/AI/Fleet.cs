@@ -283,8 +283,8 @@ namespace Ship_Game.AI
         public void Reset()
         {
             while (Ships.Count > 0) {
-                var ship = Ships.PopLast();                
-                Ships.PopLast().ClearFleet();
+                var ship = Ships.PopLast();
+                ship.ClearFleet();
             }
             TaskStep  = 0;
             FleetTask = null;
@@ -1904,14 +1904,11 @@ namespace Ship_Game.AI
             if (ship.Active && ship.fleet != this)
                 Log.Error("{0} : not equal {1}", ship.fleet.Name, Name);
             ship.fleet = null;
-            RemoveFromAllSquads(ship);            
-            if (Ships != null)
-                if (!Ships.Remove(ship) && ship.Active)
-                {
-                    Log.Error("Ship is not in this fleet");
-                    return false;
-                }
-            return true;
+            RemoveFromAllSquads(ship);
+            if (Ships == null) return true;
+            if (Ships.Remove(ship) || !ship.Active) return true;
+            Log.Info("Ship is not in this fleet");
+            return false;
         }
         
         public void Update(float elapsedTime)

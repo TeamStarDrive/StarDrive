@@ -51,7 +51,8 @@ namespace Ship_Game
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
-        protected readonly Map<string, float> ResourcesDict = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
+        //protected readonly Map<string, float> ResourcesDict = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
+        protected IReadOnlyDictionary<string, float> ResourceDictionary => new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         protected readonly Array<Building> BuildingsCanBuild = new Array<Building>();
         public Array<string> CommoditiesPresent = new Array<string>();
         public Array<string> Guardians = new Array<string>();
@@ -1469,6 +1470,29 @@ namespace Ship_Game
             colonyType = Owner.AssessColonyNeeds((Planet)this);
             GovernorOn = true;
         }
-        
+        protected void GenerateMoons(Planet newOrbital)
+        {
+            int moonCount = (int)Math.Ceiling(ObjectRadius * .004f);
+            moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount * .75f, moonCount));
+            for (int j = 0; j < moonCount; j++)
+            {
+                float radius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
+                Moon moon = new Moon
+                {
+                    orbitTarget = newOrbital.guid,
+                    moonType = RandomMath.IntBetween(1, 29),
+                    scale = 1,
+                    OrbitRadius = radius,
+                    OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
+                    Position = newOrbital.Center.GenerateRandomPointOnCircle(radius)
+                };
+                ParentSystem.MoonList.Add(moon);
+            }
+        }
+        public void AddBasedShip(Ship ship)
+        {
+            BasedShips.Add(ship);
+        }
+
     }
 }
