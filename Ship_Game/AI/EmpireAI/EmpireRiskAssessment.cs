@@ -45,7 +45,7 @@ namespace Ship_Game.AI
         }
         public float ExpansionRiskAssement(Empire us, float riskLimit = .5f)
         {
-            if (!Relation.Known || Them.NumPlanets == 0) return 0;
+            if (!Relation.Known  || Them == null || Them.NumPlanets == 0) return 0;
             float themStrength = 0;
             float usStrength = 0;
 

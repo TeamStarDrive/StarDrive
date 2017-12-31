@@ -50,13 +50,20 @@ namespace Ship_Game
         [Serialize(38)] public string sound_attack;
         [Serialize(39)] public float Range;
         [Serialize(40)] public float Launchtimer = 10f;
+        [Serialize(41)] public string Type;
 
         [XmlIgnore][JsonIgnore] private Planet p;
         [XmlIgnore][JsonIgnore] private Empire Owner;
         [XmlIgnore][JsonIgnore] private Ship ship;
         [XmlIgnore][JsonIgnore] private Rectangle fromRect;
-        [XmlIgnore][JsonIgnore] private float updateTimer;
-
+        [XmlIgnore][JsonIgnore] private float updateTimer;        
+        [XmlIgnore][JsonIgnore] public string DisplayName => DisplayNameEmpire(Owner);
+        public string DisplayNameEmpire(Empire empire = null)
+        {
+            empire = Owner ?? empire;
+            if (empire == null || !empire.data.IsRebelFaction) return Name;
+            return Localizer.Token(empire.data.TroopNameIndex);
+        }
         public Troop Clone()
         {
             var t = (Troop)MemberwiseClone();

@@ -362,7 +362,10 @@ namespace Microsoft.Xna.Framework
             UpdatesSinceRunningSlowly1 = int.MaxValue;
             UpdatesSinceRunningSlowly2 = int.MaxValue;
         }
-
+        public void EndingGame(bool start)
+        {
+            ShouldExit = start;
+        }
         private void DrawFrame()
         {
             try
