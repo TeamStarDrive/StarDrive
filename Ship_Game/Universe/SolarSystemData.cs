@@ -12,21 +12,21 @@ namespace Ship_Game
 
         public struct Ring
         {
-            public string Planet;
+            public string Planet; //Planet Name
             public string SpecialDescription;
-            public int WhichPlanet;
-            public string Asteroids;
-            public string HasRings;
-            public bool HomePlanet;
-            public float planetScale;
-            public string Owner;
-            public string Station;
-            public Array<Moon> Moons;
-            public Array<string> BuildingList;
-            public Array<string> Guardians;
-            public float MaxPopDefined;
+            public int WhichPlanet; //planet Type
+            public string Asteroids; //true or false.
+            public string HasRings; //Planet has rings.
+            public bool HomePlanet; //is an empire home planet. 
+            public float planetScale; //1 or 0 is normal. larger or smaller than 1 increases or decreses planet size. 
+            public string Owner; //who ones the planet. 
+            public string Station; //Has a space port
+            public Array<Moon> Moons; //an arrary of moons.
+            public Array<string> BuildingList; //buildings on planet.
+            public Array<string> Guardians; //ships that gaurd it. 
+            public float MaxPopDefined; 
             //Using a separate boolean to ensure that modders can define an unusual 0-habitability planet (e.g. 0 tile Terran); otherwise would have to disregard 0.
-            public bool UniqueHabitat;
+            public bool UniqueHabitat; 
             public int UniqueHabPC;
         }
 

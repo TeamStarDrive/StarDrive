@@ -92,8 +92,7 @@ namespace Ship_Game
         protected float InvisibleRadius;
         public float GravityWellRadius { get; protected set; }
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
-        protected float HabitalTileChance = 10;
-        public float Population;
+        protected float HabitalTileChance = 10;        
         public float Density;
         public float Fertility;
         public float MineralRichness;

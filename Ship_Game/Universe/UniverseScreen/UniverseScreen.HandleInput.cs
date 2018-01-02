@@ -1733,8 +1733,6 @@ namespace Ship_Game
                         if (queueItem.Goal != SelectedItem.AssociatedGoal) continue;
 
                         planet.ProductionHere += queueItem.productionTowards;
-                        if (planet.ProductionHere > planet.MaxStorage)
-                            planet.ProductionHere = planet.MaxStorage;
                         planet.ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                     planet.ConstructionQueue.ApplyPendingRemovals();
