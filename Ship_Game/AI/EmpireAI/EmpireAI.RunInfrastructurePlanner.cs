@@ -157,10 +157,7 @@ namespace Ship_Game.AI {
                                     
                                     Planet productionHere = p;
                                     productionHere.ProductionHere =
-                                        productionHere.ProductionHere + qi.productionTowards;
-                                    if (p.ProductionHere > p.MaxStorage)                                    
-                                        p.ProductionHere = p.MaxStorage;
-                                    
+                                        productionHere.ProductionHere + qi.productionTowards;                                                                        
                                     p.ConstructionQueue.QueuePendingRemoval(qi);
                                 }
                                 p.ConstructionQueue.ApplyPendingRemovals();

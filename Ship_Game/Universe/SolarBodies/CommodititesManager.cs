@@ -15,13 +15,37 @@ namespace Ship_Game.Universe.SolarBodies
         private SolarSystem ParentSystem => Ground.ParentSystem;        
         private Map<string, float> Commoditites = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         public IReadOnlyDictionary<string, float> ResourcesDictionary => Commoditites;
-
+        private float Waste;
         public CommodititesManager (Planet planet)
         {
             Ground = planet;
         }
 
-        public void AddGood(string goodId, float amount)
+        public float FoodHere
+        {
+            get => Owner.data.Traits.Cybernetic > 0 ? ProductionHere : GetGoodAmount("Food");
+            set => AddGood(Owner.data.Traits.Cybernetic > 0 ? "Production" : "Food", value);
+        }
+        //actual food becuase food will return production for cybernetics. 
+        public float FoodHereActual
+        {
+            get => GetGoodAmount("Food");
+            set => AddGood("Food", value);
+        }
+        public float ProductionHere
+        {
+            get => GetGoodAmount("Production");
+            set => AddGood("Production", value);
+        }
+
+        public float Population
+        {
+            get => GetGoodAmount("Colonists_1000");
+            set => AddGood("Colonists_1000", value);
+        }
+
+
+        public float AddGood(string goodId, float amount)
         {
             float max = float.MaxValue;
             switch (goodId)
@@ -41,55 +65,57 @@ namespace Ship_Game.Universe.SolarBodies
                     break;
 
             }
-            amount = Math.Max(0, amount);
-            amount = Math.Min(amount, max);
-            Commoditites[goodId] = amount;
+            //clamp by storage capability and return amount not stored. 
+            float stored = Math.Max(0, amount);
+            stored = Math.Min(stored, max);
+            Commoditites[goodId] = stored;
+            return amount - stored;
         }
         public int GetGoodAmount(string goodId)
         {
             if (Commoditites.TryGetValue(goodId, out float commodity)) return (int)commodity;
             return 0;
         }
-        public float CalculateConsumption()
+        
+        public float CalculateUnFed()
         {
             float unfed = 0.0f;
             if (Owner.data.Traits.Cybernetic > 0)
             {
-                Ground.FoodHere = 0.0f;
+                FoodHereActual = 0.0f;
                 Ground.NetProductionPerTurn -= Ground.Consumption;
 
                 if (Ground.NetProductionPerTurn < 0f)
-                    Ground.ProductionHere += Ground.NetProductionPerTurn;
+                    ProductionHere += Ground.NetProductionPerTurn;
 
-                if (Ground.ProductionHere > Ground.MaxStorage)
+                if (ProductionHere > Ground.MaxStorage)
                 {
                     unfed = 0.0f;
-                    Ground.ProductionHere = Ground.MaxStorage;
+                    
                 }
                 else if (Ground.ProductionHere < 0)
                 {
 
                     unfed = Ground.ProductionHere;
-                    Ground.ProductionHere = 0.0f;
+                    
                 }
             }
             else
             {
                 Ground.NetFoodPerTurn -= Ground.Consumption;
-                Ground.FoodHere += Ground.NetFoodPerTurn;
-                if (Ground.FoodHere > Ground.MaxStorage)
+                FoodHere += Ground.NetFoodPerTurn;
+                if (FoodHere > Ground.MaxStorage)
                 {
-                    unfed = 0.0f;
-                    Ground.FoodHere = Ground.MaxStorage;
+                    unfed = 0.0f;                    
                 }
-                else if (Ground.FoodHere < 0)
+                else if (FoodHere < 0)
                 {
-                    unfed = Ground.FoodHere;
-                    Ground.FoodHere = 0.0f;
+                    unfed = Ground.FoodHere;                    
                 }
             }
             return unfed;
         }
+
         public void BuildingResources()
         {
             foreach (Building building1 in BuildingList)

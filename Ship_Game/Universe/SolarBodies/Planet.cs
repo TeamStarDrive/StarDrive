@@ -8,7 +8,7 @@ using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
- 
+
     public sealed class Planet : SolarSystemBody, IDisposable
     {
         public enum ColonyType
@@ -26,15 +26,21 @@ namespace Ship_Game
         //private float ProductionHere;
         public float ProductionHere
         {
-            get => CommodititesManager.GetGoodAmount("Production");
-            set => CommodititesManager.AddGood("Production", value);
+            get => CommodititesManager.ProductionHere;
+            set => CommodititesManager.ProductionHere = value;
         }
-        
+
         public float FoodHere
         {
-            get => CommodititesManager.GetGoodAmount("Food");
-            set => CommodititesManager.AddGood("Food", value);
+            get => CommodititesManager.FoodHere;
+            set => CommodititesManager.FoodHere = value;
         }
+        public float Population
+        {
+            get => CommodititesManager.Population;
+            set => CommodititesManager.Population = value;
+        }
+
         public TroopManager TroopManager;
         GeodeticManager GeodeticManager;
         CommodititesManager CommodititesManager;
@@ -586,10 +592,7 @@ namespace Ship_Game
             GrowPopulation();
             HealTroops();
             CalculateIncomingTrade();
-            if (FoodHere > MaxStorage)
-                FoodHere = MaxStorage;
-            if (ProductionHere > MaxStorage)
-                ProductionHere = MaxStorage;
+
         }
 
         public float IncomingFood = 0;
@@ -3028,9 +3031,7 @@ output = maxp * take10 = 5
                         }
                         else
                         {
-                            ProductionHere += queueItem.productionTowards;
-                            if (ProductionHere > MaxStorage)
-                                ProductionHere = MaxStorage;
+                            ProductionHere += queueItem.productionTowards;                      
                             if (queueItem.pgs != null)
                                 queueItem.pgs.QItem = null;
                             ConstructionQueue.Remove(queueItem);
@@ -3096,9 +3097,7 @@ output = maxp * take10 = 5
                 else if (queueItem.isShip && !ResourceManager.ShipsDict.ContainsKey(queueItem.sData.Name))
                 {
                     ConstructionQueue.QueuePendingRemoval(queueItem);
-                    ProductionHere += queueItem.productionTowards;
-                    if (ProductionHere > MaxStorage)
-                        ProductionHere = MaxStorage;
+                    ProductionHere += queueItem.productionTowards;             
                 }
                 else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost)
                 {
@@ -3388,7 +3387,7 @@ output = maxp * take10 = 5
 
         private void HarvestResources()
         {
-            Unfed = CommodititesManager.CalculateConsumption();
+            Unfed = CommodititesManager.CalculateUnFed();
             CommodititesManager.BuildingResources();            
         }
 
