@@ -9,14 +9,11 @@ namespace Ship_Game.Universe.SolarBodies
         private readonly Planet Ground;
 
         private Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        private Empire Owner => Ground.Owner;
-        private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
-        private Array<Building> BuildingList => Ground.BuildingList;
-        private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
-        private SolarSystem ParentSystem => Ground.ParentSystem;
-        private Map<string, float> Commoditites = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
-        public IReadOnlyList<QueueItem> ConstructionQ => ConstructionQueue;
-        private BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
+        private Empire Owner => Ground.Owner;        
+        private Array<Building> BuildingList => Ground.BuildingList;        
+        private SolarSystem ParentSystem => Ground.ParentSystem;        
+        //public IReadOnlyList<QueueItem> ConstructionQ => ConstructionQueue;
+        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         private int CrippledTurns => Ground.CrippledTurns;
         private bool RecentCombat => Ground.RecentCombat;
         private float MineralRichness => Ground.MineralRichness;
@@ -24,13 +21,12 @@ namespace Ship_Game.Universe.SolarBodies
         private float Consumption => Ground.Consumption;
         private float ShipBuildingModifier => Ground.ShipBuildingModifier;
         private float Fertility => Ground.Fertility;
-        private SpaceStation Station => Ground.Station;
-        private bool HasShipyard => Ground.HasShipyard;
+        private SpaceStation Station => Ground.Station;        
         private Planet.GoodState PS => Ground.PS;
-        private Planet.GoodState FS => Ground.FS;
+        //private Planet.GoodState FS => Ground.FS;
         private bool PSexport => Ground.PSexport;
         private Planet.ColonyType colonyType => Ground.colonyType;
-        private float NetProductionPerTurn => NetProductionPerTurn;
+        private float NetProductionPerTurn => Ground.NetProductionPerTurn;
         private bool GovernorOn => Ground.GovernorOn;
 
         private float ProductionHere
@@ -53,10 +49,10 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
 
             QueueItem item = ConstructionQueue[Index];
-            float amountToRush = GetMaxProductionPotential();
-
-            amountToRush = Empire.Universe.Debug ? float.MaxValue : amountToRush < 5 ? 5 : amountToRush;
-            float amount = amountToRush < ProductionHere ? amountToRush : Empire.Universe.Debug ? float.MaxValue : ProductionHere;
+            float amountToRush = GetMaxProductionPotential(); //for debug help
+            float amount = Math.Min(ProductionHere, amountToRush);
+            if (Empire.Universe.Debug && Owner.isPlayer)
+                amount = float.MaxValue;
             if (amount < 1)
             {
                 return false;
@@ -102,19 +98,10 @@ namespace Ship_Game.Universe.SolarBodies
                 cost = item.Cost;
                 if (item.isShip)
                     cost *= ShipBuildingModifier;
-                cost -= item.productionTowards;
-                if (howMuch < cost)
-                {
-                    item.productionTowards += howMuch;
-                }
-                else
-                {
-
-                    howMuch -= cost;
-                    item.productionTowards = item.Cost;
-                    ProductionHere += howMuch;
-                }
-                ConstructionQueue[whichItem] = item;
+                //cost -= item.productionTowards;
+                item.productionTowards += howMuch;
+                float remainder = item.productionTowards - cost;
+                ProductionHere += Math.Max(0, remainder);                                
             }
             else ProductionHere += howMuch;
 
@@ -172,9 +159,8 @@ namespace Ship_Game.Universe.SolarBodies
                         if (queueItem.IsPlayerAdded)
                             building.IsPlayerAdded = queueItem.IsPlayerAdded;
                         BuildingList.Add(building);
-                        Ground.Fertility -= ResourceManager.CreateBuilding(queueItem.Building.Name).MinusFertilityOnBuild;
-                        if (Fertility < 0.0)
-                            Ground.Fertility = 0.0f;
+                        Ground.Fertility -= building.MinusFertilityOnBuild;
+                        Ground.Fertility = Math.Max(Fertility, 0);
                         if (queueItem.pgs != null)
                         {
                             if (queueItem.Building != null && queueItem.Building.Name == "Biospheres")
@@ -278,11 +264,8 @@ namespace Ship_Game.Universe.SolarBodies
         {
             if (CrippledTurns > 0 || RecentCombat)
                 return;
-            //if (ConstructionQueue.IsEmpty)
-            //{
-            //    return;
-            //}
-            float maxp = GetMaxProductionPotential() * (1 - Ground.FarmerPercentage); //this.NetProductionPerTurn; //
+         
+            float maxp = GetMaxProductionPotential() * (1 - Ground.FarmerPercentage); 
             if (maxp < 5)
                 maxp = 5;
             float StorageRatio = 0;
@@ -411,6 +394,18 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
             return false;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~SBProduction() { Dispose(false); }
+        private void Dispose(bool disposing)
+        {
+            ConstructionQueue?.Dispose(ref ConstructionQueue);
         }
     }
 }

@@ -7,15 +7,16 @@ namespace Ship_Game.Universe.SolarBodies
     {
         private readonly Planet Ground;
 
-        private Array<PlanetGridSquare> TilesList => Ground.TilesList;
+        //private Array<PlanetGridSquare> TilesList => Ground.TilesList;
         private Empire Owner => Ground.Owner;
-        private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
+        //private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
         private Array<Building> BuildingList => Ground.BuildingList;
-        private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
-        private SolarSystem ParentSystem => Ground.ParentSystem;        
+        //private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
+        //private SolarSystem ParentSystem => Ground.ParentSystem;        
         private Map<string, float> Commoditites = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         public IReadOnlyDictionary<string, float> ResourcesDictionary => Commoditites;
         private float Waste;
+        public Array<string> CommoditiesPresent = new Array<string>();
         public SBCommodities (Planet planet)
         {
             Ground = planet;
