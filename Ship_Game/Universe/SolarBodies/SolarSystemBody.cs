@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -44,17 +45,17 @@ namespace Ship_Game
 
     public class SolarSystemBody : Explorable
     {
-    
+        public SBProduction SbProduction;
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
+        //public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
         //protected readonly Map<string, float> ResourcesDict = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
-        protected IReadOnlyDictionary<string, float> ResourceDictionary => new Map<string, float>(StringComparer.OrdinalIgnoreCase);
+        //protected IReadOnlyDictionary<string, float> ResourceDictionary => new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         protected readonly Array<Building> BuildingsCanBuild = new Array<Building>();
-        public Array<string> CommoditiesPresent = new Array<string>();
+        public BatchRemovalCollection<QueueItem> ConstructionQueue => SbProduction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
         public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
@@ -121,6 +122,12 @@ namespace Ship_Game
         }
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
+
+        
+
+
+
+
 
         public string GetTypeTranslation()
         {
