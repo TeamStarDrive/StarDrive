@@ -241,12 +241,13 @@ namespace Ship_Game
 
         public string GetRole()
         {
-            return RoleArray[(int)Role];
+            return RoleArray[(int)Role -1];
         }
 
         public static string GetRole(RoleName role)
         {
-            return RoleArray[(int)role];
+            int roleNum = (int)role - 1;
+            return RoleArray[roleNum];
         }
 
 

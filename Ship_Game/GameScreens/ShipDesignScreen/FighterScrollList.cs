@@ -27,7 +27,7 @@ namespace Ship_Game
 
         public bool HitTest(InputState input)
         {
-            return   FighterSubMenu.Menu.HitTest(input.CursorPosition) && ActiveModule != null;
+            return   FighterSubMenu.Menu.HitTest(input.CursorPosition) && ActiveModule != null ;
         }
 
         public new void Dispose()
@@ -44,8 +44,9 @@ namespace Ship_Game
             foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship fighter)) continue;
-                if (!ActiveModule.PermittedHangarRoles.Contains(ShipData.GetRole(fighter.DesignRole))) continue;
-                if (fighter.Size >= ActiveModule.MaximumHangarShipSize) continue;
+                string role = ShipData.GetRole(fighter.DesignRole);
+                if (!ActiveModule.PermittedHangarRoles.Contains(role)) continue;
+                if (fighter.Size > ActiveModule.MaximumHangarShipSize) continue;
 
                 AddItem(ResourceManager.ShipsDict[shipname]);
             }         
@@ -91,16 +92,17 @@ namespace Ship_Game
             }
    
             ActiveHangarModule = null;
-            ActiveHangarModule = null;
+            ActiveModule = null;
             HangarShipUIDLast = "";
             return false;
 
             
         }
-
+        bool HangarNotSelected(ShipModule activeModule, ShipModule activeHangarModule)
+            => activeHangarModule == activeModule || activeModule.ModuleType != ShipModuleType.Hangar;
         public void SetActiveHangarModule(ShipModule activeModule, ShipModule activeHangarModule)
         {
-            if (activeHangarModule == activeModule || activeModule.ModuleType != ShipModuleType.Hangar ) return;
+            if (HangarNotSelected(activeModule, activeHangarModule)) return;
 
             ActiveHangarModule = activeModule;
             Populate();
