@@ -15,7 +15,7 @@ namespace Ship_Game.Universe.SolarBodies
         private SolarSystem ParentSystem => SolarSystemBody.ParentSystem;
         private int TurnsSinceTurnover => SolarSystemBody.TurnsSinceTurnover;
         private float ShieldStrengthCurrent => SolarSystemBody.ShieldStrengthCurrent;
-        private readonly TroopManager TroopManager;
+        //private readonly TroopManager TroopManager;
         private float Population => SolarSystemBody.Population;
         private Shield Shield => SolarSystemBody.Shield;
         private Vector2 Center => SolarSystemBody.Center;
@@ -28,7 +28,7 @@ namespace Ship_Game.Universe.SolarBodies
         public GeodeticManager (Planet planet)
         {
             SolarSystemBody = planet;
-            TroopManager = SolarSystemBody.TroopManager;
+            
         }
 
         public void Update(float elaspedTime)
@@ -48,7 +48,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             }
-            TroopManager.SetInCombat();
+            SolarSystemBody.SetInGroundCombat();
             if (ShieldStrengthCurrent <= 0f)
             {
                 float ran = RandomMath.RandomBetween(0f, 100f);

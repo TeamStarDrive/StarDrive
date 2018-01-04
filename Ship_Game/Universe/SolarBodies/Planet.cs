@@ -21,6 +21,10 @@ namespace Ship_Game
             Military,
             TradeHub,
         }
+        GeodeticManager GeodeticManager;
+        SBCommodities SbCommodities;
+        
+        TroopManager TroopManager;
         public bool GovBuildings = true;
         public bool GovSliders = true;
         public float ProductionHere
@@ -40,10 +44,7 @@ namespace Ship_Game
             set => SbCommodities.Population = value;
         }
 
-        public TroopManager TroopManager;
-        GeodeticManager GeodeticManager;
-        SBCommodities SbCommodities;
-        SBProduction SBProduction;
+
         public GoodState FS = GoodState.STORE;
         public GoodState PS = GoodState.STORE;
         public GoodState GetGoodState(string good)
@@ -58,7 +59,7 @@ namespace Ship_Game
             return 0;
         }        
         public SpaceStation Station = new SpaceStation();        
-              
+        
         
         public float FarmerPercentage = 0.34f;
         public float WorkerPercentage = 0.33f;
@@ -124,7 +125,7 @@ namespace Ship_Game
             }
             return 0;
         }
-        
+        public Array<string> CommoditiesPresent => SbCommodities.CommoditiesPresent;
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn = 50;        
@@ -177,12 +178,12 @@ namespace Ship_Game
 
         public Planet()
         {
-         
-            HasShipyard = false;
             TroopManager = new TroopManager(this, Habitable);
             GeodeticManager = new GeodeticManager(this);
             SbCommodities = new SBCommodities(this);
-            SBProduction = new SBProduction(this);
+            base.SbProduction = new SBProduction(this);
+            HasShipyard = false;
+
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 AddGood(keyValuePair.Key, 0);
         }
@@ -193,7 +194,7 @@ namespace Ship_Game
             TroopManager = new TroopManager(this, Habitable);
             GeodeticManager = new GeodeticManager(this);
             SbCommodities = new SBCommodities(this);
-            SBProduction = new SBProduction(this);
+            SbProduction = new SBProduction(this);
             Name = name;
             OrbitalAngle = randomAngle;
             ParentSystem = system;
@@ -245,6 +246,11 @@ namespace Ship_Game
                 newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
             }
           
+        }
+
+        public void SetInGroundCombat()
+        {
+            TroopManager.SetInCombat();
         }
 
         public Goods ImportPriority()
@@ -328,11 +334,11 @@ namespace Ship_Game
                 return NetFoodPerTurn - Consumption;
         }
 
-        public void ApplyAllStoredProduction(int index) => SBProduction.ApplyAllStoredProduction(index);
+        public void ApplyAllStoredProduction(int index) => SbProduction.ApplyAllStoredProduction(index);
 
-        public bool ApplyStoredProduction(int index) => SBProduction.ApplyStoredProduction(index);
+        public bool ApplyStoredProduction(int index) => SbProduction.ApplyStoredProduction(index);
 
-        public void ApplyProductiontoQueue(float howMuch, int whichItem) => SBProduction.ApplyProductiontoQueue(howMuch, whichItem);
+        public void ApplyProductiontoQueue(float howMuch, int whichItem) => SbProduction.ApplyProductiontoQueue(howMuch, whichItem);
 
         public float GetNetProductionPerTurn()
         {
@@ -342,7 +348,7 @@ namespace Ship_Game
                 return NetProductionPerTurn;
         }
 
-        public bool TryBiosphereBuild(Building b, QueueItem qi) => SBProduction.TryBiosphereBuild(b, qi);
+        public bool TryBiosphereBuild(Building b, QueueItem qi) => SbProduction.TryBiosphereBuild(b, qi);
 
         public void Update(float elapsedTime)
         {
@@ -564,7 +570,7 @@ namespace Ship_Game
 
             //this.UpdateTimer = 10f;
             HarvestResources();
-            
+            ApplyProductionTowardsConstruction();
             GrowPopulation();
             HealTroops();
             CalculateIncomingTrade();
@@ -846,9 +852,9 @@ namespace Ship_Game
             return BuildingsCanBuild;
         }
 
-        public void AddBuildingToCQ(Building b) => SBProduction.AddBuildingToCQ(b);
+        public void AddBuildingToCQ(Building b) => SbProduction.AddBuildingToCQ(b);
      
-        public void AddBuildingToCQ(Building b, bool PlayerAdded) => SBProduction.AddBuildingToCQ(b, PlayerAdded);     
+        public void AddBuildingToCQ(Building b, bool PlayerAdded) => SbProduction.AddBuildingToCQ(b, PlayerAdded);     
 
         public bool BuildingInQueue(string UID)
         {
@@ -909,8 +915,8 @@ namespace Ship_Game
             float maintCost = GrossMoneyPT + Owner.data.Traits.TaxMod * GrossMoneyPT - building.Maintenance- (TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod);
             bool makingMoney = maintCost > 0;
       
-            int defensiveBuildings = BuildingList.Where(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ||combat.theWeapon !=null ).Count();           
-           int possibleoffensiveBuilding = BuildingsCanBuild.Where(b => b.PlanetaryShieldStrengthAdded > 0 || b.SoftAttack > 0 || b.theWeapon != null).Count();
+            int defensiveBuildings = BuildingList.Count(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ||combat.theWeapon !=null);           
+           int possibleoffensiveBuilding = BuildingsCanBuild.Count(b => b.PlanetaryShieldStrengthAdded > 0 || b.SoftAttack > 0 || b.theWeapon != null);
            bool isdefensive = building.SoftAttack > 0 || building.PlanetaryShieldStrengthAdded > 0 || building.isWeapon ;
            float defenseratio =0;
             if(defensiveBuildings+possibleoffensiveBuilding >0)
@@ -1690,7 +1696,7 @@ namespace Ship_Game
                         {
                             if (queueItem1.Building.Name == "Outpost") 
                             {
-                               SBProduction.ApplyAllStoredProduction(0);
+                               SbProduction.ApplyAllStoredProduction(0);
                             }
                             break;
                         }
@@ -2611,7 +2617,7 @@ namespace Ship_Game
             return true;
         }
 
-        public int EstimatedTurnsTillComplete(QueueItem qItem) => SBProduction.EstimatedTurnsTillComplete(qItem);
+        public int EstimatedTurnsTillComplete(QueueItem qItem) => SbProduction.EstimatedTurnsTillComplete(qItem);
  
         public float GetMaxProductionPotential()
         {
@@ -2638,7 +2644,7 @@ namespace Ship_Game
             * (1+ ResearchPercentAdded
             + Owner.data.Traits.ResearchMod* NetResearchPerTurn);
 
-        public void ApplyProductionTowardsConstruction() => SBProduction.ApplyProductionTowardsConstruction();
+        public void ApplyProductionTowardsConstruction() => SbProduction.ApplyProductionTowardsConstruction();
 
         public void InitializeSliders(Empire o)
         {
@@ -2928,11 +2934,13 @@ namespace Ship_Game
         {
             ActiveCombats?.Dispose(ref ActiveCombats);
             OrbitalDropList?.Dispose(ref OrbitalDropList);
-            ConstructionQueue?.Dispose(ref ConstructionQueue);
+            SbProduction    = null;
+            SbCommodities   = null;
+            TroopManager    = null;
+            GeodeticManager = null;
             BasedShips?.Dispose(ref BasedShips);
             Projectiles?.Dispose(ref Projectiles);
-            TroopsHere?.Dispose(ref TroopsHere);
-            TroopManager = null;
+            TroopsHere?.Dispose(ref TroopsHere);            
         }
     }
 }
