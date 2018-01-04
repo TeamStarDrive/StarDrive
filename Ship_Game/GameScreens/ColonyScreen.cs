@@ -1241,7 +1241,7 @@ namespace Ship_Game
             if (GlobalStats.HardcoreRuleset)
             {
                 foreach (ThreeStateButton threeStateButton in this.ResourceButtons)
-                    threeStateButton.Draw(this.ScreenManager, this.p.GetGoodAmount(threeStateButton.Good));
+                    threeStateButton.Draw(this.ScreenManager, (int)this.p.GetGoodAmount(threeStateButton.Good));
             }
             else
             {
@@ -2490,10 +2490,7 @@ namespace Ship_Game
                     {
                         Planet productionHere2 = this.p;
                         productionHere2.ProductionHere = productionHere2.ProductionHere + (e.item as QueueItem).productionTowards;
-                        if (this.p.ProductionHere > this.p.MaxStorage)
-                        {
-                            this.p.ProductionHere = this.p.MaxStorage;
-                        }
+                        
                         QueueItem item = (e.item as QueueItem);
                         if (item.pgs != null)
                         {
