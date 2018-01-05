@@ -136,8 +136,8 @@ namespace Ship_Game
             p.ProdLocked            = psdata.ProdLock;
             p.ResLocked             = psdata.ResLock;
             p.OrbitalRadius         = psdata.OrbitalDistance;
-            p.Population            = psdata.Population;
             p.MaxPopulation         = psdata.PopulationMax;
+                   
             p.Fertility             = psdata.Fertility;
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
@@ -145,16 +145,17 @@ namespace Ship_Game
             p.PlanetType            = psdata.WhichPlanet;
             p.ShieldStrengthCurrent = psdata.ShieldStrength;
             p.LoadAttributes();
-            p.CrippledTurns = psdata.Crippled_Turns;
-            p.PlanetTilt     = RandomMath.RandomBetween(45f, 135f);
-            p.ObjectRadius   = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
+            p.CrippledTurns         = psdata.Crippled_Turns;
+            p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
+            p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             foreach (Guid guid in psdata.StationsList)
-                p.Shipyards[guid] = null; // reserve shipyards
-            p.FarmerPercentage     = psdata.farmerPercentage;
-            p.WorkerPercentage     = psdata.workerPercentage;
-            p.ResearcherPercentage = psdata.researcherPercentage;
-            p.FoodHere             = psdata.foodHere;
-            p.ProductionHere       = psdata.prodHere;
+                p.Shipyards[guid]   = null; // reserve shipyards
+            p.FarmerPercentage      = psdata.farmerPercentage;
+            p.WorkerPercentage      = psdata.workerPercentage;
+            p.ResearcherPercentage  = psdata.researcherPercentage;
+
+            
+
             if (p.HasRings)
             {
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
@@ -193,8 +194,15 @@ namespace Ship_Game
                     continue;
                 }
                 pgs.building.theWeapon = ResourceManager.WeaponsDict[pgs.building.Weapon];
-            }
+            }            
             return p;
+        }
+
+        private void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
+        {
+            p.SbCommodities.AddGood("Food", psdata.foodHere, false);
+            p.SbCommodities.AddGood("Production", psdata.prodHere, false);
+            p.SbCommodities.AddGood("Colonists_1000", psdata.Population, false);
         }
 
         private SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssdata)
@@ -256,12 +264,14 @@ namespace Ship_Game
                         planet    = p,
                         Asteroids = false
                     });
+                    RestoreCommodities(p, ring.Planet);
                     p.UpdateIncomes(true);  //fbedard: needed for OrderTrade()
+                    
                 }
             }
             return system;
         }
-
+        
         private void DecompressFile(object info, DoWorkEventArgs e)
         {
             SavedGame.UniverseSaveData usData = SavedGame.DeserializeFromCompressedSave((FileInfo)e.Argument);

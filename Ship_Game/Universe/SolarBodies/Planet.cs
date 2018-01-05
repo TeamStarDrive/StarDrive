@@ -21,10 +21,10 @@ namespace Ship_Game
             Military,
             TradeHub,
         }
-        GeodeticManager GeodeticManager;
-        SBCommodities SbCommodities;
-        
-        TroopManager TroopManager;
+        public GeodeticManager GeodeticManager;
+        public SBCommodities SbCommodities;
+
+        public TroopManager TroopManager;
         public bool GovBuildings = true;
         public bool GovSliders = true;
         public float ProductionHere

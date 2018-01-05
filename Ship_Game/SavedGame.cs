@@ -896,7 +896,7 @@ namespace Ship_Game
             [Serialize(4)] public Array<RingSave> RingList;
             [Serialize(5)] public Array<Asteroid> AsteroidsList;
             [Serialize(6)] public Array<Moon> Moons;
-            [Serialize(7)] public Array<string> EmpiresThatKnowThisSystem;
+            [Serialize(7)] public Array<string> EmpiresThatKnowThisSystem;            
         }
 
         public struct SpaceRoadSave
