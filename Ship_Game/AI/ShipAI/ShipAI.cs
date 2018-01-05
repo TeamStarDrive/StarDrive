@@ -222,7 +222,7 @@ namespace Ship_Game.AI
 
         private void ScrapShip(float elapsedTime, ShipGoal goal)
         {
-            if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.GravityWellRadius)
+            if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
             {
                 DoOrbit(goal.TargetPlanet, elapsedTime);
                 return;
