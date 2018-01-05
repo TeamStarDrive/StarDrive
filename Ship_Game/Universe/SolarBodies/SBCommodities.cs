@@ -45,26 +45,27 @@ namespace Ship_Game.Universe.SolarBodies
             set => AddGood("Colonists_1000", value);
         }
 
-        public float AddGood(string goodId, float amount)
+        public float AddGood(string goodId, float amount, bool clamp = true)
         {
             float max = float.MaxValue;
-            switch (goodId)
-            {
-                case "Food":
-                case "Production":
-                    {
-                        max = Ground.MaxStorage;
-                        break;
-                    }
-                case "Colonists_1000":
+            if (clamp)
+                switch (goodId)
                 {
-                        max = Ground.MaxPopulation;
+                    case "Food":
+                    case "Production":
+                        {
+                            max = Ground.MaxStorage;
+                            break;
+                        }
+                    case "Colonists_1000":
+                        {
+                            max = Ground.MaxPopulation;
+                            break;
+                        }
+                    default:
                         break;
-                }
-                default:
-                    break;
 
-            }
+                }
             //clamp by storage capability and return amount not stored. 
             float stored = Math.Max(0, amount);
             stored = Math.Min(stored, max);

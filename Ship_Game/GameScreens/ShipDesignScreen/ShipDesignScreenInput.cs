@@ -891,10 +891,10 @@ namespace Ship_Game {
             CombatStatusButton(ordersBarPos,"attack", "SelectionBox/icon_formation_headon",1);
 
             ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "short", "SelectionBox/icon_formation_aft", 2);
+            CombatStatusButton(ordersBarPos, "arty", "SelectionBox/icon_formation_aft", 2);
 
             ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "arty", "SelectionBox/icon_grid", 228);
+            CombatStatusButton(ordersBarPos, "short", "SelectionBox/icon_grid", 228);
     
 
             ordersBarPos.X = ordersBarPos.X + 29f;
