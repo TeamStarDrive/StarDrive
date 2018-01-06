@@ -631,7 +631,8 @@ namespace Ship_Game
         {
             float strength = 0f;
             foreach (Ship ship in ShipList)
-            {
+            {                
+                if (ship?.Active != true) continue;
                 if (ship.loyalty != e)
                     continue;
                 strength += ship.GetStrength();

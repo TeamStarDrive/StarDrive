@@ -59,7 +59,7 @@ namespace Ship_Game.Universe.SolarBodies
                         }
                     case "Colonists_1000":
                         {
-                            max = Ground.MaxPopulation;
+                            max = Ground.MaxPopulation + Ground.MaxPopBonus;
                             break;
                         }
                     default:
@@ -86,34 +86,37 @@ namespace Ship_Game.Universe.SolarBodies
                 FoodHereActual = 0.0f;
                 Ground.NetProductionPerTurn -= Ground.Consumption;
 
-                if (Ground.NetProductionPerTurn < 0f)
-                    ProductionHere += Ground.NetProductionPerTurn;
+                float productionHere = Math.Min(0, ProductionHere + Ground.NetProductionPerTurn);
+                
 
-                if (ProductionHere > Ground.MaxStorage)
+                if (ProductionHere >= Ground.MaxStorage)
                 {
                     unfed = 0.0f;
                     
                 }
-                else if (Ground.ProductionHere < 0)
+                else if (productionHere < 0)
                 {
 
-                    unfed = Ground.ProductionHere;
+                    unfed = productionHere;
+                    ProductionHere = 0;
                     
                 }
             }
             else
             {
                 Ground.NetFoodPerTurn -= Ground.Consumption;
-                FoodHere += Ground.NetFoodPerTurn;
-                if (FoodHere > Ground.MaxStorage)
+                float foodHere = FoodHere + Ground.NetFoodPerTurn;
+                 
+                if (foodHere >= Ground.MaxStorage)
                 {
                     unfed = 0.0f;                    
                 }
-                else if (FoodHere <= 0)
+                else if (foodHere <= 0)
                 {
-                    unfed = Ground.FoodHere;                    
+                    unfed = foodHere;                    
                 }
-            }
+                FoodHere = foodHere;
+            }            
             return unfed;
         }
 

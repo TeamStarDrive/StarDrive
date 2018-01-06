@@ -2855,9 +2855,10 @@ namespace Ship_Game
             if ( Math.Abs(Unfed) <= 0 )
             {
 
+                
                 Population += num3;
-                if (Population +  num3 > MaxPopulation + MaxPopBonus)
-                    Population = MaxPopulation + MaxPopBonus;
+                //if (Population +  num3 > MaxPopulation + MaxPopBonus)
+                //    Population = MaxPopulation + MaxPopBonus;
             }
             else
                 Population += Unfed * 10f;

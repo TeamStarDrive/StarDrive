@@ -198,7 +198,7 @@ namespace Ship_Game
             return p;
         }
 
-        private void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
+        private static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
             p.SbCommodities.AddGood("Food", psdata.foodHere, false);
             p.SbCommodities.AddGood("Production", psdata.prodHere, false);
