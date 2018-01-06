@@ -154,14 +154,13 @@ namespace Ship_Game.Gameplay
         public bool AltFireMode;
         public bool AltFireTriggerFighter;
         private Weapon AltFireWeapon;
-        public float OffPowerMod = 1f;
-
+        public float OffPowerMod = 1f;        
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
         [XmlIgnore][JsonIgnore]
         public GameplayObject FireTarget { get; private set; }
         private float TargetChangeTimer;
-
+        public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo;
         public int SalvoCount = 1;
         public float SalvoTimer;
