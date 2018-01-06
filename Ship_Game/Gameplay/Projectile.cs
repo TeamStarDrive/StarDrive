@@ -210,7 +210,7 @@ namespace Ship_Game.Gameplay
             }
 
             ModelPath = Weapon.ModelPath;
-            UsesVisibleMesh = (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket");
+            UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket";
 
             if (Empire.Universe == null)
                 return;
@@ -393,7 +393,7 @@ namespace Ship_Game.Gameplay
                 if (Owner != null && !Owner.loyalty.IsEmpireAttackable(projectile.Loyalty))
                     return false;
 
-                if (projectile.WeaponType == "Missile" )
+                if (projectile.WeaponType == "Missile" || projectile.Weapon.Tag_Intercept )
                 {
                     if (projectile.Loyalty != null && 
                         projectile.Loyalty.data.MissileDodgeChance <= UniverseRandom.RandomBetween(0f, 1f))
@@ -415,8 +415,12 @@ namespace Ship_Game.Gameplay
                 }
                 else if (Weapon.Tag_Intercept || projectile.Weapon.Tag_Intercept)
                 {
-                    DieNextFrame = true;
+                    if (projectile.Weapon.Tag_Intercept)
+                        DamageMissile(this, projectile.DamageAmount);
+                    else
+                        DieNextFrame = true;
                     projectile.DieNextFrame = true;
+                    return true;
                 }
                 return false;
             }
