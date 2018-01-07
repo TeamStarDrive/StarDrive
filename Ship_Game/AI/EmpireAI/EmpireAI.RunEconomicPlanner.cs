@@ -31,23 +31,27 @@ namespace Ship_Game.AI {
                                  OwnerEmpire.TradeMoneyAddedThisTurn +
                                  OwnerEmpire.data.FlatMoneyBonus; //mmore savings than GDP 
             treasuryGoal *= (OwnerEmpire.data.treasuryGoal * 100);
-            treasuryGoal  = treasuryGoal <= 1 ? 1 : treasuryGoal;
-            treasuryGoal *= 1 - money / treasuryGoal;
-            treasuryGoal *= .01f;
+            treasuryGoal  =Math.Max(1,treasuryGoal);
+            float goalClamped = 1f.Clamp(0,money / treasuryGoal);
+            float treasuryGoalRatio =  1 - goalClamped;
+            treasuryGoal *= treasuryGoalRatio;
             float tempTax = FindTaxRateToReturnAmount(treasuryGoal);
             if (tempTax - OwnerEmpire.data.TaxRate > .02f)
                 OwnerEmpire.data.TaxRate += .02f;
             else
                 OwnerEmpire.data.TaxRate = tempTax;
             float militaryRatio = OwnerEmpire.getResStrat().MilitaryRatio;
-            SetBudgetForeArea(.01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, militaryRatio));
-            BuildCapacity = OwnerEmpire.EstimateShipCapacityAtTaxRate(Math.Max(GetRisk(), militaryRatio));
+            var resStrat = OwnerEmpire.getResStrat();
+            SetBudgetForeArea(goalClamped * .1f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, militaryRatio));            
+            SetBudgetForeArea(goalClamped * .1f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goalClamped * .1f, ref BuildCapacity, Math.Max(risk, militaryRatio));           
+            SetBudgetForeArea(goalClamped *.25f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, militaryRatio));
         }
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {
             float budget = OwnerEmpire.Money * percentOfIncome * risk;
-            if (budget < 0 )
-                budget = 0;                            
+            
+            budget = Math.Max(0, budget);
             area = budget;
             return budget;
         }

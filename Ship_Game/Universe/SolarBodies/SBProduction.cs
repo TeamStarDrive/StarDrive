@@ -304,14 +304,14 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void AddBuildingToCQ(Building b, bool PlayerAdded)
         {
-            int count = ConstructionQueue.Count;
-            QueueItem qi = new QueueItem();
-            qi.IsPlayerAdded = PlayerAdded;
-            qi.isBuilding = true;
-            qi.Building = b;
-            qi.Cost = b.Cost;
+            int count            = ConstructionQueue.Count;
+            QueueItem qi         = new QueueItem();
+            qi.IsPlayerAdded     = PlayerAdded;
+            qi.isBuilding        = true;
+            qi.Building          = b;
+            qi.Cost              = b.Cost;
             qi.productionTowards = 0.0f;
-            qi.NotifyOnEmpty = false;
+            qi.NotifyOnEmpty     = false;
             ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer);
 
             if (terraformer == null)

@@ -2516,7 +2516,7 @@ namespace Ship_Game
                             }
                         }
 
-                        if (defBudget > stationUpkeep && maxProd > 10.0 &&
+                        if (defBudget > stationUpkeep &&
                             stationCount < (int) (systemCommander.RankImportance * .5f)
                             && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {                            
@@ -2533,7 +2533,7 @@ namespace Ship_Game
                             }
                             defBudget -= stationUpkeep;
                         }
-                        if (defBudget > platformUpkeep && maxProd > 1.0
+                        if (defBudget > platformUpkeep 
                             && PlatformCount <
                             systemCommander.RankImportance 
                             && PlatformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)

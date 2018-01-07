@@ -1462,7 +1462,7 @@ namespace Ship_Game
         }
         public float Grossincome()
         {
-            return GrossTaxes + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+            return GrossTaxes * data.TaxRate + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
         }
         public float EstimateShipCapacityAtTaxRate(float rate)
         {
