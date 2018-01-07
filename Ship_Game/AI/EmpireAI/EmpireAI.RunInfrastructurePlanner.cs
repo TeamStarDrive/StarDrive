@@ -9,10 +9,10 @@ namespace Ship_Game.AI {
   
         private void RunInfrastructurePlanner()
         {
-            float sspBudget = OwnerEmpire.Money * (.01f * (1.025f - OwnerEmpire.data.TaxRate));
-            OwnerEmpire.Money -= sspBudget;
-            OwnerEmpire.data.SSPBudget += sspBudget;            
-            sspBudget = OwnerEmpire.data.SSPBudget * .1f;
+            // float sspBudget = OwnerEmpire.Money * (.1f * (1.025f - OwnerEmpire.data.TaxRate));
+            //// OwnerEmpire.Money -= sspBudget;
+            // OwnerEmpire.data.SSPBudget += sspBudget;            
+            float sspBudget = OwnerEmpire.data.SSPBudget * .1f;
             float roadMaintenance = 0;
             float nodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(OwnerEmpire);
             foreach (SpaceRoad roadBudget in OwnerEmpire.SpaceRoadsList)
