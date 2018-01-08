@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {//subspaceprojector

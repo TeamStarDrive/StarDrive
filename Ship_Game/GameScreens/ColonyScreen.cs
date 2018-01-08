@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -157,7 +158,7 @@ namespace Ship_Game
             {
                 this.FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (double)(theMenu7.Height - 25)), (int)(0.400000005960464 * (double)theMenu7.Width), 18));
                 this.FoodStorage.Max = p.MaxStorage;
-                this.FoodStorage.Progress = p.FoodHere;
+                this.FoodStorage.Progress = p.SbCommodities.FoodHereActual;
                 this.FoodStorage.color = "green";
                 this.foodDropDown = this.LowRes ? new DropDownMenu(new Rectangle(theMenu7.X + 90 + (int)(0.400000005960464 * (double)theMenu7.Width) + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * (double)theMenu7.Width), 18)) : new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * (double)theMenu7.Width) + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * (double)theMenu7.Width), 18));
                 this.foodDropDown.AddOption(Localizer.Token(329));
@@ -306,7 +307,7 @@ namespace Ship_Game
             if (!GlobalStats.HardcoreRuleset)
             {
                 this.FoodStorage.Max = this.p.MaxStorage;
-                this.FoodStorage.Progress = this.p.FoodHere;
+                this.FoodStorage.Progress = this.p.SbCommodities.FoodHereActual;
                 this.ProdStorage.Max = this.p.MaxStorage;
                 this.ProdStorage.Progress = this.p.ProductionHere;
             }
@@ -1245,7 +1246,7 @@ namespace Ship_Game
             }
             else
             {
-                this.FoodStorage.Progress = this.p.FoodHere;
+                this.FoodStorage.Progress = this.p.SbCommodities.FoodHereActual;
                 this.ProdStorage.Progress = this.p.ProductionHere;
                 if (this.p.FS == Planet.GoodState.STORE)
                     this.foodDropDown.ActiveIndex = 0;

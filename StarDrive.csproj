@@ -228,10 +228,10 @@
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\ScreenInputBinding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
-    <Compile Include="Ship_Game\Ship\Ship_Cargo.cs" />
-    <Compile Include="Ship_Game\Ship\Ship_Initialize.cs" />
-    <Compile Include="Ship_Game\Ship\Ship_ModuleGrid.cs" />
-    <Compile Include="Ship_Game\Ship\Ship_Rendering.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_Cargo.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
     <Compile Include="Ship_Game\GameScreens\DrawRoutines.cs" />
     <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
@@ -257,7 +257,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Ship_Game\Ship\Ship_Update.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\SpriteSystem\FadeInOutAnim.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMissionData.cs" />
@@ -403,7 +403,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\BudgetScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\BudgetScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -546,7 +546,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Ship\ShipModule.cs">
+    <Compile Include="Ship_Game\Ships\ShipModule.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -594,7 +594,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Ship\ShipData.cs">
+    <Compile Include="Ship_Game\Ships\ShipData.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -798,7 +798,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Ship\Ship.cs">
+    <Compile Include="Ship_Game\Ships\Ship.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1178,7 +1178,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ShipInfoUIElement.cs">
+    <Compile Include="Ship_Game\Ships\ShipInfoUIElement.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -3762,6 +3762,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Deploy\upload\" />
+    <Folder Include="Ship_Game\GameScreens\Ships\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

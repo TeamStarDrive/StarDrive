@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {
@@ -92,8 +93,8 @@ namespace Ship_Game.Gameplay
         public float ShieldPenChance;
         public float PowerDamage;
         public float SiphonDamage;
-        public int BeamThickness;
-        public float BeamDuration=2f;
+        public int BeamThickness;        
+        public float BeamDuration;
         public int BeamPowerCostPerSecond;
         public string BeamTexture;
         public int Animated;
@@ -182,7 +183,18 @@ namespace Ship_Game.Gameplay
                 return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
             }
         }
-      
+        public static void LoadCorrections(Weapon weapon)
+        {
+            weapon.BeamDuration = weapon.BeamDuration > 0 ? weapon.BeamDuration : 2f;
+            if (weapon.Tag_Missile)
+            {
+                if (weapon.WeaponType.IsEmpty()) weapon.WeaponType = "Missile";
+                else if (weapon.WeaponType != "Missile")
+                {
+                    Log.Warning("Weapon '{0}' has 'tag_missile' but Weapontype is '{1}' instead of missile. This Causes invisible projectiles.", weapon.UID, weapon.WeaponType);
+                }
+            }
+        }
 
         public Weapon(Ship owner, ShipModule module)
         {
@@ -417,13 +429,14 @@ namespace Ship_Game.Gameplay
 
         private float CalculateBaseAccuracy()
         {
-            float adjust =(Module?.AccuracyPercent ?? 0);
+             float adjust =(Module?.AccuracyPercent ?? 0);
             if (adjust == -1)
             {
                 adjust = 1;
                 if (isTurret) adjust *= .5f;
                 if (Tag_PD) adjust   *= .5f;
                 if (TruePD) adjust   *= .5f;
+                //if (isBeam) adjust *= 2f;
             }
             else
                 adjust = 1 - adjust;
@@ -565,10 +578,29 @@ namespace Ship_Game.Gameplay
                 ? Owner.CheckIfInsideFireArc(this, maybeTarget)
                 : Owner.CheckIfInsideFireArc(this, targetPos);
         }
+        public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
+        {
+            if (DamageAmount < 1) return destination;
+            if (target != null)
+            {
+                if (!Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
+                    return destination;
+            }
+            if (Tag_Tractor || isRepairBeam) return destination;
+
+            Vector2 ownerCenter = Owner?.Center ?? Vector2.Zero;
+            Vector2 jitter = target?.JitterPosition() ?? Vector2.Zero;            
+            jitter += AdjustTargetting();
+            jitter += SetDestination(destination, ownerCenter, 4000);
+            jitter = SetDestination(jitter, ownerCenter, ownerCenter.Distance(destination));
+            
+            return jitter;
+        }
 
         private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
-            if (!CheckFireArc(destination, target) || !PrepareToFire())
+            destination = ProjectedBeamPoint(source, destination, target);
+            if (!CheckFireArc(destination) || !PrepareToFire())
                 return;
 
             var beam = new Beam(this, source, destination, target);

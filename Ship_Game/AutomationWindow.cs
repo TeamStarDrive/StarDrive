@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {

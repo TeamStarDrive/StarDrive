@@ -155,7 +155,7 @@ namespace Ship_Game
                 AudioEngine = null;
                 WaveBank    = null;
                 SoundBank   = null;
-                Log.Error(ex, "AudioEngine init failed");
+                Log.Error(ex, "AudioEngine init failed. Please make sure that Speakers/Headphones are attached");
             }
         }
 

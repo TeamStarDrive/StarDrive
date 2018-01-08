@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 
 namespace Ship_Game
@@ -41,33 +42,38 @@ namespace Ship_Game
             // i am setting these values in the weapon CreateDroneBeam where possible.             
             Weapon                  = weapon;
             Target                  = target;
-            TargetPosistion         = target?.Center ?? destination;
+            TargetPosistion         = destination;
             Module                  = weapon.Module;
             DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost               = weapon.BeamPowerCostPerSecond;
             Range                   = weapon.Range;
-            Duration                = weapon.BeamDuration > 0f ? weapon.BeamDuration : 2f;
+            Duration = weapon.BeamDuration;// > 0f ? weapon.BeamDuration : 2f;
             Thickness               = weapon.BeamThickness;
             WeaponEffectType        = weapon.WeaponEffectType;
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
-            Jitter                  = Vector2.Zero;
+            //Jitter                  = Vector2.Zero;
             var targetVector        = Target?.Center ?? destination;
             JitterRadius            = 0;
 
             Owner                   = weapon.Owner ;
             Source                  = source;
-            if (DamageAmount > 0)
+            //if (DamageAmount > 0)
+            //{
+            //    Jitter = Weapon.AdjustTargetting(); 
+
+            //    SetDestination(destination, 4000f);
+            //    Destination += Jitter;
+            //}
+            //SetDestination(destination);
+            Destination = destination;
+            if (target != null && destination.OutsideRadius(target.Center, 32))
             {
-                Jitter = Weapon.AdjustTargetting(); 
-                JitterRadius = (targetVector + Jitter).Distance(targetVector) / 4f;
-                SetDestination(destination, 4000f);
-                Destination += Jitter;
+                TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
+                JitterRadius = target.Center.Distance(TargetPosistion);
+                WanderPath = Vector2.Normalize(destination - target.Center) * 16f;
             }
-            SetDestination(Destination);
-            if (DamageAmount > 0)
-                WanderPath = Vector2.Normalize(targetVector - TargetPosistion) * 16f;
             ActualHitDestination    = Destination;                        
             Initialize();
             weapon.ModifyProjectile(this);
@@ -107,8 +113,14 @@ namespace Ship_Game
         private void SetDestination(Vector2 destination, float range =-1)
         {
             range = range < 0 ? Range : range;
-            Vector2 deltaVec = destination - Source;
-            TargetPosistion = (Target?.Center ?? destination).NearestPointOnFiniteLine(Source, destination);
+            Vector2 deltaVec = destination - Source;            
+            if (!DisableSpatialCollision)
+            {
+                TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
+                //JitterRadius = Target.Center.Distance(TargetPosistion);
+            }
+            else
+                TargetPosistion = destination;
             Destination = Source + deltaVec.Normalized() * range;
         }
 
@@ -220,8 +232,20 @@ namespace Ship_Game
         {
             if (target == null || target == Owner || target is Ship)
                 return false;
-            if (target is Projectile && WeaponType != "Missile")
-                return false;
+            if (target is Projectile projectile)
+            {
+                if (projectile.Weapon?.Tag_Intercept != true)
+                    return false;
+                if (!Loyalty.IsEmpireAttackable(projectile.Loyalty))
+                    return false;
+                if (projectile.Loyalty?.data.MissileDodgeChance > UniverseRandom.RandomBetween(0f, 1f))
+                    return false;
+
+                projectile.DamageMissile(this, DamageAmount);
+                return true;
+
+
+            }           
 
             var targetModule = target as ShipModule;
             if (DamageAmount < 0f && targetModule?.ShieldPower >= 1f) // @todo Repair beam??
@@ -251,16 +275,20 @@ namespace Ship_Game
             }
             Duration -= elapsedTime;
             Source    = srcCenter;
-            if (ship != null && Target.Active && !DisableSpatialCollision)
+            if (ship != null && ship.Active && !DisableSpatialCollision)
             {
-                
-                float mark = TargetPosistion.Distance(Target.Center)  ;
-                float sweep = mark * ((Module?.WeaponRotationSpeed ?? 1f) * .025f);
-                if (TargetPosistion.OutsideRadius(Target.Center , JitterRadius) )
+                //if (JitterRadius > 0)
                 {
+                    float distanceFromJitter = TargetPosistion.Distance(Target.Center);
+                    distanceFromJitter = Math.Min(24 / (1+Owner?.Level ?? 1), distanceFromJitter);
+                    float sweep = distanceFromJitter * ((Module?.WeaponRotationSpeed ?? 1f) * .25f);
                     
-                    WanderPath = Vector2.Normalize(Target.Center  - TargetPosistion) * sweep;
-                }   
+                    //if (TargetPosistion.OutsideRadius(Target.Center, JitterRadius))
+                    {
+
+                        WanderPath = Vector2.Normalize(Target.Center - TargetPosistion) * sweep;
+                    }
+                }
             }
 
             // always update Destination to ensure beam stays in range
@@ -283,6 +311,7 @@ namespace Ship_Game
                 //}
                 if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
                 {
+                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
                     Log.Info("Beam killed because of angle");
                     Die(null, true);
                     return;

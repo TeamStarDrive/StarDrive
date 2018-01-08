@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -214,7 +215,7 @@ namespace Ship_Game
             this.subAllDesigns = new Submenu(scrollList);
             this.subAllDesigns.AddTab("All Designs");
             this.ShipDesigns = new ScrollList(this.subAllDesigns);
-            foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
+            foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
             {
                 this.ShipDesigns.AddItem(Ship.Value);
             }

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Xml.Serialization;
 using Ship_Game.AI;
 using Newtonsoft.Json;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -2981,8 +2982,11 @@ namespace Ship_Game
             OwnedShips?.Dispose(ref OwnedShips);
             DefensiveFleet?.Dispose(ref DefensiveFleet);
             EmpireAI?.Dispose(ref EmpireAI);
-            data.AgentList = new BatchRemovalCollection<Agent>();
-            data.MoleList = new BatchRemovalCollection<Mole>();
+            if (data != null)
+            {
+                data.AgentList = new BatchRemovalCollection<Agent>();
+                data.MoleList = new BatchRemovalCollection<Mole>();
+            }
             LockPatchCache?.Dispose(ref LockPatchCache);
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedProjectors?.Dispose(ref OwnedProjectors);

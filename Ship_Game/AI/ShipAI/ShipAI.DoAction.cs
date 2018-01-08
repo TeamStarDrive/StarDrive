@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI {
     public sealed partial class ShipAI

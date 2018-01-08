@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

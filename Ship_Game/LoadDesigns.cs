@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -320,7 +321,7 @@ namespace Ship_Game
             Array<string> ShipRoles = new Array<string>();
             if (this.screen != null)
             {
-                foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
+                foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
                 {
                     //added by gremlin HIDING ERRORS
                     try
@@ -343,7 +344,7 @@ namespace Ship_Game
                 }
                 foreach (ScrollList.Entry e in this.ShipDesigns.Entries)
                 {
-                    foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
+                    foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
                     {
                         if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
@@ -448,7 +449,7 @@ namespace Ship_Game
                 }
                 foreach (ScrollList.Entry e in this.ShipDesigns.Entries)
                 {
-                    foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
+                    foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
                     {
                         if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {

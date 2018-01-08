@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
 using SgMotion.Controllers;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
-using System.Linq;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.Ships
 {
     public sealed partial class Ship
     {
