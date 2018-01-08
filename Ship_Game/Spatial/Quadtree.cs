@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -108,8 +109,15 @@ namespace Ship_Game
                 if (hitModule.shield_radius > 0)
                     return hitModule.Center.RayCircleIntersect(hitModule.ShieldHitRadius, beamStart, beamEnd);
                 return hitModule.Center.FindClosestPointOnLine(beamStart, beamEnd).Distance(beamStart);
-            }
+            }            
             hitModule = null;
+            if ((target.Type & GameObjectType.Proj) != 0)
+            {
+                var proj = (Projectile)target.Obj;
+                if (!proj.Weapon.Tag_Intercept)
+                    return 0f;
+            }
+
             return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd);
         }
 

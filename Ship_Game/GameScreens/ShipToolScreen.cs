@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Xml.Serialization;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {

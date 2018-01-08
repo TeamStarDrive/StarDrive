@@ -3,9 +3,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.Ships
 {
     public sealed partial class Ship
     {

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -469,9 +470,9 @@ namespace Ship_Game
                         OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
                         WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
                         if (weapon.isBeam)
-                            WeaponPowerNeeded += weapon.BeamPowerCostPerSecond * weapon.BeamDuration / weapon.fireDelay;
-                        if (BeamLongestDuration < weapon.BeamDuration)
-                            BeamLongestDuration = weapon.BeamDuration;
+                            WeaponPowerNeeded += weapon.BeamPowerCostPerSecond * weapon.BeamDuration;// / weapon.fireDelay;
+                        BeamLongestDuration = Math.Max(BeamLongestDuration, weapon.BeamDuration);
+                        
                     }
                     //end
                     if (slot.Module.FixedTracking > fixedtargets)

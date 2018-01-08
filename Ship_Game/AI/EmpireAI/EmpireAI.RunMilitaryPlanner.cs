@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI {

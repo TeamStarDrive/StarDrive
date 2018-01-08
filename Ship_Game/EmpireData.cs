@@ -163,7 +163,8 @@ namespace Ship_Game
         [Serialize(88)] public bool AutoTaxes        = false;
         [Serialize(89)] public float BorderTolerance = 40f;
         [Serialize(90)] public int BaseShipLevel = 0;
-        
+        [Serialize(91)] public float PlayerTaxGoal = .2f;
+
         public EmpireData()
         {
             // @todo Mapping these by string is a bad idea. Consider using an Enum

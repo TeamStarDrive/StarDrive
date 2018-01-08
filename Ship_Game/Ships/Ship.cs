@@ -1,20 +1,18 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using SgMotion;
-using SgMotion.Controllers;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Collections.Concurrent;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using SgMotion.Controllers;
 using Ship_Game.AI;
 using Ship_Game.Debug;
+using Ship_Game.Gameplay;
+using SynapseGaming.LightingSystem.Rendering;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.Ships
 {
     public sealed partial class Ship : GameplayObject, IDisposable
     {
@@ -1869,6 +1867,79 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
+        struct Ranger
+        {
+            public int Count;
+            public float RangeBase;
+            public float DamageBase;
+
+            public void AddRange(Weapon w)
+            {
+                Count++;
+                if (w.DamageAmount < 1 || w.TruePD)
+                    return;
+                if (w.isBeam)
+                    DamageBase += w.DamageAmount * w.BeamDuration / w.fireDelay;
+                else
+                    DamageBase += w.DamageAmount * w.SalvoCount / w.fireDelay;
+
+                RangeBase += w.Range;
+            }
+            public float GetAverageDam()
+            {
+                return DamageBase / Count;
+            }
+            public float GetAverageRange()
+            {
+                return RangeBase / Count;
+            }
+        }
+        private float CalculatMaxWeaponsRange()
+        {
+            
+
+            if (Weapons.Count == 0) return 7500f;
+            float maxRange =0;
+            float minRange = float.MaxValue;
+            float avgRange = 0;
+            int noDamage = 0;
+            foreach (Weapon w in Weapons)
+            {
+                maxRange = Math.Max(w.Range, maxRange);
+                minRange = Math.Min(w.Range, minRange);
+                noDamage += w.DamageAmount <1 || w.TruePD ? 1 :0 ;
+                avgRange += w.Range;
+            }
+            avgRange /= Weapons.Count;
+            if (avgRange > maxRange *.75f) return avgRange;
+            bool ignoreDamage = noDamage / (Weapons.Count + 1) > .75f;                       
+            Ranger shortRange = new Ranger();
+            Ranger longRange = new Ranger();
+            Ranger utility = new Ranger();
+
+            foreach (var w in Weapons)
+            {
+                if (w.DamageAmount <1 || w.TruePD)
+                {
+                    utility.AddRange(w);
+                    if (ignoreDamage)
+                        continue;
+                }
+                if (w.Range < avgRange)
+                    shortRange.AddRange(w);
+                else  longRange.AddRange(w);
+            }
+            if (ignoreDamage)
+            {
+                return utility.GetAverageRange();
+            }
+            if (shortRange.GetAverageDam() > longRange.GetAverageDam())
+            {
+                return shortRange.GetAverageRange();
+            }
+            return longRange.GetAverageRange();
+
+        }
         public void UpdateShipStatus(float deltaTime)
         {
             if (velocityMaximum <= 0f && shipData.Role <= ShipData.RoleName.station && !Empire.Universe.Paused)
@@ -1911,16 +1982,17 @@ namespace Ship_Game.Gameplay
 
                     float direction = AI.CombatState == CombatState.ShortRange ? 1f : -1f; // ascending : descending
                     Weapon[] sortedByRange = Weapons.SortedBy(weapon => direction*weapon.GetModifiedRange());
+
                     bool flag = false;
-                    foreach (Weapon weapon in sortedByRange)
+                    foreach (Weapon weapon in Weapons)
                     {
                         //Edited by Gretman
                         //This fixes ships with only 'other' damage types thinking it has 0 range, causing them to fly through targets even when set to attack at max/min range
-                        if (!flag && (weapon.DamageAmount > 0.0 || weapon.EMPDamage > 0.0 || weapon.SiphonDamage > 0.0 || weapon.MassDamage > 0.0 || weapon.PowerDamage > 0.0 || weapon.RepulsionDamage > 0.0))
-                        {
-                            maxWeaponsRange = weapon.GetModifiedRange();
-                            if (!weapon.Tag_PD) flag = true;
-                        }
+                        //if (!flag && (weapon.DamageAmount > 0.0 || weapon.EMPDamage > 0.0 || weapon.SiphonDamage > 0.0 || weapon.MassDamage > 0.0 || weapon.PowerDamage > 0.0 || weapon.RepulsionDamage > 0.0))
+                        //{
+                        //    maxWeaponsRange = weapon.GetModifiedRange();
+                        //    if (!weapon.Tag_PD) flag = true;
+                        //}
 
                         if (GlobalStats.HasMod)
                         {
@@ -2004,7 +2076,10 @@ namespace Ship_Game.Gameplay
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
                 if (shipStatusChanged) //|| InCombat
+                {
                     ShipStatusChange();
+                    
+                }
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                 {
@@ -2477,7 +2552,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             CalculateShipStrength(setBaseStrength: false);
-
+            maxWeaponsRange = CalculatMaxWeaponsRange();
         }
         public bool IsTethered()
         {

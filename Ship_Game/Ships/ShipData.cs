@@ -1,15 +1,14 @@
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game
+namespace Ship_Game.Ships
 {
     public sealed class ShipData
     {

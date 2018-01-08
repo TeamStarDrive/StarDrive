@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using SgMotion;
 using SgMotion.Controllers;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
