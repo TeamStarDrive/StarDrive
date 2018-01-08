@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens;
+using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game {

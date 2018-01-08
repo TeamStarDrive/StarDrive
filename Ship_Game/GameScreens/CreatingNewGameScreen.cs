@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
+using Ship_Game.Ships;
 
 
 namespace Ship_Game

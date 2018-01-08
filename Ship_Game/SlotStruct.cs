@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {

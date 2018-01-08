@@ -10,6 +10,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 

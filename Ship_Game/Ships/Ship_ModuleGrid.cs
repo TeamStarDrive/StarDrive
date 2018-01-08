@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.Ships
 {
     public sealed partial class Ship
     {
@@ -535,11 +536,12 @@ namespace Ship_Game.Gameplay
                 // perform a raytrace from point a to point b, visiting all grid points between them!
                 Vector2 pos   = a;
                 Vector2 delta = b - a;
-                Vector2 step  = delta.Normalized() * 16f;
+                Vector2 step = delta.Normalized() * 16f;
                 int n = (int)(delta.Length() / 16f);
                 for (; n >= 0; --n, pos += step)
-                {
+                {                    
                     Point p = GridLocalToPoint(pos);
+                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, GridLocalPointToWorld(p), 16);
                     ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
                     if (m != null && m.Active) { module = m; break; }
                 }

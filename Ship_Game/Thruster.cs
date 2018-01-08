@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.ObjectModel;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {

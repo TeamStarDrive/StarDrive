@@ -1,12 +1,12 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Particle3DSample;
 using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Particle3DSample;
 using Ship_Game.AI;
 using Ship_Game.Debug;
-using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.Ships
 {
     public sealed class ShipModule : GameplayObject
     {

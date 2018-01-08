@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {

@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Ships;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -656,7 +657,7 @@ namespace Ship_Game.Debug
         private void DrawCircles()
         {
             if (Circles.Count == 0) return;
-            foreach (Circle circle in Circles)
+            foreach (Circle circle in Circles) 
             {
                 Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C, 3);
             }

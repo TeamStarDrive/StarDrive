@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI.Tasks
 {
