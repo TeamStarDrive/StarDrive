@@ -2396,6 +2396,8 @@ namespace Ship_Game.Ships
                 SetSystem(null);                
                 loyalty.AddShipNextFrame(this);                
                 shipStatusChanged = true;
+                if (!AI.BadGuysNear)
+                ShieldManager.RemoveShieldLights(Shields);
             }
         }
 

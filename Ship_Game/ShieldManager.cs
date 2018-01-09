@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -12,7 +13,6 @@ namespace Ship_Game
         private static Texture2D ShieldTexture;
         private static Texture2D GradientTexture;
         private static Effect    ShieldEffect;
-
         private const float Y = 0.0f;
         private const float Z = 2.8f;
 
@@ -122,7 +122,7 @@ namespace Ship_Game
             
             ShieldList.Add(shield);
         }
-
+    
         public static Shield AddShield(GameplayObject owner, float rotation, Vector2 center)
         {            
             var shield = new Shield
@@ -138,6 +138,17 @@ namespace Ship_Game
             
             ShieldList.Add(shield);
             return shield;
+        }
+
+        public static void RemoveShieldLights(ShipModule[] Sheilds)
+        {
+            foreach(var module in Sheilds)
+            {
+                var shield = module.GetShield;
+                if (shield.LightAdded)
+                    shield.RemoveLight();
+            }
+
         }
 
         public static void Update()
@@ -185,7 +196,7 @@ namespace Ship_Game
                     if (shield.Owner == null || shield.Owner.Active)
                         continue;
                     ShieldList.RemoveAt(i);
-                    Empire.Universe.RemoveLight(shield.pointLight);
+                    shield.RemoveLight();                    
                 }
             }
         }

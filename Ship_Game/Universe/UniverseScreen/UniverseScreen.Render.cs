@@ -591,6 +591,7 @@ namespace Ship_Game
                             {
                                 //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
                                 Projectile projectile = renderProj[i];
+                                if (projectile?.Active != true) continue;
                                 if (projectile.Weapon.IsRepairDrone && projectile.DroneAI != null)
                                 {
                                     for (int k = 0; k < projectile.DroneAI.Beams.Count; ++k)
