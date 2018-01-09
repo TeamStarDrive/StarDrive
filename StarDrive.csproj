@@ -3762,7 +3762,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Deploy\upload\" />
-    <Folder Include="Ship_Game\GameScreens\Ships\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
