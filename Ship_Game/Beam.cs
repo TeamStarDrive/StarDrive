@@ -277,18 +277,10 @@ namespace Ship_Game
             Source    = srcCenter;
             if (ship != null && ship.Active && !DisableSpatialCollision)
             {
-                //if (JitterRadius > 0)
-                {
-                    float distanceFromJitter = TargetPosistion.Distance(Target.Center);
-                    distanceFromJitter = Math.Min(24 / (1+Owner?.Level ?? 1), distanceFromJitter);
-                    float sweep = distanceFromJitter * ((Module?.WeaponRotationSpeed ?? 1f) * .25f);
-                    
-                    //if (TargetPosistion.OutsideRadius(Target.Center, JitterRadius))
-                    {
-
-                        WanderPath = Vector2.Normalize(Target.Center - TargetPosistion) * sweep;
-                    }
-                }
+                float distanceFromJitter = TargetPosistion.Distance(Target.Center);
+                distanceFromJitter = Math.Min(24 / (1 + Owner?.Level ?? 1), distanceFromJitter);
+                float sweep = distanceFromJitter * ((Module?.WeaponRotationSpeed ?? 1f) * .25f);
+                WanderPath = Vector2.Normalize(Target.Center - TargetPosistion) * sweep;
             }
 
             // always update Destination to ensure beam stays in range
