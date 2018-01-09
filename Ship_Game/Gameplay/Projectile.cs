@@ -280,6 +280,8 @@ namespace Ship_Game.Gameplay
 
         public void DamageMissile(GameplayObject source, float damageAmount)
         {
+            if (Health < 1)
+                Log.Info($"Projectile had no health {this.Weapon.Name}");
             Health -= damageAmount;
             if (Health <= 0f && Active)
                 DieNextFrame = true;
@@ -391,9 +393,18 @@ namespace Ship_Game.Gameplay
 
             if (target is Projectile projectile)
             {
-                if (Owner != null && !Owner.loyalty.IsEmpireAttackable(projectile.Loyalty))
+                if (projectile.Loyalty == null || !Owner.loyalty.IsEmpireAttackable(projectile.Loyalty))
                     return false;
 
+                if (projectile.Weapon.Tag_Intercept && !projectile.Weapon.Tag_PD)
+                {
+                    if (projectile.Loyalty.data.MissileDodgeChance > UniverseRandom.RandomBetween(0f, 1f))
+                        return false;
+                    projectile.DamageMissile(this, DamageAmount);
+                    return true;
+                }
+
+                if (false)
                 if (projectile.WeaponType == "Missile" || projectile.Weapon.Tag_Intercept )
                 {
                     if (projectile.Loyalty != null && 

@@ -605,7 +605,8 @@ namespace Ship_Game
             
             if (mod.PermittedHangarRoles.Length != 0)
             {
-                Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID);
+                Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
+                if (ship == null) return;
                 modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + Fonts.Arial12Bold.LineSpacing;
                 Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
                 string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
