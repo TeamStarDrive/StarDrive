@@ -32,6 +32,7 @@ namespace Ship_Game.Ships
         public Restrictions Restrictions;
         public float ShieldPower;
         private Shield shield;
+        public Shield GetShield => shield;
         public string hangarShipUID;
         private Ship hangarShip;
         public Guid HangarShipGuid;
@@ -42,6 +43,9 @@ namespace Ship_Game.Ships
         private bool onFire;
         private bool reallyFuckedUp;
         private Vector3 Center3D;
+        public Vector3 GetCenter3D => Center3D;
+        
+
         public float BombTimer;
         public ShipModuleType ModuleType;
         public string IconTexturePath;
@@ -521,7 +525,7 @@ namespace Ship_Game.Ships
             damageDone = health - Health - ShieldPower;
             return result;
         }
-
+        int HitTimer = 0;
         public override bool Damage(GameplayObject source, float damageAmount)
         {
             if (source != null)
@@ -676,78 +680,41 @@ namespace Ship_Game.Ships
 
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
 
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
-                {
-                    if (source != null)
-                        shield.Rotation = source.Rotation - 3.14159274f;
-                    shield.displacement = 0f;
-                    shield.texscale = 2.8f;
-                    //Empire.Universe.AddLight(shield.pointLight);
+                if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum)
+                    return true;
+                if (source != null)
+                    
+                
 
-                    if (beam != null)
+                if (beam != null)
+                {
+                    if (beam.Weapon.SiphonDamage > 0f)
                     {
-                        if (beam.Weapon.SiphonDamage > 0f)
+                        ShieldPower -= beam.Weapon.SiphonDamage;
+                        if (ShieldPower < 1f)
                         {
-                            ShieldPower -= beam.Weapon.SiphonDamage;
-                            if (ShieldPower < 1f)
-                            {
-                                ShieldPower = 0f;
-                            }
-                            beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
-                            if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
-                            {
-                                beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
-                            }
+                            ShieldPower = 0f;
                         }
-                        shield.Rotation = Center.RadiansToTarget(beam.Source);
-                        shield.pointLight.World = Matrix.CreateTranslation(new Vector3(beam.ActualHitDestination, 0f));
-                        shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        shield.pointLight.Radius = shield_radius * 2f;
-                        shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
-                        shield.displacement       = 0f;
-                        shield.Radius             = ShieldHitRadius;
-                        shield.displacement       = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                        shield.texscale           = 2.8f;
-                        shield.texscale           = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                        shield.pointLight.Enabled = true;
-                        if (RandomMath.RandomBetween(0f, 100f) > 90f && Parent.InFrustum)
+                        beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
+                        if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
                         {
-                            Empire.Universe.flash.AddParticleThreadA(new Vector3(beam.ActualHitDestination, Center3D.Z), Vector3.Zero);
-                        }
-                        if (Parent.InFrustum)
-                        {
-                            Vector2 vel = (beam.Source - Center).Normalized();
-                            for (int i = 0; i < 20; i++)
-                            {
-                                Empire.Universe.sparks.AddParticleThreadA(new Vector3(beam.ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                            }
-                        }
-                        if (beam.Weapon.SiphonDamage > 0f)
-                        {
-                            ShieldPower -= beam.Weapon.SiphonDamage;
-                            if (ShieldPower < 0f)
-                                ShieldPower = 0f;
+                            beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
                         }
                     }
-                    else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
+                    shield.HitShield(this, beam);
+                
+                   
+                    if (beam.Weapon.SiphonDamage > 0f)
                     {
-                        GameAudio.PlaySfxAsync("sd_impact_shield_01", Parent.SoundEmitter);                        
-                        shield.Radius       = ShieldHitRadius;
-                        shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                        shield.texscale     = 2.8f;
-                        shield.texscale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                        shield.pointLight.World        = proj.WorldMatrix;
-                        shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        shield.pointLight.Radius       = Radius;
-                        shield.pointLight.Intensity    = 8f;
-                        shield.pointLight.Enabled      = true;
-                        Vector2 vel = proj.Center - Center.Normalized();
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3(proj.Center, Center3D.Z), Vector3.Zero);
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Empire.Universe.sparks.AddParticleThreadB(new Vector3(proj.Center, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                        }
+                        ShieldPower -= beam.Weapon.SiphonDamage;
+                        if (ShieldPower < 0f)
+                            ShieldPower = 0f;
                     }
+                }
+                else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
+                {
+                    shield.HitShield(this, proj);
+                    
                 }
             }
             return true;
