@@ -234,7 +234,7 @@ namespace Ship_Game
                 return false;
             if (target is Projectile projectile)
             {
-                if (projectile.Weapon?.Tag_Intercept != true)
+                if (projectile.Weapon?.Tag_Intercept != true || projectile.Weapon?.Tag_PD == true)
                     return false;
                 if (!Loyalty.IsEmpireAttackable(projectile.Loyalty))
                     return false;

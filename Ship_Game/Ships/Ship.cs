@@ -1654,14 +1654,19 @@ namespace Ship_Game.Ships
         public void ScrambleAssaultShips(float strengthNeeded)
         {
             bool flag = strengthNeeded > 0;
-            foreach (ShipModule slot in ModuleSlotList.Where(slot => slot.ModuleType == ShipModuleType.Hangar 
-            && slot.IsTroopBay && TroopList.Count > 0 && slot.GetHangarShip() == null && slot.hangarTimer <= 0f))
-            {                
-                if (flag && strengthNeeded < 0)
-                    break;
-                strengthNeeded -= TroopList[0].Strength;
-                slot.LaunchBoardingParty(TroopList[0]);
-                TroopList.RemoveAt(0);
+            
+            foreach (ShipModule hangar in Hangars)
+            {
+                if (!hangar.IsTroopBay || hangar.hangarTimer > 0 || TroopList.Count < 1 
+                    || hangar.GetHangarShip() != null)
+                {
+                    if (flag && strengthNeeded < 0)
+                        break;
+                    strengthNeeded -= TroopList[0].Strength;
+                    hangar.LaunchBoardingParty(TroopList[0]);
+                    TroopList.RemoveAt(0);
+
+                }
             }
         }
 
@@ -1692,8 +1697,10 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Hangars.Count; ++i)
             {
                 ShipModule shipModule = Hangars[i];
-                if (shipModule.GetHangarShip() != null && shipModule.GetHangarShip().Active)
-                    shipModule.GetHangarShip().ReturnToHangar();
+                if (shipModule.GetHangarShip() == null || !shipModule.GetHangarShip().Active) continue;
+                if (shipModule.IsTroopBay) continue;
+
+                shipModule.GetHangarShip().ReturnToHangar();
             }
         }
 
