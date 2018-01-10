@@ -238,7 +238,7 @@ namespace Ship_Game.Ships
             get
             {
                 for (int i = 0; i < BorderCheck.Count; ++i)
-                    if (loyalty.GetRelations(BorderCheck[i]).AtWar)
+                    if (loyalty?.GetRelations(BorderCheck[i])?.AtWar == true)
                         return true;
                 return false;
             }

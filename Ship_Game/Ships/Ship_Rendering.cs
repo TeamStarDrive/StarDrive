@@ -290,6 +290,42 @@ namespace Ship_Game.Ships
             }
         }
 
+        public void DrawRepairDrones(UniverseScreen screen)
+        {
+            try
+            {
+                for (int i = projectiles.Count - 1; i >= 0; i--)
+                {
+                    //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
+                    Projectile projectile = projectiles[i];
+                    if (projectile?.Active != true) continue;
+                    if (projectile.DroneAI == null || projectile.Weapon?.IsRepairDrone == false) continue;
+                    for (int k = 0; k < projectile.DroneAI.Beams.Count; ++k)
+                        projectile.DroneAI.Beams[k]?.Draw(screen.ScreenManager);
+                }
+
+            }
+            catch
+            {
+                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering {Name} beams in ship {projectiles.Count}");
+            }
+        }
+
+        public void DrawBeams(UniverseScreen screen)
+        {
+            for (int i = Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
+            {
+                Beam beam = Beams[i];
+                if (beam?.Active != true) continue;
+                if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
+                    beam.Draw(screen.ScreenManager);
+                else
+                {
+                    Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name} beams in ship {Beams.Count}");
+                    beam.Die(null, true);
+                }
+            }
+        }
 
         public void RenderOverlay(SpriteBatch spriteBatch, Rectangle drawRect, bool showModules)
         {
