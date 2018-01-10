@@ -100,14 +100,16 @@ namespace Ship_Game
                     }
                     case OrderType.TradeFood:
                     {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], iconRect, Color.White);
+                        var icon = ResourceManager.TextureDict["NewUI/icon_food"];
+                        iconRect = new Rectangle(r.X + r.Width / 2 - icon.Width / 2, r.Y + r.Height / 2 - icon.Height / 2, icon.Width, icon.Height);
+                        ScreenManager.SpriteBatch.Draw(icon, iconRect, Color.White);
                         return;
                     }
                     case OrderType.TradeProduction:
                     {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], iconRect, Color.White);
+                        var icon = ResourceManager.TextureDict["NewUI/icon_production"];
+                        iconRect = new Rectangle(r.X + r.Width / 2 - icon.Width / 2, r.Y + r.Height / 2 - icon.Height / 2, icon.Width, icon.Height);
+                        ScreenManager.SpriteBatch.Draw(icon, iconRect, Color.White);
                         return;
                     }
                     case OrderType.PassTran:
@@ -284,6 +286,7 @@ namespace Ship_Game
                                 this.ShipList[i].AI.start = null;
                                 this.ShipList[i].AI.end = null;
                                 this.ShipList[i].AI.OrderTrade(5f);
+                                    ShipList[i].AI.FoodOrProd = "Food";
                             }
                             return true;
                         }
@@ -294,7 +297,8 @@ namespace Ship_Game
                                 this.ShipList[i].AI.start = null;
                                 this.ShipList[i].AI.end = null;
                                 this.ShipList[i].AI.OrderTrade(5f);
-                            }
+                                ShipList[i].AI.FoodOrProd = "Prod";
+                                }
                             return true;
                         }
                         case OrderType.PassTran:

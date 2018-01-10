@@ -187,18 +187,19 @@ namespace Ship_Game.AI {
                 if (FoodOrProd == "")
                 {
                     FoodOrProd = "Food";
+                    return;
                 }
-                if (Owner.CargoSpaceUsed < 1)
-                    if (FoodOrProd == "Prod")
-                    {
-                        FoodOrProd = "Food";
-                        Owner.TradingFood = true;
-                    }
-                    else
-                    {
-                        Owner.TradingProd = true;
-                        FoodOrProd = "Prod";
-                    }
+
+                if (FoodOrProd == "Prod")
+                {
+                    FoodOrProd = "Food";
+                    Owner.TradingFood = true;
+                }
+                else
+                {
+                    Owner.TradingProd = true;
+                    FoodOrProd = "Prod";
+                }
             }
         }
 
