@@ -547,8 +547,31 @@ namespace Ship_Game.Ships
             }
             set
             {
-                AI.start = null;
-                AI.end = null;
+                TransportingProduction = value;
+                if (!value) return;
+                if (AI.State != AIState.SystemTrader)
+                {
+                    AI.start = null;
+                    AI.end = null;
+                    AI.State = AIState.SystemTrader;
+                }
+                AI.OrderTrade(5f);
+            }
+        }
+
+        public bool DoingFoodTransport
+        {
+            get => AI.State == AIState.SystemTrader && TransportingFood;
+            set
+            {
+                TransportingFood = value;
+                if (!value) return;
+                if (AI.State != AIState.SystemTrader)
+                {
+                    AI.start = null;
+                    AI.end = null;
+                    AI.State = AIState.SystemTrader;
+                }
                 AI.OrderTrade(5f);
             }
         }
