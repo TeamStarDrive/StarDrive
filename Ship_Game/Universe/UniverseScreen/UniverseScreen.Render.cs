@@ -583,34 +583,8 @@ namespace Ship_Game
                     {
                         Ship ship = player.KnownShips[j];
                         if (!ship.InFrustum || !ship.Active) continue;
-
-                        var renderProj = ship.Projectiles?.ToArray();
-                        if (renderProj != null)
-
-                            for (int i = renderProj.Length - 1; i >= 0; i--)
-                            {
-                                //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
-                                Projectile projectile = renderProj[i];
-                                if (projectile?.Active != true) continue;
-                                if (projectile.Weapon.IsRepairDrone && projectile.DroneAI != null)
-                                {
-                                    for (int k = 0; k < projectile.DroneAI.Beams.Count; ++k)
-                                        projectile.DroneAI.Beams[k].Draw(ScreenManager);
-                                }
-                            }
-                        for (int i = ship.Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
-                        {
-                            Beam beam = ship.Beams[i];
-                            if (beam?.Active != true) continue;
-                            if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
-                                beam.Draw(ScreenManager);
-                            else
-                            {
-                                Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {ship.Name} beams in ship {ship.Beams.Count}");
-                                beam.Die(null, true);
-                            }
-                        }
-
+                        ship.DrawRepairDrones(this);
+                        ship.DrawBeams(this);                        
                     }
             }
 
