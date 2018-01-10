@@ -283,21 +283,30 @@ namespace Ship_Game
                         {
                             for (int i = 0; i < this.ShipList.Count; i++)
                             {
-                                this.ShipList[i].AI.start = null;
-                                this.ShipList[i].AI.end = null;
-                                this.ShipList[i].AI.OrderTrade(5f);
-                                    ShipList[i].AI.FoodOrProd = "Food";
-                            }
+                                    if (ShipList[i].AI.State != AIState.SystemTrader)
+                                    {
+                                        ShipList[i].AI.start = null;
+                                        ShipList[i].AI.end = null;
+                                        ShipList[i].AI.State = AIState.SystemTrader;
+                                    }                        
+                                
+                                ShipList[i].AI.OrderTrade(0);
+                                
+
+                                }
                             return true;
                         }
                         case OrderType.TradeProduction:
                         {
                             for (int i = 0; i < this.ShipList.Count; i++)
                             {
-                                this.ShipList[i].AI.start = null;
-                                this.ShipList[i].AI.end = null;
-                                this.ShipList[i].AI.OrderTrade(5f);
+                                ShipList[i].AI.start = null;
+                                ShipList[i].AI.end = null;
                                 ShipList[i].AI.FoodOrProd = "Prod";
+                                ShipList[i].AI.OrderTrade(0);
+                                //    ShipList[i].AI.State = AIState.SystemTrader;
+
+
                                 }
                             return true;
                         }

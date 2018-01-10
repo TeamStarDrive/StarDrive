@@ -165,6 +165,9 @@ namespace Ship_Game.AI {
             }
             else
             {
+                FoodOrProd = "";
+                Owner.TradingFood = false;
+                Owner.TradingProd = false;
                 AwaitClosest = start ?? end ?? Owner.loyalty.FindNearestRallyPoint(Owner.Center);
                 start = null;
                 end = null;                
@@ -184,22 +187,31 @@ namespace Ship_Game.AI {
         {
             if (Owner.loyalty.isPlayer && !Owner.loyalty.AutoFreighters && start == null && end == null)
             {
-                if (FoodOrProd == "")
+
+                State = AIState.SystemTrader;
+                if (start == null && end == null)
                 {
-                    FoodOrProd = "Food";
-                    return;
+                    if (Owner.TransportingFood)
+                    {
+                        if (Owner.TransportingProduction)
+                        {
+                            int rnd = RandomMath.IntBetween(1, 100);
+                            if (rnd > 50)
+                            {
+                                FoodOrProd = "Food";                                
+                                return;
+                            }
+                        }
+                        FoodOrProd = "Food";
+                        
+                        return;
+                    }
+
+                    FoodOrProd = "Prod";
+
                 }
 
-                if (FoodOrProd == "Prod")
-                {
-                    FoodOrProd = "Food";
-                    Owner.TradingFood = true;
-                }
-                else
-                {
-                    Owner.TradingProd = true;
-                    FoodOrProd = "Prod";
-                }
+               
             }
         }
 

@@ -709,8 +709,8 @@ namespace Ship_Game
                     if (AddToIncomingTrade(ref IncomingProduction, ship.GetProduction())) return;
                     if (AddToIncomingTrade(ref IncomingColonists, ship.GetColonists())) return;
 
-                    if (AddToIncomingTrade(ref IncomingFood, ship.CargoSpaceMax * (ship.TransportingFood ? 1 : 0))) return;
-                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.TransportingProduction ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingFood, ship.CargoSpaceMax * (ship.AI.FoodOrProd == "Food" ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.FoodOrProd == "Prod" ? 1 : 0))) return;
                     if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
                 }
             }

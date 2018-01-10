@@ -15,6 +15,8 @@ namespace Ship_Game
 
 		public bool Open;
 
+        public Rectangle ButtonHousing;
+
 		public SlidingElement(Rectangle r)
 		{
 			this.Housing = r;
@@ -25,6 +27,7 @@ namespace Ship_Game
 		{
 			Rectangle r = this.Housing;
 			r.X = r.X + HowFar;
+            ButtonHousing = r;
 			this.ClickArea.X = r.X + r.Width - 32;
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_tab"], r, Color.White);
 			if (!this.Open)

@@ -598,10 +598,16 @@ namespace Ship_Game.Ships
                     if (tippedItem.r.HitTest(input.CursorPosition))
                         ToolTip.CreateTooltip(tippedItem.TIP_ID);
                 }
+                //foreach (OrdersButton ordersButton in Orders)
+                //{
+                //    if (ordersButton.clickRect.HitTest(input.CursorPosition))
+                //        return true;
+                //}
+               
                 if (ElementRect.HitTest(input.CursorPosition))
                     return true;
                 if (State == UIElement.ElementState.Open)
-                {
+                {                    
                     bool flag = false;
                     foreach (OrdersButton ordersButton in Orders)
                     {
@@ -611,7 +617,7 @@ namespace Ship_Game.Ships
                             return true;
                         }
                     }
-                    if (flag)
+                    if (SlidingElement.ButtonHousing.HitTest(input.CursorPosition))
                         return true;
                 }
                 
@@ -670,7 +676,7 @@ namespace Ship_Game.Ships
             {
                 OrdersButton tf = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingTransport, (bool x) => Ship.DoingTransport = x),
+                    ValueToModify = new Ref<bool>(() => Ship.DoingFoodTransport, (bool x) => Ship.DoingFoodTransport = x),
                     RightClickValueToModify = new Ref<bool>(() => Ship.TransportingFood, (bool x) => Ship.TransportingFood = x)
                 };
                 Orders.Add(tf);

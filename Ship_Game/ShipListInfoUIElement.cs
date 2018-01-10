@@ -606,7 +606,7 @@ namespace Ship_Game
                         }
                         //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
                         return true;
-                    }
+                    }                  
                 }
             }
             this.SelectedShipsSL.HandleInput(input);
@@ -683,6 +683,8 @@ namespace Ship_Game
             {
                 return true;
             }
+            if (sliding_element.ButtonHousing.HitTest(input.CursorPosition))
+                return true;
             return false;
         }
 
@@ -774,6 +776,11 @@ namespace Ship_Game
                     SimpleToggle = true
                 };
                 this.Orders.Add(tf);
+                OrdersButton tp = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeProduction, 16)
+                {
+                    SimpleToggle = true
+                };
+                this.Orders.Add(tp);
                 OrdersButton tpass = new OrdersButton(shipList, Vector2.Zero, OrderType.PassTran, 152)
                 {
                     SimpleToggle = true
