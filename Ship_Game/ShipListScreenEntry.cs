@@ -281,42 +281,39 @@ namespace Ship_Game
                         text = string.Concat(Localizer.Token(164), "\n", Localizer.Token(165));
                         break;
                     }
-                    else
+                    switch (ship.AI.OrderQueue.PeekLast.Plan)
                     {
-                        switch (ship.AI.OrderQueue.PeekLast.Plan)
+                        case ShipAI.Plan.PickupGoods:
                         {
-                            case ShipAI.Plan.PickupGoods:
+                            which = ship.AI.FoodOrProd;
+                            if (which == "Prod")
                             {
-                                which = ship.AI.FoodOrProd;
-                                if (which == "Prod")
-                                {
-                                    which = "Production";
-                                }
-                                if(ship.AI.start !=null)
+                                which = "Production";
+                            }
+                            if(ship.AI.start !=null)
                                 text = string.Concat(text, Localizer.Token(159), " ", ship.AI.start.Name);
-                                string pickingup = Localizer.Token(160);
-                                string str1 = text;
-                                string[] strArrays = new string[] { str1, "\n", pickingup, " ", null };
-                                strArrays[4] = (which == "Food" ? Localizer.Token(161) : Localizer.Token(162));
-                                text = string.Concat(strArrays);
-                                break;
-                            }
-                            case ShipAI.Plan.DropOffGoods:
+                            string pickingup = Localizer.Token(160);
+                            string str1 = text;
+                            string[] strArrays = new string[] { str1, "\n", pickingup, " ", null };
+                            strArrays[4] = (which == "Food" ? Localizer.Token(161) : Localizer.Token(162));
+                            text = string.Concat(strArrays);
+                            break;
+                        }
+                        case ShipAI.Plan.DropOffGoods:
+                        {
+                            which = ship.AI.FoodOrProd;
+                            if (which == "Prod")
                             {
-                                which = ship.AI.FoodOrProd;
-                                if (which == "Prod")
-                                {
-                                    which = "Production";
-                                }
-                                if(ship.AI.end != null)
-                                text = string.Concat(text, Localizer.Token(159), " ", ship.AI.end.Name);
-                                string delivering = Localizer.Token(163);
-                                string str2 = text;
-                                string[] strArrays1 = new string[] { str2, "\n", delivering, " ", null };
-                                strArrays1[4] = (which == "Food" ? Localizer.Token(161) : Localizer.Token(162));
-                                text = string.Concat(strArrays1);
-                                break;
+                                which = "Production";
                             }
+                            if(ship.AI.end != null)
+                                text = string.Concat(text, Localizer.Token(159), " ", ship.AI.end.Name);
+                            string delivering = Localizer.Token(163);
+                            string str2 = text;
+                            string[] strArrays1 = new string[] { str2, "\n", delivering, " ", null };
+                            strArrays1[4] = (which == "Food" ? Localizer.Token(161) : Localizer.Token(162));
+                            text = string.Concat(strArrays1);
+                            break;
                         }
                     }
                     break;
