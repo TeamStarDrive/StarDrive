@@ -100,7 +100,7 @@ namespace Ship_Game.Ships
                         loyalty.GetGSAI().TaskList.Add(militaryTask);
                     }
                 }
-                if (AI.BadGuysNear && InCombat && System != null)
+                if (AI.BadGuysNear && InCombat && System != null && LastDamagedBy != null)
                 {
                     System.CombatInSystem = true;
                     System.combatTimer = 15f;
