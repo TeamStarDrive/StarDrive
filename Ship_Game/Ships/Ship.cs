@@ -2926,7 +2926,9 @@ namespace Ship_Game.Ships
 
         public void RecalculateMaxHP()          //Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
         {
-            if (VanityName == "MerCraft") Log.Info("Health was " + Health + " / " + HealthMax + "   (" + loyalty.data.Traits.ModHpModifier + ")");
+            if (VanityName == "MerCraft")
+                Log.Info($"Health was {Health} / {HealthMax}   ({loyalty.data.Traits.ModHpModifier})");
+
             HealthMax = 0;
             foreach (ShipModule slot in ModuleSlotList)
             {
@@ -2944,7 +2946,8 @@ namespace Ship_Game.Ships
                 HealthMax += slot.HealthMax;
             }
             if (Health >= HealthMax) Health = HealthMax;
-            if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
+            if (VanityName == "MerCraft")
+                Log.Info($"Health is  {Health} / {HealthMax}");
         }
 
         private float PercentageOfShipByModules(ShipModule[] modules)
