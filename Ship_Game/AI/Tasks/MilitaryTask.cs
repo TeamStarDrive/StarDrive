@@ -152,7 +152,9 @@ namespace Ship_Game.AI.Tasks
             {
                 if (WhichFleet != -1 && !Fleet.IsCoreFleet && Owner != Empire.Universe.player)
                 {
-                    foreach (Ship ship in Owner.GetFleetsDict()[WhichFleet].Ships)
+                    Fleet fleet = Owner.GetFleet(WhichFleet);
+                    if (fleet == null) return;
+                    foreach (Ship ship in fleet.Ships)
                     {
                         Owner.ForcePoolAdd(ship);
                     }
