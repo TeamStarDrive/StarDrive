@@ -288,9 +288,9 @@ namespace Ship_Game.AI {
                         Planet target = task.GetTargetPlanet();
                         if (target != null)
                         {
-                            SystemCommander scom;
-                            target.Owner.GetGSAI()
-                                .DefensiveCoordinator.DefenseDict.TryGetValue((SolarSystem)target.ParentSystem, out scom);
+                            SystemCommander scom = null;
+                            target.Owner?.GetGSAI()?
+                                .DefensiveCoordinator?.DefenseDict?.TryGetValue(target.ParentSystem, out scom);
                             if (scom != null)
                                 weight += 11 - scom.RankImportance;
                         }
@@ -559,9 +559,9 @@ namespace Ship_Game.AI {
                 DesiredBombers           = SetCounts(NumBombers, CapBombers, capacity, RatioBombers, totalRatio);
                 DesiredSupport           = SetCounts(NumSupport, CapSupport, capacity, RatioSupport, totalRatio);
                 DesiredTroops            = SetCounts(NumTroops, CapTroops, capacity, RatioTroopShip, totalRatio);
-                
-                if (KeepRoleRatios(DesiredFighters, DesiredCorvettes, DesiredFrigates, DesiredCruisers
-                    , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport));
+
+                KeepRoleRatios(DesiredFighters, DesiredCorvettes, DesiredFrigates, DesiredCruisers
+                    , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
             }
 
             private float SetCounts(float roleCount, float roleUpkeep, float capacity, float ratio, float totalRatio)

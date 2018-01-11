@@ -420,11 +420,14 @@ namespace Ship_Game
             {
                 if (!solarSystem.isVisible)
                     continue;
-                foreach (Planet planet in solarSystem.PlanetList)
+                for (int y = 0; y < solarSystem.PlanetList.Count; y++)
                 {
-                    foreach (Projectile projectile in planet.Projectiles)
+                    Planet planet = solarSystem.PlanetList[y];
+                    for (int x = 0; x < planet.Projectiles.Count; x++)
                     {
-                        projectile.DrawProjectile(this);
+                        Projectile projectile = planet.Projectiles[x];
+
+                        projectile?.DrawProjectile(this);
                     }
                 }
             }
