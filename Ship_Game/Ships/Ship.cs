@@ -548,33 +548,21 @@ namespace Ship_Game.Ships
             set
             {
                 TransportingProduction = value;
-                if (!value) return;
-                if (AI.State != AIState.SystemTrader)
-                {
-                    AI.start = null;
-                    AI.end = null;
-                    AI.State = AIState.SystemTrader;
-                }
-                AI.OrderTrade(5f);
-            }
-        }
-
-        public bool DoingFoodTransport
-        {
-            get => AI.State == AIState.SystemTrader && TransportingFood;
-            set
-            {
                 TransportingFood = value;
                 if (!value) return;
                 if (AI.State != AIState.SystemTrader)
                 {
                     AI.start = null;
                     AI.end = null;
-                    AI.State = AIState.SystemTrader;
+                    AI.State = AIState.SystemTrader;                    
                 }
-                AI.OrderTrade(5f);
+                
+                AI.OrderTrade(0f);
             }
         }
+
+        public bool DoingFoodTransport => AI.State == AIState.SystemTrader && TransportingFood;
+        public bool DoingProdTransport => AI.State == AIState.SystemTrader && TransportingProduction;
 
         public bool DoingPassTransport
         {
@@ -589,28 +577,62 @@ namespace Ship_Game.Ships
                 AI.OrderTransportPassengers(5f);
             }
         }
-
+        private bool TFood = false;
         public bool TransportingFood
         {
             get
             {
-                return TradingFood;
+                return AI.State != AIState.SystemTrader || TFood; ;
             }
             set
             {
-                TradingFood = value;
+                TFood = value;
+                if (!value)
+                {
+                    if (!TransportingProduction)
+                    {
+                        AI.State = AIState.AwaitingOrders;
+                    }
+                    return;
+                }
+                if (AI.State == AIState.SystemTrader)
+                {
+                    AI.OrderTrade(0);
+                    return;
+                }
+                AI.start = null;
+                AI.end = null;
+                AI.State = AIState.SystemTrader;
+                AI.OrderTrade(0);
             }
         }
-
+        private bool TProd = false;
         public bool TransportingProduction
         {
             get
             {
-                return TradingProd;
+                return AI.State != AIState.SystemTrader || TProd;
             }
             set
             {
-                TradingProd = value;
+                TProd = value;
+                if (!value)
+                {
+                    if (!TransportingFood)
+                    {
+                        AI.State = AIState.AwaitingOrders;
+                    }
+                    return;
+                }
+                if (AI.State == AIState.SystemTrader)
+                {
+                    AI.OrderTrade(0);
+                    return;
+                }
+                AI.start = null;
+                AI.end = null;
+                AI.State = AIState.SystemTrader;
+                AI.OrderTrade(0);
             }
         }
 
