@@ -5,46 +5,40 @@ using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
-namespace Ship_Game.Commands
+namespace Ship_Game.Commands.Goals
 {
-    class FleetRequisition : Goal
+    public class FleetRequisition : Goal
     {
-        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai)
+        public const string ID = "FleetRequisition";
+        public override string UID => ID;
+
+        public FleetRequisition() : base(GoalType.FleetRequisition)
         {
-            //return;
+        }
+        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : base(GoalType.FleetRequisition)
+        {
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
             beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
-            GoalName = "FleetRequisition";
             Step = 1;
             beingBuilt.fleet = ai.Owner.fleet;
             beingBuilt.RelativeFleetOffset = node.FleetOffset;
             SetFleet(ai.Owner.fleet);
             SetPlanetWhereBuilding(ai.OrbitTarget);
         }
-        public FleetRequisition(string shipName, Empire owner)
-        {            
+
+        public FleetRequisition(string shipName, Empire owner) : base(GoalType.FleetRequisition)
+        {
             empire = owner;
-            ToBuildUID = shipName;            
+            ToBuildUID = shipName;
             beingBuilt = ResourceManager.GetShipTemplate(shipName);
-            GoalName = "FleetRequisition";
             Evaluate();
         }
+
+        // Edited by EVWeb
         public override void Evaluate()
         {
             if (Held)
                 return;
-            DoFleetRequisition();
-        }
-
-        public override void ReportShipComplete(Ship ship)
-        {
-            beingBuilt = ship;
-            ++this.Step;
-        }
-
-        // Edited by EVWeb
-        private void DoFleetRequisition()
-        {
             switch (Step)
             {
                 case 0:
