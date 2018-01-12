@@ -2497,14 +2497,14 @@ namespace Ship_Game
                         {
                             (e.item as QueueItem).pgs.QItem = null;
                         }
-                        if(item.Goal !=null)
+                        if (item.Goal !=null)
                         {
-                            if(item.Goal.GoalName=="BuildConstructionShip")
+                            if (item.Goal is Commands.Goals.BuildConstructionShip)
                             {
                                 p.Owner.GetGSAI().Goals.Remove(item.Goal);
                                 
                             }
-                            if(item.Goal.GetFleet() !=null)
+                            if (item.Goal.GetFleet() !=null)
                                 p.Owner.GetGSAI().Goals.Remove(item.Goal);
 
                         }
