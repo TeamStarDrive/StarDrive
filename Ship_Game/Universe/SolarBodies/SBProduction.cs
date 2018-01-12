@@ -219,7 +219,6 @@ namespace Ship_Game.Universe.SolarBodies
                         if (queueItem.Goal is BuildConstructionShip)
                         {
                             shipAt.AI.OrderDeepSpaceBuild(queueItem.Goal);
-
                             shipAt.isConstructor = true;
                             shipAt.VanityName = "Construction Ship";
                         }

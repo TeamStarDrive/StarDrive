@@ -348,11 +348,11 @@ namespace Ship_Game
                     var gdata = new GoalSave
                     {
                         BuildPosition = g.BuildPosition,
-                        GoalStep = g.Step,
-                        ToBuildUID = g.ToBuildUID,
-                        type = g.type,
-                        GoalGuid = g.guid,
-                        GoalName = g.UID,
+                        GoalStep      = g.Step,
+                        ToBuildUID    = g.ToBuildUID,
+                        type          = g.type,
+                        GoalGuid      = g.guid,
+                        GoalName      = g.UID,
                     };
                     if (g.GetColonyShip() != null)
                     {
