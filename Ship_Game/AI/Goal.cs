@@ -23,6 +23,14 @@ namespace Ship_Game.AI
         FleetRequisition,
     }
 
+    public enum GoalStep
+    {
+        GoToNextStep, // this step succeeded, go to next step
+        TryAgain,     // goal step failed, so we should try again
+        GoalComplete, // entire goal is complete and should be removed!
+        RestartGoal,  // restart goal from scratch
+    }
+
     public abstract class Goal
     {
         public Guid guid = Guid.NewGuid();
@@ -42,8 +50,9 @@ namespace Ship_Game.AI
         protected Ship freighter;
         protected Ship passTran;
 
-        public abstract string UID { get; }
+        protected Func<GoalStep>[] Steps;
 
+        public abstract string UID { get; }
         public override string ToString() => $"Goal.{UID} {ToBuildUID}";
 
         public static Goal CreateInstance(string uid)
@@ -68,56 +77,41 @@ namespace Ship_Game.AI
             this.type = type;
         }
 
-        //public Goal(Planet toColonize, Empire e)
-        //{
-        //    empire = e;
-        //    GoalName = "MarkForColonization";
-        //    type = GoalType.Colonize;
-        //    markedPlanet = toColonize;
-        //    colonyShip = (Ship)null;
-        //}
-
-        //public Goal(string shipType, string forWhat, Empire e)
-        //{
-        //    ToBuildUID = shipType;
-        //    empire = e;
-        //    beingBuilt = ResourceManager.GetShipTemplate(shipType);
-        //    GoalName = forWhat;
-        //    this.Evaluate();
-        //}
-
-        //public Goal(GoalType goalType, string goalName, Empire empire)
-        //{
-        //    type = goalType;
-        //    GoalName = goalName;
-        //    this.empire = empire;
-        //}
-
-        //public Goal()
-        //{
-        //}
-
-        //public Goal(Empire e)
-        //{
-        //    empire = e;
-        //}
+        protected GoalStep DummyStepTryAgain()     => GoalStep.TryAgain;
+        protected GoalStep DummyStepGoalComplete() => GoalStep.GoalComplete;
 
         public void SetFleet(Fleet f)
         {
             fleet = f;
         }
-
         public Fleet GetFleet()
         {
             return fleet;
         }
 
-        // Each subclass must implement this behaviour:
-        //
-        // if (Held)
-        //     return;
-        // 
-        public abstract void Evaluate();
+        public void Evaluate()
+        {
+            if (Held)
+                return;
+            if (Step >= Steps.Length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    $"{this} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+            }
+            switch (Steps[Step].Invoke())
+            {
+                case GoalStep.GoToNextStep: ++Step; break;
+                case GoalStep.TryAgain: break;
+                case GoalStep.GoalComplete:
+                    empire?.GetGSAI().Goals.QueuePendingRemoval(this);
+                    break;
+            }
+        }
+
+        public void AdvanceToNextStep()
+        {
+            ++Step;
+        }
 
         public Planet GetPlanetWhereBuilding()
         {

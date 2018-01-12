@@ -14,46 +14,36 @@ namespace Ship_Game.Commands.Goals
 
         public BuildTroop() : base(GoalType.BuildTroop)
         {
+            Steps = new Func<GoalStep>[]
+            {
+                FindPlanetToBuildAt,
+                DummyStepTryAgain,
+                DummyStepGoalComplete,
+            };
         }
-        public BuildTroop(Troop toCopy, Empire owner, Planet p) : base(GoalType.BuildTroop)
+        public BuildTroop(Troop toCopy, Empire owner, Planet p) : this()
         {
             PlanetBuildingAt = p;
             ToBuildUID = toCopy.Name;
             empire = owner;
         }
 
-        public override void Evaluate()
+        private GoalStep FindPlanetToBuildAt()
         {
-            if (Held)
-                return;
-
-            switch (Step)
+            if (ToBuildUID != null)
             {
-                case 0:
-                    if (ToBuildUID != null)
-                    {
-                        Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-                        PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
-                        {
-                            isTroop = true,
-                            QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
-                            troopType = ToBuildUID,
-                            Goal = this,
-                            Cost = troopTemplate.GetCost()
-                        });
-                    }
-                    else Log.Info("Missing Troop {0}", ToBuildUID);
-                    Step = 1;
-                    break;
-
-                case 1:
+                Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
+                PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
                 {
-                    break;
-                }
-                case 2:
-                    this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
-                    break;
+                    isTroop = true,
+                    QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
+                    troopType = ToBuildUID,
+                    Goal = this,
+                    Cost = troopTemplate.GetCost()
+                });
             }
+            else Log.Info("Missing Troop {0}", ToBuildUID);
+            return GoalStep.GoToNextStep;
         }
     }
 }
