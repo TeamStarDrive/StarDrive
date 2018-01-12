@@ -572,11 +572,9 @@ namespace Ship_Game.AI {
         private HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
             
-            float str = 0;
             HashSet<string> shipTechs = new HashSet<string>();
             HashSet<string> nonShipTechs = new HashSet<string>();
             HashSet<string> wantedShipTechs = new HashSet<string>();
-            float maxTechCost = 0;
 
             foreach (TechEntry bestshiptech in availableTechs)
             {
@@ -646,12 +644,9 @@ namespace Ship_Game.AI {
         {
 
             var techSorter = new SortedList<int, Array<Ship>>();
-            int maxKey = 0;
             foreach (Ship shortTermBest in researchableShips)
             {                                
                 //forget the cost of tech that provide these ships. These are defined in techentry class.
-                int mod = 0;
-
                 if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.CarrierShip)
                     continue;
 

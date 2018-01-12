@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using static Ship_Game.AI.ShipAI;
 
@@ -431,12 +432,12 @@ namespace Ship_Game.Debug
                 for (int x = 0; x < e.GetGSAI().Goals.Count; x++)
                 {
                     Goal g = e.GetGSAI().Goals[x];
-                    if (g.GoalName != "MarkForColonization")
+                    if (!(g is MarkForColonization))
                         continue;
 
                     NewLine();
                     string held = g.Held ? "(Held" : "";
-                    DrawString($"{held}{g.GoalName} {g.GetMarkedPlanet().Name}");
+                    DrawString($"{held}{g} {g.GetMarkedPlanet().Name}");
                     DrawString(15f, "Step: " + g.Step);
                     if (g.GetColonyShip() != null && g.GetColonyShip().Active)
                         DrawString(15f, "Has ship");

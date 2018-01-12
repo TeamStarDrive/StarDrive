@@ -352,7 +352,7 @@ namespace Ship_Game
                         ToBuildUID = g.ToBuildUID,
                         type = g.type,
                         GoalGuid = g.guid,
-                        GoalName = g.GoalName
+                        GoalName = g.UID,
                     };
                     if (g.GetColonyShip() != null)
                     {

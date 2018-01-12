@@ -1105,15 +1105,18 @@ namespace Ship_Game.Ships
         {
             if (!CheckRangeToTarget(w, target))
                 return false;
-            Ship targetShip = target as Ship;
-            if (w.MassDamage > 0 || w.RepulsionDamage > 0)
+
+            if (target is Ship targetShip)
             {
-                if (targetShip != null && (targetShip.EnginesKnockedOut || targetShip.IsTethered()))
+                if (w.MassDamage > 0 || w.RepulsionDamage > 0)
+                {
+                    if (targetShip.EnginesKnockedOut || targetShip.IsTethered())
+                        return false;
+                }
+                if ((loyalty == targetShip.loyalty || !loyalty.isFaction &&
+                                           loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
                     return false;
             }
-            if (targetShip != null && (loyalty == targetShip.loyalty || !loyalty.isFaction &&
-                loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
-                return false;
 
             float halfArc = w.Module.FieldOfFire / 2f;
 
@@ -2035,7 +2038,6 @@ namespace Ship_Game.Ships
                     float direction = AI.CombatState == CombatState.ShortRange ? 1f : -1f; // ascending : descending
                     Weapon[] sortedByRange = Weapons.SortedBy(weapon => direction*weapon.GetModifiedRange());
 
-                    bool flag = false;
                     foreach (Weapon weapon in Weapons)
                     {
                         //Edited by Gretman

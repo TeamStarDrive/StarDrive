@@ -87,7 +87,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                var g = new Commands.FleetRequisition(node.ShipName, f.Owner);
+                var g = new Commands.Goals.FleetRequisition(node.ShipName, f.Owner);
                 g.SetFleet(this.f);
                 node.GoalGUID = g.guid;
                 this.f.Owner.GetGSAI().Goals.Add(g);

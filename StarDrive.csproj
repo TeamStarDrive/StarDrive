@@ -172,6 +172,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.FactionUpdate.cs" />
@@ -197,6 +198,14 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildOffensiveShips.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildScout.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\IncreasePassengerShips.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
@@ -1003,10 +1012,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\War.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\GoalType.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

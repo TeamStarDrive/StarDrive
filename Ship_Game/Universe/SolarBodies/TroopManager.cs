@@ -631,7 +631,6 @@ namespace Ship_Game
                 InCombatTimer = 10f;
             if (TroopsHere.Count <= 0 || Owner == null)
                 return;
-            bool flag = false;
             int num1 = 0;
             int num2 = 0;
             Empire index = null;
@@ -645,8 +644,6 @@ namespace Ship_Game
                         {
                             ++num2;
                             index = troop.GetOwner();
-                            if (index.isFaction)
-                                flag = true;
                         }
                         else
                             ++num1;
