@@ -494,40 +494,8 @@ namespace Ship_Game.Ships
                 if (Hangars.Count <= 0)
                     return false;
                 for (int index = 0; index < Hangars.Count; ++index)
-                {
-                    try
-                    {
-                        ShipModule shipModule = Hangars[index];
-                        if (shipModule.IsTroopBay || shipModule.IsSupplyBay)
-                            continue;
-                        if (shipModule.GetHangarShip() != null
-
-                            )
-                        {
-                            //if ()
-                            //{
-                            if (!shipModule.GetHangarShip().Active && shipModule.hangarTimer > 0.0)
-                            {
-                                //if (shipModule.hangarTimer >= 0.0)
-                                continue;
-                            }
-                            flag = true;
-                            //return false;
-                            //}
-                            //else
-                            //    continue;
-                        }
-                        //else if (shipModule.hangarTimer <= 0.0 )
-                        //    flag =true;
-                        //else
-                        //return flag;
-
-                    }
-                    catch
-                    {
-                    }
-                }
-                return flag;// !flag;
+                    flag |= Hangars[index]?.FighterOut ?? false;
+                return flag;
             }
             set
             {
@@ -603,7 +571,7 @@ namespace Ship_Game.Ships
                 AI.start = null;
                 AI.end = null;
                 AI.State = AIState.SystemTrader;
-                AI.OrderTrade(0);
+                //AI.OrderTrade(0);
             }
         }
         private bool TProd = false;
@@ -632,7 +600,7 @@ namespace Ship_Game.Ships
                 AI.start = null;
                 AI.end = null;
                 AI.State = AIState.SystemTrader;
-                AI.OrderTrade(0);
+                //AI.OrderTrade(0);
             }
         }
 
