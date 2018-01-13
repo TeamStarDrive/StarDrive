@@ -2414,6 +2414,8 @@ namespace Ship_Game.Ships
             }
         }
 
+   
+
         public void ShipStatusChange()
         {
             shipStatusChanged = false;
@@ -2456,90 +2458,58 @@ namespace Ship_Game.Ships
                 if (slot.Restrictions == Restrictions.I && slot.Active)
                     ActiveInternalSlotCount += slot.XSIZE * slot.YSIZE;
                 Health += slot.Health;
-                //if (this.shipStatusChanged)
+                RepairRate += slot.BonusRepairRate;
+                if (slot.Mass < 0.0 && slot.Powered)
+                    Mass += slot.Mass;
+                else if (slot.Mass > 0.0)
                 {
-                    RepairRate += slot.BonusRepairRate;
-                    if (slot.Mass < 0.0 && slot.Powered)
+                    if (slot.ModuleType == ShipModuleType.Armor && loyalty != null)
                     {
-                        //Ship ship3 = this;
-                        //float num3 = ship3.Mass + moduleSlot.module.Mass;     //Some minor performance tweaks -Gretman
+                        float armourMassModifier = loyalty.data.ArmourMassModifier;
+                        float armourMass = slot.Mass * armourMassModifier;
+                        Mass += armourMass;
+                    }
+                    else                    
                         Mass += slot.Mass;
-                    }
-                    else if (slot.Mass > 0.0)
-                    {
-                        //Ship ship3 = this;
+                }
+                //Checks to see if there is an active command module
 
-                        //float num3;
-                        if (slot.ModuleType == ShipModuleType.Armor && loyalty != null)
-                        {
-                            float ArmourMassModifier = loyalty.data.ArmourMassModifier;
-                            float ArmourMass = slot.Mass * ArmourMassModifier;
-                            Mass += ArmourMass;
-                        }
-                        else
-                        {
-                            Mass += slot.Mass;
-                        }
-                        //ship3.Mass = num3;
-                    }
-                    //Checks to see if there is an active command module
-
-                    if (slot.Active && (slot.Powered || slot.PowerDraw <= 0f))
+                if (slot.Active && (slot.Powered || slot.PowerDraw <= 0f))
+                {                    
+                    hasCommand |= slot.IsCommandModule;
+                    //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
+                    //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
+                    if (slot.FixedTracking > 0 && slot.FixedTracking > FixedTrackingPower)
+                        FixedTrackingPower = slot.FixedTracking;
+                    
+                    TrackingPower         += Math.Max(0, slot.TargetTracking);
+                    OrdinanceMax          += slot.OrdinanceCapacity;
+                    CargoSpaceMax         += slot.Cargo_Capacity;
+                    InhibitionRadius      += slot.InhibitionRadius;
+                    BonusEMP_Protection   += slot.EMP_Protection;
+                    SensorRange            = Math.Max(SensorRange, slot.SensorRange);
+                    sensorBonus            = Math.Max(sensorBonus, slot.SensorBonus);                    
+                    if (slot.shield_power_max > 0f)
                     {
-                        if (!hasCommand && slot.IsCommandModule)
-                            hasCommand = true;
-                        //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
-                        //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
-                        if (slot.FixedTracking > 0 && slot.FixedTracking > FixedTrackingPower)
-                            FixedTrackingPower = slot.FixedTracking;
-                        if (slot.TargetTracking > 0)
-                            TrackingPower += slot.TargetTracking;
-                        OrdinanceMax += slot.OrdinanceCapacity;
-                        CargoSpaceMax += slot.Cargo_Capacity;
-                        InhibitionRadius += slot.InhibitionRadius;
-                        BonusEMP_Protection += slot.EMP_Protection;
-                        if (slot.SensorRange > SensorRange)
-                            SensorRange = slot.SensorRange;
-                        if (slot.SensorBonus > sensorBonus)
-                            sensorBonus = slot.SensorBonus;
-                        if (slot.shield_power_max > 0f)
-                        {
-                            shield_max += slot.GetShieldsMax();
-                            ShieldPowerDraw += slot.PowerDraw;
-                        }
-                        else
-                            ModulePowerDraw += slot.PowerDraw;
-                        Thrust += slot.thrust;
-                        WarpThrust += slot.WarpThrust;
-                        TurnThrust += slot.TurnThrust;
-                        if (slot.ECM > ECMValue)
-                        {
-                            ECMValue = slot.ECM;
-                            if (ECMValue > 1.0f)
-                                ECMValue = 1.0f;
-                            if (ECMValue < 0f)
-                                ECMValue = 0f;
-                        }
-                        OrdAddedPerSecond += slot.OrdnanceAddedPerSecond;
-                        HealPerTurn += slot.HealPerTurn;
-                        if (slot.ModuleType == ShipModuleType.Hangar)
-                        {
-                            Hangars.Add(slot);
-                            if (slot.IsTroopBay)
-                                HasTroopBay = true;
-                        }
-                        if (slot.ModuleType == ShipModuleType.Transporter)
-                            Transporters.Add(slot);
-                        if (slot.InstalledWeapon != null && slot.InstalledWeapon.isRepairBeam)
-                            RepairBeams.Add(slot);
-                        if (slot.PowerStoreMax > 0)
-                            PowerStoreMax += slot.PowerStoreMax;
-                        if (slot.PowerFlowMax >  0)
-                            PowerFlowMax += slot.PowerFlowMax;
-                        WarpDraw += slot.PowerDrawAtWarp;
-                        if (slot.FTLSpoolTime > FTLSpoolTime)
-                            FTLSpoolTime = slot.FTLSpoolTime;
+                        shield_max += slot.GetShieldsMax();
+                        ShieldPowerDraw += slot.PowerDraw;
                     }
+                    else
+                        ModulePowerDraw += slot.PowerDraw;
+                    Thrust              += slot.thrust;
+                    WarpThrust          += slot.WarpThrust;
+                    TurnThrust          += slot.TurnThrust;
+                    WarpDraw            += slot.PowerDrawAtWarp;
+                    OrdAddedPerSecond   += slot.OrdnanceAddedPerSecond;
+                    HealPerTurn         += slot.HealPerTurn;
+                    ECMValue             = 1f.Clamp(0f, Math.Max(ECMValue, slot.ECM)); // 0-1 using greatest value.                    
+                    PowerStoreMax       += Math.Max(0, slot.PowerStoreMax);
+                    PowerFlowMax        += Math.Max(0, slot.PowerFlowMax);                                        
+                    FTLSpoolTime   = Math.Max(FTLSpoolTime, slot.FTLSpoolTime);
+                    if (slot.AddModuleTypeToList(ShipModuleType.Hangar, list: Hangars))
+                        HasTroopBay |= slot.IsTroopBay;
+                    slot.AddModuleTypeToList(ShipModuleType.Transporter, list: Transporters);
+                    slot.AddModuleTypeToList(slot.ModuleType, isTrue: slot.InstalledWeapon?.isRepairBeam == true, list: RepairBeams);
                 }
             }
             NormalWarpThrust = WarpThrust;
