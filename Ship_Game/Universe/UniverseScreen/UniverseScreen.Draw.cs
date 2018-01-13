@@ -677,38 +677,43 @@ namespace Ship_Game
                     var kv = fleetdic[i];
                     if (kv.Ships.Count <= 0)
                         continue;
-
+                    if (!Debug && player.IsEmpireAttackable(kv.Owner)) continue;
                     Vector2 averagePosition = kv.FindAveragePositionset();
                     bool flag = player.IsPointInSensors(averagePosition);
 
-                    if (flag || Debug || kv.Owner == player)
+                    if (!flag && !Debug && kv.Owner != player) continue;
+
+                    var icon = ResourceManager.Texture("FleetIcons/" + kv.FleetIconIndex);
+                    Vector3 vector3_1 =
+                        Viewport.Project(new Vector3(averagePosition, 0.0f),
+                            projection, view, Matrix.Identity);
+                    Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);                        
+                    FleetIconLines(kv, vector2);
+                    ClickableFleetsList.Add(new ClickableFleet
                     {
-                        var icon = ResourceManager.TextureDict["FleetIcons/" + kv.FleetIconIndex];
-                        Vector3 vector3_1 =
-                            Viewport.Project(new Vector3(averagePosition, 0.0f),
-                                projection, view, Matrix.Identity);
-                        Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                        foreach (Ship ship in kv.Ships)
-                        {
-                            if ((!ship?.Active ?? true)) continue;
-                            Vector3 vector3_2 =
-                                Viewport.Project(
-                                    new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);
-                            ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_2.X, vector3_2.Y),
-                                vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 20));
-                        }
-                        ClickableFleetsList.Add(new ClickableFleet
-                        {
-                            fleet = kv,
-                            ScreenPos = vector2,
-                            ClickRadius = 15f
-                        });
-                        ScreenManager.SpriteBatch.Draw(icon, vector2, new Rectangle?(), empire.EmpireColor, 0.0f,
-                            icon.Center(), 0.35f, SpriteEffects.None, 1f);
-                        HelperFunctions.DrawDropShadowText(ScreenManager, kv.Name,
-                            new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
-                    }
+                        fleet = kv,
+                        ScreenPos = vector2,
+                        ClickRadius = 15f
+                    });
+                    ScreenManager.SpriteBatch.Draw(icon, vector2, new Rectangle?(), empire.EmpireColor, 0.0f,
+                        icon.Center(), 0.35f, SpriteEffects.None, 1f);
+                    HelperFunctions.DrawDropShadowText(ScreenManager, kv.Name,
+                        new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                 }
+            }
+        }
+
+        private void FleetIconLines(Fleet kv, Vector2 vector2)
+        {
+            foreach (Ship ship in kv.Ships)
+            {
+                if ((!ship?.Active ?? true)) continue;
+
+                Vector3 vector3_2 =
+                    Viewport.Project(
+                        new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);
+                ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_2.X, vector3_2.Y),
+                    vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 20));
             }
         }
 
