@@ -63,114 +63,114 @@ namespace Ship_Game.Ships
         public bool CheckedConduits;
 
         // Used to configure how good of a target this module is
-        public int ModuleTargettingValue => TargetValue
+        public int ModuleTargettingValue         => TargetValue
                                           //+ (isExternal ? -5 : 0)         // external modules are less critical
                                           + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules        
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
         //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
         //lives in "Module.Flyweight.IsCommandModule" now.    -Gretman
-        public float FTLSpeed => Flyweight.FTLSpeed;
-        public string DeployBuildingOnColonize => Flyweight.DeployBuildingOnColonize;
-        public string ResourceStored => Flyweight.ResourceStored;
-        public float ResourceStorageAmount => Flyweight.ResourceStorageAmount;
-        public bool IsCommandModule => Flyweight.IsCommandModule;
-        public bool IsRepairModule => Flyweight.IsRepairModule;
-        public string[] PermittedHangarRoles => Flyweight.PermittedHangarRoles;
-        public short MaximumHangarShipSize => Flyweight.MaximumHangarShipSize;
-        public bool FightersOnly => Flyweight.FightersOnly;
-        public bool DroneModule => Flyweight.DroneModule;
-        public bool FighterModule => Flyweight.FighterModule;
-        public bool CorvetteModule => Flyweight.CorvetteModule;
-        public bool FrigateModule => Flyweight.FrigateModule;
-        public bool DestroyerModule => Flyweight.DestroyerModule;
-        public bool CruiserModule => Flyweight.CruiserModule;
-        public bool CarrierModule => Flyweight.CarrierModule;
-        public bool CapitalModule => Flyweight.CapitalModule;
-        public bool FreighterModule => Flyweight.FreighterModule;
-        public bool PlatformModule => Flyweight.PlatformModule;
-        public bool StationModule => Flyweight.StationModule;
-        public bool explodes => Flyweight.explodes;
-        public float SensorRange => Flyweight.SensorRange;
-        public float MechanicalBoardingDefense => Flyweight.MechanicalBoardingDefense;
-        public float EMP_Protection => Flyweight.EMP_Protection;
-        public int PowerRadius => Flyweight.PowerRadius;
-        public int TechLevel => Flyweight.TechLevel;
-        public float OrdnanceAddedPerSecond => Flyweight.OrdnanceAddedPerSecond;
-        public string BombType => Flyweight.BombType;
-        public float WarpMassCapacity => Flyweight.WarpMassCapacity;
-        public float BonusRepairRate => Flyweight.BonusRepairRate;
-        public int Cargo_Capacity => Flyweight.Cargo_Capacity;
-        public float shield_radius => Flyweight.shield_radius;
-        public float shield_power_max => Flyweight.shield_power_max;
-        public float shield_recharge_rate => Flyweight.shield_recharge_rate;
+        public float FTLSpeed                    => Flyweight.FTLSpeed;
+        public string DeployBuildingOnColonize   => Flyweight.DeployBuildingOnColonize;
+        public string ResourceStored             => Flyweight.ResourceStored;
+        public float ResourceStorageAmount       => Flyweight.ResourceStorageAmount;
+        public bool IsCommandModule              => Flyweight.IsCommandModule;
+        public bool IsRepairModule               => Flyweight.IsRepairModule;
+        public string[] PermittedHangarRoles     => Flyweight.PermittedHangarRoles;
+        public short MaximumHangarShipSize       => Flyweight.MaximumHangarShipSize;
+        public bool FightersOnly                 => Flyweight.FightersOnly;
+        public bool DroneModule                  => Flyweight.DroneModule;
+        public bool FighterModule                => Flyweight.FighterModule;
+        public bool CorvetteModule               => Flyweight.CorvetteModule;
+        public bool FrigateModule                => Flyweight.FrigateModule;
+        public bool DestroyerModule              => Flyweight.DestroyerModule;
+        public bool CruiserModule                => Flyweight.CruiserModule;
+        public bool CarrierModule                => Flyweight.CarrierModule;
+        public bool CapitalModule                => Flyweight.CapitalModule;
+        public bool FreighterModule              => Flyweight.FreighterModule;
+        public bool PlatformModule               => Flyweight.PlatformModule;
+        public bool StationModule                => Flyweight.StationModule;
+        public bool explodes                     => Flyweight.explodes;
+        public float SensorRange                 => Flyweight.SensorRange;
+        public float MechanicalBoardingDefense   => Flyweight.MechanicalBoardingDefense;
+        public float EMP_Protection              => Flyweight.EMP_Protection;
+        public int PowerRadius                   => Flyweight.PowerRadius;
+        public int TechLevel                     => Flyweight.TechLevel;
+        public float OrdnanceAddedPerSecond      => Flyweight.OrdnanceAddedPerSecond;
+        public string BombType                   => Flyweight.BombType;
+        public float WarpMassCapacity            => Flyweight.WarpMassCapacity;
+        public float BonusRepairRate             => Flyweight.BonusRepairRate;
+        public int Cargo_Capacity                => Flyweight.Cargo_Capacity;
+        public float shield_radius               => Flyweight.shield_radius;
+        public float shield_power_max            => Flyweight.shield_power_max;
+        public float shield_recharge_rate        => Flyweight.shield_recharge_rate;
         public float shield_recharge_combat_rate => Flyweight.shield_recharge_combat_rate;
-        public float shield_recharge_delay => Flyweight.shield_recharge_delay;
-        public float shield_threshold => Flyweight.shield_threshold;
-        public float shield_kinetic_resist => Flyweight.shield_kinetic_resist;
-        public float shield_energy_resist => Flyweight.shield_energy_resist;
-        public float shield_explosive_resist => Flyweight.shield_explosive_resist;
-        public float shield_missile_resist => Flyweight.shield_missile_resist;
-        public float shield_flak_resist => Flyweight.shield_flak_resist;
-        public float shield_hybrid_resist => Flyweight.shield_hybrid_resist;
-        public float shield_railgun_resist => Flyweight.shield_railgun_resist;
-        public float shield_subspace_resist => Flyweight.shield_subspace_resist;
-        public float shield_warp_resist => Flyweight.shield_warp_resist;
-        public float shield_beam_resist => Flyweight.shield_beam_resist;
-        public float numberOfColonists => Flyweight.numberOfColonists;
-        public float numberOfEquipment => Flyweight.numberOfEquipment;
-        public float numberOfFood => Flyweight.numberOfFood;
-        public bool IsSupplyBay => Flyweight.IsSupplyBay;
-        public bool IsTroopBay => Flyweight.IsTroopBay;
-        public float hangarTimerConstant => Flyweight.hangarTimerConstant;
-        public float thrust => Flyweight.thrust;
-        public float WarpThrust => Flyweight.WarpThrust;
-        public float TurnThrust => Flyweight.TurnThrust;
-        public float PowerFlowMax => Flyweight.PowerFlowMax;
-        public float PowerDraw => Flyweight.PowerDraw;
-        public float PowerDrawAtWarp => Flyweight.PowerDrawAtWarp;
-        public float PowerStoreMax => Flyweight.PowerStoreMax;
-        public float HealPerTurn => Flyweight.HealPerTurn;
-        public int TroopCapacity => Flyweight.TroopCapacity;
-        public int TroopsSupplied => Flyweight.TroopsSupplied;
-        public float Cost => Flyweight.Cost;
-        public float InhibitionRadius => Flyweight.InhibitionRadius;
-        public float FTLSpoolTime => Flyweight.FTLSpoolTime;
-        public float ECM => Flyweight.ECM;
-        public float SensorBonus => Flyweight.SensorBonus;
-        public float TransporterTimerConstant => Flyweight.TransporterTimerConstant;
-        public float TransporterRange => Flyweight.TransporterRange;
-        public float TransporterPower => Flyweight.TransporterPower;
-        public float TransporterOrdnance => Flyweight.TransporterOrdnance;
-        public int TransporterTroopLanding => Flyweight.TransporterTroopLanding;
-        public int TransporterTroopAssault => Flyweight.TransporterTroopAssault;
-        public float KineticResist => Flyweight.KineticResist;
-        public float EnergyResist => Flyweight.EnergyResist;
-        public float GuidedResist => Flyweight.GuidedResist;
-        public float MissileResist => Flyweight.MissileResist;
-        public float HybridResist => Flyweight.HybridResist;
-        public float BeamResist => Flyweight.BeamResist;
-        public float ExplosiveResist => Flyweight.ExplosiveResist;
-        public float InterceptResist => Flyweight.InterceptResist;
-        public float RailgunResist => Flyweight.RailgunResist;
-        public float SpaceBombResist => Flyweight.SpaceBombResist;
-        public float BombResist => Flyweight.BombResist;
-        public float BioWeaponResist => Flyweight.BioWeaponResist;
-        public float DroneResist => Flyweight.DroneResist;
-        public float WarpResist => Flyweight.WarpResist;
-        public float TorpedoResist => Flyweight.TorpedoResist;
-        public float CannonResist => Flyweight.CannonResist;
-        public float SubspaceResist => Flyweight.SubspaceResist;
-        public float PDResist => Flyweight.PDResist;
-        public float FlakResist => Flyweight.FlakResist;
-        public float DamageThreshold => Flyweight.DamageThreshold;
-        public int APResist => Flyweight.APResist;
-        public bool IndirectPower => Flyweight.IndirectPower;
-        public bool isPowerArmour => Flyweight.isPowerArmour;
-        public bool isBulkhead => Flyweight.isBulkhead;
-        public int TargetTracking => Flyweight.TargetTracking;
-        public int FixedTracking => Flyweight.FixedTracking;
-        public bool IsRotatable => Flyweight.IsRotable;
-        public bool IsWeapon => ModuleType == ShipModuleType.Spacebomb
+        public float shield_recharge_delay       => Flyweight.shield_recharge_delay;
+        public float shield_threshold            => Flyweight.shield_threshold;
+        public float shield_kinetic_resist       => Flyweight.shield_kinetic_resist;
+        public float shield_energy_resist        => Flyweight.shield_energy_resist;
+        public float shield_explosive_resist     => Flyweight.shield_explosive_resist;
+        public float shield_missile_resist       => Flyweight.shield_missile_resist;
+        public float shield_flak_resist          => Flyweight.shield_flak_resist;
+        public float shield_hybrid_resist        => Flyweight.shield_hybrid_resist;
+        public float shield_railgun_resist       => Flyweight.shield_railgun_resist;
+        public float shield_subspace_resist      => Flyweight.shield_subspace_resist;
+        public float shield_warp_resist          => Flyweight.shield_warp_resist;
+        public float shield_beam_resist          => Flyweight.shield_beam_resist;
+        public float numberOfColonists           => Flyweight.numberOfColonists;
+        public float numberOfEquipment           => Flyweight.numberOfEquipment;
+        public float numberOfFood                => Flyweight.numberOfFood;
+        public bool IsSupplyBay                  => Flyweight.IsSupplyBay;
+        public bool IsTroopBay                   => Flyweight.IsTroopBay;
+        public float hangarTimerConstant         => Flyweight.hangarTimerConstant;
+        public float thrust                      => Flyweight.thrust;
+        public float WarpThrust                  => Flyweight.WarpThrust;
+        public float TurnThrust                  => Flyweight.TurnThrust;
+        public float PowerFlowMax                => Flyweight.PowerFlowMax;
+        public float PowerDraw                   => Flyweight.PowerDraw;
+        public float PowerDrawAtWarp             => Flyweight.PowerDrawAtWarp;
+        public float PowerStoreMax               => Flyweight.PowerStoreMax;
+        public float HealPerTurn                 => Flyweight.HealPerTurn;
+        public int TroopCapacity                 => Flyweight.TroopCapacity;
+        public int TroopsSupplied                => Flyweight.TroopsSupplied;
+        public float Cost                        => Flyweight.Cost;
+        public float InhibitionRadius            => Flyweight.InhibitionRadius;
+        public float FTLSpoolTime                => Flyweight.FTLSpoolTime;
+        public float ECM                         => Flyweight.ECM;
+        public float SensorBonus                 => Flyweight.SensorBonus;
+        public float TransporterTimerConstant    => Flyweight.TransporterTimerConstant;
+        public float TransporterRange            => Flyweight.TransporterRange;
+        public float TransporterPower            => Flyweight.TransporterPower;
+        public float TransporterOrdnance         => Flyweight.TransporterOrdnance;
+        public int TransporterTroopLanding       => Flyweight.TransporterTroopLanding;
+        public int TransporterTroopAssault       => Flyweight.TransporterTroopAssault;
+        public float KineticResist               => Flyweight.KineticResist;
+        public float EnergyResist                => Flyweight.EnergyResist;
+        public float GuidedResist                => Flyweight.GuidedResist;
+        public float MissileResist               => Flyweight.MissileResist;
+        public float HybridResist                => Flyweight.HybridResist;
+        public float BeamResist                  => Flyweight.BeamResist;
+        public float ExplosiveResist             => Flyweight.ExplosiveResist;
+        public float InterceptResist             => Flyweight.InterceptResist;
+        public float RailgunResist               => Flyweight.RailgunResist;
+        public float SpaceBombResist             => Flyweight.SpaceBombResist;
+        public float BombResist                  => Flyweight.BombResist;
+        public float BioWeaponResist             => Flyweight.BioWeaponResist;
+        public float DroneResist                 => Flyweight.DroneResist;
+        public float WarpResist                  => Flyweight.WarpResist;
+        public float TorpedoResist               => Flyweight.TorpedoResist;
+        public float CannonResist                => Flyweight.CannonResist;
+        public float SubspaceResist              => Flyweight.SubspaceResist;
+        public float PDResist                    => Flyweight.PDResist;
+        public float FlakResist                  => Flyweight.FlakResist;
+        public float DamageThreshold             => Flyweight.DamageThreshold;
+        public int APResist                      => Flyweight.APResist;
+        public bool IndirectPower                => Flyweight.IndirectPower;
+        public bool isPowerArmour                => Flyweight.isPowerArmour;
+        public bool isBulkhead                   => Flyweight.isBulkhead;
+        public int TargetTracking                => Flyweight.TargetTracking;
+        public int FixedTracking                 => Flyweight.FixedTracking;
+        public bool IsRotatable                  => Flyweight.IsRotable;
+        public bool IsWeapon                     => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
                                 || ModuleType == ShipModuleType.MissileLauncher
@@ -207,29 +207,29 @@ namespace Ship_Game.Ships
         private ShipModule(ShipModule_Deserialize s) : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
-            Flyweight = new ShipModuleFlyweight(s);
-            XSIZE = s.XSIZE;
-            YSIZE = s.YSIZE;
-            Mass = s.Mass;
-            Powered = s.Powered;
-            FieldOfFire = s.FieldOfFire;
-            Facing = s.facing;
-            XMLPosition = s.XMLPosition;
-            HealthMax = s.HealthMax;
-            WeaponType = s.WeaponType;
-            NameIndex = s.NameIndex;
-            DescriptionIndex = s.DescriptionIndex;
-            Restrictions = s.Restrictions;
-            ShieldPower = s.shield_power;
-            hangarShipUID = s.hangarShipUID;
-            hangarTimer = s.hangarTimer;
-            isWeapon = s.isWeapon;
-            OrdinanceCapacity = s.OrdinanceCapacity;
-            BombTimer = s.BombTimer;
-            ModuleType = s.ModuleType;
-            IconTexturePath = s.IconTexturePath;
-            //isExternal           = s.isExternal; // I think it's safer to let ship externals init handle this...
-            TargetValue = s.TargetValue;
+            Flyweight               = new ShipModuleFlyweight(s);
+            XSIZE                   = s.XSIZE;
+            YSIZE                   = s.YSIZE;
+            Mass                    = s.Mass;
+            Powered                 = s.Powered;
+            FieldOfFire             = s.FieldOfFire;
+            Facing                  = s.facing;
+            XMLPosition             = s.XMLPosition;
+            HealthMax               = s.HealthMax;
+            WeaponType              = s.WeaponType;
+            NameIndex               = s.NameIndex;
+            DescriptionIndex        = s.DescriptionIndex;
+            Restrictions            = s.Restrictions;
+            ShieldPower             = s.shield_power;
+            hangarShipUID           = s.hangarShipUID;
+            hangarTimer             = s.hangarTimer;
+            isWeapon                = s.isWeapon;
+            OrdinanceCapacity       = s.OrdinanceCapacity;
+            BombTimer               = s.BombTimer;
+            ModuleType              = s.ModuleType;
+            IconTexturePath         = s.IconTexturePath;
+            //isExternal            = s.isExternal; // I think it's safer to let ship externals init handle this...
+            TargetValue             = s.TargetValue;
         }
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
@@ -254,23 +254,23 @@ namespace Ship_Game.Ships
             var module = new ShipModule
             {
                 // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
-                Flyweight = template.Flyweight,
-                DescriptionIndex = template.DescriptionIndex,
-                FieldOfFire = template.FieldOfFire,
-                hangarShipUID = template.hangarShipUID,
-                hangarTimer = template.hangarTimer,
-                Health = template.HealthMax,
-                HealthMax = template.HealthMax,
-                isWeapon = template.isWeapon,
-                Mass = template.Mass,
-                ModuleType = template.ModuleType,
-                NameIndex = template.NameIndex,
+                Flyweight         = template.Flyweight,
+                DescriptionIndex  = template.DescriptionIndex,
+                FieldOfFire       = template.FieldOfFire,
+                hangarShipUID     = template.hangarShipUID,
+                hangarTimer       = template.hangarTimer,
+                Health            = template.HealthMax,
+                HealthMax         = template.HealthMax,
+                isWeapon          = template.isWeapon,
+                Mass              = template.Mass,
+                ModuleType        = template.ModuleType,
+                NameIndex         = template.NameIndex,
                 OrdinanceCapacity = template.OrdinanceCapacity,
-                ShieldPower = template.shield_power_max, //Hmmm... This one is strange -Gretman
-                XSIZE = template.XSIZE,
-                YSIZE = template.YSIZE,
-                IconTexturePath = template.IconTexturePath,
-                Restrictions = template.Restrictions
+                ShieldPower       = template.shield_power_max, //Hmmm... This one is strange -Gretman
+                XSIZE             = template.XSIZE,
+                YSIZE             = template.YSIZE,
+                IconTexturePath   = template.IconTexturePath,
+                Restrictions      = template.Restrictions
             };
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
@@ -299,40 +299,40 @@ namespace Ship_Game.Ships
         // Nah, this was added by The Doctor a few centries ago, and to my knowledge was never completed.
         private float ApplyShieldResistances(Weapon weapon, float damage)
         {
-            if (weapon.Tag_Kinetic) damage -= damage * shield_kinetic_resist;
-            if (weapon.Tag_Energy) damage -= damage * shield_energy_resist;
+            if (weapon.Tag_Kinetic) damage   -= damage * shield_kinetic_resist;
+            if (weapon.Tag_Energy) damage    -= damage * shield_energy_resist;
             if (weapon.Tag_Explosive) damage -= damage * shield_explosive_resist;
-            if (weapon.Tag_Missile) damage -= damage * shield_missile_resist;
-            if (weapon.Tag_Flak) damage -= damage * shield_flak_resist;
-            if (weapon.Tag_Hybrid) damage -= damage * shield_hybrid_resist;
-            if (weapon.Tag_Railgun) damage -= damage * shield_railgun_resist;
-            if (weapon.Tag_Subspace) damage -= damage * shield_subspace_resist;
-            if (weapon.Tag_Warp) damage -= damage * shield_warp_resist;
-            if (weapon.Tag_Beam) damage -= damage * shield_beam_resist;
+            if (weapon.Tag_Missile) damage   -= damage * shield_missile_resist;
+            if (weapon.Tag_Flak) damage      -= damage * shield_flak_resist;
+            if (weapon.Tag_Hybrid) damage    -= damage * shield_hybrid_resist;
+            if (weapon.Tag_Railgun) damage   -= damage * shield_railgun_resist;
+            if (weapon.Tag_Subspace) damage  -= damage * shield_subspace_resist;
+            if (weapon.Tag_Warp) damage      -= damage * shield_warp_resist;
+            if (weapon.Tag_Beam) damage      -= damage * shield_beam_resist;
             return damage;
         }
 
         private float ApplyResistances(Weapon weapon, float damage)
         {
-            if (weapon.Tag_Beam) damage -= damage * BeamResist;
-            if (weapon.Tag_Kinetic) damage -= damage * KineticResist;
-            if (weapon.Tag_Energy) damage -= damage * EnergyResist;
-            if (weapon.Tag_Guided) damage -= damage * GuidedResist;
-            if (weapon.Tag_Missile) damage -= damage * MissileResist;
-            if (weapon.Tag_Hybrid) damage -= damage * HybridResist;
+            if (weapon.Tag_Beam) damage      -= damage * BeamResist;
+            if (weapon.Tag_Kinetic) damage   -= damage * KineticResist;
+            if (weapon.Tag_Energy) damage    -= damage * EnergyResist;
+            if (weapon.Tag_Guided) damage    -= damage * GuidedResist;
+            if (weapon.Tag_Missile) damage   -= damage * MissileResist;
+            if (weapon.Tag_Hybrid) damage    -= damage * HybridResist;
             if (weapon.Tag_Intercept) damage -= damage * InterceptResist;
             if (weapon.Tag_Explosive) damage -= damage * ExplosiveResist;
-            if (weapon.Tag_Railgun) damage -= damage * RailgunResist;
+            if (weapon.Tag_Railgun) damage   -= damage * RailgunResist;
             if (weapon.Tag_SpaceBomb) damage -= damage * SpaceBombResist;
-            if (weapon.Tag_Bomb) damage -= damage * BombResist;
+            if (weapon.Tag_Bomb) damage      -= damage * BombResist;
             if (weapon.Tag_BioWeapon) damage -= damage * BioWeaponResist;
-            if (weapon.Tag_Drone) damage -= damage * DroneResist;
-            if (weapon.Tag_Warp) damage -= damage * WarpResist;
-            if (weapon.Tag_Torpedo) damage -= damage * TorpedoResist;
-            if (weapon.Tag_Cannon) damage -= damage * CannonResist;
-            if (weapon.Tag_Subspace) damage -= damage * SubspaceResist;
-            if (weapon.Tag_PD) damage -= damage * PDResist;
-            if (weapon.Tag_Flak) damage -= damage * FlakResist;
+            if (weapon.Tag_Drone) damage     -= damage * DroneResist;
+            if (weapon.Tag_Warp) damage      -= damage * WarpResist;
+            if (weapon.Tag_Torpedo) damage   -= damage * TorpedoResist;
+            if (weapon.Tag_Cannon) damage    -= damage * CannonResist;
+            if (weapon.Tag_Subspace) damage  -= damage * SubspaceResist;
+            if (weapon.Tag_PD) damage        -= damage * PDResist;
+            if (weapon.Tag_Flak) damage      -= damage * FlakResist;
             return damage;
         }
 
@@ -382,19 +382,18 @@ namespace Ship_Game.Ships
             ++GlobalStats.ModulesMoved;
 
             Vector2 offset = XMLPosition; // huge cache miss here
-            offset.X += XSIZE * 8f - 264f;
-            offset.Y += YSIZE * 8f - 264f;
-
+            offset.X            += XSIZE * 8f - 264f;
+            offset.Y            += YSIZE * 8f - 264f;
             Vector2 parentCenter = Parent.Center;
-            float cx = offset.X * cos - offset.Y * sin;
-            float cy = offset.X * sin + offset.Y * cos;
-            cx += parentCenter.X;
-            cy += parentCenter.Y;
-            Center.X = cx;
-            Center.Y = cy;
-            Center3D.X = cx;
-            Center3D.Y = cy;
-            Center3D.Z = tan * (256f - XMLPosition.X);
+            float cx             = offset.X * cos - offset.Y * sin;
+            float cy             = offset.X * sin + offset.Y * cos;
+            cx                  += parentCenter.X;
+            cy                  += parentCenter.Y;
+            Center.X             = cx;
+            Center.Y             = cy;
+            Center3D.X           = cx;
+            Center3D.Y           = cy;
+            Center3D.Z           = tan * (256f - XMLPosition.X);
 
             // this can only happen if onFire is already true
             reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
@@ -512,8 +511,8 @@ namespace Ship_Game.Ships
 
         public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float health = Health + ShieldPower;
-            bool result = Damage(source, damageAmount);
+            float health    = Health + ShieldPower;
+            bool result     = Damage(source, damageAmount);
             damageRemainder = damageAmount - (health - Health - ShieldPower);
             return result;
         }
@@ -521,8 +520,8 @@ namespace Ship_Game.Ships
         public bool DamageWithDamageDone(GameplayObject source, float damageAmount, out float damageDone)
         {
             float health = Health + ShieldPower;
-            bool result = Damage(source, damageAmount);
-            damageDone = health - Health - ShieldPower;
+            bool result  = Damage(source, damageAmount);
+            damageDone   = health - Health - ShieldPower;
             return result;
         }
         int HitTimer = 0;
