@@ -667,7 +667,7 @@ namespace Ship_Game.Gameplay
             CooldownTimer = fireDelay;
             if (IsRepairDrone)
                 return;
-            if (targetShip == null || !targetShip.Active || targetShip.dying || !TargetValid(targetShip.shipData.Role)
+            if (targetShip == null || !targetShip.Active || targetShip.dying || !TargetValid(targetShip.shipData.HullRole)
                 || targetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(this, targetShip))
                 return;
 
@@ -740,9 +740,9 @@ namespace Ship_Game.Gameplay
             projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
             projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
             // Shield Penetration
-            float actualShieldPenChance = Module.GetParent().loyalty.data.ShieldPenBonusChance;
-            actualShieldPenChance += wepTags[tag].ShieldPenetration;
-            actualShieldPenChance += ShieldPenChance;
+            float actualShieldPenChance   = Module.GetParent().loyalty.data.ShieldPenBonusChance;
+            actualShieldPenChance        += wepTags[tag].ShieldPenetration;
+            actualShieldPenChance        += ShieldPenChance;
             if (actualShieldPenChance > 0f && RandomMath2.InRange(100) < actualShieldPenChance)
             {
                 projectile.IgnoresShields = true;
