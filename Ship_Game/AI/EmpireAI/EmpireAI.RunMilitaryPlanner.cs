@@ -516,15 +516,15 @@ namespace Ship_Game.AI {
                 
                 if (OwnerEmpire.canBuildCapitals)
                 {
-                    SetRatios(fighters: 6, corvettes: 4 , frigates: 4, cruisers: 2 , capitals: 1, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 1, corvettes: 4 , frigates: 8, cruisers: 6 , capitals: 1, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildCruisers)
                 {
-                    SetRatios(fighters: 10, corvettes: 10, frigates: 4, cruisers: 1, capitals: 0, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 3, corvettes: 12, frigates: 4, cruisers: 1, capitals: 0, bombers: 1, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildFrigates)
                 {
-                    SetRatios(fighters: 6, corvettes: 5, frigates: 1, cruisers: 0, capitals: 0, bombers: .25f, carriers: 1, support: 1, troopShip: 1);                    
+                    SetRatios(fighters: 2, corvettes: 3, frigates: 1, cruisers: 0, capitals: 0, bombers: .25f, carriers: 1, support: 1, troopShip: 1);                    
                 }
                 else if (OwnerEmpire.canBuildCorvettes)
                 {

@@ -674,7 +674,7 @@ namespace Ship_Game
             byte alpha = (byte) num;
             if (alpha > 0)
             {
-                if (SelectedShip != null && (!player.IsEmpireAttackable(SelectedShip.loyalty) || Debug))
+                if (SelectedShip != null && (Debug || GameDifficulty < UniverseData.GameDifficulty.Hard || !player.IsEmpireAttackable(SelectedShip.loyalty)))
                 {
                     DrawShipLines(SelectedShip, alpha);
                 }

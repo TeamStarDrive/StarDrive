@@ -40,7 +40,7 @@ namespace Ship_Game.AI
                 foreach(GameplayObject go in nearbyShips)
                 {
                     var nearbyShip = (Ship) go;
-                    if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty) && missile.Weapon.TargetValid(nearbyShip.shipData.Role))
+                    if (missile.Weapon.TargetValid(nearbyShip.shipData.HullRole) && missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty) )
                         TargetList.Add(nearbyShip);
                 }
             }
