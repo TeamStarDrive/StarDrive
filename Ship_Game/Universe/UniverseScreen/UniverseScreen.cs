@@ -711,6 +711,7 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
+            IsExiting = true;
             var processTurnsThread = ProcessTurnsThread;
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
@@ -919,7 +920,7 @@ namespace Ship_Game
         //Other textures might work but would need the x and y offset adjusted. 
 
         protected override void Destroy()
-        {
+        {            
             starfield               ?.Dispose(ref starfield);
             DeepSpaceDone           ?.Dispose(ref DeepSpaceDone);
             EmpireDone              ?.Dispose(ref EmpireDone);

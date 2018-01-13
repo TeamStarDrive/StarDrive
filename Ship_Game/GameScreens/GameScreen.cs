@@ -16,7 +16,7 @@ namespace Ship_Game
         public bool AlwaysUpdate;
         private bool OtherScreenHasFocus;
 
-        public bool IsActive => !OtherScreenHasFocus
+        public bool IsActive => !OtherScreenHasFocus && !IsExiting
                                 && ScreenState == ScreenState.TransitionOn 
                                 || ScreenState == ScreenState.Active;
 

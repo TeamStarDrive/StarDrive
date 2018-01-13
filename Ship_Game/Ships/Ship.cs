@@ -1053,7 +1053,7 @@ namespace Ship_Game.Ships
                     || targetship.dying
                     || !targetship.Active
                     || targetship.NumExternalSlots <= 0
-                    || !w.TargetValid(targetship.shipData.Role)
+                    || !w.TargetValid(targetship.shipData.HullRole)
 
                     )
                     return false;

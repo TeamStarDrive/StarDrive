@@ -237,8 +237,9 @@ namespace Ship_Game.AI
         }
         public void CalculateShipneeds()
         {
-            int predicted = (int)Us.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 300000, Us);
+            int predicted = (int)Us.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);            
             int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
+            min /= 4;
             IdealShipStrength = Math.Max(predicted, min);
             
         }
