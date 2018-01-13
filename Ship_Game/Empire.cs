@@ -2935,9 +2935,9 @@ namespace Ship_Game
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
             if (targetEmpire == this) return false;
-            if (targetEmpire == null) return true;            
+            if (targetEmpire == null) return false;            
             if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null) return false;            
-            if(!rel.Known) return false;
+            if(!rel.Known) return true;
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
             if (isFaction || targetEmpire.isFaction ) return true;

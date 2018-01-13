@@ -981,7 +981,7 @@ namespace Ship_Game
                     SelectedSomethingTimer = 3f;
                     foreach (Ship ship in SelectedShipList)
                     {
-                        if (ship.loyalty != player && UnselectableShip(ship))
+                        if (ship.loyalty != player || UnselectableShip(ship))
                             return;                            
                     }
 

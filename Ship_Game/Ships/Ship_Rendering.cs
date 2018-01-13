@@ -314,17 +314,24 @@ namespace Ship_Game.Ships
 
         public void DrawBeams(UniverseScreen screen)
         {
-            for (int i = Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
+            try
             {
-                Beam beam = Beams[i];
-                if (beam?.Active != true) continue;
-                if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
-                    beam.Draw(screen.ScreenManager);
-                else
+                for (int i = Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
                 {
-                    Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name ?? "null"} beams in ship {Beams?.Count.ToString() ?? "Null"}");
-                    beam.Die(null, true);
+                    Beam beam = Beams[i];
+                    if (beam?.Active != true) continue;
+                    if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
+                        beam.Draw(screen.ScreenManager);
+                    else
+                    {
+                        beam.Die(null, true);
+                    }
                 }
+
+            }
+            catch
+            {
+                Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name ?? "null"} beams in ship {Beams?.Count.ToString() ?? "Null"}");
             }
         }
 
