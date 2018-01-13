@@ -308,7 +308,7 @@ namespace Ship_Game.Ships
             catch
             {
                 string projectilesCount = projectiles?.Count.ToString() ?? "Null";
-                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering in ship {Name} ProjectileCount:  {projectilesCount}");
+                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering in ship {Name ?? "null"} ProjectileCount:  {projectilesCount}");
             }
         }
 
@@ -322,7 +322,7 @@ namespace Ship_Game.Ships
                     beam.Draw(screen.ScreenManager);
                 else
                 {
-                    Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name} beams in ship {Beams.Count}");
+                    Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name ?? "null"} beams in ship {Beams?.Count.ToString() ?? "Null"}");
                     beam.Die(null, true);
                 }
             }

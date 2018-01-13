@@ -2506,10 +2506,10 @@ namespace Ship_Game.Ships
                     PowerStoreMax       += Math.Max(0, slot.PowerStoreMax);
                     PowerFlowMax        += Math.Max(0, slot.PowerFlowMax);                                        
                     FTLSpoolTime   = Math.Max(FTLSpoolTime, slot.FTLSpoolTime);
-                    if (slot.AddModuleTypeToList(ShipModuleType.Hangar, list: Hangars))
+                    if (slot.AddModuleTypeToList(ShipModuleType.Hangar, addToList: Hangars))
                         HasTroopBay |= slot.IsTroopBay;
-                    slot.AddModuleTypeToList(ShipModuleType.Transporter, list: Transporters);
-                    slot.AddModuleTypeToList(slot.ModuleType, isTrue: slot.InstalledWeapon?.isRepairBeam == true, list: RepairBeams);
+                    slot.AddModuleTypeToList(ShipModuleType.Transporter, addToList: Transporters);
+                    slot.AddModuleTypeToList(slot.ModuleType, isTrue: slot.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
             NormalWarpThrust = WarpThrust;
