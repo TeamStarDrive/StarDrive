@@ -1258,7 +1258,6 @@ namespace Ship_Game.Ships
                     }
             }
         }
-
         public override Vector2 JitterPosition() => Parent?.JitterPosition() ?? base.JitterPosition();
 
         public bool FighterOut
