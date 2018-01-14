@@ -78,8 +78,14 @@ namespace Ship_Game
         }
 
         public virtual void Die(GameplayObject source, bool cleanupOnly)
+        {            
+            Active = false;            
+            Empire.Universe.QueueGameplayObjectRemoval(this);
+
+        }
+
+        public virtual void RemoveFromUniverseUnsafe()
         {
-            Active = false;
             if (InSpatial)
                 UniverseScreen.SpaceManager.Remove(this);
         }

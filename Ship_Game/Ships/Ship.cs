@@ -2759,10 +2759,11 @@ namespace Ship_Game.Ships
         public void QueueTotalRemoval()
         {
             SetSystem(null);
-            Empire.Universe.ShipsToRemove.Add(this);
+
+            Empire.Universe.QueueGameplayObjectRemoval(this);
         }
 
-        public void TotallyRemove()
+        public override void RemoveFromUniverseUnsafe()
         {
             Active            = false;
             AI.Target         = null;
@@ -2818,6 +2819,7 @@ namespace Ship_Game.Ships
             TetheredTo = null;
             Transporters.Clear();
             RepairBeams.Clear();
+            Empire.Universe.MasterShipList.QueuePendingRemoval(this);
         }
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
