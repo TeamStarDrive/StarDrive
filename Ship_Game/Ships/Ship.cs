@@ -1899,7 +1899,7 @@ namespace Ship_Game.Ships
                 if (w.DamageAmount < 1 || w.TruePD)
                     return;
                 if (w.isBeam)
-                    DamageBase += w.DamageAmount * w.BeamDuration / w.fireDelay;
+                    DamageBase += w.DamageAmount * w.BeamDuration / Math.Max(w.fireDelay - w.BeamDuration, 1);
                 else
                     DamageBase += w.DamageAmount * w.SalvoCount / w.fireDelay;
 
@@ -1953,11 +1953,11 @@ namespace Ship_Game.Ships
             {
                 return utility.GetAverageRange();
             }
-            if (shortRange.GetAverageDam() > longRange.GetAverageDam())
+            if (AI.CombatState == CombatState.Artillery || AI.CombatState != CombatState.ShortRange && longRange.GetAverageDam() > shortRange.GetAverageDam())
             {
-                return shortRange.GetAverageRange();
+                return longRange.GetAverageRange();
             }
-            return longRange.GetAverageRange();
+            return shortRange.GetAverageRange();
 
         }
         public void UpdateShipStatus(float deltaTime)

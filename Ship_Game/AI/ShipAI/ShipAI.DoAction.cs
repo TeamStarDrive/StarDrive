@@ -678,7 +678,7 @@ namespace Ship_Game.AI {
             Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.Center.ProjectImpactPoint(Owner.Velocity, Owner.maxWeaponsRange, Target.Center,Target.Velocity));
             var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
             float distanceToTarget = Owner.Center.Distance(Target.Center);
-            float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius) * 0.85f;
+            float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);// * 0.85f;
             float minDistance = Math.Max(adjustedRange * .25f + Target.Radius, adjustedRange *.5f);
    
             if (distanceToTarget > adjustedRange)
@@ -688,16 +688,18 @@ namespace Ship_Game.AI {
                     ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                     return;
                 }
-                if (angleDiff > .22f)
-                {
-                    var rnd = RandomMath.IntBetween(1, 100);
-                    if (rnd < 10)
-                    {
-                        RotateToFaceMovePosition(elapsedTime, Target.Center);
-                        return;
-                    }
+                //if (angleDiff > .22f)
+                //{
+                //    Owner.Velocity *= angleDiff / .44f;
+
+                //    //var rnd = RandomMath.IntBetween(1, 100);
+                //    //if (rnd < 10)
+                //    //{
+                //    //    RotateToFaceMovePosition(elapsedTime, Target.Center);
+                //    //    return;
+                //    //}
                         
-                }
+                //}
                 MoveInDirection(vectorToTarget, elapsedTime );
                 return;
             }
@@ -707,7 +709,7 @@ namespace Ship_Game.AI {
             }
             else
             {
-                Owner.Velocity *= 0.995f; //Small propensity to not drift
+                Owner.Velocity *= 0.75f; //Small propensity to not drift
             }
 
             if (angleDiff <= 0.02f)
