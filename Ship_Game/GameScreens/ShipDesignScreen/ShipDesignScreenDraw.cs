@@ -318,7 +318,7 @@ namespace Ship_Game
                         Color.White);
                     tCursor.Y = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold,
-                        Localizer.GetRole((e.item as ShipData).Role, EmpireManager.Player), tCursor, Color.Orange);
+                        Localizer.GetRole((e.item as ShipData).HullRole, EmpireManager.Player), tCursor, Color.Orange);
                     if (e.clickRect.HitTest(MousePos))
                     {
                         if (e.clickRectHover == 0)
@@ -467,12 +467,8 @@ namespace Ship_Game
                             weapon = slot.Module.InstalledWeapon;
                         else
                             weapon = ResourceManager.WeaponsDict[slot.Module.BombType];
-                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
-                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
-                        if (weapon.isBeam)
-                            WeaponPowerNeeded += weapon.BeamPowerCostPerSecond * weapon.BeamDuration;// / weapon.fireDelay;
-                        BeamLongestDuration = Math.Max(BeamLongestDuration, weapon.BeamDuration);
-                        
+                        OrdnanceUsed += weapon.OrdinanceRequiredToFire  * weapon.SalvoCount;
+                        WeaponPowerNeeded += weapon.BeamPowerCostPerSecond + weapon.PowerRequiredToFire;                        
                     }
                     //end
                     if (slot.Module.FixedTracking > fixedtargets)
@@ -619,7 +615,7 @@ namespace Ship_Game
             if (powerconsumed > 0)
             {
                 EnergyDuration = WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
-                if ((EnergyDuration >= BeamLongestDuration) && bEnergyWeapons == true)
+                if ((EnergyDuration >= 0) && bEnergyWeapons == true)
                 {
                     Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
                     this.DrawStatColor(ref Cursor, "Power Time:", EnergyDuration, 163, Color.LightSkyBlue);
@@ -963,7 +959,7 @@ namespace Ship_Game
                 Vector2 Cursor = new Vector2((float) (this.SearchBar.X + 3),
                     (float) (r.Y + 14 - Fonts.Arial12Bold.LineSpacing / 2));
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ActiveHull.Name, Cursor, Color.White);
-            }
+            }            
             r = this.SaveButton.Rect;
             if (ScreenState == ScreenState.TransitionOn ||
                 ScreenState == ScreenState.TransitionOff)

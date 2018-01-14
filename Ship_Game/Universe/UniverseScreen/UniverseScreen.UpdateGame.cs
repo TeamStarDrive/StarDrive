@@ -442,13 +442,7 @@ namespace Ship_Game
                         exterminator.AI.DefaultAIState = AIState.Exterminate;
                     }
                 }
-            }
-
-            //while (!ShipsToRemove.IsEmpty)
-            //{
-                ShipsToRemove.TryTake(out Ship remove);
-            //    remove.TotallyRemove();
-            //}            
+            }                
             //clear out general object removal.
             Empire.Universe.TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
@@ -459,7 +453,7 @@ namespace Ship_Game
                 return false;
             }
 
-            bool rebuildPathStuff = false; // REBUILD WHAT??? Pathing map.
+            bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
 
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {
@@ -491,7 +485,7 @@ namespace Ship_Game
 
                     if (empire.BorderNodes.Count != check)
                     {
-                        rebuildPathStuff = true;
+                        rebuildPathingMap = true;
                         empire.PathCache.Clear();
                     }
                     foreach (Ship ship in MasterShipList)
@@ -501,10 +495,8 @@ namespace Ship_Game
                     empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                 }
             }
-            if (rebuildPathStuff)
-            {
-                RebuildPathStuff();
-            }
+            if (rebuildPathingMap)
+                DoPathingMapRebuild();
 
             PreEmpirePerf.Stop();
 
@@ -524,7 +516,7 @@ namespace Ship_Game
             return false;
         }
 
-        private void RebuildPathStuff()
+        private void DoPathingMapRebuild()
         {
             reducer = (int) (Empire.ProjectorRadius * .75f);
             int granularity = (int) (UniverseSize / reducer);

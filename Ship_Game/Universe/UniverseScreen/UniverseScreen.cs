@@ -232,7 +232,7 @@ namespace Ship_Game
         public int globalshipCount;
         public int empireShipCountReserve;
         //private float ztimeSnapShot;          //Not referenced in code, removing to save memory
-        public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
+        //public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
         private Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public float Lag = 0;
         public Ship previousSelection;
