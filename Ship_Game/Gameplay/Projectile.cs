@@ -304,7 +304,7 @@ namespace Ship_Game.Gameplay
                     Empire.Universe.RemoveObject(ProjSO);
                     ProjSO.Clear();
                 }
-            }
+            }            
             if (DroneAI != null)
             {
                 foreach (Beam beam in DroneAI.Beams)

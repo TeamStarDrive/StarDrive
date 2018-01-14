@@ -93,6 +93,7 @@ namespace Ship_Game
                 foreach (FleetDataNode node in fleet.DataNodes)
                 {
                     Ship s = Ship.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
+                    if (s == null) continue;
                     s.RelativeFleetOffset = node.FleetOffset;
                     node.Ship = s;
                     fleet.AddShip(s);

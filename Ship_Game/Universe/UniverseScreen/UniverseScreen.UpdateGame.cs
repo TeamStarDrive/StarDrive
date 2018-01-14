@@ -444,11 +444,13 @@ namespace Ship_Game
                 }
             }
 
-            while (!ShipsToRemove.IsEmpty)
-            {
+            //while (!ShipsToRemove.IsEmpty)
+            //{
                 ShipsToRemove.TryTake(out Ship remove);
-                remove.TotallyRemove();
-            }
+            //    remove.TotallyRemove();
+            //}            
+            //clear out general object removal.
+            Empire.Universe.TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
 
             if (Paused)
@@ -457,7 +459,7 @@ namespace Ship_Game
                 return false;
             }
 
-            bool rebuildPathStuff = false; // REBUILD WHAT???
+            bool rebuildPathStuff = false; // REBUILD WHAT??? Pathing map.
 
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {

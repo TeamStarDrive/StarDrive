@@ -233,6 +233,7 @@ namespace Ship_Game
         public int empireShipCountReserve;
         //private float ztimeSnapShot;          //Not referenced in code, removing to save memory
         public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
+        private Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public float Lag = 0;
         public Ship previousSelection;
 
@@ -727,7 +728,7 @@ namespace Ship_Game
             playerShip = null;
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
-                ship.TotallyRemove();
+                ship.RemoveFromUniverseUnsafe();
             MasterShipList.ApplyPendingRemovals();
             MasterShipList.Clear();
             foreach (SolarSystem solarSystem in SolarSystemList)
@@ -918,6 +919,18 @@ namespace Ship_Game
 
         //This will likely only work with "this UI\planetNamePointer" texture 
         //Other textures might work but would need the x and y offset adjusted. 
+
+        public void QueueGameplayObjectRemoval (GameplayObject gameplayObject)
+        {
+            if (gameplayObject == null) return;
+            GamePlayObjectToRemove.Add(gameplayObject);
+        }
+
+        public void TotallyRemoveGameplayObjects()
+        {
+            while (!GamePlayObjectToRemove.IsEmpty)            
+                GamePlayObjectToRemove.PopLast().RemoveFromUniverseUnsafe();             
+        }
 
         protected override void Destroy()
         {            

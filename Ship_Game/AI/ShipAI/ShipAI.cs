@@ -388,6 +388,7 @@ namespace Ship_Game.AI
 
         private bool UpdateOrderQueueAI(float elapsedTime)
         {
+            ShipGoal toEvaluate;
             if (OrderQueue.IsEmpty)
             {
                 if (Owner.fleet == null)
@@ -508,10 +509,9 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            else if (OrderQueue.NotEmpty)
+            else if (OrderQueue.NotEmpty && (toEvaluate = OrderQueue.PeekFirst) != null)
             {
-                ShipGoal toEvaluate = OrderQueue.PeekFirst;
-                Planet target = toEvaluate.TargetPlanet;
+                Planet targetPlanet = toEvaluate.TargetPlanet;
                 switch (toEvaluate.Plan)
                 {
                     case Plan.HoldPosition:
@@ -525,12 +525,11 @@ namespace Ship_Game.AI
                         ScrapShip(elapsedTime, toEvaluate);
                         break;
                     }
-                    case Plan.Bombard: //Modified by Gretman
-                        target = toEvaluate.TargetPlanet; //Stop Bombing if:
+                    case Plan.Bombard: //Modified by Gretman                        
                         if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
-                            || target.TroopsHere.Count == 0 && target.Population <= 0f //Everyone is dead
-                            || (target.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
-                            <= target.GetGroundStrength(Owner.loyalty))
+                            || targetPlanet.TroopsHere.Count == 0 && targetPlanet.Population <= 0f //Everyone is dead
+                            || (targetPlanet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
+                            <= targetPlanet.GetGroundStrength(Owner.loyalty))
                             //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
 
                         {
@@ -563,9 +562,9 @@ namespace Ship_Game.AI
                         break;
                     case Plan.Exterminate:
                     {
-                        DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                        radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
-                        if (toEvaluate.TargetPlanet.Owner == Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
+                        DoOrbit(targetPlanet, elapsedTime);
+                        radius = targetPlanet.ObjectRadius + Owner.Radius + 1500;
+                        if (targetPlanet.Owner == Owner.loyalty || targetPlanet.Owner == null)
                         {
                             OrderQueue.Clear();
                             OrderFindExterminationTarget(true);
@@ -611,10 +610,10 @@ namespace Ship_Game.AI
                         StopWithBackwardsThrust(elapsedTime, toEvaluate);
                         break;
                     case Plan.Orbit:
-                        DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                        DoOrbit(targetPlanet, elapsedTime);
                         break;
                     case Plan.Colonize:
-                        Colonize(toEvaluate.TargetPlanet);
+                        Colonize(targetPlanet);
                         break;
                     case Plan.Explore:
                         DoExplore(elapsedTime);
