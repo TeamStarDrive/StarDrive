@@ -61,7 +61,7 @@ namespace Ship_Game.Debug
         private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
         private static DebugModes Mode;
-        private HashSet<Circle> Circles = new HashSet<Circle>();
+        private Array<Circle> Circles = new Array<Circle>();
         private int CircleTimer = 0;
         private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
@@ -656,20 +656,22 @@ namespace Ship_Game.Debug
         }
         private void DrawCircles()
         {
-            if (Circles.Count == 0) return;
-            foreach (Circle circle in Circles) 
+            var circles = Circles;
+            if (Screen.Paused)
             {
-                Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C, 3);
+                foreach (var circle in circles)
+                {
+                    Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C, 3);
+                }
+                return;
             }
 
-            if (CircleTimer > 15)
+            while (circles.Count > 0)
             {
-                Circles.Remove(Circles.First());
-                CircleTimer = 0;
+                var circle = circles.PopLast();
+                Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0, 32,
+                    circle?.C ?? Color.Black, 3);
             }
-            if (CircleTimer == int.MinValue)
-                Circles.Clear();
-            CircleTimer++;
         }
     }
 }

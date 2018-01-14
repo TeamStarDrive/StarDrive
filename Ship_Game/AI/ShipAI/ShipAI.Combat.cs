@@ -255,8 +255,8 @@ namespace Ship_Game.AI
             if (Owner.fleet != null)
             {
                 foreach (Ship ship in PotentialTargets)
-                    Owner.fleet.FleetTargetList.AddUniqueRef(ship);
-                foreach (Ship ship in Owner.fleet.FleetTargetList)
+                    Owner.fleet?.FleetTargetList.AddUniqueRef(ship);
+                foreach (Ship ship in Owner.fleet?.FleetTargetList)
                     PotentialTargets.AddUniqueRef(ship);
             }
 
