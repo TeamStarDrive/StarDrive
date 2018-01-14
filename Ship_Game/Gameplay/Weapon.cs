@@ -814,6 +814,9 @@ namespace Ship_Game.Gameplay
             CachedModifiedRange = modifier * Range;
             return CachedModifiedRange;            
         }
+        //How much total resource required to use weapon. 
+        public float PowerUseMax    => isBeam ? BeamPowerCostPerSecond * BeamDuration : PowerRequiredToFire;
+        public float OrdnanceUseMax => OrdinanceRequiredToFire * SalvoCount;
 
         public bool TargetValid(ShipData.RoleName role)
         {
