@@ -6890,7 +6890,31 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4105</Index>
       <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\nmeteor was comprised mostly of useful minerals.</Text>
     </Token>
-  
+
+    <Token>
+      <Index>4106</Index>
+      <Text>Support</Text>
+    </Token>
+    <Token>
+      <Index>4107</Index>
+      <Text>TroopShip</Text>
+    </Token>
+    <Token>
+      <Index>4108</Index>
+      <Text>GunBoat</Text>
+    </Token>
+    <Token>
+      <Index>4109</Index>
+      <Text>Drone</Text>
+    </Token>
+    <Token>
+      <Index>4110</Index>
+      <Text>Destroyer</Text>
+    </Token>
+    <Token>
+      <Index>4111</Index>
+      <Text>Bomber</Text>
+    </Token>
   
     <Token>
       <Index>5000</Index>

@@ -1,14 +1,13 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml.Serialization;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Ship_Game.Ships;
 
-namespace Ship_Game
+namespace Ship_Game.GameScreens.ShipDesignScreen
 {
     public sealed class LoadDesigns : GameScreen
     {
@@ -18,7 +17,7 @@ namespace Ship_Game
 
         private bool ShowAllDesigns = true;
 
-        private ShipDesignScreen screen;
+        private Ship_Game.ShipDesignScreen screen;
 
         private Rectangle Window = new Rectangle();
 
@@ -56,7 +55,7 @@ namespace Ship_Game
 
         private Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
-        public LoadDesigns(ShipDesignScreen screen) : base(screen)
+        public LoadDesigns(Ship_Game.ShipDesignScreen screen) : base(screen)
         {
             this.screen = screen;
             base.IsPopup = true;
@@ -321,17 +320,19 @@ namespace Ship_Game
             Array<string> ShipRoles = new Array<string>();
             if (this.screen != null)
             {
-                foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
+                foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
+                    .OrderByDescending(tech=> tech.Value.shipData.techsNeeded.Count).ThenBy(name=> name.Value.Name))
                 {
                     //added by gremlin HIDING ERRORS
                     try
                     {
-                        if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player)) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.DesignRole
+                            , EmpireManager.Player)) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
                             continue;
                         }
-                        ShipRoles.Add(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
-                        ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player));
+                        ShipRoles.Add(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
+                        ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
                         this.ShipDesigns.AddItem(mh);
                     }
                     catch { }
@@ -342,11 +343,14 @@ namespace Ship_Game
                     ModuleHeader mh = new ModuleHeader("WIP");
                     this.ShipDesigns.AddItem(mh);
                 }
-                foreach (ScrollList.Entry e in this.ShipDesigns.Entries)
+                foreach (ScrollList.Entry e in ShipDesigns.Entries)
                 {
-                    foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
+                    foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
+                        .OrderByDescending(tech => tech.Value.shipData.techsNeeded.Count).ThenBy(name => name.Value.Name))
                     {
-                        if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) == (e.item as ModuleHeader).Text) 
+                            || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted 
+                            || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
                             continue;
                         }
@@ -430,15 +434,20 @@ namespace Ship_Game
             {
                 foreach (var kv in ResourceManager.ShipsDict)
                 {
+                    var designRole = Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player);
+                    if (designRole.IsEmpty())
+
+
+
                     if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[kv.Key].IsPlayerDesign 
                         || !EmpireManager.Player.WeCanBuildThis(kv.Key) 
-                        || ShipRoles.Contains(Localizer.GetRole(kv.Value.shipData.Role, EmpireManager.Player)) 
+                        || ShipRoles.Contains(Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player)) 
                         || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected)
                     {
                         continue;
                     }
-                    ShipRoles.Add(Localizer.GetRole(kv.Value.shipData.Role, EmpireManager.Player));
-                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(kv.Value.shipData.Role, EmpireManager.Player));
+                    ShipRoles.Add(Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player));
+                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player));
                     this.ShipDesigns.AddItem(mh);
                 }
                 if (WIPs.Count > 0)
@@ -451,7 +460,10 @@ namespace Ship_Game
                 {
                     foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
                     {
-                        if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.shipData.Role, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.Player.WeCanBuildThis(Ship.Key) 
+                            || !(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) == (e.item as ModuleHeader).Text) 
+                            || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted 
+                            || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
                             continue;
                         }

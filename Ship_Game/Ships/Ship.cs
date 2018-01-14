@@ -2919,19 +2919,20 @@ namespace Ship_Game.Ships
                 return ShipData.RoleName.colony;
             if (shipData.Role == ShipData.RoleName.troop)
                 return ShipData.RoleName.troop;
-            if (BombBays.Count > 0 && PercentageOfShipByModules(BombBays) > .05f)
-                return ShipData.RoleName.bomber;
-
+            if (shipData.Role == ShipData.RoleName.station || shipData.Role == ShipData.RoleName.platform)
+                return shipData.Role;
             //troops ship
             if ((HasTroopBay || hasTransporter || hasAssaultTransporter) && hullRole >= ShipData.RoleName.freighter)
             {
                 float pTroops = PercentageOfShipByModules(Hangars.FilterBy(troopbay => troopbay.IsTroopBay));
                 float pTrans =
                     PercentageOfShipByModules(Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
-                if (pTrans + pTroops > .1f)
+                float troops = PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.TroopCapacity >0));
+                if (pTrans + pTroops + troops > .1f)
                     return ShipData.RoleName.troopShip;
             }
-
+            if (BombBays.Count > 0 && PercentageOfShipByModules(BombBays) > .05f)
+                return ShipData.RoleName.bomber;
             //carrier
             if (Hangars.Count > 0 && hullRole >= ShipData.RoleName.freighter)
             {
