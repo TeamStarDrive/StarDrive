@@ -118,11 +118,12 @@ namespace Ship_Game.AI {
                     if (Owner.yRotation > 0f)
                         Owner.yRotation = 0f;
                 }
-                float angleReduction = Math.Max(angleDiff - Owner.rotationRadiansPerSecond, 0);
-                angleReduction = angleReduction > 0 ? (6f - angleReduction ) / 6f : 1;
-                Owner.Velocity *= angleReduction > 0 ? .976f : 1;
-                Ship velocity = Owner;
-                velocity.Velocity = velocity.Velocity + Vector2.Normalize(forward) * (elapsedTime * Owner.Speed * angleReduction);
+
+                //var angleReduction = Owner.isTurning  ? .25f : 1;
+                Owner.Velocity *= !Owner.isTurning ? 1 : .95f;
+                Vector2 nForward = Vector2.Normalize(forward);
+                
+                Owner.Velocity += nForward * (elapsedTime * Owner.Speed);
                 if (Owner.Velocity.Length() > Owner.velocityMaximum)
                     Owner.Velocity = Vector2.Normalize(Owner.Velocity) * Owner.velocityMaximum;
             }

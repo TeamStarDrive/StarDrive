@@ -54,20 +54,12 @@ namespace Ship_Game
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
             //Jitter                  = Vector2.Zero;
-            var targetVector        = Target?.Center ?? destination;
+            Vector2 targetVector        = Target?.Center ?? destination;
             JitterRadius            = 0;
 
             Owner                   = weapon.Owner ;
             Source                  = source;
-            //if (DamageAmount > 0)
-            //{
-            //    Jitter = Weapon.AdjustTargetting(); 
-
-            //    SetDestination(destination, 4000f);
-            //    Destination += Jitter;
-            //}
-            //SetDestination(destination);
-            Destination = destination;
+            Destination             = destination;
             if (target != null && destination.OutsideRadius(target.Center, 32))
             {
                 TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
@@ -117,7 +109,6 @@ namespace Ship_Game
             if (!DisableSpatialCollision)
             {
                 TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
-                //JitterRadius = Target.Center.Distance(TargetPosistion);
             }
             else
                 TargetPosistion = destination;
