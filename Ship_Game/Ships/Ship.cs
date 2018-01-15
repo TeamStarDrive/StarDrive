@@ -1497,6 +1497,7 @@ namespace Ship_Game.Ships
                     case ShipModuleType.Bomb:       scores[2] = Math.Max(scores[2], module.TechLevel); continue;
                     case ShipModuleType.PowerPlant: scores[3] = Math.Max(scores[3], module.TechLevel); continue;
                     case ShipModuleType.Engine:     scores[1] = Math.Max(scores[1], module.TechLevel); continue;
+                    case ShipModuleType.Armor:
                     case ShipModuleType.Shield:     scores[0] = Math.Max(scores[0], module.TechLevel); continue;
                 }
             }
@@ -2911,6 +2912,7 @@ namespace Ship_Game.Ships
 
         private ShipData.RoleName GetDesignRole()
         {
+            ShipModule[] modules = ModuleSlotList;
             ShipData.RoleName hullRole = shipData?.HullRole ?? shipData.Role;
 
             if (isConstructor)
@@ -2924,10 +2926,10 @@ namespace Ship_Game.Ships
             //troops ship
             if ((HasTroopBay || hasTransporter || hasAssaultTransporter) && hullRole >= ShipData.RoleName.freighter)
             {
-                float pTroops = PercentageOfShipByModules(Hangars.FilterBy(troopbay => troopbay.IsTroopBay));
+                float pTroops = PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.IsTroopBay));
                 float pTrans =
-                    PercentageOfShipByModules(Transporters.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
-                float troops = PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.TroopCapacity >0));
+                    PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0));
+                float troops = PercentageOfShipByModules(modules.FilterBy(module => module.TroopCapacity >0));
                 if (pTrans + pTroops + troops > .1f)
                     return ShipData.RoleName.troopShip;
             }
@@ -2939,8 +2941,9 @@ namespace Ship_Game.Ships
                 Array<ShipModule> carrier = new Array<ShipModule>();
                 Array<ShipModule> support = new Array<ShipModule>();
 
-                foreach (var hangar in Hangars)
+                foreach (var hangar in modules.FilterBy(hangar => hangar.IsSupplyBay || hangar.IsTroopBay || hangar.MaximumHangarShipSize >0))
                 {
+
                     if (hangar.MaximumHangarShipSize > 0)
                         carrier.Add(hangar);
                     else
@@ -2952,7 +2955,7 @@ namespace Ship_Game.Ships
                     return ShipData.RoleName.support;
             }
 
-            float pSpecial = PercentageOfShipByModules(ModuleSlotList.FilterBy(module =>
+            float pSpecial = PercentageOfShipByModules(modules.FilterBy(module =>
                 module.TransporterOrdnance > 0 || module.IsSupplyBay || module.InhibitionRadius > 0
                 || module.InstalledWeapon?.MassDamage > 0 || module.InstalledWeapon?.EMPDamage > 0
                 || module.InstalledWeapon?.RepulsionDamage > 0 || module.InstalledWeapon?.SiphonDamage > 0

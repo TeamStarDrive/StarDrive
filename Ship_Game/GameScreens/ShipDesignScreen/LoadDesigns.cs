@@ -54,6 +54,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         //private bool FirstRun = true;
 
         private Array<UIButton> ShipsToLoad = new Array<UIButton>();
+        private readonly Texture2D Delete_Hover2 = ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"];
+        private readonly Texture2D DeleteHover1 = ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"];
+        private readonly Texture2D QueueDelete = ResourceManager.TextureDict["NewUI/icon_queue_delete"];
 
         public LoadDesigns(Ship_Game.ShipDesignScreen screen) : base(screen)
         {
@@ -109,57 +112,63 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 if (e.item == null)
                     continue;
                 bCursor.Y = (float)e.clickRect.Y;
-                if (e.item is ModuleHeader)
+                if (e.item is ModuleHeader header)
                 {
-                    (e.item as ModuleHeader).Draw(base.ScreenManager, bCursor);
+                    header.Draw(base.ScreenManager, bCursor);
                 }
-                else if (!(e.item is ShipData))
+                else if (e.item is Ship ship)
                 {
                     bCursor.X = bCursor.X + 15f;
                     try
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        Texture2D hullIcon = ResourceManager.TextureDict[ResourceManager.HullsDict[ship.GetShipData().Hull].IconPath];
+                        base.ScreenManager.SpriteBatch.Draw(hullIcon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     catch(KeyNotFoundException error)
                     {
                         error.Data.Add("key= ", e.item);
                     }
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as Ship).shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
-                    if (e.clickRectHover == 1 && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                    tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
+                    var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.Orange);
+                    tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                    ship.GetTechScore(out int[] scores);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"" +
+                                                                                $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
+                    if (e.clickRectHover == 1 && !ship.IsReadonlyDesign && !ship.FromSave)
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(DeleteHover1, e.cancel, Color.White);
                         if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                         {
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
+                            base.ScreenManager.SpriteBatch.Draw(Delete_Hover2, e.cancel, Color.White);
                             ToolTip.CreateTooltip(78);
                         }
                     }
-                    else if (!(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave)
+                    else if (!ship.IsReadonlyDesign && !ship.FromSave)
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(QueueDelete, e.cancel, Color.White);
                     }
                 }
-                else 
+                else if(e.item is ShipData shipData)
                 {
-                    bCursor.X = bCursor.X + 15f;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as ShipData).Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    bCursor.X = bCursor.X + 15f;                    
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[shipData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as ShipData).Name, tCursor, Color.White);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as ShipData).Role, EmpireManager.Player), tCursor, Color.Orange);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
                     if (e.clickRectHover != 1)
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(QueueDelete, e.cancel, Color.White);
                     }
                     else
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(DeleteHover1, e.cancel, Color.White);
                         if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                         {
-                            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
+                            base.ScreenManager.SpriteBatch.Draw(Delete_Hover2, e.cancel, Color.White);
                             ToolTip.CreateTooltip(78);
                         }
                     }
@@ -320,8 +329,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             Array<string> ShipRoles = new Array<string>();
             if (this.screen != null)
             {
-                foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
-                    .OrderByDescending(tech=> tech.Value.shipData.techsNeeded.Count).ThenBy(name=> name.Value.Name))
+                foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)             
                 {
                     //added by gremlin HIDING ERRORS
                     try
@@ -329,13 +337,17 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.DesignRole
                             , EmpireManager.Player)) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
+                            Log.Info($"Ship Design exluded by filter {Ship.Key}");
                             continue;
                         }
                         ShipRoles.Add(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
                         ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
                         this.ShipDesigns.AddItem(mh);
                     }
-                    catch { }
+                    catch
+                    {
+                        Log.Error($"Failed to load ship design {Ship.Key}");
+                    }
                 }
                 if (WIPs.Count > 0)
                 {
@@ -346,7 +358,11 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 foreach (ScrollList.Entry e in ShipDesigns.Entries)
                 {
                     foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
-                        .OrderByDescending(tech => tech.Value.shipData.techsNeeded.Count).ThenBy(name => name.Value.Name))
+                        .OrderBy(x=> true)
+                        .ThenBy(player => !player.Value.IsPlayerDesign)
+                        .ThenBy(empire=> empire.Value.shipData.HullData.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                        .ThenBy(empire => empire.Value.shipData.HullData.ShipStyle)                        
+                        .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name))
                     {
                         if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) == (e.item as ModuleHeader).Text) 
                             || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted 
