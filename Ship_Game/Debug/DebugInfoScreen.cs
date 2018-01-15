@@ -647,9 +647,11 @@ namespace Ship_Game.Debug
 
         public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius) => DrawCircle(mode, screenPos, radius, Color.Red);
 
-        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color)
+        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color, Ship ship = null)
         {
             if (mode != Mode) return;
+            if (ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship) return;
+            
             Circle circle = new Circle(screenPos, radius);
             circle.C = color;
             Circles.Add(circle);            

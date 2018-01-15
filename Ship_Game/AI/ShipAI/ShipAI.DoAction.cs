@@ -105,20 +105,24 @@ namespace Ship_Game.AI {
                 }
             }
         }
-
+        
+        private void DebugTargetCircle(Vector2 center, float radius)
+        {
+            Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, center, radius, Owner.loyalty.EmpireColor, Owner);
+        }
         private void DoAttackRun(float elapsedTime)
         {
-            Vector2 interceptPoint = Owner.Center.ProjectImpactPoint(
-                Owner.Velocity, Owner.maxWeaponsRange , Target.Center, Target.Velocity);
-            float distanceToTarget = Owner.Center.Distance(interceptPoint);
+            float spacerdistance = Owner.Radius  + Target.Radius;
             float adjustedWeaponRange = Owner.maxWeaponsRange * .35f;
-            float spacerdistance = Owner.Radius * 3 + Target.Radius;
             if (spacerdistance > adjustedWeaponRange)
                 spacerdistance = adjustedWeaponRange;
 
-            Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, interceptPoint, spacerdistance, Owner.loyalty.EmpireColor);
+            Vector2 interceptPoint = Owner.Center.ProjectImpactPoint(
+                Owner.Velocity, Owner.maxWeaponsRange, Target.Center, Target.Velocity);
 
-            if (distanceToTarget  > Owner.maxWeaponsRange ) //spacerdistance && distanceToTarget > adjustedWeaponRange)
+            float distanceToTarget = Owner.Center.Distance(interceptPoint);                                   
+
+            if (distanceToTarget  > Owner.maxWeaponsRange *2 ) //spacerdistance && distanceToTarget > adjustedWeaponRange)
             {
                 RunTimer = 0f;
                 AttackRunStarted = false;
@@ -130,46 +134,46 @@ namespace Ship_Game.AI {
                     return;
                     
                 }
-                DoNonFleetArtillery(elapsedTime);
-                return;
+               // DoNonFleetArtillery(elapsedTime);
+                //return;
                 var direction = Owner.Center.DirectionToTarget(interceptPoint);
                 MoveInDirection(direction, elapsedTime);
+                DebugTargetCircle(interceptPoint, spacerdistance);
                 return;
             }
+            RunTimer -= elapsedTime;
+            AttackRunStarted |= RunTimer < 0;
+            if (AttackRunStarted)
+            {
+                //if (RunTimer < 0)
+                {
+                    if (distanceToTarget > spacerdistance)
+                    {
+                        var direction = Owner.Center.DirectionToTarget(interceptPoint);
+                        MoveInDirection(direction, elapsedTime);
+                        DebugTargetCircle(interceptPoint, Owner.Radius);
+                        return;
+                    }
+                    AttackRunStarted = false;
+                    int ran = RandomMath.IntBetween(0, 1);
+                    ran = ran == 1 ? 1 : -1;
+                    AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
+                    RunTimer = 20; // Owner.Speed * elapsedTime ;
+                }
+                
 
-            if (!AttackRunStarted)
-            {
-                AttackRunStarted = true;
-                int ran = RandomMath.IntBetween(0, 1);
-                ran = ran == 1 ? 1 : -1;
-                AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
-                var behind = Target.FindVectorBehindTarget(Owner.maxWeaponsRange*2);
-                //if(ran ==-1)
-                 AttackVector = behind.PointFromAngle(ran, spacerdistance);
-                //else
-                  //  AttackVector = behind .PointFromAngle(ran, spacerdistance);
             }
-            if (RunTimer > spacerdistance)
+            if (distanceToTarget < Owner.maxWeaponsRange)
             {
-                DoNonFleetArtillery(elapsedTime);
+                var behind = Target.FindVectorBehindTarget(Owner.maxWeaponsRange);
+                AttackVector = behind.PointFromAngle(AttackRunAngle, spacerdistance);
+                var attackSetup = Owner.Center.DirectionToTarget(AttackVector);
+                MoveInDirection(attackSetup, elapsedTime);
+                DebugTargetCircle(AttackVector, spacerdistance);
                 return;
-                
             }
-            if (distanceToTarget <= spacerdistance)
-                ThrustTowardsPosition(AttackVector, elapsedTime, Owner.Speed);
-            else
-            {
-                var direction = Owner.Center.DirectionToTarget(interceptPoint);
-                MoveInDirection(direction, elapsedTime);
-            }
-            RunTimer += elapsedTime;
-            //AttackVector = Target.FindVectorBehindTarget(spacerdistance);
-            Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, AttackVector, Owner.Radius, Owner.loyalty.EmpireColor);
-            
-            
-            
-            
-                
+            RunTimer = 0;
+            //DoNonFleetArtillery(elapsedTime);
             
         }
 

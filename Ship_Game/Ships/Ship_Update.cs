@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
 
         private void UpdateAlive(float elapsedTime)
         {
-            if (System != null && elapsedTime > 0f && !loyalty.isFaction && !System.IsFullyExploredBy(loyalty))  //Added easy out for fully explorered systems
+            if (System != null && elapsedTime > 0f && loyalty?.isFaction == false && !System.IsFullyExploredBy(loyalty))  //Added easy out for fully explorered systems
             {
                 foreach (Planet p in System.PlanetList)
                 {
@@ -118,7 +118,7 @@ namespace Ship_Game.Ships
             }
 
             Rotation += RotationalVelocity * elapsedTime;
-            if (RotationalVelocity != 0.0)
+            if (RotationalVelocity > 0 || RotationalVelocity < 0)
                 isTurning = true;
 
             if (!isSpooling && Afterburner.IsPlaying)
