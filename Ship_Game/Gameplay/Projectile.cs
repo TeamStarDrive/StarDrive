@@ -391,7 +391,7 @@ namespace Ship_Game.Gameplay
             if (Miss || target == Owner)
                 return false;
 
-            if (target is Projectile projectile)
+            if ((Weapon.Tag_PD || Weapon.TruePD) && target is Projectile projectile)
             {
                 if (projectile.Loyalty == null || Owner?.loyalty?.IsEmpireAttackable(projectile.Loyalty) == false)
                     return false;
@@ -456,14 +456,6 @@ namespace Ship_Game.Gameplay
                     DieNextFrame = true;
                     return true;
                 }
-                //if (parent.shipData.Role == ShipData.RoleName.fighter && 
-                //    parent.loyalty.data.Traits.DodgeMod > 0f &&
-                //    parent.loyalty.data.Traits.DodgeMod > UniverseRandom.RandomBetween(0f, 1f))
-                //{
-                //    Miss = true;
-                //    return false;       
-                //}
-
                 // Non exploding projectiles should go through multiple modules if it has enough damage
                 if (!Explodes && module.Active)
                     ArmourPiercingTouch(module, parent);
