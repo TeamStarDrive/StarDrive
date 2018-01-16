@@ -62,6 +62,7 @@ namespace Ship_Game.Debug
         public static sbyte Loadmodels = 0;
         private static DebugModes Mode;
         private Array<Circle> Circles = new Array<Circle>();
+        private Array<GameplayObject> GPObjects = new Array<GameplayObject>();
         private int CircleTimer = 0;
         private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
@@ -141,7 +142,7 @@ namespace Ship_Game.Debug
 
         public override void Update()
         {
-            
+            CircleTimer--;
         }
 
         private void SetTextCursor(float x, float y, Color color)
@@ -190,6 +191,7 @@ namespace Ship_Game.Debug
             DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
 
             DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
+            DrawGPObjects();
             DrawCircles();
             TextFont = Fonts.Arial12Bold;
             switch (Mode)
@@ -597,7 +599,7 @@ namespace Ship_Game.Debug
             if (!input.WasKeyPressed(Keys.Left) && !input.WasKeyPressed(Keys.Right))
                 return false;
             ResearchText.Clear();
-            CircleTimer = int.MinValue;
+            CircleTimer = 0;
             if      (input.WasKeyPressed(Keys.Left))  --Mode;
             else  ++Mode;
 
@@ -674,6 +676,46 @@ namespace Ship_Game.Debug
                 Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0, 32,
                     circle?.C ?? Color.Black, 3);
             }
+        }
+        TimeSpan LastHit =TimeSpan.MaxValue;
+        public void DrawGPObjects(DebugModes mode, GameplayObject gameplay, Ship ship = null)
+        {
+            if (mode != Mode) return;
+            if (ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship) return;            
+            GPObjects.Add(gameplay);
+            var time = Screen.GameTime.TotalGameTime;
+            if (LastHit == time)
+                return;
+            CircleTimer += 20;
+            LastHit = time;
+
+        }
+        private void DrawGPObjects()
+        {
+            var circles = GPObjects;
+            for (int x = 0; x < circles.Count; x++)
+            {
+                try
+                {
+                    var circle = circles[x];
+                    if (!circle.Active) continue;
+                    Screen.DrawCircleProjected(circle.Center, circle.Radius, 3, Color.Red, 3);
+                }
+                catch { }
+            }
+            if (Screen.Paused) return;
+            CircleTimer = Math.Max(0, --CircleTimer);
+            
+
+            int test = Math.DivRem(CircleTimer, 20, out int rem);
+
+            if (rem >5 )
+                return;
+            if (circles.Count > 0)
+                circles.PopLast();
+            if (CircleTimer == 0)
+                circles.Clear();
+           
         }
     }
 }

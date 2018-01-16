@@ -231,84 +231,84 @@ namespace Ship_Game
 
                 switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
                 {
-                    case "Xeno Compilers":
-                    case "Research Bonus": data.Traits.ResearchMod += unlockedBonus.Bonus; break;
-                    case "FTL Spool Bonus":
+                    case "Xeno Compilers"               :
+                    case "Research Bonus"               : data.Traits.ResearchMod += unlockedBonus.Bonus; break;
+                    case "FTL Spool Bonus"              :
                         if (unlockedBonus.Bonus < 1) data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
                         else if (unlockedBonus.Bonus >= 1) data.SpoolTimeModifier = 0f; // insta-warp by modifier
                         break;
-                    case "Top Guns":
-                    case "Bonus Fighter Levels":
+                    case "Top Guns"                     :
+                    case "Bonus Fighter Levels"         :
                         data.BonusFighterLevels += (int)unlockedBonus.Bonus;
                         empire.IncreaseEmpireShipRoleLevel(ShipData.RoleName.fighter, (int)unlockedBonus.Bonus);                        
                         break;
-                    case "Mass Reduction":
-                    case "Percent Mass Adjustment": data.MassModifier += unlockedBonus.Bonus; break;
-                    case "ArmourMass": data.ArmourMassModifier += unlockedBonus.Bonus; break;
-                    case "Resistance is Futile":
-                    case "Allow Assimilation": data.Traits.Assimilators = true; break;
-                    case "Cryogenic Suspension":
-                    case "Passenger Modifier": data.Traits.PassengerModifier += unlockedBonus.Bonus; break;
-                    case "ECM Bonus":
-                    case "Missile Dodge Change Bonus": data.MissileDodgeChance += unlockedBonus.Bonus; break;
-                    case "Set FTL Drain Modifier": data.FTLPowerDrainModifier = unlockedBonus.Bonus; break;
-                    case "Super Soldiers":
+                    case "Mass Reduction"               :
+                    case "Percent Mass Adjustment"      : data.MassModifier += unlockedBonus.Bonus; break;
+                    case "ArmourMass"                   : data.ArmourMassModifier += unlockedBonus.Bonus; break;
+                    case "Resistance is Futile"         :
+                    case "Allow Assimilation"           : data.Traits.Assimilators = true; break;
+                    case "Cryogenic Suspension"         :
+                    case "Passenger Modifier"           : data.Traits.PassengerModifier += unlockedBonus.Bonus; break;
+                    case "ECM Bonus"                    :
+                    case "Missile Dodge Change Bonus"   : data.MissileDodgeChance += unlockedBonus.Bonus; break;
+                    case "Set FTL Drain Modifier"       : data.FTLPowerDrainModifier = unlockedBonus.Bonus; break;
+                    case "Super Soldiers"               :
                     case "Troop Strength Modifier Bonus": data.Traits.GroundCombatModifier += unlockedBonus.Bonus; break;
-                    case "Fuel Cell Upgrade":
-                    case "Fuel Cell Bonus": data.FuelCellModifier += unlockedBonus.Bonus; break;
-                    case "Trade Tariff":
-                    case "Bonus Money Per Trade": data.Traits.Mercantile += unlockedBonus.Bonus; break;
-                    case "Missile Armor":
-                    case "Missile HP Bonus": data.MissileHPModifier += unlockedBonus.Bonus; break;
-                    case "Hull Strengthening":
-                    case "Module HP Bonus":
+                    case "Fuel Cell Upgrade"            :
+                    case "Fuel Cell Bonus"              : data.FuelCellModifier += unlockedBonus.Bonus; break;
+                    case "Trade Tariff"                 :
+                    case "Bonus Money Per Trade"        : data.Traits.Mercantile += unlockedBonus.Bonus; break;
+                    case "Missile Armor"                :
+                    case "Missile HP Bonus"             : data.MissileHPModifier += unlockedBonus.Bonus; break;
+                    case "Hull Strengthening"           :
+                    case "Module HP Bonus"              :
                         data.Traits.ModHpModifier += unlockedBonus.Bonus;
                         empire.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
                         break;
-                    case "Reaction Drive Upgrade":
-                    case "STL Speed Bonus": data.SubLightModifier += unlockedBonus.Bonus; break;
-                    case "Reactive Armor":
-                    case "Armor Explosion Reduction": data.ExplosiveRadiusReduction += unlockedBonus.Bonus; break;
-                    case "Slipstreams":
-                    case "In Borders FTL Bonus": data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus; break;
-                    case "StarDrive Enhancement":
-                    case "FTL Speed Bonus": data.FTLModifier += unlockedBonus.Bonus * data.FTLModifier; break;
-                    case "FTL Efficiency":
-                    case "FTL Efficiency Bonus": data.FTLPowerDrainModifier -= unlockedBonus.Bonus * data.FTLPowerDrainModifier; break;
-                    case "Spy Offense":
-                    case "Spy Offense Roll Bonus": data.OffensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Spy Defense":
-                    case "Spy Defense Roll Bonus": data.DefensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Increased Lifespans":
-                    case "Population Growth Bonus": data.Traits.ReproductionMod += unlockedBonus.Bonus; break;
-                    case "Set Population Growth Min": data.Traits.PopGrowthMin = unlockedBonus.Bonus; break;
-                    case "Set Population Growth Max": data.Traits.PopGrowthMax = unlockedBonus.Bonus; break;
-                    case "Xenolinguistic Nuance":
-                    case "Diplomacy Bonus": data.Traits.DiplomacyMod += unlockedBonus.Bonus; break;
-                    case "Ordnance Effectiveness":
-                    case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
-                    case "Tachyons":
-                    case "Sensor Range Bonus": data.SensorModifier += unlockedBonus.Bonus; break;
-                    case "Privatization": data.Privatization = true; break;
-                    // Doctor: Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
-                    case "Civilian Maintenance": data.CivMaintMod -= unlockedBonus.Bonus; break;
-                    case "Armor Piercing":
-                    case "Armor Phasing": data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
-                    case "Kulrathi Might":
+                    case "Reaction Drive Upgrade"       :
+                    case "STL Speed Bonus"              : data.SubLightModifier += unlockedBonus.Bonus; break;
+                    case "Reactive Armor"               :
+                    case "Armor Explosion Reduction"    : data.ExplosiveRadiusReduction += unlockedBonus.Bonus; break;
+                    case "Slipstreams"                  :
+                    case "In Borders FTL Bonus"         : data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus; break;
+                    case "StarDrive Enhancement"        :
+                    case "FTL Speed Bonus"              : data.FTLModifier += unlockedBonus.Bonus * data.FTLModifier; break;
+                    case "FTL Efficiency"               :
+                    case "FTL Efficiency Bonus"         : data.FTLPowerDrainModifier -= unlockedBonus.Bonus * data.FTLPowerDrainModifier; break;
+                    case "Spy Offense"                  :
+                    case "Spy Offense Roll Bonus"       : data.OffensiveSpyBonus += unlockedBonus.Bonus; break;
+                    case "Spy Defense"                  :
+                    case "Spy Defense Roll Bonus"       : data.DefensiveSpyBonus += unlockedBonus.Bonus; break;
+                    case "Increased Lifespans"          :
+                    case "Population Growth Bonus"      : data.Traits.ReproductionMod += unlockedBonus.Bonus; break;
+                    case "Set Population Growth Min"    : data.Traits.PopGrowthMin = unlockedBonus.Bonus; break;
+                    case "Set Population Growth Max"    : data.Traits.PopGrowthMax = unlockedBonus.Bonus; break;
+                    case "Xenolinguistic Nuance"        :
+                    case "Diplomacy Bonus"              : data.Traits.DiplomacyMod += unlockedBonus.Bonus; break;
+                    case "Ordnance Effectiveness"       :
+                    case "Ordnance Effectiveness Bonus" : data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
+                    case "Tachyons"                     :
+                    case "Sensor Range Bonus"           : data.SensorModifier += unlockedBonus.Bonus; break;
+                    case "Privatization"                : data.Privatization = true; break;
+                    // Doctor                           : Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
+                    case "Civilian Maintenance"         : data.CivMaintMod -= unlockedBonus.Bonus; break;
+                    case "Armor Piercing"               :
+                    case "Armor Phasing"                : data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
+                    case "Kulrathi Might"               :
                         data.Traits.ModHpModifier += unlockedBonus.Bonus;
                         empire.RecalculateMaxHP = true; //So existing ships will benefit from changes to ModHpModifier -Gretman
                         break;
-                    case "Subspace Inhibition": data.Inhibitors = true; break;
-                    // Added by McShooterz: New Bonuses
-                    case "Production Bonus": data.Traits.ProductionMod += unlockedBonus.Bonus; break;
-                    case "Construction Bonus": data.Traits.ShipCostMod -= unlockedBonus.Bonus; break;
-                    case "Consumption Bonus": data.Traits.ConsumptionModifier -= unlockedBonus.Bonus; break;
-                    case "Tax Bonus": data.Traits.TaxMod += unlockedBonus.Bonus; break;
-                    case "Repair Bonus": data.Traits.RepairMod += unlockedBonus.Bonus; break;
-                    case "Maintenance Bonus": data.Traits.MaintMod -= unlockedBonus.Bonus; break;
-                    case "Power Flow Bonus": data.PowerFlowMod += unlockedBonus.Bonus; break;
-                    case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; break;
-                    case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
+                    case "Subspace Inhibition"          : data.Inhibitors = true; break;
+                    // Added by McShooterz              : New Bonuses
+                    case "Production Bonus"             : data.Traits.ProductionMod += unlockedBonus.Bonus; break;
+                    case "Construction Bonus"           : data.Traits.ShipCostMod -= unlockedBonus.Bonus; break;
+                    case "Consumption Bonus"            : data.Traits.ConsumptionModifier -= unlockedBonus.Bonus; break;
+                    case "Tax Bonus"                    : data.Traits.TaxMod += unlockedBonus.Bonus; break;
+                    case "Repair Bonus"                 : data.Traits.RepairMod += unlockedBonus.Bonus; break;
+                    case "Maintenance Bonus"            : data.Traits.MaintMod -= unlockedBonus.Bonus; break;
+                    case "Power Flow Bonus"             : data.PowerFlowMod += unlockedBonus.Bonus; break;
+                    case "Shield Power Bonus"           : data.ShieldPowerMod += unlockedBonus.Bonus; break;
+                    case "Ship Experience Bonus"        : data.ExperienceMod += unlockedBonus.Bonus; break;
                 }
             }
         }

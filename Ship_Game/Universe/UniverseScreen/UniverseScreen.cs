@@ -234,6 +234,7 @@ namespace Ship_Game
         //private float ztimeSnapShot;          //Not referenced in code, removing to save memory
         //public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
         private Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
+        private Array<Ship> ShipsToAddToWorld = new Array<Ship>();
         public float Lag = 0;
         public Ship previousSelection;
 
@@ -930,6 +931,21 @@ namespace Ship_Game
         {
             while (!GamePlayObjectToRemove.IsEmpty)            
                 GamePlayObjectToRemove.PopLast().RemoveFromUniverseUnsafe();             
+        }
+
+        public void QueueShipToWorldScene(Ship ship)
+        {            
+            ShipsToAddToWorld.Add(ship);
+        }
+        private void AddShipSceneObjectsFromQueue()
+        {
+            
+            while (!ShipsToAddToWorld.IsEmpty)
+            {
+                var ship = ShipsToAddToWorld.PopLast();
+                if (!ship.Active) continue;
+                ship.InitiizeShipScene();
+            }
         }
 
         protected override void Destroy()

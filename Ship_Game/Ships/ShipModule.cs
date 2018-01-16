@@ -507,13 +507,17 @@ namespace Ship_Game.Ships
                 damageInOut -= damageDone;
             return damageInOut <= 0f;
         }
-
-
+        public void DebugDamageCircle()
+        {
+            Empire.Universe?.DebugWin?.DrawGPObjects(Debug.DebugModes.Targeting, this, Parent);
+        }
+        
         public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
             float health    = Health + ShieldPower;
             bool result     = Damage(source, damageAmount);
             damageRemainder = damageAmount - (health - Health - ShieldPower);
+            DebugDamageCircle();
             return result;
         }
 

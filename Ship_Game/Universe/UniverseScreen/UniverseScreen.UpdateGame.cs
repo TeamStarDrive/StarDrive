@@ -444,8 +444,12 @@ namespace Ship_Game
                 }
             }                
             //clear out general object removal.
-            Empire.Universe.TotallyRemoveGameplayObjects();
+            TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
+            //Create New Ship SceneObjecst
+            AddShipSceneObjectsFromQueue();
+
+
 
             if (Paused)
             {
@@ -652,9 +656,10 @@ namespace Ship_Game
                         planet.Station.Update(elapsedTime);
                 }
 
-                for (int i = 0; i < system.ShipList.Count; ++i)
+                for (int i = system.ShipList.Count - 1; i >= 0; --i)
                 {
                     Ship ship = system.ShipList[i];
+                    if (!ship.ShipInitialized) continue;
                     if (ship.System == null)
                         continue;
                     if (!ship.Active || ship.ModuleSlotsDestroyed) // added by gremlin ghost ship killer

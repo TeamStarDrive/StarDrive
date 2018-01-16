@@ -5,6 +5,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -155,7 +156,7 @@ namespace Ship_Game.Gameplay
             InitialDuration = Duration = (Range/Speed) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
 
-            if (Owner?.loyalty.data.ArmorPiercingBonus > 0 
+            if (Owner?.loyalty.data.ArmorPiercingBonus > 0
                 && (Weapon.WeaponType == "Missile" || Weapon.WeaponType == "Ballistic Cannon"))
             {
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
@@ -502,7 +503,10 @@ namespace Ship_Game.Gameplay
             DieNextFrame = true;
             return true;
         }
-
+        private void DebugTargetCircle()
+        {
+            Empire.Universe?.DebugWin?.DrawGPObjects(Debug.DebugModes.Targeting, this, Owner);
+        }
         private void ArmourPiercingTouch(ShipModule module, Ship parent)
         {
             // Doc: If module has resistance to Armour Piercing effects, 
@@ -516,19 +520,25 @@ namespace Ship_Game.Gameplay
                 return;
 
             Vector2 projectileDir = Velocity.Normalized();
-            var projectedModules = parent.RayHitTestModules(Center, projectileDir, distance:parent.Radius, rayRadius:Radius);
+            var projectedModules = parent.RayHitTestModules(module.Center, projectileDir, distance:parent.Radius, rayRadius:Radius);
             if (projectedModules == null)
                 return;
-
-            foreach (ShipModule impactModule in projectedModules)
+            DebugTargetCircle();
+            for (int x = 0; x < projectedModules.Count; x++)
             {
+                ShipModule impactModule = projectedModules[x];
+                if (!impactModule.Active)
+                    continue;
                 if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
                 {
                     ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                    impactModule.DebugDamageCircle();
                     if (ArmorPiercing >= 0)
+                    {
                         continue; // SKIP/Phase through this armor module (yikes!)
+                    }
                 }
-
+                impactModule.DebugDamageCircle();
                 impactModule.Damage(this, DamageAmount, out DamageAmount);
                 if (DamageAmount <= 0f)
                     return;
