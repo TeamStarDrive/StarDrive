@@ -56,7 +56,7 @@ namespace Ship_Game
             //Jitter                  = Vector2.Zero;
             Vector2 targetVector        = Target?.Center ?? destination;
             JitterRadius            = 0;
-
+            Emitter.Position = new Vector3(source, 0f);
             Owner                   = weapon.Owner ;
             Source                  = source;
             Destination             = destination;

@@ -810,7 +810,8 @@ namespace Ship_Game.AI {
             }
             if (distance < 1500f + orbitTarget.ObjectRadius)
             {
-                ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed > 300f ? 300f : Owner.Speed);
+                var direction = Owner.Center.DirectionToTarget(OrbitPos);
+                MoveInDirection(direction, elapsedTime);
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;
             }

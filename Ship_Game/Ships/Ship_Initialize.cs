@@ -121,19 +121,20 @@ namespace Ship_Game.Ships
             if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
             {
                 var stackTrace = new Exception();
-                MessageBox.Show($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
-                                 "Ship spawn failed!", MessageBoxButtons.OK);
+                MessageBox.Show(
+                    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
+                    "Ship spawn failed!", MessageBoxButtons.OK);
                 return null;
             }
 
             var ship = new Ship
             {
-                shipData     = template.shipData,
-                Name         = template.Name,
+                shipData = template.shipData,
+                Name = template.Name,
                 BaseStrength = template.BaseStrength,
-                BaseCanWarp  = template.BaseCanWarp,
-                loyalty      = owner,
-                Position     = position
+                BaseCanWarp = template.BaseCanWarp,
+                loyalty = owner,
+                Position = position
             };
 
             if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
@@ -161,8 +162,9 @@ namespace Ship_Game.Ships
                 ship.Level += owner.data.BonusFighterLevels;
             ship.Level += owner.data.BaseShipLevel;
             // during new game creation, universeScreen can still be null its not supposed to work on players. 
-            if (Empire.Universe != null && Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Normal && owner != EmpireManager.Player)
-                ship.Level += (int)Empire.Universe.GameDifficulty;
+            if (Empire.Universe != null && Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Normal &&
+                owner != EmpireManager.Player)
+                ship.Level += (int) Empire.Universe.GameDifficulty;
 
             ship.InitializeShip(loadingFromSavegame: false);
             owner.AddShip(ship);
@@ -190,7 +192,7 @@ namespace Ship_Game.Ships
             if (doOrbit)
                 ship.DoOrbit(p);
 
-            ship.SetSystem(p.ParentSystem);
+            //ship.SetSystem(p.ParentSystem);
             return ship;
         }
 
@@ -298,10 +300,20 @@ namespace Ship_Game.Ships
             var manager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
             manager.AddObject(ShipSO);
         }
+        
+        public void InitiizeShipScene()
+        {
+            CreateSceneObject();
+            ShipInitialized = true;
+        }
 
         public void InitializeShip(bool loadingFromSavegame)
         {
-            CreateSceneObject();
+            bool worldInit = loadingFromSavegame || Empire.Universe == null;
+            if (worldInit)
+                CreateSceneObject();
+            else
+                Empire.Universe.QueueShipToWorldScene(this);
             SetShipData(GetShipData());
 
             if (VanityName.IsEmpty())
@@ -324,6 +336,7 @@ namespace Ship_Game.Ships
 
             InitializeStatus(loadingFromSavegame);
 
+            
             SetSystem(System);
             InitExternalSlots();
             base.Initialize();
@@ -334,7 +347,8 @@ namespace Ship_Game.Ships
             RecalculateMaxHP();
             SetmaxFTLSpeed();
             DesignRole = GetDesignRole();
-            ShipInitialized = true;
+            if (worldInit)
+                ShipInitialized = true;
         }
 
         private void InitDefendingTroopStrength()

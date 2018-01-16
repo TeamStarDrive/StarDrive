@@ -735,7 +735,7 @@ namespace Ship_Game.Gameplay
         
         private void AddModifiers(string tag, Projectile projectile)
         {
-            var wepTags = Owner.loyalty.data.WeaponTags;
+            SerializableDictionary<string, WeaponTagModifier> wepTags = Owner.loyalty.data.WeaponTags;
             projectile.DamageAmount      += wepTags[tag].Damage * projectile.DamageAmount;
             projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
             projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
