@@ -33,6 +33,7 @@ namespace Ship_Game
                         UpdateAllSystems(0.0f);
                         foreach (Ship ship in MasterShipList)
                         {
+                            if (!ship.ShipInitialized) continue;
                             if (ship.UpdateVisibility())
                             {
                                 ship.UpdateWorldTransform();
