@@ -132,6 +132,7 @@ namespace Ship_Game
         {
             if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty;
             if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty;
+            if ((Type & GameObjectType.ShipModule) != 0) return ((ShipModule)this).GetParent().loyalty;
             return null;
         }
 
