@@ -593,7 +593,6 @@ namespace Ship_Game.Gameplay
             jitter += AdjustTargetting();
             jitter += SetDestination(destination, ownerCenter, 4000);
             jitter = SetDestination(jitter, ownerCenter, ownerCenter.Distance(destination));
-            
             return jitter;
         }
 

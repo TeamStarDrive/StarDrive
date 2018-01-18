@@ -2800,6 +2800,8 @@ namespace Ship_Game.Ships
 
             foreach (Projectile projectile in projectiles)
                 projectile.Die(this, false);
+            foreach (Beam beam in beams)
+                beam.Die(this, false);
             projectiles.Clear();
 
             ModuleSlotList     = Empty<ShipModule>.Array;
