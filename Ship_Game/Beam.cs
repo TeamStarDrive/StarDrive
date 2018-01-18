@@ -52,20 +52,22 @@ namespace Ship_Game
             WeaponEffectType        = weapon.WeaponEffectType;
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
-            DisableSpatialCollision = DamageAmount < 0f;
-            //Jitter                  = Vector2.Zero;
-            Vector2 targetVector        = Target?.Center ?? destination;
+            DisableSpatialCollision = DamageAmount < 0f;            
+            Jitter                  = destination;
             JitterRadius            = 0;
-            Emitter.Position = new Vector3(source, 0f);
+            Emitter.Position        = new Vector3(source, 0f);
             Owner                   = weapon.Owner ;
             Source                  = source;
             Destination             = destination;
-            if (target != null && destination.OutsideRadius(target.Center, 32))
-            {
+            //WanderPath = Owner?.Center.RightVector() ?? source.RightVector();
+               // if (target != null && destination.OutsideRadius(target.Center, 32))
+            
                 TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
                 JitterRadius = target.Center.Distance(TargetPosistion);
-                WanderPath = Vector2.Normalize(destination - target.Center) * 16f;
-            }
+                WanderPath = Vector2.Normalize(destination - target.Center) * 8f;
+
+            
+            
             ActualHitDestination    = Destination;                        
             Initialize();
             weapon.ModifyProjectile(this);
@@ -108,7 +110,7 @@ namespace Ship_Game
             Vector2 deltaVec = destination - Source;            
             if (!DisableSpatialCollision)
             {
-                TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
+                TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
             }
             else
                 TargetPosistion = destination;
@@ -269,10 +271,9 @@ namespace Ship_Game
             Source    = srcCenter;
             if (ship != null && ship.Active && !DisableSpatialCollision)
             {
-                float distanceFromJitter = TargetPosistion.Distance(Target.Center);
-                distanceFromJitter = Math.Min(24 / (1 + Owner?.Level ?? 1), distanceFromJitter);
-                float sweep = distanceFromJitter * ((Module?.WeaponRotationSpeed ?? 1f) * .25f);
-                WanderPath = Vector2.Normalize(Target.Center - TargetPosistion) * sweep;
+                float sweep = JitterRadius * ((Module?.WeaponRotationSpeed ?? 1f) * .05f);
+                sweep *= RandomMath.IntBetween(1, 100) > 50 ? -1 : 1;
+                WanderPath = Vector2.Normalize(Target.Center - Jitter) * sweep;                
             }
 
             // always update Destination to ensure beam stays in range

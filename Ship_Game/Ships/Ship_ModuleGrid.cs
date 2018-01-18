@@ -589,7 +589,7 @@ namespace Ship_Game.Ships
                     Point p = GridLocalToPoint(pos);
                     ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
                     if (m != null && m.Active)
-                        path.Add(m);
+                        path.AddUniqueRef(m);
                 }
             }
             return path;
