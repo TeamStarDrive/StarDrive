@@ -36,10 +36,11 @@ namespace Ship_Game
         public GameplayObject Target { get; }
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
-        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null) : base(GameObjectType.Beam)
+        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false) : base(GameObjectType.Beam)
         {
             //there is an error here in beam creation where the weapon has no module. 
-            // i am setting these values in the weapon CreateDroneBeam where possible.             
+            // i am setting these values in the weapon CreateDroneBeam where possible. 
+            FollowMouse             = followMouse;
             Weapon                  = weapon;
             Target                  = target;
             TargetPosistion         = destination;
@@ -60,11 +61,14 @@ namespace Ship_Game
             Source                  = source;
             Destination             = destination;
             //WanderPath = Owner?.Center.RightVector() ?? source.RightVector();
-               // if (target != null && destination.OutsideRadius(target.Center, 32))
-            
-                TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
-                JitterRadius = target.Center.Distance(TargetPosistion);
+            // if (target != null && destination.OutsideRadius(target.Center, 32))
+
+            TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
+            JitterRadius = target?.Center.Distance(Jitter) ?? 0 ;
+            if (JitterRadius > 0)
                 WanderPath = Vector2.Normalize(destination - target.Center) * 8f;
+            if (float.IsNaN(WanderPath.X))
+                WanderPath = Vector2.Zero;
 
             
             
@@ -269,24 +273,35 @@ namespace Ship_Game
             }
             Duration -= elapsedTime;
             Source    = srcCenter;
-            if (ship != null && ship.Active && !DisableSpatialCollision)
+            if (ship != null && ship.Active && !DisableSpatialCollision )
             {
-                float sweep = JitterRadius * ((Module?.WeaponRotationSpeed ?? 1f) * .05f);
-                sweep *= RandomMath.IntBetween(1, 100) > 50 ? -1 : 1;
-                WanderPath = Vector2.Normalize(Target.Center - Jitter) * sweep;                
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;//* .25f);                
+                //sweep *= RandomMath.AvgRandomBetween(1, 100) > 80 ? -1 : 1;
+                if (Destination.OutsideRadius(Target.Center, JitterRadius * .5f))
+                    WanderPath = Vector2.Normalize(Target.Center - Destination) * sweep;
+                if (float.IsNaN(WanderPath.X))
+                    WanderPath = Vector2.Normalize(Target.Center - ActualHitDestination) * sweep;
+            }
+
+            if (FollowMouse)
+            {
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;//* .25f);                                           
+                WanderPath = Vector2.Normalize(Empire.Universe.mouseWorldPos - Destination) * sweep;           
             }
 
             // always update Destination to ensure beam stays in range
-            SetDestination(FollowMouse
-                        ? Empire.Universe.mouseWorldPos
-                        : DisableSpatialCollision ? Target?.Center ?? Destination
+            SetDestination(//FollowMouse
+                        //? Empire.Universe.mouseWorldPos
+                         DisableSpatialCollision ? Target?.Center ?? Destination
                         : Destination + WanderPath );
+
+      
 
             if (!BeamCollidedThisFrame) ActualHitDestination = Destination;           
             
             BeamCollidedThisFrame = false;
 
-            if (!Owner.PlayerShip)
+            //if (!Owner.PlayerShip)
             {
                 //if (Destination.OutsideRadius(Source, Range + Owner.Radius)) // +Radius So beams at the back of a ship can hit too!
                 //{
