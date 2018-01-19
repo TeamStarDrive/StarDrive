@@ -596,13 +596,13 @@ namespace Ship_Game.Gameplay
             return jitter;
         }
 
-        private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
+        private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
         {
             destination = ProjectedBeamPoint(source, destination, target);
             if (!CheckFireArc(destination) || !PrepareToFire())
                 return;
 
-            var beam = new Beam(this, source, destination, target);
+            var beam = new Beam(this, source, destination, target, followMouse);
             Module.GetParent().AddBeam(beam);
         }
 
@@ -622,7 +622,7 @@ namespace Ship_Game.Gameplay
         {
             if (!CanFireWeapon())
                 return;
-            if (isBeam) FireBeam(Module.Center, targetPos);
+            if (isBeam) FireBeam(Module.Center, targetPos, null, true);
             else        FireAtTarget(targetPos, null);
         }
 

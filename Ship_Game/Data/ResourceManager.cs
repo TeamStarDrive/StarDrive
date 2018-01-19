@@ -1150,6 +1150,29 @@ namespace Ship_Game
             LoadProjectileMesh(projectileDir, "torpedo");
             LoadProjectileMesh(projectileDir, "missile");
             LoadProjectileMesh(projectileDir, "spacemine");
+            if (GlobalStats.HasMod)
+             LoadCustomProjectileMeshes($"{projectileDir}custom");
+        }
+
+        private static void LoadCustomProjectileMeshes(string modelFolder)
+        {            
+            foreach (FileInfo info in GatherFilesModOrVanilla(modelFolder, "xnb"))
+            {
+                if (info.Name.Contains("_")) continue;
+                string nameNoExt = info.NameNoExt();
+                try
+                {
+                    var projModel = ContentManager.Load<Model>(info.CleanResPath());
+                    
+                    ProjectileMeshDict[nameNoExt] = projModel.Meshes[0];
+                    ProjectileModelDict[nameNoExt] = projModel;
+                    
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"LoadNumberedModels {modelFolder} {nameNoExt} failed");
+                }
+            }
         }
 
 
