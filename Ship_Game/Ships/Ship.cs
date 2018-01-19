@@ -2635,9 +2635,13 @@ namespace Ship_Game.Ships
         }
 
         public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);        
-
+        private void ExplodeShip(Tuple<float , bool> splode)
+        {
+            ExplodeShip(splode.Item1, splode.Item2);
+        }
         private void ExplodeShip(float explodeRadius, bool useWarpExplodeEffect)
         {
+            if (!InFrustum) return;
             Vector3 position = new Vector3(Center.X, Center.Y, -100f);
 
             float explosionboost = 1f;
@@ -2650,6 +2654,8 @@ namespace Ship_Game.Ships
                 ExplosionManager.AddWarpExplosion(position, explodeRadius*1.75f, 12f, 0.2f);
             }
         }
+
+        private Tuple<float, bool> SetSplodeData(float size, bool warp) => new Tuple<float, bool>(size, warp);
 
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -2713,37 +2719,44 @@ namespace Ship_Game.Ships
             AttackerTargetting.Clear();
             Velocity = Vector2.Zero;
             velocityMaximum = 0.0f;
-
+            float size = Radius  * (shipData.EventOnDeath?.NotEmpty() == true? 3 :1);// Math.Max(GridHeight, GridWidth);
             if (Active)
             {
                 Active = false;
+                Tuple<float, bool> splodeType; 
                 switch (shipData.HullRole)
                 {
-                    case ShipData.RoleName.freighter:   ExplodeShip(Math.Max(GridHeight,GridWidth) * 8, cleanupOnly); break;
-                    case ShipData.RoleName.platform:    ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
-                    case ShipData.RoleName.fighter:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
-                    case ShipData.RoleName.frigate:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
-                    case ShipData.RoleName.capital:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 16, true);       break;
-                    case ShipData.RoleName.carrier:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 16, true);        break;
-                    case ShipData.RoleName.cruiser:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 10, true);        break;
-                    case ShipData.RoleName.station:     ExplodeShip(Math.Max(GridHeight, GridWidth) * 16, true);       break;
-                    default:                            ExplodeShip(Math.Max(GridHeight, GridWidth) * 8, cleanupOnly); break;
+                    case ShipData.RoleName.freighter: splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
+                    case ShipData.RoleName.platform:  splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
+                    case ShipData.RoleName.corvette: 
+                    case ShipData.RoleName.scout:                        
+                    case ShipData.RoleName.fighter:   splodeType = SetSplodeData(size * 10, cleanupOnly); break;
+                    case ShipData.RoleName.frigate:   splodeType = SetSplodeData(size * 10, cleanupOnly); break;
+                    case ShipData.RoleName.carrier:
+                    case ShipData.RoleName.capital:   splodeType = SetSplodeData(size * 8, true);         break; 
+                    case ShipData.RoleName.cruiser:   splodeType = SetSplodeData(size * 8, true);         break;
+                    case ShipData.RoleName.station:   splodeType = SetSplodeData(size * 8, true);         break; 
+                    default:                          splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
                 }
-
-                UniverseScreen.SpaceManager.ShipExplode(this, Size * 50, Center, Radius);
+                ExplodeShip(splodeType); 
+                UniverseScreen.SpaceManager.ShipExplode(this, splodeType.Item1 * 50, Center, Radius);
 
                 if (!HasExploded)
                 {
                     HasExploded = true;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
-                    int explosionJunk = (int)RandomMath.RandomBetween(Radius * 0.08f, Radius * 0.12f);
+                    
                     float radSqrt     = (float)Math.Sqrt(Radius);
                     float junkScale   = radSqrt * 0.05f; // trial and error, depends on junk model sizes
                     if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
 
                     //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
-                    SpaceJunk.SpawnJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
+                    for (int x = 0; x < 3; x++)
+                    {
+                        int explosionJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * .15f);// * 0.15f);
+                        SpaceJunk.SpawnJunk(explosionJunk, Center.GenerateRandomPointOnCircle(Radius /2 ), System, this, Radius / 4, junkScale);
+                    }
                 }
             }
             var hullData = shipData.HullData;
@@ -2800,15 +2813,20 @@ namespace Ship_Game.Ships
 
             foreach (Projectile projectile in projectiles)
                 projectile.Die(this, false);
-            foreach (Beam beam in beams)
-                beam.Die(this, false);
+            if (beams != null)
+                for (int i = 0; i < beams.Count; i++)
+                {
+                    Beam beam = beams[i];
+                    beam.Die(this, true);
+                    beams.RemoveRef(beam);
+                }
             projectiles.Clear();
 
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
-            NumExternalSlots = 0;
-            Shields = Empty<ShipModule>.Array;
+            NumExternalSlots   = 0;
+            Shields            = Empty<ShipModule>.Array;
 
             Hangars.Clear();
             BombBays.Clear();

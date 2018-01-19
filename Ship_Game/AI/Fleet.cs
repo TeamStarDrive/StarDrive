@@ -592,7 +592,7 @@ namespace Ship_Game.AI
                             }
                             break;
                         case 2:
-                            if (Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.GetTargetPlanet().GravityWellRadius, Owner) > GetStrength())
+                            if (Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner) > GetStrength())
                                 task.EndTask();
                             if (!IsFleetAssembled(25000, out endTask))
                                 break;
@@ -608,7 +608,7 @@ namespace Ship_Game.AI
                             AssembleFleet(Facing, Vector2.Normalize(Position - FindAveragePosition()));
                             break;
                         case 3:
-                            float targetStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.GetTargetPlanet().GravityWellRadius, Owner);
+                            float targetStrength =       Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner);
 
                             if (targetStrength > 500 && targetStrength > GetStrength())
                                 task.EndTask();
