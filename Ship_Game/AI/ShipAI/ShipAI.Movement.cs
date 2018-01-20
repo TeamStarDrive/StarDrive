@@ -216,6 +216,7 @@ namespace Ship_Game.AI {
                 }
                 if (Owner.isSpooling)
                     speedLimit = speedLimit * Owner.loyalty.data.FTLModifier;
+                Owner.Velocity *= !Owner.isTurning ? 1 : .95f;
                 Ship velocity = Owner;
                 velocity.Velocity = velocity.Velocity + Vector2.Normalize(forward) * (elapsedTime * speedLimit);
                 if (Owner.Velocity.Length() > speedLimit)
