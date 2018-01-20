@@ -128,8 +128,8 @@ namespace Ship_Game
                     weight += 20;
                 float xround = node.Position.X > 0 ? .5f : -.5f;
                 float yround = node.Position.Y > 0 ? .5f : -.5f;
-                int ocx = (int) ((node.Position.X / this.reducer) + xround);
-                int ocy = (int) ((node.Position.Y / this.reducer) + yround);
+                int ocx = (int) (node.Position.X / this.reducer + xround);
+                int ocy = (int) (node.Position.Y / this.reducer + yround);
                 int cx = ocx + granularity;
                 int cy = ocy + granularity;
                 cy = cy < 0 ? 0 : cy;
