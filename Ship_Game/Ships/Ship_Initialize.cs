@@ -291,8 +291,7 @@ namespace Ship_Game.Ships
                 ShipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
             }
 
-            Radius = ShipSO.WorldBoundingSphere.Radius;
-            Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
+            Radius = ShipSO.WorldBoundingSphere.Radius;            
             ShipSO.Visibility = ObjectVisibility.Rendered;
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
@@ -310,6 +309,7 @@ namespace Ship_Game.Ships
         public void InitializeShip(bool loadingFromSavegame)
         {
             bool worldInit = loadingFromSavegame || Empire.Universe == null;
+            Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             if (worldInit)
                 CreateSceneObject();
             else

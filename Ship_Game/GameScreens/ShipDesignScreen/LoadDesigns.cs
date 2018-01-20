@@ -24,7 +24,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private Vector2 TitlePosition = new Vector2();
 
         private Vector2 EnternamePos = new Vector2();
-
+         
         private UITextEntry EnterNameArea = new UITextEntry();
 
         //private UIButton Save;
