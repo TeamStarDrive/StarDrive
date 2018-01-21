@@ -46,7 +46,7 @@ namespace Ship_Game
 
         public object LoadAsset(string fileNameWithExt, string ext)
         {            
-            if (GlobalStats.HasMod)
+            if (GlobalStats.HasMod && fileNameWithExt.StartsWith("Mod"))
                 fileNameWithExt = $"{GlobalStats.ModPath}/{fileNameWithExt}";
             else
                 fileNameWithExt = $"content/{fileNameWithExt}";
