@@ -13,7 +13,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
     {
         private Vector2 Cursor = Vector2.Zero;
 
-        public ToggleButton playerDesignsToggle;
+        public PlayerDesignToggleButton PlayerDesignsToggle;
 
         private bool ShowAllDesigns = true;
 
@@ -182,7 +182,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             {
                 b.Draw(base.ScreenManager.SpriteBatch);
             }
-            this.playerDesignsToggle.Draw(base.ScreenManager);
+            this.PlayerDesignsToggle.Draw(base.ScreenManager);
             ToolTip.Draw(ScreenManager.SpriteBatch);
             base.ScreenManager.SpriteBatch.End();
         }
@@ -285,14 +285,14 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                 }
             }
-            if (this.playerDesignsToggle.HandleInput(input))
+            if (this.PlayerDesignsToggle.HandleInput(input))
             {
                 GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 this.ShowAllDesigns = !this.ShowAllDesigns;
-                this.playerDesignsToggle.Active = this.ShowAllDesigns;
+                this.PlayerDesignsToggle.Active = this.ShowAllDesigns;
                 this.ResetSL();
             }
-            if (this.playerDesignsToggle.Rect.HitTest(input.CursorPosition))
+            if (this.PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Localizer.Token(2225));
             }
@@ -302,23 +302,21 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public override void LoadContent()
         {
-            this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
-            this.loadMenu = new Menu1(this.Window);
+            Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
+            loadMenu = new Menu1(this.Window);
             Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 60, this.Window.Width - 40, this.Window.Height - 80);
-            this.SaveShips = new Submenu(sub);
-            this.SaveShips.AddTab(Localizer.Token(198));
-            this.ShipDesigns = new ScrollList(this.SaveShips);
+            SaveShips = new Submenu(sub);
+            SaveShips.AddTab(Localizer.Token(198));
+            ShipDesigns = new ScrollList(this.SaveShips);
             Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-            this.TitlePosition = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
+            TitlePosition = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
             string path = Dir.ApplicationData;
             Rectangle gridRect = new Rectangle(this.SaveShips.Menu.X + this.SaveShips.Menu.Width - 44, this.SaveShips.Menu.Y, 29, 20);
-            this.playerDesignsToggle = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
-            {
-                Active = this.ShowAllDesigns
-            };
+            PlayerDesignsToggle = new PlayerDesignToggleButton(gridRect);
+            
             PopulateEntries(path);
-            this.EnternamePos = this.TitlePosition;
-            this.EnterNameArea.Text = Localizer.Token(199);
+            EnternamePos = TitlePosition;
+            EnterNameArea.Text = Localizer.Token(199);
             Load = ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, "Load", titleId:8);
 
             base.LoadContent();
@@ -450,6 +448,21 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+        }
+
+        public class PlayerDesignToggleButton : ToggleButton
+        {
+            private const string ActiveTexture   = "SelectionBox/PlayerDesignsPressed";
+            private const string InactiveTexture = "SelectionBox/PlayerDesignsActive"; //"SelectionBox/button_grid_inactive";
+            private const string HoverTexture    =  "SelectionBox/button_grid_hover";
+            private const string PressedTexture  = "SelectionBox/button_grid_pressed";
+            private const string IconTexture     = "SelectionBox/icon_grid";
+
+            public PlayerDesignToggleButton(Rectangle gridRect) : base(gridRect, ActiveTexture, InactiveTexture, HoverTexture, PressedTexture, IconTexture)
+            {
+                Active = true;
+                WhichToolTip = 237;
+            }
         }
     }
 }
