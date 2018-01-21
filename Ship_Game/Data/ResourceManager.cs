@@ -727,10 +727,11 @@ namespace Ship_Game
             return ProjTextDict[texturePath];
         }
 
-        private static void LoadTexture(FileInfo info)
+        private static void LoadTexture(FileInfo info, ContentManager contentManager = null)
         {
+            contentManager = contentManager ?? ContentManager;
             string relPath = info.CleanResPath(false);
-            var tex = ContentManager.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
+            var tex = contentManager.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
             relPath = info.CleanResPath();
             string texName = relPath.Substring("Textures/".Length);
             lock (TextureDict)

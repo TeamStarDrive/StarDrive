@@ -49,38 +49,38 @@ namespace Ship_Game
         private Rectangle SideBar;
 
         public ShipModule HighlightedModule;
-        private Vector2 CameraVelocity = Vector2.Zero;
-        private Vector2 StartDragPos = new Vector2();
+        private Vector2 CameraVelocity              = Vector2.Zero;
+        private Vector2 StartDragPos                = new Vector2();
         private ShipData Changeto;
         private string ScreenToLaunch;
         private bool ShowAllArcs;
         private ShipModule HoveredModule;
-        private float TransitionZoom = 1f;
+        private float TransitionZoom                = 1f;
         private SlotModOperation Operation;
         public ShipModule ActiveModule;
         private ActiveModuleState ActiveModState;
         private Selector selector;
-        public bool ToggleOverlay = true;
-        private Vector2 starfieldPos = Vector2.Zero;
+        public bool ToggleOverlay                   = true;
+        private Vector2 starfieldPos                = Vector2.Zero;
         private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
         private Vector2 ClassifCursor;
-        public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
-        private string LastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
-        private Vector2 LastDesignActionPos = Vector2.Zero;
+        public Stack<DesignAction> DesignStack      = new Stack<DesignAction>();
+        private string LastActiveUID                = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
+        private Vector2 LastDesignActionPos         = Vector2.Zero;
         private Vector2 CoBoxCursor;
         private UICheckBox CarrierOnlyBox;
-        private bool Fml = false;
-        private bool Fmlevenmore = false;
+        private bool Fml                            = false;
+        private bool Fmlevenmore                    = false;
         public bool CarrierOnly;
         private ShipData.Category LoadCategory;
-        private HashSet<string> Techs = new HashSet<string>();
-        private readonly Texture2D TopBar132 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-        private readonly Texture2D TopBar132Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+        private HashSet<string> Techs               = new HashSet<string>();
+        private readonly Texture2D TopBar132        = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+        private readonly Texture2D TopBar132Hover   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
         private readonly Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
-        private readonly Texture2D TopBar68 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
-        private readonly Texture2D TopBar68Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
-        private readonly Texture2D TopBar68Pressed = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];        
+        private readonly Texture2D TopBar68         = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
+        private readonly Texture2D TopBar68Hover    = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
+        private readonly Texture2D TopBar68Pressed  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];        
 
 
 #if SHIPYARD
