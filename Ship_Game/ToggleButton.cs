@@ -67,14 +67,12 @@ namespace Ship_Game
         public void Draw(SpriteBatch spriteBatch, bool resizeIcon, ScreenManager screenManager = null)
         {
             Rectangle iconRect = IconActive == null ? IconRect : Rect;
-
+            
             if (Pressed)
                 spriteBatch.Draw(PressTexture, Rect, Color.White);
             else if (Hover)
             {
-                spriteBatch.Draw(HoverTexture, Rect, Color.White);
-                ToolTip.Draw(spriteBatch);
-
+                spriteBatch.Draw(HoverTexture, Rect, Color.White);                
             }
             else if (Active)
                 spriteBatch.Draw(ActiveTexture, Rect, Color.White);
@@ -92,8 +90,6 @@ namespace Ship_Game
             }
             else
                 spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);            
-                
-            
         }
 
         public override void PerformLegacyLayout(Vector2 pos)
@@ -106,14 +102,27 @@ namespace Ship_Game
             Pressed = false;
             if (!Rect.HitTest(input.CursorPosition))
             {
-                Hover = false;
+                if (Hover)
+                {
+                    if (ToolTip.TipTimer > 3)
+                    {
+                        ToolTip.LastWhich = 0;
+                        ToolTip.TextLast = string.Empty;
+                    }
+
+                    ToolTip.TipTimer = 0;                    
+                }
+                Hover = false;                
                 return false;
             }
             if (!Hover)
+            {
                 GameAudio.MiniMapMouseOver();
+                if (WhichToolTip != 0)
+                    ToolTip.CreateTooltip(WhichToolTip);
+            }
             Hover = true;
-            if (Hover && WhichToolTip != 0)
-                ToolTip.CreateTooltip(WhichToolTip);
+            
             if (input.LeftMouseClick)
             {
                 OnClick?.Invoke(this);

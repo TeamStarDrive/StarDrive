@@ -21,6 +21,7 @@ namespace Ship_Game {
 #if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
 #endif
+            if (hull == null) return;
             ModSel.ResetLists();
             DesignStack.Clear();
             LastDesignActionPos = Vector2.Zero;
@@ -630,47 +631,41 @@ namespace Ship_Game {
             if (ActiveHull == null) return;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
-                if (toggleButton.Rect.HitTest(input.CursorPosition))
+                if (toggleButton.HandleInput(input)) 
                 {
-                    if (toggleButton.HasToolTip)
-                        ToolTip.CreateTooltip(toggleButton.WhichToolTip);
-                    if (input.InGameSelect)
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    switch (toggleButton.Action)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        switch (toggleButton.Action)
-                        {
-                            case "attack":
-                                CombatState = CombatState.AttackRuns;
-                                break;
-                            case "arty":
-                                CombatState = CombatState.Artillery;
-                                break;
-                            case "hold":
-                                CombatState = CombatState.HoldPosition;
-                                break;
-                            case "orbit_left":
-                                CombatState = CombatState.OrbitLeft;
-                                break;
-                            case "broadside_left":
-                                CombatState = CombatState.BroadsideLeft;
-                                break;
-                            case "orbit_right":
-                                CombatState = CombatState.OrbitRight;
-                                break;
-                            case "broadside_right":
-                                CombatState = CombatState.BroadsideRight;
-                                break;
-                            case "evade":
-                                CombatState = CombatState.Evade;
-                                break;
-                            case "short":
-                                CombatState = CombatState.ShortRange;
-                                break;
-                        }
+                        case "attack":
+                            CombatState = CombatState.AttackRuns;
+                            break;
+                        case "arty":
+                            CombatState = CombatState.Artillery;
+                            break;
+                        case "hold":
+                            CombatState = CombatState.HoldPosition;
+                            break;
+                        case "orbit_left":
+                            CombatState = CombatState.OrbitLeft;
+                            break;
+                        case "broadside_left":
+                            CombatState = CombatState.BroadsideLeft;
+                            break;
+                        case "orbit_right":
+                            CombatState = CombatState.OrbitRight;
+                            break;
+                        case "broadside_right":
+                            CombatState = CombatState.BroadsideRight;
+                            break;
+                        case "evade":
+                            CombatState = CombatState.Evade;
+                            break;
+                        case "short":
+                            CombatState = CombatState.ShortRange;
+                            break;
                     }
                 }
-                else
-                    toggleButton.Hover = false;
+                
                 switch (toggleButton.Action)
                 {
                     case "attack":
