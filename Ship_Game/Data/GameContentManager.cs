@@ -238,7 +238,7 @@ namespace Ship_Game
                     }
                 }
             #endif
-            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);
+            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);            
             return asset;
         }
 
