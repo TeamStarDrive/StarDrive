@@ -45,7 +45,11 @@ namespace Ship_Game
         }
 
         public object LoadAsset(string fileNameWithExt, string ext)
-        {
+        {            
+            if (GlobalStats.HasMod)
+                fileNameWithExt = $"{GlobalStats.ModPath}/{fileNameWithExt}";
+            else
+                fileNameWithExt = $"content/{fileNameWithExt}";
             if (IsSupportedMeshExtension(ext))
             {
                 Log.Info(ConsoleColor.Magenta, "Raw LoadMesh: {0}", fileNameWithExt);

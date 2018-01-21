@@ -729,9 +729,9 @@ namespace Ship_Game
 
         private static void LoadTexture(FileInfo info)
         {
-            string relPath = info.CleanResPath();
+            string relPath = info.CleanResPath(false);
             var tex = ContentManager.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
-
+            relPath = info.CleanResPath();
             string texName = relPath.Substring("Textures/".Length);
             lock (TextureDict)
             {
@@ -739,10 +739,24 @@ namespace Ship_Game
             }
         }
 
+        public static FileInfo[] GatherTextureFiles(string dir)
+        {
+            string[] exts = {"png", "gif", "jpg", "xnb"};
+            FileInfo[] allFiles = new FileInfo[0];
+            FileInfo[] curerentFiles = new FileInfo[0]; 
+            foreach (var ext in exts)
+            {
+                curerentFiles = GatherFilesUnified(dir, ext, false);
+                allFiles = allFiles.Concat(curerentFiles).ToArray();
+            }
+            return allFiles;
+        }
+
         // This method is a hot path during Loading and accounts for ~25% of time spent
         private static void LoadTextures()
-        {
-            FileInfo[] files = GatherFilesUnified("Textures", "xnb");
+        {            
+            FileInfo[] files = GatherTextureFiles("Textures");
+
         #if true // parallel texture load
             Parallel.For(files.Length, (start, end) => {
                 for (int i = start; i < end; ++i)
@@ -1613,7 +1627,7 @@ namespace Ship_Game
         private static readonly HashSet<int> MissingTooltips = new HashSet<int>();
         public static ToolTip GetToolTip(int tipId)
         {
-            if (tipId >= ToolTips.Count)
+            if (tipId > ToolTips.Count)
             {
                 if (!MissingTooltips.Contains(tipId))
                 {

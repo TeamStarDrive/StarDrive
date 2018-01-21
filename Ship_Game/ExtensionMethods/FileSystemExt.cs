@@ -36,6 +36,19 @@ namespace Ship_Game
         {
             return GetFiles(dir, "*."+ext, SearchOption.TopDirectoryOnly);
         }
+        public static FileInfo[] GetFiles(string dir, string[] exts)
+        {
+            FileInfo[] allFiles = new FileInfo[0];
+            FileInfo[] curerentFiles;
+
+            foreach (string ext in exts)
+            {
+                curerentFiles = GetFiles(dir, "*." + ext, SearchOption.AllDirectories);
+                if (curerentFiles.Length > 0)
+                    Array.Copy(curerentFiles, 0, allFiles, allFiles.Length, curerentFiles.Length);
+            }
+            return allFiles;
+        }
 
         // Finds all subdirectories
         public static DirectoryInfo[] GetDirs(string dir, SearchOption option = SearchOption.AllDirectories)
@@ -118,7 +131,7 @@ namespace Ship_Game
         // Creates a clean relative file path, useful for resource loading
         // Ex: "Content\\Textures\\blank.xnb"    --> "Textures/blank"
         // Ex: "Mods/MyMod/Textures\\blank.xnb"  --> "Textures/blank"
-        public static string CleanResPath(this FileInfo info)
+        public static string CleanResPath(this FileInfo info, bool stripExt = true)
         {
             string filePath = info.FullName.Substring(AppRoot.Length + 1);
 
@@ -128,6 +141,7 @@ namespace Ship_Game
                 filePath = filePath.Substring(GlobalStats.ModPath.Length);
 
             filePath = filePath.Replace('\\', '/');
+            if (!stripExt) return filePath;
 
             int i = filePath.LastIndexOf('.');
             return i == -1 ? filePath : filePath.Substring(0, i);
