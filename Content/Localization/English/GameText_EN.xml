@@ -8420,9 +8420,5 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7091</Index>
       <Text>This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this.</Text>
     </Token>
-    <Token>
-      <Index>7092</Index>
-      <Text>Filter by player designs</Text>
-    </Token>
   </TokenList>
 </LocalizationFile>

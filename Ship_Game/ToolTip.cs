@@ -115,7 +115,8 @@ namespace Ship_Game
                 {
                     TipTimer = 6;
                 }
-                Text = null;
+                if (TipTimer <= 0)
+                    Text = null;
                 return;
             }
 
@@ -146,7 +147,7 @@ namespace Ship_Game
             }
             spriteBatch.DrawString(Fonts.Arial12Bold, Text, textpos, color);
 
-            Text = null;
+            
         }
     }
 }
