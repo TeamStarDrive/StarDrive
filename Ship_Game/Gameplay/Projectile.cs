@@ -401,6 +401,7 @@ namespace Ship_Game.Gameplay
                     if (projectile.Loyalty == null || Owner?.loyalty?.IsEmpireAttackable(projectile.Loyalty) == false)
                         return false;                
                     projectile.DamageMissile(this, DamageAmount);
+                    DieNextFrame = true;
                     return true;
                 case Asteroid _:
                     if (!Explodes)
