@@ -1053,11 +1053,13 @@ namespace Ship_Game.Ships
                     || targetship.dying
                     || !targetship.Active
                     || targetship.NumExternalSlots <= 0
-                    || !w.TargetValid(targetship.shipData.HullRole)
+                    //|| !w.TargetValid(targetship.shipData.HullRole)
 
                     )
                     return false;
             }
+            else
+                Log.Info($"target ship was null");
             float attackRunRange = 50f;
             if (w.FireTarget != null && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
@@ -1237,18 +1239,16 @@ namespace Ship_Game.Ships
                 facing = facing - 360f;
             }
             float difference = Math.Abs(angleToMouse - facing);
-            if (difference > halfArc)
+            if (!(difference > halfArc)) return difference < halfArc;
+            if (angleToMouse > 180f)
             {
-                if (angleToMouse > 180f)
-                {
-                    angleToMouse = -1f * (360f - angleToMouse);
-                }
-                if (facing > 180f)
-                {
-                    facing = -1f * (360f - facing);
-                }
-                difference = Math.Abs(angleToMouse - facing);
+                angleToMouse = -1f * (360f - angleToMouse);
             }
+            if (facing > 180f)
+            {
+                facing = -1f * (360f - facing);
+            }
+            difference = Math.Abs(angleToMouse - facing);
             return difference < halfArc;
         }
 

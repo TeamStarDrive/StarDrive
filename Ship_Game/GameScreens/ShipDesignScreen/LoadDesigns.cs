@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 namespace Ship_Game.GameScreens.ShipDesignScreen
 {

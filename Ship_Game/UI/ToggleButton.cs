@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Ship_Game
+namespace Ship_Game.UI
 {
     public class ToggleButton : UIElementV2
     {
