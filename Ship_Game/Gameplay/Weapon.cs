@@ -628,6 +628,7 @@ namespace Ship_Game.Gameplay
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
+            if (!TargetValid(targetShip)) return;
             targetShip.InCombatTimer = 15f;
             GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
@@ -649,8 +650,9 @@ namespace Ship_Game.Gameplay
         {
             if (!CanFireWeapon())
                 return;
+            if (!TargetValid(FireTarget)) return;
             if (FireTarget is Ship targetShip)
-            {
+            {          
                 FireAtAssignedTargetNonVisible(targetShip);
                 return;
             }
@@ -666,7 +668,7 @@ namespace Ship_Game.Gameplay
             CooldownTimer = fireDelay;
             if (IsRepairDrone)
                 return;
-            if (targetShip == null || !targetShip.Active || targetShip.dying || !TargetValid(targetShip.shipData.HullRole)
+            if (targetShip == null || !targetShip.Active || targetShip.dying //|| !TargetValid(targetShip.shipData.HullRole)
                 || targetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(this, targetShip))
                 return;
 
@@ -829,7 +831,14 @@ namespace Ship_Game.Gameplay
                 return false;
             return true;
         }
-
+        public bool TargetValid(GameplayObject fireTarget)
+        {
+            if (fireTarget.Type == GameObjectType.ShipModule)
+                return TargetValid(((ShipModule)fireTarget).GetParent().shipData.HullRole);
+            if (fireTarget.Type == GameObjectType.Ship)
+                return TargetValid(((Ship)fireTarget).shipData.HullRole);
+            return true;
+        }
         public void Dispose()
         {
             Destroy();
