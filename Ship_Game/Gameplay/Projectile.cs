@@ -468,10 +468,12 @@ namespace Ship_Game.Gameplay
             DieNextFrame = true;
             return true;
         }
+
         private void DebugTargetCircle()
         {
             Empire.Universe?.DebugWin?.DrawGPObjects(Debug.DebugModes.Targeting, this, Owner);
         }
+
         private void ArmourPiercingTouch(ShipModule module, Ship parent)
         {
             // Doc: If module has resistance to Armour Piercing effects, 

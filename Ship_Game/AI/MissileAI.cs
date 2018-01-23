@@ -39,8 +39,9 @@ namespace Ship_Game.AI
                             Missile, Missile.Planet.GravityWellRadius, GameObjectType.Ship);
                 foreach(GameplayObject go in nearbyShips)
                 {
+                    if (!missile.Weapon.TargetValid(go)) continue;
                     var nearbyShip = (Ship) go;
-                    if (missile.Weapon.TargetValid(nearbyShip.shipData.HullRole) && missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty) )
+                    if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty) )
                         TargetList.Add(nearbyShip);
                 }
             }
