@@ -369,8 +369,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
                         .OrderBy(x => true)
                         .ThenBy(player => !player.Value.IsPlayerDesign)
-                        .ThenBy(empire => empire.Value.shipData.HullData.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                        .ThenBy(empire => empire.Value.shipData.HullData.ShipStyle)
+                        .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                        .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle)
                         .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name))
                     {
                         if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) ||
@@ -403,7 +403,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         private void LoadShipToScreen()
         {
-            var loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text, false);
+            Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text, false);
+            loadedShip?.shipData.SetHullData(loadedShip.shipData);
             if (Screen is Ship_Game.ShipDesignScreen shipDesignScreen)                            
                 shipDesignScreen.ChangeHull(loadedShip?.shipData ?? selectedWIP);                
             
