@@ -759,21 +759,18 @@ namespace Ship_Game.Ships
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
                     UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
                         ignoreShields: true, damageAmount: size * 2500, damageRadius: size * 64);
-                }
-                if (PowerFlowMax > 0 || PowerRadius > 0)
-                    Parent.NeedRecalculate = true;
+                }            
             }
-
+            if (PowerFlowMax > 0 || PowerRadius > 0)
+                Parent.NeedRecalculate = true;
             int debriCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
-            if (debriCount != 0)
-            {
-                float debriScale = size * 0.1f;
-                SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
-            }
+            if (debriCount == 0) return;
+            float debriScale = size * 0.1f;
+            SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
         }
 
         public Ship GetHangarShip() => hangarShip;
-        public Ship GetParent() => Parent;
+        public Ship GetParent()     => Parent;
 
 
         //added by gremlin boarding parties
