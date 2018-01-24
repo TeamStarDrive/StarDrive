@@ -463,6 +463,8 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule module in ModuleSlotList)
             {
+                //Bug workaround. 0 powerdraw modules get marked as unpowered which causes issues when function 
+                //depends on powered even if no power is used. 
                 if (!module.Powered && module.IndirectPower || module.PowerDraw <=0)
                     module.Powered = true;
 
