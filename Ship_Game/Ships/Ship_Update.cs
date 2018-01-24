@@ -397,8 +397,8 @@ namespace Ship_Game.Ships
         {
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-                ShipModule slot = ModuleSlotList[i];
-                slot.Powered = false;
+                ShipModule slot      = ModuleSlotList[i];                
+                slot.Powered         = false;
                 slot.CheckedConduits = false;
             }
 
@@ -463,8 +463,9 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule module in ModuleSlotList)
             {
-                if (!module.Powered && module.IndirectPower)
+                if (!module.Powered && module.IndirectPower || module.PowerDraw <=0)
                     module.Powered = true;
+
             }
         }
     }
