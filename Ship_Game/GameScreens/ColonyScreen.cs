@@ -563,7 +563,7 @@ namespace Ship_Game
                                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                     var ship = (entry.item as Ship);
-                                    var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
+                                    var role = ship.shipData.HullData.Name;
                                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
                                     position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                                     ship.GetTechScore(out int[] scores);
@@ -606,7 +606,8 @@ namespace Ship_Game
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
 
                                     var ship = (entry.item as Ship);
-                                    var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
+                                    //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
+                                    var role = ship.shipData.HullData.Name;
                                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
                                     position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                                     ship.GetTechScore(out int[] scores);
