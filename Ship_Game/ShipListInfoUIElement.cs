@@ -348,25 +348,18 @@ namespace Ship_Game
             {
                 return false;
             }
-            if (this.ShipList == null || this.ShipList.Count == 0)
+            if (ShipList == null || ShipList.Count == 0)
             {
                 return false;
             }
-            if (this.gridbutton.HandleInput(input))
+            if (gridbutton.HandleInput(input))
             {
                 GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                this.ShowModules = !this.ShowModules;
-                if (!this.ShowModules)
-                {
-                    this.gridbutton.Active = false;
-                }
-                else
-                {
-                    this.gridbutton.Active = true;
-                }
+                ShowModules = !this.ShowModules;
+                gridbutton.Active = ShowModules;
                 return true;
             }
-            if (this.AllShipsMine)
+            if (AllShipsMine)
             {
                 foreach (ToggleButton button in this.CombatStatusButtons)
                 {
