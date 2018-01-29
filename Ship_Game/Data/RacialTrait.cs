@@ -146,7 +146,7 @@ namespace Ship_Game
                 {
                     if (techEntry.UID == "HeavyFighterHull" ||
                                          techEntry.UID == "Military" || techEntry.UID == "ArmorTheory")
-                        techEntry.Unlocked = true;
+                        techEntry.Unlock(empire);
 
                 }
             }
@@ -154,7 +154,7 @@ namespace Ship_Game
             if (Cybernetic > 0)
             {
                 if (techEntry.UID == "Biospheres")
-                    techEntry.Unlocked = true;
+                    techEntry.Unlock(empire);
             }
 
         }

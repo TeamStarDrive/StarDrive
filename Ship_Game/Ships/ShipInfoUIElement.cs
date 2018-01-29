@@ -246,51 +246,43 @@ namespace Ship_Game.Ships
             if (Ship.loyalty != EmpireManager.Player || Ship.isConstructor) return;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
-                if (toggleButton.Rect.HitTest(input.CursorPosition))
+                if (toggleButton.HandleInput(input))
                 {
-                    toggleButton.Hover = true;
-                    if (toggleButton.HasToolTip)
-                        ToolTip.CreateTooltip(toggleButton.WhichToolTip);
-                    if (input.InGameSelect)
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    switch (toggleButton.Action)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        switch (toggleButton.Action)
-                        {
-                            case "attack":
-                                Ship.AI.CombatState = CombatState.AttackRuns;
-                                break;
-                            case "arty":
-                                Ship.AI.CombatState = CombatState.Artillery;
-                                break;
-                            case "hold":
-                                Ship.AI.CombatState = CombatState.HoldPosition;
-                                Ship.AI.OrderAllStop();
-                                break;
-                            case "orbit_left":
-                                Ship.AI.CombatState = CombatState.OrbitLeft;
-                                break;
-                            case "broadside_left":
-                                Ship.AI.CombatState = CombatState.BroadsideLeft;
-                                break;
-                            case "orbit_right":
-                                Ship.AI.CombatState = CombatState.OrbitRight;
-                                break;
-                            case "broadside_right":
-                                Ship.AI.CombatState = CombatState.BroadsideRight;
-                                break;
-                            case "evade":
-                                Ship.AI.CombatState = CombatState.Evade;
-                                break;
-                            case "short":
-                                Ship.AI.CombatState = CombatState.ShortRange;
-                                break;
-                        }
-                        if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
-                            Ship.AI.State = AIState.AwaitingOrders;
+                        case "attack":
+                            Ship.AI.CombatState = CombatState.AttackRuns;
+                            break;
+                        case "arty":
+                            Ship.AI.CombatState = CombatState.Artillery;
+                            break;
+                        case "hold":
+                            Ship.AI.CombatState = CombatState.HoldPosition;
+                            Ship.AI.OrderAllStop();
+                            break;
+                        case "orbit_left":
+                            Ship.AI.CombatState = CombatState.OrbitLeft;
+                            break;
+                        case "broadside_left":
+                            Ship.AI.CombatState = CombatState.BroadsideLeft;
+                            break;
+                        case "orbit_right":
+                            Ship.AI.CombatState = CombatState.OrbitRight;
+                            break;
+                        case "broadside_right":
+                            Ship.AI.CombatState = CombatState.BroadsideRight;
+                            break;
+                        case "evade":
+                            Ship.AI.CombatState = CombatState.Evade;
+                            break;
+                        case "short":
+                            Ship.AI.CombatState = CombatState.ShortRange;
+                            break;
                     }
+                    if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
+                        Ship.AI.State = AIState.AwaitingOrders;
                 }
-                else
-                    toggleButton.Hover = false;
                 switch (toggleButton.Action)
                 {
                     case "attack":

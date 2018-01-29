@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game;
@@ -135,8 +136,10 @@ namespace Ship_Game
 
         }
 
-        public void Unlock(Empire empire)
-        {
+        public bool Unlock(Empire empire)
+        {            
+            if (!SetDiscovered(empire))
+                return false;
             if (Tech.MaxLevel > 1)
             {
                 Level++;
@@ -155,26 +158,35 @@ namespace Ship_Game
             {
                 Progress = Tech.Cost ;
                 Unlocked = true;
-            }
-            RaceRestrictonCheck(empire);
+            }            
+            DoRevelaedTechs(empire);            
             TriggerAnyEvents(empire);
             UnlockModules(empire);
             UnlockTroops(empire);
             UnLockHulls(empire);
-            UnlockBuildings(empire);
-            DoRevelaedTechs(empire);
+            UnlockBuildings(empire);            
             UnlockBonus(empire);
+            return true;
         }
 
-        public void RaceRestrictonCheck(Empire empire)
-        {
-            if (Tech.RootNode != 0) return;
-            foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
+        private bool IsInRequiredRaceArray(Empire empire, Array<Technology.RequiredRace> requiredRace)
+        {            
+            foreach (Technology.RequiredRace item in requiredRace)
             {
-                //added by McShooterz: Prevent Racial tech from being discovered by unintentional means                    
-                empire.SetEmpireTechDiscovered(leadsToTech.UID);
+                if (item.ShipType != empire.data.Traits.ShipType)
+                    continue;
+                return true;
             }
+            return false;
         }
+
+        private bool IsRestricted(Empire empire)
+        {            
+            if (Tech.RaceExclusions.Count > 0 && IsInRequiredRaceArray(empire, Tech.RaceExclusions))
+                return true;
+            return Tech.RaceRestrictions.Count > 0 && !IsInRequiredRaceArray(empire, Tech.RaceRestrictions);     
+        }
+
         public void DoRevelaedTechs(Empire empire)
         {
             // Added by The Doctor - reveal specified 'secret' techs with unlocking of techs, via Technology XML
@@ -187,8 +199,56 @@ namespace Ship_Game
             }
         }
 
-        
-        
+        public bool SetDiscovered(Empire empire)
+        {
+            if (IsRestricted(empire)) return false;
+            
+            Discovered = true;
+            var rootTech = FindRootNode(empire);
+            if (rootTech != null)            
+                rootTech.Unlocked = rootTech.Discovered = true;
+            
+            foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
+            {
+                //added by McShooterz: Prevent Racial tech from being discovered by unintentional means  
+                var tech = empire.GetTechEntry(leadsToTech.UID);
+                if (!tech.Tech.Secret && !tech.IsRestricted(empire))
+                    tech.SetDiscovered(empire);
+            }
+            return true;
+        }
+        public TechEntry FindRootNode(Empire empire)
+        {            
+            TechEntry tech = this;
+            while (tech.Tech.RootNode != 1)
+            {
+                var rootTech = tech.GetPreReq(empire);
+                if (rootTech == null)                
+                    break;
+                
+                if ((tech = rootTech).Tech.RootNode != 1)
+                    continue;
+                
+                return rootTech;
+            }
+            
+            return tech;
+        }
+
+        public TechEntry GetPreReq(Empire empire)
+        {
+            foreach (var keyValuePair in empire.TechnologyDict)
+            {
+                Technology technology = ResourceManager.GetTreeTech(keyValuePair.Key);
+                foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
+                {
+                    if (leadsToTech.UID == UID)
+                        return keyValuePair.Value;
+                }
+            }
+            return null;
+        }
+
 
         public void UnlockBonus(Empire empire)
         {

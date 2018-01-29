@@ -617,6 +617,15 @@ namespace Ship_Game
             foreach (string building in data.unlockBuilding)  UnlockedBuildingsDict[building]  = true;
             UnlockedTroops.Clear();
 
+            //unlock racial techs
+            foreach (var kv in TechnologyDict)
+            {
+                var techEntry = kv.Value;
+                data.Traits.TechUnlocks(techEntry, this);
+
+                if (techEntry.Unlocked)
+                    techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
+            }
             //Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
 
@@ -674,9 +683,11 @@ namespace Ship_Game
             var unlockedTechs = new Array<TechEntry>();
             foreach (var kv in ResourceManager.TechTree)
             {
-                TechEntry techEntry = new TechEntry();
-                techEntry.Progress = 0.0f;
-                techEntry.UID = kv.Key;
+                TechEntry techEntry = new TechEntry
+                {
+                    Progress = 0.0f,
+                    UID = kv.Key
+                };
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
                 if (kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0)
@@ -716,12 +727,7 @@ namespace Ship_Game
                 {
                     techEntry.Unlocked = false;
                 }
-
-                data.Traits.TechUnlocks(techEntry, this);
-
-                if (techEntry.Unlocked)
-                    techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
-                TechnologyDict.Add(kv.Key, techEntry);                
+                TechnologyDict.Add(kv.Key, techEntry);                            
             }
 
         }
@@ -876,15 +882,9 @@ namespace Ship_Game
         {
             UnlockedBuildingsDict[buildingName] = true;            
         }
-        public void SetEmpireTechDiscovered(string techUID)
-        {
-            if (TechnologyDict[techUID].Tech.RaceRestrictions.Count == 0 && !TechnologyDict[techUID].Tech.Secret)
-                TechnologyDict[techUID].Discovered = true;
-        }
-        public void SetEmpireTechRevealed(string techUID)
-        {
-            TechnologyDict[techUID].Discovered = true;
-        }
+        public void SetEmpireTechDiscovered(string techUID) => GetTechEntry(techUID).SetDiscovered(this);
+        
+        public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevelaedTechs(this);
 
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
@@ -899,10 +899,10 @@ namespace Ship_Game
 
         public void UnlockTech(string techId) //@todo rewrite. the empire tech dictionary is made of techentries which have a reference to the technology.
         {
-            var techEntry = TechnologyDict[techId];
-            if (techEntry.Unlocked)
+            var techEntry = GetTechEntry(techId);
+            
+            if (!techEntry.Unlock(this))
                 return;
-            techEntry.Unlock(this);            
 
             UpdateShipsWeCanBuild();
             if (!isPlayer)
@@ -2470,7 +2470,8 @@ namespace Ship_Game
         {
             foreach (KeyValuePair<string, TechEntry> keyValuePair in this.TechnologyDict)
             {
-                foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[keyValuePair.Key].LeadsTo)
+                Technology technology = ResourceManager.GetTreeTech(keyValuePair.Key);
+                foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
                 {
                     if (leadsToTech.UID == techID)
                         return keyValuePair.Key;
@@ -2485,7 +2486,7 @@ namespace Ship_Game
                 return true;
             foreach (KeyValuePair<string, TechEntry> keyValuePair in this.TechnologyDict)
             {
-                if (keyValuePair.Value.Unlocked)
+                if (keyValuePair.Value.Unlocked || !keyValuePair.Value.Discovered )
                 {
                     foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[keyValuePair.Key].LeadsTo)
                     {
