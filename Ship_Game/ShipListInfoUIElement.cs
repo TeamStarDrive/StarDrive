@@ -363,96 +363,78 @@ namespace Ship_Game
             {
                 foreach (ToggleButton button in this.CombatStatusButtons)
                 {
-                    if (!button.Rect.HitTest(input.CursorPosition))
+                    if (button.HandleInput(input))
                     {
-                        button.Hover = false;
-                    }
-                    else
-                    {
-                        button.Hover = true;
-                        if (button.HasToolTip)
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        string action = button.Action;
+                        string str = action;
+                        if (action != null)
                         {
-                            ToolTip.CreateTooltip(button.WhichToolTip);
-                        }
-                        if (input.InGameSelect)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            string action = button.Action;
-                            string str = action;
-                            if (action != null)
+                            if (str == "attack")
                             {
-                                if (str == "attack")
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.AttackRuns;
-                                    }
+                                    ship.AI.CombatState = CombatState.AttackRuns;
                                 }
-                                else if (str == "arty")
+                            }
+                            else if (str == "arty")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.Artillery;
-                                    }
+                                    ship.AI.CombatState = CombatState.Artillery;
                                 }
-                                else if (str == "hold")
+                            }
+                            else if (str == "hold")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.HoldPosition;
-                                    }
+                                    ship.AI.CombatState = CombatState.HoldPosition;
                                 }
-                                else if (str == "orbit_left")
+                            }
+                            else if (str == "orbit_left")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.OrbitLeft;
-                                    }
+                                    ship.AI.CombatState = CombatState.OrbitLeft;
                                 }
-                                else if (str == "broadside_left")
+                            }
+                            else if (str == "broadside_left")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.BroadsideLeft;
-                                    }
+                                    ship.AI.CombatState = CombatState.BroadsideLeft;
                                 }
-                                else if (str == "orbit_right")
+                            }
+                            else if (str == "orbit_right")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.OrbitRight;
-                                    }
+                                    ship.AI.CombatState = CombatState.OrbitRight;
                                 }
-                                else if (str == "broadside_right")
+                            }
+                            else if (str == "broadside_right")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.BroadsideRight;
-                                    }
+                                    ship.AI.CombatState = CombatState.BroadsideRight;
                                 }
-                                else if (str == "short")
+                            }
+                            else if (str == "short")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.ShortRange;
-                                    }
+                                    ship.AI.CombatState = CombatState.ShortRange;
                                 }
-                                else if (str == "evade")
+                            }
+                            else if (str == "evade")
+                            {
+                                foreach (Ship ship in this.ShipList)
                                 {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.Evade;
-                                    }
+                                    ship.AI.CombatState = CombatState.Evade;
                                 }
                             }
                         }
-                    }
-                    if (this.HoveredShip == null)
-                    {
-                        button.Active = false;
-                    }
-                    else
-                    {
+                    
                         string action1 = button.Action;
                         string str1 = action1;
                         if (action1 == null)

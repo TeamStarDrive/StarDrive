@@ -40,7 +40,7 @@ namespace Ship_Game
 
         public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
         private static Map<string, Troop> TroopsDict              = new Map<string, Troop>();
-        private static Array<string> TroopsDictKeys          = new Array<string>();
+        private static Array<string> TroopsDictKeys               = new Array<string>();
         public static IReadOnlyList<string> TroopTypes            => TroopsDictKeys;
         public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>();
         public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>();
@@ -82,6 +82,12 @@ namespace Ship_Game
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager ContentManager => Game1.Instance.Content;
         private static string LastFailedTexture = "";
+
+        public static Technology GetTreeTech(string techUID)
+        {
+            TechTree.TryGetValue(techUID, out Technology technology);
+            return technology;
+        }
 
         public static void MarkShipDesignsUnlockable()
         {
@@ -706,8 +712,10 @@ namespace Ship_Game
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-        
+
         // Gets a loaded texture using the given abstract texture path
+        public static Texture2D Texture(string texturePath, bool returnNull) => Texture(texturePath, returnNull ? "" : "NewUI/x_red");
+        
         public static Texture2D Texture(string texturePath, string defaultTex = "NewUI/x_red")
         {
             if (texturePath.NotEmpty() && TextureDict.TryGetValue(texturePath, out Texture2D texture))
