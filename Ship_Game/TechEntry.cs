@@ -27,7 +27,50 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
         public TechnologyType TechnologyType => Tech.TechnologyType;
-        public int MaxLevel => Tech.MaxLevel;        
+        public int MaxLevel => Tech.MaxLevel;
+        [XmlIgnore][JsonIgnore]
+        private Dictionary<TechnologyType, float> TechLookAhead;
+
+        public TechEntry()
+        {
+            TechLookAhead = new Dictionary<TechnologyType, float>();
+            foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))            
+                TechLookAhead.Add(techType, 0);
+            
+        }
+
+        public float GetLookAheadType(TechnologyType techType) => TechLookAhead[techType];
+
+        public void SetLookAhead(Empire empire)
+        {            
+            foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
+            {
+                TechLookAhead[techType] = LookAheadCost(techType, empire);
+            }
+        }
+
+        private float LookAheadCost(TechnologyType techType, Empire empire)
+        {
+            if (!Discovered) return 0;
+            if (!Unlocked && Tech.TechnologyType == techType)
+                return TechCost;
+            float cost = 0;
+            if (Tech.LeadsTo.Count == 0)
+                return 0;
+            foreach (var leadsTo in Tech.LeadsTo)
+            {
+                float tempCost = empire.GetTechEntry(leadsTo.UID).LookAheadCost(techType, empire);
+                if (tempCost > 0)
+                    if (cost > 0)
+                    {
+                        cost = Math.Min(tempCost, cost);
+                    }
+                    else
+                        cost = tempCost;
+                
+            }
+            return cost == 0 ? 0 : TechCost + cost;
+        }
 
         private bool CheckSource(string unlockType, Empire empire)
         {
@@ -169,7 +212,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool IsInRequiredRaceArray(Empire empire, Array<Technology.RequiredRace> requiredRace)
+        private static bool IsInRequiredRaceArray(Empire empire, IEnumerable<Technology.RequiredRace> requiredRace)
         {            
             foreach (Technology.RequiredRace item in requiredRace)
             {
@@ -204,6 +247,7 @@ namespace Ship_Game
             if (IsRestricted(empire)) return false;
             
             Discovered = true;
+            GetPreReq(empire);
             var rootTech = FindRootNode(empire);
             if (rootTech != null)            
                 rootTech.Unlocked = rootTech.Discovered = true;
@@ -217,6 +261,7 @@ namespace Ship_Game
             }
             return true;
         }
+
         public TechEntry FindRootNode(Empire empire)
         {            
             TechEntry tech = this;
