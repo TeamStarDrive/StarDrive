@@ -486,10 +486,10 @@ namespace Ship_Game.AI {
             TechEntry researchTech = null;
             TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
             {
-                if (econ.TechnologyType != techtype) return false;
-                if (techtype != TechnologyType.Economic) return true;
-                if (moneyNeeded > 5f) return true;
+                if (econ.GetLookAheadType(techtype) >0 &&
+                 techtype != TechnologyType.Economic) return true;                
                 if (econ.Tech.HullsUnlocked.Count == 0) return true;
+                if (moneyNeeded < 1f) return true;
                 return false;
             });
             
@@ -863,6 +863,7 @@ namespace Ship_Game.AI {
                     continue;
 
                 availableTechs.Add(kv.Value);
+                kv.Value.SetLookAhead(OwnerEmpire);
             }
             if (availableTechs.Count == 0)
                 DebugLog($"No Techs found to research");
