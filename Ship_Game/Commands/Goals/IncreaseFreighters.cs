@@ -22,7 +22,7 @@ namespace Ship_Game.Commands.Goals
                 ReportGoalCompleteToEmpire,
             };
         }
-        public IncreaseFreighters(Empire empire) : base(GoalType.BuildShips)
+        public IncreaseFreighters(Empire empire) : this()
         {
             this.empire = empire;
         }
