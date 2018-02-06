@@ -677,7 +677,7 @@ namespace Ship_Game
                     var kv = fleetdic[i];
                     if (kv.Ships.Count <= 0)
                         continue;
-                    if (GameDifficulty < UniverseData.GameDifficulty.Hard || !Debug && player.IsEmpireAttackable(kv.Owner)) continue;
+                    if (!Debug && GameDifficulty > UniverseData.GameDifficulty.Normal && player.IsEmpireAttackable(kv.Owner)) continue;
                     Vector2 averagePosition = kv.FindAveragePositionset();
                     bool flag = player.IsPointInSensors(averagePosition);
 

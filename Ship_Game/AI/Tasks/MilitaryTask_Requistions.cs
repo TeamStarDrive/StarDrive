@@ -70,7 +70,7 @@ namespace Ship_Game.AI.Tasks {
             if (scom != null)
                 importance = 1 + scom.RankImportance * .01f;
 
-            float distance = 50000 * importance;
+            float distance = 10000 * importance;
             MinimumEscortStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, distance, Owner);
             standardMinimum *= importance;
             if (MinimumEscortStrength < standardMinimum)
@@ -185,12 +185,13 @@ namespace Ship_Game.AI.Tasks {
                     }
                 if ((ship.shipData.Role == ShipData.RoleName.station ||
                      ship.shipData.Role == ShipData.RoleName.platform)
-                    || !ship.BaseCanWarp
-                    || ship.InCombat
+                    || !ship.ShipIsGoodForGoals()
+                    //|| ship.InCombat
                     || ship.fleet != null
                     || ship.Mothership != null
-                    || ship.AI.State != AIState.AwaitingOrders
-                    || (ship.System != null && ship.System.CombatInSystem))
+                    || ship.AI.State == AIState.Scrap
+                    || ship.AI.State == AIState.Resupply
+                    || ship.AI.State == AIState.Refit)
                     continue;
 
                 if (utility != null && (ship.DesignRole == ShipData.RoleName.support))                    
@@ -439,7 +440,10 @@ namespace Ship_Game.AI.Tasks {
                 return;
             }
             int landingSpots = TargetPlanet.GetGroundLandingSpots();
-            AO closestAO = FindClosestAO();
+            //MinimumTaskForceStrength = minimumEscortStrength;
+            MinimumTaskForceStrength = GetEnemyStrAtTarget(Owner.currentMilitaryStrength * .05f);
+            
+            AO closestAO = FindClosestAO(MinimumTaskForceStrength);
             
 
             if (closestAO == null || closestAO.GetOffensiveForcePool().Count == 0)
@@ -475,9 +479,7 @@ namespace Ship_Game.AI.Tasks {
             foreach (Troop t in potentialTroops)
                 ourAvailableStrength = ourAvailableStrength + t.Strength;
             if (ourAvailableStrength < enemyTroopStrength)
-                return;
-
-            float minimumEscortStrength = GetEnemyStrAtTarget(Owner.currentMilitaryStrength * .05f);
+                return;            
 
             // I'm unsure on ball-park figures for ship strengths. Given it used to build up to 1500, sticking flat +300 on seems a good start
             //updated. Now it will use 1/10th of the current military strength escort strength needed is under 1000
@@ -485,18 +487,18 @@ namespace Ship_Game.AI.Tasks {
             //sort of cheating but as it would be much the same calculation as the attacking empire would use.... hrmm.
             // actually i think the raw importance value could be used to create an importance for that planet. interesting... that could be very useful in many areas. 
 
-            MinimumTaskForceStrength = minimumEscortStrength;
+            
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             float tfstrength = 0f;
-            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, minimumEscortStrength, tfstrength,
+            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, MinimumTaskForceStrength, tfstrength,
                 out float tempStrength));
             tfstrength += tempStrength;
 
-            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, minimumEscortStrength * 1.5f, tfstrength,
+            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, MinimumTaskForceStrength * 1.5f, tfstrength,
                 out tempStrength));
             tfstrength += tempStrength;
 
-            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, minimumEscortStrength));
+            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, MinimumTaskForceStrength));
             if (tfstrength >= MinimumTaskForceStrength)
             {
                 if (ourAvailableStrength >= enemyTroopStrength && landingSpots > 8 && troopCount >= 10)
@@ -656,7 +658,7 @@ namespace Ship_Game.AI.Tasks {
             return true;
         }
 
-        private AO FindClosestAO()
+        private AO FindClosestAO(float strWanted = 100)
         {
             var aos = Owner.GetGSAI().AreasOfOperations;
             if (aos.Count == 0) return null;
@@ -666,7 +668,7 @@ namespace Ship_Game.AI.Tasks {
                 return null;
             }
             AO closestAO =
-                aos.FindMaxFiltered(ao => ao.GetOffensiveForcePool().Count > 4 ,
+                aos.FindMaxFiltered(ao => ao.GetPoolStrength() >strWanted ,
                     ao => -ao.Center.SqDist(AO)) ??
                 aos.FindMin(ao => ao.Center.SqDist(AO));
             if (closestAO == null)

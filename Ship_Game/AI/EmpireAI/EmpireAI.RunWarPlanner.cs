@@ -488,7 +488,7 @@ namespace Ship_Game.AI {
                     break;
                 case WarType.ImperialistWar:
                     var planets = new Array<Planet>();                    
-                    Planet[] importantPlanets = r.Key.GetPlanets().OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
+                    Planet[] importantPlanets = r.Key.GetPlanets().OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 -
                                   (r.Key.GetGSAI()
                                       .DefensiveCoordinator.DefenseDict
                                       .TryGetValue(planet.ParentSystem, out scom)
@@ -655,7 +655,7 @@ namespace Ship_Game.AI {
                         s = new Array<SolarSystem>();
 
                         var orderedEnumerable1 = kv.Key.GetPlanets()
-                            .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
+                            .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 -
                                                (kv.Key.GetGSAI()
                                                    .DefensiveCoordinator.DefenseDict
                                                    .TryGetValue(planet.ParentSystem, out scom)
@@ -700,7 +700,7 @@ namespace Ship_Game.AI {
                         s = new Array<SolarSystem>();
                         IOrderedEnumerable<Planet> orderedEnumerable2 = kv.Key.GetPlanets()
                             .OrderBy(
-                                (planet => GetDistanceFromOurAO(planet) / 150000 +
+                                (planet => GetDistanceFromOurAO(planet) / 300000 -
                                            (kv.Key.GetGSAI()
                                                .DefensiveCoordinator.DefenseDict
                                                .TryGetValue(planet.ParentSystem, out scom)
