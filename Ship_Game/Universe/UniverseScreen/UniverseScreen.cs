@@ -938,14 +938,22 @@ namespace Ship_Game
             ShipsToAddToWorld.Add(ship);
         }
         private void AddShipSceneObjectsFromQueue()
-        {
-            
+        {            
             while (!ShipsToAddToWorld.IsEmpty)
             {
                 var ship = ShipsToAddToWorld.PopLast();
                 if (!ship.Active) continue;
-                ship.InitiizeShipScene();
-            }
+                try
+                {
+                    ship.InitiizeShipScene();
+                }
+                catch
+                {
+                    Log.Error($"Crash attempting to create sceneobject for {ship.Name}. Destroying");
+                    ship.QueueTotalRemoval();
+
+                }
+            }           
         }
 
         protected override void Destroy()
