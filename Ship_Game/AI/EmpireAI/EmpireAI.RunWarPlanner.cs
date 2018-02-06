@@ -591,15 +591,12 @@ namespace Ship_Game.AI {
                 Empire.Universe.PlayerEmpire, dialogue, new Offer(), offerPeace));
         }
 
-        private void RunWarPlanner()
+        private IEnumerable<KeyValuePair<Empire, Relationship>> EmpireAttackWeights()
         {
-            float warWeight = 1 +
-                              OwnerEmpire.getResStrat().MilitaryPriority;
-
-            foreach (var kv in OwnerEmpire.AllRelations.OrderByDescending(anger =>
+            return OwnerEmpire.AllRelations.OrderByDescending(anger =>
                 {
                     if (!anger.Value.Known) return 0;
-                    float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());                    
+                    float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());
                     angerMod = (Empire.Universe.UniverseSize - angerMod) / UniverseData.UniverseWidth;
                     if (anger.Value.AtWar)
                         angerMod *= 100;
@@ -616,133 +613,142 @@ namespace Ship_Game.AI {
                     float killableMod = 1 + (int)OwnerEmpire.currentMilitaryStrength / (anger.Key.currentMilitaryStrength + 1);//    (ThreatMatrix.StrengthOfEmpire(anger.Key) +1);
                     return (anger.Value.TotalAnger + 1) * angerMod * killableMod;
                 }
-            ))
+            ).ToArray(); 
+            
+        }
+
+        private void RunWarPlanner()
+        {
+            float warWeight = 1 +
+                              OwnerEmpire.getResStrat().MilitaryPriority;
+            var weightedTargets = EmpireAttackWeights();
+            foreach (var kv in weightedTargets)
             {
                 if (!kv.Value.Known) continue;
                 if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;
                 if (!(warWeight > 0)) continue;
-                if (kv.Key.isFaction )
+                if (kv.Key.isFaction)
                 {
                     foreach (var planet in kv.Key.GetPlanets())
                     {
-                        if ( IsInOurAOs(planet.Center))
-                        {
-                            FightBrutalWar(kv);
-                            kv.Value.AtWar = false;
-                            continue;
-                        }
-                    }                    
+                        if (!IsInOurAOs(planet.Center)) continue;
+                        FightBrutalWar(kv);
+                        //kv.Value.AtWar = false;
+                        break;
+                    }
+                    continue;
                 }
                 warWeight--;
-                SystemCommander scom;
-                if (kv.Value.PreparingForWar)
+                if (kv.Value.AtWar)
                 {
-                    Array<SolarSystem> s;
-                    switch (kv.Value.PreparingForWarType)
-                    {
-                        case WarType.BorderConflict:
-                            Array<Planet> list1 = new Array<Planet>();
-                            s = new Array<SolarSystem>();
+                    FightDefaultWar(kv);
+                    return;
+                }
+                SystemCommander scom;
+                if (!kv.Value.PreparingForWar) continue;
 
-                            var orderedEnumerable1 = kv.Key.GetPlanets()
-                                .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
-                                    (kv.Key.GetGSAI()
-                                        .DefensiveCoordinator.DefenseDict
-                                        .TryGetValue(planet.ParentSystem, out scom)
-                                        ? scom.RankImportance
-                                        : 0)).ToArray();
-                            
-                            for (int index = 0;
-                                index < orderedEnumerable1.Length;
-                                ++index)
-                            {
-                                Planet p =
-                                    orderedEnumerable1[index];                                
-                                if (s.Count > warWeight)
-                                    break;
+                Array<SolarSystem> s;
+                switch (kv.Value.PreparingForWarType)
+                {
+                    case WarType.BorderConflict:
+                        Array<Planet> list1 = new Array<Planet>();
+                        s = new Array<SolarSystem>();
 
-                                if (!s.Contains(p.ParentSystem))
-                                {
-                                    s.Add(p.ParentSystem);
-                                }
-
-                                list1.Add(p);
-                            }
-                            foreach (Planet planet in list1)
-                            {
-                                bool assault = true;
-                                TaskList.ForEach(task =>
-                                {
-                                    if (task.GetTargetPlanet() == planet &&
-                                        task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                                    {
-                                        assault = false;
-                                    }                              
-                                }, false, false);
-                                if (assault)
-                                {
-                                    TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
-                                }
-                            }
-                            break;
-                        case WarType.ImperialistWar:
-                            Array<Planet> list2 = new Array<Planet>();
-                            s = new Array<SolarSystem>();
-                            IOrderedEnumerable<Planet> orderedEnumerable2 = kv.Key.GetPlanets()
-                                .OrderBy(
-                                    (planet => GetDistanceFromOurAO(planet) / 150000 +
+                        var orderedEnumerable1 = kv.Key.GetPlanets()
+                            .OrderBy(planet => GetDistanceFromOurAO(planet) / 150000 +
                                                (kv.Key.GetGSAI()
                                                    .DefensiveCoordinator.DefenseDict
                                                    .TryGetValue(planet.ParentSystem, out scom)
                                                    ? scom.RankImportance
-                                                   : 0)));
-                            for (int index = 0; index < orderedEnumerable2.Count(); ++index)
-                            {
-                                Planet p = orderedEnumerable2.ElementAt(index);
-                                if (s.Count > warWeight)
-                                    break;
+                                                   : 0)).ToArray();
 
-                                if (!s.Contains(p.ParentSystem))
-                                {
-                                    s.Add(p.ParentSystem);
-                                }
-                                list2.Add(p);
-                            }
-                            foreach (Planet planet in list2)
-                            {
-                                bool flag = true;
-                                //bool claim = false;
+                        for (int index = 0;
+                            index < orderedEnumerable1.Length;
+                            ++index)
+                        {
+                            Planet p =
+                                orderedEnumerable1[index];
+                            if (s.Count > warWeight)
+                                break;
 
-                                TaskList.ForEach(task =>
-                                {
-                                    if (!flag)
-                                        return;
-                                    if (task.GetTargetPlanet() == planet &&
-                                        task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                                    {
-                                        flag = false;
-                                    }
-                                }, false, false);
-                                if (flag)
-                                {
-                                    TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
-                                }
+                            if (!s.Contains(p.ParentSystem))
+                            {
+                                s.Add(p.ParentSystem);
                             }
-                            break;
-                        case WarType.GenocidalWar:
-                            break;
-                        case WarType.DefensiveWar:
-                            break;
-                        case WarType.SkirmishWar:
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+
+                            list1.Add(p);
+                        }
+                        foreach (Planet planet in list1)
+                        {
+                            bool assault = true;
+                            TaskList.ForEach(task =>
+                            {
+                                if (task.GetTargetPlanet() == planet &&
+                                    task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
+                                {
+                                    assault = false;
+                                }
+                            }, false, false);
+                            if (assault)
+                            {
+                                TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
+                            }
+                        }
+                        break;
+                    case WarType.ImperialistWar:
+                        Array<Planet> list2 = new Array<Planet>();
+                        s = new Array<SolarSystem>();
+                        IOrderedEnumerable<Planet> orderedEnumerable2 = kv.Key.GetPlanets()
+                            .OrderBy(
+                                (planet => GetDistanceFromOurAO(planet) / 150000 +
+                                           (kv.Key.GetGSAI()
+                                               .DefensiveCoordinator.DefenseDict
+                                               .TryGetValue(planet.ParentSystem, out scom)
+                                               ? scom.RankImportance
+                                               : 0)));
+                        for (int index = 0; index < orderedEnumerable2.Count(); ++index)
+                        {
+                            Planet p = orderedEnumerable2.ElementAt(index);
+                            if (s.Count > warWeight)
+                                break;
+
+                            if (!s.Contains(p.ParentSystem))
+                            {
+                                s.Add(p.ParentSystem);
+                            }
+                            list2.Add(p);
+                        }
+                        foreach (Planet planet in list2)
+                        {
+                            bool flag = true;
+                            //bool claim = false;
+
+                            TaskList.ForEach(task =>
+                            {
+                                if (!flag)
+                                    return;
+                                if (task.GetTargetPlanet() == planet &&
+                                    task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
+                                {
+                                    flag = false;
+                                }
+                            }, false, false);
+                            if (flag)
+                            {
+                                TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
+                            }
+                        }
+                        break;
+                    case WarType.GenocidalWar:
+                        break;
+                    case WarType.DefensiveWar:
+                        break;
+                    case WarType.SkirmishWar:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
-                if (kv.Value.AtWar)
-                {
-                    FightDefaultWar(kv);
-                }
+                return;
             }
         }
     }

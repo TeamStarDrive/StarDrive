@@ -58,7 +58,7 @@ namespace Ship_Game.AI {
             
             foreach (KeyValuePair<Empire, Relationship> rel in OwnerEmpire.AllRelations)
             {
-                offenseNeeded = Math.Max(offenseNeeded, rel.Value.Risk.MaxRisk);                
+                offenseNeeded = Math.Max(offenseNeeded,  OwnerEmpire.currentMilitaryStrength / (rel.Key.currentMilitaryStrength + 1) * .01f) ;// rel.Value.Risk.MaxRisk);                
             }
 
             //increase ship goals if a lot of ships are needed.
