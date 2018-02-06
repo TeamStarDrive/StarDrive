@@ -442,7 +442,7 @@ namespace Ship_Game.AI
                 foreach (string shipName in OwnerEmpire.ShipsWeCanBuild)
                 {
                     Ship newTemplate = ResourceManager.GetShipTemplate(shipName);
-                    if (newTemplate.GetShipData().Hull != ship.GetShipData().Hull)
+                    if (newTemplate.GetShipData().Hull != ship.GetShipData().Hull && newTemplate.DesignRole != ship.DesignRole)
                         continue;
                     if (newTemplate.DesignRole != ship.DesignRole) continue;
                     if (newTemplate.GetStrength() <= newStr) continue;

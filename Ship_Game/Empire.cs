@@ -883,7 +883,7 @@ namespace Ship_Game
             UnlockedBuildingsDict[buildingName] = true;            
         }
         public void SetEmpireTechDiscovered(string techUID) => GetTechEntry(techUID)?.SetDiscovered(this);
-        
+
         public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevelaedTechs(this);
 
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
