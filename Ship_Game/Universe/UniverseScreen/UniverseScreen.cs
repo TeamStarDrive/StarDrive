@@ -950,7 +950,7 @@ namespace Ship_Game
                 catch
                 {
                     Log.Error($"Crash attempting to create sceneobject for {ship.Name}. Destroying");
-                    ship.QueueTotalRemoval();
+                    ship.RemoveFromUniverseUnsafe();
 
                 }
             }           
