@@ -592,8 +592,10 @@ namespace Ship_Game.AI
                             }
                             break;
                         case 2:
-                            if (Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner) > GetStrength())
-                                task.EndTask();
+                            float targetStr = Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner);
+                            float fleetStr = GetStrength();
+                            //if (Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner) > GetStrength())
+                            //    task.EndTask();
                             if (!IsFleetAssembled(25000, out endTask))
                                 break;
                             using (Ships.AcquireReadLock())
@@ -609,8 +611,8 @@ namespace Ship_Game.AI
                             break;
                         case 3:
                             float targetStrength =       Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner);
-
-                            if (targetStrength > 500 && targetStrength > GetStrength())
+                            float fleetStrength = GetStrength();
+                            if (targetStrength > 500 && targetStrength > GetStrength() * 2)
                                 task.EndTask();
                             if (!IsFleetSupplied())
                             {

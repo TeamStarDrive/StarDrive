@@ -1090,39 +1090,39 @@ namespace Ship_Game
                 {
                     foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
                     {
-                        if (ActiveTroop == planetGridSquare1)
+                        if (ActiveTroop != planetGridSquare1) continue;
+                        foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
                         {
-                            foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
+                            if (planetGridSquare2 != ActiveTroop && planetGridSquare2 == squareToAttack)
                             {
-                                if (planetGridSquare2 != ActiveTroop && planetGridSquare2 == squareToAttack)
+                                //Added by McShooterz: Prevent troops from firing on own buildings
+                                if (planetGridSquare2.TroopsHere.Count == 0 && 
+                                    (planetGridSquare2.building == null || 
+                                     (planetGridSquare2.building != null && 
+                                      planetGridSquare2.building.CombatStrength == 0) || 
+                                      p.Owner?.IsEmpireAttackable(ActiveTroop.TroopsHere[0].GetOwner()) == false
+                                      ))
+                                    return false;
+                                int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
+                                int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
+                                if (planetGridSquare2.TroopsHere.Count > 0)
                                 {
-                                    //Added by McShooterz: Prevent troops from firing on own buildings
-                                    if (planetGridSquare2.TroopsHere.Count == 0 && 
-                                        (planetGridSquare2.building == null || 
-                                        (planetGridSquare2.building != null && 
-                                        planetGridSquare2.building.CombatStrength == 0) || 
-                                        p.Owner == ActiveTroop.TroopsHere[0].GetOwner()))
+                                    if (planetGridSquare1.TroopsHere.Count != 0 && 
+                                        num1 <= planetGridSquare1.TroopsHere[0].Range && 
+                                        (num2 <= planetGridSquare1.TroopsHere[0].Range &&                                          
+                                         planetGridSquare2.TroopsHere[0].GetOwner().IsEmpireAttackable(ActiveTroop.TroopsHere[0].GetOwner()) 
+                                         ))
+                                        return true;
+                                }
+                                else if (planetGridSquare2.building != null && 
+                                         planetGridSquare2.building.CombatStrength > 0 && 
+                                         (num1 <= planetGridSquare1.TroopsHere[0].Range && 
+                                          num2 <= planetGridSquare1.TroopsHere[0].Range))
+                                {
+                                    if (p.Owner == null)
                                         return false;
-                                    int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
-                                    int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
-                                    if (planetGridSquare2.TroopsHere.Count > 0)
-                                    {
-                                        if (planetGridSquare1.TroopsHere.Count != 0 && 
-                                            num1 <= planetGridSquare1.TroopsHere[0].Range && 
-                                            (num2 <= planetGridSquare1.TroopsHere[0].Range && 
-                                            planetGridSquare2.TroopsHere[0].GetOwner() != ActiveTroop.TroopsHere[0].GetOwner()))
-                                            return true;
-                                    }
-                                    else if (planetGridSquare2.building != null && 
-                                        planetGridSquare2.building.CombatStrength > 0 && 
-                                        (num1 <= planetGridSquare1.TroopsHere[0].Range && 
-                                        num2 <= planetGridSquare1.TroopsHere[0].Range))
-                                    {
-                                        if (p.Owner == null)
-                                            return false;
-                                        if (p.Owner != ActiveTroop.TroopsHere[0].GetOwner())
-                                            return true;
-                                    }
+                                    if (p.Owner?.IsEmpireAttackable(ActiveTroop.TroopsHere[0].GetOwner()) == true)
+                                        return true;
                                 }
                             }
                         }
@@ -1146,7 +1146,7 @@ namespace Ship_Game
                                     if (planetGridSquare2.TroopsHere.Count > 0)
                                     {
                                         if (num1 <= 1 && num2 <= 1 && 
-                                            planetGridSquare2.TroopsHere[0].GetOwner() != p.Owner)
+                                            p.Owner.IsEmpireAttackable(planetGridSquare2.TroopsHere[0].GetOwner()))
                                             return true;
                                     }
                                     else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && (num1 <= 1 && num2 <= 1))

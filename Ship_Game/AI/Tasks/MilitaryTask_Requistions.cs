@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
@@ -19,8 +20,9 @@ namespace Ship_Game.AI.Tasks {
                 foreach (Planet planet in system.PlanetList)
                 {
                     if (planet.Owner != Owner) continue;
-                    if (planet.RecentCombat) continue;
-                    int extra = needed == 0 ? rank / 3 : needed;
+                    if (planet.RecentCombat) continue;                    
+                    int extra = planet.TroopsHere.Count - rank;
+                    extra = Math.Max(needed, extra);                    
                     potentialTroops.AddRange(planet.GetEmpireTroops(Owner, extra));
                 }
                 if (potentialTroops.Count > 100)
@@ -530,8 +532,8 @@ namespace Ship_Game.AI.Tasks {
                     return;
                 }
 
-                Fleet closestCoreFleet = closestAO.GetCoreFleet();
-                if (closestCoreFleet.FleetTask == null && closestCoreFleet.GetStrength() > MinimumTaskForceStrength)
+                Fleet closestCoreFleet = FindClosestCoreFleet(MinimumTaskForceStrength);
+                if (closestCoreFleet != null && closestCoreFleet.FleetTask == null)
                 {
                     var clearArea = new MilitaryTask(closestCoreFleet.Owner)
                     {
@@ -678,7 +680,25 @@ namespace Ship_Game.AI.Tasks {
             }
             return closestAO;
         }
-
+        private Fleet FindClosestCoreFleet(float strWanted = 100)
+        {
+            var aos = Owner.GetGSAI().AreasOfOperations;
+            if (aos.Count == 0) return null;
+            if (aos == null)
+            {
+                Log.Error("{0} has no areas of operation", Owner.Name);
+                return null;
+            }
+            AO closestAO =
+                aos.FindMaxFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted,
+                    ao => -ao.Center.SqDist(AO));
+            if (closestAO == null)
+            {
+                Log.Info("{0} : no coreFleetsFound of operation found", Owner.Name);
+                return null;
+            }
+            return closestAO.GetCoreFleet();
+        }
         private void RequisitionExplorationForce()
         {
             AO closestAO = FindClosestAO();
