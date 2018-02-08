@@ -1146,7 +1146,7 @@ namespace Ship_Game
                                     if (planetGridSquare2.TroopsHere.Count > 0)
                                     {
                                         if (num1 <= 1 && num2 <= 1 && 
-                                            p.Owner.IsEmpireAttackable(planetGridSquare2.TroopsHere[0].GetOwner()))
+                                            p.Owner?.IsEmpireAttackable(planetGridSquare2.TroopsHere[0].GetOwner()) == true)
                                             return true;
                                     }
                                     else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && (num1 <= 1 && num2 <= 1))
