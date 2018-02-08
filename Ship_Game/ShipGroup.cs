@@ -263,7 +263,7 @@ namespace Ship_Game
 
         public float GetStrength()
         {
-            float num = 0.0f;
+            float num = 0.0f;            
             for (int index = 0; index < this.Ships.Count; index++)
             {
                 Ship ship = this.Ships[index];

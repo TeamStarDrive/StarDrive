@@ -695,7 +695,7 @@ namespace Ship_Game.AI {
 
             private static bool CheckRoleAndScrap(ref float numShips, float desiredShips, Ship ship, ShipData.RoleName role)
             {
-                if (numShips <= desiredShips || ship.DesignRole != role)
+                if (numShips <= desiredShips || ship.DesignRole != role || ship.fleet?.IsCoreFleet == false)
                     return false;
                 numShips--;
                 ship.AI.OrderScrapShip();

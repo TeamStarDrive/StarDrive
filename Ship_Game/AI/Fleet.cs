@@ -74,7 +74,7 @@ namespace Ship_Game.AI
         public void AddShip(Ship shiptoadd, bool updateOnly)
         {
             this.HasRepair = HasRepair || shiptoadd.hasRepairBeam || (shiptoadd.HasRepairModule && shiptoadd.Ordinance > 0);        
-            if (updateOnly) return;
+            if (updateOnly && Ships.Contains(shiptoadd)) return;
             if (shiptoadd.fleet != null || Ships.Contains(shiptoadd))
             {
                 Log.Warning("ship already in a fleet");
@@ -544,9 +544,10 @@ namespace Ship_Game.AI
             }
             else
             {                                                
-                int assaultShips = CountShipsWithStrength(out int availableTroops);                
+                int assaultShips = CountShipsWithStrength(out int availableTroops);
+                var target = task.GetTargetPlanet();
                 if (availableTroops == 0)                
-                    availableTroops += task.GetTargetPlanet().CountEmpireTroops(Owner);                    
+                    availableTroops += target.AnyOfOurTroops(Owner) ? 1 : 0;   
                 
                 if (availableTroops == 0 || assaultShips == 0)
                 {
@@ -1874,7 +1875,7 @@ namespace Ship_Game.AI
                     foreach (FleetDataNode fleetDataNode in DataNodes)
                     {
                         if (fleetDataNode.Ship == ship)
-                            fleetDataNode.Ship = (Ship)null;
+                            fleetDataNode.Ship = null;
                     }
             if (AllFlanks == null) return;
             foreach (var list in AllFlanks)
@@ -1906,9 +1907,12 @@ namespace Ship_Game.AI
             if (ship == null) return false;
             if (ship.Active && ship.fleet != this)
                 Log.Error("{0} : not equal {1}", ship.fleet.Name, Name);
+            if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
+                Log.Info("WTF");
             ship.fleet = null;
             RemoveFromAllSquads(ship);
             if (Ships == null) return true;
+            Log.Info("Ship removed");
             if (Ships.Remove(ship) || !ship.Active) return true;
             Log.Info("Ship is not in this fleet");
             return false;
