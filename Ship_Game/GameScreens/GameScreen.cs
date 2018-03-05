@@ -80,8 +80,7 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
-            ScreenManager.exitScreenTimer =.024f;
-            Input.CancelInput = true;            
+            ScreenManager.exitScreenTimer =.25f;            
             if (Pauses)
                 Empire.Universe.Paused = Pauses = false;
             if (TransitionOffTime != TimeSpan.Zero)

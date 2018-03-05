@@ -947,9 +947,9 @@ namespace Ship_Game
                 {
                     ship.InitiizeShipScene();
                 }
-                catch
+                catch(Exception ex)
                 {
-                    Log.Error($"Crash attempting to create sceneobject for {ship.Name}. Destroying");
+                    Log.Error(ex,$"Crash attempting to create sceneobject. Destroying");
                     ship.RemoveFromUniverseUnsafe();
 
                 }
