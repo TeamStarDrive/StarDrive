@@ -197,6 +197,7 @@ namespace Ship_Game.Ships
         public float WeaponECM = 0;
         public float WeaponECCM = 0;
         public Texture2D ModuleTexture => ResourceManager.Texture(IconTexturePath);
+        public bool HasColonyBuilding => ModuleType == ShipModuleType.Colony || DeployBuildingOnColonize.NotEmpty();
 
         private ShipModule() : base(GameObjectType.ShipModule)
         {

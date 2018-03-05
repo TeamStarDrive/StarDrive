@@ -3023,13 +3023,15 @@ namespace Ship_Game.Ships
             Health = ModuleSlotList.Length;
         }
         
+        
+
         public void CreateColonizationBuildingFor(Planet colonizeTarget)
         {
             // @TODO create building placement methods in planet.cs that take into account the below logic.
 
             foreach (ShipModule slot in ModuleSlotList) 
             {
-                if (slot == null || slot.ModuleType != ShipModuleType.Colony || slot.DeployBuildingOnColonize == null)
+                if (slot?.HasColonyBuilding != true)
                     continue;
 
                 Building template = ResourceManager.GetBuildingTemplate(slot.DeployBuildingOnColonize);
@@ -3039,7 +3041,7 @@ namespace Ship_Game.Ships
                 Building building = ResourceManager.CreateBuilding(template);
                 colonizeTarget.BuildingList.Add(building);
                 building.AssignBuildingToTileOnColonize(colonizeTarget);
-                break;
+               
             }
         }
 
@@ -3047,7 +3049,7 @@ namespace Ship_Game.Ships
         {
             foreach (ShipModule slot in ModuleSlotList)
             {
-                if (slot.ModuleType != ShipModuleType.Colony)
+                if (slot?.HasColonyBuilding != true)
                     continue;
                 colonizeTarget.FoodHere       += slot.numberOfFood;				
                 colonizeTarget.ProductionHere += slot.numberOfEquipment;				
@@ -3057,14 +3059,14 @@ namespace Ship_Game.Ships
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
-            empire.canBuildBombers      = empire.canBuildBombers || DesignRole == ShipData.RoleName.bomber;
-            empire.canBuildCarriers     = empire.canBuildCarriers || DesignRole == ShipData.RoleName.carrier;
+            empire.canBuildBombers      = empire.canBuildBombers      || DesignRole == ShipData.RoleName.bomber;
+            empire.canBuildCarriers     = empire.canBuildCarriers     || DesignRole == ShipData.RoleName.carrier;
             empire.canBuildSupportShips = empire.canBuildSupportShips || DesignRole == ShipData.RoleName.support;
-            empire.canBuildTroopShips   = empire.canBuildTroopShips || DesignRole == ShipData.RoleName.troopShip;
-            empire.canBuildCorvettes    = empire.canBuildCorvettes || DesignRole == ShipData.RoleName.corvette;
-            empire.canBuildFrigates     = empire.canBuildFrigates || DesignRole == ShipData.RoleName.frigate;
-            empire.canBuildCruisers     = empire.canBuildCruisers || DesignRole == ShipData.RoleName.cruiser;
-            empire.canBuildCapitals     = empire.canBuildCapitals || DesignRole == ShipData.RoleName.capital;
+            empire.canBuildTroopShips   = empire.canBuildTroopShips   || DesignRole == ShipData.RoleName.troopShip;
+            empire.canBuildCorvettes    = empire.canBuildCorvettes    || DesignRole == ShipData.RoleName.corvette;
+            empire.canBuildFrigates     = empire.canBuildFrigates     || DesignRole == ShipData.RoleName.frigate;
+            empire.canBuildCruisers     = empire.canBuildCruisers     || DesignRole == ShipData.RoleName.cruiser;
+            empire.canBuildCapitals     = empire.canBuildCapitals     || DesignRole == ShipData.RoleName.capital;
         }
 
         // @todo autocalculate during ship instance init

@@ -123,7 +123,10 @@ namespace Ship_Game {
             foreach (SlotStruct slot in Slots)
             {
                 if (slot.ModuleUID == null && slot.Parent == null)
+                {
                     emptySlots = false;
+                    break;
+                }
                 hasBridge = hasBridge || (slot.Module?.IsCommandModule ?? false);                
             }
             return (hasBridge || ActiveHull.Role == ShipData.RoleName.platform 
@@ -151,35 +154,51 @@ namespace Ship_Game {
 
         public override void ExitScreen()
         {
-            if (!ShipSaved && !CheckDesign())
+            bool goodDesign = CheckDesign();
+
+            if (!ShipSaved && !goodDesign)
             {
                 ExitMessageBox(this, DoExit, SaveWIP, 2121);
                 return;
             }
-            if (ShipSaved || !CheckDesign())
+            if (ShipSaved || !goodDesign)
             {
                 ReallyExit();
                 return;
             }
-
             ExitMessageBox(this, DoExit, SaveChanges, 2137);
         }
 
         public void ExitToMenu(string launches)
         {
             ScreenToLaunch = launches;
-            if (ShipSaved && CheckDesign())
+            bool noSlotsFilled = true;
+            foreach (SlotStruct slot in Slots)
+            {
+                if (slot.ModuleUID == null && slot.Parent == null) continue;
+                noSlotsFilled = false;
+                break;
+            }
+
+            bool goodDesign = CheckDesign();
+
+            if (noSlotsFilled || (ShipSaved && goodDesign))
             {
                 LaunchScreen(null, null);
                 ReallyExit();
                 return;
             }
-            if (!ShipSaved && CheckDesign())
+            if (!ShipSaved && !goodDesign)
+            {
+                ExitMessageBox(this, LaunchScreen, SaveWIP, 2121);
+                return;
+            }
+
+            if (!ShipSaved && goodDesign)
             {
                 ExitMessageBox(this, LaunchScreen, SaveChanges, 2137);
                 return;
             }
-
             ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
         }
 
