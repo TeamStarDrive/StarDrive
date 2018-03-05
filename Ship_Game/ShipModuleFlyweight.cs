@@ -45,7 +45,7 @@ namespace Ship_Game.Gameplay
         public readonly string BombType;
         public readonly float WarpMassCapacity;
         public readonly float BonusRepairRate;
-        public readonly int Cargo_Capacity;
+        public readonly float Cargo_Capacity;
         public readonly float shield_radius;
         public readonly float shield_power_max;
         public readonly float shield_recharge_rate;
@@ -284,7 +284,7 @@ namespace Ship_Game.Gameplay
         public float facing;
         public Vector2 XMLPosition;
         public float BonusRepairRate;
-        public int Cargo_Capacity;
+        public float Cargo_Capacity;
         public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
