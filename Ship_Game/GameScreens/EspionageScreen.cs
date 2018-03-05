@@ -50,7 +50,12 @@ namespace Ship_Game
 		{
 			this.screen = screen;
 			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+		    if (!Empire.Universe.Paused)
+		    {
+		        Empire.Universe.Paused = Pauses = true;
+
+		    }
+            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 

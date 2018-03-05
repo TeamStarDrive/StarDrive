@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     public sealed class InputState
     {
-        public bool CancelInput = false;
+        //public bool CancelInput = ExitScreenTimer >0;
         public KeyboardState KeysCurr;
         public KeyboardState KeysPrev;
         public GamePadState GamepadCurr;
@@ -16,6 +16,7 @@ namespace Ship_Game
         public int ScrollWheelPrev;
         public float DoubleClickTime = .5f;
         public bool Repeat;
+        public float ExitScreenTimer;
         // MouseDrag variables
         public Vector2 StartRighthold { get; private set; }
         public Vector2 EndRightHold { get; private set; }
@@ -301,9 +302,10 @@ namespace Ship_Game
         }
         public void Update(GameTime gameTime)
         {
-            if (CancelInput)
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (ExitScreenTimer >=0)
             {
-                CancelInput = false;
+                ExitScreenTimer -= elapsedTime;
                 return;
             }
             KeysPrev        = KeysCurr;
@@ -322,8 +324,6 @@ namespace Ship_Game
             LeftMouseDoubleClick = LeftDblClickTimer > 0 && LeftMouseClick;
             LeftDblClickTimer = LeftMouseDoubleClick ? 0 : LeftDblClickTimer;
                 
-            
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             UpdateTimers(elapsedTime);
 
             StartRighthold = UpdateHoldStartPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
