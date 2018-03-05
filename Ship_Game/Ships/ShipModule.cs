@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
         public string BombType                   => Flyweight.BombType;
         public float WarpMassCapacity            => Flyweight.WarpMassCapacity;
         public float BonusRepairRate             => Flyweight.BonusRepairRate;
-        public int Cargo_Capacity                => Flyweight.Cargo_Capacity;
+        public float Cargo_Capacity                => Flyweight.Cargo_Capacity;
         public float shield_radius               => Flyweight.shield_radius;
         public float shield_power_max            => Flyweight.shield_power_max;
         public float shield_recharge_rate        => Flyweight.shield_recharge_rate;
