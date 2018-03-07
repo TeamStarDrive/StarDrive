@@ -2516,7 +2516,7 @@ namespace Ship_Game.Ships
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
-            
+            shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
             //Update max health due to bonuses that increase module health
             if (Health > HealthMax)
                 HealthMax = Health;
