@@ -819,7 +819,8 @@ namespace Ship_Game.Ships
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
                     || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
-                ) return;
+                )
+                    return;
                 hangarShip.DoEscort(Parent);
                 return;
             }
@@ -835,22 +836,23 @@ namespace Ship_Game.Ships
                 ship = ResourceManager.GetShipTemplate(startingscout);
                 foreach (string shipsWeCanBuild in Parent.loyalty.ShipsWeCanBuild)
                 {
+                    var shipWeCanBuild = ResourceManager.GetShipTemplate(shipsWeCanBuild);
+                    if (shipWeCanBuild.Size > MaximumHangarShipSize) continue;
 
-                    if (!PermittedHangarRoles.Contains(ResourceManager.GetShipTemplate(shipsWeCanBuild).shipData.GetRole())
-                        || ResourceManager.GetShipTemplate(shipsWeCanBuild).Size > MaximumHangarShipSize)
+                    if (!PermittedHangarRoles.Contains(shipWeCanBuild.shipData.GetRole()))
                     {
                         continue;
                     }
-                    Ship tempship = ResourceManager.GetShipTemplate(shipsWeCanBuild);
-                    if (ship.BaseStrength < tempship.BaseStrength || ship.Size < tempship.Size)
-                        ship = tempship;
+                    
+                    if (ship.BaseStrength < shipWeCanBuild.BaseStrength || ship.Size < shipWeCanBuild.Size)
+                        ship = shipWeCanBuild;
                 }
                 hangarShipUID = ship.Name;
             }
             if (ship == null || (!Parent.loyalty.isFaction && ship.Mass / 5f > Parent.Ordinance))  //fbedard: New spawning cost
                 return;
 
-            SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Center, Parent));
+            SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
 
             hangarShip.DoEscort(Parent);
             hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
