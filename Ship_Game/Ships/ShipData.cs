@@ -5,8 +5,11 @@ using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using SgMotion;
+using SgMotion.Controllers;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
@@ -255,6 +258,16 @@ namespace Ship_Game.Ships
             return CategoryArray[(int)ShipCategory];
         }
 
+        public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim)
+        {
+            shipSO = ResourceManager.GetSceneMesh(ModelPath, Animated);
+            shipMeshAnim = null;
+            if (!Animated) return;
+            
+            SkinnedModel skinned = ResourceManager.GetSkinnedModel(ModelPath);
+            shipMeshAnim = new AnimationController(skinned.SkeletonBones);
+            shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+        }
        
         public enum Category
         {

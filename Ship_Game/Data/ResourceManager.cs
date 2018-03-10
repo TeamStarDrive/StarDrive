@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
+using SgMotion.Controllers;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -560,7 +561,8 @@ namespace Ship_Game
             if (!Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
             {
                 staticMesh = ContentManager.Load<StaticMesh>(modelName);
-                Meshes[modelName] = staticMesh;    
+                Meshes[modelName] = staticMesh;
+                Log.Info($"Load Model {modelName}");
             }
             if (staticMesh == null)
                 return null;
@@ -603,6 +605,7 @@ namespace Ship_Game
                 }
                 if (model == null) model = ContentManager.Load<Model>(modelName);
                 Models[modelName] = model;
+                Log.Info($"Loaded Normal Model {modelName}");
             }
             if (model == null)
                 return null;
@@ -623,6 +626,7 @@ namespace Ship_Game
             {
                 skinned = ContentManager.Load<SkinnedModel>(modelName);
                 SkinnedModels[modelName] = skinned;
+                Log.Info($"Loaded Skinned Model : {modelName}");
             }
             if (skinned == null)
                 return null;
@@ -1016,6 +1020,7 @@ namespace Ship_Game
                         {
                             HullsDict[shipData.Hull] = shipData;
                             retList.Add(shipData);
+                            shipData.LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim);
                         }
                     }
                     catch (Exception e)
@@ -1024,7 +1029,9 @@ namespace Ship_Game
                     }
                 }
             }
+            //Running into issues.. trying to see if serial load works better. 
             Parallel.For(hullFiles.Length, LoadHulls);
+            //LoadHulls(0, hullFiles.Length);
             return retList;
         }
 
