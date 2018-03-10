@@ -729,7 +729,7 @@ namespace Ship_Game
             playerShip = null;
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
-                ship.RemoveFromUniverseUnsafe();
+                ship?.RemoveFromUniverseUnsafe();
             MasterShipList.ApplyPendingRemovals();
             MasterShipList.Clear();
             foreach (SolarSystem solarSystem in SolarSystemList)
