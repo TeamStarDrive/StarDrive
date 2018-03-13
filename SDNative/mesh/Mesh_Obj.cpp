@@ -1,10 +1,17 @@
 #include "Mesh.h"
 #include <rpp/file_io.h>
-#include <cassert>
+#include <rpp/debugging.h>
+#include <rpp/sprint.h>
 #include <unordered_set>
+#include <cstdlib>
 
 namespace mesh
 {
+    using std::make_shared;
+    using rpp::file;
+    using rpp::string_buffer;
+    using rpp::buffer_line_parser;
+    using namespace rpp::literals;
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     static bool SaveMaterials(const Mesh& mesh, strview materialSavePath, strview fileName) noexcept
@@ -28,28 +35,29 @@ namespace mesh
             return defaultMat;
         };
 
-        if (file f = file{ materialSavePath, CREATENEW })
+        if (file f = file{ materialSavePath, rpp::CREATENEW })
         {
-            auto writeColor = [&](strview id, Color3 color) { f.writeln(id, color.r, color.g, color.b); };
-            auto writeStr   = [&](strview id, strview str)  { if (str) f.writeln(id, str); };
-            auto writeFloat = [&](strview id, float value)  { if (value != 1.0f) f.writeln(id, value); };
+            string_buffer sb;
+            auto writeColor = [&](strview id, Color3 color) { sb.writeln(id, color.r, color.g, color.b); };
+            auto writeStr   = [&](strview id, strview str)  { if (str) sb.writeln(id, str); };
+            auto writeFloat = [&](strview id, float value)  { if (value != 1.0f) sb.writeln(id, value); };
 
-            f.writeln("#", fileName, "MTL library");
+            sb.writeln("#", fileName, "MTL library");
             for (const MeshGroup& group : mesh.Groups)
             {
                 Material& mat = *(group.Mat ? group.Mat : getDefaultMat()).get();
-                if (contains(written, &mat))
+                if (rpp::contains(written, &mat))
                     continue; // skip
                 written.push_back(&mat);
 
-                f.writeln("newmtl", mat.Name);
+                sb.writeln("newmtl", mat.Name);
                 writeColor("Ka", mat.AmbientColor);
                 writeColor("Kd", mat.DiffuseColor);
                 writeColor("Ks", mat.SpecularColor);
                 if (mat.EmissiveColor.notZero())
                     writeColor("Ke", mat.EmissiveColor);
 
-                writeFloat("Ns", clamp(mat.Specular*1000.0f, 0.0f, 1000.0f)); // Ns is [0, 1000]
+                writeFloat("Ns", rpp::clamp(mat.Specular*1000.0f, 0.0f, 1000.0f)); // Ns is [0, 1000]
                 writeFloat("d", mat.Alpha);
 
                 writeStr("map_Kd",   mat.DiffusePath);
@@ -58,11 +66,14 @@ namespace mesh
                 writeStr("map_bump", mat.NormalPath);
                 writeStr("map_Ke",   mat.EmissivePath);
 
-                f.writeln("illum 2"); // default smooth shaded rendering
+                sb.writeln("illum 2"); // default smooth shaded rendering
             }
-            return true;
+
+            if (f.write(sb) == sb.size())
+                return true;
+            LogWarning("File write failed: %s", materialSavePath);
         }
-        println(stderr, "Failed to create file: ", materialSavePath);
+        else LogWarning("Failed to create file: %s", materialSavePath);
         return false;
     }
 
@@ -113,6 +124,7 @@ namespace mesh
     {
         Mesh& mesh;
         strview meshPath;
+        MeshLoaderOptions options;
         buffer_line_parser parser;
         size_t numVerts = 0, numCoords = 0, numNormals = 0, numColors = 0, numFaces = 0;
         vector<shared_ptr<Material>> materials;
@@ -127,8 +139,9 @@ namespace mesh
         void* dataBuffer = nullptr;
         size_t bufferSize = 0;
 
-        explicit ObjLoader(Mesh& mesh, strview meshPath)
-            : mesh{ mesh }, meshPath{ meshPath }, parser{ buffer_line_parser::from_file(meshPath) }
+        explicit ObjLoader(Mesh& mesh, strview meshPath, MeshLoaderOptions options)
+            : mesh{ mesh }, meshPath{ meshPath }, options{options}, 
+              parser{ buffer_line_parser::from_file(meshPath) }
         {
         }
 
@@ -158,7 +171,7 @@ namespace mesh
 
             parser.reset();
             if (numVerts == 0) {
-                fprintf(stderr, "Mesh::LoadOBJ() failed: No vertices in %s\n", meshPath.c_str());
+                LogWarning("Mesh::LoadOBJ() failed: No vertices in %s\n", meshPath);
                 return false;
             }
 
@@ -182,7 +195,7 @@ namespace mesh
         void InitPointers(void* allocated)
         {
             dataBuffer = allocated;
-            pool_helper pool = { (byte*) allocated };
+            pool_helper pool = { allocated };
             vertsData   = pool.next<Vector3>(numVerts);
             coordsData  = pool.next<Vector2>(numCoords);
             normalsData = pool.next<Vector3>(numNormals);
@@ -263,32 +276,13 @@ namespace mesh
                 {
                     // f Vertex1/Texture1/Normal1 Vertex2/Texture2/Normal2 Vertex3/Texture3/Normal3
                     auto& faces = CurrentGroup()->Faces;
-                    Face* f = &emplace_back(faces);
+                    Triangle* f = &rpp::emplace_back(faces);
 
                     // load the face indices
                     line.skip(2); // skip 'f '
 
-                    while (strview vertdescr = line.next(' '))
+                    auto parseDescr = [&](VertexDescr& vd, strview vertdescr)
                     {
-                        // when encountering quads or large polygons, we need to triangulate the mesh
-                        // by tracking the first vertex descr and forming a fan; this requires convex polys
-                        if (f->Count == 3)
-                        {
-                            // @note According to OBJ spec, face vertices are in CCW order:
-                            // 0--3
-                            // |\ |
-                            // | \|
-                            // 1--2
-
-                            // v[0], v[2], v[3]
-                            VertexDescr vd0 = f->VDS[0]; // by value, because emplace_back may realloc
-                            VertexDescr vd2 = f->VDS[2];
-                            f = &emplace_back(faces);
-                            f->VDS[f->Count++] = vd0;
-                            f->VDS[f->Count++] = vd2;
-                            // v[3] is parsed below:
-                        }
-                        VertexDescr& vd = f->VDS[f->Count++];
                         if (strview v = vertdescr.next('/')) {
                             vd.v = v.to_int() - 1;
                             // negative indices, relative to the current maximum vertex position
@@ -303,6 +297,30 @@ namespace mesh
                             vd.n = n.to_int() - 1;
                             if (vd.n < 0) vd.n = normalId + vd.n + 1;
                         }
+                    };
+
+                    // parse triangle
+                    parseDescr(f->a, line.next(' '));
+                    parseDescr(f->b, line.next(' '));
+                    parseDescr(f->c, line.next(' '));
+
+                    // when encountering quads or large polygons, we need to triangulate the mesh
+                    // by tracking the first vertex descr and forming a fan; this requires convex polys
+                    while (strview vertdescr = line.next(' '))
+                    {
+                        // @note According to OBJ spec, face vertices are in CCW order:
+                        // 0--3
+                        // |\ |
+                        // | \|
+                        // 1--2
+
+                        // v[0], v[2], v[3]
+                        VertexDescr vd0 = f->a; // by value, because emplace_back may realloc
+                        VertexDescr vd2 = f->c;
+                        f = &rpp::emplace_back(faces);
+                        f->a = vd0;
+                        f->b = vd2;
+                        parseDescr(f->c, vertdescr);
                     }
                 }
                 //else if (c == 's')
@@ -326,7 +344,11 @@ namespace mesh
                 else if (c == 'g')
                 {
                     line.skip(2); // skip "g "
-                    group = &mesh.FindOrCreateGroup(line.next(' '));
+                    bool ignoreGroup = options.ForceSingleGroup && group;
+                    if (!ignoreGroup)
+                    {
+                        group = &mesh.FindOrCreateGroup(line.next(' '));
+                    }
                 }
                 else if (c == 'o')
                 {
@@ -342,12 +364,15 @@ namespace mesh
                 if (it->IsEmpty()) it = mesh.Groups.erase(it); else ++it;
         }
 
-        void BuildGroup(MeshGroup& g)
+        void BuildGroup(MeshGroup& g) const
         {
-            int vertsMin   = numVerts,   vertsMax   = 0;
-            int coordsMin  = numCoords,  coordsMax  = 0;
-            int normalsMin = numNormals, normalsMax = 0;
-            for (Face& face : g.Faces)
+            if (g.Name.empty() && g.Mat) // assign default name
+                g.Name = g.Mat->Name;
+
+            int vertsMin   = (int)numVerts,   vertsMax   = 0;
+            int coordsMin  = (int)numCoords,  coordsMax  = 0;
+            int normalsMin = (int)numNormals, normalsMax = 0;
+            for (Triangle& face : g.Faces)
             {
                 for (VertexDescr& vd : face) 
                 {
@@ -371,19 +396,28 @@ namespace mesh
             copyElements(g.Coords,  coordsData,  coordsMin,  coordsMax);
             copyElements(g.Normals, normalsData, normalsMin, normalsMax);
 
+            int numVerts   = g.NumVerts();
+            int numNormals = g.NumNormals();
+            int numCoords  = g.NumCoords();
+            int numFaces   = g.NumFaces();
+
+            if      (numNormals <= 0)        g.NormalsMapping = MapNone;
+            else if (numNormals == numVerts) g.NormalsMapping = MapPerVertex;
+            else if (numNormals == numFaces) g.NormalsMapping = MapPerFace;
+            else if (numNormals >  numVerts) g.NormalsMapping = MapPerFaceVertex;
+            else                             g.NormalsMapping = MapSharedElements;
+            if      (numCoords == 0)        g.CoordsMapping = MapNone;
+            else if (numCoords == numVerts) g.CoordsMapping = MapPerVertex;
+            else if (numCoords >  numVerts) g.CoordsMapping = MapPerFaceVertex;
+            else Assert(false, "Unfamiliar CoordsMapping mode");
+
             const bool vertexColors = numColors > 0;
             if (vertexColors) {
                 copyElements(g.Colors, colorsData, vertsMin, vertsMax);
                 g.ColorMapping = MapPerVertex;
             }
 
-            if (g.Coords.size() == g.Verts.size())
-                g.CoordsMapping = MapPerVertex;
-
-            if (g.Normals.size() == g.Verts.size())
-                g.NormalsMapping = MapPerVertex;
-
-            for (Face& face : g.Faces) // now assign new ids
+            for (Triangle& face : g.Faces) // now assign new ids
             {
                 for (VertexDescr& vd : face) 
                 {
@@ -393,10 +427,6 @@ namespace mesh
                     if (vertexColors) vd.c = vd.v;
                 }
             }
-
-            // assign default name
-            if (g.Name.empty() && g.Mat)
-                g.Name = g.Mat->Name;
         }
 
         void BuildMeshGroups()
@@ -405,31 +435,36 @@ namespace mesh
             {
                 mesh.NumFaces += g.NumFaces();
                 BuildGroup(g);
+                
+                g.Print();
 
                 // OBJ default face winding is CCW
                 g.Winding = FaceWindCounterClockWise;
             }
 
-            if (mesh.Groups.size() >= 1 && mesh.Groups.front().Name.empty())
+            if (!mesh.Groups.empty() && mesh.Groups.front().Name.empty())
                 mesh.Groups.front().Name = "default";
         }
     };
 
-    bool Mesh::LoadOBJ(strview meshPath) noexcept
+    bool Mesh::LoadOBJ(strview meshPath, MeshLoaderOptions options) noexcept
     {
         Clear();
 
-        ObjLoader loader { *this, meshPath };
+        ObjLoader loader { *this, meshPath, options };
 
         if (!loader.parser) {
-            println(stderr, "Failed to open file:", meshPath);
+            LogWarning("Failed to open file: %s", meshPath);
             return false;
         }
 
         if (!loader.ProbeStats()) {
-            println(stderr, "Mesh::LoadOBJ() failed! No vertices in:", meshPath);
+            LogWarning("Mesh::LoadOBJ() failed! No vertices in: %s", meshPath);
             return false;
         }
+
+        LogInfo("LoadOBJ %-28s  %5zu verts  %5zu faces",
+            file_name(meshPath), loader.numVerts, loader.numFaces);
 
         // OBJ maps vertex data globally, not per-mesh-group like most game engines expect
         // so this really complicates things when we build the mesh groups...
@@ -455,7 +490,7 @@ namespace mesh
     {
         vector<Vector3> colors = { group.Verts.size(), Vector3::ZERO };
 
-        for (const Face& face : group)
+        for (const Triangle& face : group)
             for (const VertexDescr& vd : face)
             {
                 if (vd.c == -1) continue;
@@ -468,35 +503,41 @@ namespace mesh
 
     bool Mesh::SaveAsOBJ(strview meshPath) const noexcept
     {
-        if (file f = file{ meshPath, CREATENEW })
+        if (file f = file{ meshPath, rpp::CREATENEW })
         {
+            string_buffer sb;
             // straight to file, #dontcare about perf atm
+            LogInfo("SaveOBJ %-28s  %5d verts  %5d tris", file_name(meshPath), TotalVerts(), TotalFaces());
 
-            string matlib = file_replace_ext(meshPath, "mtl");
-            strview matlibFile = file_nameext(matlib);
+            string matlib = rpp::file_replace_ext(meshPath, "mtl");
+            strview matlibFile = rpp::file_nameext(matlib);
             if (SaveMaterials(*this, matlib, matlibFile))
-                f.writeln("mtllib", matlibFile);
+                sb.writeln("mtllib", matlibFile);
 
             if (!Name.empty())
-                f.writeln("o", Name);
+                sb.writeln("o", Name);
 
-            string buf;
+            int vertexBase  = 1;
+            int coordsBase  = 1;
+            int normalsBase = 1;
+
             for (int group = 0; group < (int)Groups.size(); ++group)
             {
                 const MeshGroup& g = Groups[group];
+                g.Print();
 
                 auto* vertsData = g.Verts.data();
                 if (g.Colors.empty())
                 {
                     for (const Vector3& v : g.Verts)
-                        f.writef("v %.6f %.6f %.6f\n", v.x, v.y, v.z);
+                        sb.writef("v %.6f %.6f %.6f\n", v.x, v.y, v.z);
                 }
                 else // non-standard extension for OBJ vertex colors
                 {
                     // @todo Just leave a warning and export incorrect vertex colors?
-                    assert((g.ColorMapping == MapPerVertex || g.ColorMapping == MapPerFaceVertex) 
-                        && "OBJ export only supports per-vertex and per-face-vertex color mapping!");
-                    assert(g.NumColors() >= g.NumVerts());
+                    Assert((g.ColorMapping == MapPerVertex || g.ColorMapping == MapPerFaceVertex),
+                           "OBJ export only supports per-vertex and per-face-vertex color mapping!");
+                    Assert(g.NumColors() >= g.NumVerts(), "Group %s NumColors does not match NumVerts", g.Name);
 
                     auto& colors = g.ColorMapping == MapPerFaceVertex ? FlattenColors(g) : g.Colors;
                     auto* colorsData = colors.data();
@@ -506,34 +547,39 @@ namespace mesh
                     {
                         const Vector3& v = vertsData[i];
                         const Vector3& c = colorsData[i];
-                        if (c == Vector3::ZERO) f.writef("v %.6f %.6f %.6f\n", v.x, v.y, v.z);
-                        else f.writef("v %.6f %.6f %.6f %.6f %.6f %.6f\n", v.x, v.y, v.z, c.x, c.y, c.z);
+                        if (c == Vector3::ZERO) sb.writef("v %.6f %.6f %.6f\n", v.x, v.y, v.z);
+                        else sb.writef("v %.6f %.6f %.6f %.6f %.6f %.6f\n", v.x, v.y, v.z, c.x, c.y, c.z);
                     }
                 }
 
-                for (const Vector2& v : g.Coords)  f.writef("vt %.4f %.4f\n", v.x, v.y);
-                for (const Vector3& v : g.Normals) f.writef("vn %.4f %.4f %.4f\n", v.x, v.y, v.z);
+                for (const Vector2& v : g.Coords)  sb.writef("vt %.4f %.4f\n", v.x, v.y);
+                for (const Vector3& v : g.Normals) sb.writef("vn %.4f %.4f %.4f\n", v.x, v.y, v.z);
 
-                if (!g.Name.empty()) f.writeln("g", g.Name);
-                if (g.Mat)           f.writeln("usemtl", g.Mat->Name);
-                f.writeln("s", group);
-                for (const Face& face : g.Faces)
+                if (!g.Name.empty()) sb.writeln("g", g.Name);
+                if (g.Mat)           sb.writeln("usemtl", g.Mat->Name);
+                sb.writeln("s", group);
+                for (const Triangle& face : g.Faces)
                 {
-                    buf.clear();
-                    buf += 'f';
+                    sb.write('f');
                     for (const VertexDescr& vd : face)
                     {
-                        buf += ' ', buf += to_string(vd.v + 1);
-                        if (vd.t != -1) buf += '/', buf += to_string(vd.t + 1);
-                        if (vd.n != -1) buf += '/', buf += to_string(vd.n + 1);
+                        sb.write(' '); sb.write(vd.v + vertexBase);
+                        if (vd.t != -1) { sb.write('/'); sb.write(vd.t + coordsBase); }
+                        if (vd.n != -1) { sb.write('/'); sb.write(vd.n + normalsBase); }
                     }
-                    buf += '\n';
-                    f.write(buf);
+                    sb.writeln();
                 }
+
+                vertexBase  += g.NumVerts();
+                coordsBase  += g.NumCoords();
+                normalsBase += g.NumNormals();
             }
-            return true;
+
+            if (f.write(sb) == sb.size())
+                return true;
+            LogWarning("File write failed: %s", meshPath);
         }
-        println(stderr, "Failed to create file: ", meshPath);
+        else LogWarning("Failed to create file: %s", meshPath);
         return false;
     }
 

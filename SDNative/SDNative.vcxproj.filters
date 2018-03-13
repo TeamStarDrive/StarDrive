@@ -52,6 +52,9 @@
     <ClCompile Include="StaticMeshLoader.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="ReCpp\rpp\sprint.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -78,9 +81,6 @@
     <ClInclude Include="mesh\Mesh.h">
       <Filter>mesh</Filter>
     </ClInclude>
-    <ClInclude Include="mesh\CollectionExt.h">
-      <Filter>mesh</Filter>
-    </ClInclude>
     <ClInclude Include="ReCpp\rpp\debugging.h">
       <Filter>rpp</Filter>
     </ClInclude>
@@ -95,6 +95,12 @@
     </ClInclude>
     <ClInclude Include="StaticMeshLoader.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\sprint.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\collections.h">
+      <Filter>rpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

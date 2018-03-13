@@ -106,7 +106,7 @@ namespace SDNative
             TechsLen = TechsNeeded.size();
             return true;
         }
-        catch (exception e)
+        catch (std::exception e)
         {
             return Error(e.what());
         }
