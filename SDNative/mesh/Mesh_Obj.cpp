@@ -409,7 +409,7 @@ namespace mesh
             if      (numCoords == 0)        g.CoordsMapping = MapNone;
             else if (numCoords == numVerts) g.CoordsMapping = MapPerVertex;
             else if (numCoords >  numVerts) g.CoordsMapping = MapPerFaceVertex;
-            else Assert(false, "Unfamiliar CoordsMapping mode");
+            else                            g.CoordsMapping = MapSharedElements;
 
             const bool vertexColors = numColors > 0;
             if (vertexColors) {
