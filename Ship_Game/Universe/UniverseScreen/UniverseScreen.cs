@@ -496,6 +496,25 @@ namespace Ship_Game
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
+            ResourceManager.CompactLargeObjectHeap();
+            var memStart1 = GC.GetTotalMemory(true);
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                //    var empire = EmpireManager.Player;
+                var memStart =  GC.GetTotalMemory(true);
+                var techDict = empire.TechnologyDict;
+                foreach (var kv in techDict)
+                {
+                    kv.Value.LoadShipModelsFromDiscoveredTech(empire);
+                }
+                
+                var memEnd = GC.GetTotalMemory(true);
+                var memToal = memEnd - memStart;
+                var runningToal = memEnd - memStart1;
+
+                Log.Info($"Models size for {empire.Name} is {memToal/1000}K");
+                Log.Info($"Models size runningToal is {runningToal / 1000}K");
+            }
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
