@@ -8,7 +8,9 @@ using System.Threading;
 using System.Xml.Serialization;
 using Ship_Game.AI;
 using Newtonsoft.Json;
+using SgMotion.Controllers;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -632,21 +634,24 @@ namespace Ship_Game
             foreach (var entry in TechnologyDict)
             {
                 var tech = entry.Value.Tech;
-                if (tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0 && !WeCanUseThis(tech, ourShips))
+                if (tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0 && !WeCanUseThis(tech, ourShips))                
                     entry.Value.shipDesignsCanuseThis = false;
+               
             }
-            foreach (var tech in TechnologyDict)
+            foreach (var entry in TechnologyDict)
             {
-                if (!tech.Value.shipDesignsCanuseThis)
-                    tech.Value.shipDesignsCanuseThis = WeCanUseThisLater(tech.Value);
+                if (!entry.Value.shipDesignsCanuseThis)
+                    entry.Value.shipDesignsCanuseThis = WeCanUseThisLater(entry.Value);                
+   
             }
-            foreach (var kv in TechnologyDict.OrderBy(hulls => hulls.Value.Tech.HullsUnlocked.Count >0))
+            foreach (var entry in TechnologyDict.OrderBy(hulls => hulls.Value.Tech.HullsUnlocked.Count >0))
             {
-                AddToShipTechLists(kv.Value);
-                if (!kv.Value.Unlocked)
+                AddToShipTechLists(entry.Value);
+                if (!entry.Value.Unlocked)
                     continue;
-                kv.Value.Unlocked = false;
-                kv.Value.Unlock(this);
+      
+                entry.Value.Unlocked = false;
+                entry.Value.Unlock(this);
             }
             foreach (var kv in TechnologyDict.Where(hulls => hulls.Value.Tech.HullsUnlocked.Count > 0 && hulls.Value.Tech.RootNode != 1))
             {
@@ -674,8 +679,7 @@ namespace Ship_Game
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
             data.TechDelayTime = 4;
             if (EmpireManager.NumEmpires ==0)
-                UpdateTimer = 0;
-
+                UpdateTimer = 0;       
         }
 
         private void InitTechs()
@@ -731,6 +735,8 @@ namespace Ship_Game
             }
 
         }
+
+
 
         private void AddToShipTechLists(TechEntry tech)
         {
@@ -872,6 +878,7 @@ namespace Ship_Game
         {
             UnlockedHullsDict[hullName] = true;
             ShipTechs.Add(techUID);
+
         }
         public void UnlockEmpireTroop(string troopName)
         {
