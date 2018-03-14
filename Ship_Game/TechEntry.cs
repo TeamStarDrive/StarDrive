@@ -102,6 +102,8 @@ namespace Ship_Game
                
             }
             empire.UpdateShipsWeCanBuild(hullList);
+            //if (Empire.Universe != null)
+            //    LoadModelsFromDiscoveredTech(empire);
             return hullList;
         }
 
@@ -210,6 +212,21 @@ namespace Ship_Game
             UnlockBuildings(empire);            
             UnlockBonus(empire);
             return true;
+        }
+
+        public void LoadShipModelsFromDiscoveredTech(Empire empire)
+        {
+            if (!Discovered) return;
+                foreach (var hullName in Tech.HullsUnlocked)
+            {
+                
+                if (!ResourceManager.GetHull(hullName.Name, out ShipData shipData)) continue;
+                if (shipData?.ShipStyle != empire.data.Traits.ShipType) continue;
+                //if (shipData.Role < ShipData.RoleName.cruiser) continue;
+                shipData?.LoadModel();
+                
+            }
+
         }
 
         private static bool IsInRequiredRaceArray(Empire empire, IEnumerable<Technology.RequiredRace> requiredRace)
