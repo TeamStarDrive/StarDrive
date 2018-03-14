@@ -9,6 +9,8 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
+using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
 using SgMotion.Controllers;
@@ -454,7 +456,7 @@ namespace Ship_Game
         public static string GetShipHull(string shipName)
         {
             return ShipsDict[shipName].GetShipData().Hull;
-        }
+        }       
 
         public static bool IsPlayerDesign(string shipName)
         {
@@ -547,6 +549,8 @@ namespace Ship_Game
             return maxSubmeshes == 0 ? meshSubmeshCount : Math.Min(maxSubmeshes, meshSubmeshCount);
         }
 
+     
+
         private static SceneObject DynamicObject(string modelName)
         {
             return new SceneObject(modelName)
@@ -560,13 +564,15 @@ namespace Ship_Game
         {
             if (!Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
             {
+                Log.Info($"Loading model for {modelName}");
                 staticMesh = ContentManager.Load<StaticMesh>(modelName);
-                Meshes[modelName] = staticMesh;
-                Log.Info($"Load Model {modelName}");
+                Meshes[modelName] = staticMesh;                
             }
+            
+                
             if (staticMesh == null)
                 return null;
-
+            
             SceneObject so = DynamicObject(modelName);
             int count = SubmeshCount(maxSubmeshes, staticMesh.Count);
 
@@ -591,69 +597,76 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromModel(string modelName, int maxSubmeshes = 0)
+        private static SceneObject SceneObjectFromModel(string modelName, int maxSubmeshes = 0, bool justLoad = false)
         {
             if (!Models.TryGetValue(modelName, out Model model))
             {
                 // special backwards compatibility with mods...
                 // basically, all old mods put their models into "Mod Models/" folder because
-                // the old model loading system didn't handle Unified resource paths...
+                // the old model loading system didn't handle Unified resource paths...                
                 if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
                 {
                     string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
                     if (File.Exists(modModelPath)) model = ContentManager.Load<Model>(modModelPath);
                 }
                 if (model == null) model = ContentManager.Load<Model>(modelName);
-                Models[modelName] = model;
-                Log.Info($"Loaded Normal Model {modelName}");
+                Models[modelName] = model;  
             }
-            if (model == null)
+            if (model == null || justLoad)
+            {                
                 return null;
-
+            }            
             SceneObject so = DynamicObject(modelName);
             int count = SubmeshCount(maxSubmeshes, model.Meshes.Count);
 
             so.Visibility = ObjectVisibility.RenderedAndCastShadows;
 
             for (int i = 0; i < count; ++i)
-                so.Add(model.Meshes[i]);
+                so.Add(model.Meshes[i]);            
             return so;
         }
 
-        private static SceneObject SceneObjectFromSkinnedModel(string modelName)
+        public static void CompactLargeObjectHeap()
+        {
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+            GC.Collect();
+        }
+
+        private static SceneObject SceneObjectFromSkinnedModel(string modelName, bool justLoad = false)
         {
             if (!SkinnedModels.TryGetValue(modelName, out SkinnedModel skinned))
             {
                 skinned = ContentManager.Load<SkinnedModel>(modelName);
-                SkinnedModels[modelName] = skinned;
-                Log.Info($"Loaded Skinned Model : {modelName}");
-            }
-            if (skinned == null)
+                SkinnedModels[modelName] = skinned;                
+            }            
+            if (skinned == null || justLoad)
                 return null;
-
-            return new SceneObject(skinned.Model, modelName)
+            
+            var so = new SceneObject(skinned.Model, modelName)
             {
                 ObjectType = ObjectType.Dynamic
             };
+
+            return so;
         }
 
-        public static SceneObject GetSceneMesh(string modelName, bool animated = false)
+        public static SceneObject GetSceneMesh(string modelName, bool animated = false, bool justLoad = false)
         {
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(modelName);
-
-            return animated ? SceneObjectFromSkinnedModel(modelName) : SceneObjectFromModel(modelName);
+                return SceneObjectFromStaticMesh(modelName);            
+            return animated ? SceneObjectFromSkinnedModel(modelName, justLoad) : SceneObjectFromModel(modelName, justLoad: justLoad);
         }
 
         public static SceneObject GetPlanetarySceneMesh(string modelName)
-        {
+        {            
             if (RawContentLoader.IsSupportedMesh(modelName))
                 return SceneObjectFromStaticMesh(modelName, 1);
             return SceneObjectFromModel(modelName, 1);
         }
 
         
-        public static SkinnedModel GetSkinnedModel(string path)
+        public static SkinnedModel GetSkinnedModel(string path, bool justLoad = false)
         {
             if (SkinnedModels.TryGetValue(path, out SkinnedModel model))
                 return model;
@@ -993,7 +1006,7 @@ namespace Ship_Game
             }
         }
 
-        public static bool TryGetHull(string shipHull, out ShipData hullData)
+        public static bool GetHull(string shipHull, out ShipData hullData)
         {
             return HullsDict.TryGetValue(shipHull, out hullData);
         }        
@@ -1020,7 +1033,7 @@ namespace Ship_Game
                         {
                             HullsDict[shipData.Hull] = shipData;
                             retList.Add(shipData);
-                            shipData.LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim);
+                            
                         }
                     }
                     catch (Exception e)
