@@ -181,11 +181,13 @@ namespace Ship_Game
 
             string extension  = "";
             string assetNoExt = assetName;
+            string assetWext = assetName;
             if (assetName[assetName.Length - 4] == '.')
             {
-                extension  = assetName.Substring(assetName.Length - 3).ToLower();
+                extension = assetName.Substring(assetName.Length - 3).ToLower();
                 assetNoExt = assetName.Substring(0, assetName.Length - 4);
             }
+            else assetWext += ".xnb";
 
             assetNoExt = assetNoExt.Replace("\\", "/"); // normalize path
 
@@ -221,12 +223,12 @@ namespace Ship_Game
                 throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            T asset = (extension.Length > 0 && extension != "xnb")
+            T asset = (extension.Length > 0 && extension != "xnb") //(T)RawContent.LoadAsset(assetWext, extension); // 
                 ? (T)RawContent.LoadAsset(assetName, extension) 
-                : ReadAsset<T>(assetNoExt, RecordDisposableObject);
+                : ReadAsset<T>(assetNoExt, RecordDisposableObject); //
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
-            #if false
+#if false
                 string[] keys;
                 lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
                 foreach (string key in keys)
@@ -237,7 +239,7 @@ namespace Ship_Game
                         Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
                     }
                 }
-            #endif
+#endif
             lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);            
             return asset;
         }
