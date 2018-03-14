@@ -747,6 +747,7 @@ namespace Ship_Game
         private Empire CreateEmpireFromEmpireData(EmpireData data)
         {
             Empire empire = new Empire();
+            Log.Info($"Creating Empire {data.PortraitName}");
             if (data.Faction == 1)
                 empire.isFaction = true;
             if (data.MinorRace)

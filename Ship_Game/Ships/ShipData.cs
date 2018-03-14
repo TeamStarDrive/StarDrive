@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -258,15 +259,33 @@ namespace Ship_Game.Ships
             return CategoryArray[(int)ShipCategory];
         }
 
-        public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim)
+        public void LoadModel() => LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, true);
+
+        public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, bool justLoad = false)
         {
-            shipSO = ResourceManager.GetSceneMesh(ModelPath, Animated);
-            shipMeshAnim = null;
-            if (!Animated) return;
+            //Log.Info($"loading model for {Name}");
             
-            SkinnedModel skinned = ResourceManager.GetSkinnedModel(ModelPath);
-            shipMeshAnim = new AnimationController(skinned.SkeletonBones);
-            shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+            //long mem1 = GC.GetTotalMemory(true);
+            shipSO = ResourceManager.GetSceneMesh(ModelPath, Animated, justLoad);
+            shipMeshAnim = null;
+            
+
+            if (Animated)
+            {
+                SkinnedModel skinned = ResourceManager.GetSkinnedModel(ModelPath);
+                if (!justLoad)
+                {
+                    shipMeshAnim = new AnimationController(skinned.SkeletonBones);
+                    shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+                }
+            }
+            ResourceManager.CompactLargeObjectHeap();
+            
+            //long mem2 = GC.GetTotalMemory(true);
+            //var memoryUsed = mem2 - mem1;
+            //Log.Info($"Memory used {memoryUsed}");
+            
+
         }
        
         public enum Category
