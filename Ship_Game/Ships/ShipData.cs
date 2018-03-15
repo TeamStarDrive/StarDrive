@@ -59,7 +59,7 @@ namespace Ship_Game.Ships
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
         [XmlIgnore] [JsonIgnore] public RoleName HullRole => HullData?.Role ?? Role;
         [XmlIgnore] [JsonIgnore] public ShipData HullData { get; internal set; }
-
+        [XmlIgnore] [JsonIgnore] public string HullModel => HullData?.ModelPath ?? ModelPath;
         public void SetHullData(ShipData shipData)
         {            
             shipData.HullData = ResourceManager.HullsDict.TryGetValue(shipData.Hull, out ShipData hull) ? hull : shipData;
@@ -264,9 +264,11 @@ namespace Ship_Game.Ships
         public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, bool justLoad = false)
         {
             //Log.Info($"loading model for {Name}");
-            
+
             //long mem1 = GC.GetTotalMemory(true);
-            shipSO = ResourceManager.GetSceneMesh(ModelPath, Animated, justLoad);
+            //var modelPath = HullData.ModelPath;
+            //modelPath = modelPath.IsEmpty() ? ModelPath : modelPath;
+            shipSO = ResourceManager.GetSceneMesh(HullModel, Animated, justLoad);
             shipMeshAnim = null;
             
 
