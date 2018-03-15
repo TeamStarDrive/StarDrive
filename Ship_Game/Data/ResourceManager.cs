@@ -250,8 +250,31 @@ namespace Ship_Game
             LoadPlanetEdicts();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
-
+            TestLoad();
             HelperFunctions.CollectMemory();
+        }
+
+        private static void TestLoad()
+        {
+            if (!GlobalStats.TestLoad) return;
+
+            Log.ShowConsoleWindow(2000);
+            Log.TestMessage("TEST - LOADING ALL HULL MODELS\n");
+            foreach (var hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role=> role.Role))
+            {                
+                try
+                {
+                    Log.TestMessage($"Loading model {hull.ModelPath} for hull {hull.Name}\n",Log.Importance.Regular);
+                    hull.LoadModel();
+                }
+                catch (Exception e)
+                {
+                    Log.TestMessage($"Failure loading model {hull.ModelPath} for hull {hull.Name}\n{e}",Log.Importance.Critical);
+                }
+                
+            }
+            Log.TestMessage("Hull Model Load Finished",waitForEnter:true);
+            Log.HideConsoleWindow();
         }
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
@@ -594,6 +617,7 @@ namespace Ship_Game
                     0, mesh.VertexStride);
                 so.Add(renderable);
             }
+            
             return so;
         }
 

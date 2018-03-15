@@ -299,8 +299,8 @@ namespace Ship_Game
             ScreenManager.RemoveAllLights();
             foreach (SolarSystem system in SolarSystemList)
             {
-                float intensity = 2.5f;
-                float radius = 150000f;
+                float intensity = 5f;
+                float radius = 350000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
@@ -317,13 +317,18 @@ namespace Ship_Game
                         break; 
                 }
                 // standard 3 point lighting
-                AddLight(system, intensity, radius, zpos: +2500f, fillLight: true);
-                AddLight(system, 2.5f, 5000f,   zpos: -2500f, fillLight: false);
-                AddLight(system, 1.0f, 100000f, zpos: -6500f, fillLight: false);
+                //fill
+                AddLight(system, .5f, radius *2, zpos: -radius, fillLight: true);
+                //key near
+                AddLight(system, intensity, radius, zpos: -2500f, fillLight: false);//, fallOff: 1);
+                //key far
+                //AddLight(system, intensity, radius * .5f, zpos: -2500f, fillLight: false, fallOff: 1);
+                //AddLight(system, intensity, radius , zpos: -2500f, fillLight: false, fallOff: 1);
+                //AddLight(system, .5f, radius *2 , zpos: +radius, fillLight: false);
             }
         }
 
-        private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
+        private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight, float fallOff = 0)
         {
             var light = new PointLight
             {
@@ -333,7 +338,8 @@ namespace Ship_Game
                 FillLight    = true,
                 Radius       = radius,
                 Position     = new Vector3(system.Position, zpos),
-                Enabled      = true
+                Enabled      = true,
+                FalloffStrength = fallOff
             };
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);
@@ -496,25 +502,7 @@ namespace Ship_Game
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
-            ResourceManager.CompactLargeObjectHeap();
-            var memStart1 = GC.GetTotalMemory(true);
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                //    var empire = EmpireManager.Player;
-                var memStart =  GC.GetTotalMemory(true);
-                var techDict = empire.TechnologyDict;
-                foreach (var kv in techDict)
-                {
-                    kv.Value.LoadShipModelsFromDiscoveredTech(empire);
-                }
-                
-                var memEnd = GC.GetTotalMemory(true);
-                var memToal = memEnd - memStart;
-                var runningToal = memEnd - memStart1;
-
-                Log.Info($"Models size for {empire.Name} is {memToal/1000}K");
-                Log.Info($"Models size runningToal is {runningToal / 1000}K");
-            }
+      
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
