@@ -262,32 +262,17 @@ namespace Ship_Game.Ships
         public void LoadModel() => LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, true);
 
         public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, bool justLoad = false)
-        {
-            //Log.Info($"loading model for {Name}");
-
-            //long mem1 = GC.GetTotalMemory(true);
-            //var modelPath = HullData.ModelPath;
-            //modelPath = modelPath.IsEmpty() ? ModelPath : modelPath;
+        {            
             shipSO = ResourceManager.GetSceneMesh(HullModel, Animated, justLoad);
             shipMeshAnim = null;
-            
 
-            if (Animated)
-            {
-                SkinnedModel skinned = ResourceManager.GetSkinnedModel(ModelPath);
-                if (!justLoad)
-                {
-                    shipMeshAnim = new AnimationController(skinned.SkeletonBones);
-                    shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
-                }
-            }
-            ResourceManager.CompactLargeObjectHeap();
-            
-            //long mem2 = GC.GetTotalMemory(true);
-            //var memoryUsed = mem2 - mem1;
-            //Log.Info($"Memory used {memoryUsed}");
-            
+            if (!Animated) return;
 
+            SkinnedModel skinned = ResourceManager.GetSkinnedModel(ModelPath);
+            if (justLoad) return;
+
+            shipMeshAnim = new AnimationController(skinned.SkeletonBones);
+            shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
         }
        
         public enum Category
