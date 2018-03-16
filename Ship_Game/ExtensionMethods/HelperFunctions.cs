@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Runtime;
 using System.Text;
 using Ship_Game.AI;
 using Ship_Game.Ships;
@@ -336,7 +337,11 @@ namespace Ship_Game
                 default:                          return 5;
             }
         }
-
+        public static void CompactLargeObjectHeap()
+        {
+            
+            
+        }
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
         public static void CollectMemory()
         {
@@ -344,14 +349,17 @@ namespace Ship_Game
 
             Log.Info(ConsoleColor.DarkYellow, " ========= CollectMemory ========= ");
             float before = GC.GetTotalMemory(false) / (1024f * 1024f);
+            CollectMemorySilent();
             float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
             Log.Info(ConsoleColor.DarkYellow, "   Before: {0:0.0}MB  After: {1:0.0}MB", before, after);
             Log.Info(ConsoleColor.DarkYellow, " ================================= ");
+            Log.Info(ConsoleColor.DarkYellow, $"Process Memory : {ProcessMemoryMb}");
         }
 
         public static void CollectMemorySilent()
         {
             GC.WaitForPendingFinalizers();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
 

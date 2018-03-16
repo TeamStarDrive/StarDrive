@@ -277,6 +277,31 @@ namespace Ship_Game
             Log.HideConsoleWindow();
         }
 
+        public static bool PreLoadModels(Empire empire)
+        {
+            if (!GlobalStats.PreLoad) return true;
+            Log.Warning($"\nPreloading Ship Models for {empire.Name}.\n");
+            try
+            {
+                var techDict = empire.TechnologyDict;
+                foreach (var kv in techDict)
+                {
+                    kv.Value.LoadShipModelsFromDiscoveredTech(empire);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Model PreLoad failed");
+                Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1464/xna-texture-loading-consumes-excessive");
+                return false;
+                
+            }
+            return true;
+
+            
+            
+        }
+
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
         // Example relativePath: "Textures/myatlas.xml"
         public static FileInfo GetModOrVanillaFile(string relativePath)
@@ -648,13 +673,6 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
                 so.Add(model.Meshes[i]);            
             return so;
-        }
-
-        public static void CompactLargeObjectHeap()
-        {
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect();
-            GC.Collect();
         }
 
         private static SceneObject SceneObjectFromSkinnedModel(string modelName, bool justLoad = false)

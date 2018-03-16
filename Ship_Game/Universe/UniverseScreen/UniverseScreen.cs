@@ -296,15 +296,21 @@ namespace Ship_Game
                 return;
             }
 
+            LightRig lightRig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
+
+            
+
+
             ScreenManager.RemoveAllLights();
+            AssignLightRig("example/light_rig");
             foreach (SolarSystem system in SolarSystemList)
             {
-                float intensity = 5f;
+                float intensity = 3f;
                 float radius = 350000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
-                        intensity -= 5f;
+                        intensity -= .5f;
                         radius -= 50000f;
                         break;
                     case "star_yellow":                            
@@ -318,9 +324,10 @@ namespace Ship_Game
                 }
                 // standard 3 point lighting
                 //fill
-                AddLight(system, .5f, radius *2, zpos: -radius, fillLight: true);
+                //AddLight(system.Position, .35f, radius *2, zpos: -radius, fillLight: true);
+                //AddLight(new Vector2(system.Position.X, system.Position.Y+radius), .35f, radius * 2, zpos: 0, fillLight: true);
                 //key near
-                AddLight(system, intensity, radius, zpos: -2500f, fillLight: false);//, fallOff: 1);
+                AddLight(system.Position, intensity, radius, zpos: -2500f, fillLight: false);//, fallOff: 1);
                 //key far
                 //AddLight(system, intensity, radius * .5f, zpos: -2500f, fillLight: false, fallOff: 1);
                 //AddLight(system, intensity, radius , zpos: -2500f, fillLight: false, fallOff: 1);
@@ -328,7 +335,7 @@ namespace Ship_Game
             }
         }
 
-        private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight, float fallOff = 0)
+        private void AddLight(Vector2 source, float intensity, float radius, float zpos, bool fillLight, float fallOff = 0)
         {
             var light = new PointLight
             {
@@ -337,7 +344,7 @@ namespace Ship_Game
                 ObjectType   = ObjectType.Static, // RedFox: changed this to Static
                 FillLight    = true,
                 Radius       = radius,
-                Position     = new Vector3(system.Position, zpos),
+                Position     = new Vector3(source, zpos),
                 Enabled      = true,
                 FalloffStrength = fallOff
             };
@@ -502,13 +509,22 @@ namespace Ship_Game
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
-      
+            foreach (var empire in EmpireManager.Empires)
+                if(!ResourceManager.PreLoadModels(empire))
+                {
+                    ExitScreen();
+                    Game1.Instance.Exit();
+                    return;
+                }
+
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
         }
+
+
 
         private void CreateDefensiveRemnantFleet(string fleetUid, Vector2 where, float defenseRadius)
         {
