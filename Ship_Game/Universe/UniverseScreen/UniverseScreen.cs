@@ -296,62 +296,70 @@ namespace Ship_Game
                 return;
             }
 
-            LightRig lightRig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
-
-            
-
-
             ScreenManager.RemoveAllLights();
-            AssignLightRig("example/light_rig");
+            
+            //Global fill light. 
+            AddLight(new Vector2(0, 0), .5f, UniverseSize * 2 + MaxCamHeight, Color.White, -MaxCamHeight, fillLight: false);
+
             foreach (SolarSystem system in SolarSystemList)
             {
-                float intensity = 3f;
-                float radius = 350000f;
+                Color color = Color.White;
+                float intensity = 1.5f;
+                float radius = 150000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
                         intensity -= .5f;
                         radius -= 50000f;
+                        color = Color.LightSalmon;
                         break;
-                    case "star_yellow":                            
-                    case "star_yellow2":break;
-                    case "star_green":  break;
+                    case "star_yellow":
+                        color = Color.LightYellow;
+                        break;
+                    case "star_yellow2":
+                        color = Color.White;
+                        break;
+                    case "star_green":
+                        color = Color.LightGreen;
+                        break;
                     case "star_blue":
+                        color = Color.LightBlue;
+                        break;
                     case "star_binary":                            
                         intensity += .5f;
                         radius += 50000f;
                         break; 
                 }
-                // standard 3 point lighting
-                //fill
-                //AddLight(system.Position, .35f, radius *2, zpos: -radius, fillLight: true);
-                //AddLight(new Vector2(system.Position.X, system.Position.Y+radius), .35f, radius * 2, zpos: 0, fillLight: true);
-                //key near
-                AddLight(system.Position, intensity, radius, zpos: -2500f, fillLight: false);//, fallOff: 1);
-                //key far
-                //AddLight(system, intensity, radius * .5f, zpos: -2500f, fillLight: false, fallOff: 1);
-                //AddLight(system, intensity, radius , zpos: -2500f, fillLight: false, fallOff: 1);
-                //AddLight(system, .5f, radius *2 , zpos: +radius, fillLight: false);
+                
+                //Key              
+                AddLight(system.Position, intensity, radius, Color.WhiteSmoke , zpos: 0, fillLight: false, fallOff:1);
+                //OverSaturationKey
+                AddLight(system.Position, intensity *5, radius * .05f, color, zpos: -1500, fillLight: false, fallOff: 1);
+                //back
+                AddLight(system.Position, intensity *.5f, radius, color, zpos: 5000f, fillLight: true, fallOff: 0);
+
             }
         }
 
-        private void AddLight(Vector2 source, float intensity, float radius, float zpos, bool fillLight, float fallOff = 0)
+        private void AddLight(Vector2 source, float intensity, float radius, Color color, float zpos,  bool fillLight, float fallOff = 0)
         {
             var light = new PointLight
             {
-                DiffuseColor = new Vector3(1f, 1f, 0.85f),
-                Intensity    = intensity,
-                ObjectType   = ObjectType.Static, // RedFox: changed this to Static
-                FillLight    = true,
-                Radius       = radius,
-                Position     = new Vector3(source, zpos),
-                Enabled      = true,
-                FalloffStrength = fallOff
+                DiffuseColor        = color.ToVector3(),//fox used this vector3 so leaving it for refence new Vector3(1f, 1f, 0.85f)
+                Intensity           = intensity,
+                ObjectType          = ObjectType.Static, // RedFox: changed this to Static
+                FillLight           = fillLight,
+                Radius              = radius,
+                Position            = new Vector3(source, zpos),
+                Enabled             = true,
+                FalloffStrength     = fallOff,
+                ShadowPerSurfaceLOD = true,
+                ShadowQuality = 1
             };
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);
         }
-
+        
         public void ContactLeader(object sender)
         {
             if (this.SelectedShip == null)
