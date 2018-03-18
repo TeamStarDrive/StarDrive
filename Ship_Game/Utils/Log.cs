@@ -117,6 +117,26 @@ namespace Ship_Game
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
         }
+        
+        public static void TestMessage(string testMessage, Importance importance = Importance.None, bool waitForEnter = false )
+        {
+            string text = "TestMsg: " + testMessage;
+            LogFile.WriteLine(text);
+            LogFile.Flush();
+            if (!HasActiveConsole)
+            {
+                return;
+            }
+            Console.ForegroundColor = ImportanceColor(importance);
+            Console.WriteLine(text);
+            if (waitForEnter)
+            {
+                Console.ForegroundColor = Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Press Enter To Continue");
+                Console.Read();
+            }
+        }
+
 
         private static ulong Fnv64(string text)
         {
@@ -326,7 +346,7 @@ namespace Ship_Game
 
         public static bool HasActiveConsole => GetConsoleWindow() != IntPtr.Zero;
 
-        public static void ShowConsoleWindow()
+        public static void ShowConsoleWindow(int bufferHeight = 300)
         {
             var handle = GetConsoleWindow();
             if (handle == IntPtr.Zero)
@@ -336,6 +356,8 @@ namespace Ship_Game
                 Console.SetError(new StreamWriter(Console.OpenStandardError()) { AutoFlush = true });
             }
             else ShowWindow(handle, 5/*SW_SHOW*/);
+
+            Console.BufferHeight = bufferHeight;
 
             // Move the console window to a secondary screen if we have multiple monitors
             if (Screen.AllScreens.Length > 1 && (handle = GetConsoleWindow()) != IntPtr.Zero)
@@ -357,6 +379,34 @@ namespace Ship_Game
         public static void HideConsoleWindow()
         {
             ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
+        }
+
+        private static ConsoleColor ImportanceColor(Importance importance)
+        {
+            switch (importance)
+            {
+                case Importance.None:
+                    return ConsoleColor.Cyan;
+                case Importance.Trivial:
+                    return ConsoleColor.Green;
+                case Importance.Regular:
+                    return ConsoleColor.White;
+                case Importance.Important:
+                    return ConsoleColor.Yellow;
+                case Importance.Critical:
+                    return ConsoleColor.Red;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(importance), importance, null);
+            }
+        }
+
+        public enum Importance
+        {
+            None,
+            Trivial,
+            Regular,
+            Important,
+            Critical
         }
     }
 }

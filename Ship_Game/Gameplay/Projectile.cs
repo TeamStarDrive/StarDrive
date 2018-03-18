@@ -271,12 +271,11 @@ namespace Ship_Game.Gameplay
         public void DrawProjectile(UniverseScreen screen)
         {
             // if not using visible mesh (rockets, etc), we draw a transparent mesh manually
-            if (!UsesVisibleMesh && screen.Frustum.Contains(Center, Radius))
-            {
-                var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
-                var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
-                screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Weapon.Scale);
-            }
+            if (UsesVisibleMesh || !(Owner?.InFrustum ?? true) || !screen.Frustum.Contains(Center,  Radius)) return;
+
+            var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
+            var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
+            screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Weapon.Scale);
         }
 
         public void DamageMissile(GameplayObject source, float damageAmount)
