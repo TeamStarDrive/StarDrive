@@ -2,7 +2,7 @@
 InstallPath="%PROGRAMFILES(x86)%\\steam\\steamapps\\common\\StarDrive"
 GUIMode="1"
 GUIFlags="64"
-BeginPrompt="Generally will be: %PROGRAMFILES(x86)%\\steam\\steamapps\\common\\StarDrive"
+BeginPrompt="NOTICE this code has auto bug reporting to the sentry.io server. "
 ErrorTitle="Install Failed"
 FinishMessage="Blackbox Installed. Run Stardrive as normal"
 Title="Blackbox Installation"

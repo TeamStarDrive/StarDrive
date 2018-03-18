@@ -1,63 +1,64 @@
 using Microsoft.Xna.Framework;
 using System;
+using Ship_Game;
 
 namespace Particle3DSample
 {
-	public class ParticleEmitter
-	{
-		private ParticleSystem particleSystem;
+    public class ParticleEmitter
+    {
+        private readonly ParticleSystem ParticleSystem;
+        private readonly float TimeBetweenParticles;
+        private Vector3 PreviousPosition;
+        private float TimeLeftOver;
 
-		private float timeBetweenParticles;
+        // Use ParticleSystem NewEmitter() instead
+        internal ParticleEmitter(ParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition)
+        {
+            ParticleSystem       = particleSystem;
+            TimeBetweenParticles = 1f / particlesPerSecond;
+            PreviousPosition     = initialPosition;
+        }
 
-		private Vector3 previousPosition;
+        public void Update(float elapsedTime, Vector3 newPosition)
+        {
+            if (elapsedTime > 0f)
+            {
+                Vector3 velocity  = (newPosition - PreviousPosition) / elapsedTime;
+                float timeToSpend = TimeLeftOver + elapsedTime;
+                float currentTime = -TimeLeftOver;
+                while (timeToSpend > TimeBetweenParticles)
+                {
+                    currentTime += TimeBetweenParticles;
+                    timeToSpend -= TimeBetweenParticles;
+                    float mu = currentTime / elapsedTime;
+                    Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
+                    ParticleSystem.AddParticleThreadA(position, velocity);
+                }
+                TimeLeftOver = timeToSpend;
+            }
+            PreviousPosition = newPosition;
+        }
 
-		private float timeLeftOver;
+        public void UpdateProjectileTrail(float elapsedTime, Vector3 newPosition, Vector2 pVel)
+        {
+            if (elapsedTime > 0f)
+            {
+                Vector3 velocity = pVel.ToVec3();
+                float timeToSpend = TimeLeftOver + elapsedTime;
+                float currentTime = - TimeLeftOver;
 
-		public ParticleEmitter(ParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition)
-		{
-			this.particleSystem = particleSystem;
-			this.timeBetweenParticles = 1f / particlesPerSecond;
-			this.previousPosition = initialPosition;
-		}
 
-		public void Update(float elapsedTime, Vector3 newPosition)
-		{
-			if (elapsedTime > 0f)
-			{
-				Vector3 velocity = (newPosition - this.previousPosition) / elapsedTime;
-				float timeToSpend = this.timeLeftOver + elapsedTime;
-				float currentTime = -this.timeLeftOver;
-				while (timeToSpend > this.timeBetweenParticles)
-				{
-					currentTime = currentTime + this.timeBetweenParticles;
-					timeToSpend = timeToSpend - this.timeBetweenParticles;
-					float mu = currentTime / elapsedTime;
-					Vector3 position = Vector3.Lerp(this.previousPosition, newPosition, mu);
-					this.particleSystem.AddParticleThreadA(position, velocity);
-				}
-				this.timeLeftOver = timeToSpend;
-			}
-			this.previousPosition = newPosition;
-		}
-
-		public void UpdateProjectileTrail(float elapsedTime, Vector3 newPosition, Vector3 pVel)
-		{
-			if (elapsedTime > 0f)
-			{
-				Vector3 vector3 = (newPosition - this.previousPosition) / elapsedTime;
-				float timeToSpend = this.timeLeftOver + elapsedTime;
-				float currentTime = -this.timeLeftOver;
-				while (timeToSpend > this.timeBetweenParticles)
-				{
-					currentTime = currentTime + this.timeBetweenParticles;
-					timeToSpend = timeToSpend - this.timeBetweenParticles;
-					float mu = currentTime / elapsedTime;
-					Vector3.Lerp(this.previousPosition, newPosition, mu);
-					this.particleSystem.AddParticleThreadA(newPosition, pVel);
-				}
-				this.timeLeftOver = timeToSpend;
-			}
-			this.previousPosition = newPosition;
-		}
-	}
+                while (timeToSpend > TimeBetweenParticles)
+                {
+                    currentTime = currentTime + TimeBetweenParticles;
+                    timeToSpend = timeToSpend - TimeBetweenParticles;
+                    float mu = currentTime / elapsedTime;
+                    Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
+                    ParticleSystem.AddParticleThreadA(position, velocity);
+                }
+                TimeLeftOver = timeToSpend;
+            }
+            PreviousPosition = newPosition;
+        }
+    }
 }
