@@ -904,15 +904,6 @@ namespace Ship_Game
             return multiShipData;
         }
 
-        private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
-        {
-            return new Vector2(0.0f, 0.0f)
-            {
-                X = (float)-((double)OwnerPos.X - (double)TargetPos.X),
-                Y = OwnerPos.Y - TargetPos.Y
-            };
-        }
-
         // Refactored by RedFox
         // this draws the colored empire borders
         // the borders are drawn into a separate framebuffer texture and later blended with final visual
