@@ -1,190 +1,119 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
 
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
-using SynapseGaming.LightingSystem.Rendering;
 namespace Ship_Game
 {
-	public sealed class ModManager : GameScreen, IDisposable
-	{
-		private Vector2 Cursor = Vector2.Zero;
-
-		private List<UIButton> Buttons = new List<UIButton>();
-
-		private MainMenuScreen mmscreen;
-
-		//private Submenu subSave;
-
-		private Rectangle Window;
-
-		private Menu1 SaveMenu;
-
-		private Submenu NameSave;
-
-		private Submenu AllSaves;
-
-		private Vector2 TitlePosition;
-
-		private Vector2 EnternamePos;
-
-		private UITextEntry EnterNameArea;
-
-		private ScrollList ModsSL;
-
-		private UIButton Save;
-
-		private UIButton Disable;
-
-		private UIButton Visit;
-
-		private UIButton shiptool;
-
-		private ModEntry ActiveEntry;
-
-		private Selector selector;
+    public sealed class ModManager : GameScreen
+    {
+        private MainMenuScreen mmscreen;
+        private Rectangle Window;
+        private Menu1 SaveMenu;
+        private Submenu NameSave;
+        private Submenu AllSaves;
+        private Vector2 TitlePosition;
+        private Vector2 EnternamePos;
+        private UITextEntry EnterNameArea;
+        private UIButton Save;
+        private UIButton Disable;
+        private UIButton Visit;
+        private UIButton shiptool;
+        private Selector selector;
         private UIButton CurrentButton;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-        private Task modLoad;
 
-        private bool flip = false;
-		//private float transitionElapsedTime;
+        private ScrollList ModsSL;
+        private ModEntry SelectedMod;
 
-		public ModManager(MainMenuScreen mmscreen)
-		{
-			this.mmscreen = mmscreen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
-
-        public void Dispose()
+        public ModManager(MainMenuScreen mmscreen) : base(mmscreen)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            this.mmscreen = mmscreen;
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        ~ModManager() { Dispose(false); }
-
-        protected void Dispose(bool disposing)
+        protected override void Destroy()
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ModsSL != null)
-                        this.ModsSL.Dispose();
-                    
-                }
-                this.ModsSL = null;
-                this.disposed = true;
-            }
+            ModsSL?.Dispose(ref ModsSL);
+            base.Destroy();
         }
 
-		public override void Draw(GameTime gameTime)
-		{
-            if (this.IsExiting)
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            if (IsExiting)
                 return;
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-			base.ScreenManager.SpriteBatch.Begin();
-			this.SaveMenu.Draw();
-			this.NameSave.Draw();
-			this.AllSaves.Draw();
-			Vector2 vector2 = new Vector2((float)(this.AllSaves.Menu.X + 20), (float)(this.AllSaves.Menu.Y + 20));
-			for (int i = this.ModsSL.indexAtTop; i < this.ModsSL.Entries.Count && i < this.ModsSL.indexAtTop + this.ModsSL.entriesToDisplay; i++)
-			{
-				ScrollList.Entry e = this.ModsSL.Entries[i];
-				(e.item as ModEntry).Draw(base.ScreenManager, e.clickRect);
-			}
-			this.ModsSL.Draw(base.ScreenManager.SpriteBatch);
-			this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
-			foreach (UIButton b in this.Buttons)
-			{
-				b.Draw(base.ScreenManager.SpriteBatch);
-			}
-			if (this.selector != null)
-			{
-				this.selector.Draw();
-			}
-			base.ScreenManager.SpriteBatch.End();
-		}
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.SpriteBatch.Begin();
+            SaveMenu.Draw();
+            NameSave.Draw();
+            AllSaves.Draw();
+            for (int i = ModsSL.indexAtTop; i < ModsSL.Entries.Count && i < ModsSL.indexAtTop + ModsSL.entriesToDisplay; i++)
+            {
+                ScrollList.Entry e = ModsSL.Entries[i];
+                (e.item as ModEntry)?.Draw(ScreenManager, e.clickRect);
+            }
+            ModsSL.Draw(ScreenManager.SpriteBatch);
+            EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
+                Game1.Instance.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+            foreach (UIButton b in Buttons)
+            {
+                b.Draw(ScreenManager.SpriteBatch);
+            }
+            selector?.Draw(ScreenManager.SpriteBatch);
+            ScreenManager.SpriteBatch.End();
+        }
 
-		public override void ExitScreen()
-		{
-            
-                base.ExitScreen();
-            
-		}
-
-
-		public override void HandleInput(InputState input)
-		{
+        public override bool HandleInput(InputState input)
+        {
+            selector?.RemoveFromParent();
+            selector = null;
             
 
-            this.selector = null;
-			if (this.CurrentButton==null &&( input.Escaped || input.RightMouseClick))
-			{
-				this.ExitScreen();
-			}
-            bool reset = false;
-			if(base.IsExiting != true)
-            foreach (UIButton b in this.Buttons)
-			{
+            if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
+            {
+                ExitScreen();
+                return true;    
+            }
+
+            if (!IsExiting) foreach (UIButton b in Buttons)
+            {
                 if (CurrentButton != null && b.Launches != "Visit")
                     continue;
-                if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition) )
-				{
-					
-                    b.State = UIButton.PressState.Normal;
-				}
-				else
-				{
-					b.State = UIButton.PressState.Hover;
-					if (input.InGameSelect)
-					{
-						b.State = UIButton.PressState.Pressed;
-					}
-					if (!input.InGameSelect)
-					{
-						continue;
-					}
-					string launches = b.Launches;
-					string str = launches;
-					if (launches == null)
-					{
-						continue;
-					}
-					if (str == "Load")
-					{
-						if (this.ActiveEntry == null)
-						{
-							continue;
-						}
+                if (!b.Rect.HitTest(input.CursorPosition))
+                {
+                    b.State = UIButton.PressState.Default;
+                }
+                else
+                {
+                    b.State = UIButton.PressState.Hover;
+                    if (input.InGameSelect)
+                    {
+                        b.State = UIButton.PressState.Pressed;
+                    }
+                    if (!input.InGameSelect)
+                        continue;
 
-                        this.CurrentButton = b;
-                        b.Text = "Loading";
-                        if (GlobalStats.ActiveMod != null)
-                        {
-                            ResourceManager.Reset();
-                            ResourceManager.Initialize(base.ScreenManager.Content);
-                        }    
-                        
-                        this.modLoad = Task.Factory.StartNew(loadModTask);
-                       
-					}
-					else if (str == "Visit" )
-					{
-                        if (this.ActiveEntry == null || string.IsNullOrEmpty(this.ActiveEntry.mi.URL))
-                            try
+                    string launches = b.Launches;
+                    string str = launches;
+                    if (launches == null)
+                    {
+                        continue;
+                    }
+                    switch (str)
+                    {
+                        case "Load":
+                            if (SelectedMod == null)
+                                continue;
+                            CurrentButton = b;
+                            b.Text = "Loading";
+                            LoadModTask();
+                            break;
+                        case "Visit":
+                            if (string.IsNullOrEmpty(SelectedMod?.mi.URL)) try
                             {
                                 SteamManager.ActivateOverlayWebPage("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
                             }
@@ -192,230 +121,135 @@ namespace Ship_Game
                             {
                                 Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
                             }
-                        else
-
-                            try
+                            else try
                             {
-                                SteamManager.ActivateOverlayWebPage(this.ActiveEntry.mi.URL);
+                                SteamManager.ActivateOverlayWebPage(SelectedMod.mi.URL);
                             }
                             catch
                             {
-                                Process.Start(this.ActiveEntry.mi.URL);
+                                Process.Start(SelectedMod.mi.URL);
                             }
-					}
-                    else if (str == "shiptool" && this.CurrentButton == null)
-					{
-						base.ScreenManager.AddScreen(new ShipToolScreen());
-					}
-					else if (str == "Disable" && this.CurrentButton==null)
-					{                       
-                       // Ship_Game.ResourceManager.GetContentManager().Unload();
-                        
-                        //this.mmscreen.ResetMusic();                        
-                        GlobalStats.ActiveMod = null;						
-						ResourceManager.WhichModPath = "Content";
-                        GlobalStats.ActiveMod = null;
-                        GlobalStats.ActiveModInfo = null;						                     
-                        ResourceManager.Reset();
-						ResourceManager.Initialize(base.ScreenManager.Content);                        
-						ResourceManager.LoadEmpires();
-                        //Fonts.LoadContent(this.ScreenManager.Content);
-                        this.mmscreen.ReloadContent();
-						Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-						config.AppSettings.Settings["ActiveMod"].Value = "";
-						config.Save();              
-						this.ExitScreen();
-                        reset = true;
-					}
-				}
-			}
-            if(reset)
-            {
-          
-                
+                            break;
+                        default:
+                            if (CurrentButton == null)
+                            {
+                                if (str == "shiptool")
+                                {
+                                    ScreenManager.AddScreen(new ShipToolScreen(this));
+                                }
+                                else if (str == "Disable")
+                                {
+                                    ClearMods();
+                                }
+                            }
+                            break;
+                    }
+                }
             }
-            if (this.CurrentButton != null)
-            {
-                if (this.flip)
-                {
 
-                    if (CurrentButton.PressColor.A > 253)
-                        this.flip = false;
-                    else
-                        CurrentButton.PressColor.A++;
+            if (CurrentButton != null)
+            {
+                CurrentButton.State = UIButton.PressState.Pressed;
+                return false;
+            }
+            ModsSL.HandleInput(input);
+            foreach (ScrollList.Entry e in ModsSL.Entries)
+            {
+                if (!e.clickRect.HitTest(input.CursorPosition))
+                {
+                    e.clickRectHover = 0;
                 }
                 else
                 {
-                    if (CurrentButton.PressColor.A < 1)
-                        this.flip = true;
-                    else
-                        CurrentButton.PressColor.A--;
-                }
-                if (CurrentButton.State != UIButton.PressState.Pressed)
-                    CurrentButton.State = UIButton.PressState.Pressed;
-                return;
-            }
-			this.ModsSL.HandleInput(input);
-			foreach (ScrollList.Entry e in this.ModsSL.Entries)
-			{
-				if (!HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
-				{
-					e.clickRectHover = 0;
-				}
-				else
-				{
-					if (e.clickRectHover == 0)
-					{
-						AudioManager.PlayCue("sd_ui_mouseover");
-					}
-					e.clickRectHover = 1;
-					this.selector = new Selector(base.ScreenManager, e.clickRect);
-					if (!input.InGameSelect)
-					{
-						continue;
-					}
-					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.EnterNameArea.Text = (e.item as ModEntry).mi.ModName;
-					this.ActiveEntry = e.item as ModEntry;
-                    foreach(UIButton button in this.Buttons)
+                    if (e.clickRectHover == 0)
                     {
-                        if (button.Launches =="Visit")
-                        {
-                            string Text;
-                            if (this.ActiveEntry == null || string.IsNullOrEmpty(this.ActiveEntry.mi.URL))
-                                Text = Localizer.Token(4015);
-                            else
-                                Text = "Goto Mod URL";
-                            button.Text = Text;
-                            break;
-                        }
+                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
-				}
-			}
-			base.HandleInput(input);
-		}
-        private void clearModTask()
+                    e.clickRectHover = 1;
+                    selector = new Selector(e.clickRect);
+                    if (!input.InGameSelect)
+                        continue;
+
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    SelectedMod = e.item as ModEntry;
+                    EnterNameArea.Text = SelectedMod.ModName;
+
+                    foreach (UIButton button in Buttons)
+                    {
+                        if (button.Launches != "Visit")
+                            continue;
+                        if (string.IsNullOrEmpty(SelectedMod.mi.URL))
+                            button.Text = Localizer.Token(4015);
+                        else
+                            button.Text = "Goto Mod URL";
+                        break;
+                    }
+                }
+            }
+            return base.HandleInput(input);
+        }
+        private void ClearMods()
         {
-            if (GlobalStats.ActiveMod != null)
+            if (!GlobalStats.HasMod)
+                return;
+
+            Log.Info("ModManager.ClearMods");
+            GlobalStats.LoadModInfo("");
+            ResourceManager.LoadItAll();
+            mmscreen.LoadContent();
+            ExitScreen();
+            mmscreen.ResetMusic();
+        }
+        private void LoadModTask()
+        {
+            Log.Info("ModManager.LoadMod {0}", SelectedMod.ModName);
+            GlobalStats.LoadModInfo(SelectedMod);
+            ResourceManager.LoadItAll();
+            mmscreen.LoadContent();
+            ExitScreen();
+            mmscreen.ResetMusic();
+        }
+        public override void LoadContent()
+        {
+            Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 425, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 850, 600);
+            SaveMenu = new Menu1(Window);
+            Rectangle sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
+            NameSave = new Submenu(sub);
+            NameSave.AddTab(Localizer.Token(4013));
+            Vector2 cursor = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100);
+            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
+            Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
+            AllSaves = new Submenu(scrollList);
+            AllSaves.AddTab(Localizer.Token(4013));
+            ModsSL = new ScrollList(AllSaves, 140);
+
+            var ser = new XmlSerializer(typeof(ModInformation));
+            foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
             {
-                
-                ResourceManager.Reset();
-                ResourceManager.Initialize(base.ScreenManager.Content);
-            }     
-        }
-        private void loadModTask()
-        {
-            
-            ResourceManager.LoadEmpires();
-            GlobalStats.ActiveMod = this.ActiveEntry;
-            GlobalStats.ActiveModInfo = this.ActiveEntry.mi;
-
-            ResourceManager.WhichModPath = this.ActiveEntry.ModPath;
-
-            ResourceManager.LoadMods(string.Concat("Mods/", this.ActiveEntry.ModPath));
-
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["ActiveMod"].Value = this.ActiveEntry.ModPath;
-            config.Save();
-            this.mmscreen.Buttons.Clear();
-            this.mmscreen.LoadContent();
-            this.ExitScreen();
-            this.mmscreen.ResetMusic();
-        }
-		public override void LoadContent()
-		{
-			this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 425, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 850, 600);
-			this.SaveMenu = new Menu1(base.ScreenManager, this.Window);
-			Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
-			this.NameSave = new Submenu(base.ScreenManager, sub);
-			this.NameSave.AddTab(Localizer.Token(4013));
-			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
-			Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
-			this.AllSaves = new Submenu(base.ScreenManager, scrollList);
-			this.AllSaves.AddTab(Localizer.Token(4013));
-			this.ModsSL = new ScrollList(this.AllSaves, 140);
-			FileInfo[] filesFromDirectoryNoSub = ResourceManager.GetFilesFromDirectoryNoSub("Mods");
-			for (int i = 0; i < (int)filesFromDirectoryNoSub.Length; i++)
-			{
-				FileInfo FI = filesFromDirectoryNoSub[i];
-				Stream file = FI.OpenRead();
-                ModInformation data;
-                if(FI.Name.Contains(".txt"))
+                if (!info.Name.EndsWith(".xml"))
                     continue;
                 try
                 {
-                     
-                    data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+                    ModsSL.AddItem(new ModEntry(ser.Deserialize<ModInformation>(info)));
                 }
                 catch (Exception ex)
                 {
-                    ex.Data.Add("Load Error in file", FI.Name);
+                    Log.Warning("Load error in file {0}", info.Name);
+                    ex.Data.Add("Load Error in file", info.Name);
                     
-                    throw;
                 }
-				//file.Close();
-				file.Dispose();
-				ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
-				this.ModsSL.AddItem(me);
-			}
-			this.EnternamePos = this.TitlePosition;
-			this.EnterNameArea = new UITextEntry();
-			//{
-				this.EnterNameArea.Text = "";
-                this.EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
-			//};
-			this.Save = new UIButton()
-			{
-				Rect = new Rectangle(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"],
-				Text = Localizer.Token(8),
-				Launches = "Load"
-			};
-			this.Buttons.Add(this.Save);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height + 15);
+            }
+            EnternamePos  = TitlePosition;
+            EnterNameArea = new UITextEntry();
+            EnterNameArea.Text = "";
+            EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            this.Visit = new UIButton()
-			{
-				Rect = new Rectangle(this.Window.X + 3, this.Window.Y + this.Window.Height + 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Text = Localizer.Token(4015),
-				Launches = "Visit"
-			};
-			this.Buttons.Add(this.Visit);
+            Save     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "Load", titleId:8);
+            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, "Visit", titleId:4015);
+            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, "shiptool", titleId:4044);
+            Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Disable", titleId:4016);
 
-            this.shiptool = new UIButton()
-			{
-				Rect = new Rectangle(this.Window.X + 200, this.Window.Y + this.Window.Height + 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				
-                Text = Localizer.Token(4044),
-
-				Launches = "shiptool"
-			};
-			this.Buttons.Add(this.shiptool);
-			this.Disable = new UIButton()
-			{
-				Rect = new Rectangle(this.Window.X + this.Window.Width - 172, this.Window.Y + this.Window.Height + 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Text = Localizer.Token(4016),
-				Launches = "Disable"
-			};
-			this.Buttons.Add(this.Disable);
-			base.LoadContent();
-		}
-
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-		}
-	}
+            base.LoadContent();
+        }
+    }
 }

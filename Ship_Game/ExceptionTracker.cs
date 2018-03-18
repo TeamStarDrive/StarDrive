@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -14,7 +15,7 @@ namespace Ship_Game
         public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new";
         public const string KudosURL = "http://www.indiedb.com/mods/deveks-mod/reviews";
         const string DefaultText = "Whoops! Please post this StarDrive forums or in the Bugtracker";
-        public static bool active = false;
+        public static bool Visible;
         public static bool Kudos = false;
         private static string GenerateErrorLines(Exception ex)
         {
@@ -31,20 +32,20 @@ namespace Ship_Game
             string data ="No Extra Info";
 			if (GlobalStats.ActiveMod != null)
             {
-                mod = GlobalStats.ActiveMod.ModPath;
+                mod = GlobalStats.ActiveMod.ModName;
                 if(GlobalStats.ActiveModInfo !=null && !string.IsNullOrEmpty(GlobalStats.ActiveModInfo.Version)) // && GlobalStats.ActiveModInfo.Version !="" )
                 {
                     modVersion = GlobalStats.ActiveMod.mi.Version;
                 }
             }
             
-            if (Empire.universeScreen != null)
+            if (Empire.Universe != null)
             {
-                ex.Data["StarDate"] = Empire.universeScreen.StarDate.ToString("F1");
-                if (Empire.universeScreen.MasterShipList != null)
-                    ex.Data["ShipCount"] = Empire.universeScreen.MasterShipList.Count.ToString();
+                ex.Data["StarDate"] = Empire.Universe.StarDate.ToString("F1");
+                if (Empire.Universe.MasterShipList != null)
+                    ex.Data["ShipCount"] = Empire.Universe.MasterShipList.Count.ToString();
                     
-                ex.Data["Planet Count"] = Empire.universeScreen.PlanetsDict.Count.ToString();
+                ex.Data["Planet Count"] = Empire.Universe.PlanetsDict.Count.ToString();
                     
             }
 
@@ -52,7 +53,6 @@ namespace Ship_Game
             if (mod != null)
                 ex.Data["Mod Version"] = modVersion;    
             ex.Data["Memory"] = ((int)(GC.GetTotalMemory(false)/1000)).ToString();
-            ex.Data["Memory Limit"] = GlobalStats.MemoryLimiter;
             ex.Data["Ship Limit"] = GlobalStats.ShipCountLimit; 
 
             if(ex.Data.Count >0)
@@ -69,7 +69,7 @@ namespace Ship_Game
 
 
             
-            string msg = "Version: ("+ MainMenuScreen.Version+ "): "+rn;
+            string msg = "Version: (" + GlobalStats.ExtendedVersion + "): "+rn;
             msg += data+rn+rn;
             msg += "Exception : "+ ex.Message.ToString()+rn;
             msg += "ExceptionClass : "+ex.GetType().ToString()+rn;
@@ -93,96 +93,51 @@ namespace Ship_Game
         private static string GenerateErrorLines_withWhoops(Exception ex)
         {
             if (!(ex.Message == "Manual Report" || ex.Message == "Kudos"))
-            return DefaultText + Environment.NewLine + GenerateErrorLines(ex);
-            else
-                return ex.Message + Environment.NewLine + GenerateErrorLines(ex);            
+                return DefaultText + Environment.NewLine + GenerateErrorLines(ex);
+            return ex.Message + Environment.NewLine + GenerateErrorLines(ex);            
         }
 
         public static void TrackException(Exception ex)
         {
             try
             {
-                ExceptionTracker.active = true;
-                string dts = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
+                Visible = true;
+                string dts  = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
                 string path = AppDomain.CurrentDomain.BaseDirectory + "Exception " + dts + ".log";
-                System.IO.StreamWriter file = new System.IO.StreamWriter(path);
-                file.Write(GenerateErrorLines(ex));
-                file.Close();
-                
+                using (var file = new StreamWriter(path))
+                    file.Write(GenerateErrorLines(ex));
             }
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
             }
-
         }
-
 
         public static void DisplayException(Exception ex)
         {
 #if DEBUG
-            if(!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
-            return;
+                if (!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
+                    return;
 #endif
-            try
+
+            if (Game1.Instance?.Window != null)
             {
                 Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
                 form.WindowState = FormWindowState.Minimized;
                 form.Update();
             }
-            catch { }
             try
             {
-                ExceptionViewer exviewer = new ExceptionViewer();
-                exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
-               
+                Log.Error(ex,"Blocking Exception");
+                //xceptionViewer exviewer = new ExceptionViewer();
+                //exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
             }
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
+                Log.Error(ex, "Blocking Exception with log.error failure");
             }
-            ExceptionTracker.active = false;
-        }
-
-        #if DEBUG
-        //test exception
-        //ExceptionTracker.TestStackTrace(0, 10);
-
-        /// <summary>
-        /// testing stacktrace
-        /// </summary>
-        /// <param name="StartCount">sould be smaller than para2</param>
-        /// <param name="ErrorOn">ErrorOn = on which number make a crash </param>
-        public static void TestStackTrace(int StartCount,int ErrorOn)
-        {
-            if (StartCount == ErrorOn)
-                throw new StarDriveTestException("test exception");
-            else
-            {
-                StartCount++;
-                TestStackTrace(StartCount, ErrorOn);
-            }
-
-        }
-        #endif //debug
-    }
-
-    #if DEBUG
-    internal class StarDriveTestException : Exception
-    {
-        public StarDriveTestException()
-        {
-        }
-
-        public StarDriveTestException(string message)
-            : base(message)
-        {
-        }
-
-        public StarDriveTestException(string message, Exception inner)
-            : base(message, inner)
-        {
+            Visible = false;
         }
     }
-    #endif //debug
 }

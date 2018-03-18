@@ -21,7 +21,7 @@ namespace Ship_Game
 
 		//private GenericButton ShipKills;
 
-		private List<GenericButton> Buttons = new List<GenericButton>();
+		private Array<GenericButton> Buttons = new Array<GenericButton>();
 
 		public Rectangle ElementRect;
 
@@ -43,7 +43,7 @@ namespace Ship_Game
 
 		private float MaxPop;
 
-		public List<string> TextMessages = new List<string>();
+		public Array<string> TextMessages = new Array<string>();
 
 		public float StarDate = 1000.1f;
 
@@ -94,20 +94,20 @@ namespace Ship_Game
 			float single;
 			Rectangle MapRect = new Rectangle(this.ElementRect.X + 30, this.ElementRect.Y + 30, this.ElementRect.Width - 60, this.ElementRect.Height - 60);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EndGameScreen/ReplayHousing"], this.ElementRect, Color.White);
-			float scale = (float)(this.ElementRect.Width - 60) / (Ship.universeScreen.Size.X * 2);        //Correction for negative map values -Gretman
+			float scale = (float)(this.ElementRect.Width - 60) / (Empire.Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
             if (this.Grid)
 			{
 				for (int x = 0; x < 21; x++)
 				{
 					Vector2 Origin = new Vector2((float)(x * MapRect.Width / 20), 0f) + new Vector2((float)MapRect.X, (float)MapRect.Y);
 					Vector2 End = new Vector2((float)(x * MapRect.Width / 20), (float)MapRect.Height) + new Vector2((float)MapRect.X, (float)MapRect.Y);
-					Primitives2D.DrawLine(ScreenManager.SpriteBatch, Origin, End, new Color(100, 100, 100, 70));
+					ScreenManager.SpriteBatch.DrawLine(Origin, End, new Color(100, 100, 100, 70));
 				}
 				for (int y = 0; y < 21; y++)
 				{
 					Vector2 Origin = new Vector2(0f, (float)(y * MapRect.Height / 20)) + new Vector2((float)MapRect.X, (float)MapRect.Y);
 					Vector2 End = new Vector2((float)MapRect.Width, (float)(y * MapRect.Height / 20)) + new Vector2((float)MapRect.X, (float)MapRect.Y);
-					Primitives2D.DrawLine(ScreenManager.SpriteBatch, Origin, End, new Color(100, 100, 100, 40));
+					ScreenManager.SpriteBatch.DrawLine(Origin, End, new Color(100, 100, 100, 40));
 				}
 			}
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EndGameScreen/TextBox"], this.TextRect, Color.White);
@@ -135,7 +135,7 @@ namespace Ship_Game
                         starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
                         starPos.Y = starPos.Y + (MapRect.Height / 2);
                         Rectangle StarRect = new Rectangle((int)starPos.X - (int)(nro.Radius * scale), (int)starPos.Y - (int)(nro.Radius * scale), (int)(nro.Radius * scale * 2f), (int)(nro.Radius * scale * 2f));
-						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], StarRect, new Color(EmpireManager.EmpireList[entry.Key].EmpireColor, 128));
+						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], StarRect, new Color(EmpireManager.Empires[entry.Key].EmpireColor, 128));
 					}
 				}
 			}
@@ -202,7 +202,7 @@ namespace Ship_Game
 								}
 								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerShip * (float)shot.ShipCount)));
 								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerShip * (float)nextShot.ShipCount)));
-								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.EmpireList[entry.Key].EmpireColor);
+								ScreenManager.SpriteBatch.DrawLine(Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
 					}
@@ -234,7 +234,7 @@ namespace Ship_Game
 								}
 								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * shot.MilitaryStrength)));
 								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.MilitaryStrength)));
-								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.EmpireList[entry.Key].EmpireColor);
+								ScreenManager.SpriteBatch.DrawLine(Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
 					}
@@ -266,7 +266,7 @@ namespace Ship_Game
 								}
 								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * shot.Population)));
 								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.Population)));
-								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.EmpireList[entry.Key].EmpireColor);
+								ScreenManager.SpriteBatch.DrawLine(Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
 					}
@@ -330,7 +330,7 @@ namespace Ship_Game
 					this.ShowPopulation = true;
 				}
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.Right))
+			if (input.KeysCurr.IsKeyDown(Keys.Right))
 			{
 				this.state = ReplayElement.State.Paused;
 				if (StatTracker.SnapshotsDict.ContainsKey((this.StarDate + 0.1f).ToString("#.0")))
@@ -339,7 +339,7 @@ namespace Ship_Game
 					starDate.StarDate = starDate.StarDate + 0.1f;
 				}
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.Left))
+			if (input.KeysCurr.IsKeyDown(Keys.Left))
 			{
 				this.state = ReplayElement.State.Paused;
 				ReplayElement replayElement = this;
@@ -349,7 +349,7 @@ namespace Ship_Game
 					this.StarDate = 1000.1f;
 				}
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.Space) && input.LastKeyboardState.IsKeyUp(Keys.Space))
+			if (input.KeysCurr.IsKeyDown(Keys.Space) && input.KeysPrev.IsKeyUp(Keys.Space))
 			{
 				if (this.state == ReplayElement.State.Playing)
 				{

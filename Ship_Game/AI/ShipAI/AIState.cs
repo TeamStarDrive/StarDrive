@@ -1,0 +1,40 @@
+namespace Ship_Game.AI
+{
+	public enum AIState
+	{
+		DoNothing,
+		Combat,
+		HoldPosition,
+		ManualControl,
+		AwaitingOrders,
+		AttackTarget,
+		Escort,
+		SystemTrader,
+		AttackRunner,
+		Orbit,
+		PatrolSystem,
+		PassengerTransport,
+		Flee,
+		Colonize,
+		MoveTo,
+		PirateRaiderCarrier,
+		Explore,
+		SystemDefender,
+		AwaitingOffenseOrders,
+		Resupply,
+		Rebase,
+		Bombard,
+		Boarding,
+		ReturnToHangar,
+		MineAsteroids,
+		Ferrying,
+		Refit,		
+		Intercept,
+		FormationWarp,
+		AssaultPlanet,
+		Exterminate,
+	    BombardTroops,
+        Scuttle,
+	    Scrap
+    }
+}

@@ -1,25 +1,19 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class Circle
 	{
 		public float Radius;
-
 		public Vector2 Center;
+		public Color C;
+		public bool IsChecked;
 
-		public string ID;
-
-		public Color c;
-
-		public bool isChecked;
-
-		public Circle(Vector2 Center, float Radius)
+		public Circle(Vector2 center, float radius)
 		{
-			this.Radius = Radius;
-			this.Center = Center;
+			this.Radius = radius;
+			this.Center = center;
 		}
 	}
 }

@@ -3,51 +3,48 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class Technology
-	{
-		public string UID;
+    public sealed class Technology
+    {
+        public string UID;
 
-		public string IconPath;
+        public string IconPath;
 
-		public float Cost;
+        public float Cost;
 
-		public bool Secret;
+        public bool Secret;
 
-		public bool Discovered;
+        public bool Discovered;
 
-		public byte RootNode;
+        public byte RootNode;
 
         public TechnologyType TechnologyType = TechnologyType.General;
 
-		public int NameIndex;
+        public int NameIndex;
 
-		public int DescriptionIndex;
+        public int DescriptionIndex;
 
-		public List<Technology.LeadsToTech> LeadsTo = new List<Technology.LeadsToTech>();
+        public bool Unlockable;
 
-		public List<Technology.UnlockedMod> ModulesUnlocked = new List<Technology.UnlockedMod>();
-
-		public List<Technology.UnlockedBuilding> BuildingsUnlocked = new List<Technology.UnlockedBuilding>();
-
-		public List<Technology.UnlockedBonus> BonusUnlocked = new List<Technology.UnlockedBonus>();
-
-		public List<Technology.UnlockedTroop> TroopsUnlocked = new List<Technology.UnlockedTroop>();
-
-		public List<Technology.UnlockedHull> HullsUnlocked = new List<Technology.UnlockedHull>();
-
-        public List<Technology.TriggeredEvent> EventsTriggered = new List<Technology.TriggeredEvent>();
-
-        public List<Technology.RevealedTech> TechsRevealed = new List<Technology.RevealedTech>();
+        public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
+        public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();
+        public Array<UnlockedMod> ModulesUnlocked        = new Array<UnlockedMod>();
+        public Array<UnlockedBuilding> BuildingsUnlocked = new Array<UnlockedBuilding>();
+        public Array<UnlockedBonus> BonusUnlocked        = new Array<UnlockedBonus>();
+        public Array<UnlockedTroop> TroopsUnlocked       = new Array<UnlockedTroop>();
+        public Array<UnlockedHull> HullsUnlocked         = new Array<UnlockedHull>();
+        public Array<TriggeredEvent> EventsTriggered     = new Array<TriggeredEvent>();
+        public Array<RevealedTech> TechsRevealed         = new Array<RevealedTech>();
 
         //Added by McShooterz to allow for techs with more than one level
         public byte MaxLevel = 1;
 
         //added by McShooterz: Racial Tech variables
-        public List<Technology.RequiredRace> RaceRestrictions = new List<Technology.RequiredRace>();
-        public List<Technology.RequiredRace> RaceExclusions = new List<Technology.RequiredRace>();
+        public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();
+        public Array<RequiredRace> RaceExclusions = new Array<RequiredRace>();
         public struct RequiredRace
         {
             public string ShipType;
+            public string RacialTrait;
         }
 
         //added by McShooterz: Alternate Tach variables
@@ -57,65 +54,58 @@ namespace Ship_Game
         public bool unlockBattleships;
         public bool unlockCorvettes;
 
-		public Technology()
-		{
-		}
+        public Technology()
+        {
+        }
 
-		public struct LeadsToTech
-		{
-			public string UID;
-		}
+        public struct LeadsToTech
+        {
+            public string UID;
+            public LeadsToTech(string techID)
+            {
+                UID = techID;
+            }
+        }
 
-		public class UnlockedBonus
-		{
-			public string Name;
-
+        public class UnlockedBonus
+        {
+            public string Name;
             public string Type;
+            public string BonusType;
+            public Array<string> Tags;
+            public float Bonus;
+            public string Description;
+            public int BonusIndex;
+            public int BonusNameIndex;
 
-			public string BonusType;
+            public UnlockedBonus()
+            {
+            }
+        }
 
-			public List<string> Tags;
-
-			public float Bonus;
-
-			public string Description;
-
-			public int BonusIndex;
-
-			public int BonusNameIndex;
-
-			public UnlockedBonus()
-			{
-			}
-		}
-
-		public struct UnlockedBuilding
-		{
-			public string Name;
-
+        public struct UnlockedBuilding
+        {
+            public string Name;
             public string Type;
-		}
+        }
 
-		public struct UnlockedHull
-		{
-			public string Name;
+        public struct UnlockedHull
+        {
+            public string Name;
+            public string ShipType;
+        }
 
-			public string ShipType;
-		}
-
-		public struct UnlockedMod
-		{
-			public string ModuleUID;
-
+        public struct UnlockedMod
+        {
+            public string ModuleUID;
             public string Type;
-		}
+        }
 
-		public struct UnlockedTroop
-		{
-			public string Name;
-
-			public string Type;
-		}
+        public struct UnlockedTroop
+        {
+            public string Name;
+            public string Type;
+        }
 
         public struct TriggeredEvent
         {
@@ -129,5 +119,6 @@ namespace Ship_Game
             public string RevUID;
             public string Type;
         }
-	}
+       
+    }
 }

@@ -9,16 +9,14 @@
 //
 //  Copyright (C) 2006 Franco, Gustavo 
 //
-using System;
 using System.Collections.Generic;
-using System.Text;
-using Algorithms;
-using System.Drawing;
+using Microsoft.Xna.Framework;
+using Ship_Game;
 
 namespace Algorithms
 {
     [Author("Franco, Gustavo")]
-    interface IPathFinder
+    internal interface IPathFinder
     {
         #region Events
         event PathFinderDebugHandler PathFinderDebug;
@@ -99,7 +97,7 @@ namespace Algorithms
 
         #region Methods
         void FindPathStop();
-        List<PathFinderNode> FindPath(Point start, Point end);
+        Array<PathFinderNode> FindPath(Point start, Point end);
         #endregion
 
     }

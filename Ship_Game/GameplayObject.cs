@@ -1,257 +1,160 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-	public abstract class GameplayObject
-	{
-		public bool Active = true;
+    [Flags]
+    public enum GameObjectType : byte
+    {
+        None       = 0,
+        Ship       = 1,
+        ShipModule = 2,
+        Proj       = 4,
+        Beam       = 8,
+        Asteroid   = 16,
+        Moon       = 32,
+    }
 
-		protected SolarSystem system;
+    public abstract class GameplayObject
+    {
+        public static GraphicsDevice device;
 
-		public static GraphicsDevice device;
+        /**
+         *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
+         *        will be accidentally serialized! 
+         */
 
-		public Vector2 Center;
+        [XmlIgnore][JsonIgnore] public bool Active = true;
+        [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx;
+        [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
 
-		protected Vector2 velocity = Vector2.Zero;
+        [Serialize(0)] public Vector2 Position;
+        [Serialize(1)] public Vector2 Center;
+        [Serialize(2)] public Vector2 Velocity;
+        [Serialize(3)] public float Rotation;
 
-		protected float rotation;
+        [Serialize(4)] public Vector2 Dimensions;
+        [Serialize(5)] public float Radius = 1f;
+        [Serialize(6)] public float Mass = 1f;
+        [Serialize(7)] public float Health;
 
-		protected float radius = 1f;
+        [Serialize(8)] public GameObjectType Type;
 
-		protected float mass = 1f;
+        [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 
-		protected bool collidedThisFrame;
+        // -2: pending, -1: not in spatial, >= 0: in spatial
+        [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
+        [XmlIgnore][JsonIgnore] public bool NotInSpatial   => SpatialIndex == -1;
+        [XmlIgnore][JsonIgnore] public bool InSpatial      => SpatialIndex != -1;
+        [XmlIgnore][JsonIgnore] public bool SpatialPending => SpatialIndex == -2;
 
-		protected Cue dieCue;
+        [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
+        [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
-		private GameplayObject lastDamagedBy;
+        private static int GameObjIds;
+        [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
+        
+        protected GameplayObject(GameObjectType typeFlags)
+        {
+            Type = typeFlags;
+        }
 
-		public bool isInDeepSpace = true;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
-		public static AudioListener audioListener
-		{
-			get;
-			set;
-		}
+        public virtual bool Damage(GameplayObject source, float damageAmount)
+        {
+            return false;
+        }
 
-		public bool CollidedThisFrame
-		{
-			get
-			{
-				return this.collidedThisFrame;
-			}
-			set
-			{
-				this.collidedThisFrame = value;
-			}
-		}
+        public virtual void Initialize()
+        {
+        }
 
-		public Vector2 Dimensions
-		{
-			get;
-			set;
-		}
+        public virtual void Die(GameplayObject source, bool cleanupOnly)
+        {            
+            Active = false;            
+            Empire.Universe.QueueGameplayObjectRemoval(this);
 
-		public float Health
-		{
-			get;
-			set;
-		}
+        }
 
-		public GameplayObject LastDamagedBy
-		{
-			get
-			{
-				return this.lastDamagedBy;
-			}
-			set
-			{
-				this.lastDamagedBy = value;
-			}
-		}
+        public virtual void RemoveFromUniverseUnsafe()
+        {
+            if (InSpatial)
+                UniverseScreen.SpaceManager.Remove(this);
+        }
 
-		public float Mass
-		{
-			get
-			{
-				return this.mass;
-			}
-			set
-			{
-				this.mass = value;
-			}
-		}
+        [XmlIgnore][JsonIgnore] 
+        public string SystemName => System?.Name ?? "Deep Space";
 
-		public Vector2 Position
-		{
-			get;
-			set;
-		}
+        public void SetSystem(SolarSystem system)
+        {
+            // SetSystem means this GameplayObject is used somewhere in the universe
+            // Regardless whether the system itself is null, we insert self to SpaceManager
+            if (!DisableSpatialCollision && Active && NotInSpatial)
+                UniverseScreen.SpaceManager.Add(this);
 
-		public float Radius
-		{
-			get
-			{
-				return this.radius;
-			}
-			set
-			{
-				this.radius = value;
-			}
-		}
+            if (System == system)
+                return;
 
-		public float Rotation
-		{
-			get
-			{
-				return this.rotation;
-			}
-			set
-			{
-				this.rotation = value;
-			}
-		}
+            if (this is Ship ship)
+            {
+                System?.ShipList.RemoveSwapLast(ship);
+                system?.ShipList.AddUnique(ship);
+            }
+            System = system;
+        }
 
-		public Vector2 Velocity
-		{
-			get
-			{
-				return this.velocity;
-			}
-			set
-			{
-				this.velocity = value;
-			}
-		}
+        public void ChangeLoyalty(Empire changeTo)
+        {
+            if (InSpatial)
+                UniverseScreen.SpaceManager.Remove(this);
+            if ((Type & GameObjectType.Proj) != 0) ((Projectile)this).Loyalty = changeTo;
+            if ((Type & GameObjectType.Ship) != 0) ((Ship)this).loyalty = changeTo;
+            if (!DisableSpatialCollision && Active && NotInSpatial)
+                UniverseScreen.SpaceManager.Add(this);
+        }
 
-		protected GameplayObject()
-		{
-		}
+        public int GetLoyaltyId()
+        {
+            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty?.Id ?? 0;
+            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty?.Id ?? 0;
+            return 0;
+        }
 
-		public virtual bool Damage(GameplayObject source, float damageAmount)
-		{
-			return false;
-		}
+        public Empire GetLoyalty()
+        {
+            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty;
+            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty;
+            if ((Type & GameObjectType.ShipModule) != 0) return ((ShipModule)this).GetParent().loyalty;
+            return null;
+        }
 
-		public virtual void Die(GameplayObject source, bool cleanupOnly)
-		{
-			this.Active = false;
-		}
+        public virtual bool Touch(GameplayObject target)
+        {
+            return false; // by default, objects can't be touched
+        }
 
-		public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color)
-		{
-			if (spriteBatch != null && sprite != null)
-			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), 2f * this.radius / MathHelper.Min((float)sprite.Width, (float)sprite.Height), SpriteEffects.None, 0f);
-			}
-		}
+        public virtual bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
+        {
+            return false;
+        }
 
-		public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
-		{
-			if (spriteBatch != null && sprite != null)
-			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor, SpriteEffects.None, 0f);
-			}
-		}
+        public virtual void Update(float elapsedTime)
+        {
+        }
 
-		public virtual void DrawShield(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
-		{
-			if (spriteBatch != null && sprite != null)
-			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor + this.radius / 10000f, SpriteEffects.None, 0f);
-			}
-		}
+        public virtual Vector2 JitterPosition()
+        {
+            return Vector2.Zero;            
+        }
 
-		public float findAngleToTarget(Vector2 origin, Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = origin.X;
-			float centerY = origin.Y;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-				angle_to_target = -angle_to_target;
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-				angle_to_target = -angle_to_target;
-			}
-			if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX > centerX && tY == centerY)
-			{
-				angle_to_target = 90f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			else if (tX < centerX && tY == centerY)
-			{
-				angle_to_target = 270f;
-			}
-			return angle_to_target;
-		}
-
-		public SolarSystem GetSystem()
-		{
-			return this.system;
-		}
-
-		public string GetSystemName()
-		{
-			if (this.system == null)
-			{
-				return "Deep Space";
-			}
-			return this.system.Name;
-		}
-
-		public virtual void Initialize()
-		{
-		}
-
-		public void SetSystem(SolarSystem s)
-		{
-			this.system = s;
-		}
-
-		public virtual bool Touch(GameplayObject target)
-		{
-			return true;
-		}
-
-		public virtual void Update(float elapsedTime)
-		{
-			this.collidedThisFrame = false;
-		}
-
-		public void UpdateSystem(float elapsedTime)
-		{
-		}
-	}
+        public override string ToString() => $"GameObj Id={Id} Pos={Position}";
+    }
 }

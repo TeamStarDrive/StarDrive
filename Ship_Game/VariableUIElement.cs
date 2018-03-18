@@ -7,7 +7,7 @@ namespace Ship_Game
 {
 	public sealed class VariableUIElement : UIElement
 	{
-		private List<VariableUIElement.TippedItem> ToolTipItems = new List<VariableUIElement.TippedItem>();
+		private Array<VariableUIElement.TippedItem> ToolTipItems = new Array<VariableUIElement.TippedItem>();
 
 		//private Rectangle SliderRect;
 

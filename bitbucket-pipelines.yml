@@ -9,4 +9,7 @@ pipelines:
   default:
     - step:
         script:
-          - echo "Everything is awesome!"
+          - ls
+          - cd Deploy
+          - chmod 777 notify-sentry-of-release.bash
+          - ./notify-sentry-of-release.bash

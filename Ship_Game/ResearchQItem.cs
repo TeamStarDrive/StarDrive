@@ -66,7 +66,7 @@ namespace Ship_Game
 		{
 			if (this.bup.HandleInput(input))
 			{
-				if (this.Node.tech.UID != EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic)
+				if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
 				{
 					int indexOfThis = 0;
 					int i = 0;
@@ -85,7 +85,7 @@ namespace Ship_Game
 					if (indexOfThis != 0)
 					{
 						bool AboveisPrereq = false;
-						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis - 1]].LeadsTo)
+						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.data.ResearchQueue[indexOfThis - 1]].LeadsTo)
 						{
 							if (dependent.UID != this.Node.tech.UID)
 							{
@@ -98,23 +98,23 @@ namespace Ship_Game
 						{
 							this.screen.qcomponent.QSL.Entries.Clear();
 							this.screen.qcomponent.QSL.Copied.Clear();
-							string toswitch = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis - 1];
-							EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis - 1] = this.Node.tech.UID;
-							EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis] = toswitch;
-							foreach (string uid in EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
+							string toswitch = EmpireManager.Player.data.ResearchQueue[indexOfThis - 1];
+							EmpireManager.Player.data.ResearchQueue[indexOfThis - 1] = this.Node.tech.UID;
+							EmpireManager.Player.data.ResearchQueue[indexOfThis] = toswitch;
+							foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 							{
 								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
 							}
 						}
 						else
 						{
-							AudioManager.PlayCue("UI_Misc20");
+							GameAudio.PlaySfxAsync("UI_Misc20");
 						}
 					}
 					else
 					{
 						bool CurrentIsPrereq = false;
-						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic].LeadsTo)
+						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.ResearchTopic].LeadsTo)
 						{
 							if (dependent.UID != this.Node.tech.UID)
 							{
@@ -128,28 +128,28 @@ namespace Ship_Game
 							this.screen.qcomponent.QSL.Entries.Clear();
 							this.screen.qcomponent.QSL.Copied.Clear();
 							this.screen.qcomponent.CurrentResearch = null;
-							string toswitch = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic;
-							EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = this.Node.tech.UID;
-							EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[0] = toswitch;
-							string resTop = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic;
+							string toswitch = EmpireManager.Player.ResearchTopic;
+							EmpireManager.Player.ResearchTopic = this.Node.tech.UID;
+							EmpireManager.Player.data.ResearchQueue[0] = toswitch;
+							string resTop = EmpireManager.Player.ResearchTopic;
 							if (!string.IsNullOrEmpty(resTop))
 							{
 								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
 							}
-							foreach (string uid in EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
+							foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 							{
 								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
 							}
 						}
 						else
 						{
-							AudioManager.PlayCue("UI_Misc20");
+							GameAudio.PlaySfxAsync("UI_Misc20");
 						}
 					}
 				}
 				else
 				{
-					AudioManager.PlayCue("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 				return true;
 			}
@@ -160,7 +160,7 @@ namespace Ship_Game
 					return false;
 				}
 				string uid = this.Node.tech.UID;
-				if (this.Node.tech.UID != EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic)
+				if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
 				{
 					foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
 					{
@@ -175,11 +175,11 @@ namespace Ship_Game
 					{
 						this.RemoveTech(dependent.UID);
 					}
-					EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Remove(uid);
+					EmpireManager.Player.data.ResearchQueue.Remove(uid);
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Count == 0)
+				else if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 				{
-					EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = "";
+					EmpireManager.Player.ResearchTopic = "";
 					this.screen.qcomponent.CurrentResearch = null;
 				}
 				else
@@ -190,27 +190,27 @@ namespace Ship_Game
 					}
 					this.screen.qcomponent.QSL.Entries.ApplyPendingRemovals();
 					this.screen.qcomponent.QSL.Copied.ApplyPendingRemovals();
-					if (EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Count == 0)
+					if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 					{
-						EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = "";
+						EmpireManager.Player.ResearchTopic = "";
 						this.screen.qcomponent.CurrentResearch = null;
 					}
 					else
 					{
-						EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = (this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID;
+						EmpireManager.Player.ResearchTopic = (this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID;
 						this.screen.qcomponent.CurrentResearch = new ResearchQItem(this.screen.qcomponent.CurrentResearch.pos, (this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node, this.screen);
-						EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Remove((this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID);
+						EmpireManager.Player.data.ResearchQueue.Remove((this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID);
 						this.screen.qcomponent.QSL.Entries.RemoveAt(0);
 						this.screen.qcomponent.QSL.Copied.RemoveAt(0);
 					}
 				}
 				return true;
 			}
-			if (this.Node.tech.UID == EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic && EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Count == 0)
+			if (this.Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
 			{
-				AudioManager.PlayCue("UI_Misc20");
+				GameAudio.PlaySfxAsync("UI_Misc20");
 			}
-			else if (this.Node.tech.UID != EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic)
+			else if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
 			{
 				int indexOfThis = 0;
 				int i = 0;
@@ -226,12 +226,12 @@ namespace Ship_Game
 						break;
 					}
 				}
-				if (indexOfThis != EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Count - 1)
+				if (indexOfThis != EmpireManager.Player.data.ResearchQueue.Count - 1)
 				{
 					bool ThisIsPreReq = false;
-					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis]].LeadsTo)
+					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.data.ResearchQueue[indexOfThis]].LeadsTo)
 					{
-						if (dependent.UID != EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis + 1])
+						if (dependent.UID != EmpireManager.Player.data.ResearchQueue[indexOfThis + 1])
 						{
 							continue;
 						}
@@ -242,30 +242,30 @@ namespace Ship_Game
 					{
 						this.screen.qcomponent.QSL.Entries.Clear();
 						this.screen.qcomponent.QSL.Copied.Clear();
-						string toswitch = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis + 1];
-						EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis + 1] = this.Node.tech.UID;
-						EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[indexOfThis] = toswitch;
-						foreach (string uid in EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
+						string toswitch = EmpireManager.Player.data.ResearchQueue[indexOfThis + 1];
+						EmpireManager.Player.data.ResearchQueue[indexOfThis + 1] = this.Node.tech.UID;
+						EmpireManager.Player.data.ResearchQueue[indexOfThis] = toswitch;
+						foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 						{
 							this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
 						}
 					}
 					else
 					{
-						AudioManager.PlayCue("UI_Misc20");
+						GameAudio.PlaySfxAsync("UI_Misc20");
 					}
 				}
 				else
 				{
-					AudioManager.PlayCue("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 			}
 			else
 			{
 				bool ThisIsPreReq = false;
-				foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic].LeadsTo)
+				foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.ResearchTopic].LeadsTo)
 				{
-					if (dependent.UID != EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[0])
+					if (dependent.UID != EmpireManager.Player.data.ResearchQueue[0])
 					{
 						continue;
 					}
@@ -277,22 +277,22 @@ namespace Ship_Game
 					this.screen.qcomponent.QSL.Entries.Clear();
 					this.screen.qcomponent.QSL.Copied.Clear();
 					this.screen.qcomponent.CurrentResearch = null;
-					string toswitch = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[0];
-					EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[0] = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic;
-					EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = toswitch;
-					string resTop = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic;
+					string toswitch = EmpireManager.Player.data.ResearchQueue[0];
+					EmpireManager.Player.data.ResearchQueue[0] = EmpireManager.Player.ResearchTopic;
+					EmpireManager.Player.ResearchTopic = toswitch;
+					string resTop = EmpireManager.Player.ResearchTopic;
 					if (!string.IsNullOrEmpty(resTop))
 					{
 						this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
 					}
-					foreach (string uid in EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
+					foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 					{
 						this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
 					}
 				}
 				else
 				{
-					AudioManager.PlayCue("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 			}
 			return true;
@@ -304,7 +304,7 @@ namespace Ship_Game
 			{
 				this.RemoveTech(dependent.UID);
 			}
-			EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Remove(uid);
+			EmpireManager.Player.data.ResearchQueue.Remove(uid);
 			foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
 			{
 				if ((entry.item as ResearchQItem).Node.tech.UID != uid)

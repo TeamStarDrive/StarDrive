@@ -8,31 +8,17 @@ namespace Ship_Game
 	public sealed class QueueComponent: IDisposable
 	{
 		private Rectangle Current;
-
 		private Rectangle Queue;
-
 		public ScrollList QSL;
-
-		private Ship_Game.ScreenManager ScreenManager;
-
+		private ScreenManager ScreenManager;
 		private Submenu qsub;
-
 		public Submenu csub;
-
 		private ResearchScreenNew screen;
-
 		public bool Visible = true;
-
 		private Rectangle TimeLeft;
-
 		public Rectangle container;
-
 		private DanButton ShowQueue;
-
 		public ResearchQItem CurrentResearch;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 
 		public QueueComponent(Ship_Game.ScreenManager ScreenManager, Rectangle container, ResearchScreenNew screen)
@@ -43,10 +29,10 @@ namespace Ship_Game
 			this.Current = new Rectangle(container.X, container.Y, container.Width, 150);
 			this.ShowQueue = new DanButton(new Vector2((float)(container.X + container.Width - 192), (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 55)), Localizer.Token(2136));
 			this.TimeLeft = new Rectangle(this.Current.X + this.Current.Width - 119, this.Current.Y + this.Current.Height - 24, 111, 20);
-			this.csub = new Submenu(true, ScreenManager, this.Current);
+			this.csub = new Submenu(true, this.Current);
 			this.csub.AddTab(Localizer.Token(1405));
 			this.Queue = new Rectangle(this.Current.X, this.Current.Y + 165, container.Width, container.Height - 165);
-			this.qsub = new Submenu(true, ScreenManager, this.Queue);
+			this.qsub = new Submenu(true, this.Queue);
 			this.qsub.AddTab(Localizer.Token(1404));
 			this.QSL = new ScrollList(this.qsub, 125);
 		}
@@ -55,13 +41,13 @@ namespace Ship_Game
 		{
 			if (this.CurrentResearch == null)
 			{
-				EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = researchItem.tech.UID;
+				EmpireManager.Player.ResearchTopic = researchItem.tech.UID;
 				this.CurrentResearch = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
 				return;
 			}
-			if (!EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Contains(researchItem.tech.UID) && EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic != researchItem.tech.UID)
+			if (!EmpireManager.Player.data.ResearchQueue.Contains(researchItem.tech.UID) && EmpireManager.Player.ResearchTopic != researchItem.tech.UID)
 			{
-				EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Add(researchItem.tech.UID);
+				EmpireManager.Player.data.ResearchQueue.Add(researchItem.tech.UID);
 				ResearchQItem qi = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
 				this.QSL.AddItem(qi);
 			}
@@ -75,16 +61,18 @@ namespace Ship_Game
 				return;
 			}
 			this.ShowQueue.DrawBlue(this.ScreenManager);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.container, Color.Black);
+			this.ScreenManager.SpriteBatch.FillRectangle(this.container, Color.Black);
 			this.QSL.DrawBlue(this.ScreenManager.SpriteBatch);
 			this.csub.Draw();
-			if (this.CurrentResearch != null)
+            var tech = CurrentResearch?.Node?.tech;
+            var complete = tech == null || CurrentResearch.Node.complete == true || tech.TechCost == tech.Progress;
+			if ( !complete)
 			{
 				this.CurrentResearch.Draw(this.ScreenManager);
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/timeleft"], this.TimeLeft, Color.White);
 				Vector2 Cursor = new Vector2((float)(this.TimeLeft.X + this.TimeLeft.Width - 7), (float)(this.TimeLeft.Y + this.TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2));
-				float cost = ResourceManager.TechTree[this.CurrentResearch.Node.tech.UID].Cost * UniverseScreen.GamePaceStatic - EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic].Progress;
-				int numTurns = (int)(cost / (0.01f + EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetProjectedResearchNextTurn()));
+				float cost = tech.TechCost - tech.Progress;
+				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
 				if (cost % (float)numTurns != 0f)
 				{
 					numTurns++;
@@ -108,7 +96,7 @@ namespace Ship_Game
 
 		public void HandleInput(InputState input)
 		{
-			if (input.RightMouseClick && this.Visible && HelperFunctions.CheckIntersection(this.Queue, input.CursorPosition) || input.Escaped)
+			if (input.RightMouseClick && this.Visible && this.Queue.HitTest(input.CursorPosition) || input.Escaped)
 			{
 				this.screen.ExitScreen();
 				return;
@@ -126,13 +114,13 @@ namespace Ship_Game
 					}
 					else
 					{
-						AudioManager.PlayCue("sd_ui_research_select");
+						GameAudio.PlaySfxAsync("sd_ui_research_select");
 						break;
 					}
 				}
 				if (this.CurrentResearch != null && this.CurrentResearch.HandleInput(input))
 				{
-					AudioManager.PlayCue("sd_ui_research_select");
+					GameAudio.PlaySfxAsync("sd_ui_research_select");
 				}
 				if (this.ShowQueue.HandleInput(input))
 				{
@@ -179,19 +167,9 @@ namespace Ship_Game
 
         ~QueueComponent() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.QSL != null)
-                        this.QSL.Dispose();
-            
-                }
-                this.QSL = null;
-                this.disposed = true;
-            }
+            QSL?.Dispose(ref QSL);
         }
 	}
 }

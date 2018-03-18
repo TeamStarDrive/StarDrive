@@ -1,0 +1,55 @@
+using System.Linq;
+
+// ReSharper disable once CheckNamespace
+namespace Ship_Game.AI {
+    public sealed partial class EmpireAI
+    {
+        private void RunGroundPlanner()
+        {
+            if (DefensiveCoordinator.UniverseWants > .8)
+                return;
+            float totalideal  = 0;
+            float totalwanted = 0;
+
+            IOrderedEnumerable<Troop> troopTemplates = ResourceManager.GetTroopTemplates()
+                .Where(t => OwnerEmpire.WeCanBuildTroop(t.Name))
+                .OrderBy(t => t.Cost);
+            Troop lowCostTroop = troopTemplates.FirstOrDefault();
+            Troop highCostTroop = troopTemplates.LastOrDefault();
+            Troop troop = highCostTroop;
+
+            foreach (SolarSystem system in OwnerEmpire.GetOwnedSystems())
+            {
+                SystemCommander defenseSystem = DefensiveCoordinator.DefenseDict[system];
+
+                if (defenseSystem.TroopStrengthNeeded <= 0)                
+                    continue;
+                
+                totalwanted += defenseSystem.TroopStrengthNeeded;
+                totalideal += defenseSystem.IdealTroopCount; 
+            }
+            if (totalwanted / totalideal > .5f)            
+                troop = lowCostTroop;
+            
+            if (totalwanted / totalideal <= .1f)
+                return;
+            Planet targetBuild = OwnerEmpire.GetPlanets()
+                .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Research
+                                 && planet.GetMaxProductionPotential() > 5
+                                 && (planet.ProductionHere) - 2 * (planet.ConstructionQueue.Where(
+                                         goal => goal.Goal != null
+                                                 && goal.Goal.type == GoalType.BuildTroop)
+                                     .Sum(cost => cost.Cost)) > 0 
+                )
+                .OrderBy(noshipyard => !noshipyard.HasShipyard)
+                .ThenByDescending(build => build.GrossProductionPerTurn)
+                .FirstOrDefault();
+            if (targetBuild == null)
+                return;
+
+
+            var g = new Goal(troop, OwnerEmpire, targetBuild);
+            Goals.Add(g);
+        }
+    }
+}
