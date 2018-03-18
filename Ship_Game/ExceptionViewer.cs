@@ -1,43 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-//using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-
-
-///Added by Crimsoned
 
 namespace Ship_Game
 {
-    public partial class ExceptionViewer: Form
+    public partial class ExceptionViewer : Form
     {
         public ExceptionViewer()
         {
             InitializeComponent();
         }
-        public DialogResult ShowDialog(string ExceptionMessage)
+
+        public string Description
         {
-            tbError.Text = ExceptionMessage;
-            tbError.Select(0, 0);
-            return ShowDialog();
+            set => descrLabel.Text = value;
         }
 
+        public string Error
+        {
+            get => tbError.Text;
+            set
+            {
+                tbError.Text = value.Replace("\n", "\r\n");
+                tbError.Select(0, 0);
+            }
+        }
+        [STAThread]
         private void btClip_Click(object sender, EventArgs e)
         {
-            string all = tbError.Text +Environment.NewLine+Environment.NewLine+"User Comment: "+tbComment.Text;
-            System.Windows.Forms.Clipboard.SetText(all);
-
+            string all = tbError.Text + "\n\nUser Comment: " + tbComment.Text;
+            Clipboard.SetText(all);
         }
 
         private void btClose_Click(object sender, EventArgs e)
         {
-            
             Close();
-
         }
 
         private void btOpenBugTracker_Click(object sender, EventArgs e)
@@ -51,7 +48,25 @@ namespace Ship_Game
             }
         }
 
-  
+        public static void ShowExceptionDialog(string dialogText)
+        {
+            var view = new ExceptionViewer();
 
+            if (GlobalStats.AutoErrorReport)
+            {
+                view.Description =
+                    "This error was submitted automatically to our exception tracking system. \r\n" +
+                    "If this error keeps reocurring, you can add comments and create a new issue on BitBucket.";
+            }
+            else
+            {
+                view.Description = 
+                    "Automatic error reporting is disabled. \r\n" +
+                    "If this error keep reocurring, you can add comments and create a new issue on BitBucket.";
+            }
+
+            view.Error = dialogText;
+            view.ShowDialog();
+        }
     }
 }

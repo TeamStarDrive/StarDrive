@@ -77,7 +77,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (!HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
+            if (!this.rect.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -85,13 +85,13 @@ namespace Ship_Game
 			{
 				if (!this.Hover)
 				{
-					AudioManager.PlayCue("sd_ui_mouseover");
+					GameAudio.PlaySfxAsync("sd_ui_mouseover");
 				}
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
 					
-                    AudioManager.PlayCue("mouse_over4");
+                    GameAudio.PlaySfxAsync("mouse_over4");
                     if (this.saveButton != null)
                     {
                         this.saveButton.saved = true;

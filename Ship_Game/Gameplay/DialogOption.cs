@@ -1,64 +1,65 @@
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game;
-using System;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class DialogOption
-	{
-		public object Target;
+    public sealed class DialogOption
+    {
+        public object Target;
 
-		public int number;
+        [XmlElement(ElementName = "number")]
+        public int Number;
 
-		public string words;
+        [XmlElement(ElementName = "words")]
+        public string Words;
 
-		private Rectangle ClickRect;
+        private Rectangle _clickRect;
 
-		public string SpecialInquiry = "";
+        public string SpecialInquiry = string.Empty;
 
-		public string Response;
+        public string Response;
 
-		public bool Hover;
+        public bool Hover;
 
-		public DialogOption()
-		{
-		}
+        public DialogOption()
+        {
+        }
 
-		public DialogOption(int n, string w, Vector2 Cursor, SpriteFont Font)
-		{
-			this.number = n;
-			this.words = w;
-			int width = (int)Font.MeasureString(w).X;
-			this.ClickRect = new Rectangle((int)Cursor.X, (int)Cursor.Y, width, Font.LineSpacing);
-		}
+        public DialogOption(int n, string w, Vector2 cursor, SpriteFont font)
+        {
+            Number = n;
+            Words = w;
+            int width = (int)font.MeasureString(w).X;
+            _clickRect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
+        }
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, SpriteFont Font)
-		{
-			HelperFunctions.DrawDropShadowText(ScreenManager, string.Concat(this.number.ToString(), ". ", this.words), new Vector2((float)this.ClickRect.X, (float)this.ClickRect.Y), Font, (this.Hover ? Color.White : new Color(255, 255, 255, 220)));
-		}
+        public void Draw(ScreenManager screenManager, SpriteFont font)
+        {
+            HelperFunctions.DrawDropShadowText(screenManager, string.Concat(Number.ToString(), ". ", Words),
+                new Vector2(_clickRect.X, _clickRect.Y), font, (Hover ? Color.White : new Color(255, 255, 255, 220)));
+        }
 
-		public string HandleInput(InputState input)
-		{
-			if (!HelperFunctions.CheckIntersection(this.ClickRect, input.CursorPosition))
-			{
-				this.Hover = false;
-			}
-			else
-			{
-				this.Hover = true;
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
-				{
-					return this.Response;
-				}
-			}
-			return null;
-		}
+        public string HandleInput(InputState input)
+        {
+            if (!_clickRect.HitTest(input.CursorPosition))
+            {
+                Hover = false;
+                return null;
+            }
 
-		public void Update(Vector2 Cursor)
-		{
-			this.ClickRect.Y = (int)Cursor.Y;
-		}
-	}
+            Hover = true;
+            if (input.MouseCurr.LeftButton == ButtonState.Pressed &&
+                input.MousePrev.LeftButton == ButtonState.Released)	        
+                return Response;
+
+            return null;
+        }
+
+        public void Update(Vector2 cursor)
+        {
+            _clickRect.Y = (int)cursor.Y;
+        }
+    }
 }

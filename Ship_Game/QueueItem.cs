@@ -1,10 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-	public sealed class QueueItem
+	public class QueueItem
 	{
 		public bool isBuilding;
 
@@ -16,7 +18,7 @@ namespace Ship_Game
 
 		public Ship_Game.Building Building;
 
-		public Troop troop;
+		public string troopType;
 
 		public Rectangle rect;
 
@@ -41,7 +43,7 @@ namespace Ship_Game
 
 		public float Cost;
 
-		public Ship_Game.Goal Goal;
+		public Goal Goal;
 
 		public Color PromoteColor = Color.White;
 

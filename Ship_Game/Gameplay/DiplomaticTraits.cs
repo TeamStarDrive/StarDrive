@@ -1,16 +1,8 @@
-using System;
-using System.Collections.Generic;
-
 namespace Ship_Game.Gameplay
 {
-	public sealed class DiplomaticTraits
+    public sealed class DiplomaticTraits
 	{
-		public List<DTrait> DiplomaticTraitsList;
-
-		public List<ETrait> EconomicTraitsList;
-
-		public DiplomaticTraits()
-		{
-		}
+		public Array<DTrait> DiplomaticTraitsList = new Array<DTrait>();
+		public Array<ETrait> EconomicTraitsList = new Array<ETrait>();
 	}
 }

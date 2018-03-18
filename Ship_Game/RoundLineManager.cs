@@ -48,9 +48,6 @@ namespace Ship_Game
 
 		public float BlurThreshold = 0.97f;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		public string[] TechniqueNames
 		{
 			get
@@ -249,7 +246,7 @@ namespace Ship_Game
 			this.effect.End();
 		}
 
-		public void Draw(List<RoundLine> roundLines, float lineRadius, Color lineColor, Matrix viewProjMatrix, float time, string techniqueName)
+		public void Draw(Array<RoundLine> roundLines, float lineRadius, Color lineColor, Matrix viewProjMatrix, float time, string techniqueName)
 		{
 			this.device.VertexDeclaration = this.vdecl;
 			this.device.Vertices[0].SetSource(this.vb, 0, this.bytesPerVertex);
@@ -311,7 +308,7 @@ namespace Ship_Game
 			this.effect.End();
 		}
 
-		public void Init(GraphicsDevice device, ContentManager content)
+		public void Init(GraphicsDevice device, GameContentManager content)
 		{
 			this.device = device;
 			this.effect = content.Load<Effect>("RoundLine");
@@ -331,25 +328,11 @@ namespace Ship_Game
 
         ~RoundLineManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.vb != null)
-                        this.vb.Dispose();
-                    if (this.vdecl != null)
-                        this.vdecl.Dispose();
-                    if (this.ib != null)
-                        this.ib.Dispose();
-
-                }
-                this.vb = null;
-                this.vdecl = null;
-                this.ib = null;
-                this.disposed = true;
-            }
+            vb?.Dispose(ref vb);
+            vdecl?.Dispose(ref vdecl);
+            ib?.Dispose(ref ib);
         }
 	}
 }

@@ -1,0 +1,7 @@
+These files were downloaded from:
+
+http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/diff-scripts/
+
+username: guest, no password
+
+On Christmas day, 2009.

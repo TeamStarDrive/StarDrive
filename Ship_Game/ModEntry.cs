@@ -1,71 +1,69 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
 	public sealed class ModEntry
 	{
-		public string ModPath;
-
-		public Rectangle Container = new Rectangle();
-
-		public Rectangle Portrait = new Rectangle();
-
+		public string ModName;
+		public Rectangle Container;
+		public Rectangle Portrait;
 		public ModInformation mi;
-
-		public Texture2D PortraitTex;
-
-		public Texture2D MainMenuTex;
-
 		public string MainMenuMusic;
-
         public string Version;
+        private Texture2D PortraitTex;
+        private Texture2D MainMenuTex;
 
-		public ModEntry(ScreenManager sm, ModInformation mi, string name)
+        public ModEntry(ModInformation modInfo)
 		{
-			this.ModPath = name;
-			this.mi = mi;
-			this.PortraitTex = sm.Content.Load<Texture2D>(string.Concat("../Mods/", name, "/Textures/", mi.PortraitPath));
-			this.MainMenuTex = sm.Content.Load<Texture2D>(string.Concat("../Mods/", name, "/Textures/", mi.ModImagePath_1920x1280));
-			this.MainMenuMusic = mi.CustomMenuMusic;
-            this.Version = mi.Version;
+			ModName       = modInfo.ModName;
+			mi            = modInfo;
+			MainMenuMusic = mi.CustomMenuMusic;
+            Version       = mi.Version;
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, Rectangle clickRect)
+		public void Draw(ScreenManager screenManager, Rectangle clickRect)
 		{
-			this.Container = clickRect;
-			this.Portrait = new Rectangle(this.Container.X + 6, this.Container.Y, 128, 128);
-			Vector2 TitlePos = new Vector2((float)(this.Portrait.X + 140), (float)this.Portrait.Y);
+			Container = clickRect;
+			Portrait = new Rectangle(Container.X + 6, Container.Y, 128, 128);
+			Vector2 titlePos = new Vector2(Portrait.X + 140, Portrait.Y);
             
             //added by gremlin Draw Mod Version
-            string title = this.mi.ModName;
-            //if (this.mi.Version != null && this.mi.Version != "" && !this.mi.ModName.Contains(this.mi.Version))
-            //title=string.Concat(title," - ",this.Version);
+            string title = mi.ModName;
 
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, title, TitlePos, Color.Orange);
-            TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+            screenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, title, titlePos, Color.Orange);
+            titlePos.Y = titlePos.Y + Fonts.Arial20Bold.LineSpacing + 2;
 
-            Vector2 ContactPos = TitlePos;
+            Vector2 contactPos = titlePos;
            
-            string Author = "Author: " +this.mi.Author;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Author, TitlePos, Color.Red);
-            ContactPos.X += Fonts.Arial12Bold.MeasureString(Author).X;
+            string author = "Author: " + mi.Author;
+            screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, author, titlePos, Color.Red);
+            contactPos.X += Fonts.Arial12Bold.MeasureString(author).X;
             
-            string URL = " URL: "+this.mi.URL;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, URL, ContactPos, Color.CornflowerBlue);
-            TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 1);
+            string url = " URL: " + mi.URL;
+            screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, url, contactPos, Color.CornflowerBlue);
+            titlePos.Y = titlePos.Y + Fonts.Arial12Bold.LineSpacing + 1;
 
-            
+            string description = mi.ModDescription;
+            if (!string.IsNullOrEmpty(mi.Version))
+                description = description + "\n----\nVersion - " + Version;
 
-            string Description = this.mi.ModDescription;
-           // if (this.mi.Version != null && this.mi.Version != "" && !this.mi.ModDescription.Contains(this.mi.Version))
-            if (this.mi.Version != null && !string.IsNullOrEmpty(this.mi.Version))
-                Description = string.Concat(Description, "\n----\nVersion - ", this.Version);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, Description, 450f), TitlePos, Color.White);
-			ScreenManager.SpriteBatch.Draw(this.PortraitTex, this.Portrait, Color.White);
-			Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, this.Portrait, Color.White);
+            screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, description, 450f), titlePos, Color.White);
+
+            if (PortraitTex == null)
+                PortraitTex = ResourceManager.LoadModTexture(ModName, mi.PortraitPath);
+            if (PortraitTex != null)
+                screenManager.SpriteBatch.Draw(PortraitTex, Portrait, Color.White);
+
+			screenManager.SpriteBatch.DrawRectangle(Portrait, Color.White);
 		}
-	}
+
+        public void DrawMainMenuOverlay(ScreenManager screenManager, Rectangle portrait)
+        {
+            if (MainMenuTex == null)
+                MainMenuTex = ResourceManager.LoadModTexture(ModName, mi.ModImagePath_1920x1280);
+            if (MainMenuTex != null)
+                screenManager.SpriteBatch.Draw(MainMenuTex, portrait, Color.White);
+        }
+    }
 }

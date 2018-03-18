@@ -1,4 +1,5 @@
 using System;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -13,6 +14,43 @@ namespace Ship_Game
 
 		public StatTracker()
 		{
-		}
+        }
+
+	    public static void StatAddColony(Object add,Empire owner,UniverseScreen universeScreen)
+	    {
+            string starDate = universeScreen.StarDate.ToString("#.0");
+	        if (!SnapshotsDict.TryGetValue(starDate, out var stat))
+	            return;
+            Planet planet = add as Planet;
+	        if (planet != null )
+	        {
+                SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(owner)].Events.Add(
+                        string.Concat(owner.data.Traits.Name, " colonized ", planet.Name));
+                var nro = new NRO()
+                {
+                    Node = planet.Center,
+                    Radius = 300000f,
+                    StarDateMade = universeScreen.StarDate
+                };
+                SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(owner)].EmpireNodes.Add(nro);
+
+            }	        	           	        
+	    }
+
+	    public static void StatAddRoad(Object add, Empire owner)
+	    {
+            string starDate = Empire.Universe.StarDate.ToString("#.0");
+	        if (!SnapshotsDict.ContainsKey(starDate))
+	            return;
+	        RoadNode node = add as RoadNode;
+	        if (node is null) return;
+            var nro = new NRO()
+            {
+                Node = node.Position,
+                Radius = 300000f,
+                StarDateMade = Empire.Universe.StarDate
+            };
+            SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(owner)].EmpireNodes.Add(nro);
+        }
 	}
 }

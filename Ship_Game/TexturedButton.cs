@@ -58,7 +58,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.r, input.CursorPosition))
+			if (!this.r.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -69,11 +69,11 @@ namespace Ship_Game
 				{
 					if (string.IsNullOrEmpty(this.Hotkey))
 					{
-						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), Ship.universeScreen.ScreenManager, this.Hotkey);
+						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), this.Hotkey);
 					}
 					else
 					{
-						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), Ship.universeScreen.ScreenManager);
+						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip));
 					}
 				}
 				if (input.InGameSelect)
