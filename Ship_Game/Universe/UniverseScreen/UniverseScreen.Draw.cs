@@ -99,7 +99,7 @@ namespace Ship_Game
             renderState.SourceBlend                                     = Blend.SourceAlpha;
             renderState.DestinationBlend                                = Blend.InverseSourceAlpha;
             renderState.DepthBufferWriteEnable                          = false;
-            ModelMesh modelMesh                                         = ((ReadOnlyCollection<ModelMesh>) model.Meshes)[0];
+            ModelMesh modelMesh                                         = model.Meshes[0];
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
                 basicEffect.World                           = Matrix.CreateScale(4.05f) * world;
@@ -113,15 +113,13 @@ namespace Ship_Game
                 basicEffect.SpecularPower                   = 4;
                 if (UseRealLights)
                 {
-                    var sunToPlanet = findVectorToTarget(p.Center, p.ParentSystem.Position);
-                    var normalized = Vector3.Normalize(sunToPlanet.ToVec3(0));
-                    basicEffect.DirectionalLight0.Direction = normalized;
+                    Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
+                    basicEffect.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
                 }
                 else
                 {
-                    Vector3 vector3 = new Vector3(p.Center - new Vector2(0, 0), 0.0f);
-                    vector3 = Vector3.Normalize(vector3);
-                    basicEffect.DirectionalLight0.Direction = vector3;
+                    Vector2 universeCenterToPlanet = p.Center - new Vector2(0, 0);
+                    basicEffect.DirectionalLight0.Direction = universeCenterToPlanet.ToVec3().Normalized();
                 }
                 basicEffect.DirectionalLight0.Enabled = true;
             }
