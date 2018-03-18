@@ -70,9 +70,7 @@ namespace Ship_Game
         public float AllTimeMaintTotal;
         public float totalMaint;
         public float GrossTaxes;
-        public float OtherIncome;
-        //public float DisplayIncome;          //Not referenced in code, removing to save memory
-        //public float ActualNetLastTurn;          //Not referenced in code, removing to save memory
+        public float OtherIncome;        
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
@@ -85,10 +83,7 @@ namespace Ship_Game
         public float TechScore;
         public float ExpansionScore;
         public float MilitaryScore;
-        public float IndustrialScore;
-        //public float SensorRange;          //Not referenced in code, removing to save memory
-        //public bool IsSensor;          //Not referenced in code, removing to save memory
-        //private float desiredForceStrength;
+        public float IndustrialScore;    
         public Planet Capital;
         public int EmpireShipCountReserve;
         public int empireShipTotal;
@@ -106,8 +101,7 @@ namespace Ship_Game
         public float freighterBudget;
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
-        public float MaxResearchPotential = 10;
-
+        public float MaxResearchPotential = 10;        
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         private float leftoverResearch;
@@ -1493,7 +1487,7 @@ namespace Ship_Game
             foreach (var kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;
-                if (hulls != null && !hulls.Contains(ship.shipData.Hull))
+                if (hulls != null && !hulls.Contains(ship.shipData.Hull)) 
                     continue;
 
                 if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected || ShipsWeCanBuild.Contains(ship.Name))
@@ -1545,7 +1539,7 @@ namespace Ship_Game
             }
             
             // If the ship role is not defined don't try to use it
-            if (!shipData.IsShipyard && (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull))
+            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
             {
                 //Universe?.DebugWin?.DebugLogText($"{data.PortraitName} : Hull is Not Unlocked : '{shipData.Hull}'", Debug.DebugModes.Normal);
                 return false;

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using SgMotion;
 using SgMotion.Controllers;
@@ -32,6 +33,7 @@ namespace Ship_Game.Ships
         public string IconPath;
         public CombatState CombatState = CombatState.AttackRuns;
         public float MechanicalBoardingDefense;
+
         public string Hull;
         public RoleName Role = RoleName.fighter;
         public Array<ShipToolScreen.ThrusterZone> ThrusterList;
@@ -60,6 +62,8 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public RoleName HullRole => HullData?.Role ?? Role;
         [XmlIgnore] [JsonIgnore] public ShipData HullData { get; internal set; }
         [XmlIgnore] [JsonIgnore] public string HullModel => HullData?.ModelPath ?? ModelPath;
+        [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(HullData?.IconPath ?? IconPath);
+
         public void SetHullData(ShipData shipData)
         {            
             shipData.HullData = ResourceManager.HullsDict.TryGetValue(shipData.Hull, out ShipData hull) ? hull : shipData;

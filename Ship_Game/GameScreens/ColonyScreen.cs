@@ -557,7 +557,7 @@ namespace Ship_Game
                                     (entry.item as ModuleHeader).Draw(this.ScreenManager, vector2_1);
                                 else if (entry.clickRectHover == 0)
                                 {
-                                    var iconPath = ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath;
+                                    var iconPath = (entry.item as Ship).GetShipData().HullData.IconPath; 
                                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(iconPath), new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
@@ -600,7 +600,7 @@ namespace Ship_Game
                                 else
                                 {
                                     vector2_1.Y = (float)entry.clickRect.Y;
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[(entry.item as Ship).GetShipData().HullData.IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
@@ -898,7 +898,7 @@ namespace Ship_Game
                     }
                     else if (qi.isShip)
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[qi.sData.Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                        this.ScreenManager.SpriteBatch.Draw(qi.sData.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName != null ? qi.DisplayName : qi.sData.Name, position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
