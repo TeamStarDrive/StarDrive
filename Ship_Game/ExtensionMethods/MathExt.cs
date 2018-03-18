@@ -113,6 +113,12 @@ namespace Ship_Game
             return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
         }
 
+        public static Vector3 Normalized(this Vector3 v)
+        {
+            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z);
+            return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : new Vector3();
+        }
+
         // True if this given position is within the radius of Circle [center,radius]
         public static bool InRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) <= radius*radius;
