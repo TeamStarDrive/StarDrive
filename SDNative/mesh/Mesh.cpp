@@ -1,17 +1,71 @@
 #include "Mesh.h"
 #include <rpp/file_io.h>
+#include <rpp/sprint.h>
 #include <rpp/debugging.h>
 
 namespace mesh
 {
+    using std::swap;
+    using std::make_shared;
+    using std::unordered_multimap;
+    using rpp::string_buffer;
+    using namespace rpp::literals;
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    bool Face::ContainsVertexId(int vertexId) const
+    bool Triangle::ContainsVertexId(int vertexId) const
     {
-        for (int i = 0; i < Count; ++i)
-            if (VDS[i].v == vertexId)
-                return true;
-        return false;
+        return a.v == vertexId || b.v == vertexId || c.v == vertexId;
+    }
+
+    string to_string(const Triangle& triangle)
+    {
+        string_buffer sb;
+        sb.writef("{%d,%d,%d}", triangle.a.v, triangle.b.v, triangle.c.v);
+        return sb.str();
+    }
+
+    Vector3 PickedTriangle::center() const
+    {
+        Assert(good(), "Invalid PickedTriangle");
+        Vector3 c = group->Vertex(face->a);
+        c += group->Vertex(face->b);
+        c += group->Vertex(face->c);
+        c /= 3;
+        return c;
+    }
+
+    Vector3 PickedTriangle::vertex(const VertexDescr& vd) const
+    {
+        Assert(good(), "Invalid PickedTriangle");
+        Assert(vd.v != -1 && vd.v < group->NumVerts(), 
+               "Invalid VertexDescr: %d / %d", vd.v, group->NumVerts());
+
+        return group->VertexData()[vd.v];
+    }
+
+    int PickedTriangle::id() const
+    {
+        if (!group || !face)
+            return -1;
+        const Triangle* faces = group->Faces.data();
+        size_t count = group->Faces.size();
+        for (size_t i = 0; i < count; ++i)
+            if (faces + i == face)
+                return int(i);
+        return -1;
+    }
+
+    string to_string(const PickedTriangle& triangle)
+    {
+        string_buffer sb;
+        sb.write('{');
+        sb.write(triangle.group?triangle.group->GroupId:-1);
+        sb.write(',');
+        if (triangle.face) sb.write(*triangle.face);
+        else               sb.write(-1);
+        sb.write('}');
+        return sb.str();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,33 +77,12 @@ namespace mesh
         return *Mat;
     }
 
-    bool MeshGroup::CheckIsTriangulated() const
-    {
-        for (const Face& face : Faces)
-            if (face.Count != 3)
-                return false;
-        return true;
-    }
-
-    void MeshGroup::Triangulate()
-    {
-        throw runtime_error("not implemented");
-    }
-
     void MeshGroup::InvertFaceWindingOrder()
     {
-        for (Face& face : Faces)
+        for (Triangle& tri : Faces)
         {
-            if (face.Count == 3)
-            {
-                // 0 1 2 --> 0 2 1
-                swap(face.VDS[1], face.VDS[2]);
-            }
-            else if (face.Count == 4)
-            {
-                // 0 1 2 3 --> 0 3 2 1
-                swap(face.VDS[1], face.VDS[3]);
-            }
+            // 0 1 2 --> 0 2 1
+            swap(tri.b, tri.c);
         }
 
         // flip the winding tag
@@ -85,7 +118,7 @@ namespace mesh
         {
             // add normals to any vertex that shares v0/v1/v2 coordinates
             // an unoptimized Mesh may have multiple vertices occupying the same XYZ position
-            for (const Face& f : Faces)
+            for (const Triangle& f : Faces)
             {
                 for (const VertexDescr& vd : f)
                 {
@@ -108,48 +141,18 @@ namespace mesh
 
         FaceWindOrder winding = Winding;
 
-        // normals are calculated for each face:
-        for (const Face& face : Faces)
+        // normals are calculated for each tri:
+        for (const Triangle& tri : Faces)
         {
-            int numVerts = face.Count;
-            if (numVerts == 3)
+            if (winding == FaceWindCounterClockWise)
             {
-                if (winding == FaceWindCounterClockWise)
-                {
-                    UpdateNormal(face[0], face[1], face[2], checkDuplicateVerts);
-                }
-                else
-                {
-                    UpdateNormal(face[2], face[1], face[0], checkDuplicateVerts);
-                }
-            }
-            else if (numVerts == 4)
-            {
-                // @todo According to OBJ spec, face vertices are in CCW order:
-                // 0--3       3--2
-                // | /|  or   |\ |
-                // |/ |       | \|
-                // 1--2       0--1
-                // This will affect the result of normal calculation, so it should
-                // be reviewed depending on the final target application which may
-                // expect normals in the opposite order
-                if (winding == FaceWindCounterClockWise)
-                {
-                    UpdateNormal(face[0], face[1], face[3], checkDuplicateVerts);
-                    UpdateNormal(face[1], face[2], face[3], checkDuplicateVerts);
-                }
-                else
-                {
-                    UpdateNormal(face[3], face[1], face[0], checkDuplicateVerts);
-                    UpdateNormal(face[3], face[2], face[1], checkDuplicateVerts);
-                }
+                UpdateNormal(tri.a, tri.b, tri.c, checkDuplicateVerts);
             }
             else
             {
-                LogError("Unsupported number of verts per face: %d", numVerts);
+                UpdateNormal(tri.c, tri.b, tri.a, checkDuplicateVerts);
             }
         }
-
         for (Vector3& normal : Normals)
             normal.normalize();
     }
@@ -163,7 +166,7 @@ namespace mesh
 
     void MeshGroup::FlattenFaceData() noexcept
     {
-        // Flatten the mesh, so each Face Vertex is unique
+        // Flatten the mesh, so each Triangle Vertex is unique
         auto* meshVerts   = Verts.data();
         auto* meshCoords  = Coords.data();
         auto* meshNormals = Normals.data();
@@ -175,7 +178,7 @@ namespace mesh
         vector<Color3>  colors;  if (!Colors.empty())   colors.reserve(count);
 
         int vertexId = 0, coordId = 0, normalId = 0, colorId = 0;
-        for (Face& f : Faces)
+        for (Triangle& f : Faces)
         {
             for (VertexDescr& vd : f)
             {
@@ -208,7 +211,7 @@ namespace mesh
 
     void MeshGroup::SetVertexColor(int vertexId, const Color3& vertexColor) noexcept
     {
-        Assert(vertexId < NumVerts(), "Invalid vertexId %d >= numVerts(%ld)", vertexId, NumVerts());
+        Assert(vertexId < NumVerts(), "Invalid vertexId %d >= numVerts(%d)", vertexId, NumVerts());
 
         if (Colors.empty()) {
             Colors.resize(Verts.size());
@@ -227,7 +230,7 @@ namespace mesh
         append(Verts, group.Verts);
         if (offset != Vector3::ZERO)
         {
-            for (int i = numVertsOld; i < (int)Verts.size(); ++i)
+            for (int i = numVertsOld, count = (int)Verts.size(); i < count; ++i)
                 Verts[i] += offset;
         }
         append(Coords, group.Coords);
@@ -246,10 +249,10 @@ namespace mesh
             ColorMapping = MapPerVertex;
         }
 
-        append(Faces, group.Faces);
-        for (int i = numFacesOld; i < (int)Faces.size(); ++i)
+        rpp::append(Faces, group.Faces);
+        for (int i = numFacesOld, numFaces = (int)Faces.size(); i < numFaces; ++i)
         {
-            Face& face = Faces[i];
+            Triangle& face = Faces[i];
             for (VertexDescr& vd : face)
             {
                 vd.v += numVertsOld;
@@ -280,87 +283,149 @@ namespace mesh
             });
         };
 
-        const bool optimizedVertexSharing = !IsFlattened();
-        if (optimizedVertexSharing)
+        for (const Triangle& face : Faces)
+            for (const VertexDescr& vd : face)
+                addVertex(vd);
+    }
+
+    void MeshGroup::SplitSeamVertices() noexcept
+    {
+        auto canShareVertex = [](const VertexDescr& a, const VertexDescr& b) {
+            return a.t == b.t && a.n == b.n && a.c == b.c;
+        };
+
+        unordered_multimap<int, VertexDescr> addedVerts; addedVerts.reserve(NumVerts());
+
+        auto getExistingVertex = [&](const VertexDescr& old, VertexDescr& out) -> bool
         {
-            struct VertexInfo { int index, coordId, normalId; };
-            auto canShareVertex = [&](const VertexInfo& in, const VertexDescr& vd)
+            for (auto r = addedVerts.equal_range(old.v); r.first != r.second; ++r.first)
             {
-                if (vd.t == in.coordId && vd.n == in.normalId)
+                VertexDescr existing = r.first->second;
+                if (canShareVertex(old, existing)) {
+                    out = existing;
                     return true;
-                if (vd.t != -1 && in.coordId != -1 && meshCoords[vd.t] != meshCoords[in.coordId])
-                    return false;
-                if (vd.n != -1 && in.normalId != -1 && meshNormals[vd.n] != meshNormals[in.normalId])
-                    return false;
-                return true;
-            };
-
-            vector<VertexInfo> flatmap; flatmap.resize(NumVerts());
-            auto* flatmapData = flatmap.data();
-            memset(flatmapData, -1, sizeof(VertexInfo)*flatmap.size());
-
-            for (const Face& face : Faces)
-            {
-                for (const VertexDescr& vd : face)
-                {
-                    VertexInfo& info = flatmapData[vd.v];
-                    if (info.index == -1)
-                    {
-                        info = { vertexId, vd.t, vd.n };
-                        addVertex(vd);
-                    }
-                    else if (canShareVertex(info, vd))
-                    {
-                        indices.push_back(info.index);
-                    }
-                    else // vertex can't be shared, so just write a new copy
-                    {
-                        addVertex(vd);
-                    }
                 }
             }
-        }
-        else
+            return false;
+        };
+
+        size_t numFaces = Faces.size();
+        auto*  oldFaces = Faces.data();
+        auto*  oldVerts = Verts.data();
+        vector<Triangle> faces; faces.resize(numFaces);
+        vector<Vector3>  verts; verts.reserve(Verts.size());
+
+        for (size_t faceId = 0; faceId < numFaces; ++faceId)
         {
-            for (const Face& face : Faces)
-                for (const VertexDescr& vd : face)
-                    addVertex(vd);
+            const Triangle& oldFace = oldFaces[faceId];
+            Triangle& newFace = faces[faceId];
+            for (int i = 0; i < 3; ++i)
+            {
+                const VertexDescr& old = oldFace[i];
+                VertexDescr&    result = newFace[i];
+
+                if (getExistingVertex(old, result))
+                    continue;
+
+                // insert new
+                verts.push_back(oldVerts[old.v]);
+                result = { (int)verts.size() - 1, old.t, old.n, old.c };
+                addedVerts.emplace(old.v, result);
+            }
+        }
+        Verts = move(verts);
+        Faces = move(faces);
+    }
+
+    void MeshGroup::PerVertexFlatten() noexcept
+    {
+        auto* oldCoords  = Coords.empty()  ? nullptr : Coords.data();
+        auto* oldNormals = Normals.empty() ? nullptr : Normals.data();
+        auto* oldColors  = Colors.empty()  ? nullptr : Colors.data();
+        vector<Vector2> coords;   coords.reserve(Verts.size());
+        vector<Vector3> normals; normals.reserve(Verts.size());
+        vector<Color3>  colors;   colors.reserve(Verts.size());
+
+        vector<bool> added; added.resize(Verts.size());
+
+        for (Triangle& face : Faces)
+        {
+            for (VertexDescr& vd : face)
+            {
+                int vertexId = vd.v;
+                if (!added[vertexId])
+                {
+                    added[vertexId] = true;
+                    if (oldCoords)   coords.push_back(vd.t != -1 ?  oldCoords[vd.t] : Vector2::ZERO);
+                    if (oldNormals) normals.push_back(vd.n != -1 ? oldNormals[vd.n] : Vector3::ZERO);
+                    if (oldColors)   colors.push_back(vd.c != -1 ?  oldColors[vd.c] : Color3::ZERO);
+                }
+
+                if (oldCoords)  vd.t = vertexId;
+                if (oldNormals) vd.n = vertexId;
+                if (oldColors)  vd.c = vertexId;
+            }
+        }
+
+        if (CoordsMapping) {
+            CoordsMapping = MapPerVertex;
+            Coords = move(coords);
+            Assert(Coords.size()  == Verts.size(), "Coords must match vertices");
+        }
+        if (NormalsMapping) {
+            NormalsMapping = MapPerVertex;
+            Normals = move(normals);
+            Assert(Normals.size() == Verts.size(), "Normals must match vertices");
+        }
+        if (ColorMapping) {
+            ColorMapping = MapPerVertex;
+            Colors = move(colors);
+            Assert(Colors.size()  == Verts.size(), "Colors must match vertices");
         }
     }
 
-    PickFaceResult MeshGroup::PickFace(const Ray& ray) const noexcept
+    void MeshGroup::OptimizedFlatten() noexcept
+    {
+        SplitSeamVertices();
+        PerVertexFlatten();
+    }
+
+    void MeshGroup::CreateIndexArray(vector<int> &indices) const noexcept
+    {
+        indices.clear();
+        indices.reserve(Faces.size() * 3u);
+
+        for (const Triangle& face : Faces)
+            for (const VertexDescr& vd : face)
+                indices.push_back(vd.v);
+    }
+
+    PickedTriangle MeshGroup::PickTriangle(const Ray& ray) const noexcept
     {
         const Vector3* verts = Verts.data();
-        const Face* pickedFace = nullptr;
+        const Triangle* picked = nullptr;
         float closestDist = 9999999999999.0f;
 
-        for (const Face& face : Faces)
+        for (const Triangle& tri : Faces)
         {
-            int numVerts = face.Count;
-            if (numVerts < 3) {
-                LogError("Unsupported number of verts per face: %d", numVerts);
-                continue;
-            }
-
-            const Vector3& v0 = verts[face[0].v];
-            const Vector3& v1 = verts[face[1].v];
-            const Vector3& v2 = verts[face[2].v];
+            const Vector3& v0 = verts[tri.a.v];
+            const Vector3& v1 = verts[tri.b.v];
+            const Vector3& v2 = verts[tri.c.v];
             float dist = ray.intersectTriangle(v0, v1, v2);
             if (dist > 0.0f && dist < closestDist) {
                 closestDist = dist;
-                pickedFace  = &face;
-            }
-            if (numVerts == 4)
-            {
-                const Vector3& v3 = verts[face[3].v];
-                dist = ray.intersectTriangle(v1, v2, v3);
-                if (dist > 0.0f && dist < closestDist) {
-                    closestDist = dist;
-                    pickedFace  = &face;
-                }
+                picked      = &tri;
             }
         }
-        return pickedFace ? PickFaceResult{ this, pickedFace, closestDist } : PickFaceResult{};
+        return picked ? PickedTriangle{ this, picked, closestDist } : PickedTriangle{};
+    }
+
+    void MeshGroup::Print() const
+    {
+        printf("   group  %-28s  %5d verts  %5d tris", Name.c_str(), NumVerts(), NumFaces());
+        if (NumCoords()) printf("  %5d uvs", NumCoords());
+        if (NumColors()) printf("  %5d colors", NumColors());
+        printf("\n");
     }
 
 
@@ -369,38 +434,33 @@ namespace mesh
     
 
 
-    Mesh::Mesh() noexcept
-    {
-    }
+    Mesh::Mesh() noexcept = default;
+    Mesh::~Mesh() noexcept = default;
 
-    Mesh::Mesh(strview meshPath) noexcept
+    Mesh::Mesh(strview meshPath, MeshLoaderOptions options) noexcept
     {
-        Load(meshPath);
-    }
-
-    Mesh::~Mesh() noexcept
-    {
+        Load(meshPath, options);
     }
 
     int Mesh::TotalFaces() const
     {
-        return sum_all(Groups, &MeshGroup::NumFaces);
+        return rpp::sum_all(Groups, &MeshGroup::NumFaces);
     }
     int Mesh::TotalVerts() const
     {
-        return sum_all(Groups, &MeshGroup::NumVerts);
+        return rpp::sum_all(Groups, &MeshGroup::NumVerts);
     }
     int Mesh::TotalCoords() const
     {
-        return sum_all(Groups, &MeshGroup::NumCoords);
+        return rpp::sum_all(Groups, &MeshGroup::NumCoords);
     }
     int Mesh::TotalNormals() const
     {
-        return sum_all(Groups, &MeshGroup::NumNormals);
+        return rpp::sum_all(Groups, &MeshGroup::NumNormals);
     }
     int Mesh::TotalColors() const
     {
-        return sum_all(Groups, &MeshGroup::NumColors);
+        return rpp::sum_all(Groups, &MeshGroup::NumColors);
     }
 
     MeshGroup* Mesh::FindGroup(strview name)
@@ -419,7 +479,7 @@ namespace mesh
 
     MeshGroup& Mesh::CreateGroup(string name)
     {
-        return emplace_back(Groups, (int)Groups.size(), name);
+        return rpp::emplace_back(Groups, (int)Groups.size(), name);
     }
 
     MeshGroup& Mesh::FindOrCreateGroup(strview name)
@@ -457,11 +517,11 @@ namespace mesh
         return obj;
     }
 
-    bool Mesh::Load(strview meshPath) noexcept
+    bool Mesh::Load(strview meshPath, MeshLoaderOptions options) noexcept
     {
         strview ext = file_ext(meshPath);
-        if (ext.equalsi("fbx"_sv)) return LoadFBX(meshPath);
-        if (ext.equalsi("obj"_sv)) return LoadOBJ(meshPath);
+        if (ext.equalsi("fbx"_sv)) return LoadFBX(meshPath, options);
+        if (ext.equalsi("obj"_sv)) return LoadOBJ(meshPath, options);
 
         LogError("Error: unrecognized mesh format for file '%s'", meshPath.to_cstr());
         return false;
@@ -495,20 +555,20 @@ namespace mesh
 
     void Mesh::AddMeshData(const Mesh& mesh, Vector3 offset) noexcept
     {
-        int numGroupsOld  = (int)Groups.size();
-        append(Groups, mesh.Groups);
+        size_t numGroupsOld  = Groups.size();
+        rpp::append(Groups, mesh.Groups);
 
         auto oldGroupHasIdenticalName = [=](strview name) {
-            for (int i = 0; i < numGroupsOld; ++i)
+            for (size_t i = 0; i < numGroupsOld; ++i)
                 if (Groups[i].Name == name) return true;
             return false;
         };
 
-        for (int i = numGroupsOld; i < (int)Groups.size(); ++i)
+        for (size_t i = numGroupsOld; i < Groups.size(); ++i)
         {
             MeshGroup& group = Groups[i];
             while (oldGroupHasIdenticalName(group.Name))
-                group.Name += "_" + to_string(numGroupsOld);
+                group.Name += "_" + std::to_string(numGroupsOld);
 
             if (offset != Vector3::ZERO) {
                 for (Vector3& vertex : group.Verts)
@@ -519,9 +579,11 @@ namespace mesh
 
     BoundingBox Mesh::CalculateBBox() const noexcept
     {
-        BoundingBox bounds = {};
-        for (const MeshGroup& group : Groups)
-            bounds.join(BoundingBox::create(group.Verts));
+        if (Groups.empty())
+            return {};
+        BoundingBox bounds = BoundingBox::create(Groups.front().Verts);
+        for (size_t i = 1; i < Groups.size(); ++i)
+            bounds.join(BoundingBox::create(Groups[i].Verts));
         return bounds;
     }
 
@@ -538,13 +600,31 @@ namespace mesh
         return true;
     }
 
-
-    PickFaceResult Mesh::PickFace(const Ray& ray) const noexcept
+    void Mesh::OptimizedFlatten() noexcept
     {
-        PickFaceResult closest = {};
+        for (MeshGroup& group : Groups)
+            group.OptimizedFlatten();
+    }
+
+    void Mesh::MergeGroups() noexcept
+    {
+        if (Groups.size() <= 1u)
+            return;
+
+        auto& merged = Groups.front();
+        while (Groups.size() > 1)
+        {
+            merged.AddMeshData(Groups.back());
+            Groups.pop_back();
+        }
+    }
+
+    PickedTriangle Mesh::PickTriangle(const Ray& ray) const noexcept
+    {
+        PickedTriangle closest = {};
         for (const MeshGroup& group : Groups)
         {
-            if (PickFaceResult result = group.PickFace(ray)) {
+            if (PickedTriangle result = group.PickTriangle(ray)) {
                 if (!closest || result.distance < closest.distance)
                     closest = result;
             }

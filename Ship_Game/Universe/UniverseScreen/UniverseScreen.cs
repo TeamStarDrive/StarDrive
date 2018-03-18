@@ -297,48 +297,70 @@ namespace Ship_Game
             }
 
             ScreenManager.RemoveAllLights();
+            
+            //Global fill light. 
+            AddLight(new Vector2(0, 0), .3f, UniverseSize * 2 + MaxCamHeight, Color.White, -MaxCamHeight, fillLight: false, shadowQuality: 0f);
+
             foreach (SolarSystem system in SolarSystemList)
             {
-                float intensity = 2.5f;
-                float radius = 150000f;
+                Color color = Color.White;
+                float intensity = .8f;
+                float radius = 200000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
-                        intensity -= 5f;
+                        intensity -= .2f;
                         radius -= 50000f;
+                        color = Color.LightSalmon;
                         break;
-                    case "star_yellow":                            
-                    case "star_yellow2":break;
-                    case "star_green":  break;
+                    case "star_yellow":
+                        color = Color.LightYellow;
+                        break;
+                    case "star_yellow2":
+                        color = Color.White;
+                        break;
+                    case "star_green":
+                        color = Color.LightGreen;
+                        break;
                     case "star_blue":
+                        color = Color.LightBlue;
+                        break;
                     case "star_binary":                            
-                        intensity += .5f;
+                        intensity += .2f;
                         radius += 50000f;
                         break; 
                 }
-                // standard 3 point lighting
-                AddLight(system, intensity, radius, zpos: +2500f, fillLight: true);
-                AddLight(system, 2.5f, 5000f,   zpos: -2500f, fillLight: false);
-                AddLight(system, 1.0f, 100000f, zpos: -6500f, fillLight: false);
+                
+                //Key              
+                AddLight(system.Position, intensity, radius, Color.White , zpos: -1500, fillLight: false, fallOff:1);
+                AddLight(system.Position, intensity, radius, Color.White, zpos:   2500, fillLight: false, fallOff: 1);
+                //OverSaturationKey
+                AddLight(system.Position, intensity *5, radius * .05f, color, zpos: -1500, fillLight: false, fallOff: 1);
+                //back
+                AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
+
             }
         }
 
-        private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
+        private void AddLight(Vector2 source, float intensity, float radius, Color color, float zpos,  bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
             {
-                DiffuseColor = new Vector3(1f, 1f, 0.85f),
-                Intensity    = intensity,
-                ObjectType   = ObjectType.Static, // RedFox: changed this to Static
-                FillLight    = true,
-                Radius       = radius,
-                Position     = new Vector3(system.Position, zpos),
-                Enabled      = true
+                DiffuseColor        = color.ToVector3(),//fox used this vector3 so leaving it for refence new Vector3(1f, 1f, 0.85f)
+                Intensity           = intensity,
+                ObjectType          = ObjectType.Static, // RedFox: changed this to Static
+                FillLight           = fillLight,
+                Radius              = radius,
+                Position            = new Vector3(source, zpos),
+                Enabled             = true,
+                FalloffStrength     = fallOff,
+                ShadowPerSurfaceLOD = true,
+                ShadowQuality = shadowQuality
             };
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);
         }
-
+        
         public void ContactLeader(object sender)
         {
             if (this.SelectedShip == null)
@@ -496,31 +518,22 @@ namespace Ship_Game
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
-            ResourceManager.CompactLargeObjectHeap();
-            var memStart1 = GC.GetTotalMemory(true);
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                //    var empire = EmpireManager.Player;
-                var memStart =  GC.GetTotalMemory(true);
-                var techDict = empire.TechnologyDict;
-                foreach (var kv in techDict)
+            foreach (var empire in EmpireManager.Empires)
+                if(!ResourceManager.PreLoadModels(empire))
                 {
-                    kv.Value.LoadShipModelsFromDiscoveredTech(empire);
+                    ExitScreen();
+                    Game1.Instance.Exit();
+                    return;
                 }
-                
-                var memEnd = GC.GetTotalMemory(true);
-                var memToal = memEnd - memStart;
-                var runningToal = memEnd - memStart1;
 
-                Log.Info($"Models size for {empire.Name} is {memToal/1000}K");
-                Log.Info($"Models size runningToal is {runningToal / 1000}K");
-            }
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
         }
+
+
 
         private void CreateDefensiveRemnantFleet(string fleetUid, Vector2 where, float defenseRadius)
         {

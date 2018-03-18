@@ -529,7 +529,7 @@ namespace Ship_Game
                             if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key)) continue;
 
                             if (Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player) != header
-                                || kv.Value.Name == "Shipyard" || kv.Value.Deleted
+                                 || kv.Value.Deleted
                                 || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected)
                             {
                                 continue;

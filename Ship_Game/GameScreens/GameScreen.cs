@@ -74,7 +74,7 @@ namespace Ship_Game
         public void RemoveAllLights()             => ScreenManager.RemoveAllLights();
         public void AssignLightRig(string rigContentPath)
         {
-            var lightRig = TransientContent.Load<LightRig>(rigContentPath);
+            LightRig lightRig = TransientContent.Load<LightRig>(rigContentPath);
             ScreenManager.AssignLightRig(lightRig);
         }
 

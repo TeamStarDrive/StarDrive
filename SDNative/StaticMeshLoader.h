@@ -4,6 +4,10 @@
 namespace SDNative
 {
     using namespace mesh;
+    using rpp::ushort;
+    using rpp::BoundingSphere;
+    using rpp::Matrix4;
+    using std::unique_ptr;
     ////////////////////////////////////////////////////////////////////////////////////
 
     struct SDVertex
@@ -66,7 +70,7 @@ namespace SDNative
         SDVertex* Vertices = nullptr;
         ushort*   Indices  = nullptr;
         BoundingSphere Bounds;
-        Matrix4 Transform = Matrix4::IDENTITY;
+        Matrix4 Transform = Matrix4::Identity();
 
         // not mapped to C#
         Mesh& Owner;
