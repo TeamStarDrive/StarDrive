@@ -1,268 +1,353 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
+using System.Collections;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
-    public sealed class SafeQueue<T> : LinkedList<T>, IDisposable //where T : new()
+    /// <summary>
+    /// A thread-safe Queue, optimized for Enqueue and Dequeue operations
+    /// Some of the code has been manually inlined for better optimization,
+    /// since this SafeQueue is used heavily in ShipAI
+    /// 
+    /// For Unit Tests, check SDUnitTests/TestSafeQueueT.cs
+    /// </summary>
+    [DebuggerTypeProxy(typeof(SafeQueueDebugView<>))]
+    [DebuggerDisplay("Count = {Count}")]
+    [Serializable]
+    public sealed class SafeQueue<T> : IDisposable, IReadOnlyCollection<T>
     {
-        //public LinkedList<T> pendingRemovals;
-        public ConcurrentStack<T> pendingRemovals;
-        public ReaderWriterLockSlim thisLock;
+        private T[] Items;
+        private int Head; // index of the First element
+        public int Count { get; private set; }
+        private ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-        //adding for thread safe Dispose because class uses unmanaged resources
-        private bool disposed;
+        private static readonly T[] Empty = Empty<T>.Array;
+
+        // This is relatively atomic, no reason to lock on this
+        // as it wouldn't provide any benefits or thread safety
+        public bool IsEmpty  => Count == 0;
+        public bool NotEmpty => Count != 0;
 
         public SafeQueue()
         {
-            //this.pendingRemovals = new LinkedList<T>();
-            this.pendingRemovals = new ConcurrentStack<T>();
-            this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
+            Items = Empty;
         }
-        public SafeQueue(bool noQueueForRemoval)
-        {
-            //this.pendingRemovals = new LinkedList<T>();
-            //this.pendingRemovals = new ConcurrentStack<T>();
-            this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        public SafeQueue(int capacity)
+        {
+            Items = new T[capacity];
         }
-        //public OrderQueue(List<T> ListToCopy)
-        //{
-        //    LinkedList<T> list = this as LinkedList<T>;
-        //    list = ListToCopy.ToList<T>();
-        //    this.AddRange(list);
-        //    this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-        //}
-        public void ApplyPendingRemovals()
+        public SafeQueue(ICollection<T> collection)
         {
-            T result;
-            while (!this.pendingRemovals.IsEmpty)
+            int i = 0;
+            Items = new T[collection.Count];
+            foreach (T item in collection)
+                Items[i++] = item;
+        }
+
+
+        // Acquires a deterministic Read Lock on this Collection
+        // You must use the C# using block to ensure deterministic release of the lock
+        // using (queue.AcquireReadLock())
+        //     item = queue.First();
+        public ScopedReadLock AcquireReadLock() => new ScopedReadLock(ThisLock);
+
+
+        // Acquires a deterministic Write Lock on this Collection
+        // You must use the C# using block to ensure deterministic release of the lock
+        // using (queue.AcquireWriteLock())
+        //     queue.Add(item);
+        public ScopedWriteLock AcquireWriteLock() => new ScopedWriteLock(ThisLock);
+
+
+        // This is intentionally left as non-threadsafe
+        // Use AcquireReadLock() if you need thread safety
+        public T this[int index]
+        {
+            get
             {
-                this.pendingRemovals.TryPop(out result); //out T result);
-                this.Remove(result);
-            }
-        }
-        public void ApplyPendingRemovals(bool SaveForPooling)
-        {
-            if (SaveForPooling)
-            {
-                foreach (T item in this.pendingRemovals.ToArray())
+                unchecked
                 {
-                    this.Remove(item);
+                    if ((uint)index >= (uint)Count)
+                        throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+                    return Items[(Head + index) % Items.Length];
                 }
-                return;
             }
-            T result;
-            LinkedList<T> removes = new LinkedList<T>();
-            while (!this.pendingRemovals.IsEmpty)
-            {
+        }
 
-                this.pendingRemovals.TryPop(out result); //out T result);
-                //removes.Add(result);
-                this.Remove(result);
+        // Adds an item to the end of the queue
+        // Could by also named PushToEnd. This Enqueued item will be
+        // the last item you get when calling Dequeue()
+        public void Enqueue(T item)
+        {
+            ThisLock.EnterWriteLock();
+            unchecked {
+                int length = Items.Length;
+                if (Count == length) { // heavily optimized:
+                    int cap = length < 4 ? 4 : length * 3 / 2;
+                    int rem = cap % 4;
+                    if (rem != 0) cap += 4 - rem;
 
+                    var newArray = new T[cap];
+                    if (length > 0) { // reorder the ringbuffer to a clean layout
+                        for (int j = 0, i = Head; j < length;) {
+                            newArray[j++] = Items[i++];
+                            if (i == length) i = 0;
+                        }
+                        Head = 0;
+                    }
+                    Items = newArray;
+                }
+                Items[(Head + Count) % Items.Length] = item;
+                ++Count;
             }
-            //this.thisLock.EnterWriteLock();
-            //removes = (this as LinkedList<T>).Except(removes).ToList();
-
-            //(this as LinkedList<T>).Clear();
-            //(this as LinkedList<T>).AddRange(removes);
-            //this.thisLock.ExitWriteLock();
-        }
-        public void QueuePendingRemoval(T item)
-        {
-            this.pendingRemovals.Push(item);
-        }
-        public void ClearPendingRemovals()
-        {
-            this.pendingRemovals.Clear();
-        }
-      new public void AddLast(T item)
-        {
-            thisLock.EnterWriteLock();
-            base.AddLast(item);
-            thisLock.ExitWriteLock();
-        }
-       new public void AddFirst(T item)
-        {
-            thisLock.EnterWriteLock();
-           base.AddFirst(item);
-            thisLock.ExitWriteLock();
-        }
-        public LinkedList<T> Get()
-        {
-            thisLock.EnterReadLock();
-            var list = this;
-            thisLock.ExitReadLock();
-            return this as LinkedList<T>;
+            ThisLock.ExitWriteLock();
         }
 
-        new public LinkedListNode<T> Last
+
+        // This will push the item to the front of the queue
+        // which will cut in line of everyone else
+        // If Dequeue is called, this will be the item returned
+        public void PushToFront(T item)
+        {
+            ThisLock.EnterWriteLock();
+            unchecked {
+                int length = Items.Length;
+                if (Count == length) { // heavily optimized:
+                    int cap = length < 4 ? 4 : length * 3 / 2;
+                    int rem = cap % 4;
+                    if (rem != 0) cap += 4 - rem;
+
+                    var newArray = new T[cap];
+                    if (length > 0) { // reorder the ringbuffer to a clean layout
+                        for (int j = 1, i = Head, n = length+1; j < n;) {
+                            newArray[j++] = Items[i++];
+                            if (i == length) i = 0;
+                        }
+                        Head = 0;
+                    }
+                    Items = newArray;
+                }
+                else {
+                    if (--Head < 0) Head = length - 1;
+                }
+                Items[Head] = item;
+                ++Count;
+            }
+            ThisLock.ExitWriteLock();
+        }
+
+
+        // Will dequeue the FIRST item from the queue, which is the first item that was Enqueued
+        public T Dequeue()
+        {
+            unchecked {
+                if (Count == 0)
+                    return default(T);
+                ThisLock.EnterWriteLock();
+                T item = Items[Head];
+                if (++Head == Items.Length) Head = 0;
+                --Count;
+                ThisLock.ExitWriteLock();
+                return item;
+            }
+        }
+
+        // Same as Dequeue, but doesn't return any value
+        public void RemoveFirst()
+        {
+            unchecked {
+                if (Count == 0)
+                    return;
+                ThisLock.EnterWriteLock();
+                Items[Head] = default(T); // clear the item
+                if (++Head == Items.Length) Head = 0;
+                --Count;
+                ThisLock.ExitWriteLock();
+            }
+        }
+
+        // Will remove the last item in the queue, which would be the last item Dequeued
+        public void RemoveLast()
+        {
+            unchecked {
+                if (Count == 0)
+                    return;
+                ThisLock.EnterWriteLock();
+                Items[(Head + Count - 1) % Items.Length] = default(T); // clear the item
+                --Count;
+                ThisLock.ExitWriteLock();
+            }
+        }
+
+        // Peeks the first element that would be dequeued
+        // If there is nothing to peek, default(T) is returned
+        public T PeekFirst
         {
             get
             {
-                thisLock.EnterReadLock();
-                var result = base.Last;
-                thisLock.ExitReadLock();
+                ThisLock.EnterReadLock();
+                T result = Count > 0 ? Items[Head] : default(T);
+                ThisLock.ExitReadLock();
                 return result;
             }
         }
 
-        new public int Count
+        // Peek the last element in the queue
+        // The last element is the absolute last element that would be processed from the queue
+        public T PeekLast
         {
             get
             {
-                thisLock.EnterReadLock();
-                var result = base.Count;
-                thisLock.ExitReadLock();
+                ThisLock.EnterReadLock();
+                T result = Count > 0 ? Items[(Head + Count - 1) % Items.Length] : default(T);
+                ThisLock.ExitReadLock();
                 return result;
             }
         }
 
-        new public LinkedListNode<T> First
+        public void Clear()
         {
-            get
+            ThisLock.EnterWriteLock();
+            Array.Clear(Items, 0, Items.Length);
+            Head  = 0;
+            Count = 0;
+            ThisLock.ExitWriteLock();
+        }
+
+        public bool Contains(T item)
+        {
+            unchecked
             {
-                thisLock.EnterReadLock();
-                var result = base.First;
-                thisLock.ExitReadLock();
-                return result;
+                ThisLock.EnterReadLock();
+                int length = Items.Length;
+                int count  = Count;
+                if (item == null) {
+                    for (int j = 0, i = Head; j < count; ++j) {
+                        if (Items[i] == null) {
+                            ThisLock.ExitReadLock();
+                            return true;
+                        }
+                        if (++i == length) i = 0;
+                    }
+                }
+                else {
+                    var c = EqualityComparer<T>.Default;
+                    for (int j = 0, i = Head; j < count; ++j) {
+                        if (c.Equals(Items[i], item)) {
+                            ThisLock.ExitReadLock();
+                            return true;
+                        }
+                        if (++i == length) i = 0;
+                    }
+                }
+                ThisLock.ExitReadLock();
+                return false;
             }
         }
 
-	
-        public T FirstOrDefault()
+        public T[] ToArray()
         {
-            //get
-            {
-                thisLock.EnterReadLock();
-                var result = (this as LinkedList<T>).FirstOrDefault();
-                thisLock.ExitReadLock();
-                return result;
+            unchecked {
+                ThisLock.EnterReadLock();
+                int count = Count;
+                var arr = new T[count];
+                for (int j = 0, i = Head; j < count;)
+                {
+                    arr[j++] = Items[i++];
+                    if (i == Items.Length) i = 0;
+                }
+                ThisLock.ExitReadLock();
+                return arr;
             }
         }
-        public T LastOrDefault()
-        {
-            //get    TSource LastOrDefault<TSource>(this IEnumerable<TSource> source);
-            {
-                thisLock.EnterReadLock();
-                var result = (this as LinkedList<T>).LastOrDefault();
-                thisLock.ExitReadLock();
-                return result;
-            }
-        }
-        public T LastOrDefault<T>()
-        {
-            //get
-            {
-                thisLock.EnterReadLock();
-                var result = (this as LinkedList<T>).LastOrDefault<T>();
-                thisLock.ExitReadLock();
-                return result;
-            }
-        }
-        new public Enumerator GetEnumerator()
-        {
-            thisLock.EnterReadLock();
-            var result = (this as LinkedList<T>).GetEnumerator();
-            thisLock.ExitReadLock();
-            return result;
-        }
-        new public void Clear()
-        {
-            thisLock.EnterWriteLock();
-            (this as LinkedList<T>).Clear();
-            thisLock.ExitWriteLock();
-        }
-        public void ClearAndRecycle()
-        {
-            thisLock.EnterWriteLock();
-           LinkedList<T> test = (this as LinkedList<T>);
-            this.pendingRemovals = new ConcurrentStack<T>(test);
-            (this as LinkedList<T>).Clear();
-            thisLock.ExitWriteLock();
-        }
-        public void ClearAll()
-        {
-            thisLock.EnterWriteLock();
-            (this as LinkedList<T>).Clear();
-            thisLock.ExitWriteLock();
-            if (this.pendingRemovals != null)
-            {
-                this.pendingRemovals.Clear();
-            }
-        }
-        new public void Remove(T item)
-        {
 
-            thisLock.EnterWriteLock();
-            (this as LinkedList<T>).Remove(item);
-            thisLock.ExitWriteLock();
-
-        }
-        new public void RemoveLast()
+        public override string ToString()
         {
-
-            thisLock.EnterWriteLock();
-            (this as LinkedList<T>).RemoveLast();
-            thisLock.ExitWriteLock();
-
+            return GetType().GenericName();
         }
-        new public void RemoveFirst()
-        {
 
-            thisLock.EnterWriteLock();
-            (this as LinkedList<T>).RemoveFirst();
-            thisLock.ExitWriteLock();
-
-        }
-        new public bool Contains(T item)
-        {
-            thisLock.EnterReadLock();
-            var result = (this as LinkedList<T>).Contains(item);
-            thisLock.ExitReadLock();
-            return result;
-        }
-        public T RecycleObject()
-        {
-            T test;
-
-            if (this.pendingRemovals.TryPop(out test))
-            {
-                if (test is Empire.InfluenceNode)
-                    (test as Empire.InfluenceNode).Wipe();
-
-            }
-            return test;
-        }
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~SafeQueue() { Dispose(false); }
+        ~SafeQueue() { Destroy(); }
 
-        protected void Dispose(bool disposing)
+        private void Destroy()
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.thisLock != null)
-                        this.thisLock.Dispose();
-
-                }
-                this.thisLock = null;
-                this.disposed = true;
-            }
+            ThisLock?.Dispose(ref ThisLock);
         }
 
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
+        IEnumerator    IEnumerable.GetEnumerator()    => new Enumerator(this);
 
+        public struct Enumerator : IEnumerator<T>
+        {
+            private int Head;
+            private int Index;
+            private readonly int Count;
+            private readonly T[] Items;
+            public T Current { get; private set; }
+            object IEnumerator.Current => Current;
+
+            public Enumerator(SafeQueue<T> queue)
+            {
+                Head  = queue.Head;
+                Index = 0;
+                Count = queue.Count;
+                Items = queue.Items;
+                Current = default(T);
+            }
+            public void Dispose()
+            {
+            }
+            public bool MoveNext()
+            {
+                unchecked {
+                    if (++Index > Count)
+                        return false;
+                    Current = Items[Head];
+                    if (++Head >= Items.Length)
+                        Head = 0;
+                    return true;
+                }
+            }
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+
+    internal sealed class ReadOnlyCollectionDebugView<T>
+    {
+        private readonly IReadOnlyCollection<T> Collection;
+
+        public ReadOnlyCollectionDebugView(IReadOnlyCollection<T> collection)
+        {
+            Collection = collection;
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public T[] Items => Collection.ToArray();
+    }
+
+    internal sealed class SafeQueueDebugView<T>
+    {
+        private readonly SafeQueue<T> Queue;
+
+        public SafeQueueDebugView(SafeQueue<T> queue)
+        {
+            Queue = queue;
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public T[] Items => Queue.ToArray();
+        public T FirstToDequeue => Queue.PeekFirst;
     }
 }

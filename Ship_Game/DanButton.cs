@@ -37,7 +37,7 @@ namespace Ship_Game
 			string str;
 			Color color;
 			Vector2 pos = this.TextPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
@@ -64,7 +64,7 @@ namespace Ship_Game
 			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button"], rect, Color.White);
 			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
 			Vector2 pos = tPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
@@ -88,7 +88,7 @@ namespace Ship_Game
 			string str;
 			Color color;
 			Vector2 pos = this.TextPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
@@ -115,7 +115,7 @@ namespace Ship_Game
 			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], rect, Color.White);
 			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
 			Vector2 pos = tPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
@@ -136,7 +136,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.r, input.CursorPosition))
+			if (!this.r.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -145,7 +145,7 @@ namespace Ship_Game
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					if (this.IsToggle)
 					{
 						this.Toggled = !this.Toggled;

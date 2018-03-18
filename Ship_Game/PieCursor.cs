@@ -22,33 +22,15 @@ namespace Ship_Game
 
 		private SpriteFont spriteFont;
 
-		private ContentManager content;
+		private GameContentManager content;
 
-		private CursorMode cursorMode;
+	    private Vector2 deltaMovement;
 
-		private Vector2 deltaMovement;
+		public CursorMode CurrentCursorMode { get; set; }
 
-		public CursorMode CurrentCursorMode
-		{
-			get
-			{
-				return this.cursorMode;
-			}
-			set
-			{
-				this.cursorMode = value;
-			}
-		}
+	    public Vector2 Position => this.position;
 
-		public Vector2 Position
-		{
-			get
-			{
-				return this.position;
-			}
-		}
-
-		public PieCursor(Microsoft.Xna.Framework.Game game, ContentManager content) : base(game)
+	    public PieCursor(Game1 game, GameContentManager content) : base(game)
 		{
 			this.pieMenu = new PieMenu();
 			this.content = content;
@@ -58,10 +40,8 @@ namespace Ship_Game
 		{
 			Vector3 nearSource = new Vector3(this.Position, 0f);
 			Vector3 farSource = new Vector3(this.Position, 1f);
-			Viewport viewport = base.GraphicsDevice.Viewport;
-			Vector3 nearPoint = viewport.Unproject(nearSource, projectionMatrix, viewMatrix, Matrix.Identity);
-			Viewport viewport1 = base.GraphicsDevice.Viewport;
-			Vector3 farPoint = viewport1.Unproject(farSource, projectionMatrix, viewMatrix, Matrix.Identity);
+			Vector3 nearPoint = Game1.Instance.Viewport.Unproject(nearSource, projectionMatrix, viewMatrix, Matrix.Identity);
+			Vector3 farPoint = Game1.Instance.Viewport.Unproject(farSource, projectionMatrix, viewMatrix, Matrix.Identity);
 			Vector3 direction = farPoint - nearPoint;
 			direction.Normalize();
 			return new Ray(nearPoint, direction);
@@ -78,13 +58,8 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			input.CursorPosition = this.Position;
-			float x = this.Position.X / (float)base.GraphicsDevice.Viewport.Width;
-			float y = this.Position.Y;
-			Viewport viewport = base.GraphicsDevice.Viewport;
-			input.NormalizedCursorPosition = new Vector2(x, y / (float)viewport.Height);
 			bool retVal = this.pieMenu.Visible;
-			if (this.cursorMode != CursorMode.GamePad)
+			if (this.CurrentCursorMode != CursorMode.GamePad)
 			{
 				Vector2 selDir = this.position - this.pieMenu.Position;
 				selDir.Y = selDir.Y * -1f;
@@ -95,7 +70,7 @@ namespace Ship_Game
 			{
 				this.pieMenu.HandleInput(input);
 			}
-			this.deltaMovement = input.CurrentGamePadState.ThumbSticks.Left;
+			this.deltaMovement = input.GamepadCurr.ThumbSticks.Left;
 			this.deltaMovement.Y = this.deltaMovement.Y * -1f;
 			return retVal;
 		}
@@ -123,7 +98,7 @@ namespace Ship_Game
 		public override void Update(GameTime gameTime)
 		{
 			this.pieMenu.Update(gameTime);
-			if (this.pieMenu.Visible && this.cursorMode == CursorMode.GamePad)
+			if (this.pieMenu.Visible && this.CurrentCursorMode == CursorMode.GamePad)
 			{
 				return;
 			}

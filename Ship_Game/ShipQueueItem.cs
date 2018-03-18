@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -28,63 +29,13 @@ namespace Ship_Game
 			this.ListRect = qRect;
 			//this.Role role = data.Role;
 			//string str = role;
-            if (data.ShipCategory == ShipData.Category.Civilian)
-            {
-                this.IconPath = "TacticalIcons/symbol_freighter";
-                return;
-            }
-            /*
-			if (role != null)
-			{
-				switch (data.Role)
-				{
-                    case RoleName.fighter:
-					{
-						this.IconPath = "TacticalIcons/symbol_fighter";
-						return;
-					}
-					case ShipData.RoleName.scout:
-					{
-						this.IconPath = "TacticalIcons/symbol_fighter";
-						return;
-					}
-					case ShipData.RoleName.capital:
-					{
-						this.IconPath = "TacticalIcons/symbol_capital";
-						return;
-					}
-					case ShipData.RoleName.frigate:
-					{
-						this.IconPath = "TacticalIcons/symbol_frigate";
-						return;
-					}
-					case ShipData.RoleName.freighter:
-					{
-						this.IconPath = "TacticalIcons/symbol_freighter";
-						return;
-					}
-					case ShipData.RoleName.station:
-					{
-						this.IconPath = "TacticalIcons/symbol_station";
-						return;
-					}
-					case ShipData.RoleName.carrier:
-					{
-						this.IconPath = "TacticalIcons/symbol_carrier";
-						break;
-					}
-					default:
-					{
-						return;
-					}
-				}
-			}
-            */
+            if (data.ShipCategory == ShipData.Category.Civilian)            
+                this.IconPath = "TacticalIcons/symbol_freighter";            
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			Primitives2D.DrawLine(spriteBatch, new Vector2((float)this.ListRect.X, (float)(this.ListRect.Y + this.ListRect.Height)), new Vector2((float)(this.ListRect.X + this.ListRect.Width), (float)(this.ListRect.Y + this.ListRect.Height)), Color.DarkBlue);
+			spriteBatch.DrawLine(new Vector2((float)this.ListRect.X, (float)(this.ListRect.Y + this.ListRect.Height)), new Vector2((float)(this.ListRect.X + this.ListRect.Width), (float)(this.ListRect.Y + this.ListRect.Height)), Color.DarkBlue);
 			Vector2 cursor = new Vector2((float)(this.ListRect.X + 5), (float)(this.ListRect.Y + this.ListRect.Height / 2 - this.IconSize / 2));
 			this.ArrowRect = new Rectangle((int)cursor.X, (int)cursor.Y, 20, 20);
 			spriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], this.ArrowRect, this.ArrowColor);

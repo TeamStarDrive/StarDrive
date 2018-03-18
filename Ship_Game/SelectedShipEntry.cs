@@ -6,7 +6,7 @@ namespace Ship_Game
 {
 	public sealed class SelectedShipEntry
 	{
-		public List<SkinnableButton> ShipButtons = new List<SkinnableButton>();
+		public Array<SkinnableButton> ShipButtons = new Array<SkinnableButton>();
 
 		public SelectedShipEntry()
 		{

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Faction>1</Faction>
+  <PortraitName>Imperium</PortraitName>
+  <DiplomacyDialogPath>Human</DiplomacyDialogPath>
+  <StartingScout>Xeno Fighter</StartingScout>
+  <BaseShipLevel>3</BaseShipLevel>
+  <Traits>
+    <Name>The Remnant</Name>
+    <Singular>Remnant</Singular>
+    <Plural>Remnant</Plural>
+    <HomeSystemName>Sol</HomeSystemName>
+    <HomeworldName>Earth</HomeworldName>
+    <FlagIndex>34</FlagIndex>
+    <R>91</R>
+    <G>195</G>
+    <B>91</B>
+    <RaceDescription>The Remnant is an empire comprised of Remnant. Remnant are a race of terrestrial beings with a moderate reproductive rate and unremarkable dietary needs. Physically, Remnant have no particular strengths or weaknesses. Remnant possess an average intelligence for a starfaring race. 
+ 
+Remnant government is functional but unremarkable while society at large is neither overly efficent nor wasteful. Remnant are not particularly industrious or lazy but their engineers are competent although not especially noteworthy for any strengths or shortcomings. 
+ 
+The Remnant homeworld of Earth is of an average size for a terran planet. </RaceDescription>
+    <Cost>0</Cost>
+    <ConsumptionModifier>0</ConsumptionModifier>
+    <ReproductionMod>0</ReproductionMod>
+    <DiplomacyMod>0</DiplomacyMod>
+    <GenericMaxPopMod>0</GenericMaxPopMod>
+    <Aquatic>0</Aquatic>
+    <Burrowers>0</Burrowers>
+    <Blind>0</Blind>
+    <BonusExplored>0</BonusExplored>
+    <Pioneers>0</Pioneers>
+    <Militaristic>0</Militaristic>
+    <HomeworldSizeMod>0</HomeworldSizeMod>
+    <Prewarp>0</Prewarp>
+    <Spiritual>0</Spiritual>
+    <HomeworldFertMod>0</HomeworldFertMod>
+    <DodgeMod>0</DodgeMod>
+    <EnergyDamageMod>0</EnergyDamageMod>
+    <ResearchMod>.25</ResearchMod>
+    <Mercantile>0</Mercantile>
+    <Miners>0</Miners>
+    <ProductionMod>0</ProductionMod>
+    <MaintMod>0</MaintMod>
+    <TaxMod>0</TaxMod>
+    <ShipCostMod>0</ShipCostMod>
+    <ModHpModifier>0</ModHpModifier>
+    <SmallSize>0</SmallSize>
+    <HugeSize>0</HugeSize>
+    <GroundCombatModifier>0</GroundCombatModifier>
+    <RepairRateMod>0</RepairRateMod>
+    <Cybernetic>0</Cybernetic>
+  </Traits>
+</EmpireData>

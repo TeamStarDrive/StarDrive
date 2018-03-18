@@ -25,7 +25,7 @@ namespace Ship_Game
 
         public bool NoBuild = false;
 
-        public List<Race> RaceList;
+        public Array<Race> RaceList;
 
         public class Race
         {
@@ -39,7 +39,7 @@ namespace Ship_Game
 
         public ShipRole()
         {
-            RaceList = new List<Race>();
+            RaceList = new Array<Race>();
         }
     }
 }
