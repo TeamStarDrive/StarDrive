@@ -157,6 +157,8 @@ namespace Ship_Game
         /// debug log info
         /// 
         public static bool VerboseLogging;
+        public static bool TestLoad;
+        public static bool PreLoad;
         public static void LoadConfig()
         {
             try
@@ -191,6 +193,8 @@ namespace Ship_Game
             GetSetting("ActiveMod",              ref ModName);
             GetSetting("CameraPanSpeed",         ref CameraPanSpeed);
             GetSetting("VerboseLogging",         ref VerboseLogging);
+            GetSetting("TestLoad",               ref TestLoad);
+            GetSetting("PreLoad",                ref PreLoad);
             Statreset();
 
 #if DEBUG
@@ -307,11 +311,13 @@ namespace Ship_Game
 
             WriteSetting(config, "MusicVolume",   (int)(MusicVolume * 100));
             WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
-            WriteSetting(config, "Language", Language);
-            WriteSetting(config, "XRES", XRES);
-            WriteSetting(config, "YRES", YRES);
-            WriteSetting(config, "CameraPanSpeed", CameraPanSpeed);
-            WriteSetting(config, "VerboseLogging", VerboseLogging);
+            WriteSetting(config, "Language",           Language);
+            WriteSetting(config, "XRES",               XRES);
+            WriteSetting(config, "YRES",               YRES);
+            WriteSetting(config, "CameraPanSpeed",     CameraPanSpeed);
+            WriteSetting(config, "VerboseLogging",     VerboseLogging);
+            WriteSetting(config, "TestLoad",           TestLoad);
+            WriteSetting(config, "PreLoad",            PreLoad);
 
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");

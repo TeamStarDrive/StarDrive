@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         {
             bool inFrustrum = (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && Empire.Universe.Frustum.Contains(Position, 2000f);
+                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI.Target != null && Empire.Universe.Frustum.Contains(AI.Target.Position, maxWeaponsRange)) ;
 
             InFrustum = inFrustrum;
             ShipSO.Visibility = inFrustrum ? ObjectVisibility.Rendered : ObjectVisibility.None;

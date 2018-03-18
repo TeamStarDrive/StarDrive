@@ -1545,7 +1545,7 @@ namespace Ship_Game
             }
             
             // If the ship role is not defined don't try to use it
-            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
+            if (!shipData.IsShipyard && (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull))
             {
                 //Universe?.DebugWin?.DebugLogText($"{data.PortraitName} : Hull is Not Unlocked : '{shipData.Hull}'", Debug.DebugModes.Normal);
                 return false;

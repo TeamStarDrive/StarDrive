@@ -1,17 +1,27 @@
 #pragma once
-#ifndef MESH_MESH_H
-#define MESH_MESH_H
 #include <rpp/vec.h>
-#include "CollectionExt.h"
+#include <rpp/collections.h>
 #include <memory>
+
+#define DLLEXPORT /*disabled for SDNative*/
 
 namespace mesh
 {
-    using namespace rpp;
+    using std::string;
+    using std::vector;
+    using std::shared_ptr;
+    
+    using rpp::strview;
+    using rpp::Vector2;
+    using rpp::Vector3;
+    using rpp::Color3;
+    using rpp::BoundingBox;
+    using rpp::IdVector3;
+    using rpp::Ray;
     //////////////////////////////////////////////////////////////////////
 
 
-    struct VertexDescr
+    struct DLLEXPORT VertexDescr
     {
         int v = -1; // vertex position index (vertexId)
         int t = -1; // vertex texture index (can be -1, aka no UV info)
@@ -20,26 +30,24 @@ namespace mesh
     };
 
 
-    struct Face
+    struct DLLEXPORT Triangle
     {
-        int Count = 0; // number of vertex descriptors, max 4
-        VertexDescr VDS[4];
+        VertexDescr a, b, c;
 
-        VertexDescr&       operator[](int index)       { return VDS[index]; }
-        const VertexDescr& operator[](int index) const { return VDS[index]; }
-        const VertexDescr* begin() const { return VDS; }
-        const VertexDescr* end()   const { return VDS + Count; }
-        VertexDescr* begin() { return VDS; }
-        VertexDescr* end()   { return VDS + Count; }
-        VertexDescr& emplace_elem() { return VDS[Count++]; }
-        void resize(int size) { Count = size; }
-        void add(int vertexId, int textureId, int normalId) { VDS[Count++] = { vertexId, textureId, normalId }; }
+        VertexDescr&       operator[](int index)       { return (&a)[index]; }
+        const VertexDescr& operator[](int index) const { return (&a)[index]; }
+        const VertexDescr* begin() const { return &a; }
+        const VertexDescr* end()   const { return &c + 1; }
+        VertexDescr* begin() { return &a; }
+        VertexDescr* end()   { return &c + 1; }
 
         bool ContainsVertexId(int vertexId) const;
     };
 
+    DLLEXPORT string to_string(const Triangle& triangle);
 
-    struct Material
+
+    struct DLLEXPORT Material
     {
         string Name; // name of the material instance
         string MaterialFile; // eg 'default.mtl'
@@ -83,21 +91,35 @@ namespace mesh
         // normals are mapped for every face
         // coords are NEVER mapped this way
         MapPerFace,
-    };
 
+        // extra data is mapped inconsistently and not suitable for direct Array-of-Structures mapping to graphics hardware
+        // shared element mapping is a good way to save on file size, but makes mesh modification difficult
+        // MeshGroup::OptimizedFlatten() should be called to enable mesh editing
+        MapSharedElements,
+    };
 
     struct MeshGroup;
 
-    struct PickFaceResult
+    struct DLLEXPORT PickedTriangle
     {
         // @warning These pointers will invalidate if you modify the mesh!!
         const MeshGroup* group = nullptr;
-        const Face*      face  = nullptr;
+        const Triangle*  face  = nullptr;
         float distance = 0.0f;
         bool good() const { return group && face && distance != 0.0f; }
         explicit operator bool() const { return good(); }
+
+        // center of the triangle
+        Vector3 center() const;
+
+        // accesses group to retrieve the Vector3 position associated with VertexDescr
+        Vector3 vertex(const VertexDescr& vd) const;
+
+        // triangle id in this group
+        int id() const;
     };
 
+    DLLEXPORT string to_string(const PickedTriangle& triangle);
 
     // Common 3D mesh vertex for games, as generic as it can get
     struct BasicVertex
@@ -114,11 +136,15 @@ namespace mesh
     };
 
 
-    struct MeshGroup
+    struct DLLEXPORT MeshGroup
     {
         int GroupId = -1;
         string Name; // name of the suboject
         shared_ptr<Material> Mat;
+
+        Vector3 Offset   = Vector3::ZERO;
+        Vector3 Rotation = Vector3::ZERO; // XYZ Euler DEGREES
+        Vector3 Scale    = Vector3::ONE;
 
         // we treat mesh data as 'layers', so everything except Verts is optional
         vector<Vector3> Verts;
@@ -126,7 +152,7 @@ namespace mesh
         vector<Vector3> Normals;
         vector<Color3>  Colors;
 
-        vector<Face> Faces; // face descriptors (tris and/or quads)
+        vector<Triangle> Faces; // face descriptors (tris and/or quads)
 
         MapMode CoordsMapping  = MapNone;
         MapMode NormalsMapping = MapNone;
@@ -142,18 +168,25 @@ namespace mesh
         int NumCoords()  const { return (int)Coords.size(); }
         int NumNormals() const { return (int)Normals.size(); }
         int NumColors()  const { return (int)Colors.size(); }
+        Vector3* VertexData() { return Verts.data();   }
+        Vector2* CoordData()  { return Coords.data();  }
+        Vector3* NormalData() { return Normals.data(); }
+        Color3*  ColorData()  { return Colors.data();  }
+        const Vector3* VertexData() const { return Verts.data();   }
+        const Vector2* CoordData()  const { return Coords.data();  }
+        const Vector3* NormalData() const { return Normals.data(); }
+        const Color3*  ColorData()  const { return Colors.data();  }
 
-        const Face* begin() const { return &Faces.front(); }
-        const Face* end()   const { return &Faces.back() + 1; }
-        Face* begin() { return &Faces.front(); }
-        Face* end()   { return &Faces.back() + 1; }
+        const Vector3& Vertex(int vertexId)          const { return Verts.data()[vertexId]; }
+        const Vector3& Vertex(const VertexDescr& vd) const { return Verts.data()[vd.v]; }
+
+        const Triangle* begin() const { return &Faces.front(); }
+        const Triangle* end()   const { return &Faces.back() + 1; }
+        Triangle* begin() { return &Faces.front(); }
+        Triangle* end()   { return &Faces.back() + 1; }
 
         // creates and assigns a new material to this mesh group
         Material& CreateMaterial(string name);
-
-        // will scan all Face declarations to ensure all faces are triangular, not quads or polys
-        bool CheckIsTriangulated() const;
-        void Triangulate();
 
         // will flip the face winding from CW to CCW or from CCW to CW
         void InvertFaceWindingOrder();
@@ -188,7 +221,6 @@ namespace mesh
         // Verts, Coords, Normals and Colors will all be stored in a linear sequence
         // with equal length, so creating a corresponding vertex/index array is trivial
         //
-        // @note DOES NOT TRIANGULATE THE MESH, call MeshGroup::Triangulate() for that
         void FlattenFaceData() noexcept;
 
         // Adds additional meshgroups from another Mesh
@@ -200,10 +232,45 @@ namespace mesh
         // @note If you called FlattenMeshData() before this, then optimal vertex sharing is not possible
         void CreateGameVertexData(vector<BasicVertex>& vertices, vector<int>& indices) const noexcept;
 
+        // splits vertices that share an UV seam - this is required for non-contiguos UV support
+        void SplitSeamVertices() noexcept;
+
+        // converts coords, normals, colors to MapPerVertex
+        void PerVertexFlatten() noexcept;
+
+        // Optimally flattens this mesh by using:
+        // SplitSeamVertices() && PerVertexFlatten()
+        void OptimizedFlatten() noexcept;
+
+        void CreateIndexArray(vector<int> &indices) const noexcept;
+
         // Pick the closest face that intersects with the ray
-        PickFaceResult PickFace(const Ray& ray) const noexcept;
+        PickedTriangle PickTriangle(const Ray& ray) const noexcept;
+
+        BoundingBox CalculateBBox() const noexcept {
+            return BoundingBox::create(Verts);
+        }
+        BoundingBox CalculateBBox(const vector<IdVector3>& deltas) const noexcept {
+            return BoundingBox::create(Verts, deltas);
+        }
+
+        // prints group info to stdout
+        void Print() const;
     };
 
+
+    //////////////////////////////////////////////////////////////////////
+
+    struct DLLEXPORT MeshLoaderOptions
+    {
+        /**
+         * If true, then all named meshgroups will be ignored
+         * and all verts/faces will be put into the first object group instead
+         * @note This will break multi-material support, so only use this if
+         *       you have 1 or 0 materials.
+         */
+        bool ForceSingleGroup = false;
+    };
 
     //////////////////////////////////////////////////////////////////////
 
@@ -212,7 +279,7 @@ namespace mesh
      * Mesh coordinate system is the OPENGL coordinate system
      * +X is Right on the screen, +Y is Up, +Z is INTO the screen
      */
-    class Mesh
+    class DLLEXPORT Mesh
     {
     public:
         // These are intentionally public to allow custom mesh manipulation
@@ -224,7 +291,7 @@ namespace mesh
         Mesh() noexcept;
         
         // Automatically constructs a new mesh, check good() or cast to bool to check if successful
-        explicit Mesh(strview meshPath) noexcept;
+        Mesh(strview meshPath, MeshLoaderOptions options={}) noexcept;
 
         ~Mesh() noexcept;
 
@@ -276,13 +343,13 @@ namespace mesh
         Mesh Clone(const bool cloneMaterials = false) const noexcept;
 
 
-        bool Load(strview meshPath) noexcept;
+        bool Load(strview meshPath, MeshLoaderOptions options = {}) noexcept;
         bool SaveAs(strview meshPath) const noexcept;
 
         // Is FBX supported on this platform?
         static bool IsFBXSupported() noexcept;
-        bool LoadFBX(strview meshPath) noexcept;
-        bool LoadOBJ(strview meshPath) noexcept;
+        bool LoadFBX(strview meshPath, MeshLoaderOptions options = {}) noexcept;
+        bool LoadOBJ(strview meshPath, MeshLoaderOptions options = {}) noexcept;
 
         bool SaveAsFBX(strview meshPath) const noexcept;
         bool SaveAsOBJ(strview meshPath) const noexcept;
@@ -297,7 +364,6 @@ namespace mesh
         void InvertNormals() noexcept;
 
         BoundingBox CalculateBBox() const noexcept;
-        //BoundingBox CalculateBBox(const vector<IdVector3>& deltas) const noexcept { return BoundingBox::create(Verts, deltas); }
 
         // Adds additional meshgroups from another Mesh
         // Optionally appends an extra offset to position vertices
@@ -310,15 +376,18 @@ namespace mesh
         // Verts, Coords, Normals and Colors will all be stored in a linear sequence
         // with equal length, so creating a corresponding vertex/index array is trivial
         //
-        // @note DOES NOT TRIANGULATE THE MESH, call MeshGroup::Triangulate() for that
         void FlattenMeshData() noexcept;
         bool IsFlattened() const noexcept;
 
+        // Optimized flatten
+        void OptimizedFlatten() noexcept;
+
+        // Merges all imported groups into a single group
+        void MergeGroups() noexcept;
+
         // Pick the closest face that intersects with the ray
-        PickFaceResult PickFace(const Ray& ray) const noexcept;
+        PickedTriangle PickTriangle(const Ray& ray) const noexcept;
     };
 
     //////////////////////////////////////////////////////////////////////
 }
-
-#endif // MESH_MESH_H

@@ -77,7 +77,7 @@ namespace SDNative
             }
         }
         FINLINE void parseValue(bool& out)  const { out = value.to_bool();       }
-        FINLINE void parseValue(byte& out)  const { out = (byte)value.to_int();  }
+        FINLINE void parseValue(unsigned char& out)  const { out = (unsigned char)value.to_int();  }
         FINLINE void parseValue(short& out) const { out = (short)value.to_int(); }
         FINLINE void parseValue(int& out)   const { out = value.to_int();        }
         FINLINE void parseValue(float& out) const { out = value.to_float();      }
