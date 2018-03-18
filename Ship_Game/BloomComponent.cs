@@ -20,44 +20,18 @@ namespace Ship_Game
 
 		private RenderTarget2D renderTarget2;
 
-		private BloomSettings settings = BloomSettings.PresetSettings[0];
+	    private ScreenManager ScreenManager;
 
-		private BloomComponent.IntermediateBuffer showBuffer = BloomComponent.IntermediateBuffer.FinalResult;
-
-		private Ship_Game.ScreenManager ScreenManager;
-
-		private Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
+		private GraphicsDevice GraphicsDevice;
 
 		private DepthStencilBuffer buffer;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
-		public BloomSettings Settings
-		{
-			get
-			{
-				return this.settings;
-			}
-			set
-			{
-				this.settings = value;
-			}
-		}
+		public BloomSettings Settings { get; set; } = BloomSettings.PresetSettings[0];
 
-		public BloomComponent.IntermediateBuffer ShowBuffer
-		{
-			get
-			{
-				return this.showBuffer;
-			}
-			set
-			{
-				this.showBuffer = value;
-			}
-		}
+	    public IntermediateBuffer ShowBuffer { get; set; } = IntermediateBuffer.FinalResult;
 
-		public BloomComponent(Ship_Game.ScreenManager screenManager)
+	    public BloomComponent(ScreenManager screenManager)
 		{
 			this.ScreenManager = screenManager;
 			this.GraphicsDevice = screenManager.GraphicsDevice;
@@ -127,11 +101,11 @@ namespace Ship_Game
 		{
 			this.GraphicsDevice.ResolveBackBuffer(this.resolveTarget);
 			this.bloomExtractEffect.Parameters["BloomThreshold"].SetValue(this.Settings.BloomThreshold);
-			this.DrawFullscreenQuad(this.resolveTarget, this.renderTarget1, this.bloomExtractEffect, BloomComponent.IntermediateBuffer.PreBloom);
+			this.DrawFullscreenQuad(this.resolveTarget, this.renderTarget1, this.bloomExtractEffect, IntermediateBuffer.PreBloom);
 			this.SetBlurEffectParameters(1f / (float)this.renderTarget1.Width, 0f);
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), this.renderTarget2, this.gaussianBlurEffect, BloomComponent.IntermediateBuffer.BlurredHorizontally);
+			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), this.renderTarget2, this.gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
 			this.SetBlurEffectParameters(0f, 1f / (float)this.renderTarget1.Height);
-			this.DrawFullscreenQuad(this.renderTarget2.GetTexture(), this.renderTarget1, this.gaussianBlurEffect, BloomComponent.IntermediateBuffer.BlurredBothWays);
+			this.DrawFullscreenQuad(this.renderTarget2.GetTexture(), this.renderTarget1, this.gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
 			this.GraphicsDevice.SetRenderTarget(0, null);
 			EffectParameterCollection parameters = this.bloomCombineEffect.Parameters;
 			parameters["BloomIntensity"].SetValue(this.Settings.BloomIntensity);
@@ -139,8 +113,8 @@ namespace Ship_Game
 			parameters["BloomSaturation"].SetValue(this.Settings.BloomSaturation);
 			parameters["BaseSaturation"].SetValue(this.Settings.BaseSaturation);
 			this.GraphicsDevice.Textures[1] = this.resolveTarget;
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), viewport.Width, viewport.Height, this.bloomCombineEffect, BloomComponent.IntermediateBuffer.FinalResult);
+			Viewport viewport = Game1.Instance.Viewport;
+			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), viewport.Width, viewport.Height, this.bloomCombineEffect, IntermediateBuffer.FinalResult);
 		}
 
 		private void DrawFullscreenQuad(Texture2D texture, RenderTarget2D renderTarget, Effect effect, BloomComponent.IntermediateBuffer currentBuffer)
@@ -155,15 +129,15 @@ namespace Ship_Game
 
 		private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect, BloomComponent.IntermediateBuffer currentBuffer)
 		{
-			Ship.universeScreen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
-			if (this.showBuffer >= currentBuffer)
+			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+			if (this.ShowBuffer >= currentBuffer)
 			{
 				effect.Begin();
 				effect.CurrentTechnique.Passes[0].Begin();
 			}
-			Ship.universeScreen.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
-			Ship.universeScreen.ScreenManager.SpriteBatch.End();
-			if (this.showBuffer >= currentBuffer)
+			Empire.Universe.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
+			Empire.Universe.ScreenManager.SpriteBatch.End();
+			if (this.ShowBuffer >= currentBuffer)
 			{
 				effect.CurrentTechnique.Passes[0].End();
 				effect.End();
@@ -172,9 +146,9 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			this.bloomExtractEffect = this.ScreenManager.Content.Load<Effect>("Effects/BloomExtract");
-			this.bloomCombineEffect = this.ScreenManager.Content.Load<Effect>("Effects/BloomCombine");
-			this.gaussianBlurEffect = this.ScreenManager.Content.Load<Effect>("Effects/GaussianBlur");
+			this.bloomExtractEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomExtract");
+			this.bloomCombineEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomCombine");
+			this.gaussianBlurEffect = Game1.Instance.Content.Load<Effect>("Effects/GaussianBlur");
 			PresentationParameters pp = this.GraphicsDevice.PresentationParameters;
 			int width = pp.BackBufferWidth;
 			int height = pp.BackBufferHeight;
@@ -234,24 +208,11 @@ namespace Ship_Game
 
         ~BloomComponent() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.resolveTarget != null)
-                        this.resolveTarget.Dispose();
-                    if (this.renderTarget1 != null)
-                        this.renderTarget1.Dispose();
-                    if (this.renderTarget2 != null)
-                        this.renderTarget2.Dispose();
-                }
-                this.resolveTarget = null;
-                this.renderTarget1 = null;
-                this.renderTarget2 = null;
-                this.disposed = true;
-            }
+            resolveTarget?.Dispose(ref resolveTarget);
+            renderTarget1?.Dispose(ref renderTarget1);
+            renderTarget2?.Dispose(ref renderTarget2);
         }
     }
 }
