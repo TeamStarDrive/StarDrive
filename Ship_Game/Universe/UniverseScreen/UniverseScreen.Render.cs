@@ -641,26 +641,24 @@ namespace Ship_Game
 
         private void DrawSolarSystemsClose()
         {
-            if (viewState < UnivScreenState.SectorView)
+            if (viewState >= UnivScreenState.SectorView) return;
+            for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                for (int i = 0; i < SolarSystemList.Count; i++)
-                {
-                    SolarSystem solarSystem = SolarSystemList[i];
-                    if (!solarSystem.IsExploredBy(player)) continue;
+                SolarSystem solarSystem = SolarSystemList[i];
+                if (!solarSystem.IsExploredBy(player)) continue;
 
-                    for (int j = 0; j < solarSystem.PlanetList.Count; j++)
+                for (int j = 0; j < solarSystem.PlanetList.Count; j++)
+                {
+                    Planet p = solarSystem.PlanetList[j];
+                    if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                     {
-                        Planet p = solarSystem.PlanetList[j];
-                        if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
+                        if (p.HasEarthLikeClouds)
                         {
-                            if (p.HasEarthLikeClouds)
-                            {
-                                DrawClouds(xnaPlanetModel, p.CloudMatrix, view, projection, p);
-                                DrawAtmo(xnaPlanetModel, p.CloudMatrix, view, projection, p);
-                            }
-                            if (p.HasRings)
-                                DrawRings(p.RingWorld, view, projection, p.Scale);
+                            DrawClouds(xnaPlanetModel, p.CloudMatrix, view, projection, p);
+                            DrawAtmo(xnaPlanetModel, p.CloudMatrix, view, projection, p);
                         }
+                        if (p.HasRings)
+                            DrawRings(p.RingWorld, view, projection, p.Scale);
                     }
                 }
             }

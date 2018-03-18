@@ -93,32 +93,37 @@ namespace Ship_Game
         {
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.InverseSourceAlpha;
-            renderState.DepthBufferWriteEnable = false;
-            ModelMesh modelMesh = ((ReadOnlyCollection<ModelMesh>) model.Meshes)[0];
+            var renderState                                             = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable                                = true;
+            renderState.AlphaBlendOperation                             = BlendFunction.Add;
+            renderState.SourceBlend                                     = Blend.SourceAlpha;
+            renderState.DestinationBlend                                = Blend.InverseSourceAlpha;
+            renderState.DepthBufferWriteEnable                          = false;
+            ModelMesh modelMesh                                         = ((ReadOnlyCollection<ModelMesh>) model.Meshes)[0];
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
-                basicEffect.World = Matrix.CreateScale(4.05f) * world;
-                basicEffect.View = view;
-                basicEffect.Texture = this.cloudTex;
-                basicEffect.TextureEnabled = true;
-                basicEffect.Projection = projection;
-                basicEffect.LightingEnabled = true;
-                basicEffect.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
-                basicEffect.DirectionalLight0.Enabled = true;
+                basicEffect.World                           = Matrix.CreateScale(4.05f) * world;
+                basicEffect.View                            = view;
+                basicEffect.Texture                         = cloudTex;
+                basicEffect.TextureEnabled                  = true;
+                basicEffect.Projection                      = projection;
+                basicEffect.LightingEnabled                 = true;
+                basicEffect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);                
                 basicEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
-                if (this.UseRealLights)
+                basicEffect.SpecularPower                   = 4;
+                if (UseRealLights)
                 {
-                    Vector3 vector3 = new Vector3(p.Center - p.ParentSystem.Position, 0.0f);
+                    var sunToPlanet = findVectorToTarget(p.Center, p.ParentSystem.Position);
+                    var normalized = Vector3.Normalize(sunToPlanet.ToVec3(0));
+                    basicEffect.DirectionalLight0.Direction = normalized;
+                }
+                else
+                {
+                    Vector3 vector3 = new Vector3(p.Center - new Vector2(0, 0), 0.0f);
                     vector3 = Vector3.Normalize(vector3);
                     basicEffect.DirectionalLight0.Direction = vector3;
                 }
-                else
-                    basicEffect.DirectionalLight0.Direction = new Vector3(0.98f, -0.025f, 0.2f);
+                basicEffect.DirectionalLight0.Enabled = true;
             }
             modelMesh.Draw();
             renderState.DepthBufferWriteEnable = true;
@@ -878,17 +883,17 @@ namespace Ship_Game
                 foreach (Ship ship in player.KnownShips)
                 {
                     if (!ship.Active) continue;
-                    DrawInRange(ship);
+                    DrawShipProjectilesInRange(ship);
                 }
             }
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.InverseSourceAlpha;
-            renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
+            renderState.AlphaBlendEnable                           = true;
+            renderState.AlphaBlendOperation                        = BlendFunction.Add;
+            renderState.SourceBlend                                = Blend.SourceAlpha;
+            renderState.DestinationBlend                           = Blend.InverseSourceAlpha;
+            renderState.DepthBufferWriteEnable                     = false;
+            renderState.CullMode                                   = CullMode.None;
 
             using (player.KnownShips.AcquireReadLock())
             {
@@ -900,13 +905,12 @@ namespace Ship_Game
                     DrawTacticalIcon(ship);
                     DrawOverlay(ship);
 
-                    if (SelectedShip == ship || SelectedShipList.Contains(ship))
-                    {
-                        Color color = Color.LightGreen;
-                        color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
-                        ScreenManager.SpriteBatch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius,
-                            color);
-                    }
+                    if (SelectedShip != ship && !SelectedShipList.Contains(ship)) continue;
+
+                    Color color = Color.LightGreen;
+                    color       = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
+                    ScreenManager.SpriteBatch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius,
+                        color);
                 }
             }
             if (ProjectingPosition)
@@ -1018,9 +1022,9 @@ namespace Ship_Game
             }
         }
 
-        private void DrawInRange(Ship ship)
+        private void DrawShipProjectilesInRange(Ship ship)
         {
-            if (viewState > UnivScreenState.SystemView)
+            if (viewState > UnivScreenState.SystemView || !ship.InFrustum)
                 return;
             
             for (int i = 0; i < ship.Projectiles.Count; i++)
