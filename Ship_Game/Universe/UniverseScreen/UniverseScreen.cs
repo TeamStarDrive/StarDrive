@@ -299,17 +299,17 @@ namespace Ship_Game
             ScreenManager.RemoveAllLights();
             
             //Global fill light. 
-            AddLight(new Vector2(0, 0), .5f, UniverseSize * 2 + MaxCamHeight, Color.White, -MaxCamHeight, fillLight: false);
+            AddLight(new Vector2(0, 0), .3f, UniverseSize * 2 + MaxCamHeight, Color.White, -MaxCamHeight, fillLight: false, shadowQuality: 0f);
 
             foreach (SolarSystem system in SolarSystemList)
             {
                 Color color = Color.White;
-                float intensity = 1.5f;
-                float radius = 150000f;
+                float intensity = .8f;
+                float radius = 200000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
-                        intensity -= .5f;
+                        intensity -= .2f;
                         radius -= 50000f;
                         color = Color.LightSalmon;
                         break;
@@ -326,22 +326,23 @@ namespace Ship_Game
                         color = Color.LightBlue;
                         break;
                     case "star_binary":                            
-                        intensity += .5f;
+                        intensity += .2f;
                         radius += 50000f;
                         break; 
                 }
                 
                 //Key              
-                AddLight(system.Position, intensity, radius, Color.WhiteSmoke , zpos: 0, fillLight: false, fallOff:1);
+                AddLight(system.Position, intensity, radius, Color.White , zpos: -1500, fillLight: false, fallOff:1);
+                AddLight(system.Position, intensity, radius, Color.White, zpos:   2500, fillLight: false, fallOff: 1);
                 //OverSaturationKey
                 AddLight(system.Position, intensity *5, radius * .05f, color, zpos: -1500, fillLight: false, fallOff: 1);
                 //back
-                AddLight(system.Position, intensity *.5f, radius, color, zpos: 5000f, fillLight: true, fallOff: 0);
+                AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
 
             }
         }
 
-        private void AddLight(Vector2 source, float intensity, float radius, Color color, float zpos,  bool fillLight, float fallOff = 0)
+        private void AddLight(Vector2 source, float intensity, float radius, Color color, float zpos,  bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
             {
@@ -354,7 +355,7 @@ namespace Ship_Game
                 Enabled             = true,
                 FalloffStrength     = fallOff,
                 ShadowPerSurfaceLOD = true,
-                ShadowQuality = 1
+                ShadowQuality = shadowQuality
             };
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);

@@ -1963,8 +1963,9 @@ namespace Ship_Game.Ships
         }
         public void UpdateShipStatus(float deltaTime)
         {
-            if (velocityMaximum <= 0f && shipData.Role <= ShipData.RoleName.station && !Empire.Universe.Paused)
-                Rotation += 0.003f;
+            if (!Empire.Universe.Paused && velocityMaximum <= 0f && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)                                           
+                Rotation += 0.003f + RandomMath.AvgRandomBetween(.0001f,.0005f);
+            
 
             MoveModulesTimer -= deltaTime;
             updateTimer -= deltaTime;
@@ -2655,7 +2656,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private Tuple<float, bool> SetSplodeData(float size, bool warp) => new Tuple<float, bool>(size, warp);
+        private static Tuple<float, bool> SetSplodeData(float size, bool warp) => new Tuple<float, bool>(size, warp);
 
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
