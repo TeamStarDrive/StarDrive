@@ -56,19 +56,8 @@ namespace Ship_Game
             for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Entries.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
             {
                 ScrollList.Entry e = this.ShipDesigns.Entries[i];
-                bCursor.Y = (float)e.clickRect.Y;
-                //Changes by McShooterz: Prevent any error caused by a missing icon file
-                ShipData shipdata;
-                if (ResourceManager.HullsDict.TryGetValue((e.item as Ship).GetShipData().Hull, out shipdata))
-                {
-                    Texture2D Icon;
-                    if(ResourceManager.TextureDict.TryGetValue(shipdata.IconPath, out Icon))
-                        base.ScreenManager.SpriteBatch.Draw(Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    else
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/shuttle"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                }
-                else
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/shuttle"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                bCursor.Y = (float)e.clickRect.Y;                
+                ScreenManager.SpriteBatch.Draw((e.item as Ship).GetShipData().Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
                 tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;

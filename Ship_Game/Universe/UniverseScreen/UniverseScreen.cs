@@ -299,17 +299,19 @@ namespace Ship_Game
             ScreenManager.RemoveAllLights();
             
             //Global fill light. 
-            AddLight(new Vector2(0, 0), .3f, UniverseSize * 2 + MaxCamHeight, Color.White, -MaxCamHeight, fillLight: false, shadowQuality: 0f);
+            AddLight(new Vector2(0, 0), .7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
+            //Global Back
+            AddLight(new Vector2(0, 0), .6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
 
             foreach (SolarSystem system in SolarSystemList)
             {
                 Color color = Color.White;
-                float intensity = .8f;
-                float radius = 200000f;
+                float intensity = 2.5f;
+                float radius = 150000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
-                        intensity -= .2f;
+                        intensity -= .1f;
                         radius -= 50000f;
                         color = Color.LightSalmon;
                         break;
@@ -331,13 +333,14 @@ namespace Ship_Game
                         break; 
                 }
                 
-                //Key              
-                AddLight(system.Position, intensity, radius, Color.White , zpos: -1500, fillLight: false, fallOff:1);
-                AddLight(system.Position, intensity, radius, Color.White, zpos:   2500, fillLight: false, fallOff: 1);
+                //Key                              
+                AddLight(system.Position, intensity, radius, color, zpos:   2500, fillLight: false, fallOff: 1);
                 //OverSaturationKey
                 AddLight(system.Position, intensity *5, radius * .05f, color, zpos: -1500, fillLight: false, fallOff: 1);
-                //back
-                AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
+                //localfill
+                AddLight(system.Position, intensity * .25f, radius, Color.White, zpos: 0, fillLight: true, fallOff: 1);
+                ////back
+                //AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
 
             }
         }
@@ -848,8 +851,9 @@ namespace Ship_Game
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
             HelperFunctions.CollectMemory();
-            Dispose();
             base.ExitScreen();
+            Dispose();
+            
         }
 
         private void ClearParticles()
