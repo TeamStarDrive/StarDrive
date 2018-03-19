@@ -956,7 +956,7 @@ namespace Ship_Game {
             var categories = new Array<string>();
             foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
             {
-                if (!EmpireManager.Player.GetHDict()[hull.Key])
+                if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key])
                 {
                     continue;
                 }
@@ -977,7 +977,7 @@ namespace Ship_Game {
             {
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
-                    if (!EmpireManager.Player.GetHDict()[hull.Key] ||
+                    if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key] ||
                         ((ModuleHeader) e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
                     {
                         continue;
