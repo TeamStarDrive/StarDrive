@@ -306,7 +306,7 @@ namespace Ship_Game
             foreach (SolarSystem system in SolarSystemList)
             {
                 Color color = Color.White;
-                float intensity = 2.5f;
+                float intensity = 1.5f;
                 float radius = 150000f;
                 switch (system.SunPath)
                 {
@@ -334,11 +334,11 @@ namespace Ship_Game
                 }
                 
                 //Key                              
-                AddLight(system.Position, intensity, radius, color, zpos:   2500, fillLight: false, fallOff: 1);
+                AddLight(system.Position, intensity, radius, color, zpos:   -5500, fillLight: false, fallOff: 1);
                 //OverSaturationKey
                 AddLight(system.Position, intensity *5, radius * .05f, color, zpos: -1500, fillLight: false, fallOff: 1);
                 //localfill
-                AddLight(system.Position, intensity * .25f, radius, Color.White, zpos: 0, fillLight: true, fallOff: 1);
+                AddLight(system.Position, intensity * .55f, radius, Color.White, zpos: 0, fillLight: false, fallOff: 1);
                 ////back
                 //AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
 
