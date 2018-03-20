@@ -64,9 +64,9 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public string HullModel => HullData?.ModelPath ?? ModelPath;
         [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(HullData?.IconPath ?? IconPath);
 
-        public void SetHullData(ShipData shipData)
+        public void SetHullData(ShipData shipData = null)
         {            
-            shipData.HullData = ResourceManager.HullsDict.TryGetValue(shipData.Hull, out ShipData hull) ? hull : shipData;
+            HullData = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
         }
 
         public override string ToString() { return Name; }

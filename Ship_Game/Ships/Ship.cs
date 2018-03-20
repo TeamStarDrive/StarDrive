@@ -873,6 +873,7 @@ namespace Ship_Game.Ships
         public void SetShipData(ShipData data)
         {
             shipData = data;
+            if (shipData.HullData == null) shipData.SetHullData();
         }
 
         public void Explore()
