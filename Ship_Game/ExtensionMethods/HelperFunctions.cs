@@ -352,8 +352,9 @@ namespace Ship_Game
             CollectMemorySilent();
             float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
             Log.Info(ConsoleColor.DarkYellow, "   Before: {0:0.0}MB  After: {1:0.0}MB", before, after);
+            Log.Info(ConsoleColor.DarkYellow, $"  Process Memory : {ProcessMemoryMb}");
             Log.Info(ConsoleColor.DarkYellow, " ================================= ");
-            Log.Info(ConsoleColor.DarkYellow, $"Process Memory : {ProcessMemoryMb}");
+            
         }
 
         public static void CollectMemorySilent()

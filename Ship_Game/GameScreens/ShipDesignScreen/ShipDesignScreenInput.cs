@@ -140,7 +140,7 @@ namespace Ship_Game {
             if (shipSO != null)
                 RemoveObject(shipSO);
 
-            shipSO = ResourceManager.GetSceneMesh(ActiveHull.ModelPath, ActiveHull.Animated);
+            shipSO = ResourceManager.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
 
             AddObject(shipSO);
             SetupSlots();

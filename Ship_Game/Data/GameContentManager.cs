@@ -6,6 +6,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using SgMotion;
 
 namespace Ship_Game
 {
@@ -23,6 +24,12 @@ namespace Ship_Game
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
         private readonly object LoadSync = new object();
 
+        public Map<string, Model> Models;
+        public Map<string, StaticMesh> Meshes;
+        public Map<string, SkinnedModel> SkinnedModels;
+        public Array<Model> RoidsModels = new Array<Model>();
+        public Array<Model> JunkModels = new Array<Model>();
+
         static GameContentManager()
         {
             FixSunBurnTypeLoader();
@@ -34,6 +41,11 @@ namespace Ship_Game
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
             DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
             RawContent       = new RawContentLoader(this);
+            SkinnedModels = new Map<string, SkinnedModel>();
+            Meshes = new Map<string, StaticMesh>();
+            Models = new Map<string, Model>();
+            JunkModels = new Array<Model>();
+            RoidsModels = new Array<Model>();
         }
 
         public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
@@ -76,6 +88,11 @@ namespace Ship_Game
             LoadedAssets     = null;
             DisposableAssets = null;
             RawContent       = null;
+            Meshes = null;
+            SkinnedModels = null;
+            Models = null;
+
+
         }
 
         private static T GetField<T>(object obj, string name)
@@ -329,5 +346,6 @@ namespace Ship_Game
                 throw;
             }
         }
+
     }
 }

@@ -18,14 +18,16 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore][JsonIgnore] public SceneObject So;
         [XmlIgnore][JsonIgnore] private Planet OrbitPlanet;
+        [XmlIgnore] [JsonIgnore] private readonly GameContentManager ContentManager;
 
-        public Moon() : base(GameObjectType.Moon)
+        public Moon(GameContentManager contentManager = null) : base(GameObjectType.Moon)
         {
+            ContentManager = ResourceManager.ContentManager;
         }
 
         public override void Initialize()
         {
-            So = ResourceManager.GetPlanetarySceneMesh("Model/SpaceObjects/planet_" + moonType);
+            So = ResourceManager.GetPlanetarySceneMesh(ContentManager, "Model/SpaceObjects/planet_" + moonType);
             So.ObjectType = ObjectType.Static;
             So.Visibility = ObjectVisibility.Rendered;
             So.World = Matrix.CreateScale(scale)*Matrix.CreateTranslation(new Vector3(Position, 2500f));
