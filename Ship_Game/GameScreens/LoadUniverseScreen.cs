@@ -783,6 +783,7 @@ namespace Ship_Game
 
         private void AddShipFromSaveData(SavedGame.ShipSaveData shipData, Empire e)
         {
+            shipData.data.Hull = shipData.Hull;
             Ship ship = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
             if (ship == null) // happens if module creation failed
                 return;
@@ -927,7 +928,7 @@ namespace Ship_Game
             if (systemToMake == data.SolarSystemsList.Count)
             {
                 foreach (Ship ship in data.MasterShipList)
-                {
+                {                    
                     ship.InitializeShip(loadingFromSavegame: true);
                     if (ship.GetHangars().Count > 0)
                     {

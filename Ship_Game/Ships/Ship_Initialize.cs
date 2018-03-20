@@ -304,11 +304,12 @@ namespace Ship_Game.Ships
         {
             bool worldInit = loadingFromSavegame || Empire.Universe == null;
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
+            SetShipData(GetShipData());
             if (worldInit)
                 CreateSceneObject();
             else
                 Empire.Universe.QueueShipToWorldScene(this);
-            SetShipData(GetShipData());
+            
 
             if (VanityName.IsEmpty())
                 VanityName = Name;
