@@ -568,11 +568,11 @@ namespace Ship_Game
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
                 string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = ResourceManager.GetSceneMesh(modelPath);
+                ShipObj = ResourceManager.GetSceneMesh(TransientContent, modelPath);
             }
             else if (DebugMeshInspect)
             {
-                ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/Soyo/Soyo.obj");
+                ShipObj = ResourceManager.GetSceneMesh(TransientContent, "Model/TestShips/Soyo/Soyo.obj");
                 //ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
             }
             else
@@ -585,10 +585,10 @@ namespace Ship_Game
                         && s.ShipStyle != "Ralyeh").ToArray(); // Ralyeh ships look disgusting in the menu
                 ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
 
-                ShipObj = ResourceManager.GetSceneMesh(hull.ModelPath, hull.Animated);
+                ShipObj = ResourceManager.GetSceneMesh(TransientContent, hull.ModelPath, hull.Animated);
                 if (hull.Animated) // Support animated meshes if we use them at all
                 {
-                    SkinnedModel model = ResourceManager.GetSkinnedModel(hull.ModelPath);
+                    SkinnedModel model = ResourceManager.GetSkinnedModel(TransientContent, hull.ModelPath);
                     ShipAnim = new AnimationController(model.SkeletonBones);
                     ShipAnim.StartClip(model.AnimationClips["Take 001"]);
                 }

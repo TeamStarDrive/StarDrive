@@ -273,7 +273,8 @@ namespace Ship_Game
                 }
                 
             }
-            Log.TestMessage("Hull Model Load Finished",waitForEnter:true);
+            HelperFunctions.CollectMemory();
+            Log.TestMessage("Hull Model Load Finished",waitForEnter:true);            
             Log.HideConsoleWindow();
         }
 
@@ -296,6 +297,7 @@ namespace Ship_Game
                 return false;
                 
             }
+            HelperFunctions.CollectMemory();
             return true;
 
             
@@ -588,9 +590,7 @@ namespace Ship_Game
         //////////////////////////////////////////////////////////////////////////////////////////
         
 
-        private static readonly Map<string, Model> Models        = new Map<string, Model>();
-        private static readonly Map<string, StaticMesh> Meshes        = new Map<string, StaticMesh>();
-        private static readonly Map<string, SkinnedModel> SkinnedModels = new Map<string, SkinnedModel>();
+        
 
         private static int SubmeshCount(int maxSubmeshes, int meshSubmeshCount)
         {
@@ -608,13 +608,13 @@ namespace Ship_Game
 
         }
 
-        private static SceneObject SceneObjectFromStaticMesh(string modelName, int maxSubmeshes = 0)
+        private static SceneObject SceneObjectFromStaticMesh(GameContentManager contentManager, string modelName, int maxSubmeshes = 0)
         {
-            if (!Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
+            if (!contentManager.Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
             {
                 Log.Info($"Loading model for {modelName}");
-                staticMesh = ContentManager.Load<StaticMesh>(modelName);
-                Meshes[modelName] = staticMesh;                
+                staticMesh = contentManager.Load<StaticMesh>(modelName);
+                contentManager.Meshes[modelName] = staticMesh;                
             }
             
                 
@@ -646,9 +646,9 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromModel(string modelName, int maxSubmeshes = 0, bool justLoad = false)
+        private static SceneObject SceneObjectFromModel(GameContentManager contentManager, string modelName, int maxSubmeshes = 0, bool justLoad = false)
         {
-            if (!Models.TryGetValue(modelName, out Model model))
+            if (!contentManager.Models.TryGetValue(modelName, out Model model))
             {
                 // special backwards compatibility with mods...
                 // basically, all old mods put their models into "Mod Models/" folder because
@@ -656,10 +656,10 @@ namespace Ship_Game
                 if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
                 {
                     string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
-                    if (File.Exists(modModelPath)) model = ContentManager.Load<Model>(modModelPath);
+                    if (File.Exists(modModelPath)) model = contentManager.Load<Model>(modModelPath);
                 }
-                if (model == null) model = ContentManager.Load<Model>(modelName);
-                Models[modelName] = model;  
+                if (model == null) model = contentManager.Load<Model>(modelName);
+                contentManager.Models[modelName] = model;  
             }
             if (model == null || justLoad)
             {                
@@ -675,12 +675,12 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromSkinnedModel(string modelName, bool justLoad = false)
+        private static SceneObject SceneObjectFromSkinnedModel(GameContentManager contentManager, string modelName, bool justLoad = false)
         {
-            if (!SkinnedModels.TryGetValue(modelName, out SkinnedModel skinned))
+            if (!contentManager.SkinnedModels.TryGetValue(modelName, out SkinnedModel skinned))
             {
-                skinned = ContentManager.Load<SkinnedModel>(modelName);
-                SkinnedModels[modelName] = skinned;                
+                skinned = contentManager.Load<SkinnedModel>(modelName);
+                contentManager.SkinnedModels[modelName] = skinned;                
             }            
             if (skinned == null || justLoad)
                 return null;
@@ -693,26 +693,27 @@ namespace Ship_Game
             return so;
         }
 
-        public static SceneObject GetSceneMesh(string modelName, bool animated = false, bool justLoad = false)
+        public static SceneObject GetSceneMesh(GameContentManager contentManager, string modelName, bool animated = false, bool justLoad = false)
         {
+            contentManager = contentManager ?? ContentManager;
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(modelName);            
-            return animated ? SceneObjectFromSkinnedModel(modelName, justLoad) : SceneObjectFromModel(modelName, justLoad: justLoad);
+                return SceneObjectFromStaticMesh(contentManager, modelName);            
+            return animated ? SceneObjectFromSkinnedModel(contentManager, modelName, justLoad) : SceneObjectFromModel(contentManager, modelName, justLoad: justLoad);
         }
 
-        public static SceneObject GetPlanetarySceneMesh(string modelName)
+        public static SceneObject GetPlanetarySceneMesh(GameContentManager contentManager, string modelName)
         {            
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(modelName, 1);
-            return SceneObjectFromModel(modelName, 1);
+                return SceneObjectFromStaticMesh(contentManager, modelName, 1);
+            return SceneObjectFromModel(contentManager, modelName, 1);
         }
 
         
-        public static SkinnedModel GetSkinnedModel(string path, bool justLoad = false)
+        public static SkinnedModel GetSkinnedModel(GameContentManager contentManager, string path, bool justLoad = false)
         {
-            if (SkinnedModels.TryGetValue(path, out SkinnedModel model))
+            if (contentManager.SkinnedModels.TryGetValue(path, out SkinnedModel model))
                 return model;
-            return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
+            return contentManager.SkinnedModels[path] = contentManager.Load<SkinnedModel>(path);
         }
 
         public static FileInfo[] GetAllXnbModelFiles(string folder)

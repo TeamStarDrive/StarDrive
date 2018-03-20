@@ -994,8 +994,8 @@ namespace Ship_Game
         {
             if (SO != null)
                 screen?.RemoveObject(SO);
-
-            SO = ResourceManager.GetPlanetarySceneMesh("Model/SpaceObjects/planet_" + PlanetType);
+            var contentManager =  ResourceManager.ContentManager;
+            SO = ResourceManager.GetPlanetarySceneMesh(contentManager, "Model/SpaceObjects/planet_" + PlanetType);
             SO.World = Matrix.CreateScale(Scale * 3)
                        * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
