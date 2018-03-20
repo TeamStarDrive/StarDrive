@@ -266,13 +266,14 @@ namespace Ship_Game.Ships
         public void LoadModel() => LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, true);
 
         public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, bool justLoad = false)
-        {            
-            shipSO = ResourceManager.GetSceneMesh(HullModel, Animated, justLoad);
+        {
+            var contentManager = Empire.Universe?.TransientContent ?? ResourceManager.ContentManager;
+            shipSO = ResourceManager.GetSceneMesh(contentManager, HullModel, Animated, justLoad);
             shipMeshAnim = null;
 
             if (!Animated) return;
 
-            SkinnedModel skinned = ResourceManager.GetSkinnedModel(ModelPath);
+            SkinnedModel skinned = ResourceManager.GetSkinnedModel(contentManager, ModelPath);
             if (justLoad) return;
 
             shipMeshAnim = new AnimationController(skinned.SkeletonBones);
