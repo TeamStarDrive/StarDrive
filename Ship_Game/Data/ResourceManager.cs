@@ -259,25 +259,67 @@ namespace Ship_Game
             if (!GlobalStats.TestLoad) return;
 
             Log.ShowConsoleWindow(2000);
-            Log.TestMessage("TEST - LOADING ALL HULL MODELS\n");
-            foreach (var hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role=> role.Role))
-            {                
+            TestHullLoad();
+            //TestCompressedTextures();
+            //TestTechTextures();
+
+            Log.HideConsoleWindow();
+            ContentManager.EnableLoadInfoLog = false;
+        }
+
+        private static void TestHullLoad()
+        {
+            if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true)) return;
+            ContentManager.EnableLoadInfoLog = true;
+            foreach (var hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
+            {
                 try
                 {
-                    Log.TestMessage($"Loading model {hull.ModelPath} for hull {hull.Name}\n",Log.Importance.Regular);
+                    Log.TestMessage($"Loading model {hull.ModelPath} for hull {hull.Name}\n", Log.Importance.Regular);
                     hull.LoadModel();
                 }
                 catch (Exception e)
                 {
-                    Log.TestMessage($"Failure loading model {hull.ModelPath} for hull {hull.Name}\n{e}",Log.Importance.Critical);
+                    Log.TestMessage($"Failure loading model {hull.ModelPath} for hull {hull.Name}\n{e}", Log.Importance.Critical);
                 }
-                
+
             }
             HelperFunctions.CollectMemory();
-            Log.TestMessage("Hull Model Load Finished",waitForEnter:true);            
-            Log.HideConsoleWindow();
+            Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
+            ContentManager.EnableLoadInfoLog = false;
         }
+        private static void TestCompressedTextures()
+        {
+            if(!Log.TestMessage("Test - Checking For Uncompressed Texture \n",waitForYes:true)) return;
+            foreach (var textDic in TextureDict)
+            {
+                Texture2D tex  = textDic.Value;
+                var texUsage   = tex.TextureUsage;
+                var texFormat  = tex.Format;
+                if (texFormat != SurfaceFormat.Color) continue;
+                Log.TestMessage($"Uncompressed Texture {textDic.Key}", Log.Importance.Important);
+                Log.TestMessage($"{tex.ResourceType} Dimensions:{tex.Size()} \n");
+                
+            }
+            
+            Log.TestMessage("Test - Checking For Uncompressed Texture Finished", waitForEnter: true);
+        }
+        private static void TestTechTextures()
+        {
+            if (!Log.TestMessage("Test - Checking For Tech Texture Existence \n", waitForYes: true)) return;
+            foreach (var testItem in TechTree)
+            {
+                var item = testItem.Value;
+                var texPath = $"TechIcons/{item.IconPath}";
+                Log.TestMessage($"Tech:{testItem.Key} Path:{texPath}");
 
+                if (TextureDict.ContainsKey(texPath)) continue;
+                
+                Log.TestMessage($"Missing Texture: {texPath}", Log.Importance.Critical);
+            }
+
+            Log.TestMessage("Test - Checking For Tech Texture Existence Finished", waitForEnter: true);
+        }
         public static bool PreLoadModels(Empire empire)
         {
             if (!GlobalStats.PreLoad) return true;

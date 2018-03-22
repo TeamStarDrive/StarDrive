@@ -232,6 +232,7 @@ namespace Ship_Game
         public override void ExitScreen()
         {
             GlobalStats.ResearchRootUIDToDisplay = this.UIDCurrentRoot;
+            RightClicked = false;
             base.ExitScreen();
         }
 
@@ -266,18 +267,7 @@ namespace Ship_Game
         }
 
         public override bool HandleInput(InputState input)
-        {
-            if (input.KeysCurr.IsKeyDown(Keys.R) && !input.KeysPrev.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
-            {
-                GameAudio.PlaySfxAsync("echo_affirm");
-                this.ExitScreen();
-                return true;
-            }
-            if (this.close.HandleInput(input))
-            {
-                this.ExitScreen();
-                return true;
-            }
+        {                
             if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
             {
                 this.StartDragPos = input.CursorPosition;
@@ -423,6 +413,17 @@ namespace Ship_Game
                 }
             }
             if (input.Escaped)
+            {
+                this.ExitScreen();
+                return true;
+            }
+            if (input.ResearchExitScreen && !GlobalStats.TakingInput)
+            {
+                GameAudio.PlaySfxAsync("echo_affirm");
+                this.ExitScreen();
+                return true;
+            }
+            if (this.close.HandleInput(input))
             {
                 this.ExitScreen();
                 return true;

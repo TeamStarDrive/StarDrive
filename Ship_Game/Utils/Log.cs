@@ -118,23 +118,31 @@ namespace Ship_Game
             Console.WriteLine(text);
         }
         
-        public static void TestMessage(string testMessage, Importance importance = Importance.None, bool waitForEnter = false )
+        public static bool TestMessage(string testMessage, Importance importance = Importance.None, bool waitForEnter = false , bool waitForYes = false)
         {
             string text = "TestMsg: " + testMessage;
             LogFile.WriteLine(text);
             LogFile.Flush();
             if (!HasActiveConsole)
             {
-                return;
+                return false;
             }
             Console.ForegroundColor = ImportanceColor(importance);
             Console.WriteLine(text);
             if (waitForEnter)
+            {                
+                Console.ForegroundColor = Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Press Any Key To Continue");
+                Console.ReadKey();
+            }
+            if (waitForYes)
             {
                 Console.ForegroundColor = Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Press Enter To Continue");
-                Console.Read();
+                Console.WriteLine("(Y/N)");
+                return Console.ReadKey(true).Key == ConsoleKey.Y ;
             }
+
+            return false;
         }
 
 
