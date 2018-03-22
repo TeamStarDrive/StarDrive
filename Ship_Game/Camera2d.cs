@@ -73,13 +73,13 @@ namespace Ship_Game
 
         public void Move(Vector2 amount)
         {
-            CamPos += amount;
+            CamPos += amount;            
         }
         
         public void Move(float dx, float dy)
         {
             CamPos.X += dx;
-            CamPos.Y += dy;
+            CamPos.Y += dy;            
         }
 
         public Vector2 WASDCamMovement(InputState input, ScreenManager screenRes, float limit)
@@ -97,6 +97,35 @@ namespace Ship_Game
 
             Move(adjustCam);
             return new Vector2(CamPos.X - ScreensizeX, CamPos.Y - ScreensizeY);
+        }
+        private Vector2 CameraVelocity = Vector2.Zero;
+        public void CameraDrag(InputState input)
+        {            
+            if (input.RightMouseHeld())
+                if (input.StartRighthold.OutsideRadius(input.CursorPosition, 10f))
+                {
+                    CameraVelocity = input.CursorPosition.DirectionToTarget(input.StartRighthold);
+                    CameraVelocity = Vector2.Normalize(CameraVelocity) *
+                                     Vector2.Distance(input.StartRighthold, input.CursorPosition);
+                }
+                else
+                {
+                    CameraVelocity = Vector2.Zero;
+                }
+            if (!input.RightMouseHeld() && !input.LeftMouseHeld())
+            {
+                CameraVelocity = Vector2.Zero;
+            }
+            if (CameraVelocity.Length() > 150f)
+            {
+                CameraVelocity = Vector2.Normalize(CameraVelocity) * 150f;
+            }
+            if (float.IsNaN(CameraVelocity.X) || float.IsNaN(CameraVelocity.Y))
+            {
+                CameraVelocity = Vector2.Zero;
+            }
+            if (CameraVelocity != Vector2.Zero)
+                Move(CameraVelocity);
         }
     }
 }

@@ -347,13 +347,13 @@ namespace Ship_Game
         {
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
 
-            Log.Info(ConsoleColor.DarkYellow, " ========= CollectMemory ========= ");
+            Log.TestMessage(" ========= CollectMemory ========= ", Log.Importance.Important);
             float before = GC.GetTotalMemory(false) / (1024f * 1024f);
             CollectMemorySilent();
             float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
-            Log.Info(ConsoleColor.DarkYellow, "   Before: {0:0.0}MB  After: {1:0.0}MB", before, after);
-            Log.Info(ConsoleColor.DarkYellow, $"  Process Memory : {ProcessMemoryMb}");
-            Log.Info(ConsoleColor.DarkYellow, " ================================= ");
+            Log.TestMessage($"   Before: {before:0.0}MB  After: {after:0.0}MB", Log.Importance.Important);
+            Log.TestMessage($"  Process Memory : {ProcessMemoryMb}", Log.Importance.Important);
+            Log.TestMessage(" ================================= ", Log.Importance.Important);
             
         }
 
