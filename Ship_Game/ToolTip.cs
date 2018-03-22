@@ -31,15 +31,17 @@ namespace Ship_Game
         {
         }
         public static void ShipYardArcTip() => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
-        /* @todo tooltip issues
-  * Main issue here. 
-  * this class doesnt play well with the uielementv2 process.
-  * 
-  * so that several places are creating tooltips here in an unencapsulated way.
-  * 
-  * as far as i can tell... also the tooltip rectangle isnt right.
-  */
-        private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, bool holdTip = false, Vector2? position = null)
+        public static void PlanetLandingSpotsTip(int spots) => CreateTooltip($"{spots} Landing Spots on planet");
+
+    /* @todo tooltip issues
+* Main issue here. 
+* this class doesnt play well with the uielementv2 process.
+* 
+* so that several places are creating tooltips here in an unencapsulated way.
+* 
+* as far as i can tell... also the tooltip rectangle isnt right.
+*/
+    private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, bool holdTip = false, Vector2? position = null)
         {
             Hotkey = hotkey;
             HoldTip = holdTip;

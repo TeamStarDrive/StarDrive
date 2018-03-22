@@ -1122,6 +1122,7 @@ namespace Ship_Game
                 else
                     DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.Error(alpha), 2500f);
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
+                ToolTip.PlanetLandingSpotsTip(spots);
                 return;
             }
 
