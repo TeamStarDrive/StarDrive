@@ -315,7 +315,7 @@ namespace Ship_Game
                 screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
                 if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
                     continue;
-                if (!otherScreenHasFocus)
+                if (!otherScreenHasFocus && exitScreenTimer <=0f)
                 {
                     screen.HandleInput(input);
                     otherScreenHasFocus = true;

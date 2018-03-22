@@ -198,6 +198,8 @@ namespace Ship_Game
         public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);
         public bool IsShiftKeyDown  => IsKeyDown(Keys.LeftShift)   || IsKeyDown(Keys.RightShift);
 
+        //researchScreen
+        public bool ResearchExitScreen => KeyPressed(Keys.R);
 
         public bool ShipDesignExit => KeyPressed(Keys.Y);
         public bool ShipYardArcMove()
@@ -303,11 +305,7 @@ namespace Ship_Game
         public void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (ExitScreenTimer >=0)
-            {
-                ExitScreenTimer -= elapsedTime;
-                return;
-            }
+
             KeysPrev        = KeysCurr;
             GamepadPrev     = GamepadCurr;
             MousePrev       = MouseCurr;
@@ -315,7 +313,11 @@ namespace Ship_Game
             MouseCurr       = Mouse.GetState();
             CursorPosition  = new Vector2(MouseCurr.X, MouseCurr.Y);
             KeysCurr        = Keyboard.GetState();
-
+            if (ExitScreenTimer >= 0)
+            {
+                ExitScreenTimer -= elapsedTime;
+                return;
+            }
             SetMouseDrag();
 
             RightMouseDoubleClick = RightDblClickTimer > 0 && RightMouseClick;
