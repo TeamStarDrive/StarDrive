@@ -232,7 +232,8 @@ namespace Ship_Game
             if (info.Exists)
             {
                 ModPath = "Mods/" + ModName + "/";
-                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(info);
+                var modInfo = new FileInfo($"{ModPath}/{modName}.xml");
+                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(modInfo.Exists ? modInfo : info);
                 ActiveMod     = new ModEntry(ActiveModInfo);
             }
             else
