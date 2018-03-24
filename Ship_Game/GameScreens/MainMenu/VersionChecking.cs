@@ -32,12 +32,19 @@ namespace Ship_Game.GameScreens.MainMenu
             var verMod = $"Vanilla";
             var versionText = GlobalStats.Version;
             var mod = GlobalStats.ActiveMod;
-            if (mod?.mi.BitbucketAPIString != null)
+            if (mod?.mi != null)
             {
-                verMod = $"{mod.ModName} - {mod.Version}";
-                URL = mod.mi.BitbucketAPIString ?? URL;
-                versionText = mod.Version ?? versionText;
-                DownLoadSite = mod.mi.DownLoadSite ?? DownLoadSite;
+                if (mod?.mi.BitbucketAPIString != null)
+                {
+                    verMod = $"{mod.ModName} - {mod.Version}";
+                    URL = mod.mi.BitbucketAPIString ?? URL;
+                    versionText = mod.Version ?? versionText;
+                    DownLoadSite = mod.mi.DownLoadSite ?? DownLoadSite;
+                }
+                else
+                {
+                    verMod = "Unsupported";
+                }
             }
 
             MiddleText = $"{GlobalStats.ExtendedVersion}\nMod: {verMod}";

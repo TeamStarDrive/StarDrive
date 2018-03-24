@@ -43,19 +43,19 @@ namespace Ship_Game
 * as far as i can tell... also the tooltip rectangle isnt right.
 */
     private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, bool holdTip = false, Vector2? position = null, bool alwaysShow = false)
-        {
+        {    
             Hotkey = hotkey;
-            HoldTip = holdTip;
+            //HoldTip = holdTip;
             MaxTipTime = timer;
-            MouseState state = Mouse.GetState();
 
+            MouseState state = Mouse.GetState();
             if (toolTipId >= 0)
             {
                 var tooltip = ResourceManager.GetToolTip(toolTipId);
                 if (tooltip != null)
                 {
                     intext = Localizer.Token(tooltip.Data);
-                    Ti     = tooltip.Title;
+                    Ti = tooltip.Title;
                 }
                 else if (intext.IsEmpty()) // try to recover.. somehow
                 {
@@ -68,13 +68,21 @@ namespace Ship_Game
                 Ti = "";
             }
 
-            Text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
-
-            Vector2 pos  = position ??  new Vector2(state.X, state.Y);
+            var text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
+            
+            if (TipTimer > 0 && Text == text)
+            {
+                HoldTip = true;
+                return;
+            }
+            
+            Text = text;
+            
+            Vector2 pos = position ?? new Vector2(state.X, state.Y);
             Vector2 size;
             size = Fonts.Arial12Bold.MeasureString(hotkey.NotEmpty() ? $"{Text}\n\n{hotkey}" : Text);
-            var tipRect = new Rectangle((int)pos.X  + 10, (int)pos.Y  + 10, 
-                                        (int)size.X + 20, (int)size.Y + 10);
+            var tipRect = new Rectangle((int) pos.X + 10, (int) pos.Y + 10,
+                (int) size.X + 20, (int) size.Y + 10);
 
             if (tipRect.X + tipRect.Width > Game1.Instance.ScreenWidth)
                 tipRect.X = tipRect.X - (tipRect.Width + 10);
@@ -112,15 +120,18 @@ namespace Ship_Game
         public static void Draw(SpriteBatch spriteBatch)
         {            
             float elaspsedTime = (float)Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
-            var fadeOutTimer = MaxTipTime * .75f;
-            var fadeInTimer = MaxTipTime * .25f;
-            var state = Mouse.GetState();
-            HoldTip = Rect.HitTest(state.X, state.Y);
+            if (TipTimer <= 0) return;
+            TipTimer = Math.Max(TipTimer - elaspsedTime, 0);  
+            var fadeOutTimer = MaxTipTime * .25f;
+            var fadeInTimer = MaxTipTime * .75f;
+            //var state = Mouse.GetState();
+            //HoldTip = Rect.HitTest(state.X, state.Y);
 
-            TipTimer = Math.Max(TipTimer - elaspsedTime, 0f);
-            if (HoldTip && TipTimer >fadeInTimer)                
-                    TipTimer = fadeInTimer;
-            if (TipTimer >= MaxTipTime || Text == null)
+            
+            if (HoldTip && TipTimer  < fadeOutTimer)                
+                    TipTimer = fadeOutTimer;
+            HoldTip = false;
+            if (TipTimer <= 0 || Text == null)
             {
                 if (Text == null)
                 {
@@ -132,12 +143,12 @@ namespace Ship_Game
             }
 
             float alpha =255;
-            if (TipTimer < fadeInTimer)
+            if (TipTimer < fadeOutTimer)
             {              
-                alpha = 255f * TipTimer / 3f;
+                alpha = 255f * TipTimer / fadeOutTimer;
             }
-            else if (TipTimer > fadeOutTimer)
-                alpha = 255f - 255f * (TipTimer - fadeInTimer);
+            else if (TipTimer > fadeInTimer)
+                alpha = 255f * ((MaxTipTime - TipTimer) / (MaxTipTime - fadeInTimer));
             var textpos = new Vector2(Rect.X + 10, Rect.Y + 5);
             var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);            
             sel.Draw(spriteBatch);
