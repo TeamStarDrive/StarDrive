@@ -80,6 +80,8 @@ namespace Ship_Game
             return projPos;
         }
 
+        public Vector2 DrawLineToPlanet(Vector2 startInWorld, Vector2 endInWorld, Color color) => DrawLineProjected(startInWorld, endInWorld, color, 2500);
+
         // non-projected draw to screen
         public void DrawLinesToScreen(Vector2 posOnScreen, Array<string> lines)
         {
