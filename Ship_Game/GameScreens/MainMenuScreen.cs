@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using SgMotion;
 using SgMotion.Controllers;
+using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -416,6 +417,7 @@ namespace Ship_Game
         private void Options_Clicked(UIButton button)   => ScreenManager.AddScreen(new OptionsScreen(this));
         private void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
         private void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
+        private void VerCheck_Clicked(UIButton button) => ScreenManager.AddScreen(new VersionChecking(this));
         private void Exit_Clicked(UIButton button)      => Game1.Instance.Exit();
         private void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
         private void DevSandbox_Clicked(UIButton button)  => ScreenManager.AddScreen(new DeveloperSandbox(this));
@@ -451,7 +453,8 @@ namespace Ship_Game
                 Button("Mods",          click: Mods_Clicked);
                 Button("Dev Sandbox",   click: DevSandbox_Clicked);
                 Button("BlackBox Info", click: Info_Clicked);
-                Button(titleId: 5,      click: Exit_Clicked);
+                Button("Version Check", click: VerCheck_Clicked);
+            Button(titleId: 5,      click: Exit_Clicked);
             EndLayout();
 
             ScreenManager.ClearScene();

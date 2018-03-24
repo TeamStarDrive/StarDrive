@@ -1114,15 +1114,22 @@ namespace Ship_Game
             }
             if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
             {
-                int spots = ship.AI.OrbitTarget.GetGroundLandingSpots();
+                var planet = ship.AI.OrbitTarget;
+                int spots = planet.GetGroundLandingSpots();
                 if (spots > 4)
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.CombatOrders(alpha), 2500f);
+                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.CombatOrders(alpha));
                 else if (spots > 0)
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.Warning(alpha), 2500f);
+                {
+                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.Warning(alpha));
+                    ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Warning!", spots);
+                }
                 else
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.Error(alpha), 2500f);
+                {
+                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.Error(alpha));
+                    ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Critical!", spots);
+                }
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
-                ToolTip.PlanetLandingSpotsTip(spots);
+                
                 return;
             }
 

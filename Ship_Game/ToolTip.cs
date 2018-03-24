@@ -19,6 +19,7 @@ namespace Ship_Game
         public static float TipTimer;
         public static int LastWhich;
         private static bool HoldTip;
+        private static float MaxTipTime;
 
         static ToolTip()
         {
@@ -31,7 +32,7 @@ namespace Ship_Game
         {
         }
         public static void ShipYardArcTip() => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
-        public static void PlanetLandingSpotsTip(int spots) => CreateTooltip($"{spots} Landing Spots on planet");
+        public static void PlanetLandingSpotsTip(string locationText, int spots) => CreateTooltip($"{locationText}\n{spots} Landing Spots",alwaysShow:true);
 
     /* @todo tooltip issues
 * Main issue here. 
@@ -41,10 +42,11 @@ namespace Ship_Game
 * 
 * as far as i can tell... also the tooltip rectangle isnt right.
 */
-    private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, bool holdTip = false, Vector2? position = null)
+    private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, bool holdTip = false, Vector2? position = null, bool alwaysShow = false)
         {
             Hotkey = hotkey;
             HoldTip = holdTip;
+            MaxTipTime = timer;
             MouseState state = Mouse.GetState();
 
             if (toolTipId >= 0)
@@ -79,7 +81,7 @@ namespace Ship_Game
             while (tipRect.Y + tipRect.Height > Game1.Instance.ScreenHeight)
                 tipRect.Y = tipRect.Y - 1;
 
-            if (TextLast != Text)
+            if (!alwaysShow && TextLast != Text)
             {
                 TipTimer = timer;
                 TextLast = Text;
@@ -87,9 +89,9 @@ namespace Ship_Game
             Rect = tipRect;
         }
 
-        public static void CreateTooltip(string intext, Vector2? position = null)
+        public static void CreateTooltip(string intext, Vector2? position = null, bool alwaysShow = false, bool holdTip = false)
         {
-            SpawnTooltip(intext, -1, "", position: position);
+            SpawnTooltip(intext, -1, "", position: position,alwaysShow: alwaysShow, holdTip: holdTip);
         }
 
         public static void CreateTooltip(string intext, string hotKey)
@@ -110,12 +112,19 @@ namespace Ship_Game
         public static void Draw(SpriteBatch spriteBatch)
         {            
             float elaspsedTime = (float)Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
+            var fadeOutTimer = MaxTipTime * .75f;
+            var fadeInTimer = MaxTipTime * .25f;
+            var state = Mouse.GetState();
+            HoldTip = Rect.HitTest(state.X, state.Y);
+
             TipTimer = Math.Max(TipTimer - elaspsedTime, 0f);
-            if (TipTimer > 5.4f || Text == null)
+            if (HoldTip && TipTimer >fadeInTimer)                
+                    TipTimer = fadeInTimer;
+            if (TipTimer >= MaxTipTime || Text == null)
             {
                 if (Text == null)
                 {
-                    TipTimer = 6;
+                    TipTimer = MaxTipTime;
                 }
                 if (TipTimer <= 0)
                     Text = null;
@@ -123,14 +132,12 @@ namespace Ship_Game
             }
 
             float alpha =255;
-            if (TipTimer < 3)
-            {
-                if (HoldTip)
-                    TipTimer = 4.7f;
+            if (TipTimer < fadeInTimer)
+            {              
                 alpha = 255f * TipTimer / 3f;
             }
-            else if (TipTimer > 4.7f)
-                alpha = 255f - 255f * (TipTimer -4.7f);
+            else if (TipTimer > fadeOutTimer)
+                alpha = 255f - 255f * (TipTimer - fadeInTimer);
             var textpos = new Vector2(Rect.X + 10, Rect.Y + 5);
             var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);            
             sel.Draw(spriteBatch);
