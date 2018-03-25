@@ -19,6 +19,7 @@ namespace Ship_Game
         public static float TipTimer;
         public static int LastWhich;
         private static bool HoldTip;
+        private static bool AlwaysShow = false;
         private static float MaxTipTime;
 
         static ToolTip()
@@ -47,7 +48,7 @@ namespace Ship_Game
             Hotkey = hotkey;
             //HoldTip = holdTip;
             MaxTipTime = timer;
-
+            AlwaysShow = alwaysShow;
             MouseState state = Mouse.GetState();
             if (toolTipId >= 0)
             {
@@ -89,7 +90,7 @@ namespace Ship_Game
             while (tipRect.Y + tipRect.Height > Game1.Instance.ScreenHeight)
                 tipRect.Y = tipRect.Y - 1;
 
-            if (!alwaysShow && TextLast != Text)
+            if (alwaysShow || TextLast != Text)
             {
                 TipTimer = timer;
                 TextLast = Text;
@@ -121,7 +122,9 @@ namespace Ship_Game
         {            
             float elaspsedTime = (float)Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
             if (TipTimer <= 0) return;
-            TipTimer = Math.Max(TipTimer - elaspsedTime, 0);  
+            TipTimer = Math.Max(TipTimer - elaspsedTime, 0);
+            if (!AlwaysShow && MaxTipTime - TipTimer < .5f)
+                return;
             var fadeOutTimer = MaxTipTime * .25f;
             var fadeInTimer = MaxTipTime * .75f;
             //var state = Mouse.GetState();
