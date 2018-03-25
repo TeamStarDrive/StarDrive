@@ -116,8 +116,7 @@ namespace Ship_Game
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which) : base(parent)
         {
-            float TheirOpinionOfUs;
-            Pauses = true;
+            float TheirOpinionOfUs;            
             e.GetRelations(us).turnsSinceLastContact = 0;
             them = e;
             playerEmpire = us;

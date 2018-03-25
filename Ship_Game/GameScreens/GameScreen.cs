@@ -49,21 +49,25 @@ namespace Ship_Game
         protected VideoPlayer VideoPlaying;
         protected Texture2D VideoTexture;
 
-        protected GameScreen(GameScreen parent) 
-            : this(parent, new Rectangle(0, 0, Game1.Instance.ScreenWidth, Game1.Instance.ScreenHeight))
+        protected GameScreen(GameScreen parent, bool pause = true) 
+            : this(parent, new Rectangle(0, 0, Game1.Instance.ScreenWidth, Game1.Instance.ScreenHeight), pause)
         {
         }
-
-        protected GameScreen(GameScreen parent, Rectangle rect) : base(parent, rect)
+        
+        protected GameScreen(GameScreen parent, Rectangle rect, bool pause = true ) : base(parent, rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
             UpdateViewport();
-            if (Pauses != false && Empire.Universe != null)
+            if (Empire.Universe?.IsActive == false)
+                Log.Info("");
+            if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)
             {
                 Empire.Universe.Paused = true;
             }
+            else
+                Pauses = false;
             if (Input == null)
                 Input = ScreenManager.input;
         }
