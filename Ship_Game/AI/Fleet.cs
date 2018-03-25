@@ -1906,7 +1906,7 @@ namespace Ship_Game.AI
         {
             if (ship == null) return false;
             if (ship.Active && ship.fleet != this)
-                Log.Error("{0} : not equal {1}", ship.fleet.Name, Name);
+                Log.Error("{0} : not equal {1}", ship.fleet?.Name, Name);
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
                 Log.Info("WTF");
             ship.fleet = null;
@@ -1917,6 +1917,7 @@ namespace Ship_Game.AI
             Log.Info("Ship is not in this fleet");
             return false;
         }
+
         
         public void Update(float elapsedTime)
         {
