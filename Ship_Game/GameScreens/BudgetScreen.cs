@@ -38,11 +38,7 @@ namespace Ship_Game.GameScreens
         {
             this.screen = screen;
             base.IsPopup = true;
-            if (!Empire.Universe.Paused)
-            {
-                Empire.Universe.Paused = Pauses = true;
-
-            }
+          
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
