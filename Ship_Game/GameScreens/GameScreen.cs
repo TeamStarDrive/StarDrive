@@ -38,7 +38,7 @@ namespace Ship_Game
         public Vector2 ScreenArea   => Game1.Instance.ScreenArea;
         public Vector2 ScreenCenter => Game1.Instance.ScreenArea * 0.5f;
         public GameTime GameTime    => Game1.Instance.GameTime;
-        protected bool Pauses = false;
+        protected bool Pauses = true;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -60,6 +60,10 @@ namespace Ship_Game
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
             UpdateViewport();
+            if (Pauses != false && Empire.Universe != null)
+            {
+                Empire.Universe.Paused = true;
+            }
             if (Input == null)
                 Input = ScreenManager.input;
         }
@@ -81,7 +85,7 @@ namespace Ship_Game
         public virtual void ExitScreen()
         {
             ScreenManager.exitScreenTimer =.25f;            
-            if (Pauses)
+            if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
             if (TransitionOffTime != TimeSpan.Zero)
             {
