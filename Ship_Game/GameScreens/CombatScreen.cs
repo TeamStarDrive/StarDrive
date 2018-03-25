@@ -77,7 +77,7 @@ namespace Ship_Game
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {            
-            this.p = p;
+            this.p = p;            
             int screenWidth = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             this.GridRect = new Rectangle(screenWidth / 2 - 639, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
             Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
