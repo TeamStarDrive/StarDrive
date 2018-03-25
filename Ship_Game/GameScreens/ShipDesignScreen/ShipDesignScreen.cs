@@ -81,7 +81,9 @@ namespace Ship_Game
         private readonly Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
         private readonly Texture2D TopBar68         = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
         private readonly Texture2D TopBar68Hover    = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
-        private readonly Texture2D TopBar68Pressed  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];        
+        private readonly Texture2D TopBar68Pressed  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];
+        private ShipData.RoleName Role;
+        private Rectangle DesignRoleRect;
 
 
 #if SHIPYARD
@@ -840,7 +842,21 @@ namespace Ship_Game
             {
                 this.Camera.Zoom = 2.65f;
             }
-
+            Array<ShipModule> modules = new Array<ShipModule>();
+            for (int x = 0; x < Slots.Count; x++)
+            {
+                var slot = Slots[x];
+                if (slot?.Module == null) continue;
+                modules.Add(slot.Module);
+            }
+            var role = Ship.GetDesignRole(modules.ToArray(), ActiveHull.Role, ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
+            var designRoleRect = DesignRoleRect;
+            SpriteFont roleFont = Fonts.Arial12;
+            if (role != Role)
+            {
+                ShipData.CreateDesignRoleToolTip(role, roleFont, designRoleRect, true);
+            }
+            Role = role;
             this.CameraPosition.Z = this.OriginalZ / this.Camera.Zoom;
             Vector3 camPos        = this.CameraPosition * new Vector3(-1f, 1f, 1f);
             this.View             = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) 
@@ -848,6 +864,8 @@ namespace Ship_Game
                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
+
+ 
 
 
         public enum ActiveModuleState
