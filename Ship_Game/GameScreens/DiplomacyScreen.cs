@@ -710,9 +710,9 @@ namespace Ship_Game
             //        VideoPlaying.Dispose();
             //    }
             //}
-            //VideoPlaying = null;
-            Dispose();
+            //VideoPlaying = null;            
             base.ExitScreen();
+            Dispose();
         }
 
         private void FillOurItems()
