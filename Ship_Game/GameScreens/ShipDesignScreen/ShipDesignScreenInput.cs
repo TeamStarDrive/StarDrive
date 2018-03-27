@@ -35,7 +35,7 @@ namespace Ship_Game {
                 CombatState  = hull.CombatState,
                 Hull         = hull.Hull,
                 IconPath     = hull.IconPath,
-                ModelPath    = hull.ModelPath,
+                ModelPath    = hull.HullModel,
                 Name         = hull.Name,
                 Role         = hull.Role,
                 ShipStyle    = hull.ShipStyle,
