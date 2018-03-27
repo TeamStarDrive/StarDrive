@@ -2781,12 +2781,12 @@ namespace Ship_Game.Ships
 
         public override void RemoveFromUniverseUnsafe()
         {
-            Active            = false;
-            AI.Target         = null;
-            AI.ColonizeTarget = null;
-            AI.EscortTarget   = null;
-            AI.start = null;
-            AI.end   = null;
+            Active                           = false;
+            AI.Target                        = null;
+            AI.ColonizeTarget                = null;
+            AI.EscortTarget                  = null;
+            AI.start                         = null;
+            AI.end                           = null;
             AI.PotentialTargets.Clear();
             AI.TrackProjectiles.Clear();
             AI.NearbyShips.Clear();
@@ -2808,7 +2808,7 @@ namespace Ship_Game.Ships
                 if (hanger.GetHangarShip() != null)
                     hanger.GetHangarShip().Mothership = null;
             }
-            foreach(Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in EmpireManager.Empires)
             {
                 empire.GetGSAI().ThreatMatrix.RemovePin(this);
             }
@@ -2834,9 +2834,8 @@ namespace Ship_Game.Ships
             BombBays.Clear();
             TroopList.Clear();
             ClearFleet();
-            ShipSO.Clear();
+            ShipSO?.Clear();
             Empire.Universe.RemoveObject(ShipSO);
-
             loyalty.RemoveShip(this);
             SetSystem(null);
             TetheredTo = null;
