@@ -196,7 +196,7 @@ namespace Ship_Game.Universe.SolarBodies
                     ConstructionQueue.QueuePendingRemoval(queueItem);
                     ProductionHere += queueItem.productionTowards;
                 }
-                else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost)
+                else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost * ShipBuildingModifier)
                 {
                     Ship shipAt;
                     if (queueItem.isRefit)
