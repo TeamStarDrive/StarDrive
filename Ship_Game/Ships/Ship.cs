@@ -2438,7 +2438,7 @@ namespace Ship_Game.Ships
             ShieldPowerDraw             = 0f;
             RepairRate                  = 0f;
             CargoSpaceMax               = 0f;
-            SensorRange                 = 0f;
+            SensorRange                 = 1000f;
             HasTroopBay                 = false;
             WarpThrust                  = 0f;
             TurnThrust                  = 0f;
