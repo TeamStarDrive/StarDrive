@@ -1929,19 +1929,19 @@ namespace Ship_Game.Ships
             {
                 maxRange = Math.Max(w.Range, maxRange);
                 minRange = Math.Min(w.Range, minRange);
-                noDamage += w.DamageAmount <1 || w.TruePD ? 1 :0 ;
+                noDamage += w.DamageAmount <1 || w.TruePD || w.Tag_PD  ? 1 :0 ;
                 avgRange += w.Range;
             }
             avgRange /= Weapons.Count;
             if (avgRange > maxRange *.75f) return avgRange;
-            bool ignoreDamage = noDamage / (Weapons.Count + 1) > .75f;                       
+            bool ignoreDamage = noDamage / (Weapons.Count + 1f) > .75f;                       
             Ranger shortRange = new Ranger();
             Ranger longRange = new Ranger();
             Ranger utility = new Ranger();
 
             foreach (var w in Weapons)
             {
-                if (w.DamageAmount <1 || w.TruePD)
+                if (w.DamageAmount <1 || w.TruePD || w.Tag_PD)
                 {
                     utility.AddRange(w);
                     if (ignoreDamage)
@@ -1955,13 +1955,18 @@ namespace Ship_Game.Ships
             {
                 return utility.GetAverageRange();
             }
-            if (AI.CombatState == CombatState.Artillery || AI.CombatState != CombatState.ShortRange && longRange.GetAverageDam() > shortRange.GetAverageDam())
+
+            float longR = longRange.GetAverageDam();
+            float shotR = shortRange.GetAverageDam();
+
+            if (AI.CombatState == CombatState.Artillery || AI.CombatState != CombatState.ShortRange && longR > shotR)
             {
                 return longRange.GetAverageRange();
             }
             return shortRange.GetAverageRange();
 
         }
+
         public void UpdateShipStatus(float deltaTime)
         {
             if (!Empire.Universe.Paused && velocityMaximum <= 0f && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)                                           
