@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -16,8 +18,10 @@ namespace Ship_Game.Utils
         public Array<string> Names;
         public Array<string> Links;
         public Dictionary<string, string> filesAndLinks;
+        Array<UILabel> Versions;
         public ReadRestAPI()
         {
+            Versions = new Array<UILabel>();
         }
 
         public class BitbucketRest
@@ -50,8 +54,9 @@ namespace Ship_Game.Utils
         }
         
 
-        public void LoadContent(string url = "https://api.bitbucket.org/2.0/repositories/CrunchyGremlin/sd-blackbox/downloads")
+        public void LoadContent(string url)
         {
+            if (url.IsEmpty()) return;
             Names = new Array<string>();
             Links = new Array<string>();
             filesAndLinks = new Dictionary<string, string>();
@@ -96,6 +101,54 @@ namespace Ship_Game.Utils
 
 
 
+        }
+
+        public Vector2 PopulateVersions(string versionText, GameScreen screen, Vector2 bodyTextStart)
+        {
+            string[] array = filesAndLinks.Keys.ToArray();
+            bool old = false;
+            for (int i = 0; i < array.Length; i++)
+            {
+                var preText = "====";
+                var item = array[i];
+                var color = !old ? Color.White : Color.Gray;
+                if (item.Contains(versionText))
+                {
+                    color = Color.Yellow;
+                    preText = "*===";
+                    if (i > 0)
+                        color = Color.Red;
+                    old = true;
+                }
+                var text = new UILabel(screen, bodyTextStart, $"{preText} {item} ====", color);
+                Versions.Add(text);
+
+                bodyTextStart.Y += 16;
+            }
+            return bodyTextStart;
+        }
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            foreach (var item in Versions)
+            {
+                item.Draw(spriteBatch);
+            }
+        }
+        public bool HandleInput(InputState input, string downLoadSite)
+        {
+            foreach (var version in Versions)
+            {
+                if (!input.LeftMouseClick) continue;
+                if (!version.HitTest(input.CursorPosition)) continue;
+                foreach (var kv in filesAndLinks)
+                {
+                    if (!version.Text.Contains(kv.Key)) continue;
+                    Log.OpenURL(downLoadSite);
+                    Log.OpenURL(kv.Value);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

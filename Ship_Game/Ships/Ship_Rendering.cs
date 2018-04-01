@@ -408,5 +408,9 @@ namespace Ship_Game.Ships
             }
             screen.ScreenManager.SpriteBatch.End();
         }
+        public void DrawWeaponRangeCircles(UniverseScreen screen)
+        {
+            screen.DrawCircleProjected(Center, maxWeaponsRange, 64, Color.Red);
+        }
     }
 }
