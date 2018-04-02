@@ -696,14 +696,14 @@ namespace Ship_Game
             }
             #region Mission Repeat
             if (Owner == EmpireManager.Player 
-                && Mission == AgentMission.Defending && Owner.data.SpyBudget > 500
-                && Owner.data.SpyMissionRepeat == true 
-                && (startingmission != AgentMission.Training || (startingmission == AgentMission.Training && this.Level < 10)))
+                && Mission == AgentMission.Defending //&& Owner.data.SpyBudget > 500
+                && Owner.data.SpyMissionRepeat
+                && (startingmission != AgentMission.Training || startingmission == AgentMission.Training && Level < 10))
             {
-                this.AssignMission(startingmission, Owner, this.TargetEmpire);
+                this.AssignMission(startingmission, Owner, TargetEmpire);
                 return;
             }
-            this.TargetEmpire = "";
+            TargetEmpire = "";
             #endregion
         }
 
