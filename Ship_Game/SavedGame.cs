@@ -8,6 +8,7 @@ using System.Threading;
 using System.Xml.Serialization;
 using System.Globalization;
 using System.Configuration;
+using System.Linq;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
@@ -35,6 +36,23 @@ namespace Ship_Game
         public int Version;
 
         [XmlIgnore][JsonIgnore]public FileInfo FI;
+    }
+
+    // XNA.Rectangle cannot be serialized, so we need a proxy object
+    public struct RectangleData
+    {
+        public int X, Y, Width, Height;
+        public RectangleData(Rectangle r)
+        {
+            X = r.X;
+            Y = r.Y;
+            Width = r.Width;
+            Height = r.Height;
+        }
+        public static implicit operator Rectangle(RectangleData r)
+        {
+            return new Rectangle(r.X, r.Y, r.Width, r.Height);
+        }
     }
 
     public sealed class SavedGame
@@ -416,7 +434,8 @@ namespace Ship_Game
                     sdata.PopCount  = ship.GetColonists();
                     sdata.TroopList = ship.TroopList;
 
-                    sdata.AreaOfOperation = ship.AreaOfOperation;
+                    sdata.AreaOfOperation = ship.AreaOfOperation
+                        .Select(r => new RectangleData(r)).ToArrayList();
                
                     sdata.AISave = new ShipAISave()
                     {
@@ -879,7 +898,7 @@ namespace Ship_Game
             [Serialize(15)] public float experience;
             [Serialize(16)] public int kills;
             [Serialize(17)] public Array<Troop> TroopList;
-            [Serialize(18)] public Array<Rectangle> AreaOfOperation;
+            [Serialize(18)] public Array<RectangleData> AreaOfOperation;
             [Serialize(19)] public float FoodCount;
             [Serialize(20)] public float ProdCount;
             [Serialize(21)] public float PopCount;
