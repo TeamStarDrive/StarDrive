@@ -62,6 +62,7 @@ namespace Ship_Game
         //mouse position
         private Vector2 MouseRightClickPos = Vector2.Zero;
         private Vector2 MouseLeftClickPos = Vector2.Zero;
+        public bool MouseDrag => StartLeftHold != Vector2.Zero || StartRighthold != Vector2.Zero;
         private bool MouseLeftDrag = false;
         private bool MouseRightDrag = false;
         private void SetMouseDrag()
