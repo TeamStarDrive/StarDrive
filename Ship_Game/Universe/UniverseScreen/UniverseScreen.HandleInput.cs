@@ -336,6 +336,7 @@ namespace Ship_Game
             if (input.PauseGame && !GlobalStats.TakingInput) Paused = !Paused;
             if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet))
                 return true; //if planet screen is still exiting prevent further input
+            HandleEdgeDetection(input);
             if (DefiningAO)
             {
                 DefineAO(input);
@@ -388,7 +389,7 @@ namespace Ship_Game
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
             }
 
-            HandleEdgeDetection(input);
+            
             HandleGameSpeedChange(input);
 
             // fbedard: Click button to Cycle through ships in Combat
@@ -1805,31 +1806,32 @@ namespace Ship_Game
 
         private void HandleEdgeDetection(InputState input)
         {
-            if (LookingAtPlanet || ViewingShip )
+            if (LookingAtPlanet  )
                 return;
             PresentationParameters p = ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 spaceFromScreenSpace1 = UnprojectToWorldPosition(new Vector2(0.0f, 0.0f));
             float num = UnprojectToWorldPosition(new Vector2(p.BackBufferWidth, p.BackBufferHeight)).X - spaceFromScreenSpace1.X;
             input.Repeat = true;
-            if (input.CursorPosition.X <= 1f || input.Left)
+
+            if (input.CursorPosition.X <= 1f || input.Left && !ViewingShip)
             {
                 CamDestination.X -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.X >= (p.BackBufferWidth - 1) || input.Right )
+            if (input.CursorPosition.X >= p.BackBufferWidth - 1 || input.Right && !ViewingShip)
             {
                 CamDestination.X += 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.Y <= 0.0f || input.Up )
+            if (input.CursorPosition.Y <= 0.0f || input.Up && !ViewingShip)
             {
                 CamDestination.Y -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.Y >= (p.BackBufferHeight - 1) || input.Down )
+            if (input.CursorPosition.Y >= p.BackBufferHeight - 1 || input.Down && !ViewingShip)
             {
                 CamDestination.Y += 0.008f * num;
                 snappingToShip = false;
