@@ -524,7 +524,8 @@ namespace Ship_Game
                             .ThenBy(player => !player.Value.IsPlayerDesign)
                             .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
                             .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle)
-                            .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name))
+                            .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name)
+                            .ThenBy(name=> name.Key))
                         {
                             if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key)) continue;
 
@@ -2368,15 +2369,19 @@ namespace Ship_Game
                     {
                         this.detailInfo = pgs;
                         Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                        if (pgs.building != null && pgs.building.Scrappable && bRect.HitTest(input.CursorPosition) && input.RightMouseClick)
+                        if (pgs.building != null  && bRect.HitTest(input.CursorPosition) &&  Input.RightMouseClick)
                         {
-                            this.toScrap = pgs.building;
-                            string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
-                            MessageBoxScreen messageBox = new MessageBoxScreen(Empire.Universe, message);
-                            messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
-                            this.ScreenManager.AddScreen(messageBox);
-                            this.ClickedTroop = true;
+                            if (pgs.building.Scrappable)
+                            {
+                                this.toScrap = pgs.building;
+                                string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
+                                MessageBoxScreen messageBox = new MessageBoxScreen(Empire.Universe, message);
+                                messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
+                                this.ScreenManager.AddScreen(messageBox);                                
+                                
+                            }
                             rmouse = true;
+                            ClickedTroop = true;
                             return true;
                         }
                     }
