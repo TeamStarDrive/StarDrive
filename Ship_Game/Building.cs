@@ -213,6 +213,9 @@ namespace Ship_Game
         public void ScrapBuilding(Planet planet)
         {
             Building building1 = null;
+            if (MinusFertilityOnBuild < 0)
+                planet.Fertility += MinusFertilityOnBuild;
+
             foreach (Building building2 in planet.BuildingList)
             {
                 if (this == building2)

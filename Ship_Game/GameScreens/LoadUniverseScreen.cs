@@ -189,6 +189,8 @@ namespace Ship_Game
                 {
                     continue;
                 }
+                var building = ResourceManager.GetBuildingTemplate(pgs.building.Name);
+                pgs.building.Scrappable = building.Scrappable;
                 p.BuildingList.Add(pgs.building);
                 if (!pgs.building.isWeapon)
                 {
