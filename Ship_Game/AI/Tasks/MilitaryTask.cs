@@ -28,6 +28,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(13)] public int WhichFleet = -1;
         [Serialize(14)] public bool IsToughNut;
         [Serialize(15)] public int NeededTroopStrength;
+        [Serialize(16)] public int Priority;
 
         [XmlIgnore] [JsonIgnore] private Planet TargetPlanet;
         [XmlIgnore] [JsonIgnore] private Empire Owner;

@@ -120,7 +120,7 @@ namespace Ship_Game.AI {
             }
             //this is the meat of the deal here. rolebuildinfo contains all the capacity distribution logic for shipbuilding.
             //it will also scrap when things are bad. 
-            var buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt);
+            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt);
 
 
             while (capacity > 0 && numgoals < NumberOfShipGoals
@@ -258,48 +258,48 @@ namespace Ship_Game.AI {
                 var inOurAOs     = new Array<Tasks.MilitaryTask>();
                 var remainder    = new Array<Tasks.MilitaryTask>();
 
-                foreach (var task in this
-                    .TaskList.OrderByDescending((Func<Tasks.MilitaryTask, float>)(task =>
-                    {
-                        if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                            return 0;
-                        float weight = 0;
-                        weight += (OwnerEmpire.currentMilitaryStrength - task.MinimumTaskForceStrength) /
-                                  OwnerEmpire.currentMilitaryStrength * 5;
+                foreach (var task in TaskList
+                    //.OrderByDescending((Func<Tasks.MilitaryTask, float>)(task =>
+                    //{
+                    //    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)
+                    //        return 0;
+                    //    float weight = 0;
+                    //    weight += (OwnerEmpire.currentMilitaryStrength - task.MinimumTaskForceStrength) /
+                    //              OwnerEmpire.currentMilitaryStrength * 5;
 
-                        if (task.GetTargetPlanet() == null)                        
-                            return weight * 2;
+                    //    if (task.GetTargetPlanet() == null)                        
+                    //        return weight * 2;
 
-                        Empire emp = task.GetTargetPlanet().Owner;
-                        if (emp == null)
-                            return 0;
-                        if (emp.isFaction)
-                            return 0;
+                    //    Empire emp = task.GetTargetPlanet().Owner;
+                    //    if (emp == null)
+                    //        return 0;
+                    //    if (emp.isFaction)
+                    //        return 0;
 
-                        Relationship test;
-                        if (OwnerEmpire.TryGetRelations(emp, out test) && test != null)
-                        {
-                            if (test.Treaty_NAPact || test.Treaty_Alliance || test.Posture != Posture.Hostile)
-                                return 0;
-                            weight += ((test.TotalAnger * .25f) - (100 - test.Threat)) / (test.TotalAnger * .25f) * 5f;
-                            if (test.AtWar)
-                                weight += 5;
-                        }
-                        Planet target = task.GetTargetPlanet();
-                        if (target != null)
-                        {
-                            SystemCommander scom = null;
-                            target.Owner?.GetGSAI()?
-                                .DefensiveCoordinator?.DefenseDict?.TryGetValue(target.ParentSystem, out scom);
-                            if (scom != null)
-                                weight += 11 - scom.RankImportance;
-                        }
+                    //    Relationship test;
+                    //    if (OwnerEmpire.TryGetRelations(emp, out test) && test != null)
+                    //    {
+                    //        if (test.Treaty_NAPact || test.Treaty_Alliance || test.Posture != Posture.Hostile)
+                    //            return 0;
+                    //        weight += ((test.TotalAnger * .25f) - (100 - test.Threat)) / (test.TotalAnger * .25f) * 5f;
+                    //        if (test.AtWar)
+                    //            weight += 5;
+                    //    }
+                    //    Planet target = task.GetTargetPlanet();
+                    //    if (target != null)
+                    //    {
+                    //        SystemCommander scom = null;
+                    //        target.Owner?.GetGSAI()?
+                    //            .DefensiveCoordinator?.DefenseDict?.TryGetValue(target.ParentSystem, out scom);
+                    //        if (scom != null)
+                    //            weight += 11 - scom.RankImportance;
+                    //    }
 
-                        if (emp.isPlayer)
-                            weight *= ((int)Empire.Universe.GameDifficulty > 0
-                                ? (int)Empire.Universe.GameDifficulty: 1);
-                        return weight;
-                    }))
+                    //    if (emp.isPlayer)
+                    //        weight *= ((int)Empire.Universe.GameDifficulty > 0
+                    //            ? (int)Empire.Universe.GameDifficulty: 1);
+                    //    return weight;
+                    //}))
                 )
                 {
                     if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)                    
@@ -374,11 +374,14 @@ namespace Ship_Game.AI {
                         OwnerEmpire.GetRelations(task.GetTargetPlanet().Owner).ActiveWar == null ||
                         OwnerEmpire.TotalScore <= task.GetTargetPlanet().Owner.TotalScore * 1.5f)                    
                         continue;
-                    
+                    task.Priority = 2;
                     task.Evaluate(OwnerEmpire);
                 }
-                foreach (Tasks.MilitaryTask task in tnInOurSystems)                
+                foreach (Tasks.MilitaryTask task in tnInOurSystems)
+                {
+                    task.Priority = 1;
                     task.Evaluate(OwnerEmpire);
+                }
                 
                 foreach (Tasks.MilitaryTask task in tnRemainder)
                 {
@@ -386,17 +389,26 @@ namespace Ship_Game.AI {
                         OwnerEmpire.GetRelations(task.GetTargetPlanet().Owner).ActiveWar == null ||
                         OwnerEmpire.TotalScore <= task.GetTargetPlanet().Owner.TotalScore * 1.5f)                    
                         continue;
-                    
+                    task.Priority = 3;
                     task.Evaluate(OwnerEmpire);
                 }
-                foreach (Tasks.MilitaryTask task in inOurAOs)                
+                foreach (Tasks.MilitaryTask task in inOurAOs)
+                {
+                    task.Priority = 2;
                     task.Evaluate(OwnerEmpire);
+                }
                 
-                foreach (Tasks.MilitaryTask task in inOurSystems)                
+                foreach (Tasks.MilitaryTask task in inOurSystems)
+                {
+                    task.Priority = 1;
                     task.Evaluate(OwnerEmpire);
+                }
                 
-                foreach (Tasks.MilitaryTask task in remainder)                
+                foreach (Tasks.MilitaryTask task in remainder)
+                {
+                    task.Priority = 3;
                     task.Evaluate(OwnerEmpire);
+                }
                 
                 foreach (Tasks.MilitaryTask task in TaskList)
                 {
@@ -659,7 +671,7 @@ namespace Ship_Game.AI {
                 foreach (var ship in OwnerEmpire.GetShips()
                         .FilterBy(ship => !ship.InCombat &&
                                           (!ship.fleet?.IsCoreFleet ?? true)
-                                          && ship.AI.State != AIState.Scrap && ship.AI.State != AIState.Scuttle
+                                          && ship.AI.State != AIState.Scrap && ship.AI.State != AIState.Scuttle && ship.AI.State != AIState.Resupply
                                           && ship.Mothership == null && ship.Active
                                           && ship.DesignRole >= ShipData.RoleName.fighter &&
                                           ship.GetMaintCost(OwnerEmpire) > 0)

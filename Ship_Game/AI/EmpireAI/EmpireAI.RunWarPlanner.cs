@@ -631,7 +631,7 @@ namespace Ship_Game.AI {
                 {
                     foreach (var planet in kv.Key.GetPlanets())
                     {
-                        if (!IsInOurAOs(planet.Center)) continue;
+                        if (!planet.ParentSystem.OwnerList.Contains(OwnerEmpire) && !IsInOurAOs(planet.Center)) continue;
                         FightBrutalWar(kv);
                         //kv.Value.AtWar = false;
                         break;
@@ -662,9 +662,7 @@ namespace Ship_Game.AI {
                                                    ? scom.RankImportance
                                                    : 0)).ToArray();
 
-                        for (int index = 0;
-                            index < orderedEnumerable1.Length;
-                            ++index)
+                        for (int index = 0; index < orderedEnumerable1.Length; ++index)
                         {
                             Planet p =
                                 orderedEnumerable1[index];
