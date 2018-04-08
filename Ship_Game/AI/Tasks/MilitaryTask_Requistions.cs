@@ -190,7 +190,7 @@ namespace Ship_Game.AI.Tasks {
                 if ((ship.shipData.Role == ShipData.RoleName.station ||
                      ship.shipData.Role == ShipData.RoleName.platform)
                     || !ship.ShipIsGoodForGoals()
-                    //|| ship.InCombat
+                    || ship.InCombat
                     || ship.fleet != null
                     || ship.Mothership != null
                     || ship.AI.State == AIState.Scrap
@@ -210,7 +210,7 @@ namespace Ship_Game.AI.Tasks {
                 {
                     troopShips.Add(ship);
                 }
-                else if (combat != null && ship.DesignRole >= ShipData.RoleName.fighter && ship.DesignRole < ShipData.RoleName.prototype
+                else if (combat != null && ship.DesignRole >= ShipData.RoleName.carrier && ship.DesignRole < ShipData.RoleName.prototype
                     && ship.DesignRole != ShipData.RoleName.scout)
                 {
                     combat.Add(ship);
