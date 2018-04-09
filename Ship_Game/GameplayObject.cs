@@ -59,7 +59,10 @@ namespace Ship_Game
 
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
-        
+
+        public bool IsProjectile => (Type & GameObjectType.Proj) != 0;
+        public bool IsShip => (Type & GameObjectType.Ship) != 0;
+
         protected GameplayObject(GameObjectType typeFlags)
         {
             Type = typeFlags;
@@ -116,7 +119,23 @@ namespace Ship_Game
             if (InSpatial)
                 UniverseScreen.SpaceManager.Remove(this);
             if ((Type & GameObjectType.Proj) != 0) ((Projectile)this).Loyalty = changeTo;
-            if ((Type & GameObjectType.Ship) != 0) ((Ship)this).loyalty = changeTo;
+            if ((Type & GameObjectType.Ship) != 0)
+            {
+                Ship ship = this as Ship;
+                Empire oldLoyalty = ship.loyalty;
+
+                oldLoyalty.GetShips().QueuePendingRemoval(ship);
+                oldLoyalty.RemoveShip(ship);
+                
+                SetSystem(null);
+                oldLoyalty.AddShipNextFrame(ship);                
+                oldLoyalty.GetGSAI().ThreatMatrix.RemovePin(ship);
+                ship.shipStatusChanged = true;
+                UniverseScreen.SpaceManager.Remove(this);
+                ((Ship)this).loyalty = changeTo;
+
+
+            }
             if (!DisableSpatialCollision && Active && NotInSpatial)
                 UniverseScreen.SpaceManager.Add(this);
         }
