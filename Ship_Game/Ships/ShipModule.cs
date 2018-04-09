@@ -565,7 +565,7 @@ namespace Ship_Game.Ships
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= DamageThreshold)
                     damageAmount = 0f;
-                // FatBastard: shield resist calcs should be performed only if the damage is above the damage threshold
+                // FatBastard: module resist calcs should be performed only if the damage is above the damage threshold no need to waste time to cal resist or 0 dmg.
                 else if (proj != null)                 // Vulnerabilities and resistances for modules, XML-defined.
                     damageAmount = ApplyResistances(proj.Weapon, damageAmount);
 
