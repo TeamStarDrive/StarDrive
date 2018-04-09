@@ -300,40 +300,40 @@ namespace Ship_Game.Ships
         // Nah, this was added by The Doctor a few centries ago, and to my knowledge was never completed.
         private float ApplyShieldResistances(Weapon weapon, float damage)
         {
-            if (weapon.Tag_Kinetic) damage   -= damage * shield_kinetic_resist;
-            if (weapon.Tag_Energy) damage    -= damage * shield_energy_resist;
-            if (weapon.Tag_Explosive) damage -= damage * shield_explosive_resist;
-            if (weapon.Tag_Missile) damage   -= damage * shield_missile_resist;
-            if (weapon.Tag_Flak) damage      -= damage * shield_flak_resist;
-            if (weapon.Tag_Hybrid) damage    -= damage * shield_hybrid_resist;
-            if (weapon.Tag_Railgun) damage   -= damage * shield_railgun_resist;
-            if (weapon.Tag_Subspace) damage  -= damage * shield_subspace_resist;
-            if (weapon.Tag_Warp) damage      -= damage * shield_warp_resist;
-            if (weapon.Tag_Beam) damage      -= damage * shield_beam_resist;
+            if (weapon.Tag_Kinetic) damage        -= damage * shield_kinetic_resist;
+            else if (weapon.Tag_Energy) damage    -= damage * shield_energy_resist;
+            else if (weapon.Tag_Beam) damage      -= damage * shield_beam_resist;
+            else if (weapon.Tag_Missile) damage   -= damage * shield_missile_resist;
+            else if (weapon.Tag_Explosive) damage -= damage * shield_explosive_resist;
+            else if (weapon.Tag_Flak) damage      -= damage * shield_flak_resist;
+            else if (weapon.Tag_Hybrid) damage    -= damage * shield_hybrid_resist;
+            else if (weapon.Tag_Railgun) damage   -= damage * shield_railgun_resist;
+            else if (weapon.Tag_Subspace) damage  -= damage * shield_subspace_resist;
+            else if (weapon.Tag_Warp) damage      -= damage * shield_warp_resist;
             return damage;
         }
 
         private float ApplyResistances(Weapon weapon, float damage)
         {
-            if (weapon.Tag_Beam) damage      -= damage * BeamResist;
-            if (weapon.Tag_Kinetic) damage   -= damage * KineticResist;
-            if (weapon.Tag_Energy) damage    -= damage * EnergyResist;
-            if (weapon.Tag_Guided) damage    -= damage * GuidedResist;
-            if (weapon.Tag_Missile) damage   -= damage * MissileResist;
-            if (weapon.Tag_Hybrid) damage    -= damage * HybridResist;
-            if (weapon.Tag_Intercept) damage -= damage * InterceptResist;
-            if (weapon.Tag_Explosive) damage -= damage * ExplosiveResist;
-            if (weapon.Tag_Railgun) damage   -= damage * RailgunResist;
-            if (weapon.Tag_SpaceBomb) damage -= damage * SpaceBombResist;
-            if (weapon.Tag_Bomb) damage      -= damage * BombResist;
-            if (weapon.Tag_BioWeapon) damage -= damage * BioWeaponResist;
-            if (weapon.Tag_Drone) damage     -= damage * DroneResist;
-            if (weapon.Tag_Warp) damage      -= damage * WarpResist;
-            if (weapon.Tag_Torpedo) damage   -= damage * TorpedoResist;
-            if (weapon.Tag_Cannon) damage    -= damage * CannonResist;
-            if (weapon.Tag_Subspace) damage  -= damage * SubspaceResist;
-            if (weapon.Tag_PD) damage        -= damage * PDResist;
-            if (weapon.Tag_Flak) damage      -= damage * FlakResist;
+            if (weapon.Tag_Beam) damage           -= damage * BeamResist;
+            else if (weapon.Tag_Kinetic) damage   -= damage * KineticResist;
+            else if (weapon.Tag_Energy) damage    -= damage * EnergyResist;
+            else if (weapon.Tag_Guided) damage    -= damage * GuidedResist;
+            else if (weapon.Tag_Missile) damage   -= damage * MissileResist;
+            else if (weapon.Tag_Torpedo) damage   -= damage * TorpedoResist;
+            else if (weapon.Tag_Cannon) damage    -= damage * CannonResist;
+            else if (weapon.Tag_Hybrid) damage    -= damage * HybridResist;
+            else if (weapon.Tag_Intercept) damage -= damage * InterceptResist;
+            else if (weapon.Tag_Explosive) damage -= damage * ExplosiveResist;
+            else if (weapon.Tag_Railgun) damage   -= damage * RailgunResist;
+            else if (weapon.Tag_SpaceBomb) damage -= damage * SpaceBombResist;
+            else if (weapon.Tag_Bomb) damage      -= damage * BombResist;
+            else if (weapon.Tag_BioWeapon) damage -= damage * BioWeaponResist;
+            else if (weapon.Tag_Drone) damage     -= damage * DroneResist;
+            else if (weapon.Tag_Warp) damage      -= damage * WarpResist;
+            else if (weapon.Tag_Subspace) damage  -= damage * SubspaceResist;
+            else if (weapon.Tag_PD) damage        -= damage * PDResist;
+            else if (weapon.Tag_Flak) damage      -= damage * FlakResist;
             return damage;
         }
 
@@ -553,15 +553,21 @@ namespace Ship_Game.Ships
             //if (source is Ship ship && ship.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
             //    damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
 
-            // Vulnerabilities and resistances for modules, XML-defined.
-            if (proj != null)
-                damageAmount = ApplyResistances(proj.Weapon, damageAmount);
 
             if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
+                if (ModuleType == ShipModuleType.Armor)
+                {
+                    // FatBastard: effect vs armor should be calculated before the damage thershold of the armor
+                    if (beam != null) damageAmount *= beam.Weapon.EffectVsArmor;
+                    else if (proj != null) damageAmount *= proj.Weapon.EffectVsArmor;
+                }
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= DamageThreshold)
                     damageAmount = 0f;
+                // FatBastard: shield resist calcs should be performed only if the damage is above the damage threshold
+                else if (proj != null)                 // Vulnerabilities and resistances for modules, XML-defined.
+                    damageAmount = ApplyResistances(proj.Weapon, damageAmount);
 
                 //Added by McShooterz: ArmorBonus Hull Bonus
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -628,12 +634,6 @@ namespace Ship_Game.Ships
                     return false;
                 }
 
-                if (ModuleType == ShipModuleType.Armor)
-                {
-                    if (beam != null) damageAmount *= beam.Weapon.EffectVsArmor;
-                    else if (proj != null) damageAmount *= proj.Weapon.EffectVsArmor;
-                }
-
                 if (damageAmount > Health) Health = 0;
                 else Health -= damageAmount;
 
@@ -670,6 +670,10 @@ namespace Ship_Game.Ships
 
                 if (damageAmount <= shield_threshold)
                     damageAmount = 0f;
+
+                // Fat Bastard: Vulnerabilities and resistances for shields, XML-defined.
+                /*if (proj != null)
+                    damageAmount = ApplyShieldResistances(proj.Weapon, damageAmount); */
 
                 if (damageAmount > ShieldPower)
                 {
