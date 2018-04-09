@@ -259,16 +259,16 @@ namespace Ship_Game
             }
         }
 
-        public bool SetDiscovered(Empire empire)
+        public bool SetDiscovered(Empire empire, bool discoverForward = true)
         {
             if (IsRestricted(empire)) return false;
             
             Discovered = true;
             GetPreReq(empire);
-            var rootTech = FindRootNode(empire);
-            if (rootTech != null)            
-                rootTech.Unlocked = rootTech.Discovered = true;
-            
+            var rootTech = DiscoverToRoot(empire);
+            //if (rootTech != null)            
+            //    rootTech.Unlocked = rootTech.Discovered = true;
+            if (discoverForward)
             foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
             {
                 //added by McShooterz: Prevent Racial tech from being discovered by unintentional means  
@@ -279,7 +279,7 @@ namespace Ship_Game
             return true;
         }
 
-        public TechEntry FindRootNode(Empire empire)
+        public TechEntry DiscoverToRoot(Empire empire)
         {            
             TechEntry tech = this;
             while (tech.Tech.RootNode != 1)
@@ -287,10 +287,10 @@ namespace Ship_Game
                 var rootTech = tech.GetPreReq(empire);
                 if (rootTech == null)                
                     break;
-                
-                if ((tech = rootTech).Tech.RootNode != 1)
+                rootTech.SetDiscovered(empire, false);
+                if ((tech = rootTech).Tech.RootNode != 1 || !tech.Discovered)
                     continue;
-                
+                rootTech.Unlocked = true; ;
                 return rootTech;
             }
             
@@ -301,16 +301,30 @@ namespace Ship_Game
         {
             foreach (var keyValuePair in empire.TechnologyDict)
             {
-                Technology technology = ResourceManager.GetTreeTech(keyValuePair.Key);
+                Technology technology = keyValuePair.Value.Tech;                                                
                 foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
                 {
-                    if (leadsToTech.UID == UID)
+                    if (leadsToTech.UID != UID) continue;
+                    if (keyValuePair.Value.Tech.RootNode ==1 || !keyValuePair.Value.IsRestricted(empire))
                         return keyValuePair.Value;
+
+                    return keyValuePair.Value.GetPreReq(empire);                    
                 }
             }
             return null;
         }
 
+        public TechEntry FindNextDiscoveredTech(Empire empire)
+        {
+            Technology technology = Tech;
+            if (Discovered) return this;
+            foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
+            {
+                var tech = empire.GetTechEntry(leadsToTech.UID);
+                return tech.FindNextDiscoveredTech(empire);
+            }
+            return null;
+        }
 
         public void UnlockBonus(Empire empire)
         {
