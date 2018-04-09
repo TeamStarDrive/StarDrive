@@ -1059,8 +1059,6 @@ namespace Ship_Game.Ships
                     )
                     return false;
             }
-            else
-                Log.Info($"target ship was null");
             float attackRunRange = 50f;
             if (w.FireTarget != null && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
@@ -2410,13 +2408,8 @@ namespace Ship_Game.Ships
                         ownTroops.Add(troop);
                 }
                 if (ownTroops.Count != 0 || !(MechanicalBoardingDefense <= 0.0)) return;
-
-                loyalty.GetShips().QueuePendingRemoval(this);
-                loyalty.RemoveShip(this);
                 ChangeLoyalty(changeTo: EnemyTroops[0].GetOwner());
-                SetSystem(null);                
-                loyalty.AddShipNextFrame(this);                
-                shipStatusChanged = true;
+
                 if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
             }
