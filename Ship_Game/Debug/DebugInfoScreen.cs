@@ -522,7 +522,7 @@ namespace Ship_Game.Debug
               
                 foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values.ToArray())
                 {
-                    if (pin.Position == Vector2.Zero) continue;
+                    if (pin.Position == Vector2.Zero|| pin.Ship == null) continue;
                     Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 6, e.EmpireColor);
 
                     if (!pin.InBorders) continue;

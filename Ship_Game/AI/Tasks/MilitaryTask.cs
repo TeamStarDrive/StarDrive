@@ -289,6 +289,14 @@ namespace Ship_Game.AI.Tasks
         public void Evaluate(Empire e)
         {  
             Owner = e;
+            if (WhichFleet >-1)
+            {
+                if (!e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet) || fleet == null )
+                {
+                    Log.Error($"MilitaryTask Evaluate found task with missing fleet {type}");
+                    EndTask();
+                }
+            }
             switch (type)
             {
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:
@@ -603,6 +611,7 @@ namespace Ship_Game.AI.Tasks
             TargetPlanet = p;
             TargetPlanetGuid = p.guid;
         }
+
 
         private bool IsNull<T>(T item)
         {

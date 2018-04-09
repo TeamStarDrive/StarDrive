@@ -1119,11 +1119,21 @@ namespace Ship_Game
           
         }
 
+        public Empire FindExistingRelation(Empire empire)
+        {
+            foreach(var relation in Relationships)
+            {
+                if (relation.Key == empire) return empire;
+                if (relation.Key.data.Traits.Name == empire.data.Traits.Name) return empire;
+            }
+            return null;
+        }
+
+
         public void AddRelation(Empire empire)
         {
-            if (!Relationships.TryGetValue(empire, out Relationship relation))
+            if (FindExistingRelation(empire) == null)
                 Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
-
         }
         public bool TryGetRelations(Empire empire, out Relationship relations)
         {
