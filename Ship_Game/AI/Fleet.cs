@@ -815,7 +815,8 @@ namespace Ship_Game.AI
                 }
                 foreach(Ship ship in available)
                 {
-                    if (ship.AI.Intercepting || ship.Center.InRadius(center, radius))
+                    if (ship.AI.Intercepting || ship.Center.InRadius(center, radius) 
+                                             || ship.AI.HasPriorityOrder || ship.AI.EscortTarget != null)
                         continue;
                     ship.AI.OrderMoveTowardsPosition(center, 0, false, FleetTask.GetTargetPlanet());
                     //ship.AI.OrderMoveDirectlyTowardsPosition(center, 0, Vector2.Zero, true);
@@ -823,6 +824,8 @@ namespace Ship_Game.AI
 
                 foreach (var ship in RearShips)
                 {
+                    if (ship.AI.State == AIState.AssaultPlanet) continue;
+                    if (ship.AI.HasPriorityOrder) continue;
                     if (ship.DesignRole == ShipData.RoleName.troop) continue;
                     ship.AI.OrderMoveTowardsPosition(center, 0, false, FleetTask.GetTargetPlanet());//  (center, 0, Vector2.Zero, true);
                 }

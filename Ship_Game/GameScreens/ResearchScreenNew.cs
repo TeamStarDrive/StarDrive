@@ -109,10 +109,13 @@ namespace Ship_Game
                 {
                     Technology.LeadsToTech leadsToTech = technology.LeadsTo[index];
                     TechEntry techEntry = EmpireManager.Player.GetTDict()[leadsToTech.UID];
-                    if (!techEntry.Discovered)
-                        continue;
+                    techEntry = techEntry.FindNextDiscoveredTech(EmpireManager.Player);
+                    if (techEntry == null)
+                    {
+                       continue;
+                    }
                     bool complete = techEntry.Unlocked;
-                    var treeNode = SubNodes[leadsToTech.UID] as TreeNode;
+                    var treeNode = SubNodes[techEntry.UID] as TreeNode;
                     if (treeNode == null) continue;
                     var vector23 = new Vector2(vector22.X, treeNode.BaseRect.Y + treeNode.BaseRect.Height / 2 - 10);
                     --vector23.Y;
@@ -134,10 +137,15 @@ namespace Ship_Game
                 {
                     Technology.LeadsToTech leadsToTech1 = leadsTo[index];                    
                     TechEntry techEntry1 = EmpireManager.Player.GetTDict()[leadsToTech1.UID];
-                    if (!techEntry1.Discovered) continue;
+                    techEntry1 = techEntry1.FindNextDiscoveredTech(EmpireManager.Player);
+                    if (techEntry1 == null)
+                    {
+                        continue;
+                    }
+                    
 
                     bool complete = techEntry1.Unlocked;
-                    TreeNode treeNode1 = SubNodes[leadsToTech1.UID] as TreeNode;
+                    TreeNode treeNode1 = SubNodes[techEntry1.UID] as TreeNode;
                     var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.Y + treeNode1.BaseRect.Height / 2 - 10);
                     if (vector23.Y > vector22.Y)
                         ScreenManager.SpriteBatch.DrawResearchLineVertical(vector22, vector23, complete);
@@ -160,7 +168,8 @@ namespace Ship_Game
                         Technology.LeadsToTech leadsToTech2 = technology2.LeadsTo[index];
                         Technology technology3 = ResourceManager.TechTree[leadsToTech2.UID];
                         TechEntry techEntry2 = EmpireManager.Player.GetTDict()[leadsToTech2.UID];
-                        if (techEntry2.Discovered)//(!technology3.Secret || techEntry2.Discovered) && (!technology3.Secret || techEntry2.Discovered))
+                        techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
+                        if (techEntry2 != null)                     
                         {
                             bool complete2 = false;
                             if (techEntry2.Unlocked)
@@ -168,7 +177,7 @@ namespace Ship_Game
                                 complete2 = true;
                                 Complete1 = true;
                             }
-                            TreeNode treeNode3 = (this.SubNodes[leadsToTech2.UID] as TreeNode);
+                            TreeNode treeNode3 = (this.SubNodes[techEntry2.UID] as TreeNode);
                             Vector2 LeftPoint2 = new Vector2(RightPoint1.X, (float)(treeNode3.BaseRect.Y + treeNode3.BaseRect.Height / 2 - 10));
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
                             this.ScreenManager.SpriteBatch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, complete2);
@@ -192,7 +201,8 @@ namespace Ship_Game
                     {
                         Technology.LeadsToTech leadsToTech3 = technology4.LeadsTo[index];
                         TechEntry techEntry3 = EmpireManager.Player.GetTDict()[leadsToTech3.UID];
-                        if (techEntry3.Discovered) //!ResourceManager.TechTree[leadsToTech3.UID].Secret || techEntry3.Discovered)
+                        techEntry3 = techEntry3.FindNextDiscoveredTech(EmpireManager.Player);
+                        if (techEntry3 != null)
                         {
                             bool Complete2 = false;
                             if (techEntry3.Unlocked)
@@ -200,7 +210,7 @@ namespace Ship_Game
                                 Complete2 = true;
                                 Complete1 = true;
                             }
-                            TreeNode treeNode4 = (SubNodes[leadsToTech3.UID] as TreeNode);
+                            TreeNode treeNode4 = (SubNodes[techEntry3.UID] as TreeNode);
                             Vector2 LeftPoint2 = new Vector2(RightPoint1.X, (float)(treeNode4.BaseRect.Y + treeNode4.BaseRect.Height / 2 - 10));
                             --LeftPoint2.Y;
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
@@ -363,7 +373,7 @@ namespace Ship_Game
                         this.RightClicked = true;
                     continue;
                 }
-                if (EmpireManager.Player.GetTDict()[tech.Key].Unlocked)
+                if (EmpireManager.Player.GetTechEntry(tech.Key).Unlocked)
                 {
                     GameAudio.PlaySfxAsync("UI_Misc20");
                 }
@@ -604,8 +614,9 @@ namespace Ship_Game
             Technology technology = ResourceManager.TechTree[Root.tech.UID];
             for (int i = 0; i < technology.LeadsTo.Count; i++)
             {
-                TechEntry techEntry = EmpireManager.Player.GetTDict()[technology.LeadsTo[i].UID];
-                 //!ResourceManager.TechTree[technology.LeadsTo[i].UID].Secret || 
+                TechEntry techEntry = EmpireManager.Player.GetTDict()[technology.LeadsTo[i].UID].FindNextDiscoveredTech(EmpireManager.Player);
+                if (techEntry == null) continue;
+                //!ResourceManager.TechTree[technology.LeadsTo[i].UID].Secret || 
                 {
                     if (!first)
                     {
@@ -627,7 +638,7 @@ namespace Ship_Game
                     {
                         newNode.complete = true;
                     }
-                    if (techEntry.Discovered)
+                    
                         this.SubNodes.Add(newNode.tech.UID, newNode);
                     this.PopulateNodesFromSubNode(newNode);
                 }
