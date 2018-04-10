@@ -2,37 +2,37 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class Artifact
-	{
+    public sealed class Artifact
+    {
         [Serialize(0)] public bool Discovered;
-		[Serialize(1)] public string Name;
-		[Serialize(2)] public string Description;
-		[Serialize(3)] public int NameIndex;
-		[Serialize(4)] public int DescriptionIndex;
-		[Serialize(5)] public float ReproductionMod;
-		[Serialize(6)] public float ShieldPenBonus;
-		[Serialize(7)] public float FertilityMod;
-		[Serialize(8)] public float ProductionMod;
-		[Serialize(9)] public float GroundCombatMod;
-		[Serialize(10)] public float ResearchMod;
-		[Serialize(11)] public float PlusFlatMoney;
-		[Serialize(12)] public float DiplomacyMod;
-		[Serialize(13)] public float SensorMod;
-		[Serialize(14)] public float ModuleHPMod;
+        [Serialize(1)] public string Name;
+        [Serialize(2)] public string Description;
+        [Serialize(3)] public int NameIndex;
+        [Serialize(4)] public int DescriptionIndex;
+        [Serialize(5)] public float ReproductionMod;
+        [Serialize(6)] public float ShieldPenBonus;
+        [Serialize(7)] public float FertilityMod;
+        [Serialize(8)] public float ProductionMod;
+        [Serialize(9)] public float GroundCombatMod;
+        [Serialize(10)] public float ResearchMod;
+        [Serialize(11)] public float PlusFlatMoney;
+        [Serialize(12)] public float DiplomacyMod;
+        [Serialize(13)] public float SensorMod;
+        [Serialize(14)] public float ModuleHPMod;
 
 
-		public Artifact()
-		{
-		}
+        public Artifact()
+        {
+        }
 
         private bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits, string text, EventPopup popup)
         {
             if (inModifier <= 0f)
                 return false;
-            outModifier += inModifier + inModifier * traits.Spiritual;
+             outModifier += inModifier + inModifier * traits.Spiritual;
             if (popup != null)
             {
-                var drawpackage = new EventPopup.DrawPackage(text, Fonts.Arial12Bold, inModifier, Color.White, "%");
+                var drawpackage = new EventPopup.DrawPackage(text, Fonts.Arial12Bold, outModifier, Color.White, "%");
                 popup.DrawPackages[EventPopup.Packagetypes.Artifact].Add(drawpackage);
             }
             return true;            

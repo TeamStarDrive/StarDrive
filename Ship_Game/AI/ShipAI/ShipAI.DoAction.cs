@@ -170,8 +170,12 @@ namespace Ship_Game.AI {
                 var attackSetup = Owner.Center.DirectionToTarget(AttackVector);
                 MoveInDirection(attackSetup, elapsedTime);
                 DebugTargetCircle(AttackVector, spacerdistance);
+                //if (RunTimer < 3)
                 return;
             }
+
+            //if (RunTimer > 5)
+                //DoNonFleetArtillery(elapsedTime);
             RunTimer = 0;
             //DoNonFleetArtillery(elapsedTime);
             

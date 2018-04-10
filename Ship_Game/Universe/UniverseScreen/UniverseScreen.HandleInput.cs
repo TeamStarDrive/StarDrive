@@ -1368,7 +1368,7 @@ namespace Ship_Game
                         else
                             ship.AI.OrderRebase(planet, true);
                     }
-                    else if (planet.Habitable &&  ship.loyalty.IsEmpireAttackable(planet.Owner))
+                    else if (planet.Habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
                     {
                         //add new right click troop and troop ship options on planets
                         if (Input.IsShiftKeyDown)
