@@ -118,10 +118,11 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public Array<string> TroopShipTech;
         [XmlIgnore] [JsonIgnore] public Array<string> CarrierTech;
         [XmlIgnore] [JsonIgnore] public Array<string> SupportShipTech;
-
         [XmlIgnore] [JsonIgnore] public Ship BoardingShuttle => ResourceManager.ShipsDict["Assault Shuttle"];
-
         [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
+
+        public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
+
         public void TriggerAllShipStatusUpdate()
         {
             foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag. 
@@ -1442,8 +1443,8 @@ namespace Ship_Game
                 {
                     if (!ship.Active || ship.AI.State >= AIState.Scrap) continue;
                     float maintenance = ship.GetMaintCost();
-                    if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
-                                                   || (ship.shipData.Role == ShipData.RoleName.station &&
+                    if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered())
+                                                   || (ship.shipData.HullRole == ShipData.RoleName.station &&
                                                        (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                     {
                         data.DefenseBudget -= maintenance;
@@ -1523,7 +1524,9 @@ namespace Ship_Game
             }
 
             if (Universe != null && isPlayer)
-                Universe.aw.UpdateDropDowns();
+                Universe.aw.UpdateDropDowns();            
+            PreferredAuxillaryShips[ShipData.RoleName.bomber] = EmpireAI.PickFromCandidates(ShipData.RoleName.bomber, true, ShipModuleType.Bomb);
+            PreferredAuxillaryShips[ShipData.RoleName.carrier] = EmpireAI.PickFromCandidates(ShipData.RoleName.bomber, true, ShipModuleType.Hangar);
         }
         
         public float GetTotalBuildingMaintenance()

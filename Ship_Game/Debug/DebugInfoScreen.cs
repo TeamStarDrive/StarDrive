@@ -409,11 +409,11 @@ namespace Ship_Game.Debug
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
                 DrawString($"Ship Count:    {e.GetShips().Count}" +
-                           $" :{e.GetShips().Count(warship=> warship.DesignRole ==  ShipData.RoleName.fighter)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.corvette)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.frigate)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.cruiser)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole > ShipData.RoleName.cruiser)}"
+                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.platform || warship.DesignRole == ShipData.RoleName.station)}" +
+                           $" :{e.GetShips().Count(warship=> warship.DesignRole ==  ShipData.RoleName.fighter || warship.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.cruiser || warship.DesignRole == ShipData.RoleName.frigate)}" +                           
+                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.capital)}" +
+                           $" :{e.GetShips().Count(warship => warship.DesignRole >= ShipData.RoleName.bomber && warship.DesignRole <= ShipData.RoleName.carrier)}"
                            );
                 DrawString("Build Maint:   "+e.GetTotalBuildingMaintenance());
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
