@@ -503,11 +503,11 @@ namespace Ship_Game.AI {
 
                 if (OwnerEmpire.canBuildCapitals)
                 {
-                    totalRatio = SetRatios(fighters: 1, corvettes: 4 , frigates: 8, cruisers: 6 , capitals: 1, bombers: 8f, carriers: 1f, support: 1f, troopShip: 1f);                    
+                    totalRatio = SetRatios(fighters: 1, corvettes: 4 , frigates: 8, cruisers: 6 , capitals: 1, bombers: 1f, carriers: 1f, support: 1f, troopShip: 1f);                    
                 }
                 else if (OwnerEmpire.canBuildCruisers)
                 {
-                    totalRatio = SetRatios(fighters: 3, corvettes: 12, frigates: 4, cruisers: 1, capitals: 0, bombers: 4f, carriers: 1f, support: 1f, troopShip: 1f);                    
+                    totalRatio = SetRatios(fighters: 3, corvettes: 12, frigates: 4, cruisers: 1, capitals: 0, bombers: 1f, carriers: 1f, support: 1f, troopShip: 1f);                    
                 }
                 else if (OwnerEmpire.canBuildFrigates)
                 {
@@ -583,17 +583,17 @@ namespace Ship_Game.AI {
 
 
                 if (OwnerEmpire.canBuildTroopShips)
-                    RatioTroopShip = totalRatio;
+                    RatioTroopShip = troopShip;
                 if (OwnerEmpire.canBuildBombers)
-                    RatioBombers   =  totalRatio;
+                    RatioBombers   = bombers;
 
                 if (OwnerEmpire.canBuildCarriers)
                 {
-                    RatioCarriers = totalRatio;  
+                    RatioCarriers = carriers;  
                     RatioFighters = 0;
                 }
                 if (OwnerEmpire.canBuildSupportShips)
-                    RatioSupport = totalRatio;
+                    RatioSupport = support;
                 return totalRatio + RatioSupport + RatioCarriers + RatioBombers + RatioTroopShip;
             }
 
@@ -649,7 +649,7 @@ namespace Ship_Game.AI {
                                           (!ship.fleet?.IsCoreFleet ?? true)
                                           && ship.AI.State != AIState.Scrap && ship.AI.State != AIState.Scuttle && ship.AI.State != AIState.Resupply
                                           && ship.Mothership == null && ship.Active
-                                          && ship.DesignRole >= ShipData.RoleName.fighter &&
+                                          && ship.shipData.HullRole >= ShipData.RoleName.fighter &&
                                           ship.GetMaintCost(OwnerEmpire) > 0)
                         .OrderBy(ship => ship.shipData.techsNeeded.Count)
 
@@ -729,42 +729,52 @@ namespace Ship_Game.AI {
             if (numShips > desiredShips) return;            
             rolesPicked.Add(role,  numShips / desiredShips);
         }
-  
-    public string PickFromCandidates(ShipData.RoleName role)
+        public string PickFromCandidates(ShipData.RoleName role) => PickFromCandidates(role, false, ShipModuleType.Dummy);
+        public string PickFromCandidates(ShipData.RoleName role, bool efficiency, ShipModuleType targetModule)
         {
             var potentialShips = new Array<Ship>();
             string name = "";
             Ship ship;
             int maxTech = 0;
+            float bestEfficiency = 0;
             foreach (string shipsWeCanBuild in OwnerEmpire.ShipsWeCanBuild)
             {
                 if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null) continue;
-                
+
 
                 if (role != ship.DesignRole)
                     continue;
                 maxTech = Math.Max(maxTech, ship.shipData.techsNeeded.Count);
-                
+
                 potentialShips.Add(ship);
+                if (efficiency)
+                {
+                    bestEfficiency = Math.Max(bestEfficiency, ship.PercentageOfShipByModules(targetModule));
+                }
             }
             float nearmax = maxTech * .80f;
-            
+            bestEfficiency *= .80f;
             if (potentialShips.Count > 0)
             {
-                Ship[] sortedList = potentialShips.FilterBy(ships => ships.GetShipData().techsNeeded.Count >= nearmax);
-                int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length -1);                
+                Ship[] sortedList = potentialShips.FilterBy(ships =>
+                {
+                    if (efficiency)
+                        return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
+                    return ships.GetShipData().techsNeeded.Count >= nearmax;
+                });
+                int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length - 1);
 
-                
+
                 newRand = Math.Max(0, newRand);
-                newRand = Math.Min(sortedList.Length -1, newRand);
-                
-                ship    = sortedList[newRand];
-                name    = ship.Name;
-                if (Empire.Universe.showdebugwindow)
+                newRand = Math.Min(sortedList.Length - 1, newRand);
+
+                ship = sortedList[newRand];
+                name = ship.Name;
+                if (Empire.Universe?.showdebugwindow ?? false)
                     Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.GetShipData().Hull}  " +
                              $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
             }
-            
+
             return name;
         }
     }
