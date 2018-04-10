@@ -634,5 +634,6 @@ namespace Ship_Game.Ships
             float searchRange = projPos.SqDist(Center) + 48*48; // only pick modules that are "visible" to the projectile
             return TargetRandomInternalModule(projPos, level, searchRange);
         }
+        
     }
 }

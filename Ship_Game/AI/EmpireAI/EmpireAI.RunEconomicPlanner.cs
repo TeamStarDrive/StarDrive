@@ -42,10 +42,10 @@ namespace Ship_Game.AI {
             var resStrat = OwnerEmpire.getResStrat();
             float buildRatio = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
             
-            SetBudgetForeArea(goalClamped * .05f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
+            SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
             SetBudgetForeArea(goalClamped * .05f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
-            SetBudgetForeArea(goalClamped * .1f, ref BuildCapacity, Math.Max(risk, buildRatio));           
-            SetBudgetForeArea(goalClamped *.25f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
+            SetBudgetForeArea(goalClamped * .10f, ref BuildCapacity, Math.Max(risk, buildRatio));           
+            SetBudgetForeArea(goalClamped * .25f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
         }
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {

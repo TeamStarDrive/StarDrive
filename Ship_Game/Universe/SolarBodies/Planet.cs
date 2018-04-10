@@ -2450,7 +2450,7 @@ namespace Ship_Game
                     SystemCommander systemCommander;
                     if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out systemCommander))
                     {
-                        float defBudget = Owner.data.DefenseBudget * systemCommander.PercentageOfValue;
+                        float defBudget = Owner.data.DefenseBudget * systemCommander.PercentageOfValue / Owner.GetPlanets().Count;
 
                         float maxProd = GetMaxProductionPotential();
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
@@ -2462,7 +2462,7 @@ namespace Ship_Game
                         {
                             if (!queueItem.isShip)
                                 continue;
-                            if (queueItem.sData.Role == ShipData.RoleName.platform)
+                            if (queueItem.sData.HullRole == ShipData.RoleName.platform)
                             {
                                 if (defBudget - platformUpkeep < -platformUpkeep * .5
                                 ) 
@@ -2473,7 +2473,7 @@ namespace Ship_Game
                                 defBudget -= platformUpkeep;
                                 PlatformCount++;
                             }
-                            if (queueItem.sData.Role == ShipData.RoleName.station)
+                            if (queueItem.sData.HullRole == ShipData.RoleName.station)
                             {
                                 if (defBudget - stationUpkeep < -stationUpkeep)
                                 {
@@ -2487,11 +2487,10 @@ namespace Ship_Game
 
                         foreach (Ship platform in Shipyards.Values)
                         {
-                            if (platform.BaseStrength <= 0)
-                                continue;
+                            
                             if (platform.AI.State == AIState.Scrap)
                                 continue;
-                            if (platform.shipData.Role == ShipData.RoleName.station)
+                            if (platform.shipData.HullRole == ShipData.RoleName.station && platform.shipData.IsOrbitalDefense)
                             {
                                 stationUpkeep = platform.GetMaintCost();
                                 if (defBudget - stationUpkeep < -stationUpkeep)
@@ -2502,7 +2501,7 @@ namespace Ship_Game
                                 defBudget -= stationUpkeep;
                                 stationCount++;
                             }
-                            if (platform.shipData.Role == ShipData.RoleName.platform
+                            if (platform.shipData.HullRole == ShipData.RoleName.platform
                             ) 
                             {
                                 platformUpkeep = platform.GetMaintCost();

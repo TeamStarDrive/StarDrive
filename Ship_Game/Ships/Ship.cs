@@ -1406,7 +1406,7 @@ namespace Ship_Game.Ships
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                 return GetMaintCostRealism(empire);
 
-            ShipData.RoleName role = shipData.Role;
+            ShipData.RoleName role = shipData.HullRole;
 
             if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
             {
@@ -2917,6 +2917,10 @@ namespace Ship_Game.Ships
                 area += module.XSIZE * module.YSIZE;
             return area > 0 ? area / (float)Size : 0.0f;
         }
+        public float PercentageOfShipByModules(ShipModuleType moduleType)
+        {
+            return PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.ModuleType == moduleType), Size);
+        }
         private static float PercentageOfShipByModules(ShipModule[] modules ,int size)
         {
             int area = 0;
@@ -2940,7 +2944,7 @@ namespace Ship_Game.Ships
             {
                 if (ship.isConstructor)
                     return ShipData.RoleName.construction;
-                if (ship.isColonyShip)
+                if (ship.isColonyShip || modules.Any(colony => colony.ModuleType == ShipModuleType.Colony))
                     return ShipData.RoleName.colony;
                 if (ship.shipData.Role == ShipData.RoleName.troop)
                     return ShipData.RoleName.troop;
