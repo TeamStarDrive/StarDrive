@@ -157,6 +157,7 @@ namespace Ship_Game.AI.Tasks
                     if (fleet == null) return;
                     foreach (Ship ship in fleet.Ships)
                     {
+                        if(ship?.Active ?? false)
                         Owner.ForcePoolAdd(ship);
                     }
                 }

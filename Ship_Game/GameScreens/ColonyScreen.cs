@@ -2558,7 +2558,7 @@ namespace Ship_Game
                     if (pgs.Habitable && pgs.building == null && pgs.QItem == null && (this.ActiveBuildingEntry.item as Building).Name != "Biospheres")
                     {
                         QueueItem qi = new QueueItem();
-                        //{
+                        //p.SbProduction.AddBuildingToCQ(this.ActiveBuildingEntry.item as Building, PlayerAdded: true);
                         qi.isBuilding = true;
                         qi.Building = this.ActiveBuildingEntry.item as Building;       //ResourceManager.GetBuilding((this.ActiveBuildingEntry.item as Building).Name);
                         qi.IsPlayerAdded = true;
