@@ -2450,7 +2450,7 @@ namespace Ship_Game
                     SystemCommander systemCommander;
                     if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out systemCommander))
                     {
-                        float defBudget = Owner.data.DefenseBudget * systemCommander.PercentageOfValue / Owner.GetPlanets().Count;
+                        float defBudget = Owner.data.DefenseBudget * systemCommander.PercentageOfValue;
 
                         float maxProd = GetMaxProductionPotential();
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
