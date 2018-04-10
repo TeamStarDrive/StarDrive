@@ -57,6 +57,9 @@ namespace Ship_Game.Ships
         public int quadrant = -1;
         public float TransporterTimer;
 
+        // Modifiers to damage done to this module 
+        private float damageModifier = 1;
+
         // This is used to calculate whether this module has power or not
         private int ActivePowerSources;
         public bool HasPower => ActivePowerSources > 0;
@@ -526,7 +529,7 @@ namespace Ship_Game.Ships
         {
             float health = Health + ShieldPower;
             bool result  = Damage(source, damageAmount);
-            damageDone   = health - Health - ShieldPower;
+            damageDone   = health - Health - ShieldPower; // maybe i should add this.damageResisted here as well?
             return result;
         }
         int HitTimer = 0;
@@ -556,19 +559,22 @@ namespace Ship_Game.Ships
 
             if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
+                // FatBastard: effect vs armor should be calculated before the damage thershold of the armor , so it was moved here
                 if (ModuleType == ShipModuleType.Armor)
                 {
-                    // FatBastard: effect vs armor should be calculated before the damage thershold of the armor
                     if (beam != null) damageAmount *= beam.Weapon.EffectVsArmor;
                     else if (proj != null) damageAmount *= proj.Weapon.EffectVsArmor;
                 }
+                // Vulnerabilities and resistances for modules, XML-defined. what about beams?
+                if (proj != null)                 
+                    damageAmount = ApplyResistances(proj.Weapon, damageAmount);
+                // After all modifiers, go to the Doc's threshold code
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= DamageThreshold)
+                {
                     damageAmount = 0f;
-                // FatBastard: module resist calcs should be performed only if the damage is above the damage threshold no need to waste time to cal resist or 0 dmg.
-                else if (proj != null)                 // Vulnerabilities and resistances for modules, XML-defined.
-                    damageAmount = ApplyResistances(proj.Weapon, damageAmount);
-
+                    this.damageModifier = 0f;
+                }
                 //Added by McShooterz: ArmorBonus Hull Bonus
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
