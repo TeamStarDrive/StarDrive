@@ -665,19 +665,22 @@ namespace Ship_Game.AI
                             float theirGroundStrength = GetGroundStrOfPlanet(task.GetTargetPlanet());
                             float ourGroundStrength = FleetTask.GetTargetPlanet().GetGroundStrength(Owner);                         
 
-                            if (!IsInvading(theirGroundStrength, ourGroundStrength, task) && BombPlanet(ourGroundStrength, task) == 0)
+                            if (BombPlanet(ourGroundStrength, task) == 0 && !IsInvading(theirGroundStrength, ourGroundStrength, task))
                                 task.EndTask();
                             else
                                 TaskStep = 3;
                             if (!IsFleetSupplied())                            
                                 TaskStep = 5;                                
                             
-                            break;
+                             break;
 
                         case 5:
                             Planet rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Center));
                             foreach (Ship ship in this.Ships)
+                            {
+                                if (ship.AI.HasPriorityOrder) continue;
                                 ship.AI.OrderResupply(rallyPoint, true);
+                            }
                             TaskStep = 3;
                             break;
 
@@ -709,12 +712,14 @@ namespace Ship_Game.AI
                 shipsinAO = FleetTask.AO.InRadius(ship.Center, FleetTask.AORadius);
                 if (shipsinAO) break;
             }
+            int clumpCount = (EnemyClumpsDict?.Count ?? 0);
             if (shipsinAO) // || (EnemyClumpsDict?.Count ?? 0) == 0)
             {
                 foreach (Ship ship in Ships)
                 {
+                    if (ship.AI.HasPriorityOrder) continue;
                     if (ship.AI.State == AIState.Bombard) continue;
-                    if (RearShips.Contains(ship)) continue;
+                    if (RearShips.Contains(ship) && clumpCount >0 ) continue;
                     if (ship.AI.EscortTarget != null) continue;
                     ship.AI.Intercepting = false;
                     ship.AI.CombatState = ship.shipData.CombatState;
@@ -846,7 +851,7 @@ namespace Ship_Game.AI
                 Ship ship = Ships[index];
                 if (!ship.Active) continue;
                 int shipbombs = ship.BombCount;
-                if (shipbombs == 0) continue;
+                if (shipbombs < 1) continue;
                 bombs += shipbombs;                
                 if(doBombs)
                     ship.AI.OrderBombardPlanet(task.GetTargetPlanet());                    

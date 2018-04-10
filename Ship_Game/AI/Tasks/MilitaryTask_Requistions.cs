@@ -497,15 +497,17 @@ namespace Ship_Game.AI.Tasks {
             
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             float tfstrength = 0f;
-            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, MinimumTaskForceStrength, tfstrength,
+            float maximumTaskStr = IsToughNut ? 10f : 3f;
+            maximumTaskStr = MinimumTaskForceStrength * maximumTaskStr;
+            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, maximumTaskStr, tfstrength,
                 out float tempStrength));
             tfstrength += tempStrength;
 
-            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, MinimumTaskForceStrength * 1.5f, tfstrength,
+            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, maximumTaskStr , tfstrength,
                 out  float utilityStrength));
             tfstrength += utilityStrength;
-
-            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, MinimumTaskForceStrength));
+            if (IsToughNut)
+            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, maximumTaskStr));
             if (tfstrength >= MinimumTaskForceStrength)
             {
                 if (ourAvailableStrength >= enemyTroopStrength && landingSpots > 8 )
