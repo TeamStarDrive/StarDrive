@@ -1,9 +1,7 @@
 // ReSharper disable once CheckNamespace
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Ship_Game.Gameplay;
+
 
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
@@ -42,10 +40,10 @@ namespace Ship_Game.AI {
             var resStrat = OwnerEmpire.getResStrat();
             float buildRatio = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
             
-            SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
-            SetBudgetForeArea(goalClamped * .05f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
-            SetBudgetForeArea(goalClamped * .10f, ref BuildCapacity, Math.Max(risk, buildRatio));           
-            SetBudgetForeArea(goalClamped * .25f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
+            SetBudgetForeArea(goalClamped * .03f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
+            SetBudgetForeArea(goalClamped * .03f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goalClamped * .20f, ref BuildCapacity, Math.Max(risk, buildRatio));           
+            SetBudgetForeArea(goalClamped * .10f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
         }
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {
