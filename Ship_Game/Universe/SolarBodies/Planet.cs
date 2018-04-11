@@ -2488,7 +2488,7 @@ namespace Ship_Game
                             
                             if (platform.AI.State == AIState.Scrap)
                                 continue;
-                            if (platform.shipData.HullRole == ShipData.RoleName.station && platform.shipData.IsOrbitalDefense)
+                            if (platform.shipData.HullRole == ShipData.RoleName.station )
                             {
                                 stationUpkeep = platform.GetMaintCost();
                                 if (defBudget - stationUpkeep < -stationUpkeep)
