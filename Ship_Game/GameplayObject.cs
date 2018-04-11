@@ -126,13 +126,12 @@ namespace Ship_Game
 
                 oldLoyalty.GetShips().QueuePendingRemoval(ship);
                 oldLoyalty.RemoveShip(ship);
-                
-                SetSystem(null);
-                oldLoyalty.AddShipNextFrame(ship);                
+                                                         
                 oldLoyalty.GetGSAI().ThreatMatrix.RemovePin(ship);
+                changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
-                UniverseScreen.SpaceManager.Remove(this);
                 ((Ship)this).loyalty = changeTo;
+                SetSystem(null);
 
 
             }

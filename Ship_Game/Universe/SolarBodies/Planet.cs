@@ -357,10 +357,8 @@ namespace Ship_Game
             Array<Guid> list = new Array<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
             {
-                if (!keyValuePair.Value.Active 
-                    || keyValuePair.Value.Size == 0
-                    //|| keyValuePair.Value.loyalty != this.Owner
-                    )
+                if (!keyValuePair.Value?.Active ?? true //Remove this null check later. 
+                    || keyValuePair.Value.Size == 0)
                     list.Add(keyValuePair.Key);
             }
             foreach (Guid key in list)
