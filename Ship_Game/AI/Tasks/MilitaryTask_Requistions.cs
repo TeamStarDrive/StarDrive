@@ -497,8 +497,10 @@ namespace Ship_Game.AI.Tasks {
             
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             float tfstrength = 0f;
-            float maximumTaskStr = IsToughNut ? 10f : 3f;
-            maximumTaskStr = MinimumTaskForceStrength * maximumTaskStr;
+            
+            float maximumTaskStr = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, 150000, Owner);
+            maximumTaskStr *= IsToughNut ? 2f : 1f;
+            maximumTaskStr = MinimumTaskForceStrength + maximumTaskStr;
             elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, maximumTaskStr, tfstrength,
                 out float tempStrength));
             tfstrength += tempStrength;

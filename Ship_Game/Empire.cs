@@ -1509,7 +1509,7 @@ namespace Ship_Game
                     continue;
                 try
                 {
-                    if (ship.shipData.Role <= ShipData.RoleName.station && !ship.shipData.IsShipyard)
+                    if (ship.shipData.Role <= ShipData.RoleName.station )//&& !ship.shipData.IsShipyard)
                         structuresWeCanBuild.Add(ship.Name);
                     //if (!ResourceManager.ShipRoles[ship.shipData.Role].Protected)
                         ShipsWeCanBuild.Add(ship.Name);
