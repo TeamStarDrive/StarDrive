@@ -34,7 +34,7 @@ namespace Ship_Game
         [Serialize(25)] public float PlusFlatPopulation;
         [Serialize(26)] public float MinusFertilityOnBuild;
         [Serialize(27)] public string Icon;
-        [Serialize(28)] public bool Scrappable ;
+        [Serialize(28)] public bool Scrappable = true;
         [Serialize(29)] public bool Unique = true;
         [Serialize(30)] public bool isWeapon;
         [Serialize(31)] public string Weapon = "";

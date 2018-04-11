@@ -310,7 +310,7 @@ namespace Ship_Game.Universe.SolarBodies
             qi.IsPlayerAdded     = PlayerAdded;
             qi.isBuilding        = true;
             qi.Building          = b;
-            qi.Cost              = b.Cost;
+            qi.Cost              = b.Cost * UniverseScreen.GamePaceStatic;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty     = false;
             ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer);

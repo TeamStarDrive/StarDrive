@@ -357,10 +357,8 @@ namespace Ship_Game
             Array<Guid> list = new Array<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
             {
-                if (!keyValuePair.Value.Active 
-                    || keyValuePair.Value.Size == 0
-                    //|| keyValuePair.Value.loyalty != this.Owner
-                    )
+                if (!keyValuePair.Value?.Active ?? true //Remove this null check later. 
+                    || keyValuePair.Value.Size == 0)
                     list.Add(keyValuePair.Key);
             }
             foreach (Guid key in list)
@@ -2462,7 +2460,7 @@ namespace Ship_Game
                         {
                             if (!queueItem.isShip)
                                 continue;
-                            if (queueItem.sData.Role == ShipData.RoleName.platform)
+                            if (queueItem.sData.HullRole == ShipData.RoleName.platform)
                             {
                                 if (defBudget - platformUpkeep < -platformUpkeep * .5
                                 ) 
@@ -2473,7 +2471,7 @@ namespace Ship_Game
                                 defBudget -= platformUpkeep;
                                 PlatformCount++;
                             }
-                            if (queueItem.sData.Role == ShipData.RoleName.station)
+                            if (queueItem.sData.HullRole == ShipData.RoleName.station)
                             {
                                 if (defBudget - stationUpkeep < -stationUpkeep)
                                 {
@@ -2487,11 +2485,10 @@ namespace Ship_Game
 
                         foreach (Ship platform in Shipyards.Values)
                         {
-                            if (platform.BaseStrength <= 0)
-                                continue;
+                            
                             if (platform.AI.State == AIState.Scrap)
                                 continue;
-                            if (platform.shipData.Role == ShipData.RoleName.station)
+                            if (platform.shipData.HullRole == ShipData.RoleName.station )
                             {
                                 stationUpkeep = platform.GetMaintCost();
                                 if (defBudget - stationUpkeep < -stationUpkeep)
@@ -2502,7 +2499,7 @@ namespace Ship_Game
                                 defBudget -= stationUpkeep;
                                 stationCount++;
                             }
-                            if (platform.shipData.Role == ShipData.RoleName.platform
+                            if (platform.shipData.HullRole == ShipData.RoleName.platform
                             ) 
                             {
                                 platformUpkeep = platform.GetMaintCost();
