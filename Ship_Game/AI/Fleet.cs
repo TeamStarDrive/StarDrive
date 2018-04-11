@@ -663,9 +663,10 @@ namespace Ship_Game.AI
                             break;
                         case 4:                    
                             float theirGroundStrength = GetGroundStrOfPlanet(task.GetTargetPlanet());
-                            float ourGroundStrength = FleetTask.GetTargetPlanet().GetGroundStrength(Owner);                         
-
-                            if (BombPlanet(ourGroundStrength, task) == 0 && !IsInvading(theirGroundStrength, ourGroundStrength, task))
+                            float ourGroundStrength = FleetTask.GetTargetPlanet().GetGroundStrength(Owner);
+                            bool invading = !IsInvading(theirGroundStrength, ourGroundStrength, task);
+                            bool bombing = BombPlanet(ourGroundStrength, task) > 0;
+                            if (!bombing && !invading)
                                 task.EndTask();
                             else
                                 TaskStep = 3;
@@ -831,7 +832,7 @@ namespace Ship_Game.AI
                 {
                     if (ship.AI.State == AIState.AssaultPlanet) continue;
                     if (ship.AI.HasPriorityOrder) continue;
-                    if (ship.DesignRole == ShipData.RoleName.troop) continue;
+                    //if (ship.DesignRole == ShipData.RoleName.troop) continue;
                     ship.AI.OrderMoveTowardsPosition(center, 0, false, FleetTask.GetTargetPlanet());//  (center, 0, Vector2.Zero, true);
                 }
 

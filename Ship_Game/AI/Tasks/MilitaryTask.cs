@@ -294,7 +294,7 @@ namespace Ship_Game.AI.Tasks
             {
                 if (!e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet) || fleet == null )
                 {
-                    Log.Error($"MilitaryTask Evaluate found task with missing fleet {type}");
+                    Log.Warning($"MilitaryTask Evaluate found task with missing fleet {type}");
                     EndTask();
                 }
             }
