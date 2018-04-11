@@ -82,7 +82,8 @@ namespace Ship_Game
         {
             theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
             ScreenManager.SpriteBatch.DrawString(font, theirText, theirTextPos, color);
-            theirTextPos.Y = theirTextPos.Y + font.LineSpacing + 2;
+            theirTextPos.Y += font.MeasureString(theirText).Y;
+            theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
             return theirTextPos;
         }
 

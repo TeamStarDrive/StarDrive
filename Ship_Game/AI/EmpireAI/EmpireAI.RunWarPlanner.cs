@@ -516,8 +516,12 @@ namespace Ship_Game.AI {
                     float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());
                     angerMod = (Empire.Universe.UniverseSize - angerMod) / UniverseData.UniverseWidth;
                     if (anger.Value.AtWar)
-                        angerMod *= 100;
+                        angerMod *= 100;                    
                     angerMod += anger.Key.GetPlanets().Any(p => IsInOurAOs(p.Center)) ? 1 : 0;
+                    if (anger.Value.Treaty_Trade)
+                        angerMod *= .5f;
+                    if (anger.Value.Treaty_Alliance)
+                        angerMod *= .5f;
                     foreach (var s in OwnerEmpire.GetOwnedSystems())
                     {
                         if (s.OwnerList.Contains(anger.Key))
@@ -542,7 +546,8 @@ namespace Ship_Game.AI {
             foreach (var kv in weightedTargets)
             {
                 if (!kv.Value.Known) continue;
-                if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;
+                if (kv.Key.data.Defeated) continue;
+                if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;                
                 if (!(warWeight > 0)) continue;
                 if (kv.Key.isFaction)
                 {
@@ -564,7 +569,6 @@ namespace Ship_Game.AI {
                 
                 if (!kv.Value.PreparingForWar) continue;
 
-                Planet[] planetTargetPriority;
                 switch (kv.Value.PreparingForWarType)
                 {
                     case WarType.BorderConflict:
@@ -586,7 +590,7 @@ namespace Ship_Game.AI {
             }
         }
 
-        private void AssignTargets(KeyValuePair<Empire, Relationship> kv, float warWeight)
+        private void AssignTargets(KeyValuePair<Empire, Relationship> kv, float warWeight, WarType warType = WarType.BorderConflict)
         {
             Array<SolarSystem> solarSystems = new Array<SolarSystem>();
             Array<Planet> planets = new Array<Planet>();            
@@ -628,12 +632,12 @@ namespace Ship_Game.AI {
         private Planet[] PlanetTargetPriority(Empire empire)
         {
             return empire.GetPlanets().OrderBy(insystem => !insystem.ParentSystem.OwnerList.Contains(OwnerEmpire))
-                .ThenBy(planet => GetDistanceFromOurAO(planet) / 75000 -
-                                  (empire.GetGSAI()
+                .ThenBy(planet => GetDistanceFromOurAO(planet) / 150000f)
+                .ThenByDescending(planet => empire.GetGSAI()
                                       .DefensiveCoordinator.DefenseDict
                                       .TryGetValue(planet.ParentSystem, out SystemCommander scom)
-                                      ? scom.RankImportance
-                                      : 0)).ToArray();
+                                      ? scom.PlanetTracker[planet].Value
+                                      : 0).ToArray();
         }
     }
 }

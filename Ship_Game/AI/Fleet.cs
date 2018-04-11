@@ -9,6 +9,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -582,7 +583,10 @@ namespace Ship_Game.AI
                             bool nearFleet = IsFleetAssembled(5000, out bool endTask);
 
                             if (endTask)
+                            {
                                 task.EndTask();
+                                break;
+                            }
 
                             if (nearFleet)
                             {
@@ -598,7 +602,10 @@ namespace Ship_Game.AI
                             //if (Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner) > GetStrength())
                             //    task.EndTask();
                             if (!IsFleetAssembled(25000, out endTask))
+                            {
+                                if (endTask) TaskStep = 1;
                                 break;
+                            }
                             using (Ships.AcquireReadLock())
                             {
                                 foreach (Ship ship in Ships)
@@ -618,10 +625,12 @@ namespace Ship_Game.AI
                                 TaskStep = 5;
                                 break;
                             }
-                            BombPlanet(0, task);
+                            Planet targetPlanet = task.GetTargetPlanet();
+                            if (targetPlanet.GetGroundLandingSpots() < RearShips.Count)
+                                BombPlanet(0, task);
 
                             //TODO: Indiction logic.   this doesnt work. 
-                            Planet targetPlanet = task.GetTargetPlanet(); 
+                            
                                if (FleetTaskAttackAllEnemiesInAO(targetPlanet.Center, targetPlanet.GravityWellRadius *3, targetPlanet.GravityWellRadius / CountCombatSquads))
                                {
                                    TaskStep = 4;
@@ -655,23 +664,25 @@ namespace Ship_Game.AI
                         case 4:                    
                             float theirGroundStrength = GetGroundStrOfPlanet(task.GetTargetPlanet());
                             float ourGroundStrength = FleetTask.GetTargetPlanet().GetGroundStrength(Owner);
-                            if (!IsFleetSupplied())
-                            {
-                                TaskStep = 5;
-                                break;
-                            }
-
-                            if (!IsInvading(theirGroundStrength, ourGroundStrength, task) && BombPlanet(ourGroundStrength, task) == 0)
+                            bool invading = !IsInvading(theirGroundStrength, ourGroundStrength, task);
+                            bool bombing = BombPlanet(ourGroundStrength, task) > 0;
+                            if (!bombing && !invading)
                                 task.EndTask();
                             else
                                 TaskStep = 3;
-                            break;
+                            if (!IsFleetSupplied())                            
+                                TaskStep = 5;                                
+                            
+                             break;
 
                         case 5:
                             Planet rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Center));
                             foreach (Ship ship in this.Ships)
+                            {
+                                if (ship.AI.HasPriorityOrder) continue;
                                 ship.AI.OrderResupply(rallyPoint, true);
-                            this.TaskStep = 6;
+                            }
+                            TaskStep = 3;
                             break;
 
                         case 6:
@@ -702,12 +713,14 @@ namespace Ship_Game.AI
                 shipsinAO = FleetTask.AO.InRadius(ship.Center, FleetTask.AORadius);
                 if (shipsinAO) break;
             }
+            int clumpCount = (EnemyClumpsDict?.Count ?? 0);
             if (shipsinAO) // || (EnemyClumpsDict?.Count ?? 0) == 0)
             {
                 foreach (Ship ship in Ships)
                 {
+                    if (ship.AI.HasPriorityOrder) continue;
                     if (ship.AI.State == AIState.Bombard) continue;
-                    if (RearShips.Contains(ship)) continue;
+                    if (RearShips.Contains(ship) && clumpCount >0 ) continue;
                     if (ship.AI.EscortTarget != null) continue;
                     ship.AI.Intercepting = false;
                     ship.AI.CombatState = ship.shipData.CombatState;
@@ -808,7 +821,8 @@ namespace Ship_Game.AI
                 }
                 foreach(Ship ship in available)
                 {
-                    if (ship.AI.Intercepting || ship.Center.InRadius(center, radius))
+                    if (ship.AI.Intercepting || ship.Center.InRadius(center, radius) 
+                                             || ship.AI.HasPriorityOrder || ship.AI.EscortTarget != null)
                         continue;
                     ship.AI.OrderMoveTowardsPosition(center, 0, false, FleetTask.GetTargetPlanet());
                     //ship.AI.OrderMoveDirectlyTowardsPosition(center, 0, Vector2.Zero, true);
@@ -816,7 +830,9 @@ namespace Ship_Game.AI
 
                 foreach (var ship in RearShips)
                 {
-                    if (ship.DesignRole == ShipData.RoleName.troop) continue;
+                    if (ship.AI.State == AIState.AssaultPlanet) continue;
+                    if (ship.AI.HasPriorityOrder) continue;
+                    //if (ship.DesignRole == ShipData.RoleName.troop) continue;
                     ship.AI.OrderMoveTowardsPosition(center, 0, false, FleetTask.GetTargetPlanet());//  (center, 0, Vector2.Zero, true);
                 }
 
@@ -836,7 +852,7 @@ namespace Ship_Game.AI
                 Ship ship = Ships[index];
                 if (!ship.Active) continue;
                 int shipbombs = ship.BombCount;
-                if (shipbombs == 0) continue;
+                if (shipbombs < 1) continue;
                 bombs += shipbombs;                
                 if(doBombs)
                     ship.AI.OrderBombardPlanet(task.GetTargetPlanet());                    
@@ -1585,26 +1601,11 @@ namespace Ship_Game.AI
                         this.TaskStep = 1;
                         break;
                     case 1:
-                        bool flag = true;
-                        foreach (Ship ship in this.Ships)
-                        {
-                            if (!ship.EMPdisabled && ship.hasCommand && ship.Active)
-                            {
-                                if (Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 15000.0)
-                                    flag = false;
-                                int num = ship.InCombat ? 1 : 0;
-                                if (!flag)
-                                    break;
-                            }
-                        }
-                        if (!flag)
-                            break;
-                        Vector2 movePosition = task.GetTargetPlanet().Center + Vector2.Normalize(this.FindAveragePosition() - task.GetTargetPlanet().Center) * 150000f;
-                        this.Position = movePosition;
-                        this.FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - this.FindAveragePosition()));
-                        foreach (Ship ship in this.Ships)
-                            ship.AI.HasPriorityOrder = true;
-                        this.TaskStep = 2;
+
+                        int step = MoveToPositionIfAssembled(task, task.AO, 15000f, 150000f);
+                        if (step == -1)
+                            task.EndTask();
+                        TaskStep += step;                        
                         break;
                     case 2:
                         if (task.WaitForCommand && this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, 30000f, this.Owner) > 250.0)
@@ -1663,7 +1664,7 @@ namespace Ship_Game.AI
 
         private void DoClearAreaOfEnemies(Tasks.MilitaryTask task)
         {
-            switch (this.TaskStep)
+            switch (TaskStep)
             {
                 case 0:
                     Array<Planet> list1 = new Array<Planet>();
@@ -1681,28 +1682,11 @@ namespace Ship_Game.AI
                     this.TaskStep = 1;
                     break;
                 case 1:
-                    bool flag1 = true;
-                    foreach (Ship ship in this.Ships)
-                    {
-                        if (!ship.EMPdisabled && ship.hasCommand && ship.Active)
-                        {
-                            if (Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
-                                flag1 = false;
-
-                            if (!flag1)
-                            {
-                                if (ship.InDeepSpace && ship.engineState != Ship.MoveState.Warp && ship.Speed ==0 && ship.InCombatTimer <15)
-                                    this.FleetTask.EndTask();
-                                break;
-                            }
-                        }
-                    }
-                    if (!flag1)
-                        break;
-                    TaskStep = 2;
-                    FormationWarpTo(task.AO, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - FindAveragePosition()));
-                    foreach (Ship ship in Ships)
-                        ship.AI.HasPriorityOrder = true;
+                    int step = MoveToPositionIfAssembled(task, task.AO, 5000f, 7500f);
+                    if (step == -1)
+                        task.EndTask();
+                    TaskStep += step;
+     
                     break;
                 case 2:
                     if (IsFleetSupplied())
@@ -1736,25 +1720,7 @@ namespace Ship_Game.AI
                     }
                 case 3:
                     this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(Ships[0].Center, 150000, 10000, this.Owner);
-                    //Array<Ship> list2 = new Array<Ship>();
-                    //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
-                    //for (int index1 = 0; index1 < nearby1.Count; ++index1)
-                    //{
-                    //    Ship ship1 = nearby1[index1] as Ship;
-                    //    if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, FleetTask.AO) < (double)FleetTask.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
-                    //    {
-                    //        this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
-                    //        this.EnemyClumpsDict[ship1.Center].Add(ship1);
-                    //        list2.Add(ship1);
-                    //        Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
-                    //        for (int index2 = 0; index2 < nearby2.Count; ++index2)
-                    //        {
-                    //            Ship ship2 = nearby2[index2] as Ship;
-                    //            if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
-                    //                this.EnemyClumpsDict[ship1.Center].Add(ship2);
-                    //        }
-                    //    }
-                    //}
+
                     if (this.EnemyClumpsDict.Count == 0 || Vector2.Distance(this.FindAveragePosition(), task.AO) > 25000.0)
                     {
                         Vector2 enemyWithinRadius = this.Owner.GetGSAI().ThreatMatrix.GetPositionOfNearestEnemyWithinRadius(this.Position, task.AORadius, this.Owner);
@@ -1858,7 +1824,25 @@ namespace Ship_Game.AI
                     this.TaskStep = 0;
                     break;
             }
-        }       
+        }
+
+        private int MoveToPositionIfAssembled(MilitaryTask task, Vector2 position, float assemblyRadius = 5000f, float moveToWithin = 7500f )
+        {
+            bool nearFleet = IsFleetAssembled(assemblyRadius, out bool endTask);
+
+            if (endTask)
+                return -1;
+
+            if (nearFleet)
+            {                
+                Vector2 movePosition = position + Vector2.Normalize(FindAveragePosition() - position) * moveToWithin;
+                Position = movePosition;
+                FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(position),
+                    Vector2.Normalize(position - FindAveragePosition()));
+                return 1;
+            }
+            return 0;
+        }
 
         public void UpdateAI(float elapsedTime, int which)
         {
