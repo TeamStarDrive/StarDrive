@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
         public float TransporterTimer;
 
         // Modifiers to damage done to this module 
-        private float damageModifier = 1;
+        private float damageModifier = 1f;
 
         // This is used to calculate whether this module has power or not
         private int ActivePowerSources;
@@ -301,6 +301,7 @@ namespace Ship_Game.Ships
 
         // @todo Why isn't this used? A bug?
         // Nah, this was added by The Doctor a few centries ago, and to my knowledge was never completed.
+        // Fat Bastard - im working on adding this to shields
         private float ApplyShieldResistances(Weapon weapon, float damage)
         {
             if (weapon.Tag_Kinetic) damage        -= damage * shield_kinetic_resist;
@@ -316,28 +317,32 @@ namespace Ship_Game.Ships
             return damage;
         }
 
-        private float ApplyResistances(Weapon weapon, float damage)
+        private float ApplyResistances(Weapon weapon, float damagemodifier)
         {
-            if (weapon.Tag_Beam) damage           -= damage * BeamResist;
-            else if (weapon.Tag_Kinetic) damage   -= damage * KineticResist;
-            else if (weapon.Tag_Energy) damage    -= damage * EnergyResist;
-            else if (weapon.Tag_Guided) damage    -= damage * GuidedResist;
-            else if (weapon.Tag_Missile) damage   -= damage * MissileResist;
-            else if (weapon.Tag_Torpedo) damage   -= damage * TorpedoResist;
-            else if (weapon.Tag_Cannon) damage    -= damage * CannonResist;
-            else if (weapon.Tag_Hybrid) damage    -= damage * HybridResist;
-            else if (weapon.Tag_Intercept) damage -= damage * InterceptResist;
-            else if (weapon.Tag_Explosive) damage -= damage * ExplosiveResist;
-            else if (weapon.Tag_Railgun) damage   -= damage * RailgunResist;
-            else if (weapon.Tag_SpaceBomb) damage -= damage * SpaceBombResist;
-            else if (weapon.Tag_Bomb) damage      -= damage * BombResist;
-            else if (weapon.Tag_BioWeapon) damage -= damage * BioWeaponResist;
-            else if (weapon.Tag_Drone) damage     -= damage * DroneResist;
-            else if (weapon.Tag_Warp) damage      -= damage * WarpResist;
-            else if (weapon.Tag_Subspace) damage  -= damage * SubspaceResist;
-            else if (weapon.Tag_PD) damage        -= damage * PDResist;
-            else if (weapon.Tag_Flak) damage      -= damage * FlakResist;
-            return damage;
+            /* Using else if since every weapon should be tagged with one of the 5 top types of projectiles (Kinetic, Beam, Energy, Missile or Torpedo.
+            all the rest simply doesnt matter and wastes time being called every time there is a hit. there is not need to make more method if this since its rather a simple one.
+            Modules will have one or more of the types of resist below.
+             */
+            if (weapon.Tag_Beam) damagemodifier           = damagemodifier * (1f - BeamResist);
+            else if (weapon.Tag_Kinetic) damagemodifier   = damagemodifier * (1f - KineticResist);
+            else if (weapon.Tag_Energy) damagemodifier    = damagemodifier * (1f - EnergyResist);
+            else if (weapon.Tag_Missile) damagemodifier   = damagemodifier * (1f - MissileResist);
+            else if (weapon.Tag_Torpedo) damagemodifier   = damagemodifier * (1f - TorpedoResist);
+            //else if (weapon.Tag_Guided) damagemodifier = damagemodifier * (1f - GuidedResist);
+            //else if (weapon.Tag_Cannon) damagemodifier    = damagemodifier * (1f - CannonResist);
+            //else if (weapon.Tag_Hybrid) damagemodifier    = damagemodifier * (1f - HybridResist);
+            //else if (weapon.Tag_Intercept) damagemodifier = damagemodifier * (1f - InterceptResist);
+            //else if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - ExplosiveResist);
+            //else if (weapon.Tag_Railgun) damagemodifier   = damagemodifier * (1f - RailgunResist);
+            //else if (weapon.Tag_SpaceBomb) damagemodifier = damagemodifier * (1f - SpaceBombResist);
+            //else if (weapon.Tag_Bomb) damagemodifier      = damagemodifier * (1f - BombResist);
+            //else if (weapon.Tag_BioWeapon) damagemodifier = damagemodifier * (1f - BioWeaponResist);
+            //else if (weapon.Tag_Drone) damagemodifier     = damagemodifier * (1f - DroneResist);
+            //else if (weapon.Tag_Warp) damagemodifier      = damagemodifier * (1f - WarpResist);
+            //else if (weapon.Tag_Subspace) damagemodifier  = damagemodifier * (1f - SubspaceResist);
+            //else if (weapon.Tag_PD) damagemodifier        = damagemodifier * (1f - PDResist);
+            //else if (weapon.Tag_Flak) damagemodifier      = damagemodifier * (1f - FlakResist);
+            return damagemodifier;
         }
 
         private void Initialize(Vector2 pos, bool addToShieldManager = true)
@@ -520,7 +525,13 @@ namespace Ship_Game.Ships
         {
             float health    = Health + ShieldPower;
             bool result     = Damage(source, damageAmount);
-            damageRemainder = damageAmount - (health - Health - ShieldPower);
+            if (Health <= 0)
+            {
+                damageRemainder = (int)Math.Round(damageAmount * this.damageModifier - (health - Health - ShieldPower), 0);
+                if (this.damageModifier > 1f) // more damage was dealt than base damage due to vulnerabiliies
+                    damageRemainder /= this.damageModifier;  // undo modifier from the damage remained since the next module might not have these vulnerabilites
+            }
+            else damageRemainder = 0f; // no need to calc dmg remained since the module is not destroyed. This save some calc time.
             DebugDamageCircle();
             return result;
         }
@@ -529,7 +540,7 @@ namespace Ship_Game.Ships
         {
             float health = Health + ShieldPower;
             bool result  = Damage(source, damageAmount);
-            damageDone   = health - Health - ShieldPower; // maybe i should add this.damageResisted here as well?
+            damageDone   = health - Health - ShieldPower;
             return result;
         }
         int HitTimer = 0;
@@ -557,29 +568,31 @@ namespace Ship_Game.Ships
             //    damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
 
 
-            if (ShieldPower < 1f || proj?.IgnoresShields == true)
+              if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
                 // FatBastard: effect vs armor should be calculated before the damage thershold of the armor , so it was moved here
+                this.damageModifier = 1f;
                 if (ModuleType == ShipModuleType.Armor)
                 {
-                    if (beam != null) damageAmount *= beam.Weapon.EffectVsArmor;
-                    else if (proj != null) damageAmount *= proj.Weapon.EffectVsArmor;
+                    if (beam != null) this.damageModifier *= beam.Weapon.EffectVsArmor;
+                    else if (proj != null) this.damageModifier *= proj.Weapon.EffectVsArmor;
                 }
                 // Vulnerabilities and resistances for modules, XML-defined. what about beams?
-                if (proj != null)                 
-                    damageAmount = ApplyResistances(proj.Weapon, damageAmount);
-                // After all modifiers, go to the Doc's threshold code
+                if (proj != null)   // what about beams?
+                    this.damageModifier = ApplyResistances(proj.Weapon, this.damageModifier);
+                // After all modifiers calculate the  damage amount with modifiers
+                //Added by McShooterz: ArmorBonus Hull Bonus
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+                {
+                    if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
+                        this.damageModifier *= (1f - mod.ArmoredBonus);
+                }
+                damageAmount *= this.damageModifier;
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= DamageThreshold)
                 {
                     damageAmount = 0f;
                     this.damageModifier = 0f;
-                }
-                //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
-                        damageAmount *= (1f - mod.ArmoredBonus);
                 }
                 if (proj?.Weapon.EMPDamage > 0f)
                 {
@@ -639,7 +652,6 @@ namespace Ship_Game.Ships
                 {
                     return false;
                 }
-
                 if (damageAmount > Health) Health = 0;
                 else Health -= damageAmount;
 
