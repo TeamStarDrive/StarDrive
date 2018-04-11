@@ -223,7 +223,7 @@ namespace Ship_Game.AI
             {
                 Ship orbitalDefense = ResourceManager.ShipsDict[platform];
                 if (platform != "Subspace Projector" && orbitalDefense.shipData.Role == ShipData.RoleName.platform 
-                    && orbitalDefense.BaseStrength > 0)
+                    && orbitalDefense.GetStrength() > 0)
                     potentialSatellites.Add(orbitalDefense);
             }
             if (!potentialSatellites.Any())
@@ -238,8 +238,9 @@ namespace Ship_Game.AI
             foreach (string platform in OwnerEmpire.structuresWeCanBuild)
             {
                 Ship orbitalDefense = ResourceManager.GetShipTemplate(platform);
-                if (orbitalDefense.shipData.Role == ShipData.RoleName.station 
-                    && (orbitalDefense.shipData.IsOrbitalDefense || !orbitalDefense.shipData.IsShipyard))                
+                if (orbitalDefense.shipData.HullRole == ShipData.RoleName.station && !orbitalDefense.shipData.IsShipyard
+                                                                                  && orbitalDefense.GetStrength() > 0)
+                    //&& (orbitalDefense.shipData.IsOrbitalDefense))                
                     potentialSatellites.Add(orbitalDefense);                
             }
             if (!potentialSatellites.Any())

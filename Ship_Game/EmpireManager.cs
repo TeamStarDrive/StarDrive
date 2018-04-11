@@ -29,14 +29,20 @@ namespace Ship_Game
         public static Empire Unknown  => UnknownFaction  ?? (UnknownFaction  = GetEmpireByName("Unknown"));
         public static Empire Corsairs => CorsairsFaction ?? (CorsairsFaction = GetEmpireByName("Corsairs"));
 
+        public static Empire FindDuplicateEmpire(Empire empire)
+        {
+            if (EmpireList.Contains(empire))
+                return empire;
+            return GetEmpireByName(empire.data.Traits.Name);
+        }
+
         public static void Add(Empire e)
         {
             // avoid duplicate entries, due to some bad design code structuring...
-            if (!EmpireList.Contains(e))
-            {
-                EmpireList.Add(e);
-                e.Id = EmpireList.Count;
-            }
+            if (FindDuplicateEmpire(e) != null) return;
+
+            EmpireList.Add(e);
+            e.Id = EmpireList.Count;
         }
 
         public static void Clear()
@@ -103,6 +109,11 @@ namespace Ship_Game
 
         public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
         {
+            if (parent.data.RebellionLaunched)
+            {                
+                return GetEmpireByName(data.RebelName);
+            }
+
             Empire empire = new Empire(parent)
             {
                 isFaction = true,
