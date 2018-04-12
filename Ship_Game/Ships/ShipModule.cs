@@ -169,7 +169,7 @@ namespace Ship_Game.Ships
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
         public int FixedTracking                 => Flyweight.FixedTracking;
-        public bool IsRotatable                  => Flyweight.IsRotable;
+        public bool IsRotatable                  => (bool)Flyweight.IsRotable;
         public bool IsWeapon                     => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
@@ -934,6 +934,7 @@ namespace Ship_Game.Ships
             InstalledWeapon.Owner = Parent;
             InstalledWeapon.Center = Center;
             isWeapon = true;
+            
             if (addToParent)
                 Parent.Weapons.Add(InstalledWeapon);
         }
