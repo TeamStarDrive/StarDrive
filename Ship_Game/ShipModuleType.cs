@@ -4,6 +4,7 @@ namespace Ship_Game
 {
     public enum ShipModuleType
     {
+        Dummy, // here for backwards compatibility... we should remove this if possible. Repurposing as a default non value
         Turret,
         Command,
         MainGun,
@@ -13,8 +14,7 @@ namespace Ship_Game
         Engine,
         Shield,
         MissileLauncher,
-        Storage,
-        Dummy, // here for backwards compatibility... we should remove this if possible
+        Storage,         
         Colony,
         FuelCell,
         Hangar,
