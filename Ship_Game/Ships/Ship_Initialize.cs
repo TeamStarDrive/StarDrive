@@ -537,7 +537,7 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while. 
             shipData.BaseCanWarp = WarpThrust > 0;
             BaseCanWarp = WarpThrust > 0;
-            BaseStrength = GetStrength();
+            BaseStrength = GetStrength(true);
             
         }
     }
