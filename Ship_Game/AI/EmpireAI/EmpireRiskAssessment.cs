@@ -40,7 +40,7 @@ namespace Ship_Game.AI
             Border = BorderRiskAssesment(us);
             KnownThreat = RiskAssesment(us);
             Risk = Elements.Sum();
-            MaxRisk = Elements.MultiMax();
+            MaxRisk = Elements.MaxValueIn();
 
         }
         public float ExpansionRiskAssement(Empire us, float riskLimit = .5f)

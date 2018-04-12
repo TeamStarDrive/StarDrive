@@ -887,7 +887,7 @@ namespace Ship_Game
             return worldPos;
         }
 
-        public static float MultiMax(this float[] numbers)
+        public static float MaxValueIn(this float[] numbers)
         {
             float max = float.MinValue;
             for (int x = 0; x < numbers.Length; x++)
