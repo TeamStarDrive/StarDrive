@@ -793,7 +793,7 @@ namespace Ship_Game.AI.Tasks {
                 return;
 
             AO closestAO = sorted[0];
-            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Owner,100000);
+            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner,factionOnly:false);
 
             MinimumTaskForceStrength = EnemyStrength;
             if (MinimumTaskForceStrength < 1f)
