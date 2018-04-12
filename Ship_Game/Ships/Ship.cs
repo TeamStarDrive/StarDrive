@@ -1721,7 +1721,7 @@ namespace Ship_Game.Ships
         {
             var data                       = new ShipData();
             data.BaseCanWarp               = shipData.BaseCanWarp;
-            data.BaseStrength              = BaseStrength;
+            data.BaseStrength              = -1;
             data.techsNeeded               = shipData.techsNeeded;
             data.TechScore                 = shipData.TechScore;
             data.ShipCategory              = shipData.ShipCategory;

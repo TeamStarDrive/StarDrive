@@ -46,15 +46,14 @@ namespace Ship_Game.Ships
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
-        public float BaseStrength;
-        public bool BaseCanWarp;
+        [XmlIgnore] [JsonIgnore] public float BaseStrength;
+        [XmlIgnore] [JsonIgnore] public bool BaseCanWarp;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
-        public bool hullUnlockable;
-        public bool allModulesUnlocakable = true;
-        public bool unLockable;
-        //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
+        [XmlIgnore] [JsonIgnore] public bool hullUnlockable;
+        [XmlIgnore] [JsonIgnore] public bool allModulesUnlocakable = true;
+        [XmlIgnore] [JsonIgnore] public bool unLockable;        
         public HashSet<string> techsNeeded = new HashSet<string>();
-        public int TechScore;
+        [XmlIgnore] [JsonIgnore] public int TechScore;
 
         //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
