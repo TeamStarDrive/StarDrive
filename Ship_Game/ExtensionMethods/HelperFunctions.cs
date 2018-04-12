@@ -352,7 +352,7 @@ namespace Ship_Game
             CollectMemorySilent();
             float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
             Log.TestMessage($"   Before: {before:0.0}MB  After: {after:0.0}MB", Log.Importance.Important);
-            Log.TestMessage($"  Process Memory : {ProcessMemoryMb}", Log.Importance.Important);
+            Log.TestMessage($"   Process Memory : {ProcessMemoryMb}", Log.Importance.Important);
             Log.TestMessage(" ================================= ", Log.Importance.Important);
             
         }
