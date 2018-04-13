@@ -519,7 +519,7 @@ namespace Ship_Game.Ships
         }
         public void DebugDamageCircle()
         {
-            Empire.Universe?.DebugWin?.DrawGPObjects(Debug.DebugModes.Targeting, this, Parent);
+            Empire.Universe?.DebugWin?.DrawGPObjects(DebugModes.Targeting, this, Parent);
         }
 
         public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
@@ -544,12 +544,10 @@ namespace Ship_Game.Ships
             damageDone = health - Health - ShieldPower;
             return result;
         }
-        int HitTimer = 0;
 
-
-        private float CalcDamageModifier(Projectile proj, Beam beam, float damagemodifier, float shieldpower)
+        private float CalcDamageModifier(Projectile proj, Beam beam, float shieldpower)
         {
-            damagemodifier = 1f;
+            float damagemodifier = 1f;
 
             // check for the projectiles effects vs shields or armor
             if (shieldpower >= 1f)
@@ -562,6 +560,7 @@ namespace Ship_Game.Ships
             else
             {
                 damagemodifier = CalcEffectVsArmor(damagemodifier, beam, proj);
+                damagemodifier = CalcArmorBonus(damagemodifier);
                 // Vulnerabilities and resistances for modules, XML-defined. what about beams?
                 if (proj != null) damagemodifier = ApplyResistances(proj.Weapon, damagemodifier);
                 else if (beam != null) damagemodifier = ApplyResistances(beam.Weapon, damagemodifier);
@@ -574,24 +573,23 @@ namespace Ship_Game.Ships
                
             if (ModuleType != ShipModuleType.Armor) return damagemodifier;
             float effectVsArmor = beam?.Weapon.EffectVsArmor ?? proj?.Weapon.EffectVsArmor ?? 1;
-            return damagemodifier *= effectVsArmor;
+            return damagemodifier * effectVsArmor;
         }
 
         private float CalcEffectVsShields(float damagemodifier, Beam beam, Projectile proj)
         {
 
             float effectVsShields = beam?.Weapon.EffectVSShields ?? proj?.Weapon.EffectVSShields ?? 1;
-            return damagemodifier *= effectVsShields;
+            return damagemodifier * effectVsShields;
         }
 
         private float CalcArmorBonus(float damagemodifier)
         {
             //Added by McShooterz: ArmorBonus Hull Bonus
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
-            {
-                if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
-                    damagemodifier *= (1f - mod.ArmoredBonus);
-            }
+            //if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses) return damagemodifier;
+            if (GlobalStats.ActiveModInfo?.useHullBonuses != true) return damagemodifier;
+            if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out HullBonus mod))
+                damagemodifier *= (1f - mod.ArmoredBonus);
             return damagemodifier;
         }
 
@@ -599,29 +597,22 @@ namespace Ship_Game.Ships
         {
             //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
             // Fat Bastard wont work on beams
-            if (beam == null)
-            {
-                if (damageamount <= this.DamageThreshold)
-                    damageamount = 0f;
-            }
+            if (beam != null) return damageamount;
+            if (damageamount <= this.DamageThreshold) damageamount = 0f;
             return damageamount;
         }
         private float CalcShieldDamageThreshold(Beam beam, float damageamount)
         {
             //Doc: If the resistance-modified damage amount is less than an shield's damage threshold, no damage is applied.
             // Fat Bastard wont work on beams
-            if (beam == null)
-            {
-                if (damageamount <= this.shield_threshold)
-                    damageamount = 0f;
-            }
+            if (beam != null) return damageamount;
+            if (damageamount <= this.shield_threshold) damageamount = 0f;
             return damageamount;
         }
 
-        private void CalcEMPDamage(Projectile proj)
+        private void CalcEmpDamage(Projectile proj)
         {
-            if (proj?.Weapon.EMPDamage > 0f)
-                Parent.EMPDamage = Parent.EMPDamage + proj.Weapon.EMPDamage;
+            if (proj?.Weapon.EMPDamage > 0f) Parent.EMPDamage = Parent.EMPDamage + proj.Weapon.EMPDamage;
         }
 
         private void CalcBeamDamageTypes(Beam beam)
@@ -702,7 +693,7 @@ namespace Ship_Game.Ships
 #endif
         }
 
-        private float ApplyModuleDamage(float damageamount, float health,float healthmax, ref bool Active, ref bool onFire, ref bool reallyFuckedUp)
+        private float ApplyModuleDamage(float damageamount, float health,float healthmax)
         {
             if (damageamount > health) health = 0;
             else health -= damageamount;
@@ -732,73 +723,52 @@ namespace Ship_Game.Ships
 
         private float CalcSiphonDamage(Beam beam, Projectile proj, float shieldpower)
         {
-            if (beam != null)
+            if (beam?.Weapon.SiphonDamage > 0f)
             {
-                if (beam.Weapon.SiphonDamage > 0f)
-                {
-                    shieldpower -= beam.Weapon.SiphonDamage;
-                    if (shieldpower < 1f)
-                    {
-                        shieldpower = 0f;
-                    }
-                    beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
-                    if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
-                    {
-                        beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
-                    }
-                }
-                shield.HitShield(this, beam);
-                if (beam.Weapon.SiphonDamage > 0f)
-                {
-                    ShieldPower -= beam.Weapon.SiphonDamage;
-                    if (shieldpower < 0f)
-                        shieldpower = 0f;
-                }
+                shieldpower -= beam.Weapon.SiphonDamage;
+                if (shieldpower < 1f) shieldpower = 0f;
+                beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
+                if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax) beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
+
             }
-            else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
-                shield.HitShield(this, proj);
             return shieldpower;
         }
 
         public override bool Damage(GameplayObject source, float damageAmount)
         {
-            if (source != null)
-                Parent.LastDamagedBy = source;
+            if (source != null) Parent.LastDamagedBy = source;
             Parent.InCombatTimer = 15f;
             Parent.ShieldRechargeTimer = 0f;
             var beam = source as Beam;
-            var proj = source as Projectile;
-            if (beam != null)
-            {
-                proj = null;
-            }
+            Projectile proj = null;
+            if (beam == null) proj = source as Projectile;
 
             if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
-                this.damageModifier = CalcDamageModifier(proj, beam, this.damageModifier, ShieldPower);
+                this.damageModifier = CalcDamageModifier(proj, beam, ShieldPower);
                 damageAmount *= this.damageModifier;
                 damageAmount = CalcDamageThreshold(beam,damageAmount);
-                CalcEMPDamage(proj);
+                CalcEmpDamage(proj);
                 CalcBeamDamageTypes(beam);
 
                 if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0)) 
                     return false; // Fat Batstard: I dont understand why this bit is needed
 
                 DebugPerseveranceNoDamage();
-                Health = ApplyModuleDamage(damageAmount, Health, HealthMax, ref Active, ref onFire, ref reallyFuckedUp);
+                Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
             }
             else // damaging shields
             {
-                this.damageModifier = CalcDamageModifier(proj, beam, this.damageModifier, ShieldPower);
+                this.damageModifier = CalcDamageModifier(proj, beam, ShieldPower);
                 damageAmount *= this.damageModifier;
                 damageAmount = CalcShieldDamageThreshold(beam, damageAmount);
                 ShieldPower = ApplyShieldDamage(ShieldPower, damageAmount);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
-                if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum)
-                    return true; //Fat Bastard: why is this before the Siphon calcs?
-                if (source != null)
-                    ShieldPower = CalcSiphonDamage(beam, proj, ShieldPower);
+                if (source != null) ShieldPower = CalcSiphonDamage(beam, proj, ShieldPower);
+                if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum) return true;
+                if (beam != null) shield.HitShield(this, beam);
+                else if (proj != null && !proj.IgnoresShields) shield.HitShield(this, proj);
             }
             return true;
         }
