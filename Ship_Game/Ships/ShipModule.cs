@@ -526,14 +526,16 @@ namespace Ship_Game.Ships
         {
             float health = Health + ShieldPower;
             bool result = Damage(source, damageAmount);
-            if (Health <= 0)
-            {
-                damageRemainder = (int)Math.Round(damageAmount * this.damageModifier - (health - Health - ShieldPower), 0);
-                if (this.damageModifier > 1f) // more damage was dealt than base damage due to vulnerabiliies
-                    damageRemainder /= this.damageModifier;  // undo modifier from the damage remained since the next module might not have these vulnerabilites
-            }
-            else damageRemainder = 0f; // no need to calc dmg remained since the module is not destroyed. This saves some calc time.
             DebugDamageCircle();
+            if ( Health > 0)
+            {
+                damageRemainder = 0f;
+                return result;
+            }
+            damageRemainder = damageAmount * this.damageModifier - (health - Health - ShieldPower);
+            if (this.damageModifier <= 1f) return result;
+            damageRemainder /= this.damageModifier;  // undo modifier from the damage remained since the next module might not have these vulnerabilites
+            damageRemainder = (int)Math.Round(damageModifier, 0);
             return result;
         }
 
@@ -593,24 +595,22 @@ namespace Ship_Game.Ships
             return damagemodifier;
         }
 
-        private float CalcDamageThreshold(Beam beam, float damageamount)
+        private float CalcDamageThreshold(Projectile proj, float damageamount)
         {
             //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
-            // Fat Bastard wont work on beams
-            if (beam != null) return damageamount;
+            if (proj == null) return damageamount; // Fat Bastard: wont work on beams
             if (damageamount <= this.DamageThreshold) damageamount = 0f;
             return damageamount;
         }
-        private float CalcShieldDamageThreshold(Beam beam, float damageamount)
+        private float CalcShieldDamageThreshold(Projectile proj, float damageamount)
         {
             //Doc: If the resistance-modified damage amount is less than an shield's damage threshold, no damage is applied.
-            // Fat Bastard wont work on beams
-            if (beam != null) return damageamount;
+            if (proj == null) return damageamount; // Fat Bastard: wont work on beams
             if (damageamount <= this.shield_threshold) damageamount = 0f;
             return damageamount;
         }
 
-        private void CalcEmpDamage(Projectile proj)
+        private void CalcEMPDamage(Projectile proj)
         {
             if (proj?.Weapon.EMPDamage > 0f) Parent.EMPDamage = Parent.EMPDamage + proj.Weapon.EMPDamage;
         }
@@ -747,8 +747,8 @@ namespace Ship_Game.Ships
             {
                 this.damageModifier = CalcDamageModifier(proj, beam, ShieldPower);
                 damageAmount *= this.damageModifier;
-                damageAmount = CalcDamageThreshold(beam,damageAmount);
-                CalcEmpDamage(proj);
+                damageAmount = CalcDamageThreshold(proj,damageAmount);
+                CalcEMPDamage(proj);
                 CalcBeamDamageTypes(beam);
 
                 if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0)) 
@@ -762,10 +762,11 @@ namespace Ship_Game.Ships
             {
                 this.damageModifier = CalcDamageModifier(proj, beam, ShieldPower);
                 damageAmount *= this.damageModifier;
-                damageAmount = CalcShieldDamageThreshold(beam, damageAmount);
+                damageAmount = CalcShieldDamageThreshold(proj, damageAmount);
                 ShieldPower = ApplyShieldDamage(ShieldPower, damageAmount);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
                 if (source != null) ShieldPower = CalcSiphonDamage(beam, proj, ShieldPower);
+                Parent.UpdateShields();
                 if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum) return true;
                 if (beam != null) shield.HitShield(this, beam);
                 else if (proj != null && !proj.IgnoresShields) shield.HitShield(this, proj);
