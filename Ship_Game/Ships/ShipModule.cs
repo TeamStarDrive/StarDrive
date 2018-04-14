@@ -40,8 +40,8 @@ namespace Ship_Game.Ships
         public bool isWeapon;
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
-        private bool onFire;
-        private bool reallyFuckedUp;
+        private bool OnFire;
+        private bool ReallyFuckedUp;
         private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
 
@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
         public float TransporterTimer;
 
         // Modifiers to damage done to this module 
-        private float damageModifier = 1f;
+        private float DamageModifier = 1f;
 
         // This is used to calculate whether this module has power or not
         private int ActivePowerSources;
@@ -406,7 +406,7 @@ namespace Ship_Game.Ships
             Center3D.Z           = tan * (256f - XMLPosition.X);
 
             // this can only happen if onFire is already true
-            reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
+            this.ReallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
 
             HandleDamageFireTrail(elapsedTime);
             Rotation = Parent.Rotation;
@@ -532,10 +532,10 @@ namespace Ship_Game.Ships
                 damageRemainder = 0f;
                 return result;
             }
-            damageRemainder = damageAmount * this.damageModifier - (health - Health - ShieldPower);
-            if (this.damageModifier <= 1f) return result;
-            damageRemainder /= this.damageModifier;  // undo modifier from the damage remained since the next module might not have these vulnerabilites
-            damageRemainder = (int)Math.Round(damageModifier, 0);
+            damageRemainder = damageAmount * this.DamageModifier - (health - Health - ShieldPower);
+            if (this.DamageModifier <= 1f) return result;
+            damageRemainder /= this.DamageModifier;  // undo modifier from the damage remained since the next module might not have these vulnerabilites
+            damageRemainder = (int)Math.Round(this.DamageModifier, 0);
             return result;
         }
 
@@ -702,12 +702,12 @@ namespace Ship_Game.Ships
             {
                 health = healthmax;
                 Active = true;
-                onFire = false;
+                this.OnFire = false;
             }
             if (health / healthmax < 0.5f)
-                onFire = true;
+                this.OnFire = true;
             if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthmax))
-                reallyFuckedUp = true;
+                this.ReallyFuckedUp = true;
             return health;
         }
 
@@ -745,8 +745,8 @@ namespace Ship_Game.Ships
 
             if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
-                this.damageModifier = CalcDamageModifier(proj, beam, ShieldPower);
-                damageAmount *= this.damageModifier;
+                this.DamageModifier = CalcDamageModifier(proj, beam, ShieldPower);
+                damageAmount *= this.DamageModifier;
                 damageAmount = CalcDamageThreshold(proj,damageAmount);
                 CalcEMPDamage(proj);
                 CalcBeamDamageTypes(beam);
@@ -760,8 +760,8 @@ namespace Ship_Game.Ships
             }
             else // damaging shields
             {
-                this.damageModifier = CalcDamageModifier(proj, beam, ShieldPower);
-                damageAmount *= this.damageModifier;
+                this.DamageModifier = CalcDamageModifier(proj, beam, ShieldPower);
+                damageAmount *= this.DamageModifier;
                 damageAmount = CalcShieldDamageThreshold(proj, damageAmount);
                 ShieldPower = ApplyShieldDamage(ShieldPower, damageAmount);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
@@ -1017,7 +1017,7 @@ namespace Ship_Game.Ships
             if (Health >= HealthMax)
             {
                 Health = HealthMax;
-                onFire = false;
+                this.OnFire = false;
             }
 
             BombTimer -= elapsedTime;
@@ -1050,14 +1050,14 @@ namespace Ship_Game.Ships
         {
             if (Parent.InFrustum && Active && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                if (reallyFuckedUp)
+                if (this.ReallyFuckedUp)
                 {
                     if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
                     if (flameEmitter == null) flameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
                     trailEmitter.Update(elapsedTime, Center3D);
                     flameEmitter.Update(elapsedTime, Center3D);
                 }
-                else if (onFire)
+                else if (this.OnFire)
                 {
                     if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
                     if (firetrailEmitter == null) firetrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
