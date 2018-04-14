@@ -546,7 +546,7 @@ namespace Ship_Game
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6169), (float)mod.shield_subspace_resist, 216);
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6170), (float)mod.shield_warp_resist, 217);
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6171), (float)mod.shield_beam_resist, 218);
-            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222, isPercent: false);
 
             DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
             DrawStat(ref modTitlePos, Localizer.Token(6121), (float)mod.SensorBonus, 167);
