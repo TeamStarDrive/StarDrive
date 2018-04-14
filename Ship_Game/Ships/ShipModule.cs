@@ -721,7 +721,7 @@ namespace Ship_Game.Ships
             return shieldpower;
         }
 
-        private float CalcSiphonDamage(Beam beam, Projectile proj, float shieldpower)
+        private float CalcSiphonDamage(Beam beam, float shieldpower)
         {
             if (beam?.Weapon.SiphonDamage > 0f)
             {
@@ -765,7 +765,7 @@ namespace Ship_Game.Ships
                 damageAmount = CalcShieldDamageThreshold(proj, damageAmount);
                 ShieldPower = ApplyShieldDamage(ShieldPower, damageAmount);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
-                if (source != null) ShieldPower = CalcSiphonDamage(beam, proj, ShieldPower);
+                if (source != null) ShieldPower = CalcSiphonDamage(beam, ShieldPower);
                 Parent.UpdateShields();
                 if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum) return true;
                 if (beam != null) shield.HitShield(this, beam);
