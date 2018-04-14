@@ -531,7 +531,7 @@ namespace Ship_Game.AI
                     Tasks.MilitaryTask militaryTask = new Tasks.MilitaryTask
                     {
                         AO = task.GetTargetPlanet().Center,
-                        AORadius = 50000f,
+                        AORadius = 10000f,
                         WhichFleet = task.WhichFleet
                     };
                     militaryTask.SetEmpire(Owner);
@@ -664,10 +664,13 @@ namespace Ship_Game.AI
                         case 4:                    
                             float theirGroundStrength = GetGroundStrOfPlanet(task.GetTargetPlanet());
                             float ourGroundStrength = FleetTask.GetTargetPlanet().GetGroundStrength(Owner);
-                            bool invading = !IsInvading(theirGroundStrength, ourGroundStrength, task);
+                            bool invading = IsInvading(theirGroundStrength, ourGroundStrength, task);
                             bool bombing = BombPlanet(ourGroundStrength, task) > 0;
                             if (!bombing && !invading)
+                            {
                                 task.EndTask();
+                                break;
+                            }
                             else
                                 TaskStep = 3;
                             if (!IsFleetSupplied())                            
@@ -720,7 +723,7 @@ namespace Ship_Game.AI
                 {
                     if (ship.AI.HasPriorityOrder) continue;
                     if (ship.AI.State == AIState.Bombard) continue;
-                    if (RearShips.Contains(ship) && clumpCount >0 ) continue;
+                    if (RearShips.Contains(ship)  ) continue;
                     if (ship.AI.EscortTarget != null) continue;
                     ship.AI.Intercepting = false;
                     ship.AI.CombatState = ship.shipData.CombatState;
@@ -887,20 +890,72 @@ namespace Ship_Game.AI
             
             foreach (Ship ship in Ships)
             {
-                if (!ship.AI.HasPriorityOrder && ship.ReadyPlanetAssaulttTroops > 0)
-                {
-                    ship.AI.OrderLandAllTroops(task.GetTargetPlanet());
-                    ship.AI.HasPriorityOrder = true;
-                }
+                if (ship.AI.HasPriorityOrder || ship.ReadyPlanetAssaulttTroops <= 0 
+                    || (ship.DesignRole != ShipData.RoleName.troop && ship.DesignRole != ShipData.RoleName.troopShip)
+                    ) continue;
+                ship.AI.OrderLandAllTroops(task.GetTargetPlanet());
+                ship.AI.HasPriorityOrder = true;
 
             }
             return true;
 
         }        
 
-        private float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner);        
+        private float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner);
 
         private void DoPostInvasionDefense(Tasks.MilitaryTask task)
+        {
+            --this.DefenseTurns;
+            if (this.DefenseTurns <= 0)
+            {
+                task.EndTask();
+            }
+            else
+            {
+                switch (this.TaskStep)
+                {
+                    case 0:
+
+                        foreach (var node in DataNodes)
+                        {
+                            node.OrdersRadius = FleetTask.AORadius;
+                            node.AssistWeight = 1;
+                            node.DPSWeight = -1;
+                        }
+
+                        TaskStep = 1;
+                        break;
+                    case 1:
+                        if (!IsFleetSupplied())
+                        {
+                            FleetTask.EndTask();
+                            break;
+                        }
+                        foreach (var ship in Ships)
+                        {
+                            if (ship.Center.SqDist(FleetTask.GetTargetPlanet().Center) > ship.AI.FleetNode.OrdersRadius)
+                                ship.AI.OrderThrustTowardsPosition(FleetTask.GetTargetPlanet().Center, 1f, Vector2.Zero, true);
+                        }
+
+                        break;
+                    case 2:
+                        bool combat = false;
+                        foreach (var ship in Ships)
+                        {
+                            if (!ship.InCombat) continue;
+                            combat = true;
+                            break;
+                        }
+                        if (combat) break;
+                        AssembleFleet(1, Vector2.Zero);
+                        TaskStep = 1;
+                        break;
+                }
+            }
+        }
+
+
+        private void DoPostInvasionDefenseold(Tasks.MilitaryTask task)
         {
             --this.DefenseTurns;
             if (this.DefenseTurns <= 0)
