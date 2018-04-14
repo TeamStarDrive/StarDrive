@@ -328,7 +328,7 @@ namespace Ship_Game.Ships
             else if (weapon.Tag_Energy) damagemodifier = damagemodifier * (1f - EnergyResist);
             else if (weapon.Tag_Missile) damagemodifier = damagemodifier * (1f - MissileResist);
             else if (weapon.Tag_Torpedo) damagemodifier = damagemodifier * (1f - TorpedoResist);
-            //else if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - KineticResist);
+            else if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - KineticResist);
             //else if (weapon.Tag_Guided) damagemodifier = damagemodifier * (1f - GuidedResist);
             //else if (weapon.Tag_Cannon) damagemodifier    = damagemodifier * (1f - CannonResist);
             //else if (weapon.Tag_Hybrid) damagemodifier    = damagemodifier * (1f - HybridResist);
