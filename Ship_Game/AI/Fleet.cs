@@ -113,7 +113,7 @@ namespace Ship_Game.AI
 
             BatchRemovalCollection<Ship> mainShipList = new BatchRemovalCollection<Ship>();
             mainShipList.AddRange(this.Ships);
-            ShipData.RoleName largest = mainShipList.FindMax(role => (int)role.DesignRole).DesignRole;
+            ShipData.RoleName largest = mainShipList.FindMax(role => (int)role.DesignRole)?.DesignRole ??  ShipData.RoleName.disabled;
 
 
             for (int i = 0; i < mainShipList.Count; i++)
