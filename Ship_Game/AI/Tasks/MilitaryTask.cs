@@ -33,7 +33,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] private Planet TargetPlanet;
         [XmlIgnore] [JsonIgnore] private Empire Owner;
         [XmlIgnore] [JsonIgnore] private Array<Ship> TaskForce = new Array<Ship>();
-        [XmlIgnore] [JsonIgnore] private Fleet Fleet => Owner.GetFleetsDict()[WhichFleet];
+        [XmlIgnore] [JsonIgnore] private Fleet Fleet => Owner.GetFleet(WhichFleet);
 
         //This file Refactored by Gretman
 
