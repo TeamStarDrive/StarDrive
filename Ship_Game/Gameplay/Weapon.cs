@@ -752,10 +752,10 @@ namespace Ship_Game.Gameplay
             actualShieldPenChance = Math.Max(currentShieldPenChance, actualShieldPenChance);
             if (isBeam) return;
             projectile.ArmorPiercing         += (int)wepTags[tag].ArmourPenetration;
-            projectile.Health                += this.HitPoints * wepTags[tag].HitPoints;
-            projectile.RotationRadsPerSecond += wepTags[tag].Turn * this.RotationRadsPerSecond;
-            projectile.Speed                 += wepTags[tag].Speed * this.ProjectileSpeed;
-            projectile.DamageRadius          += wepTags[tag].ExplosionRadius * this.DamageRadius;
+            projectile.Health                += HitPoints * wepTags[tag].HitPoints;
+            projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
+            projectile.Speed                 += wepTags[tag].Speed * ProjectileSpeed;
+            projectile.DamageRadius          += wepTags[tag].ExplosionRadius * DamageRadius;
         }
 
         public void ResetToggleSound()
