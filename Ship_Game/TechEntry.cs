@@ -365,7 +365,9 @@ namespace Ship_Game
                     }                    
                 }
 
-                switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
+                switch (unlockedBonus.BonusType ?? unlockedBonus.Name) 
+                 // Fat Bastard: shouldnt this switch after be else if? Since if unlockedBonus has tags, it will perform the above block
+                 // or  maybe even return; after the above codeblock in the if statement.
                 {
                     case "Xeno Compilers"               :
                     case "Research Bonus"               : data.Traits.ResearchMod += unlockedBonus.Bonus; break;
