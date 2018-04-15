@@ -21,20 +21,6 @@
       <ModuleUID>MRLS</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
-  <BonusUnlocked>
-    <UnlockedBonus>
-      <Name>Phased Ordnance</Name>
-      <BonusType>Weapon_Rate</BonusType>
-      <Tags>
-        <string>Missile</string>
-      </Tags>
-      <Bonus>.8</Bonus>
-      <Description>see localization file</Description>
-      <BonusIndex>2009</BonusIndex>
-    </UnlockedBonus>
-
-
-  </BonusUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />
   <TroopsUnlocked />
