@@ -3171,9 +3171,12 @@ namespace Ship_Game.Ships
             if (!shipData.BaseCanWarp) return false;
             float powerDraw = ModulePowerDraw * (empire?.data.FTLPowerDrainModifier ?? 1);
             float goodPowerSupply = PowerFlowMax - powerDraw;
-            float powerTime = PowerStoreMax / Math.Min(-goodPowerSupply, 1)
-                              * maxFTLSpeed ;
-            bool warpTimeGood = goodPowerSupply >= 0 || powerTime > GlobalStats.MinimumWarpRange;
+            float powerTime = GlobalStats.MinimumWarpRange;
+            if (goodPowerSupply <0)
+            {
+                powerTime = PowerStoreMax / -goodPowerSupply * maxFTLSpeed;
+            }
+            bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
 
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
             if (!goodPower || empire == null)
