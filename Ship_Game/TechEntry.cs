@@ -349,18 +349,18 @@ namespace Ship_Game
                         var tagmod = data.WeaponTags[index];
                         switch (unlockedBonus.BonusType)
                         {
-                            case "Weapon_Speed": tagmod.Speed += unlockedBonus.Bonus; continue;
-                            case "Weapon_Damage": tagmod.Damage += unlockedBonus.Bonus; continue;
-                            case "Weapon_ExplosionRadius": tagmod.ExplosionRadius += unlockedBonus.Bonus; continue;
-                            case "Weapon_TurnSpeed": tagmod.Turn += unlockedBonus.Bonus; continue;
-                            case "Weapon_Rate": tagmod.Rate += unlockedBonus.Bonus; continue;
-                            case "Weapon_Range": tagmod.Range += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldDamage": tagmod.ShieldDamage += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmorDamage": tagmod.ArmorDamage += unlockedBonus.Bonus; continue;
-                            case "Weapon_HP": tagmod.HitPoints += unlockedBonus.Bonus; continue;
+                            case "Weapon_Speed"            : tagmod.Speed             += unlockedBonus.Bonus; continue;
+                            case "Weapon_Damage"           : tagmod.Damage            += unlockedBonus.Bonus; continue;
+                            case "Weapon_ExplosionRadius"  : tagmod.ExplosionRadius   += unlockedBonus.Bonus; continue;
+                            case "Weapon_TurnSpeed"        : tagmod.Turn              += unlockedBonus.Bonus; continue;
+                            case "Weapon_Rate"             : tagmod.Rate              += unlockedBonus.Bonus; continue;
+                            case "Weapon_Range"            : tagmod.Range             += unlockedBonus.Bonus; continue;
+                            case "Weapon_ShieldDamage"     : tagmod.ShieldDamage      += unlockedBonus.Bonus; continue;
+                            case "Weapon_ArmorDamage"      : tagmod.ArmorDamage       += unlockedBonus.Bonus; continue;
+                            case "Weapon_HP"               : tagmod.HitPoints         += unlockedBonus.Bonus; continue;
                             case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
                             case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
-                            default: continue;
+                            default                        : continue;
                         }
                     }                    
                 }
