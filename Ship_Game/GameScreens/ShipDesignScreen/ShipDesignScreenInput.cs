@@ -1107,7 +1107,7 @@ namespace Ship_Game {
             newShip.IsPlayerDesign = true;
             ResourceManager.ShipsDict[name] = newShip;
             newShip.BaseStrength = -1;
-            newShip.BaseStrength = newShip.GetStrength();
+            newShip.BaseStrength = newShip.GetStrength(true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
             ActiveHull = newShip.GetShipData();
             ActiveHull.CombatState = CombatState;

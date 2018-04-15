@@ -361,8 +361,12 @@ namespace Ship_Game
             EmpireAI.TaskList.Clear();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             
-            Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);       
-            StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.Empires.IndexOf(rebels), new Snapshot(Universe.StarDate));
+            Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);
+            var rebelEmpireIndex = EmpireManager.Empires.IndexOf(rebels);
+            SerializableDictionary<int, Snapshot> statDict = StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")];
+             statDict[rebelEmpireIndex] = new Snapshot(Universe.StarDate);
+
+            // StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.Empires.IndexOf(rebels), new Snapshot(Universe.StarDate));
             foreach (Ship s in OwnedShips)
             {
                 s.loyalty = rebels;

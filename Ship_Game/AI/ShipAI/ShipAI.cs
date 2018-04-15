@@ -817,6 +817,7 @@ namespace Ship_Game.AI
 
         private void AIStateEscort(float elapsedTime)
         {
+            Owner.AI.HasPriorityOrder = false;
             if (EscortTarget == null || !EscortTarget.Active)
             {
                 EscortTarget = null;
@@ -830,7 +831,7 @@ namespace Ship_Game.AI
                 State = AIState.AwaitingOrders; //fbedard
                 return;
             }
-            if (Owner.BaseStrength == 0 ||
+            if (Owner.GetStrength() <=0 ||
                 Owner.Mothership == null &&
                 EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) ||
                 Owner.Mothership == null || !Owner.Mothership.AI.BadGuysNear ||
@@ -844,11 +845,17 @@ namespace Ship_Game.AI
             // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
             //gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target. 
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own. 
-            else
+            if(!Owner.InCombat )
             {
-                DoCombat(elapsedTime);
+                OrbitShip(EscortTarget, elapsedTime);
                 return;
             }
+            
+            if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
+            {
+                Owner.AI.HasPriorityOrder = true;
+                OrbitShip(EscortTarget, elapsedTime);
+            }            
         }
 
         private void AIStateAwaitingOrders(float elapsedTime)

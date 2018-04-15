@@ -210,7 +210,7 @@ namespace Ship_Game.AI {
         private void DoCombat(float elapsedTime)
         {
             var ctarget = Target as Ship;
-            if (Target?.Active != true || ctarget?.engineState != Ship.MoveState.Sublight)
+            if (Target?.Active != true || ctarget?.engineState != Ship.MoveState.Sublight || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), ctarget))
             {
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
                                                               t.Center.InRadius(Owner.Center, Owner.SensorRange));

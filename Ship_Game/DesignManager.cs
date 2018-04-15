@@ -225,16 +225,23 @@ namespace Ship_Game
 
             Empire emp = EmpireManager.Player;
             Ship ship = ResourceManager.ShipsDict[EnterNameArea.Text];
-            ship.BaseStrength = ship.GetStrength();
-            foreach (Planet p in emp.GetPlanets())
+            try
             {
-                foreach (QueueItem qi in p.ConstructionQueue)
+                ship.BaseStrength = ship.GetStrength();
+                foreach (Planet p in emp.GetPlanets())
                 {
-                    if (!qi.isShip || qi.sData.Name != EnterNameArea.Text)
-                        continue;
-                    qi.sData = ship.GetShipData();
-                    qi.Cost  = ship.GetCost(emp);                                        
+                    foreach (QueueItem qi in p.ConstructionQueue)
+                    {
+                        if (!qi.isShip || qi.sData.Name != EnterNameArea.Text)
+                            continue;
+                        qi.sData = ship.GetShipData();
+                        qi.Cost = ship.GetCost(emp);
+                    }
                 }
+            }
+            catch(Exception x)
+            {
+                Log.Error(x,$"Failed to set strength or rename duing ship save");
             }
             ExitScreen();
         }
@@ -268,6 +275,7 @@ namespace Ship_Game
                 saveOk = false;
                 reserved |= ship.IsReadonlyDesign;
             }
+
             if (reserved && !Empire.Universe.Debug)
             {
                 GameAudio.PlaySfxAsync("UI_Misc20");
