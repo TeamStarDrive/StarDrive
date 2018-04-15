@@ -736,7 +736,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Flak)      AddModifiers("Flak", projectile, ref actualShieldPenChance);
             if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualShieldPenChance);
 
-            projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance;
+            projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance * 100;
         }
 
         private void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
