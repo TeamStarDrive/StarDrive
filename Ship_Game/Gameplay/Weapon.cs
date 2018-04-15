@@ -709,8 +709,8 @@ namespace Ship_Game.Gameplay
             if (Owner.loyalty.data.Traits.Pack)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.DamageModifier;
 
-            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers) // Fat Bastard: this is not even called in mod unless right side is true
-                return;
+            //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
+            //    return;
             if (Tag_Missile)   AddModifiers("Missile", projectile);
             if (Tag_Energy)    AddModifiers("Energy", projectile);
             if (Tag_Torpedo)   AddModifiers("Torpedo", projectile);
@@ -734,10 +734,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Tractor)   AddModifiers("Tractor", projectile);
         }
         
-        /* Fat Bastard: wtf? why is it even needed and why the shield pen chance is here - it makes shieldpen chance broken in mods and even if this was called,
-         shield pen might  be calculated  several times.         */
-
-        private void AddModifiers(string tag, Projectile projectile) 
+        private void AddModifiers(string tag, Projectile projectile)
         {
             SerializableDictionary<string, WeaponTagModifier> wepTags = Owner.loyalty.data.WeaponTags;
             projectile.DamageAmount      += wepTags[tag].Damage * projectile.DamageAmount;

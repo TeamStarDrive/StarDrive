@@ -109,10 +109,9 @@ namespace Ship_Game
 
         public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
         {
-            if (parent.data.RebellionLaunched)
-            {                
-                return GetEmpireByName(data.RebelName);
-            }
+            var rebelEmpire = GetEmpireByName(data.RebelName);
+            if (rebelEmpire != null) return rebelEmpire;
+
 
             Empire empire = new Empire(parent)
             {

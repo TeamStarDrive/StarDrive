@@ -235,6 +235,12 @@ namespace Ship_Game.AI
                     nearbyShip.Weight += CombatAI.ApplyWeight(nearbyShip.Ship);
                     if (Owner.fleet == null || FleetNode == null) continue;
 
+                    if (!Intercepting && nearbyShip.Ship.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius) )
+                    {
+                        nearbyShip.Weight = -100;
+                        continue;
+                    }
+
                     nearbyShip.Weight += FleetNode.ApplyWeight(nearbyShip.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);                    
                     nearbyShip.Weight += FleetNode.ApplyWeight(nearbyShip.Ship.shield_power, shieldAvg, FleetNode.AttackShieldedWeight);
                     nearbyShip.Weight += FleetNode.ApplyWeight(nearbyShip.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
@@ -249,7 +255,7 @@ namespace Ship_Game.AI
             }
 
             NearbyShips.ApplyPendingRemovals();
-            ShipWeight[] sortedList2 = NearbyShips.OrderByDescending(weight => weight.Weight).ToArray();
+            ShipWeight[] sortedList2 = NearbyShips.FilterBy(weight=> weight.Weight > -100).OrderByDescending(weight => weight.Weight).ToArray();
 
             PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
             if (Owner.fleet != null)
@@ -268,7 +274,7 @@ namespace Ship_Game.AI
             else if (Target != null && Target.Active && HasPriorityTarget)
             {
                 var ship = Target as Ship;
-                if (Owner.loyalty.GetRelations(ship.loyalty).AtWar || Owner.loyalty.isFaction || ship.loyalty.isFaction)
+                if (Owner.loyalty.IsEmpireAttackable(ship.loyalty, ship))
                     BadGuysNear = true;
                 return Target;
             }
