@@ -709,8 +709,8 @@ namespace Ship_Game.Gameplay
             if (Owner.loyalty.data.Traits.Pack)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.DamageModifier;
 
-            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
-                return;
+            //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
+            //    return;
             if (Tag_Missile)   AddModifiers("Missile", projectile);
             if (Tag_Energy)    AddModifiers("Energy", projectile);
             if (Tag_Torpedo)   AddModifiers("Torpedo", projectile);

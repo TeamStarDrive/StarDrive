@@ -20,27 +20,27 @@ namespace Ship_Game.AI
         public BatchRemovalCollection<FleetDataNode> DataNodes = new BatchRemovalCollection<FleetDataNode>();
         public Guid Guid = Guid.NewGuid();
         public string Name = "";
-        
+
         private Array<Ship> CenterShips = new Array<Ship>();
-        private Array<Ship> LeftShips   = new Array<Ship>();
-        private Array<Ship> RightShips  = new Array<Ship>();
-        private Array<Ship> RearShips   = new Array<Ship>();
+        private Array<Ship> LeftShips = new Array<Ship>();
+        private Array<Ship> RightShips = new Array<Ship>();
+        private Array<Ship> RearShips = new Array<Ship>();
         private Array<Ship> ScreenShips = new Array<Ship>();
         public Array<Squad> CenterFlank = new Array<Squad>();
-        public Array<Squad> LeftFlank   = new Array<Squad>();
-        public Array<Squad> RightFlank  = new Array<Squad>();
+        public Array<Squad> LeftFlank = new Array<Squad>();
+        public Array<Squad> RightFlank = new Array<Squad>();
         public Array<Squad> ScreenFlank = new Array<Squad>();
-        public Array<Squad> RearFlank   = new Array<Squad>();
+        public Array<Squad> RearFlank = new Array<Squad>();
         public Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
-        
-        private Map<Vector2, Ship[]> EnemyClumpsDict   = new Map<Vector2, Ship[]>();
+
+        private Map<Vector2, Ship[]> EnemyClumpsDict = new Map<Vector2, Ship[]>();
         private Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
-        private int DefenseTurns                       = 50;
-        private Vector2 TargetPosition                 = Vector2.Zero;
+        private int DefenseTurns = 50;
+        private Vector2 TargetPosition = Vector2.Zero;
         public Tasks.MilitaryTask FleetTask;
         public FleetCombatStatus Fcs;
 
-        
+
         public int FleetIconIndex;
         public static UniverseScreen Screen;
         public int TaskStep;
@@ -71,10 +71,10 @@ namespace Ship_Game.AI
         }
 
         public override void AddShip(Ship ship) => AddShip(ship, false);
-        
+
         public void AddShip(Ship shiptoadd, bool updateOnly)
         {
-            this.HasRepair = HasRepair || shiptoadd.hasRepairBeam || (shiptoadd.HasRepairModule && shiptoadd.Ordinance > 0);        
+            HasRepair = HasRepair || shiptoadd.hasRepairBeam || (shiptoadd.HasRepairModule && shiptoadd.Ordinance > 0);
             if (updateOnly && Ships.Contains(shiptoadd)) return;
             if (shiptoadd.fleet != null || Ships.Contains(shiptoadd))
             {
@@ -83,8 +83,8 @@ namespace Ship_Game.AI
             }
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
                 return;
-            base.AddShip(shiptoadd);            
-            shiptoadd.fleet = this;            
+            base.AddShip(shiptoadd);
+            shiptoadd.fleet = this;
             SetSpeed();
             AssignPositions(Facing);
             AddShipToDataNode(shiptoadd);
@@ -112,27 +112,40 @@ namespace Ship_Game.AI
             this.AllFlanks.Add(this.RearFlank);
 
             BatchRemovalCollection<Ship> mainShipList = new BatchRemovalCollection<Ship>();
-            mainShipList.AddRange(this.Ships);            
+            mainShipList.AddRange(this.Ships);
+            ShipData.RoleName largest = mainShipList.FindMax(role => (int)role.DesignRole).DesignRole;
+
+
             for (int i = 0; i < mainShipList.Count; i++)
             {
                 Ship ship = mainShipList[i];
-                
-                if (ship.DesignRole == ShipData.RoleName.fighter ||
-                    ship.shipData.ShipCategory == ShipData.Category.Recon)
+
+                if (ship.DesignRole >= ShipData.RoleName.fighter && (int)ship.DesignRole > (int)largest - 1)// || ship.DesignRole == ShipData.RoleName.fighter)
                 {
                     this.ScreenShips.Add(ship);
                     mainShipList.QueuePendingRemoval(ship);
                 }
-                else if (ship.shipData.Role == ShipData.RoleName.troop ||
-                         ship.shipData.Role == ShipData.RoleName.freighter ||
-                         ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                else if (ship.DesignRole == ShipData.RoleName.troop ||
+                         ship.DesignRole == ShipData.RoleName.freighter ||
+                         ship.shipData.ShipCategory == ShipData.Category.Civilian ||
+                         ship.DesignRole == ShipData.RoleName.troopShip
+                         )
                 {
                     this.RearShips.Add(ship);
                     mainShipList.QueuePendingRemoval(ship);
                 }
-                else if (ship.shipData.Role > ShipData.RoleName.cruiser)
+                else if (ship.shipData.Role < ShipData.RoleName.fighter)
                 {
                     this.CenterShips.Add(ship);
+                    mainShipList.QueuePendingRemoval(ship);
+                }
+                else
+                {
+                    int leftOver = mainShipList.Count - mainShipList.PendingRemovalCount;
+                    if (leftOver % 2 == 0)
+                        RightShips.Add(ship);
+                    else
+                        LeftShips.Add(ship);
                     mainShipList.QueuePendingRemoval(ship);
                 }
             }
@@ -143,7 +156,7 @@ namespace Ship_Game.AI
             int totalShips = this.CenterShips.Count;
             foreach (Ship ship in remainingShips)
             {
-                if      (totalShips < 4) this.CenterShips.Add(ship);
+                if (totalShips < 4) this.CenterShips.Add(ship);
                 else if (totalShips < 8) this.LeftShips.Add(ship);
                 else if (totalShips < 12) this.RightShips.Add(ship);
                 else if (totalShips < 16) this.ScreenShips.Add(ship);
@@ -206,8 +219,8 @@ namespace Ship_Game.AI
         private void SortSquad(Array<Ship> allShips, Array<Squad> destSquad, bool sizeOverSpeed = false)
         {
             IOrderedEnumerable<Ship> orderedShips;      //If true, sort by size instead of speed
-            if (sizeOverSpeed) { orderedShips = allShips.OrderByDescending(ship => ship.Size);  }
-            else               { orderedShips = allShips.OrderByDescending(ship => ship.Speed); }
+            if (sizeOverSpeed) { orderedShips = allShips.OrderByDescending(ship => ship.Size); }
+            else { orderedShips = allShips.OrderByDescending(ship => ship.Speed); }
 
             Squad squad = new Squad();
             squad.Fleet = this;
@@ -218,7 +231,7 @@ namespace Ship_Game.AI
                 if (squad.Ships.Count == 4 || index == orderedShips.Count() - 1)
                 {
                     destSquad.Add(squad);
-                    squad = new Squad {Fleet = this};
+                    squad = new Squad { Fleet = this };
                 }
             }
         }
@@ -288,7 +301,7 @@ namespace Ship_Game.AI
                 var ship = Ships.PopLast();
                 ship.ClearFleet();
             }
-            TaskStep  = 0;
+            TaskStep = 0;
             FleetTask = null;
             GoalStack.Clear();
         }
@@ -302,15 +315,15 @@ namespace Ship_Game.AI
                 return;
             switch (FleetTask.type)
             {
-                case Tasks.MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask); break;
-                case Tasks.MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);      break;
-                case Tasks.MilitaryTask.TaskType.CorsairRaid:                DoCorsairRaid(elapsedTime); break;
+                case Tasks.MilitaryTask.TaskType.ClearAreaOfEnemies: DoClearAreaOfEnemies(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.AssaultPlanet: DoAssaultPlanet(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.CorsairRaid: DoCorsairRaid(elapsedTime); break;
                 case Tasks.MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
-                case Tasks.MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask); break;
-                case Tasks.MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask); break;
-                case Tasks.MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask); break;
-                case Tasks.MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
-                case Tasks.MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.Exploration: DoExplorePlanet(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.DefendSystem: DoDefendSystem(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.DefendClaim: DoClaimDefense(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.DefendPostInvasion: DoPostInvasionDefense(FleetTask); break;
+                case Tasks.MilitaryTask.TaskType.GlassPlanet: DoGlassPlanet(FleetTask); break;
             }
             this.Owner.GetGSAI().TaskList.ApplyPendingRemovals();
         }
@@ -319,8 +332,8 @@ namespace Ship_Game.AI
         {
             foreach (Ship ship in Ships)
             {
-                if (ship.AI.State != AIState.FormationWarp ) continue;
-                return false;                
+                if (ship.AI.State != AIState.FormationWarp) continue;
+                return false;
             }
             return true;
         }
@@ -343,7 +356,7 @@ namespace Ship_Game.AI
                     this.FleetTask.EndTaskWithMove();
                     break;
                 }
-                if (!found)                
+                if (!found)
                     this.FleetTask.EndTask();
             }
             if (this.Ships.Count == 0)
@@ -357,16 +370,16 @@ namespace Ship_Game.AI
             foreach (Building building in task.GetTargetPlanet().BuildingList)
             {
                 if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
-                
-                    eventBuildingFound = false;
-                    break;
-                
+
+                eventBuildingFound = false;
+                break;
+
             }
 
             bool weHaveTroops = false;
             if (!eventBuildingFound)    //No need to do this part if a task ending scenario has already been found -Gretman
             {
-                
+
 
                 using (this.Ships.AcquireReadLock())
                     foreach (Ship ship in this.Ships)
@@ -395,8 +408,8 @@ namespace Ship_Game.AI
             {
                 switch (this.TaskStep)
                 {
-                    case 0:                        
-                        Vector2 nearestShipyard = Owner.RallyPoints.FindMin(planet => Vector2.Distance(task.AO, planet.Center)).Center;                        
+                    case 0:
+                        Vector2 nearestShipyard = Owner.RallyPoints.FindMin(planet => Vector2.Distance(task.AO, planet.Center)).Center;
                         Vector2 fVec = Vector2.Normalize(task.AO - nearestShipyard);
                         this.MoveToNow(nearestShipyard, nearestShipyard.RadiansToTarget(task.AO), fVec);
                         for (int index = 0; index < Ships.Count; index++)
@@ -430,8 +443,8 @@ namespace Ship_Game.AI
                         FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - FindAveragePosition()));
                         break;
                     case 2:
-                        fleetGathered = IsFleetAssembled(5000,out bool endTask);
-                        
+                        fleetGathered = IsFleetAssembled(5000, out bool endTask);
+
                         if (!fleetGathered)
                             break;
                         for (int index = 0; index < this.Ships.Count; index++)
@@ -537,19 +550,19 @@ namespace Ship_Game.AI
                     militaryTask.SetEmpire(Owner);
                     militaryTask.type = Tasks.MilitaryTask.TaskType.DefendPostInvasion;
                     Owner.GetGSAI().TaskList.QueuePendingRemoval(task);
-                    FleetTask = militaryTask;                 
+                    FleetTask = militaryTask;
                     Owner.GetGSAI().TaskList.Add(task);
                 }
                 else
                     task.EndTask();
             }
             else
-            {                                                
+            {
                 int assaultShips = CountShipsWithStrength(out int availableTroops);
                 var target = task.GetTargetPlanet();
-                if (availableTroops == 0)                
-                    availableTroops += target.AnyOfOurTroops(Owner) ? 1 : 0;   
-                
+                if (availableTroops == 0)
+                    availableTroops += target.AnyOfOurTroops(Owner) ? 1 : 0;
+
                 if (availableTroops == 0 || assaultShips == 0)
                 {
                     if (assaultShips == 0)
@@ -576,6 +589,12 @@ namespace Ship_Game.AI
                             Vector2 vector2 = goaltarget.Center;
                             MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
                             TaskStep = 1;
+                            foreach (var ship in Ships)
+                            {
+                                ship.AI.FleetNode.AssistWeight = 1f;
+                                ship.AI.FleetNode.DefenderWeight = 1f;
+                                ship.AI.FleetNode.OrdersRadius = ship.maxWeaponsRange;
+                            }
                             break;
 
                         case 1:
@@ -617,7 +636,7 @@ namespace Ship_Game.AI
                             Position = task.GetTargetPlanet().Center;
                             AssembleFleet(Facing, Vector2.Normalize(Position - FindAveragePosition()));
                             break;
-                        case 3:                            
+                        case 3:
                             //float fleetStrength = GetStrength();
 
                             if (!IsFleetSupplied())
@@ -630,12 +649,12 @@ namespace Ship_Game.AI
                                 BombPlanet(0, task);
 
                             //TODO: Indiction logic.   this doesnt work. 
-                            
-                               if (FleetTaskAttackAllEnemiesInAO(targetPlanet.Center, targetPlanet.GravityWellRadius *3, targetPlanet.GravityWellRadius / CountCombatSquads))
-                               {
-                                   TaskStep = 4;
+
+                            if (FleetTaskAttackAllEnemiesInAO(targetPlanet.Center, targetPlanet.GravityWellRadius * 3, targetPlanet.GravityWellRadius / CountCombatSquads))
+                            {
+                                TaskStep = 4;
                                 break;
-                               }
+                            }
 
                             float targetStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.GetTargetPlanet().Center, task.AORadius, Owner);
                             if (targetStrength > 500 && targetStrength > GetStrength() * 2)
@@ -661,7 +680,7 @@ namespace Ship_Game.AI
                             //    }
 
                             break;
-                        case 4:                    
+                        case 4:
                             float theirGroundStrength = GetGroundStrOfPlanet(task.GetTargetPlanet());
                             float ourGroundStrength = FleetTask.GetTargetPlanet().GetGroundStrength(Owner);
                             bool invading = IsInvading(theirGroundStrength, ourGroundStrength, task);
@@ -671,12 +690,11 @@ namespace Ship_Game.AI
                                 task.EndTask();
                                 break;
                             }
-                            else
-                                TaskStep = 3;
-                            if (!IsFleetSupplied())                            
-                                TaskStep = 5;                                
-                            
-                             break;
+                            TaskStep = 3;
+                            if (!IsFleetSupplied())
+                                TaskStep = 5;
+
+                            break;
 
                         case 5:
                             Planet rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Center));
@@ -706,144 +724,99 @@ namespace Ship_Game.AI
             }
         }
 
-        private bool FleetTaskAttackAllEnemiesInAO(Vector2 center, float radius, float granularity, float minimumStrength = 500)
+        private void InvadeTactics(Array<Ship> flankShips, string type, Vector2 moveTo)
         {
-
-            EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(center, radius, granularity, Owner);
-            bool shipsinAO = false;
-            foreach (var ship in Ships)
+            foreach (var ship in flankShips)
             {
-                shipsinAO = FleetTask.AO.InRadius(ship.Center, FleetTask.AORadius);
-                if (shipsinAO) break;
-            }
-            int clumpCount = (EnemyClumpsDict?.Count ?? 0);
-            if (shipsinAO) // || (EnemyClumpsDict?.Count ?? 0) == 0)
-            {
-                foreach (Ship ship in Ships)
+                ship.AI.CombatState = ship.shipData.CombatState;
+                if (ship.Center.OutsideRadius(FleetTask.GetTargetPlanet().Center, FleetTask.AORadius))
+                    ship.AI.HasPriorityTarget = false;
+                else  continue;
+                ship.AI.Intercepting = false;
+                //ship.DoEscort(main);
+                ship.AI.FleetNode.AssistWeight = 1f;
+                ship.AI.FleetNode.DefenderWeight = 1f;
+                ship.AI.FleetNode.OrdersRadius = ship.maxWeaponsRange;
+                if (type == "screen")
                 {
-                    if (ship.AI.HasPriorityOrder) continue;
-                    if (ship.AI.State == AIState.Bombard) continue;
-                    if (RearShips.Contains(ship)  ) continue;
-                    if (ship.AI.EscortTarget != null) continue;
-                    ship.AI.Intercepting = false;
-                    ship.AI.CombatState = ship.shipData.CombatState;
-                    ship.AI.OrderMoveTowardsPosition(center + ship.FleetOffset, ship.Center.Facing(center), false, null);                    
-                }
-                foreach (Ship rearShip in RearShips)
-                    foreach (Ship ship in Ships)
-                    {
-                        if (ship.AI.State == AIState.Bombard) continue;
-                        if (RearShips.Contains(ship)) continue;
-                        if (ship.AI.EscortTarget != null) continue;
-                        ship.AI.Intercepting = false;
-                        ship.AI.CombatState = ship.shipData.CombatState;
-                        {
-                            ship.DoEscort(rearShip);
-                            break;
-                        }
-                    }
-                return true;
-            }
-            
-           
-            //Array<Vector2> clumpCenter = new Array<Vector2>();
-            //foreach (var keyValuePair in EnemyClumpsDict)
-            //    clumpCenter.Add(keyValuePair.Key);
-            //IOrderedEnumerable<Vector2> orderedEnumerable2 = clumpCenter.OrderBy(clumpPos => FindAveragePosition().SqDist(clumpPos));
-
-            Array<Ship> available = new Array<Ship>();
-            int keysCount = EnemyClumpsDict.Count;
-            using (Ships.AcquireReadLock())
-            {
-                bool noAttackShips = true;
-                foreach (Ship ship in Ships)
-                {
-                    ship.AI.CombatState = ship.shipData.CombatState;
-                    if (RearShips.Contains(ship)) continue;
-                    noAttackShips = false;
-                    if (ship.AI.State == AIState.Bombard) continue;
-                    if (ship.Center.InRadius(center, radius)) continue;
-                    
-                    available.Add(ship);
-                    ship.AI.Intercepting = false;                                    
-                }
-                if (noAttackShips) return false;
-                //foreach (Ship[] ships in EnemyClumpsDict.Values)
-                //{
-                //    if (minimumStrength < 1)
-                //        break;
-                //    minimumStrength -= ships.Sum(str => str.GetStrength());
-                //}
-                //if (minimumStrength > 0) return true;
-
-                bool allGroupsCovered = false;
-                Array<Ship> assignedShips = new Array<Ship>();
-                foreach (Ship[] ships in EnemyClumpsDict.Values) // [orderedEnumerable2.First()])}
-                {
-                    Ship clumpCenter = null;
-                    for (int x = 0; x < ships.Length; x++ )
-                    {
-                        if (ships[x].Center.InRadius(center, radius))
-                        {
-                            clumpCenter = ships[x];
-                            break;
-                        }
-                    }
-                    if (clumpCenter == null) continue;
-                    allGroupsCovered = false;
-                    float strength = ships.Sum(str => str.GetStrength());
-
-                    Ship main = null;
-                    for (int i = 0; i < available.Count; i++)
-                    {                        
-                        Ship ship = available[i];
-                        if (assignedShips.Contains(ship)) continue;
-                        if (main == null)
-                        {
-                            ship.AI.Intercepting = true;
-                            ship.AI.OrderAttackSpecificTarget(clumpCenter);
-                            main = ship;
-                        }
-                        else
-                        {
-                            ship.AI.HasPriorityTarget = false;
-                            ship.AI.Intercepting = false;
-                            ship.DoEscort(main);
-                            ship.AI.FleetNode.AssistWeight = .75f;
-                            ship.AI.FleetNode.DefenderWeight = .75f;
-                        }
-                        assignedShips.Add(ship);
-                        strength -= ship.GetStrength();                        
-                        if (strength < 0)
-                        {
-                            allGroupsCovered = true;
-                            break;
-                        }
-                    }
-
-                }
-                foreach(Ship ship in available)
-                {
-                    if (ship.AI.Intercepting || ship.Center.InRadius(center, radius) 
-                                             || ship.AI.HasPriorityOrder || ship.AI.EscortTarget != null)
-                        continue;
-                    ship.AI.OrderMoveTowardsPosition(center, 0, false, FleetTask.GetTargetPlanet());
-                    //ship.AI.OrderMoveDirectlyTowardsPosition(center, 0, Vector2.Zero, true);
+                    if (!ship.InCombat)
+                        ship.AI.OrderMoveDirectlyTowardsPosition(moveTo, 1, false);
                 }
 
-                foreach (var ship in RearShips)
+                if (type == "rear")
                 {
-                    if (ship.AI.State == AIState.AssaultPlanet) continue;
-                    if (ship.AI.HasPriorityOrder) continue;
-                    //if (ship.DesignRole == ShipData.RoleName.troop) continue;
-                    ship.AI.OrderMoveTowardsPosition(center, 0, false, FleetTask.GetTargetPlanet());//  (center, 0, Vector2.Zero, true);
+                    if (!ship.AI.HasPriorityOrder)
+                        ship.AI.OrderMoveDirectlyTowardsPosition(moveTo, Facing, Vector2.Zero, false, Speed * .75f);
                 }
 
+                if (type == "center")
+                {
+                    if (ship.AI.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber)
+                        ship.AI.OrderMoveDirectlyTowardsPosition(moveTo, 1, false);
+                    else if (!ship.InCombat)
+                        ship.AI.OrderMoveDirectlyTowardsPosition(moveTo, 1, false);
+                }
 
-                return true; //allGroupsCovered;
+                if (type == "side")
+                {
+                    if (ship.InCombat) continue;
+                    //bool escort = false;
+                    //foreach (var escortShip in RearShips)
+                    //    if (escortShip.InCombat)
+                    //    {
+                    //        escort = true;
+                    //        escortShip.DoEscort(ship);
+                    //        break;
+                    //    }
+                    //if (escort) continue;
+                    //foreach (var escortShip in CenterShips)
+                    //    if (escortShip.InCombat)
+                    //    {
+                    //        escort = true;
+                    //        ship.DoEscort(escortShip);
+                    //        break;
+                    //    }
+                    //if (escort) continue;
+                    //foreach (var escortShip in ScreenShips)
+
+                    //    {
+                    //        escort = true;
+                    //        ship.DoEscort(escortShip);
+                    //        break;
+                    //    }
+                    //if (escort) continue;
+                    ship.AI.OrderMoveDirectlyTowardsPosition(moveTo, 1, false);
+
+
+                    //if (ship.AI.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber)
+                    //    ship.AI.OrderMoveDirectlyTowardsPosition(moveTo, 1, false);
+                    //else
+                    //if (!ship.InCombat)
+                    //    ship.AI.OrderMoveDirectlyTowardsPosition(moveTo, 1, false);
+                }
             }
         }
 
+        private bool FleetTaskAttackAllEnemiesInAO(Vector2 center, float radius, float granularity, float minimumStrength = 500)
+        {
+
+            //EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(center, radius, granularity, Owner);
+            InvadeTactics(ScreenShips, "screen", center);
+            InvadeTactics(CenterShips, "center", center);
+            InvadeTactics(RearShips, "rear", center);
+            InvadeTactics(RightShips, "side", center);
+            InvadeTactics(LeftShips, "side", center);
+            bool bombers = false;
+            foreach(var bomber in CenterShips)
+            {
+                if (bomber.DesignRole != ShipData.RoleName.bomber) continue;
+                bombers = true;
+                break;
+            }
+
+            return   (RearShips.Count >0 || bombers) && Ships.Count - RearShips.Count > 0;
+        }
+    
         private int BombPlanet(float ourGroundStrength, Tasks.MilitaryTask task , int freeSpacesNeeded =int.MaxValue)
         {
 
@@ -856,9 +829,11 @@ namespace Ship_Game.AI
                 if (!ship.Active) continue;
                 int shipbombs = ship.BombCount;
                 if (shipbombs < 1) continue;
-                bombs += shipbombs;                
-                if(doBombs)
-                    ship.AI.OrderBombardPlanet(task.GetTargetPlanet());                    
+                  bombs += shipbombs;
+                if (doBombs)
+                    ship.AI.OrderBombardPlanet(task.GetTargetPlanet());
+                else if (ship.AI.State == AIState.Bombard)
+                    ship.AI.ClearOrdersNext = true;
             }
             
             return bombs;
@@ -871,7 +846,7 @@ namespace Ship_Game.AI
                 return false;
 
             float planetAssaultStrength = 0.0f;
-            foreach (Ship ship in Ships)            
+            foreach (Ship ship in RearShips)            
                 planetAssaultStrength += ship.PlanetAssaultStrength;
             
             planetAssaultStrength += ourGroundStrength;
@@ -881,18 +856,15 @@ namespace Ship_Game.AI
             //    return true;
             if (ourGroundStrength > 1)
                 for (int index = 0; index < Ships.Count; index++)
-            {
-                Ship ship = Ships[index];
-                if (!ship.Active || ship.AI.State != AIState.Bombard) continue;
-                ship.AI.State = AIState.AwaitingOrders;
-                ship.AI.OrderQueue.Clear();
-            }               
+                {
+                    Ship ship = Ships[index];
+                    if (!ship.Active || ship.AI.State != AIState.Bombard) continue;
+                    ship.AI.State = AIState.AwaitingOrders;
+                    ship.AI.OrderQueue.Clear();
+                }               
             
-            foreach (Ship ship in Ships)
-            {
-                if (ship.AI.HasPriorityOrder || ship.ReadyPlanetAssaulttTroops <= 0 
-                    || (ship.DesignRole != ShipData.RoleName.troop && ship.DesignRole != ShipData.RoleName.troopShip)
-                    ) continue;
+            foreach (Ship ship in RearShips)
+            {                
                 ship.AI.OrderLandAllTroops(task.GetTargetPlanet());
                 ship.AI.HasPriorityOrder = true;
 
@@ -915,7 +887,11 @@ namespace Ship_Game.AI
                 switch (this.TaskStep)
                 {
                     case 0:
-
+                        if (FleetTask.GetTargetPlanet() == null)
+                        {
+                            FleetTask.EndTask();
+                            break;
+                        }
                         foreach (var node in DataNodes)
                         {
                             node.OrdersRadius = FleetTask.AORadius;
@@ -926,6 +902,12 @@ namespace Ship_Game.AI
                         TaskStep = 1;
                         break;
                     case 1:
+
+                        if (FleetTask.GetTargetPlanet() == null)
+                        {
+                            FleetTask.EndTask();
+                            break;
+                        }
                         if (!IsFleetSupplied())
                         {
                             FleetTask.EndTask();
@@ -933,6 +915,7 @@ namespace Ship_Game.AI
                         }
                         foreach (var ship in Ships)
                         {
+
                             if (ship.Center.SqDist(FleetTask.GetTargetPlanet().Center) > ship.AI.FleetNode.OrdersRadius)
                                 ship.AI.OrderThrustTowardsPosition(FleetTask.GetTargetPlanet().Center, 1f, Vector2.Zero, true);
                         }
