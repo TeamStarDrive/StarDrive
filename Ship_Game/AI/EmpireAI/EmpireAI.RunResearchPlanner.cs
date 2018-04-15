@@ -490,6 +490,16 @@ namespace Ship_Game.AI {
                  techtype != TechnologyType.Economic) return true;                
                 if (econ.Tech.HullsUnlocked.Count == 0) return true;
                 if (moneyNeeded < 1f) return true;
+                foreach(var hull in econ.Tech.HullsUnlocked)
+                {
+                    ResourceManager.GetHull(hull.Name, out ShipData hullData);
+                    switch (hullData.HullRole) {
+                        case ShipData.RoleName.station:
+                            return true;
+                        case ShipData.RoleName.platform:
+                            return true;
+                    }
+                }
                 return false;
             });
             

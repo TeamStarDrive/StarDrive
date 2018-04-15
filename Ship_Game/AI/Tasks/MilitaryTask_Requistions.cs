@@ -146,7 +146,13 @@ namespace Ship_Game.AI.Tasks {
                 if (ForceStrength > EnemyTroopStrength * 1.5f)
                     break;
                 if (t.GetOwner() == null) continue;
-                newFleet.AddShip(t.Launch());
+                Ship launched = t.Launch();
+                if (launched == null)
+                {
+                    Log.Error($"CreateFleet: Troop launched from planet became null");
+                    continue;
+                }
+                newFleet.AddShip(launched);
                 ForceStrength += t.Strength;
             }
 
