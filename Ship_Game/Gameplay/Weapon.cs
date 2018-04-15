@@ -744,7 +744,7 @@ namespace Ship_Game.Gameplay
             float actualShieldPenChance   = Module.GetParent().loyalty.data.ShieldPenBonusChance;
             actualShieldPenChance        += wepTags[tag].ShieldPenetration;
             actualShieldPenChance        += ShieldPenChance;
-            if (actualShieldPenChance > 0f && RandomMath2.InRange(100) < actualShieldPenChance)
+            if (actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance)
             {
                 projectile.IgnoresShields = true;
             }
