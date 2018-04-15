@@ -624,7 +624,9 @@ namespace Ship_Game.AI {
                 }, false, false);
                 if (assault)
                 {
-                    TaskList.Add(new Tasks.MilitaryTask(planet, OwnerEmpire));
+                    var invasionTask = new Tasks.MilitaryTask(planet, OwnerEmpire);                   
+                    TaskList.Add(invasionTask);
+
                 }
             }
         }

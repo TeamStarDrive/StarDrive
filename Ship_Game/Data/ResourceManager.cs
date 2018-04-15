@@ -1351,9 +1351,10 @@ namespace Ship_Game
                 {
                     data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
                 }
-                data.IsRotable = data.IsRotable != null ? data.IsRotable : (data.isWeapon && data.ModuleType != ShipModuleType.Turret) ||
+                data.IsRotable = data.IsRotable != null ? data.IsRotable 
+                    : (data.WeaponType.NotEmpty() && data.ModuleType != ShipModuleType.Turret) ||
                                  data.XSIZE != data.YSIZE;
-
+           
 
                 ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
                 
