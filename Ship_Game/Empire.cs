@@ -1189,8 +1189,9 @@ namespace Ship_Game
                             Universe.ScreenManager.AddScreen(new EncounterPopup(Universe, Universe.PlayerEmpire, e, null, e1));
                 }
             }
-            catch (ArgumentException)
-            {   //this feels bad
+            catch (ArgumentException error)
+            {
+                Log.Error(error, "First ConTact Failed");
             }
         }
 
@@ -1812,114 +1813,14 @@ namespace Ship_Game
                 if (keyValuePair.Value.Treaty_Alliance)
                     allies.Add(keyValuePair.Key);
             }
-            foreach (Empire empire in allies)
-            {
-               
-                foreach (Planet planet in empire.OwnedPlanets.ToArray())
-                {
-                    InfluenceNode influenceNode1 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-
-                    influenceNode1.SourceObject = planet;
-                    influenceNode1.Position = planet.Center;
-                    influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
-                                                // influenceNode1.Radius = this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
-                    influenceNode1.Known = wellKnown;
-                    SensorNodes.Add(influenceNode1);
-                    
-
-                    InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                    influenceNode2.Position = planet.Center;
-                    influenceNode2.Radius = isFaction 
-                                            ? 1f : this == Universe.PlayerEmpire ? 300000f * empire.data.SensorModifier 
-                                            : 600000f * empire.data.SensorModifier;
-                    foreach (Building building in planet.BuildingList)
-                    {
-                        //if (building.IsSensor)
-                        if (building.SensorRange * data.SensorModifier > influenceNode2.Radius)
-                            influenceNode2.Radius = building.SensorRange * data.SensorModifier;
-                    }
-                    influenceNode2.Known = wellKnown;
-                    SensorNodes.Add(influenceNode2);
-                }
-
-                //var clonedList = empire.GetShips();// new Array<Ship>(empire.GetShips());
-                foreach (Ship ship in empire.GetShips())
-                {
-                    InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                    //this.SensorNodes.pendingRemovals.TryPop(out influenceNode);
-                    influenceNode.Position      = ship.Center;
-                    influenceNode.Radius        = ship.SensorRange;
-                    SensorNodes.Add(influenceNode);
-                    influenceNode.SourceObject  = ship;
-                }
-
-                foreach (Ship ship in empire.GetProjectors())
-                {   //loop over all ALLIED projectors                    
-                    InfluenceNode influenceNode          = SensorNodes.RecycleObject() ?? new InfluenceNode();                    
-                    influenceNode.Position               = ship.Center;
-                    influenceNode.Radius                 = ProjectorRadius;  //projectors currently use their projection radius as sensors
-                    SensorNodes.Add(influenceNode);
-                    influenceNode.SourceObject           = ship;
-                    influenceNode.Known                  = wellKnown;
-
-                }
-            }
-            foreach (Planet planet in GetPlanets())
-            {   //loop over OWN planets
-                InfluenceNode influenceNode1 = BorderNodes.RecycleObject() ?? new InfluenceNode();
-                
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                {
-                    influenceNode1.SourceObject = planet;
-                    influenceNode1.Position     = planet.Center;
-                }
-                else
-                {
-                    influenceNode1.SourceObject = planet.ParentSystem;
-                    influenceNode1.Position     = planet.ParentSystem.Position;
-                }
-                influenceNode1.Radius = 1f;
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                {
-                    foreach (Building t in planet.BuildingList)
-                    {
-                        if (influenceNode1.Radius < t.ProjectorRange)
-                            influenceNode1.Radius = t.ProjectorRange;
-                    }
-                }
-                else
-                {
-                    influenceNode1.Radius = isFaction ? 20000f : ProjectorRadius + (10000f * planet.Population / 1000f);
-                }
-                influenceNode1.Known = known || planet.ParentSystem.IsExploredBy(EmpireManager.Player);
-                BorderNodes.Add(influenceNode1);
-                InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-
-                influenceNode2.SourceObject  = planet;
-                influenceNode2.Position      = planet.Center;
-                influenceNode2.Radius        = 1f; //this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
-                influenceNode2.Known         = known || planet.ParentSystem.IsExploredBy(EmpireManager.Player);
-                SensorNodes.Add(influenceNode2);
-                InfluenceNode influenceNode3 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                influenceNode3.SourceObject  = planet;
-                influenceNode3.Position      = planet.Center;
-                influenceNode3.Radius        = isFaction ? 1f : data.SensorModifier;
-                influenceNode3.Known         = known || planet.ParentSystem.IsExploredBy(EmpireManager.Player); 
-                foreach (Building t in planet.BuildingList)
-                {
-                    if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
-                    {
-                        influenceNode3.Radius = t.SensorRange * this.data.SensorModifier;
-                    }
-                }
-                this.SensorNodes.Add(influenceNode3);
-            }
+            SetBordersKnownByAllies(allies, wellKnown);
+            SetBordersByPlanet(known);
             foreach (Mole mole in data.MoleList)   // Moles are spies who have successfuly been planted during 'Infiltrate' type missions, I believe - Doctor
                 SensorNodes.Add(new InfluenceNode()
                 {
                     Position = Universe.PlanetsDict[mole.PlanetGuid].Center,
-                    Radius   = 100000f * this.data.SensorModifier,
-                    Known    = wellKnown
+                    Radius = Empire.ProjectorRadius * this.data.SensorModifier,
+                    Known = true
                 });
             this.Inhibitors.Clear();
             foreach (Ship ship in this.OwnedShips)
@@ -1956,17 +1857,133 @@ namespace Ship_Game
             }
             BorderNodes.ClearPendingRemovals();
             SensorNodes.ClearPendingRemovals();
-            using (BorderNodes.AcquireReadLock())
-            foreach (InfluenceNode item5 in BorderNodes)
-            {
-                foreach (InfluenceNode item6 in BorderNodes)
+            using (BorderNodes.AcquireReadLock()) 
+                foreach (InfluenceNode item5 in BorderNodes)
                 {
-                    if (item6.SourceObject == item5.SourceObject && (double)item6.Radius < (double)item5.Radius)
-                        BorderNodes.QueuePendingRemoval(item6);
+                    foreach (InfluenceNode item6 in BorderNodes)
+                    {
+                        if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
+                            BorderNodes.QueuePendingRemoval(item6);
+                    }
                 }
-            }
             BorderNodes.ApplyPendingRemovals();
             
+        }
+
+        private void SetBordersByPlanet(bool empireKnown)
+        {
+            foreach (Planet planet in GetPlanets())
+            {
+                bool known = empireKnown|| planet.ParentSystem.IsExploredBy(EmpireManager.Player);
+                //loop over OWN planets
+                InfluenceNode influenceNode1 = BorderNodes.RecycleObject() ?? new InfluenceNode();
+
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                {
+                    influenceNode1.SourceObject = planet;
+                    influenceNode1.Position = planet.Center;
+                }
+                else
+                {
+                    influenceNode1.SourceObject = planet.ParentSystem;
+                    influenceNode1.Position = planet.ParentSystem.Position;
+                }
+
+                influenceNode1.Radius = 1f;
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                {
+                    foreach (Building t in planet.BuildingList)
+                    {
+                        if (influenceNode1.Radius < t.ProjectorRange)
+                            influenceNode1.Radius = t.ProjectorRange;
+                    }
+                }
+                else
+                {
+                    influenceNode1.Radius = isFaction ? 20000f : ProjectorRadius + (10000f * planet.Population / 1000f);
+                }
+
+                influenceNode1.Known = known;
+                BorderNodes.Add(influenceNode1);
+                //InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
+
+                //influenceNode2.SourceObject = planet;
+                //influenceNode2.Position = planet.Center;
+                //influenceNode2.Radius =
+                //    1f; //this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
+                //influenceNode2.Known = known;
+                //SensorNodes.Add(influenceNode2);
+                InfluenceNode influenceNode3 = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                influenceNode3.SourceObject = planet;
+                influenceNode3.Position = planet.Center;
+                influenceNode3.Radius = isFaction ? 1f : data.SensorModifier;
+                influenceNode3.Known = known;
+                foreach (Building t in planet.BuildingList)
+                {
+                    if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
+                    {
+                        influenceNode3.Radius = t.SensorRange * this.data.SensorModifier;
+                    }
+                }
+
+                this.SensorNodes.Add(influenceNode3);
+            }
+        }
+
+        private void SetBordersKnownByAllies(Array<Empire> allies, bool wellKnown)
+        {
+            foreach (Empire empire in allies)
+            {
+                //if (empire == EmpireManager.Player) continue;
+                foreach (Planet planet in empire.OwnedPlanets.ToArray())
+                {
+                    //InfluenceNode influenceNode1 = SensorNodes.RecycleObject() ?? new InfluenceNode();
+
+                    //influenceNode1.SourceObject = planet;
+                    //influenceNode1.Position = planet.Center;
+                    //influenceNode1.Radius = 1f;
+
+                    //influenceNode1.Known = wellKnown;
+                    //SensorNodes.Add(influenceNode1);
+
+
+                    InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                    influenceNode2.Position = planet.Center;
+                    influenceNode2.Radius = isFaction
+                        ? 1f
+                        : this == Universe.PlayerEmpire
+                            ? Empire.ProjectorRadius / 5f * empire.data.SensorModifier
+                            : Empire.ProjectorRadius / 3f * empire.data.SensorModifier;
+                    foreach (Building building in planet.BuildingList)                    
+                        influenceNode2.Radius = Math.Max(influenceNode2.Radius, building.SensorRange * data.SensorModifier);                   
+                    
+                    if (influenceNode2.Radius <= 1) continue;
+                    influenceNode2.Known = wellKnown;
+                    SensorNodes.Add(influenceNode2);
+                }
+
+                //var clonedList = empire.GetShips();// new Array<Ship>(empire.GetShips());
+                foreach (Ship ship in empire.GetShips())
+                {
+                    InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                    //this.SensorNodes.pendingRemovals.TryPop(out influenceNode);
+                    influenceNode.Position = ship.Center;
+                    influenceNode.Radius = ship.SensorRange;
+                    SensorNodes.Add(influenceNode);
+                    influenceNode.SourceObject = ship;
+                }
+
+                foreach (Ship ship in empire.GetProjectors())
+                {
+                    //loop over all ALLIED projectors                    
+                    InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                    influenceNode.Position = ship.Center;
+                    influenceNode.Radius = ProjectorRadius; //projectors currently use their projection radius as sensors
+                    SensorNodes.Add(influenceNode);
+                    influenceNode.SourceObject = ship;
+                    influenceNode.Known = wellKnown;
+                }
+            }
         }
 
         private void TakeTurn()
