@@ -60,7 +60,7 @@ namespace Ship_Game
         private float PercentLoaded;
         private int systemToMake;
         //private float Zrotate;
-        public static float SetProjectorSize(float dataSizeX) => dataSizeX* .028f;
+        public static float SetProjectorSize(float dataSizeX) => dataSizeX * .04f;
         
 
         public CreatingNewGameScreen(Empire empire, string universeSize, 
