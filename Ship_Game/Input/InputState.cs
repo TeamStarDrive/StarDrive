@@ -212,7 +212,7 @@ namespace Ship_Game
             return LeftMouseHeld();
         }
 
-        public Vector2 CursorPosition { get; private set; }
+        public Vector2 CursorPosition { get ; private set; }
 
         public bool Undo              => KeyPressed(Keys.Z) && IsKeyDown(Keys.LeftControl);
         public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
