@@ -712,31 +712,31 @@ namespace Ship_Game.Gameplay
             //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
             //    return;
 
-            float actualShieldPenChance = 0;
+            float actualshieldpenchance = 0;
 
-            if (Tag_Missile)   AddModifiers("Missile", projectile, ref actualShieldPenChance);
-            if (Tag_Energy)    AddModifiers("Energy", projectile, ref actualShieldPenChance);
-            if (Tag_Torpedo)   AddModifiers("Torpedo", projectile, ref actualShieldPenChance);
-            if (Tag_Kinetic)   AddModifiers("Kinetic", projectile, ref actualShieldPenChance);
-            if (Tag_Hybrid)    AddModifiers("Hybrid", projectile, ref actualShieldPenChance);
-            if (Tag_Railgun)   AddModifiers("Railgun", projectile, ref actualShieldPenChance);
-            if (Tag_Explosive) AddModifiers("Explosive", projectile, ref actualShieldPenChance);
-            if (Tag_Guided)    AddModifiers("Guided", projectile, ref actualShieldPenChance);
-            if (Tag_Intercept) AddModifiers("Intercept", projectile, ref actualShieldPenChance);
-            if (Tag_PD)        AddModifiers("PD", projectile, ref actualShieldPenChance);
-            if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile, ref actualShieldPenChance);
-            if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile, ref actualShieldPenChance);
-            if (Tag_Drone)     AddModifiers("Drone", projectile, ref actualShieldPenChance);
-            if (Tag_Subspace)  AddModifiers("Subspace", projectile, ref actualShieldPenChance);
-            if (Tag_Warp)      AddModifiers("Warp", projectile, ref actualShieldPenChance);
-            if (Tag_Cannon)    AddModifiers("Cannon", projectile, ref actualShieldPenChance);
-            if (Tag_Beam)      AddModifiers("Beam", projectile, ref actualShieldPenChance);
-            if (Tag_Bomb)      AddModifiers("Bomb", projectile, ref actualShieldPenChance);
-            if (Tag_Array)     AddModifiers("Array", projectile, ref actualShieldPenChance);
-            if (Tag_Flak)      AddModifiers("Flak", projectile, ref actualShieldPenChance);
-            if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualShieldPenChance);
+            if (Tag_Missile)   AddModifiers("Missile", projectile, ref actualshieldpenchance);
+            if (Tag_Energy)    AddModifiers("Energy", projectile, ref actualshieldpenchance);
+            if (Tag_Torpedo)   AddModifiers("Torpedo", projectile, ref actualshieldpenchance);
+            if (Tag_Kinetic)   AddModifiers("Kinetic", projectile, ref actualshieldpenchance);
+            if (Tag_Hybrid)    AddModifiers("Hybrid", projectile, ref actualshieldpenchance);
+            if (Tag_Railgun)   AddModifiers("Railgun", projectile, ref actualshieldpenchance);
+            if (Tag_Explosive) AddModifiers("Explosive", projectile, ref actualshieldpenchance);
+            if (Tag_Guided)    AddModifiers("Guided", projectile, ref actualshieldpenchance);
+            if (Tag_Intercept) AddModifiers("Intercept", projectile, ref actualshieldpenchance);
+            if (Tag_PD)        AddModifiers("PD", projectile, ref actualshieldpenchance);
+            if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile, ref actualshieldpenchance);
+            if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile, ref actualshieldpenchance);
+            if (Tag_Drone)     AddModifiers("Drone", projectile, ref actualshieldpenchance);
+            if (Tag_Subspace)  AddModifiers("Subspace", projectile, ref actualshieldpenchance);
+            if (Tag_Warp)      AddModifiers("Warp", projectile, ref actualshieldpenchance);
+            if (Tag_Cannon)    AddModifiers("Cannon", projectile, ref actualshieldpenchance);
+            if (Tag_Beam)      AddModifiers("Beam", projectile, ref actualshieldpenchance);
+            if (Tag_Bomb)      AddModifiers("Bomb", projectile, ref actualshieldpenchance);
+            if (Tag_Array)     AddModifiers("Array", projectile, ref actualshieldpenchance);
+            if (Tag_Flak)      AddModifiers("Flak", projectile, ref actualshieldpenchance);
+            if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualshieldpenchance);
 
-            projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance * 100;
+            projectile.IgnoresShields = actualshieldpenchance > 0f && RandomMath2.InRange(100) <= actualshieldpenchance * 100;
         }
 
         private void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
@@ -746,10 +746,10 @@ namespace Ship_Game.Gameplay
             projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
             projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
             // Shield Penetration
-            float currentShieldPenChance   = Module.GetParent().loyalty.data.ShieldPenBonusChance; // check the old calcs first
-            currentShieldPenChance        += wepTags[tag].ShieldPenetration; // new calcs
-            currentShieldPenChance        += ShieldPenChance;
-            actualShieldPenChance = Math.Max(currentShieldPenChance, actualShieldPenChance);
+            float currenshieldpenchance   = Module.GetParent().loyalty.data.ShieldPenBonusChance; // check the old calcs first
+            currenshieldpenchance        += wepTags[tag].ShieldPenetration; // new calcs
+            currenshieldpenchance        += ShieldPenChance;
+            actualShieldPenChance = Math.Max(currenshieldpenchance, actualShieldPenChance);
             if (isBeam) return;
             projectile.ArmorPiercing         += (int)wepTags[tag].ArmourPenetration;
             projectile.Health                += HitPoints * wepTags[tag].HitPoints;

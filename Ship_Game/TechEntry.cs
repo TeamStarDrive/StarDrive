@@ -342,29 +342,30 @@ namespace Ship_Game
                 if (type != null && type != data.Traits.ShipType && type != AcquiredFrom)
                     continue;
        
-                if (unlockedBonus.Tags.Count > 0)
+                if (unlockedBonus.Tags.Count <= 0)
                 {
-                    foreach (string index in unlockedBonus.Tags)
-                    {
-                        var tagmod = data.WeaponTags[index];
-                        switch (unlockedBonus.BonusType)
-                        {
-                            case "Weapon_Speed"            : tagmod.Speed             += unlockedBonus.Bonus; continue;
-                            case "Weapon_Damage"           : tagmod.Damage            += unlockedBonus.Bonus; continue;
-                            case "Weapon_ExplosionRadius"  : tagmod.ExplosionRadius   += unlockedBonus.Bonus; continue;
-                            case "Weapon_TurnSpeed"        : tagmod.Turn              += unlockedBonus.Bonus; continue;
-                            case "Weapon_Rate"             : tagmod.Rate              += unlockedBonus.Bonus; continue;
-                            case "Weapon_Range"            : tagmod.Range             += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldDamage"     : tagmod.ShieldDamage      += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmorDamage"      : tagmod.ArmorDamage       += unlockedBonus.Bonus; continue;
-                            case "Weapon_HP"               : tagmod.HitPoints         += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
-                            default                        : continue;
-                        }
-                    }                    
+                    UnlockOtherBonuses(empire, unlockedBonus);
+                    return;
                 }
-                UnlockOtherBonuses(empire, unlockedBonus);
+                foreach (string index in unlockedBonus.Tags)
+                {
+                    var tagmod = data.WeaponTags[index];
+                    switch (unlockedBonus.BonusType)
+                    {
+                        case "Weapon_Speed"            : tagmod.Speed             += unlockedBonus.Bonus; continue;
+                        case "Weapon_Damage"           : tagmod.Damage            += unlockedBonus.Bonus; continue;
+                        case "Weapon_ExplosionRadius"  : tagmod.ExplosionRadius   += unlockedBonus.Bonus; continue;
+                        case "Weapon_TurnSpeed"        : tagmod.Turn              += unlockedBonus.Bonus; continue;
+                        case "Weapon_Rate"             : tagmod.Rate              += unlockedBonus.Bonus; continue;
+                        case "Weapon_Range"            : tagmod.Range             += unlockedBonus.Bonus; continue;
+                        case "Weapon_ShieldDamage"     : tagmod.ShieldDamage      += unlockedBonus.Bonus; continue;
+                        case "Weapon_ArmorDamage"      : tagmod.ArmorDamage       += unlockedBonus.Bonus; continue;
+                        case "Weapon_HP"               : tagmod.HitPoints         += unlockedBonus.Bonus; continue;
+                        case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
+                        case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
+                        default                        : continue;
+                    }
+                }                    
             }
         }
 
