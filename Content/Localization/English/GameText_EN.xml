@@ -4700,6 +4700,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     
     <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
     <Token>
+      <Index>1999</Index>
+      <Text>Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons.</Text>
+    </Token>
+    <Token>
       <Index>2000</Index>
       <!-- planetname was destroyed by unknown forces-->
       <Text>was destroyed by unknown forces</Text>
@@ -4714,7 +4718,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2003</Index>
-      <Text>Plasma Ordnance provides a 25% greater explosive radius and 25% damage bonus to all of our Ordnance-based weapons.</Text>
+      <Text>Plasma Ordnance provides a 25% greater explosive radius to all of our Ordnance-based weapons.</Text>
     </Token>
     <Token>
       <Index>2004</Index>
