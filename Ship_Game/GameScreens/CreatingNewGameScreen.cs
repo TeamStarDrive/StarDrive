@@ -60,6 +60,8 @@ namespace Ship_Game
         private float PercentLoaded;
         private int systemToMake;
         //private float Zrotate;
+        public static float SetProjectorSize(float dataSizeX) => dataSizeX * .04f;
+        
 
         public CreatingNewGameScreen(Empire empire, string universeSize, 
                 float starNumModifier, string empireToRemoveName, 
@@ -113,8 +115,8 @@ namespace Ship_Game
             }
 
             NumSystems = (int)(size * starNumModifier);
-            if (size > 45)
-                Empire.ProjectorRadius = Data.Size.X / 70; // reduce projector radius??
+
+            Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(Data.Size.X);
             Log.Info("Empire.ProjectorRadius = {0}", Empire.ProjectorRadius);
 
             UniverseData.UniverseWidth = Data.Size.X * 2;
