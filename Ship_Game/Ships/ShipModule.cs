@@ -319,7 +319,7 @@ namespace Ship_Game.Ships
 
         private float ApplyResistances(Weapon weapon, float damagemodifier)
         {
-            /* Using else if since every weapon should be tagged with one of the top types of projectiles (Explosives, Kinetic, Beam, Energy, Missile or Torpedo.
+            /* Using else if since every weapon should be tagged with one of the top types of projectiles (Kinetic, Beam, Energy, Missile or Torpedo.
             all the rest simply doesnt matter and wastes time being called every time there is a hit. there is no need to make more methods of this since its rather a simple one.
             Modules will have one or more of the types of resist below.
              */
@@ -328,7 +328,7 @@ namespace Ship_Game.Ships
             else if (weapon.Tag_Energy) damagemodifier = damagemodifier * (1f - EnergyResist);
             else if (weapon.Tag_Missile) damagemodifier = damagemodifier * (1f - MissileResist);
             else if (weapon.Tag_Torpedo) damagemodifier = damagemodifier * (1f - TorpedoResist);
-            //else if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - KineticResist);
+            else if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - KineticResist);
             //else if (weapon.Tag_Guided) damagemodifier = damagemodifier * (1f - GuidedResist);
             //else if (weapon.Tag_Cannon) damagemodifier    = damagemodifier * (1f - CannonResist);
             //else if (weapon.Tag_Hybrid) damagemodifier    = damagemodifier * (1f - HybridResist);

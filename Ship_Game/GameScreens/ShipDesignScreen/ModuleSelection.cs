@@ -597,7 +597,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6158), (float)mod.SubspaceResist, 205, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6159), (float)mod.PDResist, 206, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208);
             DrawStat(ref modTitlePos, Localizer.Token(6175), (float)mod.DamageThreshold, 221);
             DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
             DrawStat(ref modTitlePos, Localizer.Token(6187), (float)mod.FixedTracking, 231);

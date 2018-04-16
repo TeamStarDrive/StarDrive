@@ -13,9 +13,11 @@
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Phased Ordnance</Name>
-      <BonusType>Kinetic Shield Penetration Chance Bonus</BonusType>
-      <Bonus>.25</Bonus>
-      <Description>see localization file</Description>
+      <BonusType>Weapon_ShieldPenetration</BonusType>
+      <Tags>
+        <string>Kinetic</string>
+      </Tags>
+      <Bonus>.2</Bonus>
       <BonusIndex>2009</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
