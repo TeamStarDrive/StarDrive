@@ -4718,15 +4718,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2004</Index>
-      <Text>Reactive Armor</Text>
+      <Text>Reinforced Components</Text>
     </Token>
     <Token>
       <Index>2005</Index>
-      <Text>Reactive armor employs a basic energy field to detect imminent impacts, triggering microexplosives contained in the armor that explode towards the incoming ordnance. This effectively weakens the incoming assault. </Text>
+      <Text>Integration of hardened ship components reduces the effectiveness of explosion damage.</Text>
     </Token>
     <Token>
       <Index>2006</Index>
-      <Text>All armors are now equipped with reactive systems, which reduces the effectiveness of explosive weapons by 25%.</Text>
+      <Text>All ship modules are now slightly reinforced. Reducing radius of explosions by 25%.</Text>
     </Token>
     <Token>
       <Index>2007</Index>

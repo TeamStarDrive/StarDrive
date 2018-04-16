@@ -157,7 +157,7 @@ namespace Ship_Game.Gameplay
             ParticleDelay  += Weapon.particleDelay;
 
             if (Owner?.loyalty.data.ArmorPiercingBonus > 0
-                && (Weapon.WeaponType == "Missile" || Weapon.WeaponType == "Ballistic Cannon"))
+                && (Weapon.Tag_Kinetic  || Weapon.Tag_Missile || Weapon.Tag_Torpedo))
             {
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
             }
@@ -498,7 +498,7 @@ namespace Ship_Game.Gameplay
                     continue;
                 if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
                 {
-                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                    ArmorPiercing -= impactModule.XSIZE; // armor is always squared anyway.
                     impactModule.DebugDamageCircle();
                     if (ArmorPiercing >= 0)
                     {
