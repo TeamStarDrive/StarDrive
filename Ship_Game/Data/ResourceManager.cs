@@ -1111,8 +1111,9 @@ namespace Ship_Game
                     {
                         string dirName     = info.Directory?.Name ?? "";
                         ShipData shipData  = ShipData.Parse(info);
-                        shipData.Hull      = String.Intern(dirName + "/" + shipData.Hull);
-                        shipData.ShipStyle = String.Intern(dirName);
+                        shipData.Hull      = dirName + "/" + shipData.Hull;
+                        shipData.ShipStyle = dirName;
+                        shipData.Role = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
                         shipData.SetHullData(shipData);
                         lock (retList)
                         {
