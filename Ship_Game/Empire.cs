@@ -749,7 +749,8 @@ namespace Ship_Game
         {
             var ourFactionShips = new Array<Ship>();
             foreach (var kv in ResourceManager.ShipsDict)
-                if (kv.Value.shipData.ShipStyle == data.Traits.ShipType)
+                if (kv.Value.shipData.ShipStyle == data.Traits.ShipType 
+                    || kv.Value.shipData.ShipStyle == "Platforms" || kv.Value.shipData.ShipStyle == "Misc")
                     ourFactionShips.Add(kv.Value);
             return ourFactionShips;
         }
