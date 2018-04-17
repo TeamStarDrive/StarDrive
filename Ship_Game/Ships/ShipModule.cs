@@ -676,7 +676,9 @@ namespace Ship_Game.Ships
 
         private void BeamRepulsionDamage(Beam beam)
         {
-            if (beam.Weapon.RepulsionDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
+            if ((beam?.Weapon?.RepulsionDamage ?? 0f) < 1) return;
+
+            if (!Parent.IsTethered() && !Parent.EnginesKnockedOut)
                 Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
         }
 
@@ -740,7 +742,8 @@ namespace Ship_Game.Ships
             Parent.ShieldRechargeTimer = 0f;
             var beam = source as Beam;
             Projectile proj = null;
-            if (beam == null) proj = source as Projectile;
+            if (beam == null)
+                proj = source as Projectile;
 
             if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
@@ -751,8 +754,11 @@ namespace Ship_Game.Ships
                 CalcBeamDamageTypes(beam);
 
                 if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0)) 
-                    return false; // Fat Batstard: I dont understand why this bit is needed
+                    return false; // Fat Batstard: I dont understand why this bit is needed.
+                /*CG: as i remember this is because its a shield module. if this does not return the shield module will be hit when
+                 a module it is shielding get hit. that was a long time ago though. it may be different now. 
 
+    */
                 DebugPerseveranceNoDamage();
                 Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
