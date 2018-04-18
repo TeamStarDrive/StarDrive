@@ -14,9 +14,11 @@
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Missile Armor</Name>
-      <BonusType>Missile HP Bonus</BonusType><!--pct of health-->
+      <BonusType>Weapon_HP</BonusType><!--pct of health-->
+      <Tags>
+        <string>Missile</string>
+      </Tags>	  
       <Bonus>0.25</Bonus>
-      <Description>Increases the hitpoints of missile-based weaponry by 25%.</Description>
       <BonusIndex>617</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
