@@ -559,11 +559,13 @@ namespace Ship_Game.Ships
         {
             if (source != null) Parent.LastDamagedBy = source;
             Parent.InCombatTimer = 15f;
-            Parent.ShieldRechargeTimer = 0f;
+            Parent.ShieldRechargeTimer = 0f; 
+
             var beam = source as Beam;
-            Projectile proj = null;
+            Projectile proj = null; 
             if (beam == null)
                 proj = source as Projectile;
+
             DamageModifier = CalcDamageModifier(proj, beam, ShieldPower, internalexplosion);
             if (ShieldPower < 1f || proj?.IgnoresShields == true)
             {
@@ -571,9 +573,9 @@ namespace Ship_Game.Ships
                 damageAmount  = CalcDamageThreshold(proj, damageAmount);
                 CalcEMPDamage(proj);
                 CalcBeamDamageTypes(beam);
-
-                if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0)) 
-                    return; // Fat Batstard: I dont understand why this bit is needed.
+                
+                //if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0)) 
+                //    return; // Fat Batstard: I dont understand why this bit is needed.
                 /*CG: as i remember this is because its a shield module. if this does not return the shield module will be hit when
                  a module it is shielding get hit. that was a long time ago though. it may be different now.     */
 
@@ -598,38 +600,35 @@ namespace Ship_Game.Ships
         private float CalcDamageModifier(Projectile proj, Beam beam, float shieldpower, bool internalexplosion = false)
         {
             float damagemodifier = 1f;
+            Weapon weapon = beam?.Weapon ?? proj?.Weapon;
 
             // check for the projectiles effects vs shields or armor
             if (shieldpower >= 1f)
             {
-                damagemodifier = CalcEffectVsShields(damagemodifier, beam, proj);
-                // Vulnerabilities and resistances for shields, XML-defined. what about beams?
-                if (proj != null) damagemodifier = ApplyShieldResistances(proj.Weapon, damagemodifier);
-                else if (beam != null) damagemodifier = ApplyShieldResistances(beam.Weapon, damagemodifier);
+                damagemodifier = CalcEffectVsShields(damagemodifier, weapon);
+                if (weapon != null) damagemodifier = ApplyShieldResistances(weapon, damagemodifier);
             }
             else
             {
-                damagemodifier = CalcEffectVsArmor(damagemodifier, beam, proj);
+                damagemodifier = CalcEffectVsArmor(damagemodifier, weapon);
                 damagemodifier = CalcArmorBonus(damagemodifier);
-                // Vulnerabilities and resistances for modules, XML-defined. what about beams?
-                if (proj != null) damagemodifier = ApplyResistances(proj.Weapon, damagemodifier, internalexplosion);
-                else if (beam != null) damagemodifier = ApplyResistances(beam.Weapon, damagemodifier, internalexplosion);
+                if (weapon != null) damagemodifier = ApplyResistances(proj.Weapon, damagemodifier, internalexplosion);
             }
             return damagemodifier;
         }
 
-        private float CalcEffectVsArmor(float damagemodifier, Beam beam, Projectile proj)
+        private float CalcEffectVsArmor(float damagemodifier, Weapon weapon)
         {
                
             if (ModuleType != ShipModuleType.Armor) return damagemodifier;
-            float effectVsArmor = beam?.Weapon.EffectVsArmor ?? proj?.Weapon.EffectVsArmor ?? 1;
+            float effectVsArmor = weapon?.EffectVsArmor ?? 1;
             return damagemodifier * effectVsArmor;
         }
 
-        private float CalcEffectVsShields(float damagemodifier, Beam beam, Projectile proj)
+        private float CalcEffectVsShields(float damagemodifier, Weapon weapon)
         {
 
-            float effectVsShields = beam?.Weapon.EffectVSShields ?? proj?.Weapon.EffectVSShields ?? 1;
+            float effectVsShields = weapon?.EffectVSShields ?? 1;
             return damagemodifier * effectVsShields;
         }
 
