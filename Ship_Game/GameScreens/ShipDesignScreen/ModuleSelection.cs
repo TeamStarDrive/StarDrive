@@ -700,7 +700,7 @@ namespace Ship_Game
             //if (w.EffectVSShields != 1f)
                 DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
             //if (w.ShieldPenChance > 0)
-                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance, 181);            
+                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);            
                 DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
 
             if (w.TruePD)
