@@ -120,13 +120,8 @@ namespace Ship_Game
                     if (slot.Module != HoveredModule )
                     {
                         if(!Input.LeftMouseHeld() ||!Input.IsAltKeyDown || slot.Module.ModuleType != ShipModuleType.Turret
-                                || slot.Module.Facing != HighlightedModule.Facing)
-
-                        {
+                                ||   (HighlightedModule?.Facing.AlmostEqual(slot.Module.Facing) ?? false))                        
                             continue;
-                            
-                        }
-                        
                     }
                     spriteBatch.DrawRectangle(slot.ModuleRect, Color.White, 2f);
                 }
