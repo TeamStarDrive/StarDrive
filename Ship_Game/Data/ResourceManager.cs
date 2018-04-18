@@ -92,6 +92,13 @@ namespace Ship_Game
             return technology;
         }
 
+        public static ExplorationEvent Event(string eventName, string defaultEvent = "default")
+        {
+            if (EventsDict.TryGetValue(eventName, out ExplorationEvent events)) return events;
+            Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
+            return EventsDict["default"];
+        }
+
         public static void MarkShipDesignsUnlockable()
         {
             var shipTechs = new Map<Technology, Array<string>>();
@@ -493,7 +500,12 @@ namespace Ship_Game
         }
 
         public static float GetTroopCost(string troopType) => TroopsDict[troopType].GetCost();
-        public static Troop GetTroopTemplate(string troopType) =>TroopsDict[troopType];
+        public static Troop GetTroopTemplate(string troopType)
+        {
+            if (TroopsDict.TryGetValue(troopType, out Troop troopO)) return troopO;
+            Log.WarningWithCallStack($"Troop {troopType} Template Not found");
+            return TroopsDict.First().Value;
+        }
         public static Array<Troop> GetTroopTemplates() => new Array<Troop>(TroopsDict.Values);
 
         public static Troop CopyTroop(Troop t)
@@ -827,7 +839,7 @@ namespace Ship_Game
             if (LastFailedTexture != texturePath)
             {
                 LastFailedTexture = texturePath;
-                Log.Warning($"texture path not found: {texturePath} replaces with NewUI / x_red");
+                Log.WarningWithCallStack($"texture path not found: {texturePath} replaces with NewUI / x_red");
             }            
             return TextureDict[defaultTex];
         }

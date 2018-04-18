@@ -117,7 +117,22 @@ namespace Ship_Game
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
         }
-        
+
+        public static void WarningWithCallStack(string warning)
+        {
+            var t = new StackTrace();
+
+            string text = $"Warning:  {warning}\n{t}";
+            LogFile.WriteLine(text);
+            LogFile.Flush();
+            if (!HasDebugger)
+            {
+                return;
+            }
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(text);
+        }
+
         public static bool TestMessage(string testMessage, Importance importance = Importance.None, bool waitForEnter = false , bool waitForYes = false)
         {
             string text = "TestMsg: " + testMessage;

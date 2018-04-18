@@ -58,10 +58,10 @@ namespace Ship_Game.AI
             }
             return str / count;
         }
-        public Planet AssignIdleShips(Ship ship)
-        {
-            return DefenseDict[ship.AI.SystemToDefend].AssignIdleDuties(ship);
-        }
+        public Planet AssignIdleShips(Ship ship) => DefenseDict.TryGetValue(ship.AI.SystemToDefend, out SystemCommander systemCommander) 
+                ? systemCommander.AssignIdleDuties(ship) 
+                : DefenseDict.First().Value.AssignIdleDuties(ship);
+        
         public void Remove(Ship ship)
         {
             SolarSystem systoDefend = ship.AI.SystemToDefend;

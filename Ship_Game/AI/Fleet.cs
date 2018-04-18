@@ -74,6 +74,11 @@ namespace Ship_Game.AI
 
         public void AddShip(Ship shiptoadd, bool updateOnly)
         {
+            if (shiptoadd == null)
+            {
+                Log.WarningWithCallStack($"Ship Was Null for {Name}");
+                return;
+            }
             HasRepair = HasRepair || shiptoadd.hasRepairBeam || (shiptoadd.HasRepairModule && shiptoadd.Ordinance > 0);
             if (updateOnly && Ships.Contains(shiptoadd)) return;
             if (shiptoadd.fleet != null || Ships.Contains(shiptoadd))
